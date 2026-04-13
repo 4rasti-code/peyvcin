@@ -179,6 +179,18 @@ export default function App() {
   const [wordFeverResultType, setWordFeverResultType] = useState('win');
   const [isAppReady, setIsAppReady] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+
+  // MANDATORY AUTHENTICATION ENFORCEMENT
+  useEffect(() => {
+    if (!isGameLoading) {
+      if (!user) {
+        setCurrentView('auth');
+      } else if (currentView === 'auth') {
+        setCurrentView('lobby');
+      }
+    }
+  }, [user, isGameLoading, currentView]);
+
   const [lastProfileUpdate, setLastProfileUpdate] = useState(Date.now());
   const [activeChatPartner, setActiveChatPartner] = useState(null);
   const [initialSocialTab, setInitialSocialTab] = useState(null);
@@ -326,31 +338,60 @@ export default function App() {
   };
 
   const handleProfileSave = async (profileData) => {
+    if (!user || !user.id) {
+      console.error("Save attempted without user session");
+      alert('تکایە پێشێ وەرە ژوور (Login)');
+      return;
+    }
+
     try {
       const result = await updateProfile({
         nickname: profileData.nickname,
-        avatar_url: profileData.avatar,
+        avatar_url: profileData.avatar_url,
         country_code: profileData.countryCode,
         is_kurdistan: profileData.isInKurdistan
       });
 
       if (result?.success) {
         setLastProfileUpdate(Date.now());
-        if (refreshRank) refreshRank();
-        setMessage('پڕۆفایل ب سەرکەفتوویی هاتە نووکرن!');
-        setTimeout(() => setMessage(''), 3000);
-      } else if (result?.error?.code === '23505') {
-        setMessage('ئەڤ ناڤە یێ هاتییە بکارئینان، تاقی بکە ناڤەکێ دی بنڤیسی');
-        setIsShaking(true);
-        setTimeout(() => { setIsShaking(false); setMessage(''); }, 4000);
+        
+        // Success Sound & Vibration
+        if (typeof playSound === 'function') playSound('victory');
+        if (window.navigator?.vibrate) window.navigator.vibrate(50);
+
+        // Safe call for refreshRank (ensuring it exists)
+        try {
+          if (typeof refreshRank === 'function') refreshRank();
+        } catch (e) { console.warn("Rank refresh failed but profile is saved", e); }
+        
+        alert('پڕۆفایل ب سەرکەفتی هاتە پاراستن!');
       } else {
-        setMessage('خەلەتییەک هەبوو، دووبارە تاقی بکە');
-        setTimeout(() => setMessage(''), 3000);
+        const errCode = result.error?.code;
+        const errMsg = result.error?.message || 'Update failed';
+        if (errCode === '23505') {
+          alert('ئەڤ ناڤە یێ هاتییە بکارئینان، تاقی بکە ناڤەکێ دی بنڤیسی');
+        } else {
+          alert(`خەلەتی: ${errMsg}`);
+        }
       }
     } catch (err) {
       console.error("Critical handleProfileSave error:", err);
+      alert("ئاریشەیەک د گەهشتنا داتابەیسێ دا هەبوو");
     }
   };
+
+  // Safe Audio Trigger for Game Start
+  useEffect(() => {
+    if (currentView === 'game') {
+      try {
+        if (typeof playSound === 'function') {
+          playSound('start');
+        }
+      } catch (e) {
+        console.warn("Start sound trigger failed", e);
+      }
+    }
+  }, [currentView]);
 
   const handleOpenChat = (player) => {
     setActiveChatPartner(player);
@@ -827,13 +868,13 @@ export default function App() {
 
       {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
       <main className={`flex-1 ${currentView === 'game' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
-        {currentView === 'auth' && <AuthView onAuthSuccess={(u, nicknameHint) => {
+        {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
           setUser(u);
           if (nicknameHint) {
-            updateProfile({ nickname: nicknameHint });
+            await updateProfile({ nickname: nicknameHint });
           }
-          // Delay view change slightly to ensure state propagation
-          setTimeout(() => setCurrentView('lobby'), 100);
+          // Small delay to allow state sync before navigating to lobby
+          setTimeout(() => setCurrentView('lobby'), 300);
         }} />}
 
         {currentView === 'lobby' && (

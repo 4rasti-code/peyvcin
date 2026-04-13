@@ -129,20 +129,33 @@ export default function ProfileView({
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
          if (pendingFile) {
-            const fileExt = pendingFile.name.split('.').pop();
-            const userIdToUse = user?.id || `guest-${Math.random().toString(36).substring(7)}`;
-            const fileName = `${userIdToUse}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-            const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, pendingFile);
-            if (uploadError) throw uploadError;
-            const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
-            finalAvatar = publicUrl;
+            try {
+               const fileExt = pendingFile.name.split('.').pop();
+               const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
+               
+               const { data, error: uploadError } = await supabase.storage
+                  .from('avatars')
+                  .upload(fileName, pendingFile);
+
+               if (uploadError) {
+                  console.warn("Avatar upload failed, but continuing with nickname:", uploadError);
+                  alert("وێنە بار نەبوو (تکایە دڵنیابە Bucket: avatars یێ Public هەیە)، بەس دێ ناڤێ تە سەیڤ کەین.");
+               } else {
+                  const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+                  finalAvatar = publicUrl;
+               }
+            } catch (upErr) {
+               console.error("Upload process error:", upErr);
+            }
          }
-         await onProfileSave({
+
+         const saveResult = await onProfileSave({
             nickname: draftNickname,
-            avatar: finalAvatar,
+            avatar_url: finalAvatar,
             countryCode: draftCountryCode,
             isInKurdistan: draftIsInKurdistan
          });
+         
          setSaveSuccess(true);
          setIsNicknameLocked(true);
          setPendingFile(null);
@@ -151,9 +164,9 @@ export default function ProfileView({
          setTimeout(() => setSaveSuccess(false), 2000);
       } catch (err) {
          console.error("Save failed:", err);
-         alert("هەرەکیشەک د خەزنکرنێ دا هەبوو");
+         alert(`خەلەتی د سەیڤکرنێ دا: ${err.message || 'Error'}`);
       } finally {
-         setTimeout(() => setIsUploading(false), 1000);
+         setIsUploading(false);
       }
    };
 

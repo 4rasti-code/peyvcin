@@ -444,10 +444,14 @@ export const GameProvider = ({ children }) => {
 
     // Map internal names to DB column names (Direct Columns)
     const dbUpdates = {};
-    if (profileData.nickname !== undefined) dbUpdates.nickname = profileData.nickname;
+    if (profileData.nickname !== undefined) {
+      const cleanNickname = profileData.nickname.trim();
+      dbUpdates.nickname = cleanNickname;
+      setUserNickname(cleanNickname);
+    }
     if (profileData.avatar_url !== undefined) dbUpdates.avatar_url = profileData.avatar_url;
     if (profileData.city !== undefined) dbUpdates.city = profileData.city;
-    if (profileData.isInKurdistan !== undefined) dbUpdates.is_kurdistan = profileData.isInKurdistan;
+    if (profileData.is_kurdistan !== undefined) dbUpdates.is_kurdistan = profileData.is_kurdistan;
     if (profileData.country_code !== undefined) dbUpdates.country_code = profileData.country_code;
     if (profileData.app_sounds_enabled !== undefined) dbUpdates.app_sounds_enabled = profileData.app_sounds_enabled;
     if (profileData.haptic_enabled !== undefined) dbUpdates.haptic_enabled = profileData.haptic_enabled;
@@ -470,11 +474,14 @@ export const GameProvider = ({ children }) => {
     dbUpdates.updated_at = new Date().toISOString();
 
     try {
-      const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({ id: user.id, ...dbUpdates }, { onConflict: 'id' });
+      
       if (error) throw error;
       return { success: true };
     } catch (err) {
-      console.error("Profile Update Failed:", err);
+      console.error("Profile Sync Error:", err);
       return { success: false, error: err };
     }
   };
