@@ -1,0 +1,272 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+
+const KurdistanFlag = () => (
+  <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
+    <path fill="#ed2024" d="M0 0h512v113.8H0z"/>
+    <path fill="#fff" d="M0 113.8h512v113.4H0z"/>
+    <path fill="#278e3c" d="M0 227.2h512v113.8H0z"/>
+    <g transform="translate(256 170.5)">
+      <circle fill="#f8e71c" r="54"/>
+      {Array.from({ length: 21 }).map((_, i) => (
+        <path 
+          key={i}
+          fill="#f8e71c" 
+          d="M0-65L6-45h-12z" 
+          transform={`rotate(${(i * 360) / 21})`}
+        />
+      ))}
+      <circle fill="#f8e71c" r="22"/>
+    </g>
+  </svg>
+);
+
+const USFlag = () => (
+  <svg viewBox="0 0 741 390" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
+    <path fill="#fff" d="M0 0h741v390H0z"/>
+    <path d="M0 0h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0z" fill="#b22234"/>
+    <path d="M0 0h296.4v210H0z" fill="#3c3b6e"/>
+    <g fill="#fff">
+      {Array.from({ length: 50 }).map((_, i) => (
+        <path 
+          key={i}
+          d="M0-11l3 9h9l-7 5l3 9l-8-6l-8 6l3-9l-7-5h9z" 
+          transform={`translate(${16.5 + (i % 6) * 49.4 + (Math.floor(i / 11) % 2 ? 0 : 0)}, ${14 + (Math.floor(i / 11)) * 21}) scale(0.6)`}
+        />
+      ))}
+    </g>
+  </svg>
+);
+
+const TermsOfService = () => {
+    const [lang, setLang] = useState('en'); // 'en' or 'ku'
+    const navigate = useNavigate();
+
+    const content = {
+        en: {
+            title: "Terms of Service",
+            subtitle: "Last Updated: April 2, 2026",
+            intro: "Welcome to پەیڤچن. By accessing or using our application, you agree to be bound by these Terms of Service. Please read them carefully.",
+            sections: [
+                {
+                    title: "1. Acceptance of Terms",
+                    text: "By creating an account or using any part of the پەیڤچن platform, you confirm that you have read, understood, and agreed to these terms. If you do not agree, you must not use our services."
+                },
+                {
+                    title: "2. License to Use",
+                    text: "We grant you a non-exclusive, non-transferable, revocable license to use پەیڤچن for personal, non-commercial entertainment purposes only.",
+                    list: [
+                        "You may not reverse engineer or modify the game files.",
+                        "Commercial use of our logos and assets is strictly prohibited."
+                    ]
+                },
+                {
+                    title: "3. User Accounts",
+                    text: "You are responsible for maintaining the confidentiality of your login credentials (via Facebook or Google).",
+                    list: [
+                        "You are responsible for all activities occurring under your account.",
+                        "Notify us immediately of any unauthorized access."
+                    ]
+                },
+                {
+                    title: "4. Intellectual Property",
+                    text: "All content within پەیڤچن, including logos, graphics, word lists, and software, is the exclusive property of پەیڤچن and its creators, protected by international copyright laws."
+                },
+                {
+                    title: "5. Prohibited Conduct",
+                    text: "To maintain a fair gaming environment, users are prohibited from:",
+                    list: [
+                        "Using cheats, hacks, or automation software.",
+                        "Harassing other players or using offensive language in profiles.",
+                        "Attempting to disrupt our technical infrastructure."
+                    ]
+                },
+                {
+                    title: "6. Limitation of Liability",
+                    text: "پەیڤچن provides its services 'as is'. We are not responsible for technical glitches, data loss, or server downtime. Our total liability shall not exceed the amount you paid to use the service (if any)."
+                },
+                {
+                    title: "7. Changes to Terms",
+                    text: "We reserve the right to modify these terms at any time. We will notify you of major changes through the application.",
+                    email: "support@peyvchin.com"
+                }
+            ]
+        },
+        ku: {
+            title: "مەرجێن بکارئینانێ",
+            subtitle: "دووماهیک نویژەنکرن: ٢ نیسان، ٢٠٢٦",
+            intro: "بخێر بێی بۆ پەیڤچن. ب چوونە ژوور یان بکارئینانا ڤێ یاریێ، تو ڕازی دبی کو پابەندی ڤان مەرج و ڕێسایان بی. هیڤییە ب هووری بخوینە.",
+            sections: [
+                {
+                    title: "١. قەبوولکرنا مەرجان",
+                    text: "ب دروستکرنا ئەکاونتی یان بکارئینانا هەر پشکەکا پەیڤچن، تو پشتڕاست دکەی کو تە ئەڤ مەرجە خواندینە، تێگەهشتی، و پێ ڕازی بی. ئەگەر تو پێ ڕازی نەبی، نادروستە خزمەتگوزاریێن مە بکاربینی."
+                },
+                {
+                    title: "٢. مۆڵەتا بکارهێنەران",
+                    text: "ئەم مۆڵەتەکا نە-تایبەت و سنووردار ددەینە تە کو پەیڤچن بکاربینی ب تنێ بۆ مەبەستێن کەسی و نەک بۆ کارێن بازرگانی.",
+                    list: [
+                        "تو نیشێی فایلێن یاریێ کۆپی بکەی یان دەستکاری بکەی.",
+                        "بکارئینانا بازرگانی ژ لۆگۆ و ناڤ و نیشانێن یاریێ قەدەغەیە بێی ڕێپێدان."
+                    ]
+                },
+                {
+                    title: "٣. بەرپرسیاریا ئەکاونتی",
+                    text: "تو بەرپرسیاری ژ پاراستنا نهێنیا پێزانینێن چوونە ژوور (فەیسبووک/گووگڵ).",
+                    list: [
+                        "هەمی چالاکیێن د ناڤ ئەکاونتێ تە دا دهێنە کرن، تو بەرپرسیاری ژێ.",
+                        "هەکە تە هەست ب هەر فێلبازیەکێ کر د ئەکاونتێ خۆ دا، زوو مە ئاگەهدار بکە."
+                    ]
+                },
+                {
+                    title: "٤. مافێن خاوەنداریێ",
+                    text: "هەمی ناڤەرۆکا پەیڤچن، ژ لۆگۆ، گرافیک، لیستێن پەیڤان، و پڕۆگرامان، مافێ تایبەت یێ پەیڤچن و خودانانە و ژ لایێ یاسا نێڤدەولەتیڤە پاراستیە."
+                },
+                {
+                    title: "٥. کارێن قەدەغەکری",
+                    text: "بۆ پاراستنا ژینگەکا دادپەروەر د یاریێدا، بۆ بەکارهێنەران قەدەغەیە:",
+                    list: [
+                        "بکارئینانا هاک و پڕۆگرامێن فێلبازیێ بۆ سەرکەفتنێ.",
+                        "تەنگاڤکرنا یاریزانێن دی یان بکارئینانا پەیڤێن نەجوان د ناڤ و پڕۆفایلاندا.",
+                        "هەولدان بۆ تێکدان یان هێرشێن تەکنیکی بۆ سەر یاریێ."
+                    ]
+                },
+                {
+                    title: "٦. سنووردارکرنا بەرپرسیاریێ",
+                    text: "پەیڤچن خزمەتگوزاریێن خۆ پێشکێش دکەت ب ڤی ڕەنگی یێ هەی. ئەم بەرپرس نینین ژ چو کێشێن تەکنیکی، ژ دەستچوونا داتایان، یان ڕاگرتنا سێرڤەران."
+                },
+                {
+                    title: "٧. گوهۆڕینا مەرجان",
+                    text: "مە ماف هەیە ل هەر دەمەکی ڤان مەرجان بگوهۆڕین. ئەم دێ تە ژ گوهۆڕینێن مەزن ئاگەهدار کەین.",
+                    email: "support@peyvchin.com"
+                }
+            ]
+        }
+    };
+
+    const current = content[lang];
+    const isRTL = lang === 'ku';
+
+    return (
+        <div className="min-h-screen bg-[#050510] text-[#E0E0E0] selection:bg-primary/30 selection:text-white font-body p-6 sm:p-12" dir={isRTL ? 'rtl' : 'ltr'}>
+            <div className="fixed inset-0 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[150px] rounded-full animate-pulse-slow"></div>
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[150px] rounded-full"></div>
+            </div>
+
+            <div className="max-w-4xl mx-auto relative">
+                <div className="flex flex-col sm:flex-row items-center justify-between mb-16 gap-8">
+                    <div className="flex items-center gap-6 group cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="w-16 h-16 rounded-lg bg-linear-to-br from-primary to-primary-container p-0.5 shadow-xl transition-all group-hover:scale-105 active:scale-95 shadow-primary/20">
+                            <div className="w-full h-full bg-[#0F0F1A] rounded-[1.4rem] flex items-center justify-center overflow-hidden">
+                                <span className="text-3xl font-bold font-ui text-primary">P</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="text-4xl font-bold font-ui tracking-tight text-white mb-1">پەیڤچن</h1>
+                            <p className="text-text-dim/60 text-xs font-bold uppercase tracking-[0.2em]">Heritage Reborn</p>
+                        </div>
+                    </div>
+
+                    <div className="flex bg-[#12121A]/80 backdrop-blur-xl border border-white/5 rounded-2xl p-1.5 shadow-2xl">
+                        <button 
+                            onClick={() => setLang('ku')}
+                            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl transition-all duration-300 font-bold text-sm ${lang === 'ku' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-white/40 hover:text-white/70'}`}
+                        >
+                            <div className="w-5 h-3.5 rounded-[2px] overflow-hidden shadow-sm">
+                                <KurdistanFlag />
+                            </div>
+                            <span>بادینی</span>
+                        </button>
+                        <button 
+                            onClick={() => setLang('en')}
+                            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl transition-all duration-300 font-bold text-sm ${lang === 'en' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-white/40 hover:text-white/70'}`}
+                        >
+                            <div className="w-5 h-3.5 rounded-[2px] overflow-hidden shadow-sm">
+                                <USFlag />
+                            </div>
+                            <span>English</span>
+                        </button>
+                    </div>
+                </div>
+
+                <motion.div 
+                    key={lang}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-[#12121A]/50 backdrop-blur-2xl border border-white/5 rounded-3xl p-10 sm:p-20 shadow-[0_20px_80px_rgba(0,0,0,0.4)] relative"
+                >
+                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
+
+                    <header className="mb-16 text-center sm:text-start">
+                        <h2 className="text-4xl sm:text-5xl font-bold font-ui text-white mb-4 leading-tight">{current.title}</h2>
+                        <span className="text-primary/70 font-bold text-sm tracking-wide bg-primary/10 px-4 py-2 rounded-full border border-primary/20">{current.subtitle}</span>
+                    </header>
+
+                    <p className="text-xl text-white/70 mb-16 leading-relaxed font-medium italic border-r-4 border-primary pr-6">
+                        {current.intro}
+                    </p>
+
+                    <div className="space-y-16">
+                        {current.sections.map((section, idx) => (
+                            <section key={idx} className="relative">
+                                <h3 className="text-2xl font-bold font-ui text-white mb-6 flex items-center gap-4">
+                                    <span className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-sm">{idx + 1}</span>
+                                    {section.title}
+                                </h3>
+                                <p className="text-white/60 leading-relaxed text-lg mb-6">{section.text}</p>
+                                {section.list && (
+                                    <ul className="space-y-4 pr-12">
+                                        {section.list.map((item, i) => (
+                                            <li key={i} className="flex items-start gap-4 text-white/50 group">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 transition-transform group-hover:scale-150"></div>
+                                                <span className="flex-1">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                {section.email && (
+                                    <a href={`mailto:${section.email}`} className="inline-block mt-4 text-primary font-bold font-ui text-xl hover:text-white transition-colors border-b-2 border-primary/20 pb-1">
+                                        {section.email}
+                                    </a>
+                                )}
+                            </section>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* Footer */}
+                <div className="mt-16 text-center space-y-8">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-white/30 font-bold text-xs uppercase tracking-widest">
+                        <button onClick={() => navigate('/terms-of-service')} className="text-primary hover:text-white transition-colors">Terms of Service</button>
+                        <span className="w-1 h-1 rounded-full bg-white/10"></span>
+                        <button onClick={() => navigate('/privacy-policy')} className="hover:text-primary transition-colors">Privacy Policy</button>
+                        <span className="w-1 h-1 rounded-full bg-white/10"></span>
+                        <button onClick={() => navigate('/data-deletion')} className="hover:text-primary transition-colors">Data Deletion</button>
+                    </div>
+                    
+                    <button 
+                        onClick={() => navigate('/')}
+                        className="text-white/30 hover:text-primary transition-all font-bold text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-2 mx-auto pt-4"
+                    >
+                        <span className="material-symbols-outlined text-sm">arrow_back</span>
+                        Back to پەیڤچن
+                    </button>
+                    <p className="mt-8 text-[10px] text-white/10 uppercase font-bold font-ui tracking-widest italic">&copy; 2026 پەیڤچن App. All Rights Reserved.</p>
+                </div>
+            </div>
+
+            <style>{`
+                .animate-pulse-slow {
+                    animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 0.3; transform: scale(1); }
+                    50% { opacity: 0.15; transform: scale(1.1); }
+                }
+            `}</style>
+        </div>
+    );
+};
+
+export default TermsOfService;

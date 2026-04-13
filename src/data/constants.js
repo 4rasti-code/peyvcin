@@ -1,0 +1,6 @@
+export const STATUS = {
+  CORRECT: 'CORRECT',
+  WRONG_POS: 'WRONG_POS',
+  INCORRECT: 'INCORRECT',
+  NONE: 'NONE'
+};

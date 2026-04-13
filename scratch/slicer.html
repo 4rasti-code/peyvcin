@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ghost Slicer</title>
+</head>
+<body>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="results"></div>
+    <script>
+        const IMG_URL = 'http://localhost:3000/assets/missions/media__1775944794025.png'; // Assuming I move it there or use direct file path
+        // Wait, browser can't load local file easily due to CORS. I'll ask subagent to open the image and I'll inject script.
+        
+        async function sliceImage(img, count) {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            const sliceWidth = Math.floor(img.width / count);
+            const height = img.height;
+            canvas.width = sliceWidth;
+            canvas.height = height;
+            
+            const names = ['book_stone', 'book_alchemist', 'book_lava', 'book_mystic'];
+            for (let i = 0; i < count; i++) {
+                ctx.clearRect(0, 0, sliceWidth, height);
+                ctx.drawImage(img, i * sliceWidth, 0, sliceWidth, height, 0, 0, sliceWidth, height);
+                
+                // Chroma-Key #DCDFE3
+                const imageData = ctx.getImageData(0, 0, sliceWidth, height);
+                const data = imageData.data;
+                const targetR = 0xDC, targetG = 0xDF, targetB = 0xE3;
+                const tolerance = 25;
+                
+                for (let j = 0; j < data.length; j += 4) {
+                    const r = data[j], g = data[j+1], b = data[j+2];
+                    if (Math.abs(r - targetR) < tolerance && 
+                        Math.abs(g - targetG) < tolerance && 
+                        Math.abs(b - targetB) < tolerance) {
+                        data[j+3] = 0; // Transparent
+                    }
+                }
+                ctx.putImageData(imageData, 0, 0);
+                
+                const base64 = canvas.toDataURL('image/png');
+                const p = document.createElement('p');
+                p.id = names[i];
+                p.textContent = base64;
+                document.getElementById('results').appendChild(p);
+            }
+            console.log("SLICING_COMPLETE");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { triggerHaptic } from '../utils/haptics';
+import { FilsIcon } from './CurrencyIcon';
+import { useState } from 'react';
+
+const AnimatedNumber = ({ value, prefix = "" }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  
+  useEffect(() => {
+    let start = 0;
+    const end = parseInt(value) || 0;
+    const duration = 1500; // 1.5s
+    const startTime = performance.now();
+
+    const update = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease out expo
+      const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      
+      setDisplayValue(Math.floor(start + (end - start) * easeProgress));
+
+      if (progress < 1) {
+        requestAnimationFrame(update);
+      }
+    };
+
+    requestAnimationFrame(update);
+  }, [value]);
+
+  return <span>{prefix}{displayValue}</span>;
+};
+
+const DefeatOverlay = ({ 
+  isVisible, 
+  solvedWord, 
+  onRetry, 
+  onHome,
+  breakdown
+}) => {
+  useEffect(() => {
+    if (isVisible) {
+      triggerHaptic(200);
+    }
+  }, [isVisible]);
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#0f0f0f]/90 backdrop-blur-2xl p-6"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="w-full max-w-md bg-[#1a1a1a] border-2 border-red-500/30 rounded-[3.5rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center gap-8"
+          >
+            {/* Status Icon Hub */}
+            <div className="relative flex flex-col items-center">
+              <motion.div 
+                initial={{ scale: 0.5, rotate: -15 }}
+                animate={{ scale: 1, rotate: 0 }}
+                className="w-32 h-32 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 bg-gradient-to-br from-red-500/20 to-orange-600/20 text-red-500 border border-red-500/30 ring-8 ring-red-500/5"
+              >
+                <span className="material-symbols-outlined text-[72px] drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                  heart_broken
+                </span>
+              </motion.div>
+              <div className="absolute inset-0 rounded-full blur-[60px] opacity-40 -z-10 bg-red-500" />
+            </div>
+
+            {/* Message Area */}
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl font-black font-heading text-red-500">
+                 تو سەرنەکەڤتی!
+              </h2>
+              <p className="text-lg font-bold font-body text-white/60 leading-relaxed px-4">
+                بی هێڤی نەبە، دێ جارەکا دی پیکۆلێ کەین و سەرکەڤین!
+              </p>
+
+              {/* Stats & Penalties Table */}
+              <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-3xl border border-red-500/10 shadow-inner">
+                <div className="flex justify-between items-center text-sm font-black font-ui group/row">
+                  <span className="text-white/80 transition-colors group-hover/row:text-white">سزایێ دۆڕاندنێ</span>
+                  <div className="flex items-center gap-2 text-red-400">
+                    <AnimatedNumber value={breakdown?.base || 0} prefix="-" />
+                    <FilsIcon size={12} className="opacity-80" />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-sm font-black font-ui group/row">
+                  <span className="text-white/80 transition-colors group-hover/row:text-white">سزایێ شاشیان</span>
+                  <div className="flex items-center gap-2 text-red-500">
+                    <AnimatedNumber value={breakdown?.mistakes || 0} prefix="-" />
+                    <FilsIcon size={12} className="opacity-80" />
+                  </div>
+                </div>
+                <div className="h-px bg-white/5 my-2" />
+                <div className="flex justify-between items-center text-lg font-black font-rabar">
+                  <span className="text-white">سەرجەم</span>
+                  <div className="flex items-center gap-2 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+                    <AnimatedNumber value={breakdown?.total || 0} prefix="-" />
+                    <FilsIcon size={18} />
+                  </div>
+                </div>
+                {breakdown?.total === 0 && (
+                   <div className="mt-2 text-[9px] font-bold text-blue-400 opacity-60 italic">
+                     🛡️ پاراستنا بانکڕۆتیێ کار دکەت
+                   </div>
+                )}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="w-full flex flex-col gap-3">
+              <button 
+                onClick={() => { triggerHaptic(10); onRetry(); }}
+                className="w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white py-5 rounded-3xl font-black font-ui text-xl shadow-[0_20px_40px_rgba(239,68,68,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <span className="material-symbols-outlined">restart_alt</span>
+                بەردەوام بە
+              </button>
+
+              <button 
+                onClick={() => { triggerHaptic(10); onHome(); }}
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold font-ui text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <span className="material-symbols-outlined">home</span>
+                ڤەگەڕیان
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default DefeatOverlay;

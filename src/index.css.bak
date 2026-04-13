@@ -1,0 +1,864 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;900&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+@import "tailwindcss";
+
+/* 
+  Kurdish Heritage Typography: Rabar Unicode 
+  Primary testing font for cultural indexing and aesthetics 
+*/
+@font-face {
+    font-family: 'Rabar_013'; /* Bold/Heavy */
+    src: url('./assets/fonts/Rabar_013.woff') format('woff'),
+         url('./assets/fonts/Rabar_013.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rabar_014'; /* Medium/Clean */
+    src: url('./assets/fonts/Rabar_014.woff') format('woff'),
+         url('./assets/fonts/Rabar_014.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rabar_015'; /* Sharp/Modern */
+    src: url('./assets/fonts/Rabar_015.woff') format('woff'),
+         url('./assets/fonts/Rabar_015.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Rabar_029';
+    src: url('./assets/fonts/Rabar_029.woff') format('woff'),
+         url('./assets/fonts/Rabar_029.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+  --font-heading: 'Rabar_013', sans-serif;
+  --font-body: 'Rabar_014', sans-serif;
+  --font-ui: 'Rabar_015', sans-serif;
+  --font-fallback: 'Inter', sans-serif;
+
+  --color-primary: #d9a441;
+  --color-on-primary: #000000;
+  --color-secondary: #d9a441;
+  --color-background: #0a0f1b;
+  --color-surface: #111827;
+  --color-on-surface: #f8fafc;
+  --color-outline: rgba(255, 255, 255, 0.1);
+  --color-text-dim: #94a3b8;
+}
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-on-primary: var(--color-on-primary);
+  --color-secondary: var(--color-secondary);
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-on-surface: var(--color-on-surface);
+  --color-surface-container: var(--color-surface-container);
+  --color-surface-container-low: var(--color-surface-container-low);
+  --color-surface-container-high: var(--color-surface-container-high);
+  --color-surface-container-highest: var(--color-surface-container-highest);
+  --color-outline: var(--color-outline);
+  --color-text-dim: var(--color-text-dim);
+  
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --font-ui: var(--font-ui);
+  --font-fallback: var(--font-fallback);
+  
+  --radius-default: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 2.5rem;
+  --radius-3xl: 3rem;
+}
+
+.dark {
+  --color-primary: #d9a441;
+  --color-on-primary: #000000;
+  --color-secondary: #d9a441;
+  --color-background: #0a0f1b;
+  --color-surface: #111827;
+  --color-on-surface: #f8fafc;
+  --color-outline: rgba(255, 255, 255, 0.1);
+  --color-text-dim: #94a3b8;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0f1b;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+    radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+  background-attachment: fixed;
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  transition: background-color 0.5s ease;
+}
+
+/* Glossy Bento Utilities */
+.glossy-overlay {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 60%);
+}
+
+.silver-glare {
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.08) 55%, transparent 60%);
+  background-size: 200% 100%;
+  animation: glare 4s infinite linear;
+}
+
+@keyframes glare {
+  0% { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+
+.pulse-flame {
+  animation: pulse-flame 2s infinite ease-in-out;
+}
+
+@keyframes pulse-flame {
+  0%, 100% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.02); filter: brightness(1.2); }
+}
+
+/* Premium City Themes */
+.zakho-theme {
+  --color-primary: #fbbf24;
+  --color-on-primary: #020617;
+  --color-secondary: #dc2626;
+  --color-background: #020617;
+  --color-surface: #1e293b;
+  --color-on-surface: #f8fafc;
+  --color-surface-container: #0f172a;
+  --color-outline: #334155;
+  --color-text-dim: #94a3b8;
+}
+
+.duhok-theme {
+  --color-primary: #10b981;
+  --color-on-primary: #ffffff;
+  --color-secondary: #f43f5e;
+  --color-background: #ecfdf5;
+  --color-surface: #ffffff;
+  --color-on-surface: #064e3b;
+  --color-surface-container: #d1fae5;
+  --color-outline: #a7f3d0;
+  --color-text-dim: #065f46;
+}
+
+/* Premium Kurdish Heritage Theme: Charcoal base with authentic watermark motif */
+.theme-kurdish-heritage {
+  --color-primary: #FFD700;
+  --color-on-primary: #000000;
+  --color-secondary: #1A3A5F;
+  --color-background: #121212;
+  --color-surface: #1a1a1a;
+  --color-on-surface: #f8f9fa;
+  --color-surface-container: #222222;
+  --color-outline: #2d2d2d;
+  --color-text-dim: #94a3b8;
+  --color-danger: #B22222;
+  
+  background-color: #121212;
+  position: relative;
+}
+
+/* Repeating Geometric Motif (Diamond & Elif Hook) Overlay */
+.theme-kurdish-overlay,
+.theme-kurdish-heritage::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(circle at center, rgba(18,18,18,0) 0%, #121212 90%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 10 L70 40 L40 70 L10 40 Z M40 25 L55 40 L40 55 L25 40 Z' fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.06'/%3E%3Cpath d='M10 10 L20 10 M10 10 L10 20 M70 10 L60 10 M70 10 L70 20 M10 70 L20 70 M10 70 L10 60 M70 70 L60 70 M70 70 L70 60' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-opacity='0.06'/%3E%3C/svg%3E");
+  background-attachment: fixed;
+  background-size: 80px 80px;
+}
+
+/* Knitted/Woven Texture for Cards & Containers */
+.theme-kurdish-heritage .rounded-2xl,
+.theme-kurdish-heritage .rounded-3xl,
+.theme-kurdish-heritage .rounded-\[3rem\],
+.theme-kurdish-heritage [class*="lobby-gradient-"],
+.theme-kurdish-heritage [class*="bg-white/"],
+.theme-kurdish-heritage [class*="bg-black/"],
+.theme-kurdish-heritage .glass-panel,
+.theme-kurdish-heritage .card {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.theme-kurdish-heritage .rounded-2xl::after,
+.theme-kurdish-heritage .rounded-3xl::after,
+.theme-kurdish-heritage .rounded-\[3rem\]::after,
+.theme-kurdish-heritage [class*="lobby-gradient-"]::after,
+.theme-kurdish-heritage [class*="bg-white/"]::after,
+.theme-kurdish-heritage [class*="bg-black/"]::after,
+.theme-kurdish-heritage .glass-panel::after,
+.theme-kurdish-heritage .card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08; /* Slightly more visible woven texture */
+  background-image: 
+    repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 4px),
+    repeating-linear-gradient(-45deg, #fff 0, #fff 1px, transparent 0, transparent 4px);
+  background-size: 4px 4px;
+  mix-blend-mode: overlay;
+  z-index: 5;
+}
+
+/* Rug Stitching Effect Utility */
+.border-stitch {
+  border: 1px dashed rgba(255, 215, 0, 0.3); /* Subtle Gold stitching */
+}
+
+.theme-kurdish-heritage .border-stitch {
+  border-color: rgba(26, 58, 95, 0.5); /* Royal Indigo stitching in heritage theme */
+}
+
+/* Kurdish Sun Animation for Loader */
+@keyframes rotate-kurdish-sun {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-kurdish-sun {
+  animation: rotate-kurdish-sun 10s linear infinite;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-on-surface);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--font-body);
+    line-height: 1.6;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    overflow-y: auto !important;
+  }
+
+  h1, h2, h3, .stage-title {
+    font-family: var(--font-heading);
+  }
+
+  p, .riddle, .description {
+    font-family: var(--font-body);
+  }
+
+  button, .button, .xp-bar, .numeric-value {
+    font-family: var(--font-ui);
+  }
+}
+
+@layer utilities {
+  .antigravity-layout-transition {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Fluid Typography Scale for Kurdish Heritage */
+  .fluid-text-lg {
+    font-size: clamp(14px, 1.5vw + 10px, 20px);
+  }
+
+  .fluid-text-xl {
+    font-size: clamp(16px, 2vw + 12px, 24px);
+  }
+
+  .material-symbols-outlined {
+    font-family: 'Material Symbols Outlined' !important;
+    font-weight: normal;
+    font-size: 32px;
+    display: inline-block;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    font-feature-settings: 'liga';
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+  
+  .font-rabar { font-family: 'Rabar_029', 'sans-serif'; }
+  .font-noto-sans-arabic { font-family: 'Noto Sans Arabic', sans-serif; }
+  .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+  
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .premium-interactive {
+    @apply transition-transform duration-200 ease-out hover:scale-105 active:scale-95 active:duration-100;
+  }
+  
+  .keyboard-key {
+      box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+  }
+
+  .shake-anim {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+  }
+
+  @keyframes flip {
+    0% { transform: rotateX(0); }
+    50% { transform: rotateX(90deg); }
+    100% { transform: rotateX(0); }
+  }
+
+  .animate-flip {
+    animation: flip 0.6s ease-in-out forwards;
+    backface-visibility: hidden;
+  }
+
+  .animate-victory-text {
+    animation: victory-zoom 0.8s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  .text-primary-active {
+    color: #58CC02;
+  }
+
+  @keyframes coin-fly {
+    0% { transform: scale(0.5) translate(0, 0); opacity: 0; }
+    20% { transform: scale(1.2) translate(0, -20px); opacity: 1; }
+    100% { transform: scale(0.5) translate(var(--target-x), var(--target-y)); opacity: 0; }
+  }
+
+  .coin-icon {
+    position: fixed;
+    z-index: 110;
+    pointer-events: none;
+    animation: coin-fly 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* XP Progress Bar Styling */
+  .xp-progress-container {
+    height: 6px;
+    width: 120px;
+    background-color: var(--color-surface-container);
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid rgba(var(--color-outline), 0.1);
+  }
+
+  .xp-progress-fill {
+    height: 100%;
+    background-color: var(--color-secondary);
+    box-shadow: 0 0 10px rgba(255, 160, 0, 0.5);
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Level Up Visuals */
+  .level-up-aura {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 150;
+    background: radial-gradient(circle at center, rgba(255, 193, 7, 0.2) 0%, transparent 70%);
+    animation: level-up-glow 2.5s ease-out forwards;
+  }
+
+  @keyframes level-up-glow {
+    0% { opacity: 0; transform: scale(0.5); filter: blur(20px); }
+    30% { opacity: 1; transform: scale(1.1); filter: blur(5px); }
+    70% { opacity: 1; transform: scale(1.2); filter: blur(10px); }
+    100% { opacity: 0; transform: scale(1.5); filter: blur(40px); }
+  }
+
+  .animate-level-up-text {
+    animation: level-text-pop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  @keyframes level-text-pop {
+    0% { transform: scale(0.5) translateY(50px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+
+  .lobby-card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(24px) saturate(120%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .gold-glow {
+    box-shadow: 0 0 20px rgba(217, 164, 65, 0.3);
+  }
+
+  .lobby-avatar-aura {
+    box-shadow: 0 0 30px rgba(0, 135, 78, 0.3);
+    border: 3px solid var(--color-primary);
+  }
+
+  /* Anti-Gravity Fluid Scroll Matrix - PC Optimized */
+  .fluid-scroll-container {
+    overflow-y: auto;
+    flex: 1 1 0%;
+    min-height: 0;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    padding-bottom: 120px; /* Enhanced buffer for BottomNav */
+  }
+
+  /* Anti-Gravity Custom Scrollbar - Zakho Nights Style */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(var(--color-surface), 0.05);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #fbbf24; /* Golden Yellow Dinar */
+    border-radius: 10px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #f59e0b;
+  }
+
+  /* Chrome/Safari specialized Left Scroll */
+  .left-scroll-indicator::-webkit-scrollbar {
+    width: 4px !important;
+  }
+
+  .left-scroll-indicator::-webkit-scrollbar-thumb {
+    background: #fbbf24 !important;
+    border-radius: 10px;
+  }
+
+  /* Anti-Gravity Horizon-Sync Calibration */
+  .game-container {
+    display: flex;
+    flex-direction: row-reverse; /* Anti-Gravity: Forces Grid to Left and Keyboard to Right in RTL context */
+    justify-content: center;
+    align-items: center;
+    gap: 60px; /* Precise gap from Anti-Gravity Horizon-Sync request */
+    padding: 40px;
+    width: 100%;
+    max-width: 1550px;
+    margin: 0 auto;
+    min-height: calc(100vh - 180px); /* Vertical symmetry lock */
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Anti-Gravity "Make it better" Glow Matrix */
+    background: radial-gradient(circle at center, rgba(88, 204, 2, 0.03) 0%, transparent 70%);
+  }
+
+  .grid-wrapper {
+    order: 1;
+    flex: 1.2; /* Slightly more space for the grid */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slide-in-left 0.8s ease-out;
+  }
+
+  .keyboard-wrapper {
+    order: 2;
+    flex: 1;
+    width: 100%;
+    max-width: 100%; /* Anti-Gravity: Full Fluid Expansion */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: slide-in-right 0.8s ease-out;
+  }
+
+  @keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slide-in-right {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* "Ghost Tile" Active Glow Matrix */
+  .active-tile-glow {
+    border-color: #fbbf24 !important;
+    box-shadow: 0 0 25px rgba(251, 191, 36, 0.4), inset 0 0 12px rgba(251, 191, 36, 0.2);
+    transform: scale(1.08) !important;
+    z-index: 20 !important;
+    background-color: rgba(251, 191, 36, 0.05) !important;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.03); opacity: 0.9; }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s infinite ease-in-out;
+  }
+
+  /* --- Anti-Gravity: Premium Identity & Flag Architecture --- */
+  
+  /* Horizon-Tight: Precision Spacing */
+  .identity-grid-dense {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem; /* Ultra-precise 6.4px gap */
+  }
+
+  .flag-label-spacing {
+    margin-top: 0.15rem; /* Minimal 2.4px gap for optical unity */
+    line-height: 1;
+  }
+
+  /* Satin-Finish Flag Token */
+  .premium-flag-token {
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    border: 0.5px solid rgba(255,255,255,0.15);
+    background: var(--color-surface-container);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  /* Satin Glow Overlay: Adds depth to flat flags */
+  .premium-flag-token::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(0,0,0,0.04) 100%);
+    pointer-events: none;
+  }
+
+  /* Elite Active State: Apple-style saturate & glow */
+  .identity-card-elite-active {
+    background: color-mix(in srgb, var(--color-secondary) 15%, transparent) !important;
+    border-color: var(--color-secondary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-secondary) 10%, transparent),
+                0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-1px);
+    backdrop-filter: saturate(180%) blur(8px);
+  }
+
+  .identity-card-elite-active .premium-flag-token {
+    box-shadow: 0 0 10px color-mix(in srgb, var(--color-secondary) 30%, transparent);
+    border-color: var(--color-secondary);
+  }
+
+  /* Typography Matrix */
+  .country-label-elite {
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--color-on-surface);
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+
+  .identity-card-elite-active .country-label-elite {
+    opacity: 1;
+    color: var(--color-secondary);
+  }
+
+  /* Flag Scaling Tokens */
+  .flag-sm { width: 1.25rem; height: 0.85rem; }
+  .flag-md { width: 1.75rem; height: 1.15rem; }
+  .flag-lg { width: 2.25rem; height: 1.5rem; }
+  .flag-xl { width: 3rem; height: 2rem; }
+}
+
+/* Anti-Gravity Frame-Lock: Root Level Fix */
+html, body, #root {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh; /* Modern mobile support */
+  width: 100vw;
+  background-color: var(--color-background);
+  position: relative;
+  padding-bottom: env(safe-area-inset-bottom); /* iPhone Home Bar Support */
+}
+
+.main-content-scroll {
+  flex: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding-bottom: 120px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+.no-scroll-game {
+  overflow: hidden !important;
+  height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
+  display: flex !important;
+  flex-direction: column !important;
+  user-select: none;
+}
+
+.no-scroll-game > * {
+  min-height: 0; /* Anti-Gravity: Allow children to shrink to fit */
+}
+
+/* Anti-Gravity Settings Inner-Scroll Fix */
+.settings-container {
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-right: 8px;
+}
+
+.settings-container::-webkit-scrollbar {
+  width: 5px;
+}
+
+.settings-container::-webkit-scrollbar-track {
+  background: rgba(var(--color-surface), 0.05);
+}
+
+.settings-container::-webkit-scrollbar-thumb {
+  background-color: #fbbf24;
+  border-radius: 10px;
+}
+
+/* "Instant-Sync" Overlay Matrix */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(48px) saturate(180%);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(1.1);
+}
+
+.settings-overlay-active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+/* Gold Glow Identity Matrix */
+.gold-glow-input {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.2), inset 0 0 10px rgba(251, 191, 36, 0.1);
+}
+
+.gold-glow-input:focus {
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.2);
+}
+
+/* Left-Side Indicator Matrix */
+.left-scroll-indicator {
+  direction: rtl; /* Flip scrollbar to left */
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #fbbf24 transparent;
+}
+
+.left-scroll-indicator > * {
+  direction: ltr; /* Restore content flow */
+  text-align: left;
+}
+
+.keyboard-wrapper {
+  order: 2;
+  flex: none; /* Fixed height dock at the bottom */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in-right 0.8s ease-out;
+}
+
+/* --- High-Stakes Dual-Viewport Game Layout --- */
+
+/* Mobile Mode (No-Scroll / Compact Header Actions) */
+@media (max-width: 1023px) {
+  .no-scroll-game {
+    overflow: hidden !important;
+    height: calc(100dvh - 64px);
+    display: flex !important;
+    flex-direction: column !important;
+    user-select: none;
+    padding: 0 !important;
+  }
+
+  .game-container-mobile {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    min-height: 0;
+    padding: 0;
+    gap: 0;
+    justify-content: flex-start;
+  }
+
+  .grid-wrapper {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+  }
+}
+
+/* Tablet & Desktop Mode (Spacious / Inline Actions) */
+@media (min-width: 1024px) {
+  .no-scroll-game {
+    overflow-y: auto !important; /* Allow scroll if needed on larger screens */
+    height: auto;
+    min-height: calc(100vh - 64px);
+  }
+  
+  .game-container {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    padding: 40px;
+    width: 100%;
+    max-width: 1550px;
+    margin: 0 auto;
+    min-height: calc(100vh - 180px);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Anti-Gravity: UI Escape & Animation Matrix */
+.animate-modal-in {
+  animation: modal-slide-up 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-backdrop-in {
+  animation: backdrop-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes modal-slide-up {
+  0% { transform: translateY(100%) scale(0.9); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes backdrop-fade-in {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(12px); }
+}
+@keyframes hint-glow {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  30% { transform: scale(1.1); box-shadow: 0 0 30px 10px rgba(34, 197, 94, 0.6); border-color: #4ade80; }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+.animate-hint-glow {
+  animation: hint-glow 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 50;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite linear;
+}
+
+
+/* --- Character Guide Animations --- */
+@keyframes character-idle-breath {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.02); }
+}
+
+@keyframes character-slide-in-left {
+  0% { transform: translateX(-120%) rotate(-10deg); opacity: 0; }
+  60% { transform: translateX(10%) rotate(5deg); opacity: 1; }
+  100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+}
+
+@keyframes character-blink {
+  0%, 90%, 100% { filter: brightness(1); }
+  95% { filter: brightness(1.2) contrast(1.1); }
+}
+
+@keyframes character-phone-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(168,85,247,0.4)); }
+  50% { filter: drop-shadow(0 0 20px rgba(168,85,247,0.8)); }
+}
+
+.animate-character-idle {
+  animation: character-idle-breath 4s ease-in-out infinite;
+}
+
+.animate-character-entry {
+  animation: character-slide-in-left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-character-blink {
+  animation: character-blink 6s ease-in-out infinite;
+}
+
+.animate-gamer-glow {
+  animation: character-phone-glow 2s ease-in-out infinite;
+}
+/* Hide MAGNET decorative assets in the Shop */
+[class*="MAGNET"], [id*="MAGNET"], .shop-magnet-watermark {
+  display: none !important;
+}
+
+
+
