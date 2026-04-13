@@ -10,6 +10,7 @@ export default function LobbyView({
   onStartSecretWord, 
   onStartWordFever, 
   onSocialClick, 
+  onMissionsClick,
   dailyWinsCount, 
   dailyStreak,
   onViewChange,
@@ -56,16 +57,46 @@ export default function LobbyView({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="flex-1 w-full max-w-full px-4 pt-12 pb-4 overflow-x-hidden"
+      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden"
     >
       <div className="grid grid-cols-2 gap-4">
         
+        {/* DAILY MISSIONS BENTO TILE */}
+        <motion.button 
+          variants={itemVariants}
+          onClick={() => { triggerHaptic(20); onMissionsClick(); }}
+          {...bentoMotionProps}
+          className="col-span-2 relative h-24 rounded-[40px] overflow-hidden bg-slate-900 border border-white/10 shadow-xl group border-none"
+        >
+           {/* Animated Mesh Gradient Background */}
+           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-slate-900 pointer-events-none" />
+           
+           <div className="relative z-10 flex items-center justify-between px-8 h-full">
+              <div className="flex items-center gap-4">
+                 <div className="w-14 h-14 rounded-2xl bg-amber-400/20 flex items-center justify-center border border-amber-400/30 group-hover:rotate-12 transition-transform">
+                    <span className="material-symbols-outlined text-3xl text-amber-400">stars</span>
+                 </div>
+                 <div className="flex flex-col items-start translate-y-[-2px]">
+                    <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest leading-none mb-1">ئەرکێن نۆکە</span>
+                    <h3 className="text-2xl font-black text-white/90 leading-none uppercase">Daily Missions</h3>
+                 </div>
+              </div>
 
-        
+              <div className="flex flex-col items-end gap-2">
+                 <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-24 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                       <div className="h-full w-[60%] bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.5)]" />
+                    </div>
+                 </div>
+                 <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Rewards Ready</span>
+              </div>
+           </div>
+        </motion.button>
+
         {/* CLASSIC MODE */}
         <motion.button 
           variants={itemVariants}
-          onClick={() => { onStartClassic(); }}
+          onClick={() => { triggerHaptic(10); onStartClassic(); }}
           {...bentoMotionProps}
           className="col-span-2 relative h-36 rounded-[40px] overflow-hidden bg-[#ffcc00] shadow-xl group border-none"
         >
@@ -83,7 +114,7 @@ export default function LobbyView({
         {/* MAMAK MODE */}
         <motion.button 
           variants={itemVariants}
-          onClick={() => { onStartMamak(); }}
+          onClick={() => { triggerHaptic(10); onStartMamak(); }}
           {...bentoMotionProps}
           className="col-span-2 relative h-36 rounded-[40px] overflow-hidden bg-[#22c55e] shadow-xl group border-none"
         >
@@ -101,7 +132,7 @@ export default function LobbyView({
         {/* HARD MODE */}
         <motion.button 
           variants={itemVariants}
-          onClick={() => { onStartHardWords(); }}
+          onClick={() => { triggerHaptic(10); onStartHardWords(); }}
           {...bentoMotionProps}
           className="col-span-1 relative h-44 rounded-[40px] overflow-hidden bg-[#ef4444] shadow-xl group border-none"
         >
@@ -123,7 +154,7 @@ export default function LobbyView({
         {/* WORD FEVER MODE */}
         <motion.button 
           variants={itemVariants}
-          onClick={() => { onStartWordFever(); }}
+          onClick={() => { triggerHaptic(10); onStartWordFever(); }}
           {...bentoMotionProps}
           className="col-span-1 relative h-44 rounded-[40px] overflow-hidden bg-[#0ea5e9] shadow-xl group border-none"
         >
@@ -142,7 +173,7 @@ export default function LobbyView({
         <motion.button 
           variants={itemVariants}
           disabled={!isSecretUnlocked}
-          onClick={() => { if (isSecretUnlocked) onStartSecretWord(); }}
+          onClick={() => { triggerHaptic(10); if (isSecretUnlocked) onStartSecretWord(); }}
           {...(isSecretUnlocked ? bentoMotionProps : {})}
           className={`col-span-2 relative h-36 rounded-[40px] overflow-hidden transition-all duration-500 shadow-xl border-none ${
             isSecretUnlocked 

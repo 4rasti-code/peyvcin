@@ -153,16 +153,23 @@ export const GameProvider = ({ children }) => {
       try {
         let data, error;
         try {
-          const result = await supabase
-            .from('profiles')
-            .select('level, xp, mamak_level, hard_words_level, word_fever_level, secret_word_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, inventory, app_sounds_enabled, haptic_enabled')
-            .eq('id', userId)
-            .single();
+          // 1. Primary Attempt: All Premium Columns
+          const columns = 'level, xp, mamak_level, hard_word_count, word_fever_level, secret_word_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, inventory, app_sounds_enabled, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
+          
+          let result = await supabase.from('profiles').select(columns).eq('id', userId).single();
+          
+          // 2. Defensive Fallback: If 42703 (Undefined Column) occurs, fetch only 100% Core columns
+          if (result.error && result.error.code === '42703') {
+            console.warn("Detection of missing columns in Supabase. Falling back to Core Select.");
+            const coreColumns = 'level, xp, shayi, magnets, hints, skips'; // Basics that must exist
+            result = await supabase.from('profiles').select(coreColumns).eq('id', userId).single();
+          }
+
           data = result.data;
           error = result.error;
         } catch (fetchError) {
-          console.warn("Supabase fetch error, falling back to local defaults:", fetchError);
-          return; // Allow the app to proceed with local initializations already done
+          console.warn("Supabase fetch fatal error:", fetchError);
+          return;
         }
 
         if (error && error.code === 'PGRST116') {
@@ -184,20 +191,25 @@ export const GameProvider = ({ children }) => {
           await supabase.from('profiles').insert([initialRecord]);
           setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
         } else if (data && !error) {
-          setLevel(data.level || 1);
-          setMamakLevel(data.mamak_level || 1);
-          setHardWordsLevel(data.hard_words_level || 1);
-          setWordFeverLevel(data.word_fever_level || 1);
-          setSecretWordLevel(data.secret_word_level || 1);
-          setWinsTowardsSecret(data.wins_towards_secret || 0);
-          setCurrentXP(data.xp || 0);
-          setFils(data.shayi ?? 1000);
-          setDerhem(data.dirham ?? 50);
-          setZer(data.dinar ?? 5);
-          setMagnetCount(data.magnets ?? 3);
-          setHintCount(data.hints ?? 5);
-          setSkipCount(data.skips ?? 2);
-          setDailyStreak(data.daily_streak ?? 0);
+          // Safe Data Mapping (Try/Catch per field)
+          const safeSet = (setter, val, fallback) => {
+            try { setter(val ?? fallback); } catch(e) { console.warn("Mapping failed for field", e); }
+          };
+
+          safeSet(setLevel, data.level, 1);
+          safeSet(setMamakLevel, data.mamak_level, 1);
+          safeSet(setHardWordsLevel, data.hard_word_count, 1); // Mapping hard_word_count to local state
+          safeSet(setWordFeverLevel, data.word_fever_level, 1);
+          safeSet(setSecretWordLevel, data.secret_word_level, 1);
+          safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
+          safeSet(setCurrentXP, data.xp, 0);
+          safeSet(setFils, data.shayi, 1000);
+          safeSet(setDerhem, data.dirham, 50);
+          safeSet(setZer, data.dinar, 5);
+          safeSet(setMagnetCount, data.magnets, 3);
+          safeSet(setHintCount, data.hints, 5);
+          safeSet(setSkipCount, data.skips, 2);
+          safeSet(setDailyStreak, data.daily_streak, 0);
           
           // Safety fallback for sound/haptic columns
           setAppSoundsEnabled(data.app_sounds_enabled !== undefined ? data.app_sounds_enabled : (localStorage.getItem('peyvchin_app_sounds') === 'true'));

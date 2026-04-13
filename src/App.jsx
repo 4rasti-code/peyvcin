@@ -56,6 +56,7 @@ const lazyWithRetry = (componentImport) =>
 const LeaderboardView = lazyWithRetry(() => import('./components/LeaderboardView'));
 const SocialHubView = lazyWithRetry(() => import('./components/SocialHubView'));
 const ShopView = lazyWithRetry(() => import('./components/ShopView'));
+const DailyMissionsModal = lazyWithRetry(() => import('./components/DailyMissionsModal'));
 
 const PEYVCIN_VERSION = '2.0.0';
 
@@ -111,6 +112,7 @@ export default function App() {
   const [message, setMessage] = useState('');
   const [usedKeys, setUsedKeys] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMissionsOpen, setIsMissionsOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -907,6 +909,7 @@ export default function App() {
             onSocialClick={() => {
               setCurrentView('social_hub');
             }}
+            onMissionsClick={() => setIsMissionsOpen(true)}
             onStartMamak={() => {
               playPopSound();
               triggerHaptic(10);
