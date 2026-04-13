@@ -149,7 +149,7 @@ export default function App() {
     playPopSound, playNotifSound, playMessageSound,
     playStartSound, playVictorySound, playRewardSound,
     user, setUser,
-    userRank,
+    userRank, refreshRank,
     loading: isGameLoading
   } = useGame();
 
@@ -326,16 +326,29 @@ export default function App() {
   };
 
   const handleProfileSave = async (profileData) => {
-    const result = await updateProfile({
-      nickname: profileData.nickname,
-      avatar_url: profileData.avatar,
-      country_code: profileData.countryCode,
-      is_kurdistan: profileData.isInKurdistan
-    });
+    try {
+      const result = await updateProfile({
+        nickname: profileData.nickname,
+        avatar_url: profileData.avatar,
+        country_code: profileData.countryCode,
+        is_kurdistan: profileData.isInKurdistan
+      });
 
-    if (result?.success) {
-      setLastProfileUpdate(Date.now());
-      refreshRank(); // Re-calculate rank if needed (though usually based on XP, good for sync)
+      if (result?.success) {
+        setLastProfileUpdate(Date.now());
+        if (refreshRank) refreshRank();
+        setMessage('پڕۆفایل ب سەرکەفتوویی هاتە نووکرن!');
+        setTimeout(() => setMessage(''), 3000);
+      } else if (result?.error?.code === '23505') {
+        setMessage('ئەڤ ناڤە یێ هاتییە بکارئینان، تاقی بکە ناڤەکێ دی بنڤیسی');
+        setIsShaking(true);
+        setTimeout(() => { setIsShaking(false); setMessage(''); }, 4000);
+      } else {
+        setMessage('خەلەتییەک هەبوو، دووبارە تاقی بکە');
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (err) {
+      console.error("Critical handleProfileSave error:", err);
     }
   };
 
