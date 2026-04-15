@@ -4,286 +4,292 @@ import FlagBadge from './FlagBadge';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 import Avatar from './Avatar';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
-import Podium from './Podium';
 import PublicProfileModal from './PublicProfileModal';
 import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
+import { useGame } from '../context/GameContext';
 
-export default function LeaderboardView({ userId, userXP, userFils, userCity = "زاخۆ", userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
+export default function LeaderboardView({ userId, userLevel, userXP, userFils, userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
+  const { getLevelFromXP, handleToggleBlock: toggleBlockInContext } = useGame();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userRank, setUserRank] = useState('--');
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+  const handleToggleBlock = async (currentStatus) => {
+    if (!selectedPlayer || !userId) return;
+    const success = await toggleBlockInContext(selectedPlayer.id, currentStatus);
+    if (success) {
+      if (!currentStatus) alert("یاریزان هاتە بلۆککرن!");
+      else alert("بلۆک هاتە لابرن!");
+      setSelectedPlayer(null);
+    }
+  };
+
+  const fetchData = async () => {
+    if (!userId) return;
+    setLoading(true);
+    
+    try {
+      let leaderData = [];
       
-      const { data: leaderData, error: leaderError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('xp', { ascending: false })
-        .limit(20);
-
-      if (!leaderError) {
-        setLeaders(leaderData || []);
+      if (view === 'friends') {
+        // 1. Get all accepted friendships
+        const { data: friendships, error: fError } = await supabase
+          .from('friendships')
+          .select('*')
+          .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
+          .eq('status', 'accepted');
+          
+        if (fError) throw fError;
+        
+        // 2. Map to a list of IDs including current user
+        const friendIds = [userId];
+        friendships.forEach(f => {
+          friendIds.push(f.user_id);
+          friendIds.push(f.friend_id);
+        });
+        const uniqueIds = [...new Set(friendIds)];
+        
+        // 3. Fetch profiles for those IDs
+        const { data, error: pError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', uniqueIds)
+          .order('level', { ascending: false })
+          .order('xp', { ascending: false });
+          
+        if (pError) throw pError;
+        leaderData = data || [];
+      } else {
+        // GLOBAL VIEW - Order by Level FIRST, then XP
+        const { data, error: leaderError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('level', { ascending: false })
+          .order('xp', { ascending: false })
+          .limit(20);
+          
+        if (leaderError) throw leaderError;
+        leaderData = data || [];
       }
+      
+      setLeaders(leaderData);
 
-      // GLOBAL RANK FETCH
+      // Rank calculation: Count users with higher level OR (same level and higher XP)
       const { count, error: rankError } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .gt('xp', userXP);
-      
-      if (!rankError) setUserRank(count + 1);
-      setLoading(false);
-    };
+        .or(`level.gt.${userLevel},and(level.eq.${userLevel},xp.gt.${userXP})`);
 
+      if (!rankError) setUserRank(count + 1);
+    } catch (err) {
+      console.warn("Leaderboard fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
-    
-    // ⚡️ REAL-TIME SYNC - Auto refresh when ANY profile in the top 20 changes
     const channel = supabase
       .channel('leaderboard-realtime')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
-        console.log('Leaderboard sync triggered:', payload);
-        fetchData();
-      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, () => fetchData())
       .subscribe();
-    
+
     const handleFocus = () => fetchData();
     window.addEventListener('focus', handleFocus);
-    
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') fetchData();
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       supabase.removeChannel(channel);
       window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [userXP, lastProfileUpdate, view, userId]);
 
-  // --- MANUAL REFRESH (PULL-TO-REFRESH STYLE) ---
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const handleManualRefresh = async () => {
-    setIsRefreshing(true);
-    triggerHaptic(15);
-    await fetchData();
-    setTimeout(() => setIsRefreshing(false), 800);
-  };
-
-  const getMatteRankStyles = (rank) => {
-    if (rank === 1) return "bg-[#facc15] text-amber-950 border-amber-300";
-    if (rank === 2) return "bg-slate-200 text-slate-800 border-white";
-    if (rank === 3) return "bg-orange-400 text-orange-950 border-orange-300";
-    return "bg-slate-700 text-slate-400 border-white/5";
-  };
-
-  const getThemeCardStyles = (themeId, isTop3) => {
-    switch (themeId) {
-      case 'zakho_nights':
-        return {
-          bg: 'bg-[#020617]', 
-          border: isTop3 ? 'border-[#facc15]/40' : 'border-[#facc15]/20',
-          accent: 'bg-[#facc15]'
-        };
-      case 'duhok_theme':
-        return {
-          bg: 'bg-[#064e3b]', 
-          border: isTop3 ? 'border-[#10b981]/40' : 'border-[#10b981]/20',
-          accent: 'bg-[#10b981]'
-        };
-      case 'kurdish_puzzle_3d_free':
-        return {
-          bg: 'bg-black', 
-          border: isTop3 ? 'border-[#58cc02]/40' : 'border-[#58cc02]/20',
-          accent: 'bg-[#58cc02]'
-        };
-      default:
-        return {
-          bg: 'bg-slate-800',
-          border: isTop3 ? 'border-slate-700' : 'border-slate-700',
-          accent: isTop3 ? 'bg-[#facc15]' : 'bg-slate-700'
-        };
-    }
-  };
-
-  const getTopTrophy = (points) => {
-    if (points >= 1000) return { icon: 'diamond', color: 'text-blue-400' };
-    if (points >= 500) return { icon: 'stars', color: 'text-purple-400' };
-    if (points >= 250) return { icon: 'workspace_premium', color: 'text-yellow-400' };
-    if (points >= 100) return { icon: 'military_tech', color: 'text-slate-300' };
-    if (points >= 10) return { icon: 'emoji_events', color: 'text-orange-400' };
-    return null;
-  };
 
   return (
-    <div className="w-full max-w-full px-4 md:px-6 pb-56 min-h-screen relative animate-in fade-in duration-700 bg-[#0f172a] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20">
-      
-      {/* 1. Premium Notion-Style Header */}
-      <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-2">
-          <span className="material-symbols-outlined text-primary text-[14px]">leaderboard</span>
-          <span className="text-[10px] font-black font-rabar text-primary uppercase tracking-wider">باشترینێن یاریێ</span>
-        </div>
-        
-        <h2 className="text-4xl md:text-5xl font-black font-rabar text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-          رێزبەندی
-        </h2>
-        
-        <div className="w-12 h-1.5 bg-primary rounded-full mx-auto opacity-50 shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
-      </div>
+    <div className="w-full max-w-full px-4 md:px-6 pb-56 min-h-screen relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right">
 
-      {/* 2. Flat Tab Toggles */}
-      <div className="flex bg-slate-800 p-1.5 rounded-2xl border border-slate-700 mb-10 w-full max-w-xs mx-auto relative z-30 shadow-2xl">
-        <motion.button 
-          whileTap={{ scale: 0.98 }}
-          onClick={() => { triggerHaptic(10); setView('global'); }}
-          className={`flex-1 py-3 rounded-xl font-black font-rabar text-[13px] transition-all duration-300 ${view === 'global' ? 'bg-[#facc15] text-amber-950 shadow-md' : 'text-slate-500 hover:text-white'}`}
-        >
-          <span>جیهانی</span>
-        </motion.button>
-        <motion.button 
-          whileTap={{ scale: 0.98 }}
-          onClick={() => { triggerHaptic(10); setView('friends'); }}
-          className={`flex-1 py-3 rounded-xl font-black font-rabar text-[13px] transition-all duration-300 ${view === 'friends' ? 'bg-[#facc15] text-amber-950 shadow-md' : 'text-slate-500 hover:text-white'}`}
-        >
-          <span>هەڤال</span>
-        </motion.button>
-      </div>
-
-      <AnimatePresence mode="wait">
-        {!loading ? (
+      {/* 0. WORDLE BACKGROUND (FLAT NEUTRAL) - MORE VISIBLE */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-50">
+        {[...Array(18)].map((_, i) => (
           <motion.div
-            key="content"
-            initial={{ opacity: 0, scale: 0.99 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex flex-col gap-3"
+            key={i}
+            className="absolute text-white font-black text-xl select-none font-rabar pointer-events-none"
+            style={{ 
+              left: Math.random() * 95 + '%', 
+              top: Math.random() * 95 + '%',
+            }}
+            animate={{ 
+              y: [0, -30, 30, 0], 
+              x: [0, 40, -40, 0],
+              rotate: [0, 15, -15, 0],
+              opacity: [0.2, 0.4, 0.2],
+              scale: [0.95, 1.05, 0.95]
+            }}
+            transition={{ 
+              duration: 20 + Math.random() * 20, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
           >
-            {/* List Row System */}
-            <div className="space-y-3 px-1 md:px-0">
-               <LayoutGroup>
-                 {leaders.map((player, index) => {
-                   const rank = index + 1;
-                   const isTop3 = rank <= 3;
-                   
-                   // OVERRIDE FOR CURRENT USER: Ensures parity with local state (prop-driven)
-                   const isMe = userId && (player.id === userId);
-                   const effectiveAvatar = isMe ? userAvatar : player.avatar_url;
-                   const effectiveNickname = isMe ? userNickname : player.nickname;
-                   const effectiveCity = isMe ? userCity : player.city;
-                   const effectiveXP = isMe ? userXP : player.xp;
-                   
-                   const theme = getThemeCardStyles(player.equipped_theme, isTop3);
-                   const level = Math.floor((effectiveXP || 0) / 500) + 1;
-                   const trophy = getTopTrophy(player.shayi || 0);
-                   
-                   return (
-                     <motion.div 
-                       layout
-                       initial={{ opacity: 0, y: 10 }}
-                       animate={{ opacity: 1, y: 0 }}
-                       whileHover={{ backgroundColor: '#1e293b' }}
-                       whileTap={{ scale: 0.99 }}
-                       transition={{ delay: index * 0.03 }}
-                       key={player.id} 
-                       onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, city: effectiveCity }); }}
-                       className={`flex flex-row items-center gap-3 md:gap-4 px-4 ${isTop3 ? 'py-3.5 shadow-lg relative overflow-hidden' : 'py-2.5'} rounded-lg ${theme.bg} border ${isTop3 ? theme.border : 'border-slate-700/50'} transition-all cursor-pointer group`}
-                     >
-                       {/* Top 3 Side Accent */}
-                       {isTop3 && (
-                          <div className={`absolute top-0 left-0 bottom-0 w-1.5 ${theme.accent}`} />
-                       )}
-
-                       {/* Rank Circle */}
-                       <div className="flex flex-col items-center shrink-0">
-                          {rank === 1 && (
-                             <motion.span 
-                                initial={{ y: 2 }}
-                                animate={{ y: -2 }}
-                                transition={{ repeat: Infinity, repeatType: 'reverse', duration: 1 }}
-                                className="text-[14px] leading-none mb-0.5"
-                             >👑</motion.span>
-                          )}
-                          <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 border-2 shadow-sm relative ${getMatteRankStyles(rank)}`}>
-                             <span className="text-xl font-black font-rabar leading-none">
-                                {toKuDigits(rank)}
-                             </span>
-                          </div>
-                       </div>
-                        {/* Avatar */}
-                        <div className="relative shrink-0">
-                          <div className={`w-14 h-14 rounded-full p-[2.5px] ${isTop3 ? 'bg-linear-to-tr from-[#facc15] via-[#fbbf24] to-[#facc15] shadow-[0_0_15px_rgba(250,204,21,0.3)]' : 'bg-slate-700'} flex items-center justify-center relative transition-transform group-hover:scale-110 shadow-xl overflow-hidden`}>
-                            <Avatar 
-                              src={effectiveAvatar} 
-                              updatedAt={isMe ? lastProfileUpdate : player.updated_at} 
-                              size="lg" 
-                              border={false}
-                            />
-                          </div>
-                          <div className="absolute -bottom-1 -right-1 drop-shadow-lg scale-90 z-10">
-                            <FlagBadge 
-                              isInKurdistan={isMe ? isInKurdistan : player.is_kurdistan} 
-                              countryCode={isMe ? countryCode : player.country_code} 
-                              size="xs" 
-                            />
-                          </div>
-                        </div>
-                       
-                       {/* Info Group */}
-                       <div className="flex-1 flex flex-col items-start min-w-0 pr-1">
-                          <div className="flex items-center gap-1.5">
-                             <span className={`text-[17px] md:text-[20px] font-black font-rabar leading-tight truncate text-white`}>{effectiveNickname}</span>
-                             {trophy && (
-                                <span className={`material-symbols-outlined text-[16px] ${trophy.color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-                                   {trophy.icon}
-                                </span>
-                             )}
-                          </div>
-                           <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-[10px] font-black font-rabar text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-                                 ئاستێ {toKuDigits(level)}
-                              </span>
-                           </div>
-                       </div>
-                       
-                       {/* Points */}
-                       <div className={`shrink-0 flex items-center gap-2 bg-black/30 px-3 py-2.5 rounded-[22px] border border-white/5 min-w-[85px] justify-center group-hover:border-white/10 transition-all shadow-inner`}>
-                          <span className={`text-[16px] md:text-[18px] font-black font-rabar leading-none ${isTop3 ? 'text-white' : 'text-white/80'}`}>
-                             {toKuDigits(isMe ? userFils : (player.shayi || player.fils || 0))}
-                          </span>
-                          <div className={`w-4 h-4 flex items-center justify-center shrink-0 ${isTop3 ? 'opacity-100' : 'opacity-40'}`}>
-                             <FilsIcon className="text-[#facc15]" />
-                          </div>
-                       </div>
-                     </motion.div>
-                   );
-                 })}
-               </LayoutGroup>
-            </div>
-
+            {['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ'][i % 12]}
           </motion.div>
-        ) : (
-          /* Minimalist Flat Loading */
-          <div className="flex flex-col items-center justify-center py-48 gap-8">
-             <div className="w-16 h-16 border-4 border-slate-800 border-t-[#facc15] rounded-full animate-spin shadow-inner"></div>
-             <span className="font-black font-rabar text-slate-600 tracking-[0.4em] uppercase text-[11px] animate-pulse">چاڤەڕێ بن...</span>
-          </div>
-        )}
-      </AnimatePresence>
+        ))}
+      </div>
 
-      <PublicProfileModal 
-        profile={selectedPlayer} 
+      <div className="relative z-10">
+        <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center">
+          <span className="material-symbols-outlined text-4xl text-primary mb-2.5 drop-shadow-lg">leaderboard</span>
+          <h2 className="text-5xl font-black font-rabar tracking-tighter italic uppercase" style={{ color: 'rgb(203, 213, 225)' }}>رێزبەندی</h2>
+        </div>
+
+        {/* Top Tab Swapper - Synced Card Style */}
+        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden"
+             style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+          {['global', 'friends'].map((tab) => {
+            const isActive = view === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => { triggerHaptic(10); setView(tab); }}
+                className={`flex-1 py-2.5 px-4 rounded-md font-black text-sm transition-all duration-300 relative z-10 ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-600'
+                  }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeTabIndicator"
+                    className="absolute inset-0 bg-slate-800 rounded-md shadow-sm"
+                    transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
+                  />
+                )}
+                <span className="relative z-20 uppercase tracking-widest font-rabar">
+                  {tab === 'global' ? 'جیهانی' : 'هەڤال'}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {!loading ? (
+            <motion.div 
+              key={view}
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05, delayChildren: 0.05 }
+                },
+                exit: { opacity: 0, transition: { duration: 0.2 } }
+              }}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto pb-40"
+            >
+              {leaders.map((player, index) => {
+                const rank = index + 1;
+                const isTop3 = rank <= 3;
+                const isMe = userId && (player.id === userId);
+                const effectiveAvatar = isMe ? userAvatar : (player.avatar_url || 'default');
+                const effectiveNickname = isMe ? userNickname : player.nickname;
+                const effectiveXP = isMe ? userXP : player.xp;
+
+                return (
+                  <motion.div
+                    key={player.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 15, scale: 0.98 },
+                      visible: { opacity: 1, y: 0, scale: 1 },
+                      exit: { opacity: 0, scale: 0.98 }
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
+                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow-hidden transition-all cursor-pointer shadow-sm`}
+                    style={{ 
+                      backgroundColor: 'rgb(203, 213, 225)',
+                      borderColor: 'rgba(255, 255, 255, 0.2)',
+                      boxShadow: 'rgba(148, 163, 184, 0.4) 0px 10px 20px -5px'
+                    }}
+                  >
+                      {/* Left Side Accent Bar (Primary Yellow - Sharp) */}
+                      <div className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-[2px] bg-primary" />
+
+                      {/* Sleek Metallic Rank Number (MINIMALIST) */}
+                      <div className="flex items-center justify-center w-10 shrink-0 z-10">
+                         <span className={`text-2xl font-black italic tracking-tighter ${
+                             rank === 1 ? 'text-[#92400e]' :
+                             rank === 2 ? 'text-[#334155]' :
+                             rank === 3 ? 'text-[#7c2d12]' :
+                             'text-[#0f172a]'
+                         }`}>
+                            {toKuDigits(rank)}
+                         </span>
+                      </div>
+
+                      {/* Avatar Section */}
+                      <div className="flex items-center gap-3 z-10 px-1">
+                         {/* Clean Avatar (No Borders) */}
+                         <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0">
+                           <Avatar
+                             src={effectiveAvatar}
+                             updatedAt={isMe ? lastProfileUpdate : player.updated_at}
+                             size="full"
+                             className="rounded-full object-cover w-full h-full"
+                             border={false}
+                           />
+                         </div>
+                      </div>
+
+                      {/* Info and Name (CENTERED) */}
+                      <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-4">
+                         <span className="font-black text-slate-800 text-lg tracking-tight uppercase truncate">{effectiveNickname}</span>
+                         <span className="text-orange-500 text-lg">🔥</span>
+                      </div>
+
+                      {/* Shield (RIGHT SIDE) */}
+                      <div className="flex items-center shrink-0 pr-1">
+                         <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
+                            <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+                               <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="4" strokeOpacity="0.2" />
+                               <defs>
+                                  <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                                     <stop stopColor="#FFD700" />
+                                     <stop offset="1" stopColor="#B8860B" />
+                                  </linearGradient>
+                               </defs>
+                            </svg>
+                            <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
+                               <span className="text-[7px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
+                               <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                            </div>
+                         </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+            </motion.div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-48 gap-4">
+              <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="font-black text-slate-700 uppercase text-[10px] tracking-widest">LOADING...</span>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <PublicProfileModal
+        profile={selectedPlayer}
         currentUser={{ id: userId }}
-        onClose={() => setSelectedPlayer(null)} 
+        onClose={() => setSelectedPlayer(null)}
+        onToggleBlock={handleToggleBlock}
         onMessage={onOpenChat}
       />
-
     </div>
   );
 }

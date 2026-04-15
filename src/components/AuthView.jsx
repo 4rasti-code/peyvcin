@@ -38,7 +38,7 @@ const COUNTRIES = [
 ];
 
 const RESERVED_WORDS = ['admin', 'peyvcin', 'official', 'support', 'moderator', 'staff', 'peyv', 'super', 'root'];
-const NICKNAME_REGEX = /^[a-zA-Z0-9_\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{3,12}$/;
+const NICKNAME_REGEX = /^[a-zA-Z0-9_\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]{8,15}$/;
 
 const KurdistanFlag = () => (
   <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
@@ -141,14 +141,14 @@ export default function AuthView({ onAuthSuccess }) {
       const raw = nickname.trim();
       
       // 1. Basic Format Validation
-      if (raw.length < 3) {
+      if (raw.length < 8) {
         setNameAvailability('invalid');
-        setNameError('پێتڤییە ژ ٣ پیتان کێمتر نەبیت');
+        setNameError('نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت');
         return;
       }
-      if (raw.length > 12) {
+      if (raw.length > 15) {
         setNameAvailability('invalid');
-        setNameError('پێتڤییە ژ ١٢ پیتان پتر نەبیت');
+        setNameError('نابیت ناسناڤێ تە ژ ١٥ پیتان زێدەتر بیت');
         return;
       }
       if (!NICKNAME_REGEX.test(raw)) {

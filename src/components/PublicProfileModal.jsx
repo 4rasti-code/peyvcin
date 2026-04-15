@@ -7,6 +7,8 @@ import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
 import { FilsIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
+import { toKuDigits } from '../utils/formatters';
+import { useGame } from '../context/GameContext';
 
 const getRankInfo = (level) => {
   if (level >= 50) return { name: 'ئەفسانە', color: 'text-purple-400', border: 'border-purple-500' };
@@ -24,7 +26,8 @@ export default function PublicProfileModal({
   isFriend = false,
   isPending = false,
   isBlocked = false,
-  onToggleBlock
+  onToggleBlock,
+  onActionComplete
 }) {
   const [fullData, setFullData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -34,9 +37,10 @@ export default function PublicProfileModal({
   const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
   const [claiming, setClaiming] = useState(false);
-  const [relStatus, setRelStatus] = useState('none'); // 'none', 'pending', 'friend'
+  const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);
+  const { getLevelData } = useGame();
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -65,27 +69,45 @@ export default function PublicProfileModal({
       if (currentUid === profile.id) {
         setIsMe(true);
       } else if (currentUid) {
+        // More robust friendship check
         const { data: friendship } = await supabase
           .from('friendships')
-          .select('status')
-          .or(`and(user_id.eq.${currentUid},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUid})`)
+          .select('status, user_id, friend_id')
+          .or(`user_id.eq.${currentUid},friend_id.eq.${currentUid}`)
+          .in('user_id', [currentUid, profile.id])
+          .in('friend_id', [currentUid, profile.id])
           .maybeSingle();
 
         if (friendship) {
-          setRelStatus(friendship.status === 'accepted' ? 'friend' : 'pending');
+          if (friendship.status === 'accepted') {
+            setRelStatus('friend');
+          } else {
+            // Check direction for pending status
+            setRelStatus(friendship.user_id === currentUid ? 'pending_sent' : 'pending_received');
+          }
         } else {
           setRelStatus('none');
         }
 
-        // 4. Check Block Status
-        const { data: block } = await supabase
-          .from('blocks')
-          .select('id')
-          .eq('blocker_id', currentUid)
-          .eq('blocked_id', profile.id)
-          .maybeSingle();
-        
-        setInternalBlocked(!!block);
+        // 4. Check Block Status - Hardened against 403 errors
+        try {
+          const { data: block, error: blockError } = await supabase
+            .from('blocks')
+            .select('id')
+            .eq('blocker_id', currentUid)
+            .eq('blocked_id', profile.id)
+            .maybeSingle();
+          
+          if (blockError) {
+            console.warn("Block table access restricted (RLS):", blockError.message);
+            setInternalBlocked(false);
+          } else {
+            setInternalBlocked(!!block);
+          }
+        } catch (e) {
+          console.warn("Social permissions check failed:", e);
+          setInternalBlocked(false);
+        }
       }
 
       setLoading(false);
@@ -97,12 +119,17 @@ export default function PublicProfileModal({
 
   const displayData = fullData || profile;
   const avatar = AVATARS.find(a => a.id === displayData.avatar_url) || { symbol: '👤', name: 'User' };
-  const rank = getRankInfo(displayData.level || 1);
   
-  // Progress bar logic (basic assuming 100xp per level curve)
-  const currentLevelXP = (displayData.level || 1) * 100;
-  const nextLevelXP = ((displayData.level || 1) + 1) * 100;
-  const progressRatio = Math.min(100, Math.max(0, ((displayData.xp || 0) / nextLevelXP) * 100));
+  // Exponential Progress Logic (Standardized)
+  const levelData = getLevelData(displayData.xp || 0);
+  const safeLevel = levelData.level;
+  const progressRatio = levelData.progressPercent;
+  const nextLevelXP = Math.round(levelData.nextLevelBase);
+
+  const rank = getRankInfo(safeLevel);
+
+  // Online Status Logic: Consider online if active in the last 3 minutes
+  const isOnline = isMe || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
 
   // Mastery Logic
   const getMastery = (d) => {
@@ -175,7 +202,7 @@ export default function PublicProfileModal({
   const handleSendFriendRequest = async () => {
     if (!currentUser || relStatus !== 'none') return;
     triggerHaptic(15);
-    setRelStatus('pending'); // Optimistic UI
+    setRelStatus('pending_sent'); // Optimistic UI
     
     const { error } = await supabase
       .from('friendships')
@@ -184,6 +211,43 @@ export default function PublicProfileModal({
     if (error) {
       setRelStatus('none');
       console.error("Friend request error:", error);
+    } else {
+      if (onActionComplete) onActionComplete();
+    }
+  };
+
+  const handleAcceptFriendRequest = async () => {
+    if (!currentUser || relStatus !== 'pending_received') return;
+    triggerHaptic(20);
+    setRelStatus('friend'); // Optimistic
+    
+    const { error } = await supabase
+      .from('friendships')
+      .update({ status: 'accepted' })
+      .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUser.id})`);
+
+    if (error) {
+      setRelStatus('pending_received');
+      console.error("Accept error:", error);
+    } else {
+      if (onActionComplete) onActionComplete();
+    }
+  };
+
+  const handleDeclineFriendRequest = async () => {
+    if (!currentUser) return;
+    triggerHaptic(10);
+    setRelStatus('none'); // Optimistic
+    
+    const { error } = await supabase
+      .from('friendships')
+      .delete()
+      .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUser.id})`);
+
+    if (error) {
+      console.error("Decline error:", error);
+    } else {
+      if (onActionComplete) onActionComplete();
     }
   };
 
@@ -229,9 +293,28 @@ export default function PublicProfileModal({
           <span className="material-symbols-outlined text-[18px]">close</span>
         </button>
 
+        {/* Level Badge - Top Right (as requested) */}
+        <div className="absolute top-4 right-4 z-10">
+           <div className="relative w-11 h-12 flex items-center justify-center">
+              <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#medalGradientPublic)" stroke="white" strokeWidth="4" strokeOpacity="0.2" />
+                 <defs>
+                    <linearGradient id="medalGradientPublic" x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                       <stop stopColor={safeLevel >= 10 ? "#FFD700" : "#94a3b8"} />
+                       <stop offset="1" stopColor={safeLevel >= 10 ? "#B8860B" : "#475569"} />
+                    </linearGradient>
+                 </defs>
+              </svg>
+              <div className="relative z-10 flex flex-col items-center justify-center -mt-1.5">
+                 <span className="text-[7.5px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاستێ</span>
+                 <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(safeLevel)}</span>
+              </div>
+           </div>
+        </div>
+
         {/* Avatar Section */}
         <div className="relative mb-3 mt-2">
-          <div className={`w-28 h-28 rounded-full p-1.5 flex items-center justify-center shadow-xl relative ${displayData.level >= 10 ? 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600' : 'bg-slate-700'}`}>
+          <div className={`w-28 h-28 rounded-full p-1.5 flex items-center justify-center shadow-xl relative ${safeLevel >= 10 ? 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600' : 'bg-slate-700'}`}>
              <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-5xl border-[3px] border-slate-900 overflow-hidden relative shadow-inner">
                 <Avatar 
                    src={displayData.avatar_url} 
@@ -242,14 +325,10 @@ export default function PublicProfileModal({
              </div>
           </div>
           
-          {/* Online Dot (Aesthetic) */}
-          <div className="absolute bottom-2 right-2 w-6 h-6 bg-emerald-500 border-4 border-slate-900 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
-
-          {/* Level Badge */}
-          <div className={`absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full font-black text-sm border-2 border-slate-900 shadow-xl flex items-center gap-1 ${displayData.level >= 10 ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-slate-900' : 'bg-slate-700 text-white'}`}>
-             <span>ئاستێ</span>
-             <span>{displayData.level || 1}</span>
-          </div>
+          {/* Online Dot (Dynamic) */}
+          {isOnline && (
+            <div className="absolute bottom-2 right-2 w-6 h-6 bg-emerald-500 border-4 border-slate-900 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
+          )}
         </div>
 
         {/* Identity Section */}
@@ -332,7 +411,7 @@ export default function PublicProfileModal({
              <div className="grid grid-cols-2 gap-3">
                 <div className="bg-white/5 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
                    <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 font-ui">قەرەپوول</span>
+                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 font-ui">فلس</span>
                    <div className="flex items-center gap-1.5">
                       <span className="text-xl font-black text-white font-ui">{displayData.shayi || 0}</span>
                       <FilsIcon className="w-4 h-4" />
@@ -342,8 +421,8 @@ export default function PublicProfileModal({
                    <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 font-ui">ستریك</span>
                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl font-black text-white font-ui">{displayData.daily_streak || 0}</span>
-                      <span className="material-symbols-outlined text-orange-400 text-lg">local_fire_department</span>
+                      <span className="text-xl font-black text-white font-ui">{toKuDigits(displayData.daily_streak || 0)}</span>
+                      <span className="text-lg">🔥</span>
                    </div>
                 </div>
              </div>
@@ -426,17 +505,43 @@ export default function PublicProfileModal({
                  <span className="material-symbols-outlined text-xl relative z-10">chat</span>
                  <span className="relative z-10">نامەیێ بهنیرە</span>
               </button>
-            ) : relStatus === 'pending' ? (
-              <div className="w-full py-3.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-sm text-center">
-                 داخوازییا هەڤالینیێ هاتیە ناردن...
+            ) : relStatus === 'pending_sent' ? (
+              <div className="w-full flex flex-col gap-2">
+                <div className="w-full py-3.5 rounded-xl bg-slate-800/50 border border-white/5 text-slate-400 font-bold text-xs text-center flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined text-lg animate-pulse">hourglass_top</span>
+                  داخوازییا تە هاتە هنارتن و چاڤەڕێ بە...
+                </div>
+                <button 
+                  onClick={handleDeclineFriendRequest}
+                  className="text-[10px] font-black text-red-400 hover:text-red-300 transition-colors uppercase tracking-widest"
+                >
+                  پەشێمان بوون
+                </button>
+              </div>
+            ) : relStatus === 'pending_received' ? (
+              <div className="flex gap-2 w-full">
+                <button 
+                  onClick={handleAcceptFriendRequest}
+                  className="flex-[2] py-3.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-sm shadow-lg hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar"
+                >
+                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  وەربگرە
+                </button>
+                <button 
+                  onClick={handleDeclineFriendRequest}
+                  className="flex-1 py-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 font-black text-sm hover:bg-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  title="وەرنەگرتن"
+                >
+                  <span className="material-symbols-outlined text-xl">close</span>
+                </button>
               </div>
             ) : (
               <button 
                 onClick={handleSendFriendRequest}
-                className="w-full py-3.5 rounded-xl bg-slate-100 text-slate-950 font-black text-base shadow-lg hover:bg-white active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar"
+                className="w-full py-3.5 rounded-xl bg-slate-100 text-slate-950 font-black text-base shadow-lg hover:bg-white active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar font-bold"
               >
                  <span className="material-symbols-outlined text-xl">person_add</span>
-                 هەڤالینیێ زێدە بکە
+                 زێدە بکە
               </button>
             )}
 

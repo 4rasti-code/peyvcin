@@ -22,32 +22,29 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
     bgColor = 'bg-[#334155] border-none opacity-40 grayscale';
     textColor = 'text-white/30';
   } else if (isFocused) {
-    extraClasses = 'border-white/40 bg-[#1e293b] z-20';
+    // ACTIVE BOX HIGHLIGHT (STRICTLY GREEN)
+    bgColor = 'bg-[#1e293b] border-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.4)]';
+    extraClasses = 'z-20 scale-105 border-[3px]';
     textColor = 'text-white';
   } else if (char && isCurrent) {
-    bgColor = 'bg-[#1e293b] border-white/20 z-10 shadow-2xl';
+    bgColor = 'bg-[#1e293b] border-white/10 z-10 shadow-lg';
     textColor = 'text-white';
   }
   
   if (isNewHint) extraClasses += ' animate-hint-glow';
 
-  // DYNAMIC CORE: Scale font size based on word length as per URGENT UI FIX request
-  let fontSizeClass = 'text-3xl sm:text-4xl';
-  if (wordLength > 12) {
-    fontSizeClass = 'text-sm';
-  } else if (wordLength > 8) {
-    fontSizeClass = 'text-base sm:text-lg';
-  }
+  // HIDDEN INPUT LOGIC: Hide text if in Secret Mode and not revealed yet
+  const shouldHideText = isSecretMode && !showStatus;
 
   return (
     <motion.div 
       initial={false}
       animate={isFlipped ? { rotateY: 360 } : {}}
       transition={{ duration: 0.6, delay: flipDelay / 1000 }}
-      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-all transform relative overflow-hidden`}
+      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-all duration-200 transform relative overflow-hidden flex items-center justify-center`}
     >
       <span 
-        className={`font-bold font-heading ${textColor} select-none leading-none block ${isSecretMode && status !== STATUS.CORRECT && !isRevealed ? 'opacity-0' : 'opacity-100'} transition-opacity duration-700`}
+        className={`font-bold font-heading ${textColor} select-none leading-none block ${shouldHideText ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         style={{ 
           fontSize: 'clamp(1.2rem, 4.5vw, 2.5rem)',
           lineHeight: 1
@@ -55,11 +52,16 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
       >
         {char}
       </span>
+      {shouldHideText && char && (
+         <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2.5 h-2.5 rounded-full bg-white/40 animate-pulse" />
+         </div>
+      )}
     </motion.div>
   );
 }
 
-function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking }) {
+function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode }) {
   // DYNAMIC GRID: Columns generated based on any word length
   const gap = isMobile ? (wordLength > 7 ? '4px' : '8px') : (wordLength > 7 ? '8px' : '12px');
   
@@ -83,7 +85,10 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
         let status = STATUS.NONE;
         let isRevealed = revealedIndices.includes(i);
         let isNewHint = i === lastHintIndex;
-        let isFocused = isCurrent && i === (Array.isArray(guess) ? guess.findIndex(c => c === '') : -1);
+        
+        // Accurate focus: find the first empty slot
+        const firstEmptyIndex = Array.isArray(guess) ? guess.findIndex(c => c === '') : -1;
+        const isFocused = isCurrent && i === (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex);
 
         if (Array.isArray(guess)) {
           char = guess[i];
@@ -93,7 +98,6 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
           status = getLetterStatus(guess, i);
         }
 
-        // STABILIZED ANIMATION: Crisp 60ms stagger per tile for premium feel
         const baseDelay = 60;
 
         return (
@@ -107,6 +111,7 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
             isNewHint={isNewHint}
             isFocused={isFocused}
             isMobile={isMobile}
+            isSecretMode={isSecretMode}
             flipDelay={i * baseDelay}
           />
         );

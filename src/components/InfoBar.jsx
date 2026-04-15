@@ -12,6 +12,8 @@ export default function InfoBar({
   fils = 0,
   currentXP = 0,
   level = 1,
+  minXP = 0,
+  maxXP = 100,
   timeLeft = 60,
   showSuccessSplash = false
 }) {
@@ -22,9 +24,10 @@ export default function InfoBar({
   const isSecretWord = gameMode === 'secret_word';
   const displayText = targetHint || category || '...';
   
-  // XP Calculation
-  const xpThreshold = 500 + ((level - 1) * 150);
-  const progressPercent = Math.min(100, (currentXP / xpThreshold) * 100);
+  // XP Calculation: Relative Progress within the current level
+  const range = maxXP - minXP;
+  const relativeXP = Math.max(0, currentXP - minXP);
+  const progressPercent = range > 0 ? Math.min(100, (relativeXP / range) * 100) : 0;
 
   // Word Fever Mode Timer: Electric Purple baseline, Red for Critical end
   const getTimerStyles = (time) => {

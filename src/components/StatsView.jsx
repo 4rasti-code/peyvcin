@@ -56,8 +56,8 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
       <div className="grid grid-cols-2 gap-2.5 px-2">
         
         {/* Classic Mode Section */}
-        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group">
-           <div className="relative z-10 w-full overflow-hidden rounded-lg bg-[#2563eb] shadow-md border border-white/10 noise-grain">
+        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#2563eb] shadow-md border border-white/10 noise-grain flex flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-white/10">
@@ -84,8 +84,8 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
         </motion.div>
 
         {/* Daily Puzzle Section */}
-        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group">
-           <div className="relative z-10 w-full overflow-hidden rounded-lg bg-[#ea580c] shadow-md border border-white/10 noise-grain">
+        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#ea580c] shadow-md border border-white/10 noise-grain flex flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-white/10">
@@ -112,8 +112,8 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
         </motion.div>
 
         {/* Tournament Section */}
-        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group">
-           <div className="relative z-10 w-full overflow-hidden rounded-lg bg-[#7c3aed] shadow-md border border-white/10 noise-grain">
+        <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#7c3aed] shadow-md border border-white/10 noise-grain flex flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-purple-500/20">
@@ -135,8 +135,8 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
         </motion.div>
 
         {/* Global Stats Section */}
-        <motion.div variants={itemVariants} className="relative overflow-visible group">
-           <div className="relative z-10 w-full overflow-hidden rounded-lg bg-[#059669] shadow-md border border-white/10 noise-grain">
+        <motion.div variants={itemVariants} className="relative overflow-visible group h-full">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#059669] shadow-md border border-white/10 noise-grain flex flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-emerald-500/20">

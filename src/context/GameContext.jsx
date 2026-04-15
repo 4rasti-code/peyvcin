@@ -59,15 +59,39 @@ export const GameProvider = ({ children }) => {
   });
 
   /**
-   * RPG PROGRESSION FORMULA
-   * Required XP starts at 500 and scales up by 150 each level.
+   * EXPONENTIAL PROGRESSION FORMULA
+   * Base: 500, Factor: 1.1 (10% increase per level)
    */
-  const calculateMaxXP = (lvl) => {
-    if (lvl >= 100) return 999999;
-    return 500 + ((lvl - 1) * 150);
+  const LEVEL_BASE_XP = 500;
+  const LEVEL_FACTOR = 1.1;
+
+  const getLevelFromXP = (xp) => {
+    if (xp <= 0) return 1;
+    return Math.floor(Math.log(xp * (LEVEL_FACTOR - 1) / LEVEL_BASE_XP + 1) / Math.log(LEVEL_FACTOR)) + 1;
   };
 
-  const maxXP = calculateMaxXP(level);
+  const getLevelData = (xp) => {
+    const level = getLevelFromXP(xp);
+    const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, level - 1) - 1) / (LEVEL_FACTOR - 1);
+    const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, level) - 1) / (LEVEL_FACTOR - 1);
+    const levelWidth = nextLevelBase - currentLevelBase;
+    const progressInLevel = xp - currentLevelBase;
+    const progressPercent = levelWidth > 0 ? (progressInLevel / levelWidth) * 100 : 0;
+    
+    return {
+      level,
+      currentLevelBase,
+      nextLevelBase,
+      progressInLevel,
+      levelWidth,
+      progressPercent: Math.min(100, Math.max(0, progressPercent))
+    };
+  };
+  
+  const levelData = getLevelData(currentXP);
+  const minXPForLevel = levelData.currentLevelBase;
+  const maxXP = levelData.nextLevelBase;
+
 
   const refreshRank = async (xpValue = currentXP) => {
     try {
@@ -84,33 +108,33 @@ export const GameProvider = ({ children }) => {
       console.warn("Rank refresh failed:", err);
     }
   };
- 
-    // --- LOGIC: Automatic Level Up (Multi-level Jump Support) ---
-    useEffect(() => {
-      let tempLevel = level;
-      let didLevelUp = false;
-      
-      // Advance as many levels as the XP allows
-      while (currentXP >= calculateMaxXP(tempLevel) && tempLevel < 100) {
-        tempLevel++;
-        didLevelUp = true;
-      }
 
-      if (didLevelUp) {
-        setLevel(tempLevel);
-        
-        if (user) {
-          supabase.from('profiles').update({ 
-            level: tempLevel,
-            updated_at: new Date().toISOString()
-          }).eq('id', user.id).then();
-        }
-        localStorage.setItem('peyvchin_level', tempLevel.toString());
-        console.log(`🚀 Level Up! You reached Level ${tempLevel}`);
-        playSuccessSfx(); // Optional: level up fanfare
-        refreshRank(); // Refresh rank when level/xp changes significantly
+  // --- LOGIC: Automatic Level calculation from total XP ---
+  useEffect(() => {
+    if (currentXP === undefined) return;
+    
+    const currentL = getLevelFromXP(currentXP);
+
+    if (currentL !== level) {
+      const oldLevel = level;
+      setLevel(currentL);
+      
+      if (user) {
+        supabase.from('profiles').update({ 
+          level: currentL,
+          updated_at: new Date().toISOString()
+        }).eq('id', user.id).then();
       }
-    }, [currentXP, level, user]);
+      localStorage.setItem('peyvchin_level', currentL.toString());
+      
+      // Level Up Feedback
+      if (currentL > oldLevel && oldLevel !== 0) {
+         console.log(`🚀 Level Up: Level ${currentL}`);
+         playSuccessSfx(); 
+         refreshRank(currentXP);
+      }
+    }
+  }, [currentXP, user, level]);
 
   // 1. DATA SYNCHRONIZATION LIFECYCLE
   useEffect(() => {
@@ -289,12 +313,73 @@ export const GameProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // ONLINE HEARTBEAT
+  useEffect(() => {
+    if (!user) return;
+    const heartbeat = setInterval(async () => {
+      try {
+        await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
+      } catch(e) {}
+    }, 60000);
+    return () => clearInterval(heartbeat);
+  }, [user]);
+
   /**
-   * processLevelCompletion ACTION
-   * Executes the secure handle_level_completion RPC and updates local state.
+   * syncProgressToDatabase (NEW XP & STREAK SYSTEM)
+   * Uses handle_game_xp RPC for atomic progression sync.
+   */
+  const syncProgressToDatabase = async (lettersCount, gameMode = 'classic') => {
+    if (!user) return null;
+
+    try {
+      // 1. Execute the new atomic RPC
+      const { data, error } = await supabase.rpc('handle_game_xp', {
+        p_user_id: user.id,
+        p_letters_count: lettersCount,
+        p_shayi_bonus: 5 // Awarding 5 Shayi per correct letter
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        // Match names returned by handle_game_xp SQL
+        const { new_level, xp_added, current_streak } = data;
+
+        // 2. Immediate Local State Sync
+        // Important: v_current_xp in SQL is the new progress. 
+        // Since we don't return the new 'xp' column yet, we increment locally for speed
+        setCurrentXP(prev => prev + xp_added);
+        setDailyStreak(current_streak);
+        
+        // Handle Level Up local state & UI
+        if (new_level > level) {
+          setLevel(new_level);
+          // Level up feedback in Bahdini
+          alert(`پیرۆزە! تو گەهشتییە ئاستێ ${new_level} 🎊`);
+        }
+
+        // Return sync data for the Victory Overlay
+        return {
+          xpAdded: xp_added,
+          currentStreak: current_streak,
+          newLevel: new_level,
+          bahdiniMsg: current_streak > 1 
+            ? `ستریکێن تە: ${current_streak} ڕۆژ 🔥` 
+            : `دەستپێکرنەکا باشە! ✨`
+        };
+      }
+    } catch (err) {
+      console.error("XP Sync Failed:", err.message);
+      return null;
+    }
+    return null;
+  };
+
+  /**
+   * processLevelCompletion (LEGACY - Kept for compatibility if needed)
    */
   const processLevelCompletion = async (baseReward, xp, gameMode = 'classic', completedLevel = null) => {
-    // 1. Calculate Expected Reward for Optimistic UI
+    // We now prefer syncProgressToDatabase for primary game loops
     const multipliers = {
       'hard_words': 2.0,
       'secret_word': 2.5,
@@ -305,30 +390,22 @@ export const GameProvider = ({ children }) => {
     const multiplier = multipliers[gameMode] || 1.0;
     const reward = Math.ceil(baseReward * multiplier);
 
-    // 2. Optimistic Updates
     setFils(prev => prev + reward);
-    setCurrentXP(prev => prev + xp);
     
-    if (gameMode === 'mamak' && completedLevel === mamakLevel) setMamakLevel(prev => prev + 1);
-    if (gameMode === 'hard_words' && completedLevel === hardWordsLevel) setHardWordsLevel(prev => prev + 1);
-    if (gameMode === 'word_fever' && completedLevel === wordFeverLevel) setWordFeverLevel(prev => prev + 1);
-    if (gameMode === 'secret_word' && completedLevel === secretWordLevel) setSecretWordLevel(prev => prev + 1);
-
-    // 3. Database Sync via RPC
+    setCurrentXP(prevXP => {
+      const nextXP = prevXP + xp;
+      // Level increment is handled by the useEffect above
+      return nextXP;
+    });
+    
     if (user) {
-      try {
-        const { error } = await supabase.rpc('handle_level_completion', {
-          p_user_id: user.id,
-          p_reward_amount: Math.ceil(baseReward),
-          p_xp_amount: xp,
-          p_game_mode: gameMode,
-          p_completed_level: completedLevel
-        });
- 
-        if (error) throw error;
-      } catch (err) {
-        console.error("RPC Completion Failed:", err);
-      }
+      await supabase.rpc('handle_level_completion', {
+        p_user_id: user.id,
+        p_reward_amount: Math.ceil(baseReward),
+        p_xp_amount: xp,
+        p_game_mode: gameMode,
+        p_completed_level: completedLevel
+      });
     }
   };
 
@@ -499,11 +576,51 @@ export const GameProvider = ({ children }) => {
   };
 
 
+  const handleToggleBlock = async (targetId, currentStatus) => {
+    if (!user?.id) return;
+    try {
+      if (currentStatus) {
+        // Unblock
+        await supabase
+          .from('blocks')
+          .delete()
+          .eq('blocker_id', user.id)
+          .eq('blocked_id', targetId);
+      } else {
+        // Block
+        await supabase
+          .from('blocks')
+          .insert([{ blocker_id: user.id, blocked_id: targetId }]);
+      }
+      return true;
+    } catch (err) {
+      console.error("Block toggle failed:", err);
+      return false;
+    }
+  };
+
+  const checkBlockStatus = async (targetId) => {
+    if (!user?.id) return false;
+    try {
+      const { data, error } = await supabase
+        .from('blocks')
+        .select('id')
+        .eq('blocker_id', user.id)
+        .eq('blocked_id', targetId)
+        .maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error;
+      return !!data;
+    } catch (err) {
+      console.warn("Failed to check block status (possibly RLS):", err);
+      return false;
+    }
+  };
+
   return (
     <GameContext.Provider value={{ 
       level, mamakLevel, hardWordsLevel, wordFeverLevel, secretWordLevel,
       winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
-      currentXP, maxXP, fils, derhem, zer, addXP,
+      currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
       dailyStreak, setDailyStreak,
       inventory, setInventory,
       magnetCount, hintCount, skipCount,
@@ -513,6 +630,9 @@ export const GameProvider = ({ children }) => {
       updateInventory,
       updateProfile,
       processLevelCompletion,
+      syncProgressToDatabase,
+      getLevelFromXP, getLevelData,
+      handleToggleBlock, checkBlockStatus,
       userRank, 
       refreshRank,
       user, setUser,

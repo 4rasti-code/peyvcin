@@ -28,7 +28,8 @@ export default function ProfileView({
    playerStats,
    userRank,
    onViewChange,
-   maxXP
+   maxXP,
+   dailyStreak
 }) {
    const [activeTab, setActiveTab] = useState('profile');
    const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
@@ -49,7 +50,6 @@ export default function ProfileView({
    const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
    const nicknameInputRef = useRef(null);
 
-   // --- 1. SMART RE-VALIDATION ---
    useEffect(() => {
       setDraftNickname(userNickname);
       setDraftAvatar(userAvatar);
@@ -85,23 +85,34 @@ export default function ProfileView({
       };
    }, [isFlagBoxOpen]);
 
-   // Calculate progress within current level
-   const calculatePrevMaxXP = (lvl) => {
-      if (lvl <= 1) return 0;
-      return 500 + ((lvl - 2) * 150);
-   };
-   
-   const prevMaxXP = calculatePrevMaxXP(level);
-   const progress = Math.max(0, Math.min(1, (currentXP - prevMaxXP) / (maxXP - prevMaxXP)));
+   if (!user || user === null) {
+      return <div className="flex flex-col items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
+   }
 
-   // Define Level Tiers with specific premium gradients
+   const getLevelData = (xp) => {
+      const baseXP = 500;
+      const factor = 1.1;
+      if (xp <= 0) return { level: 1, progressPercent: 0 };
+      const lvl = Math.floor(Math.log(xp * (factor - 1) / baseXP + 1) / Math.log(factor)) + 1;
+      const currentLevelBase = baseXP * (Math.pow(factor, lvl - 1) - 1) / (factor - 1);
+      const nextLevelBase = baseXP * (Math.pow(factor, lvl) - 1) / (factor - 1);
+      const width = nextLevelBase - currentLevelBase;
+      const progress = xp - currentLevelBase;
+      return { level: lvl, progressPercent: Math.min(100, (progress / width) * 100) };
+   };
+
+   const levelInfo = getLevelData(Number(currentXP) || 0);
+   const safeLevel = levelInfo.level;
+   const progressPercent = Math.round(levelInfo.progressPercent);
+   const effectiveProgress = levelInfo.progressPercent / 100;
+
    const getLevelTier = (lvl) => {
-      if (lvl < 10) return { stop1: '#cd7f32', stop2: '#8b4513', shadow: 'rgba(139, 69, 19, 0.6)' }; // Bronze
-      if (lvl < 25) return { stop1: '#cbd5e1', stop2: '#64748b', shadow: 'rgba(100, 116, 139, 0.6)' }; // Silver
-      if (lvl < 45) return { stop1: '#fcd34d', stop2: '#b45309', shadow: 'rgba(180, 83, 9, 0.6)' };  // Gold
-      if (lvl < 70) return { stop1: '#22d3ee', stop2: '#0369a1', shadow: 'rgba(6, 182, 212, 0.6)' }; // Cyan/Master
-      if (lvl < 90) return { stop1: '#a855f7', stop2: '#4f46e5', shadow: 'rgba(139, 92, 246, 0.6)' }; // Purple/Imperial
-      return { stop1: '#ef4444', stop2: '#7f1d1d', shadow: 'rgba(239, 68, 68, 0.6)' };              // God Mode
+      if (lvl < 10) return { stop1: '#cd7f32', stop2: '#f97316', shadow: 'rgba(249, 115, 22, 0.4)' };
+      if (lvl < 25) return { stop1: '#cbd5e1', stop2: '#94a3b8', shadow: 'rgba(148, 163, 184, 0.4)' };
+      if (lvl < 45) return { stop1: '#fbbf24', stop2: '#d97706', shadow: 'rgba(245, 158, 11, 0.4)' };
+      if (lvl < 70) return { stop1: '#22d3ee', stop2: '#0891b2', shadow: 'rgba(6, 182, 212, 0.4)' };
+      if (lvl < 90) return { stop1: '#a855f7', stop2: '#7c3aed', shadow: 'rgba(139, 92, 246, 0.4)' };
+      return { stop1: '#ef4444', stop2: '#b91c1c', shadow: 'rgba(239, 68, 68, 0.4)' };
    };
 
    const tier = getLevelTier(level);
@@ -128,46 +139,37 @@ export default function ProfileView({
          setIsUploading(true);
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
+
          if (pendingFile) {
             try {
                const fileExt = pendingFile.name.split('.').pop();
                const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
-               
+
                const { data, error: uploadError } = await supabase.storage
                   .from('avatars')
                   .upload(fileName, pendingFile);
 
-               if (uploadError) {
-                  console.warn("Avatar upload failed, but continuing with nickname:", uploadError);
-                  alert("وێنە بار نەبوو (تکایە دڵنیابە Bucket: avatars یێ Public هەیە)، بەس دێ ناڤێ تە سەیڤ کەین.");
-               } else {
-                  const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
+               if (!uploadError) {
+                  const { data: { publicUrl } } = supabase.storage
+                     .from('avatars')
+                     .getPublicUrl(fileName);
                   finalAvatar = publicUrl;
+               } else {
+                  console.error("Upload error details:", uploadError);
                }
             } catch (upErr) {
-               console.error("Upload process error:", upErr);
+               console.error("Upload process crashed:", upErr);
             }
          }
 
-         const saveResult = await onProfileSave({
-            nickname: draftNickname,
-            avatar_url: finalAvatar,
-            countryCode: draftCountryCode,
-            isInKurdistan: draftIsInKurdistan
-         });
-         
+         await onProfileSave({ nickname: draftNickname, avatar_url: finalAvatar, countryCode: draftCountryCode, isInKurdistan: draftIsInKurdistan });
          setSaveSuccess(true);
          setIsNicknameLocked(true);
          setPendingFile(null);
          if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
          setLocalPreviewUrl(null);
          setTimeout(() => setSaveSuccess(false), 2000);
-      } catch (err) {
-         console.error("Save failed:", err);
-         alert(`خەلەتی د سەیڤکرنێ دا: ${err.message || 'Error'}`);
-      } finally {
-         setIsUploading(false);
-      }
+      } catch (err) { alert(`خەلەتی: ${err.message}`); } finally { setIsUploading(false); }
    };
 
    const selectedCountryName = draftIsInKurdistan ? 'کوردستان' : (COUNTRIES.find(c => c.code === draftCountryCode)?.name || 'جیھان');
@@ -175,67 +177,84 @@ export default function ProfileView({
    return (
       <div className="w-screen max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x-hidden relative z-10">
 
-         {/* 1. THE ACTION HEADER & MASTER CARD AREA */}
          <div className="px-5 mb-4 text-center flex flex-col items-center">
-            {/* THE MASTER BADGE - WIDE & COMPACT ASPECT */}
             <div className="relative w-full aspect-square max-w-[340px] rounded-[40px] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] bg-slate-950 group">
-               
-               {/* Static High-Contrast Background Background */}
+
                <div className="absolute inset-0 bg-gradient-to-b from-[#1a1c2c] via-[#0a0b14] to-black opacity-100"></div>
 
-               {/* PERIMETER XP PROGRESS STROKE - THE ELITE EXPERIENCE */}
-               <svg 
-                  className="absolute inset-0 w-full h-full pointer-events-none z-50 transform -rotate-90" 
-                  viewBox="0 0 340 340" 
-                  fill="none" 
+               <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-black/20 z-50 overflow-hidden">
+                  <motion.div
+                     key="liquid-xp-bar"
+                     initial={{ height: 0 }}
+                     animate={{ height: `${progressPercent}%` }}
+                     transition={{ duration: 2, ease: "circOut" }}
+                     className="absolute bottom-0 left-0 w-full rounded-t-full shadow-[0_0_10px_rgba(255,255,255,0.4)]"
+                     style={{
+                        background: `linear-gradient(to top, ${tier.stop2}, ${tier.stop1}, #fff)`
+                     }}
+                  >
+                     <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                        {[...Array(2)].map((_, i) => (
+                           <motion.div
+                              key={i}
+                              className="absolute bottom-0 w-1 h-1 bg-white/40 rounded-full blur-[1px]"
+                              animate={{ y: [-10, -100], opacity: [0, 1, 0] }}
+                              transition={{ duration: 2 + Math.random(), repeat: Infinity, delay: i * 0.5 }}
+                           />
+                        ))}
+                     </div>
+                  </motion.div>
+               </div>
+
+               <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none z-50 transform -rotate-90"
+                  viewBox="0 0 340 340"
+                  preserveAspectRatio="none"
+                  fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                >
-                  {/* Background Path (Empty State) - Slightly more visible track */}
-                  <rect x="2" y="2" width="336" height="336" rx="38" stroke="white" strokeWidth="4" strokeOpacity="0.08" />
-                  
-                  {/* Active Progress Path (Animated) */}
-                  <motion.rect 
-                     x="2" y="2" width="336" height="336" rx="38" 
-                     stroke="url(#cardProgressGradient)" 
-                     strokeWidth="6" 
-                     strokeLinecap="round"
-                     initial={{ pathLength: 0 }}
-                     animate={{ pathLength: progress }}
-                     transition={{ duration: 2, ease: "circOut" }}
-                     style={{ 
-                        filter: `drop-shadow(0 0 12px ${tier.shadow})`
-                     }}
-                  />
-                  
                   <defs>
-                     <linearGradient id="cardProgressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                     <linearGradient id="barGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" stopColor={tier.stop1} />
                         <stop offset="100%" stopColor={tier.stop2} />
                      </linearGradient>
                   </defs>
+                  <rect
+                     x="3" y="3"
+                     width="334" height="334"
+                     rx="38"
+                     stroke="white"
+                     strokeWidth="4"
+                     strokeOpacity="0.03"
+                  />
+                  <motion.rect
+                     x="3" y="3"
+                     width="334" height="334"
+                     rx="38"
+                     stroke={tier.stop1}
+                     strokeWidth="10"
+                     strokeLinecap="round"
+                     initial={{ pathLength: 0 }}
+                     animate={{ pathLength: effectiveProgress }}
+                     transition={{ duration: 2, ease: "circOut" }}
+                     className="opacity-20 blur-[8px]"
+                  />
+                  <motion.rect
+                     x="3" y="3"
+                     width="334" height="334"
+                     rx="38"
+                     stroke="url(#barGradient)"
+                     strokeWidth="6"
+                     strokeLinecap="round"
+                     initial={{ pathLength: 0 }}
+                     animate={{ pathLength: effectiveProgress }}
+                     transition={{ duration: 2, ease: "circOut" }}
+                  />
                </svg>
 
-               {/* Technical Hex Grid Texture */}
                <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] mix-blend-overlay"></div>
 
-               {/* Dynamic Core Glow */}
-               <div 
-                  className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] rounded-full blur-[90px] pointer-events-none transition-colors duration-500"
-                  style={{ backgroundColor: tier.stop1 + '26' }} // primary/15 logic
-               ></div>
-
-               {/* Dynamic Technical Rings */}
-               <div 
-                  className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border-2 rounded-full pointer-events-none transition-colors duration-500"
-                  style={{ borderColor: tier.stop1 + '1a' }} // primary/10 logic
-               ></div>
-               <div 
-                  className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 border rounded-full pointer-events-none transition-colors duration-500"
-                  style={{ borderColor: tier.stop1 + '0d' }} // primary/5 logic
-               ></div>
-
-               {/* Top Header Layer: Actions & Medal - Compacted Height */}
-               <div className="absolute top-0 left-0 right-0 h-16 z-30 px-6 flex justify-between items-center" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-16 z-50 px-6 flex justify-between items-center" dir="ltr">
                   <div className="w-10 h-10 flex items-center justify-center">
                      <AnimatePresence>
                         {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess && (
@@ -245,7 +264,7 @@ export default function ProfileView({
                               exit={{ scale: 0, rotate: 90 }}
                               onClick={(e) => { e.stopPropagation(); handleSave(); }}
                               disabled={isUploading}
-                              className="w-12 h-12 bg-primary text-slate-950 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] flex items-center justify-center border-2 border-white/40 z-50 hover:scale-110 active:scale-95 transition-all"
+                              className="w-12 h-12 bg-primary text-slate-950 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] flex items-center justify-center border-2 border-white/40 hover:scale-110 active:scale-95 transition-all"
                            >
                               {isUploading ? (
                                  <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
@@ -257,14 +276,9 @@ export default function ProfileView({
                      </AnimatePresence>
                   </div>
 
-                  <div className="relative flex flex-col items-center pt-2">
+                  <div className="relative flex flex-col items-center pt-5">
                      <div className="flex flex-col items-center relative group/medal">
-                        {/* Premium Shield Badge Shape */}
                         <div className="relative w-14 h-15 flex items-center justify-center">
-                           {/* Outer Glow */}
-                           <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-150 opacity-0 group-hover/medal:opacity-100 transition-opacity"></div>
-
-                           {/* SVG Shield Background */}
                            <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#medalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.2" />
                               <defs>
@@ -274,64 +288,63 @@ export default function ProfileView({
                                  </linearGradient>
                               </defs>
                            </svg>
-
-                           {/* Level Number */}
                            <div className="relative z-10 flex flex-col items-center justify-center -mt-2">
                               <span className="text-[9px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
-                              <span className="text-2xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(level)}</span>
+                              <span className="text-2xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(safeLevel)}</span>
                            </div>
                         </div>
                      </div>
                   </div>
                </div>
 
-               {/* Central Player Portrait - Overlapping Banner */}
-               <div className="absolute top-8 left-0 right-0 bottom-0 flex flex-col items-center z-20">
-                  <div
-                     className="relative cursor-pointer hover:scale-105 active:scale-95 transition-all duration-300"
-                     onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
-                  >
-                     <div className="relative">
-                        <div className="absolute inset-0 -m-1 rounded-full border border-primary/20"></div>
-                        <Avatar src={draftAvatar} size="xxl" className="w-36 h-36 rounded-full border-2 border-slate-950 shadow-[0_0_30px_rgba(0,0,0,0.8)] z-20" updatedAt={user?.updated_at} />
-                        <div className="absolute bottom-1 right-1 w-9 h-9 bg-white text-slate-950 rounded-full shadow-xl border-2 border-slate-950 flex items-center justify-center z-30 group-hover:bg-primary transition-colors">
-                           <span className="material-symbols-outlined text-lg font-black">photo_camera</span>
+               <div className="absolute top-4 left-0 right-0 flex flex-col items-center z-20">
+                  <div className="relative w-40 h-40 flex items-center justify-center">
+                     <div
+                        className="relative z-10 cursor-pointer hover:scale-105 active:scale-95 transition-all duration-300"
+                        onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
+                     >
+                        <div className="relative">
+                           <Avatar src={draftAvatar} size="xl" className="w-32 h-32 rounded-full border-4 border-slate-950 shadow-2xl z-20" updatedAt={user?.updated_at} />
+                           <div className="absolute bottom-1 right-2 w-9 h-9 bg-white text-slate-950 rounded-full shadow-lg border-2 border-slate-950 flex items-center justify-center z-30">
+                              <span className="material-symbols-outlined text-[18px] font-black">photo_camera</span>
+                           </div>
                         </div>
                      </div>
                   </div>
                </div>
 
-               {/* Bottom Identity Plate - Minimalist & Closer */}
                <div className="absolute bottom-4 left-4 right-4 z-40 text-right" dir="rtl">
-                  <div className="bg-slate-900/40 backdrop-blur-2xl rounded-[28px] border border-white/5 p-4 shadow-2xl">
+                  <div className="bg-slate-900/40 backdrop-blur-2xl rounded-[28px] border border-white/5 p-4 shadow-2xl relative overflow-hidden">
+                     <div className="absolute top-4 left-4 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
+                        <span className="text-orange-500 font-black text-sm">{toKuDigits(dailyStreak || 0)}</span>
+                        <span className="text-base">🔥</span>
+                     </div>
+
                      <div className="flex flex-col items-center mb-4">
                         <h3 className="text-2xl font-black font-rabar text-white text-center leading-tight tracking-tight">{draftNickname || 'یاریکەر'}</h3>
                      </div>
                      <div className="grid grid-cols-3 gap-2 px-1" dir="ltr" style={{ color: level < 10 ? '#fff' : level < 25 ? '#1e293b' : level < 45 ? '#451a03' : '#000' }}>
-                        {/* Master XP Bubble */}
-                        <div 
+                        <div
                            className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 transition-colors duration-500"
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
-                           <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>ماستەر</span>
+                           <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>XP</span>
                            <span className="text-lg font-black leading-none tracking-tighter text-white">{toKuDigits(currentXP)}</span>
                         </div>
 
-                        {/* Progress Rate Bubble - Most Vibrant */}
-                        <div 
+                        <div
                            className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl shadow-lg border-2 z-10 transition-all duration-500 scale-105"
-                           style={{ 
-                              backgroundColor: tier.stop1, 
+                           style={{
+                              backgroundColor: tier.stop1,
                               borderColor: 'rgba(255,255,255,0.2)',
                               boxShadow: `0 10px 20px -5px ${tier.shadow}`
                            }}
                         >
                            <span className="text-[8px] font-black uppercase mb-0.5" style={{ color: level < 25 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)' }}>ڕێژە</span>
-                           <span className="text-xl font-black leading-none">{toKuDigits(Math.round(progress * 100))}</span>
+                           <span className="text-xl font-black leading-none">{toKuDigits(Math.round(effectiveProgress * 100))}</span>
                         </div>
 
-                        {/* Rank Bubble */}
-                        <div 
+                        <div
                            className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 relative overflow-hidden group transition-colors duration-500"
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
@@ -349,14 +362,9 @@ export default function ProfileView({
             </div>
          </div>
 
-         {/* 2. THE MASTER TAB BAR - MATCHING CARD AESTHETIC */}
          <div className="mx-6 mb-4">
-            <div className="flex bg-slate-950/90 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden">
-               {/* Subtle technical background decoration for the tab bar */}
-               <div className="absolute inset-0 opacity-5 pointer-events-none">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary via-transparent to-transparent"></div>
-               </div>
-
+            <div className="flex p-1 rounded-md border shadow-sm relative overflow-hidden transition-all"
+               style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                {[
                   { id: 'profile', label: 'بەرپەر', icon: 'person' },
                   { id: 'stats', label: 'ئامار', icon: 'leaderboard' },
@@ -367,16 +375,16 @@ export default function ProfileView({
                      <button
                         key={tab.id}
                         onClick={() => { triggerHaptic(10); setActiveTab(tab.id); }}
-                        className={`flex-1 relative py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 z-10 ${isActive
-                              ? 'text-slate-950'
-                              : 'text-slate-500 hover:text-white/80'
+                        className={`flex-1 relative py-2.5 rounded-md flex items-center justify-center gap-2 transition-all duration-300 z-10 ${isActive
+                           ? 'text-white'
+                           : 'text-slate-500 hover:text-slate-700'
                            }`}
                      >
                         {isActive && (
                            <motion.div
                               layoutId="activeTabBadge"
-                              className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_20px_rgba(var(--primary-rgb),0.4)]"
-                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                              className="absolute inset-0 bg-slate-800 rounded-md shadow-sm"
+                              transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
                            />
                         )}
                         <span className={`material-symbols-outlined text-[20px] relative z-10 ${isActive ? 'font-bold' : ''}`}>{tab.icon}</span>
@@ -387,7 +395,6 @@ export default function ProfileView({
             </div>
          </div>
 
-         {/* 3. CONTENT AREA (SCROLLABLE) */}
          <div className="flex-1 overflow-y-auto px-4 pb-[80px] scrollbar-hide">
             <AnimatePresence mode="wait">
                {activeTab === 'friends' && (
@@ -412,58 +419,100 @@ export default function ProfileView({
                )}
 
                {activeTab === 'profile' && (
-                  <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-5">
-                     {/* Nickname Section */}
-                     <div className="space-y-3">
-                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest">ناڤێ تە</label>
-                        <div className="relative group flex items-center gap-2">
-                           <div className="relative flex-1">
-                              <input ref={nicknameInputRef} type="text" value={draftNickname} onChange={(e) => setDraftNickname(e.target.value)} readOnly={isNicknameLocked} className={`w-full h-11 border rounded-md px-4 font-black font-rabar transition-all pr-10 text-right noise-grain shadow-sm ${isNicknameLocked ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-950 border-primary ring-2 ring-primary/20'}`} />
-                              <button onClick={() => { triggerHaptic(10); setIsNicknameLocked(false); setTimeout(() => nicknameInputRef.current?.focus(), 50); }} className={`absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] ${isNicknameLocked ? 'text-slate-400 hover:text-primary' : 'text-primary'}`}>{isNicknameLocked ? 'edit' : 'edit_square'}</button>
+                  <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 pt-2">
+                     <div className="space-y-2 flex flex-col items-end">
+                        <label className="text-[10px] font-bold text-slate-500 px-2 uppercase tracking-widest text-right block w-full mt-1">ناسناڤێ تە</label>
+                        <div className="flex items-center gap-2 w-full">
+                           <div className="relative w-full">
+                              <input
+                                 ref={nicknameInputRef}
+                                 type="text"
+                                 value={draftNickname}
+                                 onChange={(e) => setDraftNickname(e.target.value)}
+                                 readOnly={isNicknameLocked}
+                                 maxLength={20}
+                                 className={`w-full h-10 border rounded-md px-4 font-bold font-rabar transition-all pr-10 text-right noise-grain shadow-sm text-[13px] ${isNicknameLocked ? 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed' : 'bg-white text-slate-950 border-slate-200 ring-2 ring-primary/20'}`}
+                              />
+                              <button onClick={() => { triggerHaptic(10); setIsNicknameLocked(false); setTimeout(() => nicknameInputRef.current?.focus(), 50); }} className={`absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] ${isNicknameLocked ? 'text-slate-400 hover:text-primary' : 'text-primary'}`}>{isNicknameLocked ? 'edit' : 'edit_square'}</button>
                            </div>
                            {(draftNickname !== userNickname) && draftNickname.trim() && !saveSuccess && (
-                              <motion.button initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} onClick={handleSave} className="h-11 px-4 bg-[#007AFF] text-white rounded-md font-bold text-sm shadow-md transition-all">پاراستن</motion.button>
+                              <motion.button
+                                 initial={{ scale: 0.8, opacity: 0 }}
+                                 animate={{ scale: 1, opacity: 1 }}
+                                 onClick={handleSave}
+                                 disabled={draftNickname.length < 8 || draftNickname.length > 15}
+                                 className={`h-10 px-3 rounded-md font-black text-[10px] shadow-md whitespace-nowrap transition-all ${draftNickname.length < 8 || draftNickname.length > 15 ? 'bg-slate-300 text-slate-500 opacity-50 cursor-not-allowed' : 'bg-primary text-black'}`}
+                              >
+                                 پاراستن
+                              </motion.button>
                            )}
                         </div>
-                        {/* Flag Selection */}
-                        <div className="flex justify-start px-1 mt-2">
-                           <div className="relative flex items-center gap-2">
-                              <button ref={flagButtonRef} onClick={() => { triggerHaptic(10); setIsFlagBoxOpen(!isFlagBoxOpen); }} className={`flex items-center gap-1.5 px-3 py-0.5 rounded-md border transition-all ${isFlagBoxOpen ? 'bg-primary border-primary shadow-md' : 'bg-white border-slate-200/80 shadow-xs hover:bg-slate-50'}`}>
-                                 <FlagBadge countryCode={draftCountryCode} isInKurdistan={draftIsInKurdistan} size="xs" />
-                                 <span className="text-[10px] font-black font-rabar tracking-wide text-slate-600">{selectedCountryName}</span>
-                                 <span className={`material-symbols-outlined text-[16px] transition-transform ${isFlagBoxOpen ? 'rotate-180 text-slate-950' : 'text-slate-400'}`}>expand_more</span>
-                              </button>
-                              {(draftCountryCode !== countryCode || draftIsInKurdistan !== isInKurdistan) && !saveSuccess && (
-                                 <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={handleSave} className="w-8 h-8 bg-[#007AFF] text-white rounded-lg flex items-center justify-center shadow-sm">
-                                    <span className="material-symbols-outlined text-lg">check</span>
-                                 </motion.button>
-                              )}
-                              {isFlagBoxOpen && createPortal(
-                                 <AnimatePresence mode="wait">
-                                    <motion.div ref={flagDropdownRef} initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} style={{ position: 'absolute', top: dropdownCoords.top + 6, left: dropdownCoords.left, width: dropdownCoords.width }} className="bg-slate-50 rounded-xl shadow-xl border border-slate-200 z-9999 overflow-hidden noise-grain">
-                                       <div className="p-1.5 max-h-55 overflow-y-auto no-scrollbar">
-                                          <button onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); setIsFlagBoxOpen(false); }} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white w-full">
-                                             <FlagBadge isInKurdistan={true} size="xs" />
-                                             <span className="flex-1 text-left text-[11px] font-bold font-rabar text-slate-700">کوردستان</span>
-                                             {draftIsInKurdistan && <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>}
-                                          </button>
-                                          {COUNTRIES.map((country) => (
-                                             <button key={country.code} onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); setIsFlagBoxOpen(false); }} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white w-full">
-                                                <FlagBadge countryCode={country.code} size="xs" />
-                                                <span className="flex-1 text-left text-[11px] font-bold font-rabar text-slate-700">{country.name}</span>
-                                                {!draftIsInKurdistan && draftCountryCode === country.code && <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>}
-                                             </button>
-                                          ))}
-                                       </div>
-                                    </motion.div>
-                                 </AnimatePresence>, document.body
-                              )}
+                        {!isNicknameLocked && (
+                           <div className="w-full text-right px-1 mt-1">
+                              <AnimatePresence>
+                                 {draftNickname.length > 0 && draftNickname.length < 8 && (
+                                    <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت</motion.p>
+                                 )}
+
+                                 {draftNickname.length > 15 && (
+                                    <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناڤێ تە ژ ١٥ پیتان زێدەتر بیت</motion.p>
+                                 )}
+
+                              </AnimatePresence>
                            </div>
+                        )}
+                     </div>
+
+                     <div className="space-y-2 flex flex-col items-end">
+                        <label className="text-[10px] font-bold text-slate-500 px-2 uppercase tracking-widest text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
+                        <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow-hidden mb-1">
+                           <span className="truncate">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
+                           <span className="material-symbols-outlined text-[18px] mr-2 text-slate-400">mail</span>
                         </div>
                      </div>
-                     {/* Avatar Selection */}
+
+                     <div className="space-y-2 flex flex-col items-end">
+                        <label className="text-[10px] font-bold text-slate-500 px-1 uppercase tracking-widest text-right block w-full">وەڵات</label>
+                        <div className="flex items-center gap-2 w-full">
+                           <div className="relative w-full">
+                              <button ref={flagButtonRef} onClick={() => { triggerHaptic(10); setIsFlagBoxOpen(!isFlagBoxOpen); }} className={`flex items-center px-3 h-10 rounded-md border transition-all w-full justify-between flex-row-reverse ${isFlagBoxOpen ? 'bg-primary border-primary shadow-md' : 'bg-white border-slate-200/80 shadow-xs hover:bg-slate-50'}`}>
+                                 <span className={`material-symbols-outlined text-[16px] transition-transform ${isFlagBoxOpen ? 'rotate-180 text-slate-950' : 'text-slate-400'}`}>expand_more</span>
+                                 <div className="flex items-center gap-2">
+                                    <FlagBadge countryCode={draftCountryCode} isInKurdistan={draftIsInKurdistan} size="xs" />
+                                    <span className="text-[11px] font-black font-rabar tracking-wide text-slate-600">{selectedCountryName}</span>
+                                 </div>
+                              </button>
+                           </div>
+                           {(draftCountryCode !== countryCode || draftIsInKurdistan !== isInKurdistan) && !saveSuccess && (
+                              <motion.button initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} onClick={handleSave} className="h-10 px-3 bg-primary text-black rounded-md font-black text-[10px] shadow-md whitespace-nowrap">پاراستن</motion.button>
+                           )}
+                        </div>
+
+                        {isFlagBoxOpen && createPortal(
+                           <AnimatePresence mode="wait">
+                              <motion.div ref={flagDropdownRef} initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} style={{ position: 'absolute', top: dropdownCoords.top + 6, left: dropdownCoords.left, width: dropdownCoords.width }} className="bg-slate-50 rounded-xl shadow-xl border border-slate-200 z-[9999] overflow-hidden noise-grain">
+                                 <div className="p-1.5 max-h-55 overflow-y-auto no-scrollbar">
+                                    <button onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); setIsFlagBoxOpen(false); }} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white w-full">
+                                       <FlagBadge isInKurdistan={true} size="xs" />
+                                       <span className="flex-1 text-left text-[11px] font-bold font-rabar text-slate-700">کوردستان</span>
+                                       {draftIsInKurdistan && <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>}
+                                    </button>
+                                    {COUNTRIES.map((country) => (
+                                       <button key={country.code} onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); setIsFlagBoxOpen(false); }} className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-white w-full">
+                                          <FlagBadge countryCode={country.code} size="xs" />
+                                          <span className="flex-1 text-left text-[11px] font-bold font-rabar text-slate-700">{country.name}</span>
+                                          {!draftIsInKurdistan && draftCountryCode === country.code && <span className="material-symbols-outlined text-[16px] text-primary">check_circle</span>}
+                                       </button>
+                                    ))}
+                                 </div>
+                              </motion.div>
+                           </AnimatePresence>,
+                           document.body
+                        )}
+                     </div>
+
                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest">هەلبژارتنا ئاڤاتاری</label>
+                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest text-right block w-full">هەلبژارتنا ئاڤاتاری</label>
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 noise-grain">
                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3 max-h-55 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
                               {AVATARS.map((avatar) => (

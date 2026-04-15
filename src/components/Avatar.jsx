@@ -10,12 +10,17 @@ export default function Avatar({
   src, 
   symbol, 
   updatedAt, 
+  lastActive, // Timestamp to check online status
+  showStatus = false,
   className = "", 
   size = "md", // 'sm', 'md', 'lg', 'xl', '2xl'
   border = true
 }) {
   const isRemote = typeof src === 'string' && src.startsWith('http');
   const avatarData = AVATARS.find(a => a.id === src);
+  
+  // Calculate online status (if provided & within 3 minutes)
+  const isOnline = showStatus && lastActive && (new Date() - new Date(lastActive)) < 3 * 60 * 1000;
   
   // Asset vs. Storage Logic: ONLY apply versioning if it's a remote URL
   let displaySrc = avatarData?.img || (isRemote ? src : null);
@@ -68,6 +73,16 @@ export default function Avatar({
            {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
         </span>
       </div>
+
+      {/* STATUS INDICATORS */}
+      {showStatus && (
+        <>
+          {isOnline && (
+            <div className="absolute inset-0 rounded-full border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
+          )}
+          <div className={`absolute top-0 right-0 ${size === 'xs' ? 'w-2 h-2' : size === 'sm' ? 'w-2.5 h-2.5' : size === 'lg' ? 'w-4 h-4' : 'w-3 h-3'} ${isOnline ? 'bg-emerald-500 shadow-emerald-500/20 shadow-lg' : 'bg-slate-500/50 grayscale'} border-2 border-slate-900 rounded-full z-20 transition-colors`} />
+        </>
+      )}
     </div>
   );
 }

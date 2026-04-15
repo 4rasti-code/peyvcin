@@ -103,7 +103,7 @@ export const wordList = {
     { word: "مۆز", hint: "ميوەیەکێ زەر و خوەش کو ل وەلاتێن گەرم دهێت چاندن." },
     { word: "هرمیک", hint: "ميوەیەکێ پایزیێ ب تامە." },
     { word: "هنار", hint: "ميوەیەکێ سۆر و پڕی دلۆپێن ئاڤێ یێن ب تام هەنە." },
-    { word: "ترێ", hint: "ميوەیەکێ هاڤینێیە کو ب ئیشیێ دارێڤە دهێت." },
+    { word: "تری", hint: "ميوەیەکێ هاڤینێیە کو ب ئیشیێ دارێڤە دهێت." },
     { word: "هەژیر", hint: "ميوەیەکێ پاییزێیە، کو مرۆڤ دشێت ب هشکی ژی بخۆت." },
     { word: "زەبەش", hint: "ميوەیەکێ مەزن یێ هاڤینێیە، کو پڕی ئاڤە." }
   ],
@@ -233,59 +233,68 @@ export function getUnifiedWords() {
   return words;
 }
 
-export function getRandomWordFromCategory(category, level = 1, solvedWords = [], excludeWord = null) {
+export function getRandomWordFromCategory(category, level = 1, solvedWords = [], gameMode = 'classic') {
+  // 1. DETERMINE POOL
+  let rawPool = [];
+  let poolCategory = category;
+
   if (category === 'هەموو' || category === 'generalWordPool') {
-    const words = getUnifiedWords();
-    let availableWords = words.filter(item => !solvedWords.includes(item.word) && item.word !== excludeWord);
-    if (availableWords.length === 0) availableWords = words;
-    
-    let minLen = 3, maxLen = 5;
-    if (level > 10 && level <= 50) { minLen = 5; maxLen = 7; }
-    else if (level > 50 && level <= 100) { minLen = 8; maxLen = 10; }
-    else if (level > 100) { minLen = 10; maxLen = 34; }
-
-    const complexityMatches = availableWords.filter(item => 
-      item.word.length >= minLen && item.word.length <= maxLen
-    );
-    const finalPool = complexityMatches.length > 0 ? complexityMatches : availableWords;
-    return finalPool[Math.floor(Math.random() * finalPool.length)];
+    rawPool = getUnifiedWords();
+  } else if (category === 'مامک' || category === 'mamak' || gameMode === 'mamak') {
+    rawPool = wordList['مامک'];
+  } else if (category === 'پەیڤێن دژوار' || category === 'hard_words' || gameMode === 'hard_words') {
+    rawPool = wordList['پەیڤێن دژوار'];
+  } else {
+    // Standard category
+    if (category === 'خواردن') poolCategory = 'خوارن';
+    rawPool = wordList[poolCategory] || getUnifiedWords();
   }
 
-  if (category === 'مامک' || category === 'mamak') {
-    const pool = wordList['مامک'];
-    const index = (level - 1) % pool.length; 
-    return pool[index];
-  }
+  if (!rawPool || rawPool.length === 0) return null;
 
-  let poolCategory = (category === 'پەیڤێن دژوار' || category === 'hard_words') ? 'پەیڤێن دژوار' : category;
-  if (poolCategory === 'خواردن') poolCategory = 'خوارن';
+  // 2. DEFINE LENGTH LIMITS PER MODE
+  let minLen = 2, maxLen = 15;
   
-  const words = wordList[poolCategory];
-  if (!words || words.length === 0) return null;
+  switch(gameMode) {
+    case 'hard_words':
+      minLen = 6; maxLen = 15;
+      break;
+    case 'word_fever':
+    case 'secret_word':
+      minLen = 2; maxLen = 15;
+      break;
+    case 'mamak':
+      // Mamak logic is usually sequential or random within its own pool, 
+      // but let's allow all lengths in its pool.
+      minLen = 2; maxLen = 40; 
+      break;
+    default: // classic
+      minLen = 2; maxLen = 5;
+  }
 
-  let availableWords = words.filter(item => 
-    !solvedWords.includes(item.word) && item.word !== excludeWord
+  // 3. APPLY FILTERING (Unsolved First)
+  let availableWords = rawPool.filter(item => 
+    !solvedWords.includes(item.word) && 
+    item.word.length >= minLen && 
+    item.word.length <= maxLen
   );
+
+  // If no unsolved words match the criteria, fall back to any word matching the criteria
   if (availableWords.length === 0) {
-    availableWords = words;
+    availableWords = rawPool.filter(item => 
+      item.word.length >= minLen && 
+      item.word.length <= maxLen
+    );
   }
 
-  let minLen = 3, maxLen = 5;
-  if (poolCategory === 'پەیڤێن دژوار' || poolCategory === 'پەیڤێن نەهێنی') {
-      minLen = 6; maxLen = 12;
-  } else if (poolCategory === 'تایا پەیڤان') {
-      minLen = 4; maxLen = 6;
-  } else if (level > 10 && level <= 50) { 
-      minLen = 5; maxLen = 7; 
-  } else if (level > 50 && level <= 100) { 
-      minLen = 8; maxLen = 10; 
-  } else if (level > 100) { 
-      minLen = 10; maxLen = 34; 
+  // Final Failsafe: if still empty, return anything from the pool
+  if (availableWords.length === 0) availableWords = rawPool;
+
+  // 4. SPECIAL CASE: MAMAK PROGRESSION (Optional sequential logic)
+  if (gameMode === 'mamak') {
+    const index = (level - 1) % availableWords.length;
+    return availableWords[index];
   }
 
-  const complexityMatches = availableWords.filter(item => 
-    item.word.length >= minLen && item.word.length <= maxLen
-  );
-  const finalPool = complexityMatches.length > 0 ? complexityMatches : (availableWords.length > 0 ? availableWords : words);
-  return finalPool[Math.floor(Math.random() * finalPool.length)];
+  return availableWords[Math.floor(Math.random() * availableWords.length)];
 }

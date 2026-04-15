@@ -46,7 +46,11 @@ export const fetchGlobalMessages = async (limit = 50) => {
 export const sendGlobalMessage = async (userId, nickname, content) => {
   const { data, error } = await supabase
     .from('messages')
-    .insert([{ content, user_id: userId, user_nickname: nickname || 'یاریکەر' }]);
+    .insert([{ 
+      content, 
+      user_id: userId, 
+      user_nickname: nickname || 'یاریکەر' 
+    }]);
   return { data, error };
 };
 
@@ -87,7 +91,12 @@ export const fetchPrivateChatHistory = async (userId, partnerId) => {
 export const sendPrivateMessage = async (senderId, recipientId, content) => {
   const { data, error } = await supabase
     .from('private_messages')
-    .insert([{ content, sender_id: senderId, recipient_id: recipientId }]);
+    .insert([{ 
+      content, 
+      text: content, // Added to fix NOT NULL constraint
+      sender_id: senderId, 
+      recipient_id: recipientId 
+    }]);
   return { data, error };
 };
 

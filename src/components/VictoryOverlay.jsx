@@ -279,6 +279,14 @@ const VictoryOverlay = ({
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
                 </div>
+                {/* XP Reward Row */}
+                <div className="flex justify-between items-center text-sm font-black font-ui group/row bg-white/5 -mx-2 px-2 py-1 rounded-lg">
+                  <span className="text-white/80">خەلاتێ ئاستی</span>
+                  <div className="flex items-center gap-1.5 text-orange-400">
+                    <AnimatedNumber value={xp || 0} prefix="+" />
+                    <span className="text-[10px] font-black tracking-tighter opacity-80">XP</span>
+                  </div>
+                </div>
                 {breakdown?.isMamak && (
                   <div className="flex justify-between items-center text-xs font-bold font-ui border-t border-white/10 pt-2 mt-2">
                     <div className="flex items-center gap-1.5 text-yellow-400/80 italic">

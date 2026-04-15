@@ -13,7 +13,7 @@ import DictionaryView from './components/DictionaryView';
 import NotificationsView from './components/NotificationsView';
 import { getRandomWordFromCategory, wordList } from './data/wordList';
 import { STATUS } from './data/constants';
-import { useMusic } from './components/MusicContext';
+
 import { useGame } from './context/GameContext'; // Global Progression Context
 import VictoryOverlay from './components/VictoryOverlay';
 import CoinAnimation from './components/CoinAnimation';
@@ -56,7 +56,6 @@ const lazyWithRetry = (componentImport) =>
 const LeaderboardView = lazyWithRetry(() => import('./components/LeaderboardView'));
 const SocialHubView = lazyWithRetry(() => import('./components/SocialHubView'));
 const ShopView = lazyWithRetry(() => import('./components/ShopView'));
-const DailyMissionsModal = lazyWithRetry(() => import('./components/DailyMissionsModal'));
 
 const PEYVCIN_VERSION = '2.0.0';
 
@@ -90,12 +89,12 @@ class GameErrorBoundary extends React.Component {
 
 export default function App() {
   const [currentView, setCurrentView] = useState('lobby');
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [_isDarkMode, _setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('peyvchin_theme');
     return saved ? saved === 'dark' : true;
   });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [_isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
 
   useEffect(() => {
@@ -109,10 +108,9 @@ export default function App() {
   const [category, setCategory] = useState('');
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState([]);
-  const [message, setMessage] = useState('');
+  const [_message, setMessage] = useState('');
   const [usedKeys, setUsedKeys] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isMissionsOpen, setIsMissionsOpen] = useState(false);
+  const [_isModalOpen, setIsModalOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -122,6 +120,7 @@ export default function App() {
   const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
   const [startTime, setStartTime] = useState(0);
   const [rewardAmount, setRewardAmount] = useState(0);
+  const [rewardAmountXp, setRewardAmountXp] = useState(0);
   const [defeatBreakdown, setDefeatBreakdown] = useState({ base: 0, mistakes: 0, total: 0 });
   const [magnetUsedInRound, setMagnetUsedInRound] = useState(false);
   const [magnetDisabledKeys, setMagnetDisabledKeys] = useState([]);
@@ -134,7 +133,7 @@ export default function App() {
   const {
     level, mamakLevel, hardWordsLevel, wordFeverLevel, secretWordLevel,
     winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
-    currentXP, maxXP, fils, derhem, zer, addXP,
+    currentXP, maxXP, minXPForLevel, fils, derhem, zer, _addXP,
     dailyStreak, setDailyStreak,
     magnetCount, hintCount, skipCount,
     setMagnetCount, setHintCount, setSkipCount,
@@ -145,6 +144,7 @@ export default function App() {
     updateInventory,
     updateProfile,
     processLevelCompletion,
+    syncProgressToDatabase,
     setLevel, setCurrentXP,
     appSoundsEnabled, setAppSoundsEnabled,
     hapticEnabled, setHapticEnabled,
@@ -174,15 +174,27 @@ export default function App() {
   }, [notificationsList, playNotifSound, playMessageSound]);
 
   const [isLevelingUp, setIsLevelingUp] = useState(false);
+  const prevLevelRef = useRef(level);
+
   const [showFreshPulse, setShowFreshPulse] = useState(false);
   const [lastSolvedWord, setLastSolvedWord] = useState('');
   const [isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
   const [isWordFeverResultVisible, setIsWordFeverResultVisible] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [wordFeverResultType, setWordFeverResultType] = useState('win');
   const [isAppReady, setIsAppReady] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
 
-  // MANDATORY AUTHENTICATION ENFORCEMENT
+  // TRIGGER LEVEL UP UI (Standardized)
+  useEffect(() => {
+    if (level > prevLevelRef.current && prevLevelRef.current !== 0) {
+      setIsLevelingUp(true);
+      triggerHaptic([40, 60, 40, 60, 80]);
+    }
+    prevLevelRef.current = level;
+  }, [level]);
+
+  // MANDATORY AUTHENTICATION ENFORCEMENT & HEARTBEAT (Online Status)
   useEffect(() => {
     if (!isGameLoading) {
       if (!user) {
@@ -191,7 +203,54 @@ export default function App() {
         setCurrentView('lobby');
       }
     }
-  }, [user, isGameLoading, currentView]);
+  }, [user?.id, isGameLoading, currentView]);
+
+  // REAL-TIME NOTIFICATIONS (Messages & Friend Requests)
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const socialChannel = supabase
+      .channel(`social-updates-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `recipient_id=eq.${user.id}` },
+        (_payload) => {
+          setSocialNotifications(prev => ({
+            ...prev,
+            unreadMessages: prev.unreadMessages + 1
+          }));
+          setNotificationsList(prev => [{
+            id: Date.now(),
+            type: 'message',
+            title: 'نامەیەکا نوی',
+            message: 'تە نامەیەکا تایبەت وەرگرت',
+            created_at: new Date().toISOString()
+          }, ...prev]);
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` },
+        (_payload) => {
+          setSocialNotifications(prev => ({
+            ...prev,
+            pendingRequests: prev.pendingRequests + 1
+          }));
+          setNotificationsList(prev => [{
+            id: Date.now(),
+            type: 'friend_request',
+            title: 'داخوازییا هەڤالینیێ',
+            message: 'کەسەکی داخوازیا هەڤالینیێ بۆ تە هنارتییە',
+            created_at: new Date().toISOString()
+          }, ...prev]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(socialChannel);
+    };
+  }, [user?.id]);
 
   const [lastProfileUpdate, setLastProfileUpdate] = useState(Date.now());
   const [activeChatPartner, setActiveChatPartner] = useState(null);
@@ -356,16 +415,16 @@ export default function App() {
 
       if (result?.success) {
         setLastProfileUpdate(Date.now());
-        
+
         // Success Sound & Vibration
-        if (typeof playSound === 'function') playSound('victory');
+        playVictorySound();
         if (window.navigator?.vibrate) window.navigator.vibrate(50);
 
         // Safe call for refreshRank (ensuring it exists)
         try {
           if (typeof refreshRank === 'function') refreshRank();
         } catch (e) { console.warn("Rank refresh failed but profile is saved", e); }
-        
+
         alert('پڕۆفایل ب سەرکەفتی هاتە پاراستن!');
       } else {
         const errCode = result.error?.code;
@@ -386,14 +445,12 @@ export default function App() {
   useEffect(() => {
     if (currentView === 'game') {
       try {
-        if (typeof playSound === 'function') {
-          playSound('start');
-        }
+        playStartSound();
       } catch (e) {
         console.warn("Start sound trigger failed", e);
       }
     }
-  }, [currentView]);
+  }, [currentView, playStartSound]);
 
   const handleOpenChat = (player) => {
     setActiveChatPartner(player);
@@ -482,7 +539,6 @@ export default function App() {
 
     if (isMatch) {
       if (gameMode === 'word_fever') {
-        // Word Fever Mode Success - TRIGGER UI IMMEDIATELY
         setIsWordFeverResultVisible(true);
         setWordFeverResultType('win');
         playRewardSound();
@@ -497,48 +553,38 @@ export default function App() {
 
       const nextSolved = [...solvedWords, targetWord];
       updateProfile({ solvedWords: nextSolved });
-      if (!isSkip && gameMode !== 'word_fever') {
+      if (!isSkip) {
         const breakdown = calculateLevelRewards(targetWord, newGuesses, gameMode);
-
         setVictoryBreakdown(breakdown);
         setRewardAmount(breakdown.total);
 
-        // Execute secure background sync via RPC
-        const currentModeLevel =
-          gameMode === 'mamak' ? mamakLevel :
-            gameMode === 'hard_words' ? hardWordsLevel :
-              gameMode === 'word_fever' ? wordFeverLevel :
-                gameMode === 'secret_word' ? secretWordLevel :
-                  null;
+        const handleVictorySync = async () => {
+          const syncData = await syncProgressToDatabase(targetWord.length, gameMode);
+          if (syncData) {
+            setRewardAmountXp(syncData.xpAdded);
+            console.log(`تە ${syncData.xpAdded} XP وەرگرتن! ${syncData.bahdiniMsg}`);
+          }
+        };
+        handleVictorySync();
 
-        const baseReward = breakdown.green + breakdown.yellow - breakdown.gray;
-
-        // Progress Unlock Tracker: Increment if winning ANY mode except Secret Word
         if (gameMode !== 'secret_word') {
           incrementSecretWordProgress();
         } else {
-          // If finishing a Secret Word session (Win), reset tracker
           resetSecretWordProgress();
         }
 
-        processLevelCompletion(
-          baseReward,
-          100,
-          gameMode,
-          currentModeLevel
-        );
+        const baseReward = breakdown.green + breakdown.yellow - breakdown.gray;
+        processLevelCompletion(baseReward, 0, gameMode, null);
       }
-    } else if (newGuesses.length >= (gameMode === 'word_fever' ? 3 : 6)) {
+    } else if (newGuesses.length >= (gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6))) {
       const penaltyBreakdown = calculateDefeatPenalty(targetWord, newGuesses, gameMode);
       setDefeatBreakdown(penaltyBreakdown);
 
-      // Bankruptcy Protection
       const nextFils = Math.max(0, Math.ceil(fils - penaltyBreakdown.total));
       updateInventory({ fils: nextFils }, false);
 
       setIsDefeat(true);
 
-      // If finishing a Secret Word session (Loss), reset tracker
       if (gameMode === 'secret_word') {
         resetSecretWordProgress();
       }
@@ -548,7 +594,7 @@ export default function App() {
       setCurrentGuess(freshGuess);
     }
     setTimeout(() => { isSubmittingRef.current = false; }, 300);
-  }, [currentGuess, targetWord, guesses, isLevelingUp, gameMode, revealedIndices, addXP]);
+  }, [currentGuess, targetWord, guesses, isLevelingUp, gameMode, revealedIndices]);
 
   const handleHint = () => {
     if (hintCount <= 0 || isVictory) return;
@@ -629,7 +675,7 @@ export default function App() {
       }
     };
     const targetDifficultyLevel = getModeLevel();
-    const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, solvedWords);
+    const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, solvedWords, forcedMode || gameMode);
 
     if (wordObj) {
       if (forcedMode) setGameMode(forcedMode);
@@ -659,7 +705,7 @@ export default function App() {
       }
     };
     const targetDifficultyLevel = getModeLevel();
-    const wordObj = getRandomWordFromCategory(category, targetDifficultyLevel, solvedWords);
+    const wordObj = getRandomWordFromCategory(category, targetDifficultyLevel, solvedWords, gameMode);
 
     if (wordObj) {
       resetBoard(wordObj);
@@ -695,10 +741,12 @@ export default function App() {
     if (gameMode === 'word_fever' && isWordFeverResultVisible) {
       const t = setTimeout(() => {
         if (wordFeverResultType === 'win') {
+          // Note: handleVictorySync in onEnter already handles the database sync and local state XP increment
+          // So we don't need addXP(50) here anymore to avoid double-dipping, 
+          // but we might want the extra 50 Fils.
           updateInventory({ fils: 50 });
-          addXP(50);
-          processLevelCompletion(50, 50, 'word_fever', wordFeverLevel);
         } else if (wordFeverResultType === 'fail') {
+
           // Penalty for losing in Word Fever
           updateInventory({ fils: -50 });
         }
@@ -724,7 +772,10 @@ export default function App() {
         setIsSettingsOpen(false);
       } else {
         // If we found a session (e.g. after Google redirect), ensure we go to lobby
-        setCurrentView('lobby');
+        // But ONLY if we were on the auth screen to avoid disrupting state
+        if (currentView === 'auth') {
+          setCurrentView('lobby');
+        }
       }
     });
 
@@ -848,7 +899,7 @@ export default function App() {
       )}
 
       {/* 1. STATE-BASED NAVIGATION HEADER */}
-      {currentView !== 'auth' && currentView !== 'leaderboard' && (
+      {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && (
         <TopAppBar
           user={user} fils={fils} derhem={derhem} zer={zer}
           level={level} dailyStreak={dailyStreak}
@@ -869,7 +920,7 @@ export default function App() {
       )}
 
       {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-      <main className={`flex-1 ${currentView === 'game' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+      <main className={`flex-1 ${currentView === 'game' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
         {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
           setUser(u);
           if (nicknameHint) {
@@ -909,7 +960,6 @@ export default function App() {
             onSocialClick={() => {
               setCurrentView('social_hub');
             }}
-            onMissionsClick={() => setIsMissionsOpen(true)}
             onStartMamak={() => {
               playPopSound();
               triggerHaptic(10);
@@ -923,7 +973,6 @@ export default function App() {
             secretWordLevel={secretWordLevel}
             winsTowardsSecret={winsTowardsSecret}
             dailyStreak={dailyStreak}
-            dailyWinsCount={solvedWords.length}
             equippedAvatar={equippedAvatar}
             onViewChange={setCurrentView}
             notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
@@ -944,6 +993,8 @@ export default function App() {
                   maxGuesses={gameMode === 'word_fever' ? 3 : 6}
                   fils={fils}
                   currentXP={currentXP}
+                  minXP={minXPForLevel}
+                  maxXP={maxXP}
                   level={level}
                   timeLeft={timeLeft}
                   showSuccessSplash={isSuccessSplash}
@@ -961,10 +1012,26 @@ export default function App() {
                     revealedIndices={revealedIndices}
                     lastHintIndex={-1}
                     targetWord={targetWord}
-                    maxRows={gameMode === 'word_fever' ? 3 : 6}
+                    maxRows={gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6)}
                     isSecretMode={gameMode === 'secret_word'}
                     isShaking={isShaking}
                   />
+
+                  {/* SECRET MODE SUBMIT BUTTON */}
+                  {gameMode === 'secret_word' && !isVictory && !isDefeat && (
+                    <div className="w-full max-w-sm mx-auto px-6 mt-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
+                      <button
+                        onClick={() => onEnter()}
+                        className="w-full bg-[#10b981] hover:bg-[#059669] text-white py-5 rounded-[2.5rem] font-black text-2xl shadow-[0_20px_40px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-4 border-b-4 border-[#047857]"
+                      >
+                        <span className="material-symbols-outlined text-3xl">check_circle</span>
+                        تەمام (Submit)
+                      </button>
+                      <p className="text-[10px] text-white/20 text-center mt-4 font-bold uppercase tracking-[0.2em]">
+                        بتنێ ئێک هەول یا تە هەی
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1010,11 +1077,13 @@ export default function App() {
               }}
               onViewMessages={handleViewMessages}
               onViewFriends={handleViewFriends}
+              onKeyboardToggle={setIsKeyboardOpen}
             />
           )}
           {currentView === 'leaderboard' && (
             <LeaderboardView
               userId={user?.id}
+              userLevel={level}
               userXP={currentXP}
               userFils={fils}
               userNickname={userNickname}
@@ -1094,6 +1163,7 @@ export default function App() {
               zer={zer}
               playerStats={playerStats}
               userRank={userRank}
+              dailyStreak={dailyStreak}
               onViewChange={setCurrentView}
             />
           )}
@@ -1108,7 +1178,7 @@ export default function App() {
       </main>
 
       {/* 3. CONDITIONAL BOTTOM NAV */}
-      {currentView !== 'game' && currentView !== 'auth' && (
+      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && (
         <BottomNav currentView={currentView} setCurrentView={setCurrentView} onSettingsToggle={() => { setIsSettingsOpen(true); }} />
       )}
 
@@ -1117,6 +1187,7 @@ export default function App() {
         isVisible={isVictory}
         breakdown={victoryBreakdown}
         solvedWord={targetWord}
+        xp={rewardAmountXp}
         onNext={handleNextGame}
         onHome={() => {
           setIsVictory(false);
@@ -1168,10 +1239,11 @@ export default function App() {
         isVisible={isDefeat}
         solvedWord={targetWord}
         breakdown={defeatBreakdown}
+        gameMode={gameMode}
         onRetry={() => {
           setIsDefeat(false);
-          const wordObj = getRandomWordFromCategory(category, gameMode === 'mamak' ? mamakLevel : level, solvedWords, true);
-          // Note: added 'true' as 4th param to getRandomWordFromCategory to force-returning the current level's word for retry
+          // Fixed: passing gameMode correctly to maintain difficulty/length rules on retry
+          const wordObj = getRandomWordFromCategory(category, gameMode === 'mamak' ? mamakLevel : level, solvedWords, gameMode);
           if (wordObj) resetBoard(wordObj);
         }}
         onHome={() => {
@@ -1198,6 +1270,12 @@ export default function App() {
           setCurrentView('lobby');
           setCategory('');
         }}
+      />
+
+      <LevelUpOverlay 
+        isVisible={isLevelingUp} 
+        newLevel={level} 
+        onClose={() => setIsLevelingUp(false)} 
       />
 
     </div>
