@@ -39,7 +39,8 @@ export default function Keyboard({
   gameMode = 'classic',
   magnetUsedInRound = false,
   hintTaps = 0,
-  hintLimit = 0
+  hintLimit = 0,
+  hidePowerups = false
 }) {
   const { playSound } = useMusic();
   const [activeKey, setActiveKey] = useState(null);
@@ -80,18 +81,20 @@ export default function Keyboard({
     <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation pb-1 pt-2 relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
       
       {/* Premium Power-up Capsule Bar */}
-      <InventoryBar 
-        magnetCount={magnetCount}
-        hintCount={hintCount}
-        skipCount={skipCount}
-        onHint={onHint}
-        onMagnet={onMagnet}
-        onSkip={onSkip}
-        hintTaps={hintTaps}
-        hintLimit={hintLimit}
-        magnetUsedInRound={magnetUsedInRound}
-        className="mb-6"
-      />
+      {!hidePowerups && (
+        <InventoryBar 
+          magnetCount={magnetCount}
+          hintCount={hintCount}
+          skipCount={skipCount}
+          onHint={onHint}
+          onMagnet={onMagnet}
+          onSkip={onSkip}
+          hintTaps={hintTaps}
+          hintLimit={hintLimit}
+          magnetUsedInRound={magnetUsedInRound}
+          className="mb-6"
+        />
+      )}
 
       {ROWS.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1 w-full justify-center">

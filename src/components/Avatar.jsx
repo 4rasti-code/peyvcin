@@ -51,37 +51,37 @@ export default function Avatar({
   const selectedSizeClass = sizeClasses[size] || sizeClasses['md'];
 
   return (
-    <div className={`rounded-full flex items-center justify-center overflow-hidden shrink-0 relative ${selectedSizeClass} ${border ? 'border border-white/10' : ''} ${className}`}>
-      {hasImage ? (
-        <img 
-          src={displaySrc} 
-          alt="User Avatar" 
-          className="w-full h-full object-cover"
-          loading="lazy"
-          onError={(e) => {
-            // If the image fails to load, fallback to symbol
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-      ) : null}
-      
-      <div 
-        className={`w-full h-full items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : 'flex'}`}
-      >
-        <span className="select-none leading-none drop-shadow-md">
-           {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
-        </span>
-      </div>
+    <div className={`relative shrink-0 rounded-full ${selectedSizeClass} ${className}`}>
+      <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden relative ${border ? 'border border-white/10' : ''}`}>
+        {hasImage ? (
+          <img 
+            src={displaySrc} 
+            alt="User Avatar" 
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        
+        <div 
+          className={`w-full h-full items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : 'flex'}`}
+        >
+          <span className="select-none leading-none drop-shadow-md">
+             {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
+          </span>
+        </div>
 
-      {/* STATUS INDICATORS */}
+        {showStatus && isOnline && (
+          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
+        )}
+      </div>
+      
+      {/* STATUS INDICATORS - Outside overflow-hidden */}
       {showStatus && (
-        <>
-          {isOnline && (
-            <div className="absolute inset-0 rounded-full border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
-          )}
-          <div className={`absolute top-0 right-0 ${size === 'xs' ? 'w-2 h-2' : size === 'sm' ? 'w-2.5 h-2.5' : size === 'lg' ? 'w-4 h-4' : 'w-3 h-3'} ${isOnline ? 'bg-emerald-500 shadow-emerald-500/20 shadow-lg' : 'bg-slate-500/50 grayscale'} border-2 border-slate-900 rounded-full z-20 transition-colors`} />
-        </>
+        <div className={`absolute bottom-0 right-0 ${size === 'xs' ? 'w-2.5 h-2.5' : size === 'sm' ? 'w-3 h-3' : size === 'lg' ? 'w-4.5 h-4.5' : 'w-3.5 h-3.5'} ${isOnline ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-slate-600'} border-2 border-slate-900 rounded-full z-20 transition-all duration-300`} />
       )}
     </div>
   );

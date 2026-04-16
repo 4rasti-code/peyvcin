@@ -366,7 +366,7 @@ export default function ProfileView({
             <div className="flex p-1 rounded-md border shadow-sm relative overflow-hidden transition-all"
                style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                {[
-                  { id: 'profile', label: 'بەرپەر', icon: 'person' },
+                  { id: 'profile', label: 'بەرپەڕ', icon: 'person' },
                   { id: 'stats', label: 'ئامار', icon: 'leaderboard' },
                   { id: 'friends', label: 'هەڤال', icon: 'group' }
                ].map(tab => {

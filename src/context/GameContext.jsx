@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { playSuccessSfx, playPopSfx, playNotifSfx, playMessageSfx, playGameStartSfx, playCoinSfx } from '../utils/audio';
 
@@ -6,10 +6,7 @@ const GameContext = createContext();
 
 export const GameProvider = ({ children }) => {
   const [level, setLevel] = useState(1);
-  const [mamakLevel, setMamakLevel] = useState(1);
-  const [hardWordsLevel, setHardWordsLevel] = useState(1);
-  const [wordFeverLevel, setWordFeverLevel] = useState(1);
-  const [secretWordLevel, setSecretWordLevel] = useState(1);
+  const [lastNotifiedLevel, setLastNotifiedLevel] = useState(1);
   const [winsTowardsSecret, setWinsTowardsSecret] = useState(0);
   const [currentXP, setCurrentXP] = useState(0);
   const [dailyStreak, setDailyStreak] = useState(0);
@@ -93,8 +90,20 @@ export const GameProvider = ({ children }) => {
   const maxXP = levelData.nextLevelBase;
 
 
+  const lastRefreshTime = useRef(0);
+  const lastXPRef = useRef(-1);
+
   const refreshRank = async (xpValue = currentXP) => {
+    // 1. Guard: If value hasn't changed AND we refreshed very recently (< 2s), skip
+    const now = Date.now();
+    if (xpValue === lastXPRef.current && (now - lastRefreshTime.current < 2000)) {
+       return;
+    }
+
     try {
+      lastRefreshTime.current = now;
+      lastXPRef.current = xpValue;
+
       // Query how many users have MORE xp than current user
       const { count, error } = await supabase
         .from('profiles')
@@ -109,33 +118,6 @@ export const GameProvider = ({ children }) => {
     }
   };
 
-  // --- LOGIC: Automatic Level calculation from total XP ---
-  useEffect(() => {
-    if (currentXP === undefined) return;
-    
-    const currentL = getLevelFromXP(currentXP);
-
-    if (currentL !== level) {
-      const oldLevel = level;
-      setLevel(currentL);
-      
-      if (user) {
-        supabase.from('profiles').update({ 
-          level: currentL,
-          updated_at: new Date().toISOString()
-        }).eq('id', user.id).then();
-      }
-      localStorage.setItem('peyvchin_level', currentL.toString());
-      
-      // Level Up Feedback
-      if (currentL > oldLevel && oldLevel !== 0) {
-         console.log(`🚀 Level Up: Level ${currentL}`);
-         playSuccessSfx(); 
-         refreshRank(currentXP);
-      }
-    }
-  }, [currentXP, user, level]);
-
   // 1. DATA SYNCHRONIZATION LIFECYCLE
   useEffect(() => {
     const initializeSession = async () => {
@@ -148,18 +130,12 @@ export const GameProvider = ({ children }) => {
         // Fallback to local storage for guests
         const localXP = localStorage.getItem('peyvchin_xp');
         const localLvl = localStorage.getItem('peyvchin_level');
-        const localMamakLvl = localStorage.getItem('peyvchin_mamak_level');
-        const localHardLvl = localStorage.getItem('peyvchin_hard_words_level');
-        const localFeverLvl = localStorage.getItem('peyvchin_word_fever_level');
-        const localSecretLvl = localStorage.getItem('peyvchin_secret_word_level');
+        const localNotifiedLvl = localStorage.getItem('peyvchin_last_notified_level');
         const localUnlockProgress = localStorage.getItem('peyvchin_wins_towards_secret');
         
         if (localXP) setCurrentXP(parseFloat(localXP));
         if (localLvl) setLevel(parseInt(localLvl));
-        if (localMamakLvl) setMamakLevel(parseInt(localMamakLvl));
-        if (localHardLvl) setHardWordsLevel(parseInt(localHardLvl));
-        if (localFeverLvl) setWordFeverLevel(parseInt(localFeverLvl));
-        if (localSecretLvl) setSecretWordLevel(parseInt(localSecretLvl));
+        if (localNotifiedLvl) setLastNotifiedLevel(parseInt(localNotifiedLvl));
         if (localUnlockProgress) setWinsTowardsSecret(parseInt(localUnlockProgress));
         
         // Sync items
@@ -178,14 +154,14 @@ export const GameProvider = ({ children }) => {
         let data, error;
         try {
           // 1. Primary Attempt: All Premium Columns
-          const columns = 'level, xp, mamak_level, hard_word_count, word_fever_level, secret_word_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, inventory, app_sounds_enabled, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
+          const columns = 'level, xp, last_notified_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, inventory, app_sounds_enabled, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
           
           let result = await supabase.from('profiles').select(columns).eq('id', userId).single();
           
           // 2. Defensive Fallback: If 42703 (Undefined Column) occurs, fetch only 100% Core columns
           if (result.error && result.error.code === '42703') {
             console.warn("Detection of missing columns in Supabase. Falling back to Core Select.");
-            const coreColumns = 'level, xp, shayi, magnets, hints, skips'; // Basics that must exist
+            const coreColumns = 'level, xp, last_notified_level, shayi, magnets, hints, skips'; // Basics that must exist
             result = await supabase.from('profiles').select(coreColumns).eq('id', userId).single();
           }
 
@@ -198,7 +174,7 @@ export const GameProvider = ({ children }) => {
 
         if (error && error.code === 'PGRST116') {
           const initialRecord = {
-            id: userId, level: 1, xp: 0,
+            id: userId, level: 1, xp: 0, last_notified_level: 1,
             shayi: 1000, dirham: 50, dinar: 5,
             magnets: 3, hints: 5, skips: 2,
             inventory: {
@@ -221,10 +197,6 @@ export const GameProvider = ({ children }) => {
           };
 
           safeSet(setLevel, data.level, 1);
-          safeSet(setMamakLevel, data.mamak_level, 1);
-          safeSet(setHardWordsLevel, data.hard_word_count, 1); // Mapping hard_word_count to local state
-          safeSet(setWordFeverLevel, data.word_fever_level, 1);
-          safeSet(setSecretWordLevel, data.secret_word_level, 1);
           safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
           safeSet(setCurrentXP, data.xp, 0);
           safeSet(setFils, data.shayi, 1000);
@@ -234,6 +206,7 @@ export const GameProvider = ({ children }) => {
           safeSet(setHintCount, data.hints, 5);
           safeSet(setSkipCount, data.skips, 2);
           safeSet(setDailyStreak, data.daily_streak, 0);
+          safeSet(setLastNotifiedLevel, data.last_notified_level, 1);
           
           // Safety fallback for sound/haptic columns
           setAppSoundsEnabled(data.app_sounds_enabled !== undefined ? data.app_sounds_enabled : (localStorage.getItem('peyvchin_app_sounds') === 'true'));
@@ -328,34 +301,49 @@ export const GameProvider = ({ children }) => {
    * syncProgressToDatabase (NEW XP & STREAK SYSTEM)
    * Uses handle_game_xp RPC for atomic progression sync.
    */
-  const syncProgressToDatabase = async (lettersCount, gameMode = 'classic') => {
-    if (!user) return null;
+  const syncProgressToDatabase = async (lettersCount, gameMode = 'classic', additionalData = {}) => {
+    if (!user?.id) return null;
 
     try {
-      // 1. Execute the new atomic RPC
+      // 1. Execute the primary atomic RPC for XP and Currency
       const { data, error } = await supabase.rpc('handle_game_xp', {
         p_user_id: user.id,
         p_letters_count: lettersCount,
-        p_shayi_bonus: 5 // Awarding 5 Shayi per correct letter
+        p_shayi_bonus: additionalData.shayiBonus || 5
       });
 
       if (error) throw error;
 
       if (data) {
-        // Match names returned by handle_game_xp SQL
         const { new_level, xp_added, current_streak } = data;
+        const finalXP = (currentXP || 0) + xp_added;
 
-        // 2. Immediate Local State Sync
-        // Important: v_current_xp in SQL is the new progress. 
-        // Since we don't return the new 'xp' column yet, we increment locally for speed
-        setCurrentXP(prev => prev + xp_added);
-        setDailyStreak(current_streak);
+        // 2. Perform any additional profile updates in parallel to save time (solved words, secret progress)
+        const profileUpdates = {
+          updated_at: new Date().toISOString()
+        };
         
-        // Handle Level Up local state & UI
+        if (additionalData.solvedWords) profileUpdates.inventory = { ...inventory, solved_words: additionalData.solvedWords };
+        if (additionalData.winsTowardsSecret !== undefined) profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
+        if (additionalData.resetSecretProgress) profileUpdates.wins_towards_secret = 0;
+
+        // Fire-and-forget these secondary updates or wait for them? 
+        // We'll wait to ensure everything is solid before the victory screen.
+        await supabase.from('profiles').update(profileUpdates).eq('id', user.id);
+
+        // 3. Local State Sync
+        setCurrentXP(finalXP);
+        setDailyStreak(current_streak);
+        if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
+        if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
+        if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
+        
         if (new_level > level) {
           setLevel(new_level);
-          // Level up feedback in Bahdini
-          alert(`پیرۆزە! تو گەهشتییە ئاستێ ${new_level} 🎊`);
+          refreshRank(finalXP); // Correctly passing the numeric value
+        } else {
+          // Refresh rank if XP changed significantly or just for correctness
+          refreshRank(finalXP);
         }
 
         // Return sync data for the Victory Overlay
@@ -530,9 +518,14 @@ export const GameProvider = ({ children }) => {
     if (profileData.city !== undefined) setCity(profileData.city);
     if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
     if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
+    if (profileData.lastNotifiedLevel !== undefined) {
+      setLastNotifiedLevel(profileData.lastNotifiedLevel);
+      localStorage.setItem('peyvchin_last_notified_level', profileData.lastNotifiedLevel.toString());
+    }
 
     // Map internal names to DB column names (Direct Columns)
     const dbUpdates = {};
+    if (profileData.lastNotifiedLevel !== undefined) dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
     if (profileData.nickname !== undefined) {
       const cleanNickname = profileData.nickname.trim();
       dbUpdates.nickname = cleanNickname;
@@ -560,18 +553,29 @@ export const GameProvider = ({ children }) => {
       setInventory(nextInventory);
     }
 
+    // SANITIZATION: Remove any undefined values to prevent 400 Bad Request
+    Object.keys(dbUpdates).forEach(key => {
+      if (dbUpdates[key] === undefined) delete dbUpdates[key];
+    });
+
     dbUpdates.updated_at = new Date().toISOString();
 
     try {
+      console.log("Supabase Profile Sync Proceeding:", { id: user.id, ...dbUpdates });
       const { data, error } = await supabase
         .from('profiles')
-        .upsert({ id: user.id, ...dbUpdates }, { onConflict: 'id' });
+        .update(dbUpdates)
+        .eq('id', user.id);
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase Profile Sync FAILED:", error);
+        throw error;
+      }
+      console.log("Supabase Profile Sync SUCCESSFUL");
       return { success: true };
     } catch (err) {
-      console.error("Profile Sync Error:", err);
-      return { success: false, error: err };
+      console.error("Critical Profile Update Error:", err);
+      return { success: false, error: err.message };
     }
   };
 
@@ -584,13 +588,13 @@ export const GameProvider = ({ children }) => {
         await supabase
           .from('blocks')
           .delete()
-          .eq('blocker_id', user.id)
+          .eq('blocker_id', user?.id)
           .eq('blocked_id', targetId);
       } else {
         // Block
         await supabase
           .from('blocks')
-          .insert([{ blocker_id: user.id, blocked_id: targetId }]);
+          .insert([{ blocker_id: user?.id, blocked_id: targetId }]);
       }
       return true;
     } catch (err) {
@@ -618,7 +622,7 @@ export const GameProvider = ({ children }) => {
 
   return (
     <GameContext.Provider value={{ 
-      level, mamakLevel, hardWordsLevel, wordFeverLevel, secretWordLevel,
+      level, 
       winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
       currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
       dailyStreak, setDailyStreak,
@@ -643,6 +647,7 @@ export const GameProvider = ({ children }) => {
       playPopSound, playNotifSound, playMessageSound,
       playStartSound, playVictorySound, playRewardSound,
       setLevel, setCurrentXP,
+      lastNotifiedLevel, setLastNotifiedLevel,
       loading 
     }}>
       {children}

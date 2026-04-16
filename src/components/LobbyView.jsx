@@ -9,14 +9,11 @@ export default function LobbyView({
   onStartHardWords, 
   onStartSecretWord, 
   onStartWordFever, 
+  onStartMultiplayer, // Handle matchmaking
   onSocialClick, 
   dailyStreak,
   onViewChange,
   notificationCount = 0,
-  mamakLevel = 1,
-  hardWordsLevel = 1,
-  wordFeverLevel = 1,
-  secretWordLevel = 1,
   winsTowardsSecret = 0
 }) {
   const containerVariants = {
@@ -88,6 +85,28 @@ export default function LobbyView({
       <div className="relative z-10">
         <div className="grid grid-cols-2 gap-4">
           
+          {/* ONLINE MULTIPLAYER (NEW) */}
+          <motion.button 
+            variants={itemVariants}
+            onClick={() => { triggerHaptic(15); onStartMultiplayer(); }}
+            {...bentoMotionProps}
+            className="col-span-2 relative h-28 rounded-[32px] overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 shadow-xl group border-none"
+          >
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+            <div className="relative z-10 flex items-center justify-between px-8 h-full">
+              <div className="flex flex-col items-start">
+                <h3 className="text-2xl font-black font-heading text-white">هەڤڕکی</h3>
+                <span className="text-[10px] font-medium font-rabar uppercase tracking-[0.2em] text-emerald-100/70 leading-none">دەستەودەست (ONLINE)</span>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.2)] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                <span className="material-symbols-outlined text-4xl text-white">groups</span>
+              </div>
+            </div>
+            
+            {/* Animated Pulse Ring */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border-4 border-white/10 rounded-[32px] animate-pulse pointer-events-none" />
+          </motion.button>
+
           {/* CLASSIC MODE */}
           <motion.button 
             variants={itemVariants}
@@ -116,7 +135,7 @@ export default function LobbyView({
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
               <div className="flex flex-col items-start">
                 <h3 className="text-xl font-black font-heading text-white">مامک</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-[0.2em] text-white/80 leading-none">ئاستێ {mamakLevel}</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-[0.2em] text-white/50 leading-none">پەیدا بکە</span>
               </div>
               <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center border border-white/30 shadow-sm group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-3xl text-white">emoji_objects</span>
@@ -137,7 +156,7 @@ export default function LobbyView({
               </div>
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">پەیڤێن دژوار</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-wider text-white/80 mt-1 leading-none">ئاستێ {hardWordsLevel}</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-wider text-white/50 mt-1 leading-none">بۆ شارەزایان</span>
                 <div className="flex items-center gap-1.5 bg-black/20 px-2 py-0.5 rounded-full border border-white/20 mt-1">
                   <DerhemIcon className="w-2.5 h-2.5 saturate-[0] brightness-[100]" />
                   <span className="text-[10px] font-black text-white font-ui">{dailyStreak}</span>
@@ -159,7 +178,7 @@ export default function LobbyView({
               </div>
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">تایا پەیڤان</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-widest text-white/80 mt-1 leading-none">ئاستێ {wordFeverLevel}</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-widest text-white/50 mt-1 leading-none">بەرهەڤ بە</span>
               </div>
             </div>
           </motion.button>

@@ -38,6 +38,7 @@ export const fetchGlobalMessages = async (limit = 50) => {
   const { data, error } = await supabase
     .from('messages')
     .select('*')
+    .is('receiver_id', null) // Only global messages
     .order('created_at', { ascending: true })
     .limit(limit);
   return { data, error };
@@ -49,15 +50,21 @@ export const sendGlobalMessage = async (userId, nickname, content) => {
     .insert([{ 
       content, 
       user_id: userId, 
-      user_nickname: nickname || 'یاریکەر' 
+      user_nickname: nickname || 'یاریکەر',
+      receiver_id: null // Explicitly global
     }]);
   return { data, error };
 };
 
 export const subscribeToGlobalChat = (callback) => {
   return supabase
-    .channel('public:messages')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, callback)
+    .channel('public:messages:global')
+    .on('postgres_changes', { 
+      event: 'INSERT', 
+      schema: 'public', 
+      table: 'messages',
+      filter: 'receiver_id=is.null'
+    }, callback)
     .subscribe();
 };
 
@@ -69,10 +76,15 @@ export const unsubscribeFromChannel = (channel) => {
 // PRIVATE CHAT
 // ==========================================
 export const fetchPrivateConversations = async (userId) => {
-  const { data: sent } = await supabase.from('private_messages').select('recipient_id').eq('sender_id', userId);
-  const { data: received } = await supabase.from('private_messages').select('sender_id').eq('recipient_id', userId);
+  // Fetch all message partners from the unified messages table
+  const { data: sent } = await supabase.from('messages').select('receiver_id').eq('user_id', userId).not('receiver_id', 'is', null);
+  const { data: received } = await supabase.from('messages').select('user_id').eq('receiver_id', userId);
   
-  const partnerIds = [...new Set([...(sent || []).map(m => m.recipient_id), ...(received || []).map(m => m.sender_id)])];
+  const partnerIds = [...new Set([
+    ...(sent || []).map(m => m.receiver_id), 
+    ...(received || []).map(m => m.user_id)
+  ])];
+  
   if (partnerIds.length === 0) return { data: [], error: null };
   
   const { data: profiles, error } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', partnerIds);
@@ -81,21 +93,21 @@ export const fetchPrivateConversations = async (userId) => {
 
 export const fetchPrivateChatHistory = async (userId, partnerId) => {
   const { data, error } = await supabase
-    .from('private_messages')
+    .from('messages')
     .select('*')
-    .or(`and(sender_id.eq.${userId},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${userId})`)
+    .or(`and(user_id.eq.${userId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${userId})`)
     .order('created_at', { ascending: true });
   return { data, error };
 };
 
 export const sendPrivateMessage = async (senderId, recipientId, content) => {
   const { data, error } = await supabase
-    .from('private_messages')
+    .from('messages')
     .insert([{ 
       content, 
-      text: content, // Added to fix NOT NULL constraint
-      sender_id: senderId, 
-      recipient_id: recipientId 
+      user_id: senderId, 
+      receiver_id: recipientId,
+      is_read: false
     }]);
   return { data, error };
 };
@@ -106,8 +118,8 @@ export const subscribeToPrivateChat = (userId, partnerId, callback) => {
     .on('postgres_changes', { 
         event: 'INSERT', 
         schema: 'public', 
-        table: 'private_messages',
-        filter: `recipient_id=eq.${userId}`
+        table: 'messages',
+        filter: `receiver_id=eq.${userId}`
     }, callback)
     .subscribe();
 };

@@ -4,7 +4,8 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import './index.css'
 import { MusicProvider } from './components/MusicContext';
 import { GameProvider } from './context/GameContext';
-import GlobalErrorBoundary from './components/GlobalErrorBoundary'; // Branded Error Recovery
+import { MultiplayerProvider } from './context/MultiplayerContext';
+import GlobalErrorBoundary from './components/GlobalErrorBoundary';
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
@@ -12,9 +13,11 @@ createRoot(document.getElementById('root')).render(
     <GlobalErrorBoundary>
       <Router>
         <GameProvider>
-          <MusicProvider>
-            <App />
-          </MusicProvider>
+          <MultiplayerProvider>
+            <MusicProvider>
+              <App />
+            </MusicProvider>
+          </MultiplayerProvider>
         </GameProvider>
       </Router>
     </GlobalErrorBoundary>

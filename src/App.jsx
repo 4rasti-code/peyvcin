@@ -13,6 +13,31 @@ import DictionaryView from './components/DictionaryView';
 import NotificationsView from './components/NotificationsView';
 import { getRandomWordFromCategory, wordList } from './data/wordList';
 import { STATUS } from './data/constants';
+import { normalizeKurdishInput, feverNormalize } from './utils/textUtils';
+import useMultiplayer from './hooks/useMultiplayer';
+import useGameLogic from './hooks/useGameLogic';
+
+// Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
+// (common after new deployments where asset hashes change).
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasAlreadyBeenReloaded = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-reloaded') || 'false'
+    );
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-reloaded', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasAlreadyBeenReloaded) {
+        window.sessionStorage.setItem('page-has-been-reloaded', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+
+const MultiplayerGameView = lazyWithRetry(() => import('./components/MultiplayerGameView'));
 
 import { useGame } from './context/GameContext'; // Global Progression Context
 import VictoryOverlay from './components/VictoryOverlay';
@@ -31,26 +56,7 @@ import ProfileView from './components/ProfileView';
 import KurdishSunLoader from './components/KurdishSunLoader';
 
 
-// Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
-// (common after new deployments where asset hashes change).
-const lazyWithRetry = (componentImport) =>
-  lazy(async () => {
-    const pageHasAlreadyBeenReloaded = JSON.parse(
-      window.sessionStorage.getItem('page-has-been-reloaded') || 'false'
-    );
-    try {
-      const component = await componentImport();
-      window.sessionStorage.setItem('page-has-been-reloaded', 'false');
-      return component;
-    } catch (error) {
-      if (!pageHasAlreadyBeenReloaded) {
-        // Force a one-time reload from the server to get fresh assets
-        window.sessionStorage.setItem('page-has-been-reloaded', 'true');
-        return window.location.reload();
-      }
-      throw error;
-    }
-  });
+
 
 // Code Splitting for Performance with Guard
 const LeaderboardView = lazyWithRetry(() => import('./components/LeaderboardView'));
@@ -106,18 +112,10 @@ export default function App() {
   const [targetWord, setTargetWord] = useState('');
   const [targetHint, setTargetHint] = useState('');
   const [category, setCategory] = useState('');
-  const [guesses, setGuesses] = useState([]);
-  const [currentGuess, setCurrentGuess] = useState([]);
   const [_message, setMessage] = useState('');
-  const [usedKeys, setUsedKeys] = useState({});
   const [_isModalOpen, setIsModalOpen] = useState(false);
   const [showHint, setShowHint] = useState(false);
-  const [revealedIndices, setRevealedIndices] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
-  const [hintTaps, setHintTaps] = useState(0);
-  const [isVictory, setIsVictory] = useState(false);
-  const [isDefeat, setIsDefeat] = useState(false);
-  const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
   const [startTime, setStartTime] = useState(0);
   const [rewardAmount, setRewardAmount] = useState(0);
   const [rewardAmountXp, setRewardAmountXp] = useState(0);
@@ -129,11 +127,14 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [isDailyActive, setIsDailyActive] = useState(false);
   const [isSuccessSplash, setIsSuccessSplash] = useState(false);
+  const [revealedIndices, setRevealedIndices] = useState([]);
+  const [hintTaps, setHintTaps] = useState(0);
 
   const {
-    level, mamakLevel, hardWordsLevel, wordFeverLevel, secretWordLevel,
+    level,
     winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
-    currentXP, maxXP, minXPForLevel, fils, derhem, zer, _addXP,
+    currentXP, maxXP, minXPForLevel, lastNotifiedLevel,
+    fils, derhem, zer, _addXP,
     dailyStreak, setDailyStreak,
     magnetCount, hintCount, skipCount,
     setMagnetCount, setHintCount, setSkipCount,
@@ -155,6 +156,15 @@ export default function App() {
     loading: isGameLoading
   } = useGame();
 
+  const {
+    multiplayerState,
+    matchmakingTime,
+    cancelMatch,
+    startMatchmaking,
+    activeMatch,
+    opponent
+  } = useMultiplayer();
+
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
@@ -174,7 +184,61 @@ export default function App() {
   }, [notificationsList, playNotifSound, playMessageSound]);
 
   const [isLevelingUp, setIsLevelingUp] = useState(false);
-  const prevLevelRef = useRef(level);
+
+  // --- CORE GAME ENGINE (Unified) ---
+  const {
+    guesses, setGuesses,
+    currentGuess, setCurrentGuess,
+    usedKeys, setUsedKeys,
+    isVictory, setIsVictory,
+    isDefeat, setIsDefeat,
+    onKey, onDelete, onEnter,
+    getLetterStatus,
+    resetLocalBoard
+  } = useGameLogic({
+    targetWord,
+    maxRows: gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6),
+    gameMode,
+    revealedIndices,
+    isLevelingUp,
+    onWin: (finalGuesses) => {
+        setLastSolvedWord(targetWord);
+        if (gameMode === 'word_fever') {
+            setIsWordFeverResultVisible(true);
+            setWordFeverResultType('win');
+            playRewardSound();
+            setIsSuccessSplash(true);
+            setTimeout(() => setIsSuccessSplash(false), 1000);
+        } else {
+            playVictorySound();
+            if (hapticEnabled) triggerHaptic(25);
+        }
+        handleGameCompletion(finalGuesses, true);
+    },
+    onLoss: (finalGuesses) => {
+        if (gameMode === 'word_fever') {
+            setWordFeverResultType('fail');
+            setIsWordFeverResultVisible(true);
+        } else {
+            handleGameCompletion(finalGuesses, false);
+            setIsDefeat(true);
+            if (gameMode === 'secret_word') resetSecretWordProgress();
+        }
+    }
+  });
+
+  // Wrapped handlers to manage UI feedback (shaking, messages)
+  const handleOnEnter = async () => {
+    const result = await onEnter();
+    if (result?.error) {
+      setMessage(result.error);
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+      setTimeout(() => setMessage(''), 2000);
+    }
+  };
+
+  const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
 
   const [showFreshPulse, setShowFreshPulse] = useState(false);
   const [lastSolvedWord, setLastSolvedWord] = useState('');
@@ -187,12 +251,12 @@ export default function App() {
 
   // TRIGGER LEVEL UP UI (Standardized)
   useEffect(() => {
-    if (level > prevLevelRef.current && prevLevelRef.current !== 0) {
+    // Only trigger if authenticated, not on auth screen, and we haven't notified for this level yet
+    if (user && currentView !== 'auth' && level > lastNotifiedLevel) {
       setIsLevelingUp(true);
       triggerHaptic([40, 60, 40, 60, 80]);
     }
-    prevLevelRef.current = level;
-  }, [level]);
+  }, [level, user, currentView, lastNotifiedLevel]);
 
   // MANDATORY AUTHENTICATION ENFORCEMENT & HEARTBEAT (Online Status)
   useEffect(() => {
@@ -213,7 +277,12 @@ export default function App() {
       .channel(`social-updates-${user.id}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `recipient_id=eq.${user.id}` },
+        { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'messages', 
+          filter: `receiver_id=eq.${user.id}` 
+        },
         (_payload) => {
           setSocialNotifications(prev => ({
             ...prev,
@@ -376,27 +445,7 @@ export default function App() {
 
   const getHintLimit = (length) => { if (length <= 2) return 0; if (length <= 5) return 1; if (length <= 8) return 2; if (length <= 10) return 3; if (length <= 13) return 4; return 5; };
 
-  const getLetterStatus = (guess, index, targetOverride = null) => {
-    const target = targetOverride || targetWord;
-    if (!target || !guess) return STATUS.NONE;
-    const guessString = Array.isArray(guess) ? guess.join('') : guess;
-    if (guessString.length === 0) return STATUS.NONE;
-    const targetArr = target.split('');
-    const guessArr = guessString.split('');
-    const statuses = new Array(guessArr.length).fill(STATUS.INCORRECT);
-    const targetCounts = {};
-    for (const char of targetArr) targetCounts[char] = (targetCounts[char] || 0) + 1;
-    for (let i = 0; i < Math.min(guessArr.length, targetArr.length); i++) {
-      if (guessArr[i] === targetArr[i]) { statuses[i] = STATUS.CORRECT; targetCounts[guessArr[i]]--; }
-    }
-    for (let i = 0; i < Math.min(guessArr.length, targetArr.length); i++) {
-      if (statuses[i] !== STATUS.CORRECT) {
-        const char = guessArr[i];
-        if (targetCounts[char] > 0) { statuses[i] = STATUS.WRONG_POS; targetCounts[char]--; }
-      }
-    }
-    return statuses[index] || STATUS.INCORRECT;
-  };
+  // Core logic is now handled by useGameLogic hook
 
   const handleProfileSave = async (profileData) => {
     if (!user || !user.id) {
@@ -457,144 +506,45 @@ export default function App() {
     setCurrentView('social_hub');
   };
 
-  const onKey = useCallback((key) => {
-    if (!targetWord || isLevelingUp || isSubmittingRef.current) return;
-    let cleanKey = normalizeKurdishInput(key);
-    const newGuess = [...currentGuess];
-    let placed = false;
-    for (let i = 0; i < newGuess.length; i++) {
-      if (newGuess[i] === '' && !revealedIndices.includes(i)) {
-        newGuess[i] = cleanKey;
-        placed = true;
-        break;
-      }
-    }
-    if (placed) setCurrentGuess(newGuess);
-  }, [currentGuess, targetWord, isLevelingUp, revealedIndices]);
+  // Handlers now provided by useGameLogic
 
-  const onDelete = useCallback(() => {
-    if (!targetWord || isLevelingUp) return;
-    const newGuess = [...currentGuess];
-    for (let i = newGuess.length - 1; i >= 0; i--) {
-      if (newGuess[i] !== '' && !revealedIndices.includes(i)) {
-        newGuess[i] = '';
-        break;
-      }
-    }
-    setCurrentGuess(newGuess);
-  }, [currentGuess, targetWord, isLevelingUp, revealedIndices]);
-
-  const onEnter = useCallback((forcedGuess = null, isSkip = false) => {
-    if (!targetWord || isSubmittingRef.current || isLevelingUp) return;
-    const guessString = forcedGuess || normalizeKurdishInput(currentGuess.join(''));
-
-    if (guessString.length < targetWord.length) {
-      triggerHaptic([50, 30, 50]);
-      setMessage('پەیڤ کێمە!'); setIsShaking(true);
-      setTimeout(() => { setIsShaking(false); setMessage(''); }, 1000);
-      return;
-    }
-
-    isSubmittingRef.current = true;
-    const newGuesses = [...guesses, guessString];
-    setGuesses(newGuesses);
-
-    // Update Keys
-    setUsedKeys(prev => {
-      const next = { ...prev };
-      guessString.split('').forEach((char, i) => {
-        const status = getLetterStatus(guessString, i);
-        if (!next[char] || status === STATUS.CORRECT) next[char] = status;
-      });
-      return next;
-    });
-    playPopSound(true); // Row flip sound
-
-    // COMPREHENSIVE VICTORY CHECK (Unicode & Tile Failsafe)
-    let isMatch = false;
-
-    if (gameMode === 'word_fever') {
-      const feverNormalize = (str) => {
-        if (!str) return '';
-        return str.normalize('NFC')
-          .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '')
-          .trim()
-          .replace(/ه/g, 'ھ')
-          .replace(/ک/g, 'ك')
-          .replace(/ی/g, 'ي');
-      };
-
-      const nGuess = feverNormalize(guessString);
-      const nTarget = feverNormalize(targetWord);
-
-      // Failsafe: check status of every single tile
-      const statuses = guessString.split('').map((_, i) => getLetterStatus(guessString, i));
-      const allGreen = statuses.length > 0 && statuses.every(s => s === STATUS.CORRECT);
-      const sameLength = nGuess.length === nTarget.length;
-
-      isMatch = (nGuess === nTarget) || (allGreen && sameLength);
-    } else {
-      isMatch = guessString === targetWord;
-    }
-
-    if (isMatch) {
-      if (gameMode === 'word_fever') {
-        setIsWordFeverResultVisible(true);
-        setWordFeverResultType('win');
-        playRewardSound();
-        setIsSuccessSplash(true);
-        setTimeout(() => setIsSuccessSplash(false), 1000);
-      } else {
-        setIsVictory(true);
-        setLastSolvedWord(targetWord);
-        playVictorySound();
-        if (hapticEnabled) triggerHaptic(25);
-      }
-
+  const handleGameCompletion = async (finalGuesses, isWin) => {
+    if (isWin) {
       const nextSolved = [...solvedWords, targetWord];
-      updateProfile({ solvedWords: nextSolved });
-      if (!isSkip) {
-        const breakdown = calculateLevelRewards(targetWord, newGuesses, gameMode);
-        setVictoryBreakdown(breakdown);
-        setRewardAmount(breakdown.total);
+      const breakdown = calculateLevelRewards(targetWord, finalGuesses, gameMode);
+      setVictoryBreakdown(breakdown);
+      setRewardAmount(breakdown.total);
 
-        const handleVictorySync = async () => {
-          const syncData = await syncProgressToDatabase(targetWord.length, gameMode);
-          if (syncData) {
-            setRewardAmountXp(syncData.xpAdded);
-            console.log(`تە ${syncData.xpAdded} XP وەرگرتن! ${syncData.bahdiniMsg}`);
-          }
-        };
-        handleVictorySync();
-
-        if (gameMode !== 'secret_word') {
-          incrementSecretWordProgress();
-        } else {
-          resetSecretWordProgress();
-        }
-
-        const baseReward = breakdown.green + breakdown.yellow - breakdown.gray;
-        processLevelCompletion(baseReward, 0, gameMode, null);
+      // Synced database call
+      let nextWinsTowardsSecret = winsTowardsSecret;
+      let resetSecretProgress = false;
+      if (gameMode !== 'secret_word') {
+          nextWinsTowardsSecret = Math.min(3, winsTowardsSecret + 1);
+      } else {
+          resetSecretProgress = true;
       }
-    } else if (newGuesses.length >= (gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6))) {
-      const penaltyBreakdown = calculateDefeatPenalty(targetWord, newGuesses, gameMode);
-      setDefeatBreakdown(penaltyBreakdown);
 
+      const syncData = await syncProgressToDatabase(
+          targetWord.length, 
+          gameMode, 
+          { 
+              solvedWords: nextSolved,
+              winsTowardsSecret: nextWinsTowardsSecret,
+              resetSecretProgress,
+              shayiBonus: breakdown.total
+          }
+      );
+
+      if (syncData) {
+          setRewardAmountXp(syncData.xpAdded);
+      }
+    } else {
+      const penaltyBreakdown = calculateDefeatPenalty(targetWord, finalGuesses, gameMode);
+      setDefeatBreakdown(penaltyBreakdown);
       const nextFils = Math.max(0, Math.ceil(fils - penaltyBreakdown.total));
       updateInventory({ fils: nextFils }, false);
-
-      setIsDefeat(true);
-
-      if (gameMode === 'secret_word') {
-        resetSecretWordProgress();
-      }
-    } else {
-      const freshGuess = new Array(targetWord.length).fill('');
-      revealedIndices.forEach(idx => freshGuess[idx] = targetWord[idx]);
-      setCurrentGuess(freshGuess);
     }
-    setTimeout(() => { isSubmittingRef.current = false; }, 300);
-  }, [currentGuess, targetWord, guesses, isLevelingUp, gameMode, revealedIndices]);
+  };
 
   const handleHint = () => {
     if (hintCount <= 0 || isVictory) return;
@@ -648,33 +598,19 @@ export default function App() {
     const cleanWord = normalizeKurdishInput(wordObj.word);
     setTargetWord(cleanWord);
     setTargetHint(wordObj.hint || '');
-    setGuesses([]);
     setRevealedIndices([]);
-    setCurrentGuess(new Array(cleanWord.length).fill(''));
-    setUsedKeys({});
-    setIsVictory(false);
     setStartTime(Date.now());
     setHintTaps(0);
     setMagnetUsedInRound(false);
     setMagnetDisabledKeys([]);
     if (gameMode === 'word_fever') setTimeLeft(60);
-    playPopSound(true); // Fast pop for board reveal
+    resetLocalBoard(cleanWord);
     playStartSound();
     if (hapticEnabled) triggerHaptic(25);
   };
 
   const selectCategory = (cat, forcedMode = null) => {
-    // For Mamak mode, we pass the current mamakLevel to get the linear word
-    const getModeLevel = () => {
-      switch (forcedMode || gameMode) {
-        case 'mamak': return mamakLevel;
-        case 'hard_words': return hardWordsLevel;
-        case 'word_fever': return wordFeverLevel;
-        case 'secret_word': return secretWordLevel;
-        default: return level;
-      }
-    };
-    const targetDifficultyLevel = getModeLevel();
+    const targetDifficultyLevel = level;
     const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, solvedWords, forcedMode || gameMode);
 
     if (wordObj) {
@@ -694,17 +630,7 @@ export default function App() {
     setIsDailyActive(false);
   };
   const handleNextGame = () => {
-    // Determine which level index to use based on game mode
-    const getModeLevel = () => {
-      switch (gameMode) {
-        case 'mamak': return mamakLevel;
-        case 'hard_words': return hardWordsLevel;
-        case 'word_fever': return wordFeverLevel;
-        case 'secret_word': return secretWordLevel;
-        default: return level;
-      }
-    };
-    const targetDifficultyLevel = getModeLevel();
+    const targetDifficultyLevel = level;
     const wordObj = getRandomWordFromCategory(category, targetDifficultyLevel, solvedWords, gameMode);
 
     if (wordObj) {
@@ -787,6 +713,7 @@ export default function App() {
 
 
   const handleLogout = async () => {
+    setIsLevelingUp(false); // Clear level-up state immediately
     setIsSettingsOpen(false);
     const { error } = await supabase.auth.signOut();
     if (!error) {
@@ -800,41 +727,67 @@ export default function App() {
     if (!user?.id) return;
 
     const fetchCounts = async () => {
-      // 1. Fetch unread messages with sender info
+      // 1. Fetch unread messages
       const { data: rawMsgs } = await supabase
-        .from('private_messages')
-        .select('*, sender:sender_id(nickname, avatar_url)')
-        .eq('recipient_id', user.id)
+        .from('messages')
+        .select('*')
+        .eq('receiver_id', user.id)
         .eq('is_read', false)
         .order('created_at', { ascending: false });
 
-      // 2. Fetch pending requests with sender info
+      // 2. Fetch pending requests
       const { data: rawReqs } = await supabase
         .from('friendships')
-        .select('*, sender:user_id(nickname, avatar_url)')
+        .select('*')
         .eq('friend_id', user.id)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
-      const msgList = (rawMsgs || []).map(m => ({
-        id: `msg_${m.id}`,
-        dbId: m.id,
-        type: 'message',
-        sender_id: m.sender_id,
-        user_nickname: m.sender?.nickname || 'یاریکەر',
-        user_avatar: m.sender?.avatar_url || 'default',
-        created_at: m.created_at
-      }));
+      // 3. Collect unique profile IDs
+      const uniqueIds = new Set([
+        ...(rawMsgs || []).map(m => m.user_id),
+        ...(rawReqs || []).map(r => r.user_id)
+      ].filter(Boolean));
 
-      const reqList = (rawReqs || []).map(r => ({
-        id: `req_${r.id}`,
-        dbId: r.id,
-        type: 'friend',
-        sender_id: r.user_id,
-        user_nickname: r.sender?.nickname || 'یاریکەر',
-        user_avatar: r.sender?.avatar_url || 'default',
-        created_at: r.created_at
-      }));
+      // 4. Batch fetch profiles if IDs exist
+      let profileMap = {};
+      if (uniqueIds.size > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, nickname, avatar_url')
+          .in('id', Array.from(uniqueIds));
+        
+        if (profiles) {
+          profileMap = profiles.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
+        }
+      }
+
+      // 5. Map notifications with profile data
+      const msgList = (rawMsgs || []).map(m => {
+        const sender = profileMap[m.user_id];
+        return {
+          id: `msg_${m.id}`,
+          dbId: m.id,
+          type: 'message',
+          sender_id: m.user_id,
+          user_nickname: sender?.nickname || m.user_nickname || 'یاریکەر',
+          user_avatar: sender?.avatar_url || 'default',
+          created_at: m.created_at
+        };
+      });
+
+      const reqList = (rawReqs || []).map(r => {
+        const sender = profileMap[r.user_id];
+        return {
+          id: `req_${r.id}`,
+          dbId: r.id,
+          type: 'friend',
+          sender_id: r.user_id,
+          user_nickname: sender?.nickname || 'یاریکەر',
+          user_avatar: sender?.avatar_url || 'default',
+          created_at: r.created_at
+        };
+      });
 
       const combined = [...msgList, ...reqList].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -846,7 +799,12 @@ export default function App() {
 
     const socialChannel = supabase
       .channel(`social_notifs:${user.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'private_messages', filter: `recipient_id=eq.${user.id}` }, () => fetchCounts())
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'messages', 
+        filter: `receiver_id=eq.${user.id}` 
+      }, () => fetchCounts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` }, () => fetchCounts())
       .subscribe();
 
@@ -861,7 +819,7 @@ export default function App() {
     if (item.type === 'message' && item.dbId) {
       try {
         await supabase
-          .from('private_messages')
+          .from('messages')
           .update({ is_read: true })
           .eq('id', item.dbId);
 
@@ -899,7 +857,7 @@ export default function App() {
       )}
 
       {/* 1. STATE-BASED NAVIGATION HEADER */}
-      {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && (
+      {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && multiplayerState !== 'playing' && (
         <TopAppBar
           user={user} fils={fils} derhem={derhem} zer={zer}
           level={level} dailyStreak={dailyStreak}
@@ -930,7 +888,13 @@ export default function App() {
           setTimeout(() => setCurrentView('lobby'), 300);
         }} />}
 
-        {currentView === 'lobby' && (
+        {(multiplayerState === 'playing' || multiplayerState === 'game_over') && (
+          <Suspense fallback={<KurdishSunLoader />}>
+            <MultiplayerGameView opponent={opponent} />
+          </Suspense>
+        )}
+
+        {currentView === 'lobby' && multiplayerState !== 'playing' && multiplayerState !== 'game_over' && (
           <LobbyView
             onStartClassic={() => {
               playPopSound();
@@ -967,15 +931,12 @@ export default function App() {
               selectCategory('مامک', 'mamak');
             }}
             level={level}
-            mamakLevel={mamakLevel}
-            hardWordsLevel={hardWordsLevel}
-            wordFeverLevel={wordFeverLevel}
-            secretWordLevel={secretWordLevel}
             winsTowardsSecret={winsTowardsSecret}
             dailyStreak={dailyStreak}
             equippedAvatar={equippedAvatar}
             onViewChange={setCurrentView}
             notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+            onStartMultiplayer={startMatchmaking}
           />
         )}
 
@@ -1017,21 +978,6 @@ export default function App() {
                     isShaking={isShaking}
                   />
 
-                  {/* SECRET MODE SUBMIT BUTTON */}
-                  {gameMode === 'secret_word' && !isVictory && !isDefeat && (
-                    <div className="w-full max-w-sm mx-auto px-6 mt-6 animate-in fade-in slide-in-from-bottom-5 duration-500">
-                      <button
-                        onClick={() => onEnter()}
-                        className="w-full bg-[#10b981] hover:bg-[#059669] text-white py-5 rounded-[2.5rem] font-black text-2xl shadow-[0_20px_40px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-4 border-b-4 border-[#047857]"
-                      >
-                        <span className="material-symbols-outlined text-3xl">check_circle</span>
-                        تەمام (Submit)
-                      </button>
-                      <p className="text-[10px] text-white/20 text-center mt-4 font-bold uppercase tracking-[0.2em]">
-                        بتنێ ئێک هەول یا تە هەی
-                      </p>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -1041,7 +987,7 @@ export default function App() {
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}
-                onEnter={onEnter}
+                onEnter={handleOnEnter}
                 usedKeys={usedKeys}
                 gameState={isVictory ? 'won' : isDefeat ? 'lost' : 'playing'}
                 magnetDisabledKeys={magnetDisabledKeys}
@@ -1178,7 +1124,7 @@ export default function App() {
       </main>
 
       {/* 3. CONDITIONAL BOTTOM NAV */}
-      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && (
+      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && multiplayerState !== 'playing' && (
         <BottomNav currentView={currentView} setCurrentView={setCurrentView} onSettingsToggle={() => { setIsSettingsOpen(true); }} />
       )}
 
@@ -1243,7 +1189,7 @@ export default function App() {
         onRetry={() => {
           setIsDefeat(false);
           // Fixed: passing gameMode correctly to maintain difficulty/length rules on retry
-          const wordObj = getRandomWordFromCategory(category, gameMode === 'mamak' ? mamakLevel : level, solvedWords, gameMode);
+          const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
           if (wordObj) resetBoard(wordObj);
         }}
         onHome={() => {
@@ -1272,11 +1218,82 @@ export default function App() {
         }}
       />
 
-      <LevelUpOverlay 
-        isVisible={isLevelingUp} 
-        newLevel={level} 
-        onClose={() => setIsLevelingUp(false)} 
-      />
+      {user && currentView !== 'auth' && isLevelingUp && level > lastNotifiedLevel && (
+        <LevelUpOverlay 
+          isVisible={isLevelingUp} 
+          newLevel={level} 
+          onClose={async () => {
+            // 1. Update Database FIRST (Ensure persistence before UI close)
+            await updateProfile({ lastNotifiedLevel: level });
+            // 2. Then Close Modal Locally
+            setIsLevelingUp(false);
+          }} 
+        />
+      )}
+
+      {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
+      {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
+      <AnimatePresence>
+        {(multiplayerState === 'searching' || multiplayerState === 'waiting') && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-8 text-center"
+          >
+            {/* Pulsing Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px] animate-pulse" />
+            
+            <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
+              <div className="relative">
+                <KurdishSunLoader />
+                <motion.div 
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute -inset-4 border-2 border-emerald-500/30 rounded-full"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex flex-col items-center gap-2">
+                  <h2 className="text-3xl font-black font-heading text-white">لێگەڕیان لای هەڤڕکەک...</h2>
+                  {/* LIVE TIMER UI */}
+                  <div className="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                    <span className="text-emerald-400 font-black font-mono text-xl tracking-widest tabular-nums">
+                      {Math.floor(matchmakingTime / 60).toString().padStart(2, '0')}:
+                      {(matchmakingTime % 60).toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                </div>
+                <p className="text-emerald-100/60 font-rabar text-lg">هەڤڕکەک ب تامی دێ هێتە دیتن ل هەمبەری تە</p>
+              </div>
+
+              <div className="flex flex-col gap-3 w-full">
+                <button 
+                  onClick={cancelMatch}
+                  className="h-16 bg-white/5 border border-white/10 rounded-2xl font-black text-white/50 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                >
+                  پەشێمان بووم (Cancel)
+                </button>
+              </div>
+            </div>
+
+            {/* Floating Letter Accents */}
+            <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
+              {['ت', 'ق', 'پ', 'ن'].map((char, i) => (
+                <motion.span 
+                  key={i}
+                  animate={{ y: [-10, 10, -10] }}
+                  transition={{ duration: 3, delay: i * 0.5, repeat: Infinity }}
+                  className="text-4xl font-black font-rabar"
+                >
+                  {char}
+                </motion.span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

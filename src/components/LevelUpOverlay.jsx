@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { triggerHaptic } from '../utils/haptics';
+import { useGame } from '../context/GameContext';
 
 const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
   const [show, setShow] = useState(false);
+  const { user } = useGame();
+
+  // Fail-safe: close if session is lost
+  useEffect(() => {
+    if (!user && isVisible) {
+      onClose();
+    }
+  }, [user, isVisible, onClose]);
 
   useEffect(() => {
     if (isVisible) {

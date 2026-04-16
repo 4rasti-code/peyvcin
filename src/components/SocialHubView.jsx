@@ -7,6 +7,7 @@ import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
 import PublicProfileModal from './PublicProfileModal';
 import { useInView } from 'react-intersection-observer';
+import { toKuDigits } from '../utils/formatters';
 
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
@@ -231,6 +232,9 @@ export default function SocialHubView({
   const [partnerIsTyping, setPartnerIsTyping] = useState(false);
   const [activeContextMenu, setActiveContextMenu] = useState(null); // { message, x, y, isPrivate }
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [pendingSentIds, setPendingSentIds] = useState(new Set());
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [newGlobalCount, setNewGlobalCount] = useState(0);
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const scrollRef = useRef(null);
@@ -240,11 +244,21 @@ export default function SocialHubView({
     if (!user?.id) return;
 
     const globalSub = supabase
-      .channel('public:messages')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+      .channel('public:messages:global')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'messages',
+        filter: 'receiver_id=is.null' 
+      }, (payload) => {
+        if (activeTab !== 'global') {
+          setNewGlobalCount(prev => prev + 1);
+        }
         fetchGlobalMessages();
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Global Chat Subscription Status:", status);
+      });
 
     const socialSub = supabase
       .channel('public:friendships')
@@ -253,26 +267,34 @@ export default function SocialHubView({
         schema: 'public',
         table: 'friendships'
       }, () => fetchFriendsData())
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Friendships Subscription Status:", status);
+      });
 
     const privateMsgSub = supabase
-      .channel('public:private_messages')
+      .channel('private:messages')
       .on('postgres_changes', {
         event: '*', 
         schema: 'public',
-        table: 'private_messages'
+        table: 'messages'
       }, (payload) => {
-        if (payload.new.sender_id === user.id || payload.new.recipient_id === user.id) {
+        // If message involves current user (as sender or receiver) and is not global
+        const isPrivate = payload.new.receiver_id !== null;
+        const involvesMe = payload.new.user_id === user?.id || payload.new.receiver_id === user?.id;
+        
+        if (isPrivate && involvesMe) {
           fetchPrivateConversations();
-          if (selectedChat && (payload.new.sender_id === selectedChat.id || payload.new.recipient_id === selectedChat.id)) {
+          if (selectedChat && (payload.new.user_id === selectedChat.id || payload.new.receiver_id === selectedChat.id)) {
             fetchPrivateChatHistory(selectedChat.id);
           }
         }
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Private Messages Subscription Status:", status);
+      });
 
     // typing-status channel
-    const typingChannel = supabase.channel(`typing-${user.id}`)
+    const typingChannel = supabase.channel(`typing-${user?.id}`)
       .on('broadcast', { event: 'typing' }, ({ payload }) => {
         if (selectedChat && payload.sender_id === selectedChat.id) {
           setPartnerIsTyping(true);
@@ -309,7 +331,10 @@ export default function SocialHubView({
   }, [user?.id]);
 
   useEffect(() => {
-    if (activeTab === 'global') fetchGlobalMessages();
+    if (activeTab === 'global') {
+      fetchGlobalMessages();
+      setNewGlobalCount(0); // Clear count when global becomes active
+    }
     if (activeTab === 'friends') fetchFriendsData();
     if (activeTab === 'private') fetchPrivateConversations();
   }, [activeTab]);
@@ -334,6 +359,7 @@ export default function SocialHubView({
       const { data, error } = await supabase
         .from('messages')
         .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions')
+        .is('receiver_id', null)
         .order('created_at', { ascending: true })
         .limit(50);
 
@@ -373,22 +399,45 @@ export default function SocialHubView({
 
       const profileMap = profiles.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
 
-      const requests = [];
-      const accepted = [];
+      // Use a Map to deduplicate relationships by the "other" person's ID
+      // If duplicates exist, we prioritize 'accepted' status
+      const uniqueRelationships = new Map();
 
       friendships.forEach(f => {
         const otherId = f.user_id === user?.id ? f.friend_id : f.user_id;
         const profile = profileMap[otherId];
+        if (!profile) return;
 
-        if (f.status === 'pending' && f.friend_id === user?.id) {
-          requests.push({ ...f, sender: profileMap[f.user_id] });
-        } else if (f.status === 'accepted') {
-          accepted.push({ ...f, friend: profile });
+        const existing = uniqueRelationships.get(otherId);
+        
+        // Priority logic: 
+        // 1. Accepted always wins
+        // 2. Received pending wins over sent pending (to show action required)
+        // 3. Keep most recent if status is same
+        if (!existing || f.status === 'accepted' || (f.status === 'pending' && f.friend_id === user?.id && existing.status !== 'accepted')) {
+          uniqueRelationships.set(otherId, { ...f, friendData: profile });
+        }
+      });
+
+      const requests = [];
+      const accepted = [];
+      const sentPending = new Set();
+
+      uniqueRelationships.forEach(rel => {
+        if (rel.status === 'pending') {
+          if (rel.friend_id === user?.id) {
+            requests.push({ ...rel, sender: rel.friendData });
+          } else {
+            sentPending.add(rel.friend_id);
+          }
+        } else if (rel.status === 'accepted') {
+          accepted.push({ ...rel, friend: rel.friendData });
         }
       });
 
       setPendingRequests(requests);
       setFriends(accepted);
+      setPendingSentIds(sentPending);
     } catch (err) {
       console.warn("Friendships fetch error:", err);
     } finally {
@@ -427,15 +476,68 @@ export default function SocialHubView({
 
   const handleAddFriend = async (friendId) => {
     try {
+      if (!user?.id) return;
+      
+      // Prevent multiple clicks
+      if (pendingSentIds.has(friendId)) return;
+
       triggerHaptic(15);
+      
+      // Optimistic update
+      setPendingSentIds(prev => new Set([...prev, friendId]));
+
       const { error } = await supabase
         .from('friendships')
-        .insert([{ user_id: user?.id, friend_id: friendId, status: 'pending' }]);
-      if (error) throw error;
-      alert("داخوازی ب سەرکەفتی هاتە هنارتن!");
-      setSearchResults(p => p.filter(x => x.id !== friendId));
+        .insert([{ user_id: user.id, friend_id: friendId, status: 'pending' }]);
+      
+      if (error) {
+        // Handle duplicate key error (already sent)
+        if (error.code === '23505') {
+          console.warn("Friend request already exists.");
+          return;
+        }
+        throw error;
+      }
+      
+      // alert("داخوازی ب سەرکەفتی هاتە هنارتن!");
+      // We don't need alert if UI updates accurately
     } catch (err) {
       console.error("Friend request error:", err);
+      // Revert optimistic if error is not duplicate key
+      setPendingSentIds(prev => {
+        const next = new Set(prev);
+        next.delete(friendId);
+        return next;
+      });
+    }
+  };
+
+  const handleAcceptRequest = async (requestId) => {
+    try {
+      triggerHaptic(20);
+      const { error } = await supabase
+        .from('friendships')
+        .update({ status: 'accepted' })
+        .eq('id', requestId);
+      if (error) throw error;
+      alert("نوکە هوین هەڤالێن هەڤدوون!");
+      fetchFriendsData();
+    } catch (err) {
+      console.error("Error accepting friend request:", err);
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    try {
+      triggerHaptic(10);
+      const { error } = await supabase
+        .from('friendships')
+        .delete()
+        .eq('id', requestId);
+      if (error) throw error;
+      fetchFriendsData();
+    } catch (err) {
+      console.error("Error rejecting friend request:", err);
     }
   };
 
@@ -445,18 +547,28 @@ export default function SocialHubView({
       // Only set global loading if we have no conversations yet
       if (privateChats.length === 0) setLoading(true);
       const { data, error } = await supabase
-        .from('private_messages')
+        .from('messages')
         .select('*')
-        .or(`sender_id.eq.${user?.id},recipient_id.eq.${user?.id}`)
+        .or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
+        .not('receiver_id', 'is', null) // Filter for private messages
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Count unread messages
+      const unread = data.filter(m => m.receiver_id === user?.id && !m.is_read).length;
+      setUnreadMessageCount(unread);
+
       const convosMap = new Map();
       data.forEach(m => {
-        const partnerId = m.sender_id == user?.id ? m.recipient_id : m.sender_id;
+        const partnerId = m.user_id == user?.id ? m.receiver_id : m.user_id;
         if (!convosMap.has(partnerId)) {
-          convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId });
+          convosMap.set(partnerId, { 
+            lastMsg: m.content, 
+            time: m.created_at, 
+            partnerId,
+            unreadCount: data.filter(msg => msg.user_id === partnerId && msg.receiver_id === user?.id && !msg.is_read).length
+          });
         }
       });
 
@@ -488,9 +600,9 @@ export default function SocialHubView({
     if (!user?.id || !partnerId) return;
     try {
       const { data, error } = await supabase
-        .from('private_messages')
-        .select('id, content, sender_id, recipient_id, created_at, is_read, reactions')
-        .or(`and(sender_id.eq.${user?.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user?.id})`)
+        .from('messages')
+        .select('id, content, user_id, receiver_id, created_at, is_read, reactions')
+        .or(`and(user_id.eq.${user?.id},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${user?.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -517,7 +629,9 @@ export default function SocialHubView({
             payload: { sender_id: user.id }
           });
           // Cleanup outbound channel shortly after sending
-          setTimeout(() => supabase.removeChannel(outboundChannel), 1000);
+          setTimeout(() => {
+            if (outboundChannel) supabase.removeChannel(outboundChannel);
+          }, 1000);
         }
       });
     } catch (e) {
@@ -559,7 +673,7 @@ export default function SocialHubView({
     if (!newMessage.trim() || !user?.id) return;
 
     const msgContent = newMessage.trim();
-    const currentUserId = user.id;
+    const currentUserId = user?.id;
     triggerHaptic(15);
 
     // Clear input immediately for better UX
@@ -595,8 +709,8 @@ export default function SocialHubView({
         // Optimistic update for Private
         const tempMsg = {
           content: msgContent,
-          sender_id: currentUserId,
-          recipient_id: partnerId,
+          user_id: currentUserId,
+          receiver_id: partnerId,
           reply_to_id: replyingTo?.id,
           reply_to_text: replyingTo?.content || replyingTo?.text,
           created_at: new Date().toISOString(),
@@ -606,12 +720,11 @@ export default function SocialHubView({
         setReplyingTo(null); // Clear reply state after sending
 
         const { error } = await supabase
-          .from('private_messages')
+          .from('messages')
           .insert([{
             content: msgContent,
-            text: msgContent,
-            sender_id: currentUserId,
-            recipient_id: partnerId,
+            user_id: currentUserId,
+            receiver_id: partnerId,
             reply_to_id: tempMsg.reply_to_id,
             reply_to_text: tempMsg.reply_to_text,
             is_read: false
@@ -640,16 +753,16 @@ export default function SocialHubView({
   const handleReact = async (msgId, emoji, isPrivate = false) => {
     if (!user?.id) return;
     triggerHaptic(10);
-    const table = isPrivate ? 'private_messages' : 'messages';
+    const table = 'messages';
     
     // Optimistic UI update
     const updateLocalState = (prev) => prev.map(m => {
       if (m.id === msgId) {
         const reactions = { ...(m.reactions || {}) };
         const users = [...(reactions[emoji] || [])];
-        const idx = users.indexOf(user.id);
+        const idx = users.indexOf(user?.id);
         if (idx > -1) users.splice(idx, 1);
-        else users.push(user.id);
+        else users.push(user?.id);
         
         if (users.length === 0) delete reactions[emoji];
         else reactions[emoji] = users;
@@ -662,14 +775,14 @@ export default function SocialHubView({
     else setMessages(prev => updateLocalState(prev));
 
     try {
-      // Fetch message to check ownership - Only select the column that existing in the table
-      const columns = isPrivate ? 'reactions, sender_id' : 'reactions, user_id';
+      // Fetch message to check ownership
+      const columns = 'reactions, user_id';
       const { data: msg, error: fetchError } = await supabase.from(table).select(columns).eq('id', msgId).single();
       if (fetchError) throw fetchError;
 
       // Prevent reacting to own messages
-      const ownerId = isPrivate ? msg.sender_id : msg.user_id;
-      if (ownerId === user.id) {
+      const ownerId = msg.user_id;
+      if (ownerId === user?.id) {
         console.warn("You cannot react to your own message.");
         // Revert optimistic UI
         if (isPrivate) setChatMessages(prev => updateLocalState(prev));
@@ -679,10 +792,10 @@ export default function SocialHubView({
 
       let reactions = msg?.reactions || {};
       const users = reactions[emoji] || [];
-      const userIndex = users.indexOf(user.id);
+      const userIndex = users.indexOf(user?.id);
       
       if (userIndex > -1) users.splice(userIndex, 1);
-      else users.push(user.id);
+      else users.push(user?.id);
       
       if (users.length === 0) delete reactions[emoji];
       else reactions[emoji] = users;
@@ -720,8 +833,8 @@ export default function SocialHubView({
       <div className="px-4 py-3">
         <div className="flex p-1 bg-slate-300 rounded-sm relative shadow-2xl shadow-black/60">
           {[
-            { id: 'global', label: 'جیهانی', icon: 'public' },
-            { id: 'private', label: 'نامە', icon: 'chat' },
+            { id: 'global', label: 'جیهانی', icon: 'public', badge: newGlobalCount },
+            { id: 'private', label: 'نامە', icon: 'chat', badge: unreadMessageCount },
             { id: 'friends', label: 'هەڤال', icon: 'group', badge: pendingRequests.length }
           ].map(tab => (
             <button
@@ -732,7 +845,11 @@ export default function SocialHubView({
               <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
               <span className="text-xs font-black">{tab.label}</span>
               {tab.badge > 0 && (
-                <span className="absolute top-1 left-1 w-2 h-2 bg-red-500 rounded-none border border-slate-300" />
+                <span className="absolute -top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 shadow-lg ring-2 ring-slate-300">
+                  <span className="text-[10px] text-white font-black leading-none">
+                    {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
+                  </span>
+                </span>
               )}
             </button>
           ))}
@@ -808,16 +925,20 @@ export default function SocialHubView({
                       {isFriend ? (
                         <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg font-black text-[10px] flex items-center gap-1">
                           <span className="material-symbols-outlined text-[14px]">check</span>
-                          هەڤال
+                          هوین هەڤالن
                         </div>
-                      ) : isPending ? (
-                        <div className="px-3 py-1.5 bg-blue-500/20 text-blue-400 rounded-lg font-black text-[10px]">داخوازی یا هاتییە هنارتن</div>
+                      ) : (isPending || pendingSentIds.has(res.id)) ? (
+                        <div className="px-3 py-1.5 bg-slate-800 text-slate-400 border border-white/5 rounded-full font-black text-[10px] opacity-50 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px]">hourglass_top</span>
+                          چاڤەڕێبە
+                        </div>
                       ) : (
                         <button 
                           onClick={(e) => { e.stopPropagation(); handleAddFriend(res.id); }} 
-                          className="px-3 py-1.5 bg-slate-700 text-white rounded-lg font-black text-[10px]"
+                          className="px-3 py-1.5 bg-emerald-500 text-slate-950 rounded-full font-black text-[10px] flex items-center gap-1 hover:bg-emerald-400 active:scale-95 transition-all"
                         >
-                          زێدە بکە
+                          <span className="material-symbols-outlined text-[14px]">add</span>
+                          ببە هەڤاڵ
                         </button>
                       )}
                     </div>
@@ -835,7 +956,7 @@ export default function SocialHubView({
                     <div className="flex-1 text-right">
                       <div className="font-black text-sm">{req.sender?.nickname}</div>
                     </div>
-                    <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-slate-700 text-white rounded-xl font-black text-xs">قەبوولکرن</button>
+                    <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-slate-700 text-white rounded-xl font-black text-xs">پەژراندن</button>
                   </div>
                 ))}
               </div>
@@ -887,12 +1008,12 @@ export default function SocialHubView({
                     <MessageItem 
                       key={m.id || idx}
                       m={m}
-                      isMe={m.sender_id === user?.id}
+                      isMe={m.user_id === user?.id}
                       currentUserId={user?.id}
                       onSeen={async (id) => {
-                        if (m.sender_id !== user?.id && !m.is_read) {
+                        if (m.user_id !== user?.id && !m.is_read) {
                           await supabase
-                            .from('private_messages')
+                            .from('messages')
                             .update({ is_read: true })
                             .eq('id', id);
                         }
@@ -941,23 +1062,45 @@ export default function SocialHubView({
                   privateChats.map(chat => (
                     <div
                       key={chat.id}
-                      className="flex items-center gap-4 p-4 bg-[#0a192f] rounded-2xl border border-white/5 hover:bg-[#0f2a4a] cursor-pointer transition-none group"
+                      onClick={() => setSelectedChat(chat)}
+                      className="flex items-center justify-between gap-4 p-3 bg-slate-200 rounded-[12px] border border-white/10 hover:bg-slate-300 cursor-pointer transition-all group relative active:scale-[0.98]"
                     >
-                      <div className="flex items-center gap-3 flex-1 overflow-hidden" onClick={() => setSelectedChat(chat)}>
-                        <div onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
-                          <Avatar src={chat.avatar_url} lastActive={chat.updated_at} showStatus={true} size="md" />
+                      {/* Left Group: Avatar + Content */}
+                      <div className="flex flex-1 items-center justify-start gap-3 min-w-0">
+                        {/* Avatar */}
+                        <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
+                          <Avatar 
+                            src={chat.avatar_url} 
+                            lastActive={chat.updated_at} 
+                            showStatus={true} 
+                            size="md" 
+                            border={false}
+                            className="transition-all" 
+                          />
                         </div>
-                        <div className="flex-1 min-w-0 text-right">
-                          <div className="flex justify-between items-center mb-0.5">
-                            <span className="text-[10px] font-black text-slate-500">
-                              {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            <span className="font-black text-sm truncate ml-2 group-hover:text-primary transition-colors">{chat.nickname}</span>
-                          </div>
-                          <div className="text-xs font-bold font-rabar text-slate-400 truncate opacity-70">
-                            {chat.lastMsg || 'نامەک ل ڤێرێیە'}
+
+                        {/* Name and Message */}
+                        <div className="flex flex-col items-start min-w-0">
+                          <span className="font-black text-sm text-slate-900 group-hover:text-primary transition-colors truncate w-full text-left">
+                            {chat.nickname}
+                          </span>
+                          <div className="flex items-center gap-1.5 text-xs font-bold font-rabar text-slate-600 opacity-80 w-full justify-start">
+                            <span className="material-symbols-outlined text-[14px]">chat</span>
+                            <span className="truncate">{chat.lastMsg || 'نامەک ل ڤێرێیە'}</span>
                           </div>
                         </div>
+                      </div>
+
+                      {/* Right Side: Time and Indicator */}
+                      <div className="flex flex-col items-end justify-center min-w-[50px] pr-1">
+                        <span className="text-[10px] font-bold text-slate-500 opacity-80 mb-1">
+                          {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        {chat.unreadCount > 0 && (
+                          <div className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-md animate-pulse">
+                            {toKuDigits(chat.unreadCount)}
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))
@@ -994,7 +1137,7 @@ export default function SocialHubView({
             m={activeContextMenu.message}
             x={activeContextMenu.x}
             y={activeContextMenu.y}
-            isMe={activeContextMenu.message.sender_id === user?.id || activeContextMenu.message.user_id === user?.id}
+            isMe={activeContextMenu.message.user_id === user?.id}
             onClose={() => setActiveContextMenu(null)}
             onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
             onReply={(msg) => {

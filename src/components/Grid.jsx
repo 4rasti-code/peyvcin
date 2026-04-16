@@ -2,7 +2,7 @@ import React from 'react';
 import { STATUS } from '../data/constants';
 import { motion } from 'framer-motion';
 
-function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, flipDelay = 0 }) {
+function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) {
   
   let bgColor = 'bg-[#1e293b] border-2 border-white/5 shadow-xl';
   let textColor = 'text-white';
@@ -44,7 +44,7 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
       className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-all duration-200 transform relative overflow-hidden flex items-center justify-center`}
     >
       <span 
-        className={`font-bold font-heading ${textColor} select-none leading-none block ${shouldHideText ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+        className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         style={{ 
           fontSize: 'clamp(1.2rem, 4.5vw, 2.5rem)',
           lineHeight: 1
@@ -61,23 +61,19 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
   );
 }
 
-function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode }) {
-  // DYNAMIC GRID: Columns generated based on any word length
-  const gap = isMobile ? (wordLength > 7 ? '4px' : '8px') : (wordLength > 7 ? '8px' : '12px');
-  
+function Row({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) {
   // Active Row Glow implementation
   const activeClass = isCurrent ? 'ring-2 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-primary/5' : '';
 
   return (
     <div 
-      className={`transition-all duration-300 ${activeClass} ${isShaking ? 'shake-anim' : ''}`}
+      className={`transition-all duration-300 ${activeClass} ${isShaking ? 'shake-anim' : ''} flex items-center justify-center`}
+      dir="rtl"
       style={{ 
-        display: 'grid',
-        gridTemplateColumns: `repeat(${wordLength}, clamp(45px, 12vw, 60px))`,
         gap: 'clamp(4px, 1vw, 8px)',
-        justifyContent: 'center',
         width: 'auto',
-        overflowX: 'auto'
+        overflowX: 'auto',
+        direction: 'rtl'
       }}
     >
       {Array.from({ length: wordLength }).map((_, i) => {
@@ -90,7 +86,10 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
         const firstEmptyIndex = Array.isArray(guess) ? guess.findIndex(c => c === '') : -1;
         const isFocused = isCurrent && i === (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex);
 
-        if (Array.isArray(guess)) {
+        if (forcedStatuses) {
+          char = '';
+          status = forcedStatuses[i] || STATUS.NONE;
+        } else if (Array.isArray(guess)) {
           char = guess[i];
           status = getLetterStatus(guess, i);
         } else if (typeof guess === 'string') {
@@ -112,6 +111,7 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
             isFocused={isFocused}
             isMobile={isMobile}
             isSecretMode={isSecretMode}
+            hideLetters={hideLetters}
             flipDelay={i * baseDelay}
           />
         );
@@ -120,7 +120,7 @@ function Row({ guess, wordLength, getLetterStatus, isCurrent, revealedIndices, l
   );
 }
 
-export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, targetWord = '', maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false }) {
+export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, targetWord = '', maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) {
   if (!targetWord || wordLength === 0) return null;
 
   const rows = [...guesses];
@@ -158,15 +158,18 @@ export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, 
     return () => window.removeEventListener('resize', calculateScale);
   }, [wordLength, maxRows, isMobile]);
 
+  const finalGap = compact ? '6px' : (isMobile ? '8px' : '12px');
+  const tileSize = compact ? 'clamp(38px, 9vw, 42px)' : 'clamp(45px, 12vw, 60px)';
+
   return (
-    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow-hidden relative`}>
+    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow-hidden relative`} dir="rtl">
       <style>
         {`
           .forced-tile {
-            width: clamp(45px, 12vw, 60px) !important;
-            height: clamp(45px, 12vw, 60px) !important;
-            min-width: 45px !important;
-            min-height: 45px !important;
+            width: ${tileSize} !important;
+            height: ${tileSize} !important;
+            min-width: ${compact ? '38px' : '45px'} !important;
+            min-height: ${compact ? '38px' : '45px'} !important;
             aspect-ratio: 1 / 1 !important;
             display: flex !important;
             align-items: center !important;
@@ -176,22 +179,23 @@ export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, 
         `}
       </style>
       <div 
-        className={`p-3 sm:p-6 lg:p-8 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center ${comboGlow ? 'shadow-[0_0_40px_rgba(168,85,247,0.3)]' : ''}`} 
+        className={`p-1 sm:p-2 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center ${comboGlow ? 'shadow-[0_0_40px_rgba(168,85,247,0.3)]' : ''}`} 
         style={{ 
           width: 'auto',
           transform: `scale(${gridScale})`,
-          maxHeight: '45vh',
+          maxHeight: compact ? '22vh' : '45vh',
           display: 'grid',
           gridTemplateRows: `repeat(${maxRows}, auto)`, 
-          gap: '8px',
+          gap: finalGap,
           justifyContent: 'center',
           alignContent: 'center',
           justifyItems: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          padding: compact ? '4px' : '8px'
         }}
       >
           {rows.map((guess, i) => {
-            const isCurrent = i === guesses.length;
+            const isCurrent = activeRowIndex !== null ? i === activeRowIndex : i === guesses.length;
             if (i >= maxRows) return null;
             
             return (
@@ -206,6 +210,10 @@ export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, 
                 targetWord={targetWord}
                 isMobile={isMobile}
                 isShaking={isCurrent && isShaking}
+                isSecretMode={isSecretMode}
+                hideLetters={hideLetters}
+                forcedStatuses={opponentStatuses[i] || null}
+                gap={finalGap}
               />
             );
           })}
