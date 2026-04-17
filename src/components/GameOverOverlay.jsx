@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import Avatar from './Avatar';
 
 export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onReturn, onPlayAgain }) {

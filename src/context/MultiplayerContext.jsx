@@ -203,7 +203,7 @@ export const MultiplayerProvider = ({ children }) => {
     if (oppColors && Array.isArray(oppColors) && oppColors.length > opponentGuesses.length) {
       setOpponentGuesses(oppColors);
     }
-  }, [activeMatch, user?.id, multiplayerState, fetchOpponentProfile, opponentGuesses.length]);
+  }, [activeMatch, user?.id, multiplayerState, fetchOpponentProfile, opponentGuesses.length, cancelMatch]);
 
   // UNIFIED ONE-CLICK MATCHMAKING
   const startMatchmaking = async () => {
@@ -268,7 +268,7 @@ export const MultiplayerProvider = ({ children }) => {
         } else {
           throw new Error('Fallback');
         }
-      } catch (err) {
+      } catch {
         const localWords = getUnifiedWords();
         const fallback = [...localWords].sort(() => 0.5 - Math.random()).slice(0, 3);
         selectedWords = fallback.map(w => w.word);

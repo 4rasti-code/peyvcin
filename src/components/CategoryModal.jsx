@@ -1,9 +1,9 @@
 import React from 'react';
 import { categories } from '../data/wordList';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function CategoryModal({ onSelect, onDailySelect, isOpen, dailyStreak, lastDailyDate, onClose }) {
+export default function CategoryModal({ onSelect, isOpen, onClose }) {
   if (!isOpen) return null;
 
   const getCategoryColor = (idx) => {

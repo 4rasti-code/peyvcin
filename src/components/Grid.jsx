@@ -64,11 +64,10 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
          prev.isRevealed === next.isRevealed &&
          prev.isNewHint === next.isNewHint &&
          prev.isSecretMode === next.isSecretMode &&
-         prev.hideLetters === next.hideLetters &&
-         prev.wordLength === next.wordLength;
+         prev.hideLetters === next.hideLetters;
 });
 
-const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) => {
+const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) => {
   const activeClass = isCurrent ? 'ring-2 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-primary/5' : '';
 
   // PRE-CALCULATE CONSTANTS for the row maps
@@ -136,8 +135,8 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
          prev.lastHintIndex === next.lastHintIndex;
 });
 
-const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, targetWord = '', maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) => {
-  if (!targetWord || wordLength === 0) return null;
+const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) => {
+  if (wordLength === 0) return null;
 
   const rows = [...guesses];
   while (rows.length < maxRows) {

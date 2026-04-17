@@ -12,7 +12,7 @@ async function checkColumns() {
     console.log('Columns in private_messages:', Object.keys(data[0]));
   } else {
     console.log('No data in private_messages, trying to fetch from profiles just to check connection');
-    const { data: pData, error: pError } = await supabase.from('profiles').select('*').limit(1);
+    const { error: pError } = await supabase.from('profiles').select('*').limit(1);
     console.log('Profiles check:', pError ? 'Error' : 'Success');
   }
 }

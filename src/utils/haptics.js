@@ -6,7 +6,7 @@ export const triggerHaptic = (pattern = 10) => {
   if (typeof window !== 'undefined' && "vibrate" in navigator) {
     try {
       navigator.vibrate(pattern);
-    } catch (e) {
+    } catch {
       // Ignore vibration errors (e.g. user gesture required or not supported)
     }
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { toKuDigits } from '../utils/formatters';
 
-export default function StatsView({ playerStats, userNickname, userAvatar, level, currentXP, rank, onViewChange }) {
+export default function StatsView({ playerStats, rank, onViewChange }) {
   // Trophy Definition
   const trophies = [
     { id: 1, name: 'نۆبەرە', icon: 'emoji_events', color: 'text-orange-400', threshold: 10 },
@@ -35,13 +35,6 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
   const itemVariants = {
     hidden: { y: 20, opacity: 0 },
     visible: { y: 0, opacity: 1 }
-  };
-
-  // Format date
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '---';
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('ku-IQ');
   };
 
   return (

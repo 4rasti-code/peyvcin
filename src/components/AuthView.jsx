@@ -119,8 +119,7 @@ export default function AuthView({ onAuthSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState(COUNTRIES[0]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCountry] = useState(COUNTRIES[0]);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -165,7 +164,7 @@ export default function AuthView({ onAuthSuccess }) {
       setNameAvailability('checking');
       
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('profiles')
           .select('nickname')
           .ilike('nickname', raw)
@@ -178,7 +177,7 @@ export default function AuthView({ onAuthSuccess }) {
           setNameAvailability('available');
           setNameError('');
         }
-      } catch (err) {
+      } catch {
         // If single() fails with 406 (no rows), it's available
         setNameAvailability('available');
         setNameError('');

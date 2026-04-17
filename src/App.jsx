@@ -10,15 +10,14 @@ import CategoryModal from './components/CategoryModal';
 import BottomNav from './components/BottomNav';
 import LobbyView from './components/LobbyView';
 import DictionaryView from './components/DictionaryView';
-import NotificationsView from './components/NotificationsView';
 import { getRandomWordFromCategory, wordList } from './data/wordList';
 import { STATUS } from './data/constants';
-import { normalizeKurdishInput, feverNormalize } from './utils/textUtils';
+
 import useMultiplayer from './hooks/useMultiplayer';
 import useGameLogic from './hooks/useGameLogic';
 import { AVATARS } from './data/avatars';
 
-import { playKeyClickSfx, playPopSfx, playNotifSfx, playMessageSfx, playSuccessSfx, playCoinSfx, initAudio } from './utils/audio';
+import { initAudio } from './utils/audio';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
@@ -98,12 +97,8 @@ class GameErrorBoundary extends React.Component {
 
 export default function App() {
   const [currentView, setCurrentView] = useState('lobby');
-  const [_isDarkMode, _setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_theme');
-    return saved ? saved === 'dark' : true;
-  });
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [_isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [, setIsMobile] = useState(window.innerWidth < 1024);
 
 
   useEffect(() => {
@@ -115,12 +110,10 @@ export default function App() {
   const [targetWord, setTargetWord] = useState('');
   const [targetHint, setTargetHint] = useState('');
   const [category, setCategory] = useState('');
-  const [_message, setMessage] = useState('');
-  const [_isModalOpen, setIsModalOpen] = useState(false);
-  const [showHint, setShowHint] = useState(false);
+
   const [isShaking, setIsShaking] = useState(false);
-  const [startTime, setStartTime] = useState(0);
-  const [rewardAmount, setRewardAmount] = useState(0);
+  const [, setStartTime] = useState(0);
+  const [, setRewardAmount] = useState(0);
   const [rewardAmountXp, setRewardAmountXp] = useState(0);
   const [defeatBreakdown, setDefeatBreakdown] = useState({ base: 0, mistakes: 0, total: 0 });
   const [magnetUsedInRound, setMagnetUsedInRound] = useState(false);
@@ -128,28 +121,28 @@ export default function App() {
 
   const [gameMode, setGameMode] = useState('classic'); // 'classic', 'word_fever', 'secret_word', 'mamak', 'hard_words'
   const [timeLeft, setTimeLeft] = useState(60);
-  const [isDailyActive, setIsDailyActive] = useState(false);
+  const [, setIsDailyActive] = useState(false);
   const [isSuccessSplash, setIsSuccessSplash] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState([]);
   const [hintTaps, setHintTaps] = useState(0);
 
   const {
     level,
-    winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
+    winsTowardsSecret, resetSecretWordProgress,
     currentXP, maxXP, minXPForLevel, lastNotifiedLevel,
-    fils, derhem, zer, _addXP,
-    dailyStreak, setDailyStreak,
+    fils, derhem, zer,
+    dailyStreak,
     magnetCount, hintCount, skipCount,
-    setMagnetCount, setHintCount, setSkipCount,
+
     ownedAvatars, equippedAvatar, unlockedThemes, currentTheme,
     solvedWords, playerStats,
     userNickname, userAvatar, city, isInKurdistan, countryCode,
-    inventory,
+
     updateInventory,
     updateProfile,
-    processLevelCompletion,
+
     syncProgressToDatabase,
-    setLevel, setCurrentXP,
+
     appSoundsEnabled, setAppSoundsEnabled,
     hapticEnabled, setHapticEnabled,
     playPopSound, playNotifSound, playMessageSound,
@@ -164,11 +157,10 @@ export default function App() {
     matchmakingTime,
     cancelMatch,
     startMatchmaking,
-    activeMatch,
+
     opponent,
     lastMatchResult,
-    matchResultTrigger,
-    resetMatchResultTrigger
+    matchResultTrigger
   } = useMultiplayer();
 
   const [notificationsList, setNotificationsList] = useState([]);
@@ -260,9 +252,9 @@ export default function App() {
   }, [handleGameCompletion, resetSecretWordProgress]);
 
   const {
-    guesses, setGuesses,
+    guesses,
     currentGuess, setCurrentGuess,
-    usedKeys, setUsedKeys,
+    usedKeys,
     isVictory, setIsVictory,
     isDefeat, setIsDefeat,
     onKey, onDelete, onEnter,
@@ -279,7 +271,7 @@ export default function App() {
   });
 
   const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
-  const [showFreshPulse, setShowFreshPulse] = useState(false);
+
   const [lastSolvedWord, setLastSolvedWord] = useState('');
   const [isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
   const [isWordFeverResultVisible, setIsWordFeverResultVisible] = useState(false);
@@ -338,10 +330,8 @@ export default function App() {
   const handleOnEnter = useCallback(async () => {
     const result = await onEnter();
     if (result?.error) {
-      setMessage(result.error);
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
-      setTimeout(() => setMessage(''), 2000);
     }
   }, [onEnter]);
 
@@ -438,7 +428,7 @@ export default function App() {
           table: 'messages', 
           filter: `receiver_id=eq.${user.id}` 
         },
-        (_payload) => {
+        () => {
           setSocialNotifications(prev => ({
             ...prev,
             unreadMessages: prev.unreadMessages + 1
@@ -455,7 +445,7 @@ export default function App() {
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` },
-        (_payload) => {
+        () => {
           setSocialNotifications(prev => ({
             ...prev,
             pendingRequests: prev.pendingRequests + 1
@@ -480,10 +470,7 @@ export default function App() {
   const [activeChatPartner, setActiveChatPartner] = useState(null);
   const [initialSocialTab, setInitialSocialTab] = useState(null);
 
-  const isSubmittingRef = useRef(false);
-  const isSyncingRef = useRef(false);
-  const hasCheckedRewardRef = useRef(false);
-  const supportedColumns = useRef(['level', 'xp', 'fils', 'derhem', 'zer', 'daily_streak', 'nickname', 'avatar_url', 'city', 'is_kurdistan', 'country_code', 'magnet_count', 'hint_count', 'skip_count', 'owned_avatars', 'equipped_avatar']);
+
 
   // Shared Logic (Haptic, Audio, Normalized, etc.)
   const analyzeTileStats = (target, guesses) => {
@@ -598,7 +585,7 @@ export default function App() {
     setSocialNotifications(prev => prev.pendingRequests > 0 ? { ...prev, pendingRequests: 0 } : prev);
   }, []);
 
-  const getHintLimit = (length) => { if (length <= 2) return 0; if (length <= 5) return 1; if (length <= 8) return 2; if (length <= 10) return 3; if (length <= 13) return 4; return 5; };
+
 
   // Core logic is now handled by useGameLogic hook
  
@@ -713,7 +700,7 @@ export default function App() {
       // now handle their own 10-second auto-dismissal logic by calling
       // onNext or onHome, which triggers the necessary state cleanups.
     }
-  }, [matchResultTrigger, lastMatchResult, setCurrentView]);
+  }, [matchResultTrigger, lastMatchResult, setCurrentView, setIsDefeat, setIsVictory]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
@@ -763,7 +750,6 @@ export default function App() {
       resetBoard(wordObj);
       setCategory(cat);
       setCurrentView('game');
-      setIsModalOpen(false);
     }
   }, [resetBoard]);
 
@@ -773,7 +759,7 @@ export default function App() {
     setCategory('');
     setTargetWord('');
     setIsDailyActive(false);
-  }, []);
+  }, [setIsVictory, setCurrentView, setCategory, setTargetWord, setIsDailyActive]);
 
   const handleNextGame = useCallback(() => {
     const { level: currLevel, solvedWords: sWords, gameMode: gMode, category: currCat } = gameRefs.current;
@@ -833,7 +819,7 @@ export default function App() {
       }, 50);
       return () => clearTimeout(t);
     }
-  }, [isWordFeverResultVisible, wordFeverResultType, gameMode]);
+  }, [isWordFeverResultVisible, wordFeverResultType, gameMode, updateInventory]);
   useEffect(() => {
     const tid = setTimeout(() => setIsAppReady(true), 1000);
 
@@ -863,7 +849,7 @@ export default function App() {
       clearTimeout(tid);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [currentView, setCurrentView, setUser]);
 
 
   const handleLogout = async () => {
@@ -1079,10 +1065,8 @@ export default function App() {
               setIsDailyActive(false);
               selectCategory('مامک', 'mamak');
             }}
-            level={level}
             winsTowardsSecret={winsTowardsSecret}
             dailyStreak={dailyStreak}
-            equippedAvatar={equippedAvatar}
             onViewChange={setCurrentView}
             notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
             onStartMultiplayer={startMatchmaking}

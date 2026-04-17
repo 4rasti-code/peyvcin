@@ -93,7 +93,7 @@ export const GameProvider = ({ children }) => {
   const lastRefreshTime = useRef(0);
   const lastXPRef = useRef(-1);
 
-  const refreshRank = async (xpValue = currentXP) => {
+  const refreshRank = useCallback(async (xpValue = currentXP) => {
     // 1. Guard: If value hasn't changed AND we refreshed very recently (< 2s), skip
     const now = Date.now();
     if (xpValue === lastXPRef.current && (now - lastRefreshTime.current < 2000)) {
@@ -116,7 +116,7 @@ export const GameProvider = ({ children }) => {
     } catch (err) {
       console.warn("Rank refresh failed:", err);
     }
-  };
+  }, [currentXP]);
 
   // 1. DATA SYNCHRONIZATION LIFECYCLE
   useEffect(() => {
@@ -292,7 +292,7 @@ export const GameProvider = ({ children }) => {
     const heartbeat = setInterval(async () => {
       try {
         await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
-      } catch(e) {}
+      } catch { }
     }, 60000);
     return () => clearInterval(heartbeat);
   }, [user]);
@@ -431,7 +431,7 @@ export const GameProvider = ({ children }) => {
   /**
    * syncProgressToDatabase (STABILIZED)
    */
-  const syncProgressToDatabase = useCallback(async (lettersCount, gameMode = 'classic', additionalData = {}) => {
+  const syncProgressToDatabase = useCallback(async (lettersCount, additionalData = {}) => {
     const { user: currentUser, currentXP: currXP, level: currLevel, inventory: currInv } = stateRef.current;
     if (!currentUser?.id) return null;
 
@@ -480,7 +480,7 @@ export const GameProvider = ({ children }) => {
       return null;
     }
     return null;
-  }, []);
+  }, [refreshRank]);
 
   /**
    * incrementSecretWordProgress (STABILIZED)
@@ -561,12 +561,13 @@ export const GameProvider = ({ children }) => {
         await supabase.from('blocks').insert([{ blocker_id: currentUser.id, blocked_id: targetId }]);
       }
       return true;
-    } catch (err) {
+    } catch {
+      // Ignore
       return false;
     }
   }, []);
 
-  const checkBlockStatus = async (targetId) => {
+  const checkBlockStatus = useCallback(async (targetId) => {
     if (!user?.id) return false;
     try {
       const { data, error } = await supabase
@@ -581,7 +582,7 @@ export const GameProvider = ({ children }) => {
       console.warn("Failed to check block status (possibly RLS):", err);
       return false;
     }
-  };
+  }, [user?.id]);
 
   const value = useMemo(() => ({ 
     level, 

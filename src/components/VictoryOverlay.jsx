@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import DictionaryView from './DictionaryView';
 import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx } from '../utils/audio';
@@ -40,8 +39,7 @@ const VictoryOverlay = ({
   solvedWord, 
   xp, 
   onNext, 
-  onHome,
-  gameMode = 'classic'
+  onHome
 }) => {
   const hasTriggeredRef = useRef(false);
 

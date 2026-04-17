@@ -4,7 +4,6 @@ import { supabase } from '../lib/supabase';
 import { useGame } from '../context/GameContext';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
-import FlagBadge from './FlagBadge';
 import PublicProfileModal from './PublicProfileModal';
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
@@ -337,12 +336,12 @@ export default function SocialHubView({
     }
     if (activeTab === 'friends') fetchFriendsData();
     if (activeTab === 'private') fetchPrivateConversations();
-  }, [activeTab]);
+  }, [activeTab, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations]);
 
   useEffect(() => {
     setPartnerIsTyping(false); // Reset when switching chats
     if (selectedChat) fetchPrivateChatHistory(selectedChat.id);
-  }, [selectedChat]);
+  }, [selectedChat, fetchPrivateChatHistory]);
 
   useEffect(() => {
     if (activeTab === 'global' || selectedChat) {
@@ -354,7 +353,7 @@ export default function SocialHubView({
 
   // --- Data Fetching Logic ---
 
-  const fetchGlobalMessages = async () => {
+  const fetchGlobalMessages = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -370,9 +369,9 @@ export default function SocialHubView({
     } finally {
       if (activeTab === 'global') setLoading(false);
     }
-  };
+  }, [activeTab]);
 
-  const fetchFriendsData = async () => {
+  const fetchFriendsData = useCallback(async () => {
     if (!user?.id) return;
     try {
       // Only set global loading if we have no friends data yet
@@ -443,7 +442,7 @@ export default function SocialHubView({
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, friends.length, pendingRequests.length]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -527,21 +526,7 @@ export default function SocialHubView({
     }
   };
 
-  const handleRejectRequest = async (requestId) => {
-    try {
-      triggerHaptic(10);
-      const { error } = await supabase
-        .from('friendships')
-        .delete()
-        .eq('id', requestId);
-      if (error) throw error;
-      fetchFriendsData();
-    } catch (err) {
-      console.error("Error rejecting friend request:", err);
-    }
-  };
-
-  const fetchPrivateConversations = async () => {
+  const fetchPrivateConversations = useCallback(async () => {
     if (!user?.id) return;
     try {
       // Only set global loading if we have no conversations yet
@@ -594,9 +579,9 @@ export default function SocialHubView({
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, privateChats.length]);
 
-  const fetchPrivateChatHistory = async (partnerId) => {
+  const fetchPrivateChatHistory = useCallback(async (partnerId) => {
     if (!user?.id || !partnerId) return;
     try {
       const { data, error } = await supabase
@@ -614,7 +599,7 @@ export default function SocialHubView({
     } catch (err) {
       console.error("Chat history fetch error:", err);
     }
-  };
+  }, [user?.id]);
 
   const sendTypingStatus = async (isTyping) => {
     if (!selectedChat || !user?.id) return;

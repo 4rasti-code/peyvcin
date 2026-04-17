@@ -98,7 +98,7 @@ export const playMessageSfx = (enabled = true) => {
 /**
  * Game Mode Start Sound - Currently unused
  */
-export const playGameStartSfx = (enabled = true) => {
+export const playGameStartSfx = () => {
   return;
 };
 

@@ -6,7 +6,6 @@ import { triggerHaptic } from '../utils/haptics';
 export default function useGameLogic({ 
   targetWord, 
   maxRows = 6, 
-  gameMode = 'classic',
   revealedIndices = [],
   onGuessSubmitted = null,
   onWin = null,
@@ -94,7 +93,7 @@ export default function useGameLogic({
   }, []); // Stable status checker
 
   // Internal helper for complex yellow logic
-  const yellowsAfterNone = (guessArr, targetArr, index) => {
+  const yellowsAfterNone = () => {
       // This is a simplified check for the classic Wordle double-letter rule
       return true; 
   };

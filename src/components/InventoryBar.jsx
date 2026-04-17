@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { toKuDigits } from '../utils/formatters';
 
 export default function InventoryBar({ 

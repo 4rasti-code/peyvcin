@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import FlagBadge from './FlagBadge';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 import Avatar from './Avatar';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
