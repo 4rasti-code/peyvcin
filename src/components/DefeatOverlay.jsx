@@ -43,8 +43,15 @@ const DefeatOverlay = ({
   useEffect(() => {
     if (isVisible) {
       triggerHaptic(200);
+      
+      // Auto-exit after 10 seconds (Redirect to lobby)
+      const timer = setTimeout(() => {
+        onHome();
+      }, 10000);
+
+      return () => clearTimeout(timer);
     }
-  }, [isVisible]);
+  }, [isVisible, onHome]);
 
   return (
     <AnimatePresence>
@@ -81,7 +88,7 @@ const DefeatOverlay = ({
                  تو سەرنەکەڤتی!
               </h2>
               <p className="text-lg font-bold font-body text-white/60 leading-relaxed px-4">
-                بی هێڤی نەبە، دێ جارەکا دی پیکۆلێ کەین و سەرکەڤین!
+                بی ھێڤی نەبە، دێ جارەکا دی پیکۆلێ کەین و سەرکەڤین!
               </p>
 
               {gameMode !== 'secret_word' && solvedWord && (
@@ -96,14 +103,20 @@ const DefeatOverlay = ({
                 <div className="flex justify-between items-center text-sm font-black font-ui group/row">
                   <span className="text-white/80 transition-colors group-hover/row:text-white">سزایێ دۆڕاندنێ</span>
                   <div className="flex items-center gap-2 text-red-400">
-                    <AnimatedNumber value={breakdown?.base || 0} prefix="-" />
+                    <div className="flex flex-col items-end leading-none pt-0.5">
+                      <AnimatedNumber value={breakdown?.base || 0} prefix="-" />
+                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
+                    </div>
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-sm font-black font-ui group/row">
                   <span className="text-white/80 transition-colors group-hover/row:text-white">سزایێ شاشیان</span>
                   <div className="flex items-center gap-2 text-red-500">
-                    <AnimatedNumber value={breakdown?.mistakes || 0} prefix="-" />
+                    <div className="flex flex-col items-end leading-none pt-0.5">
+                      <AnimatedNumber value={breakdown?.mistakes || 0} prefix="-" />
+                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
+                    </div>
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
                 </div>
@@ -111,7 +124,10 @@ const DefeatOverlay = ({
                 <div className="flex justify-between items-center text-lg font-black font-rabar">
                   <span className="text-white">سەرجەم</span>
                   <div className="flex items-center gap-2 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
-                    <AnimatedNumber value={breakdown?.total || 0} prefix="-" />
+                    <div className="flex flex-col items-end leading-none pt-1">
+                      <AnimatedNumber value={breakdown?.total || 0} prefix="-" />
+                      <span className="text-[9px] font-black uppercase tracking-widest opacity-70">فلس</span>
+                    </div>
                     <FilsIcon size={18} />
                   </div>
                 </div>

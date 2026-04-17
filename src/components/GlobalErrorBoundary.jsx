@@ -23,7 +23,7 @@ class GlobalErrorBoundary extends React.Component {
   };
 
   handleHardReset = () => {
-    if (window.confirm("ئایا تۆ پشتڕاستی کو دەتەوێت هەموو داتاکان بسڕیتەوە؟ (ئەڤە دێ هەمی ئاست و XPێن تە ژناڤ ببەت)")) {
+    if (window.confirm("ئایا تۆ پشتڕاستی کو دەتەوێت ھەموو داتاکان بسڕیتەوە؟ (ئەڤە دێ ھەمی ئاست و XPێن تە ژناڤ ببەت)")) {
       localStorage.clear();
       window.location.href = '/';
     }
@@ -59,8 +59,8 @@ class GlobalErrorBoundary extends React.Component {
             
             <h1 style={{ fontWeight: '900', fontSize: '32px', marginBottom: '15px' }}>ئاریشەیەک چێ بوو!</h1>
             <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: '1.6', marginBottom: '40px' }}>
-              ببورە، هندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا هەبوون. <br/>
-              تکایە هەول بدە و پەیجێ نوو بکەوە.
+              ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. <br/>
+              تکایە ھەول بدە و پەیجێ نوو بکەوە.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>

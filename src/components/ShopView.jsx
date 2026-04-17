@@ -11,14 +11,14 @@ import InventoryBar from './InventoryBar';
 const SHOP_ITEMS = {
   POWERUPS: [
     { id: 'attractor_field', name: 'موگناتیس (ڕاکێشان)', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 3000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
-    { id: 'hint_pack', name: 'هاریکاری', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 1000, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
+    { id: 'hint_pack', name: 'ھاریکاری', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 1000, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
     { id: 'full_skip', name: 'دەربازبوون', description: 'دەربازبوونا ب تەمام ژ پەیڤێ', icon: 'fast_forward', price: 2000, color: 'from-blue-400 to-cyan-600', glow: 'shadow-blue-500/40', currency: 'fils' }
   ],
   SPECIALS: [
     { id: 'fils_pack_small', name: '٥٠٠ فلس', description: 'بڕەکا کێم ژ دراوی بۆ یاریێ', icon: 'payments', price_usd: 0.99, price_iqd: 1500, amount: 500, color: 'from-blue-400 to-indigo-500', glow: 'shadow-blue-500/30', type: 'currency' },
     { id: 'fils_pack_medium', name: '٢٥٠٠ فلس', description: 'پاکێجا ناڤین و ب مفاتر', icon: 'savings', price_usd: 2.99, price_iqd: 4500, amount: 2500, color: 'from-emerald-400 to-teal-600', glow: 'shadow-emerald-500/30', type: 'currency' },
     { id: 'fils_pack_large', name: '٧٥٠٠ فلس', description: 'مەزنترین بڕا دراوی بۆ یاریزانێن زیرەک', icon: 'account_balance_wallet', price_usd: 6.99, price_iqd: 10000, amount: 7500, color: 'from-amber-400 to-orange-600', glow: 'shadow-amber-500/40', type: 'currency' },
-    { id: 'premium_bundle', name: 'پاکێجا زێڕین (Premium)', description: '١٠٠٠ فلس + ٣ موگناتیس + ٢ دەربازبوون + ١ هاریکاری', icon: 'auto_awesome', price_usd: 4.99, price_iqd: 7500, color: 'from-yellow-400 to-orange-600', glow: 'shadow-yellow-500/50', type: 'package' }
+    { id: 'premium_bundle', name: 'پاکێجا زێڕین (Premium)', description: '١٠٠٠ فلس + ٣ موگناتیس + ٢ دەربازبوون + ١ ھاریکاری', icon: 'auto_awesome', price_usd: 4.99, price_iqd: 7500, color: 'from-yellow-400 to-orange-600', glow: 'shadow-yellow-500/50', type: 'package' }
   ],
   AVATARS: [
     { id: 'peshmerga', name: 'پێشمەرگە', description: 'رێبەرێ چەلەنگ و پارێزەر', image: '/src/assets/characters/peshmerga_guide.png', price: 500, currency: 'derhem', color: 'from-green-600 to-emerald-800' },
@@ -75,7 +75,12 @@ const PowerUpCard = ({ item, onPurchase, canAfford }) => {
           )}
         </AnimatePresence>
         <div className={`flex items-center gap-2.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-900/80 border border-white/5 transition-all ${!canAfford ? 'opacity-50' : 'group-hover:scale-110'}`}>
-          <span className={`text-[16px] sm:text-[18px] font-black ${!canAfford ? 'text-white/60' : 'text-primary'}`}>{toKuDigits(item.price || 0)}</span>
+          <div className="flex flex-col items-center leading-none">
+            <span className={`text-[16px] sm:text-[18px] font-black ${!canAfford ? 'text-white/60' : 'text-primary'}`}>{toKuDigits(item.price || 0)}</span>
+            <span className={`text-[8px] font-black uppercase tracking-widest opacity-60 ${!canAfford ? 'text-white/40' : 'text-primary'}`}>
+              {item.currency === 'derhem' ? 'دەرهەم' : item.currency === 'zer' ? 'زێڕ' : 'فلس'}
+            </span>
+          </div>
           <div className={`w-5 h-5 flex items-center justify-center drop-shadow-md ${!canAfford ? 'opacity-40 grayscale' : 'text-primary'}`}>
             {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'zer' ? <ZerIcon /> : <FilsIcon />}
           </div>
@@ -167,7 +172,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
               {tab === 'powerups' ? 'auto_fix_high' : tab === 'avatars' ? 'person' : 'palette'}
             </span>
             <span className="font-bold text-[13px] uppercase tracking-wider">
-              {tab === 'powerups' ? 'هاریکار' : tab === 'avatars' ? 'پەیڤچن' : 'نیشان'}
+              {tab === 'powerups' ? 'ھاریکار' : tab === 'avatars' ? 'پەیڤچن' : 'نیشان'}
             </span>
           </button>
         ))}
@@ -236,9 +241,12 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                                 triggerHaptic([50, 30, 50]);
                               }
                             }}
-                            className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-black hover:brightness-110 transition-all"
+                            className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-black hover:brightness-110 transition-all shadow-lg"
                           >
-                            <span className="text-lg font-bold">{toKuDigits(avatar.price || 0)}</span>
+                            <div className="flex flex-col items-center leading-none">
+                              <span className="text-lg font-bold">{toKuDigits(avatar.price || 0)}</span>
+                              <span className="text-[8px] font-black uppercase tracking-widest opacity-60">{avatar.currency === 'derhem' ? 'دەرهەم' : 'فلس'}</span>
+                            </div>
                             <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
                             </div>
@@ -273,7 +281,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                        <h3 className="text-2xl font-bold text-white">{theme.name}</h3>
                     </div>
                     <p className="text-[12px] font-bold text-white/50 mb-5 uppercase tracking-widest leading-relaxed">
-                      {theme.id === 'default' ? 'ستایلێ ئەسلیێ یاریێ' : theme.isHeritage ? 'هونەرێ رەسەن یێ کوردی' : 'ستایلەکێ نوی بۆ یاریێ'}
+                      {theme.id === 'default' ? 'ستایلێ ئەسلیێ یاریێ' : theme.isHeritage ? 'ھونەرێ رەسەن یێ کوردی' : 'ستایلەکێ نوی بۆ یاریێ'}
                     </p>
 
                     <div className="flex items-center justify-end gap-5">
@@ -315,11 +323,18 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                                 triggerHaptic([50, 30, 50]);
                               }
                             }}
-                            className={`flex items-center gap-3 px-6 py-3 rounded-full text-black hover:brightness-110 transition-all ${theme.currency === 'zer' ? 'bg-primary' : (theme.currency === 'derhem' ? 'bg-slate-200' : 'bg-orange-200')}`}
+                            className={`flex items-center gap-3 px-6 py-3 rounded-full text-black hover:brightness-110 transition-all shadow-lg ${theme.currency === 'zer' ? 'bg-primary' : (theme.currency === 'derhem' ? 'bg-slate-200' : 'bg-orange-200')}`}
                           >
-                            <span className="text-lg font-bold">
-                              {theme.price === 0 ? 'خۆڕایی' : toKuDigits(theme.price || 0)}
-                            </span>
+                            <div className="flex flex-col items-center leading-none">
+                              <span className="text-lg font-bold">
+                                {theme.price === 0 ? 'خۆڕایی' : toKuDigits(theme.price || 0)}
+                              </span>
+                              {theme.price > 0 && (
+                                <span className="text-[8px] font-black uppercase tracking-widest opacity-60">
+                                  {theme.currency === 'zer' ? 'زێڕ' : (theme.currency === 'derhem' ? 'دەرهەم' : 'فلس')}
+                                </span>
+                              )}
+                            </div>
                             {theme.price > 0 && (
                               <div className="w-6 h-6 flex items-center justify-center shrink-0">
                                 {theme.currency === 'zer' ? <ZerIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}

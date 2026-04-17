@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { STATUS } from '../data/constants';
 import { normalizeKurdishInput } from '../utils/textUtils';
 import { triggerHaptic } from '../utils/haptics';
@@ -18,7 +18,34 @@ export default function useGameLogic({
   const [usedKeys, setUsedKeys] = useState({});
   const [isVictory, setIsVictory] = useState(false);
   const [isDefeat, setIsDefeat] = useState(false);
-  const isSubmittingRef = useRef(false);
+  
+   // Use refs for values needed in stable callbacks
+   const isSubmittingRef = useRef(false);
+   const targetWordRef = useRef(targetWord);
+   const revealedIndicesRef = useRef(revealedIndices);
+   const isGameStateLockedRef = useRef(false);
+   const guessesRef = useRef(guesses);
+   const currentGuessRef = useRef(currentGuess);
+ 
+   useEffect(() => {
+     targetWordRef.current = targetWord;
+   }, [targetWord]);
+ 
+   useEffect(() => {
+     revealedIndicesRef.current = revealedIndices;
+   }, [revealedIndices]);
+ 
+   useEffect(() => {
+     isGameStateLockedRef.current = isLevelingUp || isVictory || isDefeat;
+   }, [isLevelingUp, isVictory, isDefeat]);
+
+   useEffect(() => {
+     guessesRef.current = guesses;
+   }, [guesses]);
+
+   useEffect(() => {
+     currentGuessRef.current = currentGuess;
+   }, [currentGuess]);
 
   // Helper to re-initialize the guess array when targetWord changes
   const resetLocalBoard = useCallback((newTargetWord) => {
@@ -30,7 +57,7 @@ export default function useGameLogic({
     isSubmittingRef.current = false;
   }, []);
 
-  const getLetterStatus = useCallback((guess, index, customTarget = targetWord) => {
+  const getLetterStatus = useCallback((guess, index, customTarget = targetWordRef.current) => {
     if (!customTarget || !guess) return STATUS.NONE;
     const guessString = Array.isArray(guess) ? guess.join('') : guess;
     const targetArr = customTarget.split('');
@@ -64,7 +91,7 @@ export default function useGameLogic({
     }
     
     return STATUS.INCORRECT;
-  }, [targetWord]);
+  }, []); // Stable status checker
 
   // Internal helper for complex yellow logic
   const yellowsAfterNone = (guessArr, targetArr, index) => {
@@ -73,54 +100,73 @@ export default function useGameLogic({
   };
 
   const onKey = useCallback((key) => {
-    if (!targetWord || isLevelingUp || isSubmittingRef.current || isVictory || isDefeat) return;
+    if (!targetWordRef.current || isSubmittingRef.current || isGameStateLockedRef.current) return;
     const cleanKey = normalizeKurdishInput(key);
-    const nextGuess = [...currentGuess];
     
-    // Find first empty slot that isn't a revealed hint
-    let placed = false;
-    for (let i = 0; i < nextGuess.length; i++) {
-      if (nextGuess[i] === '' && !revealedIndices.includes(i)) {
-        nextGuess[i] = cleanKey;
-        placed = true;
-        break;
+    setCurrentGuess(prev => {
+      const nextGuess = [...prev];
+      let placed = false;
+      for (let i = 0; i < nextGuess.length; i++) {
+        if (nextGuess[i] === '' && !revealedIndicesRef.current.includes(i)) {
+          nextGuess[i] = cleanKey;
+          placed = true;
+          break;
+        }
       }
-    }
-    if (placed) setCurrentGuess(nextGuess);
-  }, [currentGuess, targetWord, isLevelingUp, revealedIndices, isVictory, isDefeat]);
+      return placed ? nextGuess : prev;
+    });
+  }, []); // COMPLETELY STABLE
 
   const onDelete = useCallback(() => {
-    if (!targetWord || isLevelingUp || isSubmittingRef.current || isVictory || isDefeat) return;
-    const nextGuess = [...currentGuess];
-    for (let i = nextGuess.length - 1; i >= 0; i--) {
-      if (nextGuess[i] !== '' && !revealedIndices.includes(i)) {
-        nextGuess[i] = '';
-        break;
+    if (!targetWordRef.current || isSubmittingRef.current || isGameStateLockedRef.current) return;
+    
+    setCurrentGuess(prev => {
+      const nextGuess = [...prev];
+      let deleted = false;
+      for (let i = nextGuess.length - 1; i >= 0; i--) {
+        if (nextGuess[i] !== '' && !revealedIndicesRef.current.includes(i)) {
+          nextGuess[i] = '';
+          deleted = true;
+          break;
+        }
       }
-    }
-    setCurrentGuess(nextGuess);
-  }, [currentGuess, targetWord, isLevelingUp, revealedIndices, isVictory, isDefeat]);
+      return deleted ? nextGuess : prev;
+    });
+  }, []); // COMPLETELY STABLE
+
+  const onWinRef = useRef(onWin);
+  const onLossRef = useRef(onLoss);
+  const onGuessSubmittedRef = useRef(onGuessSubmitted);
+
+  useEffect(() => { onWinRef.current = onWin; }, [onWin]);
+  useEffect(() => { onLossRef.current = onLoss; }, [onLoss]);
+  useEffect(() => { onGuessSubmittedRef.current = onGuessSubmitted; }, [onGuessSubmitted]);
+
+  // ... (rest of the component logic)
 
   const onEnter = useCallback(async (forcedGuess = null) => {
-    if (!targetWord || isSubmittingRef.current || isLevelingUp || isVictory || isDefeat) return;
+    const target = targetWordRef.current;
+    if (!target || isSubmittingRef.current || isGameStateLockedRef.current) return;
     
-    const guessString = forcedGuess || normalizeKurdishInput(currentGuess.join(''));
+    const guessString = forcedGuess || normalizeKurdishInput(currentGuessRef.current.join(''));
 
-    if (guessString.length < targetWord.length) {
+    if (guessString.length < target.length) {
       triggerHaptic([50, 30, 50]);
       return { error: 'پەیڤ کێمە!' };
     }
 
     isSubmittingRef.current = true;
-    const colors = guessString.split('').map((_, i) => getLetterStatus(guessString, i));
-    const isWin = guessString === targetWord;
     
-    const newGuesses = [...guesses, guessString];
-    setGuesses(newGuesses);
+    const colors = guessString.split('').map((_, i) => getLetterStatus(guessString, i, target));
+    const isWin = guessString === target;
+    const currentGuesses = guessesRef.current;
+    
+    // Update Guesses
+    setGuesses(prev => [...prev, guessString]);
 
     // Update used keys
-    setUsedKeys(prev => {
-      const next = { ...prev };
+    setUsedKeys(prevKeys => {
+      const next = { ...prevKeys };
       guessString.split('').forEach((char, i) => {
         const status = colors[i];
         if (!next[char] || status === STATUS.CORRECT) next[char] = status;
@@ -128,27 +174,30 @@ export default function useGameLogic({
       return next;
     });
 
-    // Notify caller
-    if (onGuessSubmitted) {
-      await onGuessSubmitted(colors, isWin);
-    }
-
+    // Trigger Win/Loss Side Effects
     if (isWin) {
       setIsVictory(true);
-      if (onWin) onWin(newGuesses);
-    } else if (newGuesses.length >= maxRows) {
+      if (onWinRef.current) onWinRef.current([...currentGuesses, guessString]);
+    } else if (currentGuesses.length + 1 >= maxRows) {
       setIsDefeat(true);
-      if (onLoss) onLoss(newGuesses);
-    } else {
+      if (onLossRef.current) onLossRef.current([...currentGuesses, guessString]);
+    }
+
+    // Notify caller
+    if (onGuessSubmittedRef.current) {
+      onGuessSubmittedRef.current(colors, isWin);
+    }
+
+    if (!isWin) {
       // Prepare next row
-      const freshGuess = new Array(targetWord.length).fill('');
-      revealedIndices.forEach(idx => freshGuess[idx] = targetWord[idx]);
+      const freshGuess = new Array(target.length).fill('');
+      revealedIndicesRef.current.forEach(idx => freshGuess[idx] = target[idx]);
       setCurrentGuess(freshGuess);
     }
 
     setTimeout(() => { isSubmittingRef.current = false; }, 300);
     return { success: true, colors, isWin };
-  }, [currentGuess, targetWord, guesses, maxRows, getLetterStatus, revealedIndices, isLevelingUp, isVictory, isDefeat, onGuessSubmitted, onWin, onLoss]);
+  }, [maxRows, getLetterStatus]); 
 
   return {
     guesses,

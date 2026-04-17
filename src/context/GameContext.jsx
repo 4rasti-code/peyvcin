@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { playSuccessSfx, playPopSfx, playNotifSfx, playMessageSfx, playGameStartSfx, playCoinSfx } from '../utils/audio';
 
@@ -301,67 +301,6 @@ export const GameProvider = ({ children }) => {
    * syncProgressToDatabase (NEW XP & STREAK SYSTEM)
    * Uses handle_game_xp RPC for atomic progression sync.
    */
-  const syncProgressToDatabase = async (lettersCount, gameMode = 'classic', additionalData = {}) => {
-    if (!user?.id) return null;
-
-    try {
-      // 1. Execute the primary atomic RPC for XP and Currency
-      const { data, error } = await supabase.rpc('handle_game_xp', {
-        p_user_id: user.id,
-        p_letters_count: lettersCount,
-        p_shayi_bonus: additionalData.shayiBonus || 5
-      });
-
-      if (error) throw error;
-
-      if (data) {
-        const { new_level, xp_added, current_streak } = data;
-        const finalXP = (currentXP || 0) + xp_added;
-
-        // 2. Perform any additional profile updates in parallel to save time (solved words, secret progress)
-        const profileUpdates = {
-          updated_at: new Date().toISOString()
-        };
-        
-        if (additionalData.solvedWords) profileUpdates.inventory = { ...inventory, solved_words: additionalData.solvedWords };
-        if (additionalData.winsTowardsSecret !== undefined) profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
-        if (additionalData.resetSecretProgress) profileUpdates.wins_towards_secret = 0;
-
-        // Fire-and-forget these secondary updates or wait for them? 
-        // We'll wait to ensure everything is solid before the victory screen.
-        await supabase.from('profiles').update(profileUpdates).eq('id', user.id);
-
-        // 3. Local State Sync
-        setCurrentXP(finalXP);
-        setDailyStreak(current_streak);
-        if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
-        if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
-        if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
-        
-        if (new_level > level) {
-          setLevel(new_level);
-          refreshRank(finalXP); // Correctly passing the numeric value
-        } else {
-          // Refresh rank if XP changed significantly or just for correctness
-          refreshRank(finalXP);
-        }
-
-        // Return sync data for the Victory Overlay
-        return {
-          xpAdded: xp_added,
-          currentStreak: current_streak,
-          newLevel: new_level,
-          bahdiniMsg: current_streak > 1 
-            ? `ستریکێن تە: ${current_streak} ڕۆژ 🔥` 
-            : `دەستپێکرنەکا باشە! ✨`
-        };
-      }
-    } catch (err) {
-      console.error("XP Sync Failed:", err.message);
-      return null;
-    }
-    return null;
-  };
 
   /**
    * processLevelCompletion (LEGACY - Kept for compatibility if needed)
@@ -397,24 +336,54 @@ export const GameProvider = ({ children }) => {
     }
   };
 
-  const addXP = (amount) => {
+  const addXP = useCallback((amount) => {
     if (!amount) return;
+    const { user: currentUser } = stateRef.current;
     setCurrentXP(prev => {
       const next = prev + amount;
       localStorage.setItem('peyvchin_xp', next.toString());
-      // Fire-and-forget DB update
-      if (user) {
-        supabase.from('profiles').update({ xp: next }).eq('id', user.id).then();
+      if (currentUser) {
+        supabase.from('profiles').update({ xp: next }).eq('id', currentUser.id).then();
       }
       return next;
     });
-  };
+  }, []);
+
+  // --- STABILIZATION REFS ---
+  // We mirror state in refs to allow actions to have [] dependencies
+  const stateRef = useRef({ fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory });
+  useEffect(() => {
+    stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
+  }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
+
+  const playPopSound = useCallback((bypassDebounce = false) => {
+    playPopSfx(appSoundsEnabled, bypassDebounce);
+  }, [appSoundsEnabled]);
+
+  const playNotifSound = useCallback(() => {
+    playNotifSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playMessageSound = useCallback(() => {
+    playMessageSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playStartSound = useCallback(() => {
+    playGameStartSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playVictorySound = useCallback(() => {
+    playSuccessSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playRewardSound = useCallback(() => {
+    playCoinSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
 
   /**
-   * updateInventory ACTION
-   * Atomic update for any inventory item or currency.
+   * updateInventory ACTION (STABILIZED)
    */
-  const updateInventory = async (updates, isAdditive = true) => {
+  const updateInventory = useCallback(async (updates, isAdditive = true) => {
     // 1. captures previous values for local storage consistency
     const getLocalVal = (key, fallback) => {
       const saved = localStorage.getItem(key);
@@ -438,99 +407,121 @@ export const GameProvider = ({ children }) => {
       localStorage.setItem(storageKey, finalVal.toString());
     });
 
-    // 4. Remote Database Sync (Supabase)
-    if (user) {
-      // For DB, we use a relative update RPC if available, or fetch fresh values.
-      // To keep it simple and reactive, we calculate based on the current context state + the update.
-      // Note: This relies on the context being mostly in sync.
+    // 4. Remote Database Sync (Supabase) - Reading from Ref for stability
+    const { user: currentUser, fils: currFils, derhem: currDerhem, zer: currZer, magnetCount: currMags, hintCount: currHints, skipCount: currSkips } = stateRef.current;
+    
+    if (currentUser) {
       const dbUpdates = {};
-      if (updates.fils !== undefined) dbUpdates.shayi = isAdditive ? (fils + updates.fils) : updates.fils;
-      if (updates.derhem !== undefined) dbUpdates.dirham = isAdditive ? (derhem + updates.derhem) : updates.derhem;
-      if (updates.zer !== undefined) dbUpdates.dinar = isAdditive ? (zer + updates.zer) : updates.zer;
-      if (updates.magnetCount !== undefined) dbUpdates.magnets = isAdditive ? (magnetCount + updates.magnetCount) : updates.magnetCount;
-      if (updates.hintCount !== undefined) dbUpdates.hints = isAdditive ? (hintCount + updates.hintCount) : updates.hintCount;
-      if (updates.skipCount !== undefined) dbUpdates.skips = isAdditive ? (skipCount + updates.skipCount) : updates.skipCount;
+      if (updates.fils !== undefined) dbUpdates.shayi = isAdditive ? (currFils + updates.fils) : updates.fils;
+      if (updates.derhem !== undefined) dbUpdates.dirham = isAdditive ? (currDerhem + updates.derhem) : updates.derhem;
+      if (updates.zer !== undefined) dbUpdates.dinar = isAdditive ? (currZer + updates.zer) : updates.zer;
+      if (updates.magnetCount !== undefined) dbUpdates.magnets = isAdditive ? (currMags + updates.magnetCount) : updates.magnetCount;
+      if (updates.hintCount !== undefined) dbUpdates.hints = isAdditive ? (currHints + updates.hintCount) : updates.hintCount;
+      if (updates.skipCount !== undefined) dbUpdates.skips = isAdditive ? (currSkips + updates.skipCount) : updates.skipCount;
       dbUpdates.updated_at = new Date().toISOString();
 
       try {
-        await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
+        await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id);
       } catch (err) {
         console.warn("DB Inventory Sync Failed:", err);
       }
     }
-  };
+  }, []); // IDENTITY STABLE
 
   /**
-   * SECRET WORD UNLOCK TRACKER
+   * syncProgressToDatabase (STABILIZED)
    */
-  const incrementSecretWordProgress = async () => {
+  const syncProgressToDatabase = useCallback(async (lettersCount, gameMode = 'classic', additionalData = {}) => {
+    const { user: currentUser, currentXP: currXP, level: currLevel, inventory: currInv } = stateRef.current;
+    if (!currentUser?.id) return null;
+
+    try {
+      const { data, error } = await supabase.rpc('handle_game_xp', {
+        p_user_id: currentUser.id,
+        p_letters_count: lettersCount,
+        p_shayi_bonus: additionalData.shayiBonus || 5
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        const { new_level, xp_added, current_streak } = data;
+        const finalXP = (currXP || 0) + xp_added;
+
+        const profileUpdates = { updated_at: new Date().toISOString() };
+        if (additionalData.solvedWords) profileUpdates.inventory = { ...currInv, solved_words: additionalData.solvedWords };
+        if (additionalData.winsTowardsSecret !== undefined) profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
+        if (additionalData.resetSecretProgress) profileUpdates.wins_towards_secret = 0;
+
+        await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
+
+        setCurrentXP(finalXP);
+        setDailyStreak(current_streak);
+        if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
+        if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
+        if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
+        
+        if (new_level > currLevel) {
+          setLevel(new_level);
+          refreshRank(finalXP);
+        } else {
+          refreshRank(finalXP);
+        }
+
+        return {
+          xpAdded: xp_added,
+          currentStreak: current_streak,
+          newLevel: new_level,
+          bahdiniMsg: current_streak > 1 ? `ستریکێن تە: ${current_streak} ڕۆژ 🔥` : `دەستپێکرنەکا باشە! ✨`
+        };
+      }
+    } catch (err) {
+      console.error("XP Sync Failed:", err.message);
+      return null;
+    }
+    return null;
+  }, []);
+
+  /**
+   * incrementSecretWordProgress (STABILIZED)
+   */
+  const incrementSecretWordProgress = useCallback(async () => {
+    const { user: currentUser } = stateRef.current;
     setWinsTowardsSecret(prev => {
       const next = Math.min(3, prev + 1);
       localStorage.setItem('peyvchin_wins_towards_secret', next.toString());
-      if (user) {
-        supabase.from('profiles').update({ wins_towards_secret: next }).eq('id', user.id).then();
+      if (currentUser) {
+        supabase.from('profiles').update({ wins_towards_secret: next }).eq('id', currentUser.id).then();
       }
       return next;
     });
-  };
+  }, []);
 
-  const resetSecretWordProgress = async () => {
+  const resetSecretWordProgress = useCallback(async () => {
+    const { user: currentUser } = stateRef.current;
     setWinsTowardsSecret(0);
     localStorage.setItem('peyvchin_wins_towards_secret', '0');
-    if (user) {
-      await supabase.from('profiles').update({ wins_towards_secret: 0 }).eq('id', user.id);
+    if (currentUser) {
+      await supabase.from('profiles').update({ wins_towards_secret: 0 }).eq('id', currentUser.id);
     }
-  };
+  }, []);
 
-  const playPopSound = (bypassDebounce = false) => {
-    playPopSfx(appSoundsEnabled, bypassDebounce);
-  };
+  const updateProfile = useCallback(async (profileData) => {
+    const { user: currentUser, inventory: currInv } = stateRef.current;
+    if (!currentUser?.id) return;
 
-  const playNotifSound = () => {
-    playNotifSfx(appSoundsEnabled);
-  };
-
-  const playMessageSound = () => {
-    playMessageSfx(appSoundsEnabled);
-  };
-
-  const playStartSound = () => {
-    playGameStartSfx(appSoundsEnabled);
-  };
-
-  const playVictorySound = () => {
-    playSuccessSfx(appSoundsEnabled);
-  };
-
-  const playRewardSound = () => {
-    playCoinSfx(appSoundsEnabled);
-  };
-
-  /**
-   * GENERAL PROFILE UPDATER
-   */
-  const updateProfile = async (profileData) => {
-    if (!user?.id) return;
-
-    // Apply Local Updates First
     if (profileData.nickname !== undefined) setUserNickname(profileData.nickname);
     if (profileData.avatar_url !== undefined) setUserAvatar(profileData.avatar_url);
     if (profileData.city !== undefined) setCity(profileData.city);
     if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
     if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
-    if (profileData.lastNotifiedLevel !== undefined) {
-      setLastNotifiedLevel(profileData.lastNotifiedLevel);
-      localStorage.setItem('peyvchin_last_notified_level', profileData.lastNotifiedLevel.toString());
-    }
 
-    // Map internal names to DB column names (Direct Columns)
     const dbUpdates = {};
-    if (profileData.lastNotifiedLevel !== undefined) dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
-    if (profileData.nickname !== undefined) {
-      const cleanNickname = profileData.nickname.trim();
-      dbUpdates.nickname = cleanNickname;
-      setUserNickname(cleanNickname);
+    if (profileData.lastNotifiedLevel !== undefined) {
+      dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
+      setLastNotifiedLevel(profileData.lastNotifiedLevel);
     }
+    if (profileData.nickname !== undefined) dbUpdates.nickname = profileData.nickname.trim();
     if (profileData.avatar_url !== undefined) dbUpdates.avatar_url = profileData.avatar_url;
     if (profileData.city !== undefined) dbUpdates.city = profileData.city;
     if (profileData.is_kurdistan !== undefined) dbUpdates.is_kurdistan = profileData.is_kurdistan;
@@ -538,10 +529,8 @@ export const GameProvider = ({ children }) => {
     if (profileData.app_sounds_enabled !== undefined) dbUpdates.app_sounds_enabled = profileData.app_sounds_enabled;
     if (profileData.haptic_enabled !== undefined) dbUpdates.haptic_enabled = profileData.haptic_enabled;
     
-    // Inventory JSONB Updates
-    let nextInventory = { ...inventory };
+    let nextInventory = { ...currInv };
     let hasInventoryUpdate = false;
-    
     if (profileData.ownedAvatars) { nextInventory.owned_avatars = profileData.ownedAvatars; setOwnedAvatars(profileData.ownedAvatars); hasInventoryUpdate = true; }
     if (profileData.unlockedThemes) { nextInventory.unlocked_themes = profileData.unlockedThemes; setUnlockedThemes(profileData.unlockedThemes); hasInventoryUpdate = true; }
     if (profileData.solvedWords) { nextInventory.solved_words = profileData.solvedWords; setSolvedWords(profileData.solvedWords); hasInventoryUpdate = true; }
@@ -553,55 +542,29 @@ export const GameProvider = ({ children }) => {
       setInventory(nextInventory);
     }
 
-    // SANITIZATION: Remove any undefined values to prevent 400 Bad Request
-    Object.keys(dbUpdates).forEach(key => {
-      if (dbUpdates[key] === undefined) delete dbUpdates[key];
-    });
-
     dbUpdates.updated_at = new Date().toISOString();
-
     try {
-      console.log("Supabase Profile Sync Proceeding:", { id: user.id, ...dbUpdates });
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(dbUpdates)
-        .eq('id', user.id);
-      
-      if (error) {
-        console.error("Supabase Profile Sync FAILED:", error);
-        throw error;
-      }
-      console.log("Supabase Profile Sync SUCCESSFUL");
+      await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id);
       return { success: true };
     } catch (err) {
-      console.error("Critical Profile Update Error:", err);
       return { success: false, error: err.message };
     }
-  };
+  }, []);
 
-
-  const handleToggleBlock = async (targetId, currentStatus) => {
-    if (!user?.id) return;
+  const handleToggleBlock = useCallback(async (targetId, currentStatus) => {
+    const { user: currentUser } = stateRef.current;
+    if (!currentUser?.id) return;
     try {
       if (currentStatus) {
-        // Unblock
-        await supabase
-          .from('blocks')
-          .delete()
-          .eq('blocker_id', user?.id)
-          .eq('blocked_id', targetId);
+        await supabase.from('blocks').delete().eq('blocker_id', currentUser.id).eq('blocked_id', targetId);
       } else {
-        // Block
-        await supabase
-          .from('blocks')
-          .insert([{ blocker_id: user?.id, blocked_id: targetId }]);
+        await supabase.from('blocks').insert([{ blocker_id: currentUser.id, blocked_id: targetId }]);
       }
       return true;
     } catch (err) {
-      console.error("Block toggle failed:", err);
       return false;
     }
-  };
+  }, []);
 
   const checkBlockStatus = async (targetId) => {
     if (!user?.id) return false;
@@ -620,36 +583,51 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  const value = useMemo(() => ({ 
+    level, 
+    winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
+    currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
+    dailyStreak, setDailyStreak,
+    inventory, setInventory,
+    magnetCount, hintCount, skipCount,
+    ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,
+    solvedWords, playerStats,
+    userNickname, userAvatar, city, isInKurdistan, countryCode,
+    updateInventory,
+    updateProfile,
+    processLevelCompletion,
+    syncProgressToDatabase,
+    getLevelFromXP, getLevelData,
+    handleToggleBlock, checkBlockStatus,
+    userRank, 
+    refreshRank,
+    user, setUser,
+    setFils, setDerhem, setZer,
+    setMagnetCount, setHintCount, setSkipCount,
+    appSoundsEnabled, setAppSoundsEnabled,
+    hapticEnabled, setHapticEnabled,
+    playPopSound, playNotifSound, playMessageSound,
+    playStartSound, playVictorySound, playRewardSound,
+    setLevel, setCurrentXP,
+    lastNotifiedLevel, setLastNotifiedLevel,
+    loading 
+  }), [
+    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, zer, 
+    dailyStreak, inventory, magnetCount, hintCount, skipCount, 
+    ownedAvatars, userAvatar, unlockedThemes, currentTheme, solvedWords, playerStats,
+    userNickname, city, isInKurdistan, countryCode, userRank, user, loading,
+    appSoundsEnabled, hapticEnabled, lastNotifiedLevel,
+    incrementSecretWordProgress, resetSecretWordProgress, addXP, updateInventory,
+    updateProfile, processLevelCompletion, syncProgressToDatabase, getLevelFromXP,
+    getLevelData, handleToggleBlock, checkBlockStatus, refreshRank, setUser,
+    setFils, setDerhem, setZer, setMagnetCount, setHintCount, setSkipCount,
+    setAppSoundsEnabled, setHapticEnabled, playPopSound, playNotifSound,
+    playMessageSound, playStartSound, playVictorySound, playRewardSound,
+    setLevel, setCurrentXP, setLastNotifiedLevel
+  ]);
+
   return (
-    <GameContext.Provider value={{ 
-      level, 
-      winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
-      currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
-      dailyStreak, setDailyStreak,
-      inventory, setInventory,
-      magnetCount, hintCount, skipCount,
-      ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,
-      solvedWords, playerStats,
-      userNickname, userAvatar, city, isInKurdistan, countryCode,
-      updateInventory,
-      updateProfile,
-      processLevelCompletion,
-      syncProgressToDatabase,
-      getLevelFromXP, getLevelData,
-      handleToggleBlock, checkBlockStatus,
-      userRank, 
-      refreshRank,
-      user, setUser,
-      setFils, setDerhem, setZer,
-      setMagnetCount, setHintCount, setSkipCount,
-      appSoundsEnabled, setAppSoundsEnabled,
-      hapticEnabled, setHapticEnabled,
-      playPopSound, playNotifSound, playMessageSound,
-      playStartSound, playVictorySound, playRewardSound,
-      setLevel, setCurrentXP,
-      lastNotifiedLevel, setLastNotifiedLevel,
-      loading 
-    }}>
+    <GameContext.Provider value={value}>
       {children}
     </GameContext.Provider>
   );

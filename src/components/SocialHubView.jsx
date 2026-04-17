@@ -499,7 +499,7 @@ export default function SocialHubView({
         throw error;
       }
       
-      // alert("داخوازی ب سەرکەفتی هاتە هنارتن!");
+      // alert("داخوازی ب سەرکەفتی ھاتە ھنارتن!");
       // We don't need alert if UI updates accurately
     } catch (err) {
       console.error("Friend request error:", err);
@@ -520,7 +520,7 @@ export default function SocialHubView({
         .update({ status: 'accepted' })
         .eq('id', requestId);
       if (error) throw error;
-      alert("نوکە هوین هەڤالێن هەڤدوون!");
+      alert("نوکە ھوین ھەڤالێن ھەڤدوون!");
       fetchFriendsData();
     } catch (err) {
       console.error("Error accepting friend request:", err);
@@ -744,7 +744,7 @@ export default function SocialHubView({
       console.error("Failed to send message:", err);
       const errorMsg = err.message || "ئاریشەکا نەدیار";
       const errorCode = err.code || "unknown";
-      alert(`ئاریشەیەک د هنارتنا نامەیێ دا هەبوو:\n\nMessage: ${errorMsg}\nCode: ${errorCode}\n\nتکایە دڵنیابە کو دەستهەڵاتێن Supabase دروستن.`);
+      alert(`ئاریشەیەک د ھنارتنا نامەیێ دا ھەبوو:\n\nMessage: ${errorMsg}\nCode: ${errorCode}\n\nتکایە دڵنیابە کو دەستھەڵاتێن Supabase دروستن.`);
       // On failure, we could restore the message to the box
       setNewMessage(msgContent);
     }
@@ -813,8 +813,8 @@ export default function SocialHubView({
     if (!selectedPlayer || !user?.id) return;
     const success = await toggleBlockInContext(selectedPlayer.id, currentStatus);
     if (success) {
-      if (!currentStatus) alert("یاریزان هاتە بلۆککرن!");
-      else alert("بلۆک هاتە لابرن!");
+      if (!currentStatus) alert("یاریزان ھاتە بلۆککرن!");
+      else alert("بلۆک ھاتە لابرن!");
       setSelectedPlayer(null); // Close modal after action
     }
   };
@@ -833,9 +833,9 @@ export default function SocialHubView({
       <div className="px-4 py-3">
         <div className="flex p-1 bg-slate-300 rounded-sm relative shadow-2xl shadow-black/60">
           {[
-            { id: 'global', label: 'جیهانی', icon: 'public', badge: newGlobalCount },
+            { id: 'global', label: 'جیھانی', icon: 'public', badge: newGlobalCount },
             { id: 'private', label: 'نامە', icon: 'chat', badge: unreadMessageCount },
-            { id: 'friends', label: 'هەڤال', icon: 'group', badge: pendingRequests.length }
+            { id: 'friends', label: 'ھەڤال', icon: 'group', badge: pendingRequests.length }
           ].map(tab => (
             <button
               key={tab.id}
@@ -898,7 +898,7 @@ export default function SocialHubView({
               <span className="material-symbols-outlined absolute right-3 top-3.5 text-slate-500">search</span>
               <input
                 type="text"
-                placeholder="گەڕیان ل هەڤالێن نوو..."
+                placeholder="گەڕیان ل ھەڤالێن نوو..."
                 value={searchQuery}
                 onChange={(e) => handleSearchPlayers(e.target.value)}
                 className="w-full bg-[#1e294b]/20 border border-white/5 rounded-2xl py-3.5 pr-11 pl-4 text-sm font-bold font-rabar focus:border-slate-500 outline-none transition-none"
@@ -908,7 +908,7 @@ export default function SocialHubView({
 
             {searchResults.length > 0 && (
               <div className="space-y-3 p-3 bg-[#1e293b]/50 rounded-2xl border border-white/5">
-                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">ئەنجامێن ئەڤێ هاتینە دیتن</h3>
+                <h3 className="text-[10px] font-black uppercase text-slate-500 tracking-widest px-1">ئەنجامێن ئەڤێ ھاتینە دیتن</h3>
                 {searchResults.map(res => {
                   const isFriend = friends.some(f => f.friend?.id === res.id);
                   const isPending = pendingRequests.some(r => r.sender?.id === res.id || r.friend_id === res.id);
@@ -925,7 +925,7 @@ export default function SocialHubView({
                       {isFriend ? (
                         <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 rounded-lg font-black text-[10px] flex items-center gap-1">
                           <span className="material-symbols-outlined text-[14px]">check</span>
-                          هوین هەڤالن
+                          ھوین ھەڤالن
                         </div>
                       ) : (isPending || pendingSentIds.has(res.id)) ? (
                         <div className="px-3 py-1.5 bg-slate-800 text-slate-400 border border-white/5 rounded-full font-black text-[10px] opacity-50 flex items-center gap-1">
@@ -938,7 +938,7 @@ export default function SocialHubView({
                           className="px-3 py-1.5 bg-emerald-500 text-slate-950 rounded-full font-black text-[10px] flex items-center gap-1 hover:bg-emerald-400 active:scale-95 transition-all"
                         >
                           <span className="material-symbols-outlined text-[14px]">add</span>
-                          ببە هەڤاڵ
+                          ببە ھەڤاڵ
                         </button>
                       )}
                     </div>
@@ -949,7 +949,7 @@ export default function SocialHubView({
 
             {pendingRequests.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">داخوازێن هەڤالینیێ</h3>
+                <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">داخوازێن ھەڤالینیێ</h3>
                 {pendingRequests.map(req => (
                   <div key={req.id} className="flex items-center gap-3 p-3 bg-[#1e293b] rounded-2xl border border-white/5">
                     <Avatar src={req.sender?.avatar_url} lastActive={req.sender?.updated_at} showStatus={true} size="sm" />
@@ -963,7 +963,7 @@ export default function SocialHubView({
             )}
 
             <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase text-slate-600 tracking-widest px-2">هەڤالێن تە</h3>
+              <h3 className="text-[10px] font-black uppercase text-slate-600 tracking-widest px-2">ھەڤالێن تە</h3>
               {friends
                 .sort((a, b) => {
                   const activeA = new Date(a.friend?.updated_at || 0);
@@ -1048,14 +1048,14 @@ export default function SocialHubView({
                   <div className="flex-1 flex flex-col items-center justify-center opacity-40 space-y-4">
                     <span className="material-symbols-outlined text-6xl">forum</span>
                     <div className="text-center">
-                      <div className="font-black text-lg">هیچ نامەیەک نینە</div>
-                      <div className="text-xs font-bold font-rabar">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ هەڤالێن خۆ</div>
+                      <div className="font-black text-lg">ھیچ نامەیەک نینە</div>
+                      <div className="text-xs font-bold font-rabar">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خۆ</div>
                     </div>
                     <button
                       onClick={() => setActiveTab('friends')}
                       className="px-6 py-2 bg-[#0a192f] rounded-xl text-xs font-black border border-white/5"
                     >
-                      دیتنا هەڤالان
+                      دیتنا ھەڤالان
                     </button>
                   </div>
                 ) : (
@@ -1164,7 +1164,7 @@ export default function SocialHubView({
             className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[200] bg-emerald-500 text-white px-4 py-2 rounded-full text-xs font-black shadow-xl flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-sm">check_circle</span>
-            هاتە ژبەرتنکرن
+            ھاتە ژبەرتنکرن
           </motion.div>
         )}
       </AnimatePresence>
@@ -1200,7 +1200,7 @@ export default function SocialHubView({
               onClick={handleSendMessage}
               disabled={!newMessage.trim()}
               className={`w-11 h-11 flex items-center justify-center rounded-full transition-all shadow-lg shrink-0 ${newMessage.trim() ? 'bg-[#00a884] text-white scale-100' : 'bg-slate-800 text-slate-500 opacity-50 scale-95'}`}
-              title="هنارتن"
+              title="ھنارتن"
             >
               <span className="material-symbols-outlined font-black text-xl">send</span>
             </button>

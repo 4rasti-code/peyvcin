@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Grid from './Grid';
 import Keyboard from './Keyboard';
@@ -7,6 +7,7 @@ import { useGame } from '../context/GameContext';
 import useGameLogic from '../hooks/useGameLogic';
 import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
+import { triggerHaptic } from '../utils/haptics';
 
 export default function MultiplayerGameView({ opponent: propOpponent }) {
   const { 
@@ -22,11 +23,14 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     roundMessage,
     multiplayerState,
     setMultiplayerState,
-    fetchOpponentProfile
+    fetchOpponentProfile,
+    cancelMatch
   } = useMultiplayer();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
   const opponent = propOpponent || contextOpponent;
+  
+  const [isConfirmingExit, setIsConfirmingExit] = useState(false);
   
   const { user, userNickname, userAvatar, playPopSound, playVictorySound, playStartSound } = useGame();
   
@@ -78,7 +82,6 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   useEffect(() => {
     if (targetWord) {
       resetLocalBoard(targetWord);
-      playStartSound();
     }
   }, [currentRound, targetWord, resetLocalBoard, playStartSound]);
 
@@ -87,28 +90,18 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     return (
       <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 text-center">
         <KurdishSunLoader />
-        <p className="mt-8 text-white/40 font-noto-sans-arabic animate-pulse">بەرهەڤکرنا پەیڤان...</p>
+        <p className="mt-8 text-white/40 font-noto-sans-arabic animate-pulse">بەرھەڤکرنا پەیڤان...</p>
       </div>
     );
   }
 
-  if (multiplayerState === 'game_over') {
-    return (
-      <GameOverView 
-        scores={scores} 
-        user={user} 
-        opponent={opponent} 
-        isPlayer1={isPlayer1}
-        onReturn={() => setMultiplayerState('idle')} 
-      />
-    );
-  }
+
 
   if (multiplayerState === 'waiting') {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-[#020617] text-white">
         <KurdishSunLoader />
-        <p className="mt-8 text-emerald-100/40 font-rabar animate-pulse">بەرهەڤکرنا یاریێ...</p>
+        <p className="mt-8 text-emerald-100/40 font-rabar animate-pulse">بەرھەڤکرنا یاریێ...</p>
       </div>
     );
   }
@@ -148,13 +141,13 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
 
         {/* CENTER: ROUND & VS */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center relative">
             <div className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black mb-1">BATTLE</div>
             <div className="text-xs font-black text-white/30 truncate">گەڕ {currentRound}/3</div>
         </div>
 
         {/* LEFT (Last child in RTL): YOU */}
-        <div className="flex items-center gap-3 text-left">
+        <div className="flex items-center gap-4 text-left">
           <div className="flex flex-col text-left">
             <span className="text-sm font-black text-emerald-400 truncate max-w-[100px]">{(userNickname || 'یاریزان').toUpperCase()}</span>
             <span className="text-xl font-black text-white">{isPlayer1 ? scores.p1 : scores.p2}</span>
@@ -162,6 +155,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           <Avatar src={userAvatar} size="sm" />
         </div>
       </div>
+
 
       {/* 2. SYMMETRIC BATTLEFIELD */}
       <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar" dir="rtl">
@@ -194,7 +188,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
         {/* BOTTOM HALF: OPPONENT PROGRESS */}
         <div className="flex flex-col items-center justify-center py-4 w-full">
-          <span className="text-[10px] font-black text-white/20 mb-2 uppercase tracking-widest px-4">پەیڤا {opponent?.nickname || 'هەڤڕکی'}</span>
+          <span className="text-[10px] font-black text-white/20 mb-2 uppercase tracking-widest px-4">پەیڤا {opponent?.nickname || 'ھەڤڕکی'}</span>
           <div className="w-full flex justify-center" dir="rtl">
             <Grid 
               opponentStatuses={opponentGuesses}
@@ -222,17 +216,83 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         />
       </div>
 
-      {/* TOAST NOTIFICATION */}
+      {/* AGGRESSIVE VERSUS CLASH OVERLAY */}
       <AnimatePresence>
         {roundMessage && (
           <motion.div 
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-32 left-1/2 -translate-x-1/2 z-[400] bg-white/10 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[500] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-8 overflow-hidden"
           >
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-white font-black tracking-wide text-sm">{roundMessage}</span>
+            {/* Background Clash Elements */}
+            <motion.div 
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1.5, opacity: 0.2 }}
+              transition={{ duration: 0.5 }}
+              className="absolute w-full h-40 bg-red-600 blur-[120px]"
+            />
+            
+            <div className="relative z-10 w-full flex flex-col items-center gap-12">
+              <div className="flex items-center justify-center gap-4 sm:gap-12 w-full max-w-2xl px-4">
+                {/* YOU (Left) */}
+                <motion.div 
+                  initial={{ x: -200, opacity: 0, rotate: -15 }}
+                  animate={{ x: 0, opacity: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                  className="flex flex-col items-center gap-4"
+                >
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-emerald-500/20 blur-xl rounded-full" />
+                    <Avatar src={userAvatar} size="2xl" className="relative border-4 border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.3)]" border={false} />
+                  </div>
+                  <span className="text-emerald-400 font-black text-lg tracking-wider uppercase drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">{userNickname}</span>
+                </motion.div>
+
+                {/* VS Center */}
+                <motion.div 
+                   initial={{ scale: 3, opacity: 0, rotate: 45 }}
+                   animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                   transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.3 }}
+                   className="flex flex-col items-center"
+                >
+                   <div className="text-7xl sm:text-9xl font-black text-red-600 italic tracking-tighter drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]">VS</div>
+                    <motion.div 
+                      animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="text-white/60 font-black text-base uppercase tracking-[0.4em] mt-3 whitespace-nowrap font-noto-sans-arabic"
+                    >
+                      دەستپێکر
+                    </motion.div>
+                </motion.div>
+
+                {/* FOE (Right) */}
+                <motion.div 
+                  initial={{ x: 200, opacity: 0, rotate: 15 }}
+                  animate={{ x: 0, opacity: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                  className="flex flex-col items-center gap-4"
+                >
+                  <div className="relative">
+                    <div className="absolute -inset-2 bg-red-600/20 blur-xl rounded-full" />
+                    <Avatar src={opponent?.avatar_url} size="2xl" className="relative border-4 border-red-600/50 shadow-[0_0_40px_rgba(220,38,38,0.3)]" border={false} />
+                  </div>
+                  <span className="text-red-500 font-black text-lg tracking-wider uppercase drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">{opponent?.nickname || 'هەڤڕک'}</span>
+                </motion.div>
+              </div>
+
+              {/* ACTION TEXT */}
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="w-full py-8"
+              >
+                <h1 className="text-6xl sm:text-8xl font-black text-white font-noto-sans-arabic drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                  گەڕ {currentRound + 1}
+                </h1>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -259,63 +319,64 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
-  );
-}
 
-// PREMIUM RESULTS SCREEN COMPONENT
-function GameOverView({ scores, user, opponent, isPlayer1, onReturn }) {
-  const myScore = isPlayer1 ? scores.p1 : scores.p2;
-  const oppScore = isPlayer1 ? scores.p2 : scores.p1;
-  const won = myScore > oppScore;
-  const draw = myScore === oppScore;
-
-  return (
-    <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden">
-        {/* Glow Effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-emerald-500/20 blur-[80px] rounded-full" />
-        
-        <h1 className="text-4xl font-black text-white mb-2 font-noto-sans-arabic">یاری ب دوماهیک هات</h1>
-        <p className="text-white/40 mb-12 font-noto-sans-arabic">ئەنجامێن دوماهیێ</p>
-
-        <div className="flex items-center justify-around mb-12">
-          {/* YOU */}
-          <div className="flex flex-col items-center gap-3">
-             <div className="relative">
-                <Avatar src={user?.avatar_url} size="md" />
-                {myScore >= oppScore && <span className="absolute -top-2 -right-2 text-2xl">👑</span>}
-             </div>
-             <span className="text-white text-2xl font-black">{myScore}</span>
-             <span className="text-xs text-white/40 uppercase font-black">تۆ (YOU)</span>
-          </div>
-
-          <div className="text-white/10 text-4xl font-black italic">VS</div>
-
-          {/* FOE */}
-          <div className="flex flex-col items-center gap-3">
-             <div className="relative">
-                <Avatar src={opponent?.avatar_url} size="md" />
-                {oppScore >= myScore && <span className="absolute -top-2 -right-2 text-2xl">👑</span>}
-             </div>
-             <span className="text-white text-2xl font-black">{oppScore}</span>
-             <span className="text-xs text-white/40 uppercase font-black">هەڤڕک (FOE)</span>
-          </div>
-        </div>
-
-        <div className="bg-white/5 rounded-3xl p-6 mb-8 border border-white/5">
-           <h2 className="text-2xl font-black text-emerald-400 font-noto-sans-arabic">
-             {won ? 'تە سەرکەفتن ئینا! 🎉' : draw ? 'هەردووک وەکهەڤ! 🤝' : 'تو دۆڕاندی، جەرباندنەکا دی بکە!'}
-           </h2>
-        </div>
-
-        <button 
-          onClick={onReturn}
-          className="w-full py-5 bg-white text-black font-black rounded-2xl hover:bg-emerald-400 transition-all active:scale-95 shadow-lg shadow-white/5"
+      {/* FLOATING EXIT BUTTON (TOP LEFT - BELOW HEADER) */}
+      <div className="fixed top-40 left-4 z-[450]">
+        <motion.button 
+          whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.2)' }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => { triggerHaptic(10); setIsConfirmingExit(true); }}
+          className="w-7 h-7 rounded-lg bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#ef4444] shadow-2xl transition-colors"
         >
-          ڤەگەڕیا سەرەکی (Main Menu)
-        </button>
+          <span className="material-symbols-outlined text-base font-black rotate-180">logout</span>
+        </motion.button>
       </div>
+
+      {/* 5. CONFIRM EXIT OVERLAY */}
+      <AnimatePresence>
+        {isConfirmingExit && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[600] bg-[#020617]/95 backdrop-blur-xl flex items-center justify-center p-6"
+          >
+            <motion.div 
+               initial={{ scale: 0.9, opacity: 0 }}
+               animate={{ scale: 1, opacity: 1 }}
+               exit={{ scale: 0.9, opacity: 0 }}
+               className="w-full max-w-sm bg-white/5 border border-white/10 rounded-[40px] p-10 text-center"
+            >
+              <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="material-symbols-outlined text-4xl text-red-500">logout</span>
+              </div>
+              
+              <h2 className="text-2xl font-black text-white mb-2 font-noto-sans-arabic">پشتراستی؟</h2>
+              <p className="text-white/40 mb-8 font-noto-sans-arabic">دێ دەست ژ یاریێ بەردەی و دەرکەڤی؟</p>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => {
+                    triggerHaptic(20);
+                    cancelMatch();
+                  }}
+                  className="h-16 bg-red-500 text-white rounded-2xl font-black text-lg active:scale-95 transition-all shadow-lg shadow-red-500/20"
+                >
+                  بەلێ، دەرکەفتن
+                </button>
+                <button 
+                  onClick={() => setIsConfirmingExit(false)}
+                  className="h-16 bg-white/5 text-white/60 rounded-2xl font-bold active:scale-95 transition-all"
+                >
+                  نەخێر، مانەوە
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+

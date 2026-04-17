@@ -95,7 +95,7 @@ export default function LobbyView({
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
               <div className="flex flex-col items-start">
-                <h3 className="text-2xl font-black font-heading text-white">هەڤڕکی</h3>
+                <h3 className="text-2xl font-black font-heading text-white">ھەڤڕکی</h3>
                 <span className="text-[10px] font-medium font-rabar uppercase tracking-[0.2em] text-emerald-100/70 leading-none">دەستەودەست (ONLINE)</span>
               </div>
               <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.2)] group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
@@ -178,7 +178,7 @@ export default function LobbyView({
               </div>
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">تایا پەیڤان</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-widest text-white/50 mt-1 leading-none">بەرهەڤ بە</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-widest text-white/50 mt-1 leading-none">بەرھەڤ بە</span>
               </div>
             </div>
           </motion.button>

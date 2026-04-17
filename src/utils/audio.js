@@ -1,44 +1,66 @@
 /**
  * Audio Utilities
  * Handles sound effects for the application.
- * All functions include zero-latency logic and handle browser restrictions.
+ * Optimized for low-latency feedback.
  */
 
-// --- PRELOADER CACHE ---
-const audioCache = {};
-
-const loadSound = (path, volume = 0.5) => {
-  if (typeof Audio === "undefined") return null;
-  if (audioCache[path]) return audioCache[path];
-  
-  const audio = new Audio(path);
-  audio.preload = 'auto';
-  audio.volume = volume;
-  audioCache[path] = audio;
-  return audio;
+const SOUND_PATHS = {
+  CLICK: '/click.mp3',
+  POP: '/pop.mp3',
+  NOTIF: '/noti.mp3',
+  MESSAGE: '/messag.mp3',
+  VICTORY: '/victory.mp3',
+  COIN: '/coin.mp3'
 };
 
-// Pre-initialize main sounds
+// --- PRE-LOADED SINGLETONS ---
+const preloadedSounds = {};
+
+export const initAudio = () => {
+  if (typeof Audio === "undefined") return;
+  
+  Object.entries(SOUND_PATHS).forEach(([key, path]) => {
+    const audio = new Audio(path);
+    audio.preload = 'auto';
+    // Set default volumes
+    if (key === 'CLICK') audio.volume = 0.25;
+    if (key === 'POP') audio.volume = 0.35;
+    if (key === 'NOTIF') audio.volume = 0.7;
+    if (key === 'MESSAGE') audio.volume = 0.65;
+    if (key === 'VICTORY') audio.volume = 0.4;
+    if (key === 'COIN') audio.volume = 0.3;
+    
+    preloadedSounds[key] = audio;
+  });
+};
+
+// Initialize early
 if (typeof window !== "undefined") {
-  loadSound('/click.mp3', 0.25);
-  loadSound('/pop.mp3', 0.35);
-  loadSound('/noti.mp3', 0.7);
-  loadSound('/messag.mp3', 0.65);
-  loadSound('/start.mp3', 0.5);
-  loadSound('/victory.mp3', 0.4);
-  loadSound('/coin.mp3', 0.3);
+  initAudio();
 }
+
+const safePlay = (soundKey) => {
+  const sfx = preloadedSounds[soundKey];
+  if (sfx) {
+    if (!sfx.paused) {
+      sfx.pause();
+    }
+    sfx.currentTime = 0;
+    // Offload to task queue to prevent blocking Main thread during critical paint
+    setTimeout(() => {
+      sfx.play().catch(() => {
+        // Browsers often block auto-play until interaction.
+      });
+    }, 0);
+  }
+};
 
 /**
  * Professional Keyboard Click (iPhone Style)
  */
 export const playKeyClickSfx = (enabled = true) => {
   if (!enabled) return;
-  const sfx = loadSound('/click.mp3', 0.25);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('CLICK');
 };
 
 /**
@@ -50,15 +72,11 @@ export const playPopSfx = (enabled = true, bypassDebounce = false) => {
   
   if (!bypassDebounce) {
     const now = Date.now();
-    if (now - lastPopTime < 100) return; // Shorter debounce for grid flips
+    if (now - lastPopTime < 80) return; // Slightly faster debounce
     lastPopTime = now;
   }
 
-  const sfx = loadSound('/pop.mp3', 0.35);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('POP');
 };
 
 /**
@@ -66,11 +84,7 @@ export const playPopSfx = (enabled = true, bypassDebounce = false) => {
  */
 export const playNotifSfx = (enabled = true) => {
   if (!enabled) return;
-  const sfx = loadSound('/noti.mp3', 0.7);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('NOTIF');
 };
 
 /**
@@ -78,23 +92,14 @@ export const playNotifSfx = (enabled = true) => {
  */
 export const playMessageSfx = (enabled = true) => {
   if (!enabled) return;
-  const sfx = loadSound('/messag.mp3', 0.65);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('MESSAGE');
 };
 
 /**
- * Game Mode Start Sound
+ * Game Mode Start Sound - Currently unused
  */
 export const playGameStartSfx = (enabled = true) => {
-  if (!enabled) return;
-  const sfx = loadSound('/start.mp3', 0.5);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  return;
 };
 
 /**
@@ -102,11 +107,7 @@ export const playGameStartSfx = (enabled = true) => {
  */
 export const playSuccessSfx = (enabled = true) => {
   if (!enabled) return;
-  const sfx = loadSound('/victory.mp3', 0.4);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('VICTORY');
 };
 
 /**
@@ -114,9 +115,5 @@ export const playSuccessSfx = (enabled = true) => {
  */
 export const playCoinSfx = (enabled = true) => {
   if (!enabled) return;
-  const sfx = loadSound('/coin.mp3', 0.3);
-  if (sfx) {
-    sfx.currentTime = 0;
-    sfx.play().catch(() => {});
-  }
+  safePlay('COIN');
 };

@@ -22,7 +22,7 @@ export default function GameWrapper() {
     <div style={{ backgroundColor: '#14181f', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '80px', paddingLeft: '20px', paddingRight: '20px' }}>
       
       <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-        <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', fontFamily: 'sans-serif', marginBottom: '10px' }}>سیستەمێ جیهانی یێ ئاستەکان 🌍</h1>
+        <h1 style={{ color: 'white', fontSize: '32px', fontWeight: '900', fontFamily: 'sans-serif', marginBottom: '10px' }}>سیستەمێ جیھانی یێ ئاستەکان 🌍</h1>
         <p style={{ color: '#64748b', fontSize: '14px' }}>Global RPG Context + Supabase Cloud Sync</p>
       </div>
       

@@ -1,11 +1,17 @@
-const CACHE_NAME = 'peyvchin-v2';
+const CACHE_NAME = 'peyvchin-v6';
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.png',
+  '/icon-192.png',
+  '/icon-512.png',
   '/coin.mp3',
-  '/victory.mp3'
+  '/victory.mp3',
+  '/click.mp3',
+  '/pop.mp3',
+  '/noti.mp3',
+  '/messag.mp3'
 ];
 
 // Install: Cache basic assets

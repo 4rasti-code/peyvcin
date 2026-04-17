@@ -1,28 +1,26 @@
-import React from 'react';
+import React, { memo, useState, useEffect, useLayoutEffect } from 'react';
 import { STATUS } from '../data/constants';
 import { motion } from 'framer-motion';
 
-function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) {
+const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) => {
   
   let bgColor = 'bg-[#1e293b] border-2 border-white/5 shadow-xl';
   let textColor = 'text-white';
   let extraClasses = '';
 
-  // Hard Mode Overhaul: Do not show status coloring for the active row
   const showStatus = (!isCurrent && status !== STATUS.NONE) || isRevealed;
   const isFlipped = showStatus;
 
   if (showStatus && (status === STATUS.CORRECT || isRevealed)) {
-    bgColor = 'bg-[#10b981] border-none shadow-[0_8px_20px_rgba(16,185,129,0.3)]';
+    bgColor = 'bg-[#10b981] border-none shadow-[0_8px_20px_rgba(16,185,129,0.4)]';
     textColor = 'text-white';
   } else if (showStatus && (status === STATUS.WRONG_POS)) {
-    bgColor = 'bg-[#f59e0b] border-none shadow-[0_8px_20px_rgba(245,158,11,0.3)]';
+    bgColor = 'bg-[#f59e0b] border-none shadow-[0_8px_20px_rgba(245,158,11,0.4)]';
     textColor = 'text-white';
   } else if (showStatus && status === STATUS.INCORRECT) {
     bgColor = 'bg-[#334155] border-none opacity-40 grayscale';
     textColor = 'text-white/30';
   } else if (isFocused) {
-    // ACTIVE BOX HIGHLIGHT (STRICTLY GREEN)
     bgColor = 'bg-[#1e293b] border-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.4)]';
     extraClasses = 'z-20 scale-105 border-[3px]';
     textColor = 'text-white';
@@ -33,7 +31,6 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
   
   if (isNewHint) extraClasses += ' animate-hint-glow';
 
-  // HIDDEN INPUT LOGIC: Hide text if in Secret Mode and not revealed yet
   const shouldHideText = isSecretMode && !showStatus;
 
   return (
@@ -41,7 +38,7 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
       initial={false}
       animate={isFlipped ? { rotateY: 360 } : {}}
       transition={{ duration: 0.6, delay: flipDelay / 1000 }}
-      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-all duration-200 transform relative overflow-hidden flex items-center justify-center`}
+      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden flex items-center justify-center`}
     >
       <span 
         className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
@@ -59,11 +56,25 @@ function Tile({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFo
       )}
     </motion.div>
   );
-}
+}, (prev, next) => {
+  return prev.char === next.char &&
+         prev.status === next.status &&
+         prev.isFocused === next.isFocused &&
+         prev.isCurrent === next.isCurrent &&
+         prev.isRevealed === next.isRevealed &&
+         prev.isNewHint === next.isNewHint &&
+         prev.isSecretMode === next.isSecretMode &&
+         prev.hideLetters === next.hideLetters &&
+         prev.wordLength === next.wordLength;
+});
 
-function Row({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) {
-  // Active Row Glow implementation
+const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, targetWord, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) => {
   const activeClass = isCurrent ? 'ring-2 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-primary/5' : '';
+
+  // PRE-CALCULATE CONSTANTS for the row maps
+  const guessArr = Array.isArray(guess) ? guess : (typeof guess === 'string' ? guess.split('') : []);
+  const firstEmptyIndex = guessArr.findIndex(c => c === '');
+  const actualFocusIndex = firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex;
 
   return (
     <div 
@@ -77,27 +88,19 @@ function Row({ guess, wordLength, getLetterStatus = () => '', isCurrent, reveale
       }}
     >
       {Array.from({ length: wordLength }).map((_, i) => {
-        let char = '';
+        let char = guessArr[i] || '';
         let status = STATUS.NONE;
-        let isRevealed = revealedIndices.includes(i);
+        let isRevealed = (revealedIndices || []).includes(i);
         let isNewHint = i === lastHintIndex;
         
-        // Accurate focus: find the first empty slot
-        const firstEmptyIndex = Array.isArray(guess) ? guess.findIndex(c => c === '') : -1;
-        const isFocused = isCurrent && i === (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex);
+        const isFocused = isCurrent && i === actualFocusIndex;
 
         if (forcedStatuses) {
-          char = '';
           status = forcedStatuses[i] || STATUS.NONE;
-        } else if (Array.isArray(guess)) {
-          char = guess[i];
-          status = getLetterStatus(guess, i);
-        } else if (typeof guess === 'string') {
-          char = guess[i] || '';
+        } else if (!isCurrent && guessArr.length > 0) {
+          // Only calculate status for SUBMITTED rows (prevents lag during typing)
           status = getLetterStatus(guess, i);
         }
-
-        const baseDelay = 60;
 
         return (
           <Tile 
@@ -112,15 +115,28 @@ function Row({ guess, wordLength, getLetterStatus = () => '', isCurrent, reveale
             isMobile={isMobile}
             isSecretMode={isSecretMode}
             hideLetters={hideLetters}
-            flipDelay={i * baseDelay}
+            flipDelay={isCurrent ? 0 : i * 60}
           />
         );
       })}
     </div>
   );
-}
+}, (prev, next) => {
+  // ATOMIC COMPARISON: Row only re-renders if its specific content changed.
+  // We use string conversion for deep array comparison (fastest for small arrays).
+  const prevStr = Array.isArray(prev.guess) ? prev.guess.join('') : prev.guess;
+  const nextStr = Array.isArray(next.guess) ? next.guess.join('') : next.guess;
 
-export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, targetWord = '', maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) {
+  return prevStr === nextStr &&
+         prev.isCurrent === next.isCurrent &&
+         prev.isShaking === next.isShaking &&
+         prev.isSecretMode === next.isSecretMode &&
+         prev.wordLength === next.wordLength &&
+         prev.revealedIndices?.length === next.revealedIndices?.length &&
+         prev.lastHintIndex === next.lastHintIndex;
+});
+
+const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, targetWord = '', maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) => {
   if (!targetWord || wordLength === 0) return null;
 
   const rows = [...guesses];
@@ -128,16 +144,16 @@ export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, 
     rows.push(null);
   }
 
-  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 1024);
-  React.useEffect(() => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // AGGRESSIVE SCALING LOGIC: Fit 6 rows of 58px tiles into any viewport height
-  const [gridScale, setGridScale] = React.useState(1);
-  React.useLayoutEffect(() => {
+  const [gridScale, setGridScale] = useState(1);
+  useLayoutEffect(() => {
     const calculateScale = () => {
       if (!isMobile) return 1;
       
@@ -220,5 +236,7 @@ export default function Grid({ guesses = [], currentGuess = [], wordLength = 0, 
       </div>
     </div>
   );
-}
+});
+
+export default Grid;
 

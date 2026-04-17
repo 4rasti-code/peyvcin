@@ -131,7 +131,7 @@ export default function ProfileView({
    const handleInvite = () => {
       const shareLink = `${window.location.origin}/play?invite=${user?.id || 'guest'}`;
       navigator.clipboard.writeText(shareLink);
-      alert('لینک هاتە کۆپیکرن! بۆ هەڤالێن خۆ بفرێژە.');
+      alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خۆ بفرێژە.');
    };
 
    const handleSave = async () => {
@@ -368,7 +368,7 @@ export default function ProfileView({
                {[
                   { id: 'profile', label: 'بەرپەڕ', icon: 'person' },
                   { id: 'stats', label: 'ئامار', icon: 'leaderboard' },
-                  { id: 'friends', label: 'هەڤال', icon: 'group' }
+                  { id: 'friends', label: 'ھەڤال', icon: 'group' }
                ].map(tab => {
                   const isActive = activeTab === tab.id;
                   return (
@@ -403,8 +403,8 @@ export default function ProfileView({
                         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]">
                            <span className="material-symbols-outlined text-2xl text-primary font-bold">person_add</span>
                         </div>
-                        <h4 className="text-lg font-black font-body text-slate-900 mb-1">هەڤالێن خوە داخواز بکە</h4>
-                        <p className="text-slate-500 text-[11px] font-bold font-body mb-5 leading-relaxed max-w-[200px]">بۆ هەڤالێ خوە بهنێرە و پێکڤە یاریێ بکەن بۆ بدەستڤەهینانا خەلاتان</p>
+                        <h4 className="text-lg font-black font-body text-slate-900 mb-1">ھەڤالێن خوە داخواز بکە</h4>
+                        <p className="text-slate-500 text-[11px] font-bold font-body mb-5 leading-relaxed max-w-[200px]">بۆ ھەڤالێ خوە بھنێرە و پێکڤە یاریێ بکەن بۆ بدەستڤەھینانا خەلاتان</p>
                         <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="w-full bg-primary text-black py-2.5 rounded-md font-black font-body text-sm shadow-md hover:brightness-110 active:scale-95 transition-all">
                            کۆپی کرنا لینکی
                         </button>
@@ -512,7 +512,7 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest text-right block w-full">هەلبژارتنا ئاڤاتاری</label>
+                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest text-right block w-full">ھەلبژارتنا ئاڤاتاری</label>
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 noise-grain">
                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3 max-h-55 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
                               {AVATARS.map((avatar) => (

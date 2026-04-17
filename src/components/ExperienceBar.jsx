@@ -108,7 +108,7 @@ const ExperienceBar = () => {
             position: 'relative', color: 'white', fontWeight: '900', fontSize: '10px', fontFamily: 'sans-serif', 
             zIndex: 2, display: 'inline-block', direction: 'ltr', unicodeBidi: 'bidi-override', textShadow: '0 2px 4px rgba(0,0,0,0.8)' 
           }}>
-            {isMaxLevel ? 'ئاستێ دوماهییێ 🔥' : `${toKuDigits(animatedXP)} / ${toKuDigits(maxXP)}`}
+            {isMaxLevel ? 'ئاستێ دوماھییێ 🔥' : `${toKuDigits(animatedXP)} / ${toKuDigits(maxXP)}`}
           </span>
         </div>
 

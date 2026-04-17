@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { STATUS } from '../data/constants';
 import { useMusic } from './MusicContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,7 +19,63 @@ const SPECIAL_KEYS = {
   DELETE: 'backspace'
 };
 
-export default function Keyboard({ 
+const Key = memo(({ k, status, onKeyPress, isDisabled }) => {
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+
+  const getKeyStyle = () => {
+    if (isDisabled) return 'bg-[#334155]/20 text-white/10 cursor-not-allowed border-transparent';
+    if (status === STATUS.CORRECT) return 'bg-[#10b981] text-white border-transparent shadow-[0_0_15px_rgba(16,185,129,0.4)]';
+    if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[0_0_15px_rgba(245,158,11,0.4)]';
+    if (status === STATUS.INCORRECT) return 'bg-[#1e293b]/40 text-slate-600 border-white/5 opacity-50 backdrop-blur-sm grayscale';
+    return 'bg-white/5 text-white border-white/10 hover:bg-white/10 active:bg-white/15 backdrop-blur-md';
+  };
+
+  const handlePointerDown = (e) => {
+    e.preventDefault();
+    if (isDisabled) return;
+    
+    // Trigger the popup locally
+    setIsPopupVisible(true);
+    onKeyPress(k);
+    
+    // Clear popup after short delay
+    setTimeout(() => setIsPopupVisible(false), 150);
+  };
+
+  return (
+    <div className="relative flex-1">
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        onPointerDown={handlePointerDown}
+        className={`w-full h-[clamp(38px,6vh,55px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border ${getKeyStyle()}`}
+      >
+        <span className="text-[clamp(1.3rem,4.5vw,1.9rem)] -translate-y-px">{k}</span>
+      </motion.button>
+      
+      <AnimatePresence>
+        {isPopupVisible && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.8 }}
+            animate={{ opacity: 1, y: -70, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.8 }}
+            className="absolute left-1/2 -translate-x-1/2 w-14 h-16 bg-[#1a202c] text-white shadow-2xl rounded-2xl flex items-center justify-center border-2 border-white/20 pointer-events-none z-50 backdrop-blur-xl"
+          >
+            <span className="text-3xl font-light leading-none">{k}</span>
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#1a202c] rotate-45 border-r border-b border-white/20"></div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}, (prev, next) => {
+  return prev.status === next.status && 
+         prev.isDisabled === next.isDisabled &&
+         prev.onKeyPress === next.onKeyPress;
+});
+
+const Keyboard = memo(({ 
   onKey, 
   onDelete, 
   onEnter, 
@@ -41,20 +97,14 @@ export default function Keyboard({
   hintTaps = 0,
   hintLimit = 0,
   hidePowerups = false
-}) {
+}) => {
   const { playSound } = useMusic();
-  const [activeKey, setActiveKey] = useState(null);
 
   const handleKeyPress = useCallback((key, isSpecial = false) => {
     if (gameState !== 'playing') return;
     
-    // Play sound immediately on pointer down for zero latency
     playKeyClickSfx(keyboardSoundEnabled);
-    
-    // Trigger haptic feedback only if enabled
-    if (hapticEnabled) {
-      triggerHaptic(10);
-    }
+    if (hapticEnabled) triggerHaptic(10);
 
     if (isSpecial) {
       if (key === SPECIAL_KEYS.ENTER) onEnter();
@@ -62,25 +112,11 @@ export default function Keyboard({
     } else {
       onKey(key);
     }
-  }, [onKey, onDelete, onEnter, keyboardSoundEnabled]);
-
-  const getKeyStyle = (key) => {
-    const status = usedKeys[key];
-    const isMagnetDisabled = magnetDisabledKeys.includes(key);
-
-    if (isMagnetDisabled) return 'bg-[#334155]/20 text-white/10 cursor-not-allowed border-transparent';
-    
-    if (status === STATUS.CORRECT) return 'bg-[#10b981] text-white border-transparent shadow-[0_0_15px_rgba(16,185,129,0.4)]';
-    if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[0_0_15px_rgba(245,158,11,0.4)]';
-    if (status === STATUS.INCORRECT) return 'bg-[#1e293b]/40 text-slate-600 border-white/5 opacity-50 backdrop-blur-sm grayscale';
-    
-    return 'bg-white/5 text-white border-white/10 hover:bg-white/10 active:bg-white/15 backdrop-blur-md';
-  };
+  }, [onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState]);
 
   return (
     <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation pb-1 pt-2 relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
       
-      {/* Premium Power-up Capsule Bar */}
       {!hidePowerups && (
         <InventoryBar 
           magnetCount={magnetCount}
@@ -110,37 +146,15 @@ export default function Keyboard({
             </motion.button>
           )}
 
-          {row.map((key) => {
-             return (
-               <div key={key} className="relative flex-1">
-                 <motion.button
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.92 }}
-                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                   onPointerDown={(e) => { e.preventDefault(); setActiveKey(key); handleKeyPress(key); }}
-                   onPointerUp={() => setActiveKey(null)}
-                   onPointerLeave={() => setActiveKey(null)}
-                   className={`w-full h-[clamp(38px,6vh,55px)] rounded-md flex items-center justify-center font-heading font-light transition-all border ${getKeyStyle(key)}`}
-                 >
-                   <span className="text-[clamp(1.3rem,4.5vw,1.9rem)] -translate-y-px">{key}</span>
-                 </motion.button>
-                 
-                 <AnimatePresence>
-                   {activeKey === key && (
-                     <motion.div 
-                        initial={{ opacity: 0, y: 10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: -70, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.8 }}
-                        className="absolute left-1/2 -translate-x-1/2 w-14 h-16 bg-[#1a202c] text-white shadow-2xl rounded-2xl flex items-center justify-center border-2 border-white/20 pointer-events-none z-50 backdrop-blur-xl"
-                     >
-                       <span className="text-3xl font-light leading-none">{key}</span>
-                       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#1a202c] rotate-45 border-r border-b border-white/20"></div>
-                     </motion.div>
-                   )}
-                 </AnimatePresence>
-               </div>
-             );
-          })}
+          {row.map((key) => (
+             <Key 
+               key={key}
+               k={key}
+               status={usedKeys[key]}
+               isDisabled={(magnetDisabledKeys || []).includes(key)}
+               onKeyPress={handleKeyPress}
+             />
+          ))}
 
           {rowIndex === 3 && (
             <motion.button
@@ -157,4 +171,6 @@ export default function Keyboard({
       ))}
     </div>
   );
-}
+});
+
+export default Keyboard;

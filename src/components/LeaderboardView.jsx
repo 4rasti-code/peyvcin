@@ -22,8 +22,8 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
     if (!selectedPlayer || !userId) return;
     const success = await toggleBlockInContext(selectedPlayer.id, currentStatus);
     if (success) {
-      if (!currentStatus) alert("یاریزان هاتە بلۆککرن!");
-      else alert("بلۆک هاتە لابرن!");
+      if (!currentStatus) alert("یاریزان ھاتە بلۆککرن!");
+      else alert("بلۆک ھاتە لابرن!");
       setSelectedPlayer(null);
     }
   };
@@ -166,7 +166,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                   />
                 )}
                 <span className="relative z-20 uppercase tracking-widest font-rabar">
-                  {tab === 'global' ? 'جیهانی' : 'هەڤال'}
+                  {tab === 'global' ? 'جیھانی' : 'ھەڤال'}
                 </span>
               </button>
             );

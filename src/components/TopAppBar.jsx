@@ -5,6 +5,23 @@ import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 
+  const CurrencyStat = ({ value, Icon, color, bg, currency = 'fils' }) => {
+    const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'zer' ? 'زێڕ' : 'فلس';
+    return (
+      <CurrencyDecrementEffect value={value} currency={currency}>
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-[12px] ${bg || 'bg-transparent'} transition-all duration-300`}>
+          <div className={`w-5 h-5 flex items-center justify-center ${color} drop-shadow-sm`}>
+            <Icon className="w-full h-full" />
+          </div>
+          <div className="flex flex-col items-center leading-none">
+            <span className="text-[17px] font-black font-heading text-white">{(value || 0).toLocaleString('ku-IQ')}</span>
+            <span className={`text-[8px] font-black uppercase tracking-widest mt-0.5 ${color} opacity-60`}>{currencyName}</span>
+          </div>
+        </div>
+      </CurrencyDecrementEffect>
+    );
+  };
+
 export default function TopAppBar({ 
   user,
   fils = 0, 
@@ -30,24 +47,13 @@ export default function TopAppBar({
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
   const displayCategory = category === 'پەیڤێن دژوار' ? 'پەیڤێن دژوار' 
                         : category === 'تایا پەیڤان' ? 'تایا پەیڤان'
-                        : category === 'پەیڤێن نەهێنی' ? 'پەیڤا نهێنی'
+                        : category === 'پەیڤێن نەھێنی' ? 'پەیڤا نھێنی'
                         : category === 'generalWordPool' ? null 
                         : category;
 
   const isPlaying = currentView === 'game';
   const showStats = currentView === 'lobby' || currentView === 'store' || currentView === 'leaderboard' || currentView === 'stats';
   const isClassic = gameMode === 'classic';
-
-  const CurrencyStat = ({ value, Icon, color, bg, currency = 'fils' }) => (
-    <CurrencyDecrementEffect value={value} currency={currency}>
-      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-[12px] ${bg || 'bg-transparent'} transition-all duration-300`}>
-        <div className={`w-5 h-5 flex items-center justify-center ${color} drop-shadow-sm`}>
-          <Icon className="w-full h-full" />
-        </div>
-        <span className="text-[17px] font-black font-heading text-white">{(value || 0).toLocaleString('ku-IQ')}</span>
-      </div>
-    </CurrencyDecrementEffect>
-  );
 
   return (
     <header 

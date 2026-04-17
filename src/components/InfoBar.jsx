@@ -173,8 +173,11 @@ export default function InfoBar({
           </span>
         </div>
         <CurrencyDecrementEffect value={fils} currency="fils">
-          <div className="flex items-center justify-center gap-1.5 bg-amber-500/10 text-amber-500 px-3 h-9 rounded-2xl border border-amber-500/20 shadow-sm">
-            <span className="text-xs font-black mt-0.5">{(fils || 0).toLocaleString('ku-IQ')}</span>
+          <div className="flex items-center justify-center gap-1.5 bg-amber-500/10 text-amber-500 px-3 h-10 rounded-2xl border border-amber-500/20 shadow-sm transition-all duration-300">
+            <div className="flex flex-col items-center leading-none">
+              <span className="text-xs font-black">{(fils || 0).toLocaleString('ku-IQ')}</span>
+              <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
+            </div>
             <div className="scale-75"><FilsIcon /></div>
           </div>
         </CurrencyDecrementEffect>

@@ -9,7 +9,7 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
     { id: 2, name: 'پالەوان', icon: 'military_tech', color: 'text-slate-300', threshold: 100 },
     { id: 3, name: 'مامۆستا', icon: 'workspace_premium', color: 'text-yellow-400', threshold: 250 },
     { id: 4, name: 'شانازیا کوردستانێ', icon: 'stars', color: 'text-purple-400', threshold: 500 },
-    { id: 5, name: 'شانازییا جیهانێ', icon: 'diamond', color: 'text-blue-400', threshold: 1000 },
+    { id: 5, name: 'شانازییا جیھانێ', icon: 'diamond', color: 'text-blue-400', threshold: 1000 },
   ];
 
   const stats = playerStats || { 
@@ -77,7 +77,7 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
                 <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.classic?.currentStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
-                <span className="text-white/80 text-[10px] font-medium font-body no-stroke">هەمی پەیڤ</span>
+                <span className="text-white/80 text-[10px] font-medium font-body no-stroke">ھەمی پەیڤ</span>
                 <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.classic?.totalCorrect || 0)}</span>
              </div>
            </div>
@@ -143,7 +143,7 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
                 <div className="flex items-center justify-center">
                    <span className="material-symbols-outlined text-emerald-200 text-sm" style={{fontVariationSettings: "'FILL' 1"}}>public</span>
                 </div>
-                <h3 className="text-[12px] font-bold font-rabar text-white text-pop leading-tight">جیهانی</h3>
+                <h3 className="text-[12px] font-bold font-rabar text-white text-pop leading-tight">جیھانی</h3>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">باشترین زنجیرە</span>
@@ -215,9 +215,9 @@ export default function StatsView({ playerStats, userNickname, userAvatar, level
             </div>
             
             <div className="flex flex-col">
-              <span className="text-white/60 text-[9px] font-black font-ui uppercase tracking-[0.2em] mb-0.5 no-stroke">گەوهەرا زمانێ مە</span>
-              <h3 className="text-2xl font-black font-rabar text-white text-pop drop-shadow-lg">فەرهەنگا من</h3>
-              <p className="text-white/40 text-[10px] font-bold font-body mt-0.5">هەمی پەیڤێن تە د ڤێرێ نە</p>
+              <span className="text-white/60 text-[9px] font-black font-ui uppercase tracking-[0.2em] mb-0.5 no-stroke">گەوھەرا زمانێ مە</span>
+              <h3 className="text-2xl font-black font-rabar text-white text-pop drop-shadow-lg">فەرھەنگا من</h3>
+              <p className="text-white/40 text-[10px] font-bold font-body mt-0.5">ھەمی پەیڤێن تە د ڤێرێ نە</p>
             </div>
           </div>
 

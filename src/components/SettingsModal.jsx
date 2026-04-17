@@ -145,7 +145,7 @@ function SettingsModal({
                         className="w-full bg-red-500/10 border-2 border-red-500/20 text-red-500 h-20 rounded-[32px] font-black text-xl hover:bg-red-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3 shadow-lg"
                       >
                          <span className="material-symbols-outlined font-bold">logout</span>
-                         دەرکەفتن ژ هەژمارێ
+                         دەرکەفتن ژ ھەژمارێ
                       </button>
                     </div>
 

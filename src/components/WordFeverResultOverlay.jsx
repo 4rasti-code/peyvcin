@@ -64,7 +64,7 @@ const WordFeverResultOverlay = ({
                 {isWin ? 'پیرۆزە!' : 'تو سەرنەکەڤتی!'}
               </h2>
               <p className="text-lg font-bold font-body text-white/80 leading-relaxed">
-                {isWin ? 'تە پەیڤا دروست دیت.' : 'تە پەیڤا ڕاست نەدیت، دەستا نەداهێلە!'}
+                {isWin ? 'تە پەیڤا دروست دیت.' : 'تە پەیڤا ڕاست نەدیت، دەستا نەداھێلە!'}
               </p>
               {!isWin && (
                 <div className="mt-4 flex flex-col items-center gap-2">

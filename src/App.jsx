@@ -16,6 +16,9 @@ import { STATUS } from './data/constants';
 import { normalizeKurdishInput, feverNormalize } from './utils/textUtils';
 import useMultiplayer from './hooks/useMultiplayer';
 import useGameLogic from './hooks/useGameLogic';
+import { AVATARS } from './data/avatars';
+
+import { playKeyClickSfx, playPopSfx, playNotifSfx, playMessageSfx, playSuccessSfx, playCoinSfx, initAudio } from './utils/audio';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
@@ -80,7 +83,7 @@ class GameErrorBoundary extends React.Component {
         <div className="flex flex-col items-center justify-center h-screen bg-[#0f172a] text-white p-8 text-center" style={{ fontFamily: 'Rabar, sans-serif' }}>
           <div className="bg-red-500/10 border-2 border-red-500/30 p-10 rounded-3xl shadow-2xl max-w-lg backdrop-blur-xl animate-in zoom-in-95">
             <h2 className="text-4xl font-black mb-6 text-red-500">ئاریشەیەک چێ بوو!</h2>
-            <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، هندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا هەبوون. تکایە دووبارە پەیجێ نوو بکە یان ڤەگەرە لابیێ.</p>
+            <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. تکایە دووبارە پەیجێ نوو بکە یان ڤەگەرە لابیێ.</p>
             <div className="flex flex-col gap-4">
               <button onClick={() => window.location.reload()} className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">نووکرنا پەیجێ</button>
               <button onClick={() => window.location.href = '/'} className="bg-white/5 border border-white/10 text-white/60 px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all">ڤەگەر بۆ سەرەکی</button>
@@ -162,7 +165,10 @@ export default function App() {
     cancelMatch,
     startMatchmaking,
     activeMatch,
-    opponent
+    opponent,
+    lastMatchResult,
+    matchResultTrigger,
+    resetMatchResultTrigger
   } = useMultiplayer();
 
   const [notificationsList, setNotificationsList] = useState([]);
@@ -186,6 +192,73 @@ export default function App() {
   const [isLevelingUp, setIsLevelingUp] = useState(false);
 
   // --- CORE GAME ENGINE (Unified) ---
+  const handleGameCompletion = useCallback(async (finalGuesses, isWin) => {
+    const { targetWord: tWord, solvedWords: sWords, gameMode: gMode, winsTowardsSecret: wts, fils: currFils } = gameRefs.current;
+    
+    if (isWin) {
+      const nextSolved = [...sWords, tWord];
+      const breakdown = calculateLevelRewards(tWord, finalGuesses, gMode);
+      setVictoryBreakdown(breakdown);
+      setRewardAmount(breakdown.total);
+
+      // Synced database call
+      let nextWinsTowardsSecret = wts;
+      let resetSecretProgress = false;
+      if (gMode !== 'secret_word') {
+          nextWinsTowardsSecret = Math.min(3, wts + 1);
+      } else {
+          resetSecretProgress = true;
+      }
+
+      const syncData = await syncProgressToDatabase(
+          tWord.length, 
+          gMode, 
+          { 
+              solvedWords: nextSolved,
+              winsTowardsSecret: nextWinsTowardsSecret,
+              resetSecretProgress,
+              shayiBonus: breakdown.total
+          }
+      );
+      if (syncData) {
+          setRewardAmountXp(syncData.xpAdded);
+      }
+    } else {
+      const penaltyBreakdown = calculateDefeatPenalty(tWord, finalGuesses, gMode);
+      setDefeatBreakdown(penaltyBreakdown);
+      const nextFils = Math.max(0, Math.ceil(currFils - penaltyBreakdown.total));
+      updateInventory({ fils: nextFils }, false);
+    }
+  }, [syncProgressToDatabase, updateInventory]); // Stable dependencies
+
+  const onWinHandler = useCallback((finalGuesses) => {
+    const { targetWord: tWord, gameMode: gMode, hapticEnabled: hEnabled } = gameRefs.current;
+    
+    setLastSolvedWord(tWord);
+    if (gMode === 'word_fever') {
+        setIsWordFeverResultVisible(true);
+        setWordFeverResultType('win');
+        playRewardSound();
+        setIsSuccessSplash(true);
+        setTimeout(() => setIsSuccessSplash(false), 1000);
+    } else {
+        if (hEnabled) triggerHaptic(25);
+    }
+    handleGameCompletion(finalGuesses, true);
+  }, [handleGameCompletion, playRewardSound]);
+
+  const onLossHandler = useCallback((finalGuesses) => {
+    const { gameMode: gMode } = gameRefs.current;
+    
+    if (gMode === 'word_fever') {
+        setWordFeverResultType('fail');
+        setIsWordFeverResultVisible(true);
+    } else {
+        handleGameCompletion(finalGuesses, false);
+        if (gMode === 'secret_word') resetSecretWordProgress();
+    }
+  }, [handleGameCompletion, resetSecretWordProgress]);
+
   const {
     guesses, setGuesses,
     currentGuess, setCurrentGuess,
@@ -201,45 +274,11 @@ export default function App() {
     gameMode,
     revealedIndices,
     isLevelingUp,
-    onWin: (finalGuesses) => {
-        setLastSolvedWord(targetWord);
-        if (gameMode === 'word_fever') {
-            setIsWordFeverResultVisible(true);
-            setWordFeverResultType('win');
-            playRewardSound();
-            setIsSuccessSplash(true);
-            setTimeout(() => setIsSuccessSplash(false), 1000);
-        } else {
-            playVictorySound();
-            if (hapticEnabled) triggerHaptic(25);
-        }
-        handleGameCompletion(finalGuesses, true);
-    },
-    onLoss: (finalGuesses) => {
-        if (gameMode === 'word_fever') {
-            setWordFeverResultType('fail');
-            setIsWordFeverResultVisible(true);
-        } else {
-            handleGameCompletion(finalGuesses, false);
-            setIsDefeat(true);
-            if (gameMode === 'secret_word') resetSecretWordProgress();
-        }
-    }
+    onWin: onWinHandler,
+    onLoss: onLossHandler
   });
 
-  // Wrapped handlers to manage UI feedback (shaking, messages)
-  const handleOnEnter = async () => {
-    const result = await onEnter();
-    if (result?.error) {
-      setMessage(result.error);
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 500);
-      setTimeout(() => setMessage(''), 2000);
-    }
-  };
-
   const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
-
   const [showFreshPulse, setShowFreshPulse] = useState(false);
   const [lastSolvedWord, setLastSolvedWord] = useState('');
   const [isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
@@ -248,6 +287,122 @@ export default function App() {
   const [wordFeverResultType, setWordFeverResultType] = useState('win');
   const [isAppReady, setIsAppReady] = useState(false);
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+
+  // --- NUCLEAR INP OPTIMIZATION: Ref-Synchronized Pattern ---
+  // These refs mirror volatile state to keep handlers stable ([])
+  const gameRefs = useRef({
+    targetWord,
+    category,
+    hintCount,
+    magnetCount,
+    skipCount,
+    isVictory,
+    revealedIndices,
+    currentGuess,
+    magnetDisabledKeys,
+    gameMode,
+    hapticEnabled,
+    solvedWords,
+    level,
+    lastSolvedWord,
+    winsTowardsSecret,
+    fils,
+    targetHint
+  });
+
+  // Sync refs every time state changes
+  useEffect(() => {
+    gameRefs.current = {
+      targetWord,
+      category,
+      hintCount,
+      magnetCount,
+      skipCount,
+      isVictory,
+      revealedIndices,
+      currentGuess,
+      magnetDisabledKeys,
+      gameMode,
+      hapticEnabled,
+      solvedWords,
+      level,
+      lastSolvedWord,
+      winsTowardsSecret,
+      fils,
+      targetHint
+    };
+  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint]);
+
+  // Wrapped handlers to manage UI feedback (shaking, messages)
+  // IDENTITY STABLE: These never change, preventing Keyboard re-renders
+  const handleOnEnter = useCallback(async () => {
+    const result = await onEnter();
+    if (result?.error) {
+      setMessage(result.error);
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+      setTimeout(() => setMessage(''), 2000);
+    }
+  }, [onEnter]);
+
+  const handleHint = useCallback(() => {
+    const { hintCount: hCount, isVictory: isV, targetWord: tWord, revealedIndices: rIdx, currentGuess: cGuess } = gameRefs.current;
+    
+    if (hCount <= 0 || isV) return;
+    const available = [];
+    tWord.split('').forEach((char, i) => {
+      if (!rIdx.includes(i) && cGuess[i] === '') available.push(i);
+    });
+    if (available.length === 0) return;
+
+    triggerHaptic(20);
+    const randomIndex = available[Math.floor(Math.random() * available.length)];
+    setRevealedIndices(prev => [...prev, randomIndex]);
+    setCurrentGuess(prev => {
+      const next = [...prev];
+      next[randomIndex] = tWord[randomIndex];
+      return next;
+    });
+
+    updateInventory({
+      hintCount: -1
+    });
+    setHintTaps(prev => prev + 1);
+  }, [updateInventory]); // updateInventory is stable from GameContext
+
+  const handleMagnet = useCallback(() => {
+    const { magnetCount: mCount, isVictory: isV, targetWord: tWord, magnetDisabledKeys: mDisabled } = gameRefs.current;
+
+    if (mCount <= 0 || isV) return;
+    triggerHaptic(30);
+    
+    const alphabet = 'ئابپت جچحخد ڕزژسشعغفقکگ لڵمنوۆھەیێ'.replace(/\s/g, '').split('');
+    const targetSet = new Set(tWord.split(''));
+    const incorrect = alphabet.filter(char => !targetSet.has(char) && !mDisabled.includes(char));
+    const toDisable = incorrect.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+    setMagnetDisabledKeys(prev => [...prev, ...toDisable]);
+    setMagnetUsedInRound(true);
+    updateInventory({
+      magnetCount: -1
+    });
+  }, [updateInventory]); // updateInventory is stable from GameContext
+
+  const handleSkip = useCallback(() => {
+    const { skipCount: sCount, isVictory: isV, targetWord: tWord } = gameRefs.current;
+    
+    if (sCount <= 0 || isV) return;
+    triggerHaptic(25);
+    onEnter(tWord, true); // Use targetWord as forced guess
+    updateInventory({
+      skipCount: -1
+    });
+  }, [onEnter, updateInventory]); // onEnter and updateInventory are stable
+
+  // Audio Pre-loading once on mount
+  useEffect(() => {
+    initAudio();
+  }, []);
 
   // TRIGGER LEVEL UP UI (Standardized)
   useEffect(() => {
@@ -308,8 +463,8 @@ export default function App() {
           setNotificationsList(prev => [{
             id: Date.now(),
             type: 'friend_request',
-            title: 'داخوازییا هەڤالینیێ',
-            message: 'کەسەکی داخوازیا هەڤالینیێ بۆ تە هنارتییە',
+            title: 'داخوازییا ھەڤالینیێ',
+            message: 'کەسەکی داخوازیا ھەڤالینیێ بۆ تە ھنارتییە',
             created_at: new Date().toISOString()
           }, ...prev]);
         }
@@ -434,7 +589,7 @@ export default function App() {
     };
   };
 
-  const normalizeKurdishInput = (input) => { if (!input) return ''; let clean = input.trim().replace(/ك/g, 'ک').replace(/[يى]/g, 'ی').replace(/ه/g, 'ھ'); return clean; };
+  const normalizeKurdishInput = (input) => { if (!input) return ''; let clean = input.trim().replace(/ك/g, 'ک').replace(/[يى]/g, 'ی').replace(/ھ/g, 'ھ'); return clean; };
   const handleViewMessages = useCallback(() => {
     setSocialNotifications(prev => prev.unreadMessages > 0 ? { ...prev, unreadMessages: 0 } : prev);
   }, []);
@@ -446,6 +601,53 @@ export default function App() {
   const getHintLimit = (length) => { if (length <= 2) return 0; if (length <= 5) return 1; if (length <= 8) return 2; if (length <= 10) return 3; if (length <= 13) return 4; return 5; };
 
   // Core logic is now handled by useGameLogic hook
+ 
+  // MATCHMAKING ANIMATION COMPONENT
+  const ScrollingMatchFinder = ({ opponent }) => {
+    const [randomPool] = useState(() => 
+      [...AVATARS, ...AVATARS].sort(() => 0.5 - Math.random())
+    );
+    
+    return (
+      <div className="relative w-32 h-32 rounded-full border-4 border-emerald-500/30 overflow-hidden bg-black/40 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+        <AnimatePresence mode="wait">
+          {!opponent ? (
+            <motion.div
+              key="scrolling"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
+              className="absolute inset-0"
+            >
+              <motion.div
+                animate={{ y: [0, -1200] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                className="flex flex-col items-center"
+              >
+                {randomPool.map((av, i) => (
+                  <div key={i} className="w-32 h-32 flex items-center justify-center shrink-0">
+                    <Avatar src={av.id} size="xl" border={false} />
+                  </div>
+                ))}
+              </motion.div>
+              {/* Vertical Blur & Fade Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617] opacity-60" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="found"
+              initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 400, damping: 15 }}
+              className="absolute inset-0 flex items-center justify-center bg-emerald-500/10"
+            >
+              <Avatar src={opponent.avatar_url} size="2xl" border={false} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  };
 
   const handleProfileSave = async (profileData) => {
     if (!user || !user.id) {
@@ -474,21 +676,44 @@ export default function App() {
           if (typeof refreshRank === 'function') refreshRank();
         } catch (e) { console.warn("Rank refresh failed but profile is saved", e); }
 
-        alert('پڕۆفایل ب سەرکەفتی هاتە پاراستن!');
+        alert('پڕۆفایل ب سەرکەفتی ھاتە پاراستن!');
       } else {
         const errCode = result.error?.code;
         const errMsg = result.error?.message || 'Update failed';
         if (errCode === '23505') {
-          alert('ئەڤ ناڤە یێ هاتییە بکارئینان، تاقی بکە ناڤەکێ دی بنڤیسی');
+          alert('ئەڤ ناڤە یێ ھاتییە بکارئینان، تاقی بکە ناڤەکێ دی بنڤیسی');
         } else {
           alert(`خەلەتی: ${errMsg}`);
         }
       }
     } catch (err) {
       console.error("Critical handleProfileSave error:", err);
-      alert("ئاریشەیەک د گەهشتنا داتابەیسێ دا هەبوو");
+      alert("ئاریشەیەک د گەھشتنا داتابەیسێ دا ھەبوو");
     }
   };
+
+  // 7. MULTIPLAYER RESULT REDIRECTION & AUTO-HIDE TIMER
+  useEffect(() => {
+    if (matchResultTrigger > 0 && lastMatchResult) {
+      console.log(`[Multiplayer] Redirecting result: ${lastMatchResult}`);
+      
+      // 1. Set result breakdown for overlays
+      if (lastMatchResult === 'victory') {
+        setIsVictory(true);
+        setVictoryBreakdown({ base: 0, mistakes: 0, total: 0, mode: 'Multiplayer' });
+      } else if (lastMatchResult === 'defeat') {
+        setIsDefeat(true);
+        setDefeatBreakdown({ base: 0, mistakes: 0, total: 0, mode: 'Multiplayer' });
+      }
+      
+      // 2. Transition back to Lobby (if not already there)
+      setCurrentView('lobby');
+      
+      // 3. Delegation: The VictoryOverlay and DefeatOverlay components
+      // now handle their own 10-second auto-dismissal logic by calling
+      // onNext or onHome, which triggers the necessary state cleanups.
+    }
+  }, [matchResultTrigger, lastMatchResult, setCurrentView]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
@@ -508,94 +733,12 @@ export default function App() {
 
   // Handlers now provided by useGameLogic
 
-  const handleGameCompletion = async (finalGuesses, isWin) => {
-    if (isWin) {
-      const nextSolved = [...solvedWords, targetWord];
-      const breakdown = calculateLevelRewards(targetWord, finalGuesses, gameMode);
-      setVictoryBreakdown(breakdown);
-      setRewardAmount(breakdown.total);
+  // handleGameCompletion is now defined above to ensure initialization order
 
-      // Synced database call
-      let nextWinsTowardsSecret = winsTowardsSecret;
-      let resetSecretProgress = false;
-      if (gameMode !== 'secret_word') {
-          nextWinsTowardsSecret = Math.min(3, winsTowardsSecret + 1);
-      } else {
-          resetSecretProgress = true;
-      }
-
-      const syncData = await syncProgressToDatabase(
-          targetWord.length, 
-          gameMode, 
-          { 
-              solvedWords: nextSolved,
-              winsTowardsSecret: nextWinsTowardsSecret,
-              resetSecretProgress,
-              shayiBonus: breakdown.total
-          }
-      );
-
-      if (syncData) {
-          setRewardAmountXp(syncData.xpAdded);
-      }
-    } else {
-      const penaltyBreakdown = calculateDefeatPenalty(targetWord, finalGuesses, gameMode);
-      setDefeatBreakdown(penaltyBreakdown);
-      const nextFils = Math.max(0, Math.ceil(fils - penaltyBreakdown.total));
-      updateInventory({ fils: nextFils }, false);
-    }
-  };
-
-  const handleHint = () => {
-    if (hintCount <= 0 || isVictory) return;
-    const available = [];
-    targetWord.split('').forEach((char, i) => {
-      if (!revealedIndices.includes(i) && currentGuess[i] === '') available.push(i);
-    });
-    if (available.length === 0) return;
-
-    triggerHaptic(20);
-    const randomIndex = available[Math.floor(Math.random() * available.length)];
-    setRevealedIndices(prev => [...prev, randomIndex]);
-    setCurrentGuess(prev => {
-      const next = [...prev];
-      next[randomIndex] = targetWord[randomIndex];
-      return next;
-    });
-
-    updateInventory({
-      hintCount: -1
-    });
-    setHintTaps(prev => prev + 1);
-  };
-
-  const handleMagnet = () => {
-    if (magnetCount <= 0 || isVictory) return;
-    triggerHaptic(30);
-    // Logic to disable 5 incorrect keys
-    const alphabet = 'ئابپت جچحخد ڕزژسشعغفقکگ لڵمنوۆهەیێ'.replace(/\s/g, '').split('');
-    const targetSet = new Set(targetWord.split(''));
-    const incorrect = alphabet.filter(char => !targetSet.has(char) && !magnetDisabledKeys.includes(char));
-    const toDisable = incorrect.sort(() => 0.5 - Math.random()).slice(0, 5);
-
-    setMagnetDisabledKeys(prev => [...prev, ...toDisable]);
-    setMagnetUsedInRound(true);
-    updateInventory({
-      magnetCount: -1
-    });
-  };
-
-  const handleSkip = () => {
-    if (skipCount <= 0 || isVictory) return;
-    triggerHaptic(25);
-    onEnter(targetWord, true); // Use targetWord as forced guess
-    updateInventory({
-      skipCount: -1
-    });
-  };
-
-  const resetBoard = (wordObj) => {
+  const resetBoard = useCallback((wordObj) => {
+    const { hapticEnabled: hEnabled, gameMode: gMode } = gameRefs.current;
     const cleanWord = normalizeKurdishInput(wordObj.word);
+    
     setTargetWord(cleanWord);
     setTargetHint(wordObj.hint || '');
     setRevealedIndices([]);
@@ -603,15 +746,17 @@ export default function App() {
     setHintTaps(0);
     setMagnetUsedInRound(false);
     setMagnetDisabledKeys([]);
-    if (gameMode === 'word_fever') setTimeLeft(60);
+    
+    if (gMode === 'word_fever') setTimeLeft(60);
     resetLocalBoard(cleanWord);
-    playStartSound();
-    if (hapticEnabled) triggerHaptic(25);
-  };
+    if (hEnabled) triggerHaptic(25);
+  }, [resetLocalBoard]);
 
-  const selectCategory = (cat, forcedMode = null) => {
-    const targetDifficultyLevel = level;
-    const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, solvedWords, forcedMode || gameMode);
+  const selectCategory = useCallback((cat, forcedMode = null) => {
+    const { level: currLevel, solvedWords: sWords, gameMode: gMode } = gameRefs.current;
+    const targetDifficultyLevel = currLevel;
+    const modeToUse = forcedMode || gMode;
+    const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, sWords, modeToUse);
 
     if (wordObj) {
       if (forcedMode) setGameMode(forcedMode);
@@ -620,30 +765,39 @@ export default function App() {
       setCurrentView('game');
       setIsModalOpen(false);
     }
-  };
+  }, [resetBoard]);
 
-  const handleEarlyExit = () => {
+  const handleEarlyExit = useCallback(() => {
     setIsVictory(false);
     setCurrentView('lobby');
     setCategory('');
     setTargetWord('');
     setIsDailyActive(false);
-  };
-  const handleNextGame = () => {
-    const targetDifficultyLevel = level;
-    const wordObj = getRandomWordFromCategory(category, targetDifficultyLevel, solvedWords, gameMode);
+  }, []);
+
+  const handleNextGame = useCallback(() => {
+    const { level: currLevel, solvedWords: sWords, gameMode: gMode, category: currCat } = gameRefs.current;
+    const targetDifficultyLevel = currLevel;
+    const wordObj = getRandomWordFromCategory(currCat, targetDifficultyLevel, sWords, gMode);
 
     if (wordObj) {
       resetBoard(wordObj);
     } else {
       setCurrentView('lobby');
     }
-  };
-  const handleForfeit = () => {
+  }, [resetBoard]);
+
+  const handleForfeit = useCallback(() => {
     playPopSound();
     setIsForfeitConfirmOpen(true);
-  };
-  const executeForfeitConfirmed = () => { setIsForfeitConfirmOpen(false); setCurrentView('lobby'); setCategory(''); setTargetWord(''); };
+  }, [playPopSound]);
+
+  const executeForfeitConfirmed = useCallback(() => { 
+    setIsForfeitConfirmOpen(false); 
+    setCurrentView('lobby'); 
+    setCategory(''); 
+    setTargetWord(''); 
+  }, []);
 
   // --- WORD FEVER MODE TIMER ENGINE ---
   useEffect(() => {
@@ -897,25 +1051,21 @@ export default function App() {
         {currentView === 'lobby' && multiplayerState !== 'playing' && multiplayerState !== 'game_over' && (
           <LobbyView
             onStartClassic={() => {
-              playPopSound();
               triggerHaptic(10);
               setIsDailyActive(false);
               selectCategory('generalWordPool', 'classic'); // Direct start with Unified Pool
             }}
             onStartHardWords={() => {
-              playPopSound();
               triggerHaptic(10);
               setIsDailyActive(true);
               selectCategory('generalWordPool', 'hard_words'); // Filtered by length internally
             }}
             onStartWordFever={() => {
-              playPopSound();
               triggerHaptic(10);
               setIsDailyActive(false);
               selectCategory('generalWordPool', 'word_fever');
             }}
             onStartSecretWord={() => {
-              playPopSound();
               triggerHaptic(10);
               setIsDailyActive(false);
               selectCategory('generalWordPool', 'secret_word');
@@ -925,7 +1075,6 @@ export default function App() {
               setCurrentView('social_hub');
             }}
             onStartMamak={() => {
-              playPopSound();
               triggerHaptic(10);
               setIsDailyActive(false);
               selectCategory('مامک', 'mamak');
@@ -1246,7 +1395,7 @@ export default function App() {
             
             <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
               <div className="relative">
-                <KurdishSunLoader />
+                <ScrollingMatchFinder opponent={opponent} />
                 <motion.div 
                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity }}
@@ -1256,7 +1405,7 @@ export default function App() {
 
               <div className="space-y-4">
                 <div className="flex flex-col items-center gap-2">
-                  <h2 className="text-3xl font-black font-heading text-white">لێگەڕیان لای هەڤڕکەک...</h2>
+                  <h2 className="text-3xl font-black font-heading text-white">لێگەڕیان لدویڤ ھەڤڕکەکێ...</h2>
                   {/* LIVE TIMER UI */}
                   <div className="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                     <span className="text-emerald-400 font-black font-mono text-xl tracking-widest tabular-nums">
@@ -1265,7 +1414,6 @@ export default function App() {
                     </span>
                   </div>
                 </div>
-                <p className="text-emerald-100/60 font-rabar text-lg">هەڤڕکەک ب تامی دێ هێتە دیتن ل هەمبەری تە</p>
               </div>
 
               <div className="flex flex-col gap-3 w-full">
@@ -1278,9 +1426,8 @@ export default function App() {
               </div>
             </div>
 
-            {/* Floating Letter Accents */}
             <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
-              {['ت', 'ق', 'پ', 'ن'].map((char, i) => (
+              {['پ', 'ە', 'ی', 'ڤ', 'چ', 'ن'].map((char, i) => (
                 <motion.span 
                   key={i}
                   animate={{ y: [-10, 10, -10] }}

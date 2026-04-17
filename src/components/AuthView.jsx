@@ -173,7 +173,7 @@ export default function AuthView({ onAuthSuccess }) {
         
         if (data) {
           setNameAvailability('taken');
-          setNameError('ئەڤ ناڤە یێ هاتییە برن');
+          setNameError('ئەڤ ناڤە یێ ھاتییە برن');
         } else {
           setNameAvailability('available');
           setNameError('');
@@ -205,7 +205,7 @@ export default function AuthView({ onAuthSuccess }) {
       } else {
         // Double check validation before sign up
         if (nameAvailability !== 'available') {
-          setError(nameError || 'هیڤییە ناڤەکێ دروست هەلبژێره');
+          setError(nameError || 'ھیڤییە ناڤەکێ دروست ھەلبژێرھ');
           setLoading(false);
           return;
         }
@@ -272,7 +272,7 @@ export default function AuthView({ onAuthSuccess }) {
               {isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}
             </h2>
             <p className="text-[10px] font-black font-rabar text-emerald-400 uppercase tracking-[0.25em] leading-none no-stroke">
-               {isLogin ? 'WELCOME BACK / بخێرھاتی' : 'NEW ACCOUNT / هەژمارەکا نوی'}
+               {isLogin ? 'WELCOME BACK / بخێرھاتی' : 'NEW ACCOUNT / ھەژمارەکا نوی'}
             </p>
           </div>
 

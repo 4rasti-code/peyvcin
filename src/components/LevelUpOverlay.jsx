@@ -50,7 +50,7 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
         </h2>
         
         <p className="text-xl font-body font-bold font-ui text-white/90 mb-6">
-          تو گەهشتیە ئاستێ <br/>
+          تو گەھشتیە ئاستێ <br/>
           <span className="text-secondary text-6xl drop-shadow-[0_0_15px_rgba(251,192,45,0.3)]">{newLevel}</span>
         </p>
         
@@ -60,7 +60,7 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
         >
            <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-white text-3xl animate-bounce" style={{fontVariationSettings: "'FILL' 1"}}>payments</span>
-              <span className="font-body font-bold font-ui text-white text-xl">+500 دینار دیاری</span>
+              <span className="font-body font-bold font-ui text-white text-xl">+٥٠٠ فلس دیاری</span>
            </div>
            <span className="text-[10px] uppercase font-bold font-ui tracking-[0.2em] text-white/60 group-hover:text-white transition-colors">وەربگرە</span>
         </button>

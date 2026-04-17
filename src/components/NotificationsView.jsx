@@ -76,7 +76,7 @@ export default function NotificationsView({
         <div className="absolute -top-1.5 right-6 w-3 h-3 bg-slate-900 border-l border-t border-white/10 rotate-45" />
 
         <div className="p-4 border-b border-white/5 flex items-center justify-between">
-          <h3 className="text-sm font-black text-white">ئاگەهدارى</h3>
+          <h3 className="text-sm font-black text-white">ئاگەھدارى</h3>
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-black">
             {notifications.length} نوکە
           </span>
@@ -86,7 +86,7 @@ export default function NotificationsView({
           {notifications.length === 0 ? (
             <div className="py-12 flex flex-col items-center justify-center opacity-20">
               <span className="material-symbols-outlined text-4xl mb-2">notifications_off</span>
-              <p className="text-xs font-bold font-rabar">چ ئاگەهدارى نینن</p>
+              <p className="text-xs font-bold font-rabar">چ ئاگەھدارى نینن</p>
             </div>
           ) : (
             <>

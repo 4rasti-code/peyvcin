@@ -145,8 +145,8 @@ export default function PaymentGatewayModal({ isOpen, onClose, item, onComplete 
                 <div className="space-y-3">
                   <h3 className="text-xl font-black font-rabar text-white">
                     {activeMethod === 'asiacell' || activeMethod === 'korek' 
-                      ? 'ل هیڤیێ بە، دەروازەیێ فەرمی یێ مۆبایلێ یێ ڤەدبیت...'
-                      : 'ل هیڤیێ بە، کارێ تە دهێتە کرن...'}
+                      ? 'ل ھیڤیێ بە، دەروازەیێ فەرمی یێ مۆبایلێ یێ ڤەدبیت...'
+                      : 'ل ھیڤیێ بە، کارێ تە دھێتە کرن...'}
                   </h3>
                   <p className="text-sm font-bold font-rabar text-white/40 uppercase tracking-widest leading-tight">
                     {activeMethod === 'asiacell' || activeMethod === 'korek' 
@@ -182,13 +182,13 @@ export default function PaymentGatewayModal({ isOpen, onClose, item, onComplete 
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-2xl font-black font-rabar text-white">ببوورە، کێشەیەک د پارەدانێ دا چێبوو.</h3>
-                  <p className="text-sm font-bold font-rabar text-white/40">هیڤییە دەمەکێ دی دووبارە بکە</p>
+                  <p className="text-sm font-bold font-rabar text-white/40">ھیڤییە دەمەکێ دی دووبارە بکە</p>
                 </div>
                 <button 
                   onClick={() => setStep('methods')}
                   className="w-full py-4 rounded-2xl bg-white/10 text-white font-black font-rabar text-lg hover:bg-white/20 transition-all"
                 >
-                  دیسا هەوڵ بدە
+                  دیسا ھەوڵ بدە
                 </button>
               </div>
             )}
