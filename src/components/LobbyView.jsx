@@ -67,7 +67,7 @@ export default function LobbyView({
       initial="hidden"
       animate="show"
       onClick={handleBackgroundClick}
-      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x- bg-[#020617] relative min-h-screen bg-trigger-zone"
+      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-[#020617] relative h-full bg-trigger-zone"
     >
       <FloatingLetterBackground ref={bgRef} />
 

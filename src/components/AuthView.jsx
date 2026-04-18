@@ -329,7 +329,7 @@ export default function AuthView({ onAuthSuccess }) {
   return (
     <div 
       onClick={handleBackgroundClick}
-      className="flex-1 w-full max-w-lg mx-auto flex flex-col items-center justify-center pt-[env(safe-area-inset-top,24px)] px-6 pb-[env(safe-area-inset-bottom,24px)] min-h-screen animate-in fade-in duration-500 overflow- relative auth-view-container bg-[#020617]"
+      className="flex-1 w-full max-w-lg mx-auto flex flex-col items-center justify-center pt-[env(safe-area-inset-top,24px)] px-6 pb-[env(safe-area-inset-bottom,24px)] h-full animate-in fade-in duration-500 overflow-hidden relative auth-view-container bg-[#020617]"
     >
       <FloatingLetterBackground ref={bgRef} />
       

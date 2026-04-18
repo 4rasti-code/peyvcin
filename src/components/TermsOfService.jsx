@@ -166,7 +166,7 @@ const TermsOfService = ({ onViewChange, onClose }) => {
     const isRTL = lang === 'ku';
 
     return (
-        <div className="min-h-screen bg-[#050510] text-[#E0E0E0] selection:bg-primary/30 selection:text-white font-body p-6 sm:p-12" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className="h-full bg-[#050510] text-[#E0E0E0] selection:bg-primary/30 selection:text-white font-body p-6 sm:p-12" dir={isRTL ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto relative">
                 <div className="flex flex-col sm:flex-row items-center justify-between mb-16 gap-8">
                     <div className="flex items-center gap-6 group cursor-pointer" onClick={handleClose}>

@@ -62,7 +62,7 @@ export default function DictionaryView({ solvedWords, wordList, highlightWord, o
   }, [highlightWord]);
 
   return (
-    <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-180px)] animate-in fade-in slide-in-from-bottom-5 duration-700 relative z-10">
+    <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col h-full animate-in fade-in slide-in-from-bottom-5 duration-700 relative z-10">
       {/* Header & Search */}
       <div className="px-6 py-6 flex flex-col gap-6">
         <div className="flex items-center gap-6">

@@ -30,10 +30,77 @@ const SHOP_ITEMS = {
 };
 
 // Old HeaderStatusBar removed in favor of shared InventoryBar
+const ConfirmPurchaseModal = ({ itemConfig, onConfirm, onCancel }) => {
+  if (!itemConfig) return null;
+  const { data, type } = itemConfig;
+  const currency = type === 'theme' ? data.currency : (type === 'avatar' ? data.currency : 'fils');
+  const price = data.price;
+  const CurrencyIcon = currency === 'derhem' ? DerhemIcon : (currency === 'zer' ? ZerIcon : FilsIcon);
+  const title = type === 'powerup' ? data.name : (type === 'avatar' ? data.name : data.name);
+  const categoryLabel = type === 'powerup' ? 'ھاریکار' : (type === 'avatar' ? 'پەیڤچن' : 'نیشان');
 
-const PowerUpCard = ({ item, onPurchase, canAfford, playPurchaseSound }) => {
-  const [showEffect, setShowEffect] = useState(false);
+  return (
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
+      <motion.div 
+        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+        className="relative w-full max-w-sm bg-linear-to-b from-slate-900 to-[#020617] border border-white/10 rounded-3xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] overflow-hidden"
+      >
+        {/* Glowing Background Accent */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-primary/20 blur-[60px] pointer-events-none" />
+        
+        <div className="relative z-10 p-8 flex flex-col items-center gap-6">
+          {/* Header Icon Section */}
+          <div className="relative">
+            <div className="w-24 h-24 rounded-3xl bg-slate-800/50 border border-white/5 flex items-center justify-center shadow-inner group overflow-hidden">
+               {type === 'avatar' || type === 'theme' ? (
+                 <img src={data.image || data.preview} alt="" className="w-full h-full object-cover rounded-2xl animate-pulse-subtle" />
+               ) : (
+                 <span className="material-symbols-outlined text-5xl text-primary drop-shadow-[0_0_15px_rgba(var(--color-primary),0.5)]">{data.icon || 'shopping_cart'}</span>
+               )}
+            </div>
+            <div className="absolute -bottom-2 -right-2 bg-slate-950 border border-white/10 rounded-lg px-2 py-0.5 shadow-xl">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{categoryLabel}</span>
+            </div>
+          </div>
 
+          {/* Text Content */}
+          <div className="text-center">
+            <h3 className="text-2xl font-black text-white mb-2 tracking-tight">{title}</h3>
+            <p className="text-sm font-rabar text-slate-400 leading-relaxed px-4">ئایا تو یێ پشتڕاستی دێ ڤی کەرەستەیی ب ڤی کۆژمەی کڕی؟</p>
+          </div>
+
+          {/* Price Tag Display */}
+          <div className="bg-white/5 border border-white/5 rounded-2xl px-6 py-3 flex items-center gap-3 shadow-inner">
+             <span className="text-2xl font-black text-white">{toKuDigits(price)}</span>
+             <div className="w-6 h-6 flex items-center justify-center">
+                <CurrencyIcon />
+             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4 w-full pt-2">
+            <button 
+              onClick={onCancel}
+              className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white/50 hover:text-white font-black rounded-2xl border border-white/5 transition-all text-sm uppercase tracking-widest active:scale-95"
+            >
+              پەشیمانم
+            </button>
+            <button 
+              onClick={() => onConfirm(data)}
+              className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-black rounded-2xl shadow-[0_8px_20px_rgba(16,185,129,0.3)] transition-all text-sm uppercase tracking-widest active:scale-95"
+            >
+              بەردەوام بە
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   return (
     <motion.button
       layout
@@ -42,10 +109,7 @@ const PowerUpCard = ({ item, onPurchase, canAfford, playPurchaseSound }) => {
       onClick={() => { 
         if (canAfford) {
           triggerHaptic(10); 
-          playPurchaseSound?.();
-          onPurchase(item); 
-          setShowEffect(true);
-          setTimeout(() => setShowEffect(false), 2000);
+          onRequestPurchase(item); 
         } else {
           triggerHaptic([50, 30, 50]);
         }
@@ -60,23 +124,6 @@ const PowerUpCard = ({ item, onPurchase, canAfford, playPurchaseSound }) => {
         <p className="text-[9px] font-bold text-slate-500 leading-tight truncate">{item.description}</p>
       </div>
       <div className="flex flex-col items-center justify-center shrink-0 z-10 relative">
-        <AnimatePresence>
-          {showEffect && (
-            <motion.div
-              initial={{ opacity: 0, y: 0, scale: 0.5 }}
-              animate={{ opacity: 1, y: -45, scale: 1.1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="absolute -top-4 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
-            >
-              <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.2)]">
-                -{toKuDigits(item.price)}
-              </span>
-              <div className="w-5 h-5 flex items-center justify-center text-[#ef4444] scale-90">
-                 {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'zer' ? <ZerIcon /> : <FilsIcon />}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
         <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all shadow-sm ${!canAfford ? 'bg-slate-100/80 border border-slate-200 opacity-40' : 'bg-emerald-500 text-white group-hover:scale-105'}`}>
           <div className="flex flex-col items-center leading-none">
             <span className={`text-[13px] font-black ${!canAfford ? 'text-slate-400' : 'text-white'}`}>{toKuDigits(item.price || 0)}</span>
@@ -129,8 +176,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
   const [activeTab, setActiveTab] = useState('powerups');
   const [gatewayOpen, setGatewayOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
-  const [showAvatarEffect, setShowAvatarEffect] = useState(null);
-  const [showThemeEffect, setShowThemeEffect] = useState(null);
+  const [itemToConfirm, setItemToConfirm] = useState(null);
   const bgRef = useRef(null);
 
   const handleBackgroundClick = (e) => {
@@ -152,6 +198,19 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
     if (selectedOffer) {
        onPurchase(selectedOffer);
     }
+  };
+
+  const executePurchase = (payload) => {
+    const { type, data } = payload;
+    if (type === 'powerup') {
+       onPurchase(data);
+    } else if (type === 'avatar') {
+       onPurchaseAvatar(data.id, data.price, data.currency);
+    } else if (type === 'theme') {
+       onPurchase({ ...data, type: 'theme' });
+    }
+    playPurchaseSound?.();
+    setItemToConfirm(null);
   };
 
   return (
@@ -203,7 +262,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
               <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} playPurchaseSound={playPurchaseSound} />
               <div className="grid grid-cols-1 gap-4">
                 {SHOP_ITEMS.POWERUPS.map(item => (
-                  <PowerUpCard key={item.id} item={item} onPurchase={onPurchase} canAfford={fils >= item.price} playPurchaseSound={playPurchaseSound} />
+                  <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => setItemToConfirm({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
                 ))}
               </div>
             </motion.div>
@@ -232,28 +291,11 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                       </button>
                     ) : (
                       <div className="relative">
-                        <AnimatePresence>
-                          {(showAvatarEffect === avatar.id) && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                              animate={{ opacity: 1, y: -45, scale: 1.1 }}
-                              exit={{ opacity: 0 }}
-                              className="absolute -top-10 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
-                            >
-                              <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)]">
-                                -{toKuDigits(avatar.price)}
-                              </span>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                         <button
                           onClick={() => { 
                             if ((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) {
                               triggerHaptic(10); 
-                              playPurchaseSound?.();
-                              onPurchaseAvatar(avatar.id, avatar.price, avatar.currency); 
-                              setShowAvatarEffect(avatar.id);
-                              setTimeout(() => setShowAvatarEffect(null), 2000);
+                              setItemToConfirm({ data: avatar, type: 'avatar' });
                             } else {
                               triggerHaptic([50, 30, 50]);
                             }
@@ -309,32 +351,12 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                         </button>
                       ) : (
                         <div className="relative">
-                          <AnimatePresence>
-                            {(showThemeEffect === theme.id) && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, y: -45, scale: 1.1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute -top-10 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
-                              >
-                                <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)]">
-                                  -{toKuDigits(theme.price)}
-                                </span>
-                                <div className="w-4 h-4 flex items-center justify-center text-[#ef4444] scale-90">
-                                   {theme.currency === 'zer' ? <ZerIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
                           <button
                             onClick={() => { 
                               const currentBalance = theme.currency === 'zer' ? zer : (theme.currency === 'derhem' ? derhem : fils);
                               if (currentBalance >= theme.price) {
                                 triggerHaptic(10); 
-                                playPurchaseSound?.();
-                                onPurchase({ ...theme, type: 'theme' }); 
-                                setShowThemeEffect(theme.id);
-                                setTimeout(() => setShowThemeEffect(null), 2000);
+                                setItemToConfirm({ data: theme, type: 'theme' });
                               } else {
                                 triggerHaptic([50, 30, 50]);
                               }
@@ -369,6 +391,16 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
         item={selectedOffer}
         onComplete={handleGatewayComplete}
       />
+
+      <AnimatePresence>
+        {itemToConfirm && (
+           <ConfirmPurchaseModal 
+             itemConfig={itemToConfirm}
+             onCancel={() => setItemToConfirm(null)}
+             onConfirm={() => executePurchase(itemToConfirm)}
+           />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

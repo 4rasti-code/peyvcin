@@ -88,7 +88,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   // --- GUARDS & EARLY RETURNS (Declare AFTER all hooks) ---
   if (!activeMatch) {
     return (
-      <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 text-center">
+      <div className="h-full bg-[#020617] flex flex-col items-center justify-center p-6 text-center">
         <KurdishSunLoader />
         <p className="mt-8 text-white/40 font-noto-sans-arabic animate-pulse">بەرھەڤکرنا پەیڤان...</p>
       </div>
@@ -99,7 +99,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
   if (multiplayerState === 'waiting') {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#020617] text-white">
+      <div className="h-full w-full flex flex-col items-center justify-center bg-[#020617] text-white">
         <KurdishSunLoader />
         <p className="mt-8 text-emerald-100/40 font-rabar animate-pulse">بەرھەڤکرنا یاریێ...</p>
       </div>

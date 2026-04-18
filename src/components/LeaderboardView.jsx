@@ -128,7 +128,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
   return (
     <div 
       onClick={handleBackgroundClick}
-      className="w-full max-w-full px-4 md:px-6 pb-56 min-h-screen relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone"
+      className="w-full max-w-full px-4 md:px-6 pb-56 h-full relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone"
     >
       <FloatingLetterBackground ref={bgRef} />
 
