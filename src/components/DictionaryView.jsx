@@ -1,3 +1,4 @@
+import React, { useState, useMemo, useEffect } from 'react';
 import { triggerHaptic } from '../utils/haptics';
 import { useGame } from '../context/GameContext';
 
@@ -138,7 +139,7 @@ export default function DictionaryView({ solvedWords, wordList, highlightWord, o
             {discoveredWords.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex flex-col gap-3 relative overflow- highlight-target shadow-xl hover:bg-white/10 transition-all"
+                className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex flex-col gap-3 relative overflow-hidden highlight-target shadow-xl hover:bg-white/10 transition-all"
                 data-word={item.word.replace('_', ' ')}
               >
                 <div className="flex justify-between items-center relative z-10">
