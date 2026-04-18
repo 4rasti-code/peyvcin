@@ -311,8 +311,8 @@ export default function PublicProfileModal({
           <span className="material-symbols-outlined text-[18px]">close</span>
         </button>
 
-        {/* Level Badge - Top Right */}
-        <div className="absolute top-4 right-4 z-10">
+        {/* Level Badge - Reverted to Top Right Corner of Modal */}
+        <div className="absolute top-4 right-5 z-10 scale-125 origin-top-right">
            <div className="relative w-11 h-12 flex items-center justify-center">
               <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
                  <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#medalGradientPublic)" stroke="white" strokeWidth="4" strokeOpacity="0.2" />
@@ -330,10 +330,10 @@ export default function PublicProfileModal({
            </div>
         </div>
 
-        {/* Avatar Section */}
-        <div className="relative mb-3 mt-2">
-          <div className={`w-28 h-28 rounded-full p-1.5 flex items-center justify-center shadow-xl relative ${safeLevel >= 10 ? 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600' : 'bg-slate-700'}`}>
-             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-5xl border-[3px] border-slate-900 overflow- relative shadow-inner">
+        {/* Avatar Section (Centered) */}
+        <div className="relative mb-6 mt-4 flex flex-col items-center">
+          <div className={`w-32 h-32 rounded-full p-1.5 flex items-center justify-center shadow-2xl relative ${safeLevel >= 10 ? 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600' : 'bg-slate-700'}`}>
+             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-6xl border-[4px] border-slate-900 relative shadow-inner">
                 <Avatar 
                    src={displayData.avatar_url} 
                    updatedAt={displayData.updated_at} 
@@ -341,10 +341,12 @@ export default function PublicProfileModal({
                    border={false}
                 />
              </div>
+
+             {/* Online Indicator on Avatar Edge */}
+             {isOnline && (
+               <div className="absolute bottom-2 right-2 w-7 h-7 bg-emerald-500 border-4 border-slate-900 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.7)] z-20 animate-pulse" />
+             )}
           </div>
-          {isOnline && (
-            <div className="absolute bottom-2 right-2 w-6 h-6 bg-emerald-500 border-4 border-slate-900 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.5)] animate-pulse" />
-          )}
         </div>
 
         {/* Identity Section */}

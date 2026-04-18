@@ -178,13 +178,15 @@ export const MultiplayerProvider = ({ children }) => {
           return;
         }
 
-        // Match found! Wait 4 seconds to let the player see the opponent's profile
+        // Match found! Stop searching audio immediately and play "Found" SFX
+        stopSearchingSound(true);
+        playStartGameSound();
+
+        // Wait 4 seconds to let the player see the opponent's profile
         setTimeout(() => {
           // IMPORTANT: Only proceed if the user hasn't cancelled since then
           setMultiplayerState(prev => {
             if (prev === 'idle') return prev; 
-            stopSearchingSound(true);
-            setTimeout(() => playStartGameSound(), 400);
             return 'playing';
           });
           triggerHaptic([50, 50, 100]);

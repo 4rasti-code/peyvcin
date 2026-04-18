@@ -36,6 +36,8 @@ export default function TopAppBar({
   onNotificationAction,
   gameMode = 'classic',
   onPlaySound,
+  onDailyRewardClick,
+  isDailyAvailable = false,
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
   const displayCategory = category === 'پەیڤێن دژوار' ? 'پەیڤێن دژوار' 
@@ -55,7 +57,7 @@ export default function TopAppBar({
     >
       <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full max-w-425 mx-auto relative gap-4">
       
-        {/* Left Section: Close (X) or Settings */}
+        {/* Left Section: Close (X) or Settings / Daily Reward */}
         <div className="flex items-center justify-start flex-1">
           {isPlaying ? (
             <motion.button 
@@ -70,20 +72,72 @@ export default function TopAppBar({
               <span className="material-symbols-outlined text-[32px] font-black">close</span>
             </motion.button>
           ) : (
-            currentView !== 'store' && (
-             <div className="flex items-center gap-1">
-               {currentView === 'stats' && (
-                 <motion.button 
-                   whileHover={{ scale: 1.05 }}
-                   whileTap={{ scale: 0.95 }}
-                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                   onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-                   className="w-12 h-12 flex items-center justify-center text-[#facc15]/60 transition-all"
-                 >
-                   <span className="material-symbols-outlined text-[28px] font-black">settings</span>
-                 </motion.button>
-               )}
-             </div>
+            currentView === 'lobby' ? (
+              <div className="flex items-center gap-1">
+                <motion.button
+                  key="daily-reward-btn"
+                  initial={{ opacity: 0, scale: 0, x: -20 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1, 
+                    x: 0,
+                    rotate: isDailyAvailable ? [-2, 2, -2, 2, 0] : 0,
+                  }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{
+                    rotate: isDailyAvailable ? { repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 3 } : { duration: 0.2 },
+                    type: "spring", stiffness: 400, damping: 17
+                  }}
+                  onClick={() => { triggerHaptic(15); onDailyRewardClick?.(); }}
+                  className="relative w-14 h-14 flex items-center justify-center group"
+                >
+                  {/* Golden Aura Glow (Only when available) */}
+                  {isDailyAvailable && (
+                    <motion.div 
+                      key="aura-active"
+                      initial={{ opacity: 0 }}
+                      animate={{ 
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 0.8, 0.5],
+                      }}
+                      transition={{ 
+                        scale: { repeat: Infinity, duration: 2 },
+                        opacity: { repeat: Infinity, duration: 2 }
+                      }}
+                      className="absolute inset-2 bg-amber-400/40 rounded-full blur-xl"
+                    />
+                  )}
+                  
+                  {/* Colorful Ring (Always visible but brighter when available) */}
+                  <div className={`absolute inset-1 rounded-md border-2 border-transparent bg-linear-to-tr from-amber-400 via-emerald-400 to-amber-500 [mask-image:linear-gradient(white,white)] [-webkit-mask-image:linear-gradient(white,white)] transition-all duration-500 ${isDailyAvailable ? 'opacity-80 group-hover:opacity-100' : 'opacity-10 pointer-events-none'}`} />
+
+                  <div className={`relative z-10 w-11 h-11 rounded-md flex items-center justify-center transition-all duration-500 ${isDailyAvailable ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-400/50' : 'bg-emerald-500/5 text-emerald-500/30 border border-emerald-500/10'}`}>
+                    <span className="material-symbols-outlined text-3xl drop-shadow-md">redeem</span>
+                  </div>
+                  
+                  {/* Notification Dot (Only when available) */}
+                  {isDailyAvailable && (
+                    <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-[#0a0f1b] shadow-lg animate-pulse" />
+                  )}
+                </motion.button>
+              </div>
+            ) : (
+              currentView !== 'store' && (
+                <div className="flex items-center gap-1">
+                  {currentView === 'stats' && (
+                    <motion.button 
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      onClick={() => { triggerHaptic(10); onOpenSettings(); }}
+                      className="w-12 h-12 flex items-center justify-center text-[#facc15]/60 transition-all"
+                    >
+                      <span className="material-symbols-outlined text-[28px] font-black">settings</span>
+                    </motion.button>
+                  )}
+                </div>
+              )
             )
           )}
         </div>

@@ -40,20 +40,20 @@ export default function Avatar({
   
   // Standardised sizes based on existing UI
   const sizeClasses = {
-    'xs': 'w-8 h-8 text-sm',
-    'sm': 'w-10 h-10 text-xl',
-    'md': 'w-12 h-12 text-2xl',
+    'xs': 'w-8 h-8 text-xs',
+    'sm': 'w-10 h-10 text-lg',
+    'md': 'w-12 h-12 text-xl',
     'lg': 'w-14 h-14 text-2xl',
     'xl': 'w-20 h-20 text-4xl',
     '2xl': 'w-28 h-28 text-5xl',
-    'full': 'w-full h-full text-5xl'
+    'full': 'w-full h-full text-3xl'
   };
 
   const selectedSizeClass = sizeClasses[size] || sizeClasses['md'];
 
   return (
-    <div className={`relative shrink-0 rounded-full ${selectedSizeClass} ${className}`}>
-      <div className={`w-full h-full rounded-full flex items-center justify-center overflow- relative ${border ? 'border border-white/10' : ''}`}>
+    <div className={`relative shrink-0 rounded-full overflow-hidden ${selectedSizeClass} ${border ? 'border border-white/10' : ''} ${className}`}>
+      <div className="w-full h-full flex items-center justify-center relative">
         {hasImage ? (
           <img 
             src={displaySrc} 
@@ -68,15 +68,15 @@ export default function Avatar({
         ) : null}
         
         <div 
-          className={`w-full h-full items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : ''}`}
+          className={`w-full h-full flex items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : ''}`}
         >
-          <span className="select-none leading-none drop-shadow-md">
+          <span className="select-none leading-none drop-shadow-md flex items-center justify-center">
              {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
           </span>
         </div>
 
         {showStatus && isOnline && (
-          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
+          <div className="absolute inset-0 border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
         )}
       </div>
       

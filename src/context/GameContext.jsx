@@ -6,9 +6,10 @@ import {
   playTabSfx, setBackgroundMusicVolume,
   playSettingsOpenSfx, playSettingsCloseSfx,
   playPopSfx, playSuccessSfx,
-  playNotifSfx, playMessageSfx, playCoinSfx,
+  playNotifSfx, playMessageSfx, playVictorySfx, playCoinSfx, playRewardSfx, playPurchaseSfx, playBoosterSfx,
   playDailyOpenSfx, playDailyClaimSfx, playBubblePopSfx,
-  startSearchingSfx, stopSearchingSfx
+  startSearchingSfx, stopSearchingSfx,
+  startBackgroundMusic, stopBackgroundMusic
 } from '../utils/audio';
 
 const GameContext = createContext();
@@ -28,7 +29,7 @@ export const GameProvider = ({ children }) => {
   });
   const [bgMusicVolume, setBgMusicVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_bg_music_volume');
-    return saved !== null ? Number(saved) : 6; // 6% Default
+    return saved !== null ? Number(saved) : 30; // 30% Default
   });
   const [hapticEnabled, setHapticEnabled] = useState(() => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
@@ -231,7 +232,7 @@ export const GameProvider = ({ children }) => {
           setAppSfxVolume(sfxVol);
           
           const lsMusic = localStorage.getItem('peyvchin_bg_music_volume');
-          const musicVol = inv.settings?.bg_music_volume ?? (lsMusic !== null ? Number(lsMusic) : 6);
+          const musicVol = inv.settings?.bg_music_volume ?? (lsMusic !== null ? Number(lsMusic) : 30);
           setBgMusicVolume(musicVol);
 
           // Forward initial settings to the audio engine immediately
@@ -401,13 +402,11 @@ export const GameProvider = ({ children }) => {
   }, [appSoundsEnabled]);
 
 
-  const playVictorySound = useCallback(() => {
-    playSuccessSfx(appSoundsEnabled);
-  }, [appSoundsEnabled]);
-
-  const playRewardSound = useCallback(() => {
-    playCoinSfx(appSoundsEnabled);
-  }, [appSoundsEnabled]);
+  const playVictorySound = useCallback(() => playVictorySfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playRewardSound = useCallback(() => playRewardSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playPurchaseSound = useCallback(() => playPurchaseSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playBoosterSound = useCallback(() => playBoosterSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playBubblePopSound = useCallback(() => playBubblePopSfx(appSoundsEnabled), [appSoundsEnabled]);
 
   const playSettingsOpenSound = useCallback(() => {
     playSettingsOpenSfx(appSoundsEnabled);
@@ -429,10 +428,6 @@ export const GameProvider = ({ children }) => {
     playBackSfx(appSoundsEnabled);
   }, [appSoundsEnabled]);
 
-  const playBubblePopSound = useCallback(() => {
-    playBubblePopSfx(appSoundsEnabled);
-  }, [appSoundsEnabled]);
-
   const playSaveSound = useCallback(() => {
     playSaveSfx(appSoundsEnabled);
   }, [appSoundsEnabled]);
@@ -447,6 +442,14 @@ export const GameProvider = ({ children }) => {
 
   const stopSearchingSound = useCallback((fade = true) => {
     stopSearchingSfx(fade);
+  }, []);
+
+  const startBGM = useCallback(() => {
+    startBackgroundMusic();
+  }, []);
+
+  const stopBGM = useCallback(() => {
+    stopBackgroundMusic();
   }, []);
 
   const updateMusicVolume = useCallback((val) => {
@@ -847,10 +850,11 @@ export const GameProvider = ({ children }) => {
     bgMusicVolume, updateMusicVolume,
     hapticEnabled, setHapticEnabled,
     playPopSound, playNotifSound, playMessageSound,
-    playVictorySound, playRewardSound,
+    playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
     playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
     startSearchingSound, stopSearchingSound,
+    startBGM, stopBGM,
     playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx,
     setLevel, setCurrentXP,
@@ -869,10 +873,11 @@ export const GameProvider = ({ children }) => {
     setFils, setDerhem, setZer, setMagnetCount, setHintCount, setSkipCount,
     setHapticEnabled, playPopSound, playNotifSound,
     appSfxVolume, updateSfxVolume,
-    playMessageSound, playVictorySound, playRewardSound,
+    playMessageSound, playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
     playSettingsOpenSound, playSettingsCloseSound,
     playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
     startSearchingSound, stopSearchingSound,
+    startBGM, stopBGM,
     playTabSound,
     playStartGameSound,
     setLevel, setCurrentXP, setLastNotifiedLevel,

@@ -21,25 +21,22 @@ export default function InventoryBar({
       className={`flex items-center gap-2 group transition-all ${disabled ? 'opacity-20 grayscale cursor-not-allowed' : 'hover:scale-110 active:scale-90'} ${isShop ? 'cursor-default' : ''}`}
     >
       <span 
-        className={`material-symbols-outlined text-[24px] ${color} drop-shadow-[0_0_8px_${glowColor}]`} 
+        className={`material-symbols-outlined text-[22px] ${color} drop-shadow-[0_0_8px_${glowColor}]`} 
         style={{ fontVariationSettings: "'FILL' 1" }}
       >
         {icon}
       </span>
       {!hideCount && (
-        <>
-          <span className="w-1.5 h-1.5 bg-white/10 rounded-full shrink-0" />
-          <span className={`text-[13px] font-black  pt-0.5 ${disabled ? 'text-white/20' : 'text-white/60'}`}>
-            {toKuDigits(count || 0)}
-          </span>
-        </>
+        <span className={`text-[13px] font-black pt-0.5 ${disabled ? 'text-slate-300' : 'text-slate-500'}`}>
+          {toKuDigits(count || 0)}
+        </span>
       )}
     </button>
   );
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <div className="bg-[#0f172a]/80 backdrop-blur-xl border border-white/5 px-7 py-3.5 rounded-[2.5rem] flex items-center gap-7 shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
+      <div className="bg-white/95 backdrop-blur-xl border border-slate-200 px-4 py-1.5 rounded-md flex items-center gap-5 shadow-sm">
         
         {/* Hint (Bulb) */}
         <div className="relative group/hint">
@@ -65,7 +62,7 @@ export default function InventoryBar({
           )}
         </div>
 
-        <div className="w-px h-5 bg-white/5" />
+        <div className="w-[1px] h-4 bg-slate-200" />
 
         {/* Magnet (Magic Wand) */}
         <Item 
@@ -77,7 +74,7 @@ export default function InventoryBar({
           disabled={!isShop && magnetUsedInRound}
         />
 
-        <div className="w-px h-5 bg-white/5" />
+        <div className="w-[1px] h-4 bg-slate-200" />
 
         {/* Skip (Fast Forward) */}
         <Item 

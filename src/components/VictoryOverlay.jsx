@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
-import { playSuccessSfx } from '../utils/audio';
+import { playSuccessSfx, playBackSfx } from '../utils/audio';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -39,7 +39,8 @@ const VictoryOverlay = ({
   solvedWord, 
   xp, 
   onNext, 
-  onHome
+  onHome,
+  playStartSound
 }) => {
   const hasTriggeredRef = useRef(false);
 
@@ -59,10 +60,9 @@ const VictoryOverlay = ({
     }
 
     if (isVisible) {
-      // Auto-exit after 10 seconds
       const timer = setTimeout(() => {
-        onNext();
-      }, 10000);
+        onHome();
+      }, 7000);
 
       return () => clearTimeout(timer);
     } else {
@@ -181,16 +181,16 @@ const VictoryOverlay = ({
             {/* Action Buttons */}
             <div className="w-full flex flex-col gap-3">
               <button 
-                onClick={() => { triggerHaptic(10); onNext(); }}
-                className="w-full bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white py-5 rounded-3xl font-black  text-xl shadow-[0_20px_40px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                onClick={() => { triggerHaptic(10); playStartSound?.(); onNext(); }}
+                className="w-full bg-linear-to-r from-sky-500 to-cyan-600 hover:from-sky-400 hover:to-cyan-500 text-white py-5 rounded-3xl font-black text-xl shadow-[0_20px_40px_rgba(14,165,233,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3 group"
               >
                 <span className="material-symbols-outlined">arrow_left</span>
                 بەردەوام بە
               </button>
 
               <button 
-                onClick={() => { triggerHaptic(10); onHome(); }}
-                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold  text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
+                onClick={() => { triggerHaptic(10); playBackSfx(); onHome(); }}
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">home</span>
                 ڤەگەڕیان

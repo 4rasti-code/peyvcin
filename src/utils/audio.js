@@ -11,16 +11,19 @@ const SFX_PATHS = {
   SETTINGS_CLOSE: '/ui_sfx_menu_close.wav',
   ALERT: '/ui_sfx_alert.wav',
   START_GAME: '/ui_sfx_start_button.wav',
-  BACK: '/ui_sfx_back.wav',
-  SAVE: '/ui_sfx_save.wav',
+  BACK: '/ui_sfx_menu_close.wav',
+  SAVE: '/minimal-pop-click-save.ui.wav',
   TAB: '/punchy-taps-ui.wav',
   VICTORY: '/victory.mp3',
   DAILY_OPEN: '/wooden-trunk-latch-ui.wav',
-  DAILY_CLAIM: '/punchy-taps-ui.wav',
-  BUBBLE_POP: '/bubble-poP.wav'
+  DAILY_CLAIM: '/coin-jingle-trio-89078.wav', 
+  BUBBLE_POP: '/bubble-poP.wav',
+  PURCHASE: '/coin-drop-229314.wav',
+  EARNING: '/coin-jingle-trio-89078.wav',
+  BOOSTER: '/hit-shell-01-266294.wav',
 };
 
-const MUSIC_PATH = '/background.mp3';
+const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
 
 // --- AUDIO ENGINE CLASS ---
 class SoundEngine {
@@ -29,7 +32,7 @@ class SoundEngine {
     this.buffers = {};
     this.initialized = false;
     this.masterVolume = 0.15; // 15% Default as requested
-    this.musicVolume = 0.06;
+    this.musicVolume = 0.30;
     
     // Music management (Streaming)
     this.musicAudioElement = null;
@@ -192,88 +195,64 @@ class SoundEngine {
   }
 
   /**
-   * Start Radar-like searching sound (Synthesized)
+   * Start Multiplayer Searching sound (MP3 File Loop)
    */
   startSearchingSfx() {
-    if (!this.initialized || this.searchingNodes.length > 0) return;
+    if (!this.initialized) return;
 
     if (this.context.state === 'suspended') {
       this.context.resume();
     }
 
-    this.searchingGain = this.context.createGain();
-    this.searchingGain.gain.value = 0;
-    this.searchingGain.connect(this.context.destination);
-
-    // Initial Fade In (Updated to 20% volume)
-    this.searchingGain.gain.linearRampToValueAtTime(0.2, this.context.currentTime + 0.5);
-
-    // 1. Ambient Drone (Very subtle low hum)
-    const drone = this.context.createOscillator();
-    drone.type = 'sine';
-    drone.frequency.value = 55; // Low A
-    const droneGain = this.context.createGain();
-    droneGain.gain.value = 0.03;
-    drone.connect(droneGain);
-    droneGain.connect(this.searchingGain);
-    drone.start();
-    this.searchingNodes.push(drone);
-
-    // 2. Pulse Loop (The "Radar" Bip)
-    const pulseInterval = 1.5; // seconds
-    const schedulePulse = () => {
-      if (!this.searchingGain) return;
-
-      const osc = this.context.createOscillator();
-      const g = this.context.createGain();
+    // Initialize the element if it doesn't exist
+    if (!this.searchingAudioElement) {
+      this.searchingAudioElement = new Audio('/multiplayer_mode_searching.mp3');
+      this.searchingAudioElement.loop = true;
+      this.searchingAudioElement.crossOrigin = "anonymous";
       
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, this.context.currentTime); // High A
-      osc.frequency.exponentialRampToValueAtTime(440, this.context.currentTime + 0.15); // Drop-off
+      // Pipe HTML5 Audio into Web Audio API for gain control
+      this.searchingMediaSource = this.context.createMediaElementSource(this.searchingAudioElement);
+      this.searchingGain = this.context.createGain();
+      this.searchingMediaSource.connect(this.searchingGain);
+      this.searchingGain.connect(this.context.destination);
+    }
 
-      g.gain.setValueAtTime(0, this.context.currentTime);
-      g.gain.linearRampToValueAtTime(0.08, this.context.currentTime + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.001, this.context.currentTime + 0.4);
+    // Set default volume for this track to 0.20 (increased by 30% from 0.15 as requested)
+    // We scale it by masterVolume to respect overall SFX settings
+    const targetVolume = 0.20 * this.masterVolume;
+    
+    this.searchingGain.gain.cancelScheduledValues(this.context.currentTime);
+    this.searchingGain.gain.setValueAtTime(this.searchingGain.gain.value, this.context.currentTime);
+    this.searchingGain.gain.linearRampToValueAtTime(targetVolume, this.context.currentTime + 0.5);
 
-      osc.connect(g);
-      g.connect(this.searchingGain);
-      
-      osc.start();
-      osc.stop(this.context.currentTime + 0.5);
-
-      const nextPulse = setTimeout(schedulePulse, pulseInterval * 1000);
-      this.searchingNodes.push({ stop: () => { 
-        clearTimeout(nextPulse); 
-        osc.stop(); 
-      }});
-    };
-
-    schedulePulse();
+    this.searchingAudioElement.play().then(() => {
+      console.log("🔊 [AudioEngine] Searching SFX Started (Looping)");
+    }).catch(e => {
+      if (e.name !== 'NotAllowedError') {
+        console.warn("🔊 [AudioEngine] Searching SFX error:", e);
+      }
+    });
   }
 
   /**
-   * Stop searching sound with optional fade
+   * Stop searching sound with smooth fade
    */
   stopSearchingSfx(fade = true) {
-    if (!this.searchingGain) return;
+    if (!this.searchingAudioElement) return;
 
-    const stopAll = () => {
-      this.searchingNodes.forEach(node => {
-        if (node.stop) node.stop();
-        else node.stop();
-      });
-      this.searchingNodes = [];
-      if (this.searchingGain) {
-        this.searchingGain.disconnect();
-        this.searchingGain = null;
-      }
+    const stopAction = () => {
+      this.searchingAudioElement.pause();
+      this.searchingAudioElement.currentTime = 0;
+      console.log("🔊 [AudioEngine] Searching SFX Stopped");
     };
 
-    if (fade) {
-      this.searchingGain.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.5);
-      setTimeout(stopAll, 600);
+    if (fade && this.searchingGain) {
+      this.searchingGain.gain.cancelScheduledValues(this.context.currentTime);
+      this.searchingGain.gain.setValueAtTime(this.searchingGain.gain.value, this.context.currentTime);
+      this.searchingGain.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.4);
+      setTimeout(stopAction, 500);
     } else {
-      stopAll();
+      stopAction();
     }
   }
 }
@@ -366,9 +345,25 @@ export const playSuccessSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('VICTORY');
 };
+export const playVictorySfx = playSuccessSfx;
 export const playCoinSfx = (enabled = true) => {
   if (!enabled) return;
-  engine.play('SAVE');
+  engine.play('EARNING');
+};
+
+export const playRewardSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('EARNING');
+};
+
+export const playPurchaseSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('PURCHASE');
+};
+
+export const playBoosterSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('BOOSTER');
 };
 
 export const playDailyOpenSfx = (enabled = true) => {

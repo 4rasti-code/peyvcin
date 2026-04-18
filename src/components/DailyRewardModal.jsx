@@ -4,6 +4,7 @@ import confetti from 'canvas-confetti';
 import { useGame } from '../context/GameContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
+import { playBackSfx } from '../utils/audio';
 import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
 
 const REWARDS_CONFIG = [
@@ -17,9 +18,9 @@ const REWARDS_CONFIG = [
 ];
 
 export default function DailyRewardModal({ isOpen, onClose }) {
-  const { 
-    rewardStreak, 
-    lastRewardClaimedAt, 
+  const {
+    rewardStreak,
+    lastRewardClaimedAt,
     claimDailyReward,
     playDailyOpenSfx,
     playDailyClaimSfx,
@@ -43,12 +44,12 @@ export default function DailyRewardModal({ isOpen, onClose }) {
 
   let nextDay = 1;
   let isStreakBroken = false;
-  
+
   if (lastClaimDate) {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
+
     if (lastClaimDate === yesterdayStr) {
       nextDay = (rewardStreak % 7) + 1;
     } else if (lastClaimDate !== todayStr) {
@@ -64,7 +65,7 @@ export default function DailyRewardModal({ isOpen, onClose }) {
   const handleClaim = async () => {
     if (claiming || !isAvailableToday) return;
     setClaiming(true);
-    
+
     playDailyClaimSfx();
     if (hapticEnabled) triggerHaptic([30, 50]);
 
@@ -72,7 +73,7 @@ export default function DailyRewardModal({ isOpen, onClose }) {
     if (result.success) {
       setClaimedDay(result.streak);
       setShowSuccess(true);
-      
+
       if (result.streak === 7) {
         confetti({
           particleCount: 200,
@@ -96,28 +97,34 @@ export default function DailyRewardModal({ isOpen, onClose }) {
     <>
       <AnimatePresence mode="wait">
         {isOpen && (
-          <motion.div 
+          <motion.div
             key="daily-modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-[#020617]/95 backdrop-blur-md"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm"
           >
             <motion.div
               key="daily-modal-content"
-              initial={{ scale: 0.9, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 20, opacity: 0 }}
-              className="w-full max-w-lg bg-transparent overflow-hidden relative"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="w-full max-w-lg bg-linear-to-br from-[#0a1425] via-[#0e1b35] to-[#0a1425] border border-white/10 rounded-md shadow-2xl p-6 relative overflow-hidden"
             >
+              {/* Decorative Background Element */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full -mr-16 -mt-16" />
+
               {/* Header */}
-              <div className="flex flex-col items-center mb-6 text-center">
-                <span className="material-symbols-outlined text-4xl text-emerald-500 mb-2 drop-shadow-lg">redeem</span>
-                <h2 className="text-4xl font-black font-rabar tracking-tighter italic uppercase" style={{ color: 'rgb(203, 213, 225)' }}>خەلاتێن ڕۆژانە</h2>
+              <div className="flex flex-col items-center mb-8 text-center relative z-10">
+                <div className="w-16 h-16 rounded-md bg-emerald-500 flex items-center justify-center text-white mb-4 shadow-lg shadow-emerald-500/20">
+                  <span className="material-symbols-outlined text-4xl">redeem</span>
+                </div>
+                <h2 className="text-3xl font-black font-heading text-white tracking-tight">خەلاتێن ڕۆژانە</h2>
+                <p className="text-white/50 text-sm font-medium mt-1">٧ ڕۆژ - خەلاتێن بەردەوام و نایاب</p>
               </div>
 
               {/* Grid Layout */}
-              <div className="grid grid-cols-3 gap-3 px-1">
+              <div className="grid grid-cols-3 gap-3 relative z-10 w-full">
                 {REWARDS_CONFIG.map((item) => {
                   const visualClaimed = isStreakBroken ? false : (
                     !isAvailableToday ? item.day <= rewardStreak : item.day < activeDay
@@ -132,91 +139,92 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                       onClick={isNext && !claiming ? handleClaim : undefined}
                       animate={isNext ? { 
                         opacity: 1, 
-                        scale: 1,
-                        rotate: [0, -1.5, 1.5, -1.5, 1.5, 0],
+                        scale: [1, 1.02, 1],
+                        rotate: [0, -1, 1, -1, 1, 0],
                       } : { opacity: isFuture ? 0.7 : 1, scale: 1 }}
                       transition={isNext ? {
-                        rotate: {
-                          duration: 0.5,
-                          repeat: Infinity,
-                          repeatDelay: 2.5,
-                          ease: "easeInOut"
-                        },
-                        delay: item.day * 0.05
-                      } : { delay: item.day * 0.05 }}
+                        rotate: { duration: 0.5, repeat: Infinity, repeatDelay: 3 },
+                        scale: { duration: 2, repeat: Infinity }
+                      } : {}}
                       className={`
-                        relative p-4 rounded-xl border flex flex-col items-center justify-center gap-2 overflow- transition-all shadow-sm
-                        ${isDay7 ? 'col-span-3 py-6' : 'aspect-square'}
-                        ${visualClaimed ? 'opacity-40 grayscale-[0.5]' : ''}
-                        ${isFuture ? 'grayscale-[0.4] hover:grayscale-[0.2]' : ''}
-                        ${isNext ? 'cursor-pointer hover:scale-[1.02] active:scale-95' : ''}
+                        relative p-3 rounded-md border flex flex-col items-center justify-center gap-1.5 transition-all
+                        ${isDay7 ? 'col-span-3 h-28 flex-row justify-between px-8 overflow-hidden' : 'aspect-square'}
+                        ${visualClaimed ? 'bg-slate-50/50 border-slate-100 grayscale' : ''}
+                        ${isFuture && !isDay7 ? 'bg-slate-50 border-slate-100 opacity-50' : ''}
+                        ${isDay7 && !visualClaimed ? 'bg-linear-to-r from-indigo-700 via-purple-700 to-indigo-900 border-purple-500/50 shadow-xl shadow-purple-500/10' : ''}
+                        ${isNext && !isDay7 ? 'bg-white border-emerald-500/50 shadow-lg shadow-emerald-500/10 cursor-pointer z-10' : ''}
+                        ${!isDay7 && !isNext && !visualClaimed && !isFuture ? 'bg-white border-slate-100 shadow-sm' : ''}
                       `}
-                      style={{ 
-                        backgroundColor: visualClaimed ? 'rgba(148, 163, 184, 0.1)' : (isFuture ? 'rgba(15, 23, 42, 0.4)' : isDay7 ? '#0f172a' : 'rgb(203, 213, 225)'),
-                        borderColor: visualClaimed ? 'rgba(0,0,0,0.05)' : (isFuture ? 'rgba(255,255,255,0.05)' : isDay7 ? 'rgba(255, 215, 0, 0.3)' : 'rgba(255, 255, 255, 0.1)'),
-                        boxShadow: isNext ? '0 0 20px rgba(16, 185, 129, 0.3)' : 'none'
-                      }}
                     >
-                      <span className={`font-black text-[11px] uppercase tracking-widest ${isFuture ? 'text-white/40' : 'text-slate-500 opacity-60'}`}>
-                        ڕۆژا {toKuDigits(item.day)}
-                      </span>
+                      {isDay7 && !visualClaimed && (
+                        <>
+                          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2)_0%,transparent_60%)] pointer-events-none" />
+                          <motion.div 
+                            animate={{ opacity: [0.1, 0.3, 0.1] }}
+                            transition={{ duration: 3, repeat: Infinity }}
+                            className="absolute -right-4 -top-8 w-32 h-32 bg-purple-500/20 blur-3xl rounded-full"
+                          />
+                        </>
+                      )}
 
-                      <div className="relative shrink-0 flex items-center justify-center">
+                      <div className={`flex flex-col relative z-10 ${isDay7 ? 'items-start' : 'items-center'}`}>
+                        <span className={`font-black text-[10px] uppercase tracking-widest ${isDay7 ? 'text-purple-200/60' : isNext ? 'text-emerald-600' : 'text-slate-400'}`}>
+                          ڕۆژا {toKuDigits(item.day)}
+                        </span>
+                        {isDay7 && (
+                          <span className={`text-2xl font-black italic tracking-tighter ${visualClaimed ? 'text-slate-600' : 'text-white text-shadow-sm'}`}>
+                            {item.label}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className={`relative flex items-center justify-center ${isDay7 ? 'w-24' : 'flex-1 w-full min-h-0'}`}>
                          {isDay7 ? (
-                            <ZerIcon size={90} /> 
+                            <ZerIcon size={70} /> 
                          ) : item.type === 'fils' ? (
-                           <FilsIcon size={64} />
+                           <FilsIcon size={36} />
                          ) : item.type === 'derhem' ? (
-                           <DerhemIcon size={64} />
+                           <DerhemIcon size={36} />
                          ) : item.type === 'zer' ? (
-                           <ZerIcon size={64} />
+                           <ZerIcon size={36} />
                          ) : (
-                           <span className="material-symbols-outlined text-3xl" style={{ color: isFuture ? 'rgba(255,255,255,0.3)' : item.color }}>
-                              {item.icon}
-                           </span>
+                           <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{ backgroundColor: `${item.color}15` }}>
+                             <span className="material-symbols-outlined text-2xl" style={{ color: item.color }}>
+                                {item.icon}
+                             </span>
+                           </div>
                          )}
                         
                         {visualClaimed && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                             <span className="material-symbols-outlined text-emerald-600 text-[60px] opacity-70">check</span>
+                          <div className="absolute inset-0 flex items-center justify-center pt-2">
+                             <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+                                <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                             </div>
                           </div>
                         )}
 
                         {isFuture && (
-                          <div className="absolute inset-0 flex items-center justify-center bg-[#020617]/40 rounded-full backdrop-blur-[1px]">
-                             <span className="material-symbols-outlined text-white/50 text-[32px]">lock</span>
+                          <div className="absolute inset-0 flex items-center justify-center text-slate-200">
+                             <span className="material-symbols-outlined text-[20px]">lock</span>
                           </div>
-                        )}
-
-                        {isNext && (
-                           <motion.div 
-                              className="absolute -right-3 -top-3 w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white/20 z-10"
-                              animate={claiming ? { scale: [1, 1.2, 0], opacity: [1, 1, 0], rotate: [0, 15, -15, 0] } : { scale: 1, opacity: 1 }}
-                              transition={{ duration: claiming ? 0.5 : 0.2 }}
-                           >
-                             <span className="material-symbols-outlined text-white text-[20px]">
-                                {claiming ? 'lock_open' : 'lock'}
-                             </span>
-                           </motion.div>
                         )}
                       </div>
 
-                      <span className={`
-                        font-black uppercase tracking-tight text-center
-                        ${isDay7 ? 'text-2xl mt-2' : 'text-[12px]'}
-                        ${isFuture ? 'text-white/40' : isDay7 ? 'text-white' : 'text-slate-900'}
-                      `}>
-                        {item.label}
-                      </span>
+                      {!isDay7 && (
+                        <div className="w-full text-center px-0.5">
+                          <span className={`font-black uppercase tracking-tight text-[11px] leading-tight block truncate ${isFuture ? 'text-slate-400' : 'text-slate-900'}`}>
+                            {item.label}
+                          </span>
+                        </div>
+                      )}
 
                       {isNext && (
-                        <motion.div 
-                          key="selection-glow"
-                          layoutId="reward-selected"
-                          className="absolute inset-0 border-2 border-emerald-500/50 rounded-xl"
-                          animate={{ opacity: [0.3, 0.6, 0.3] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
+                        <div className="absolute -top-1 -left-1">
+                          <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                          </span>
+                        </div>
                       )}
                     </motion.div>
                   );
@@ -224,22 +232,22 @@ export default function DailyRewardModal({ isOpen, onClose }) {
               </div>
 
               {/* Bottom Actions */}
-              <div className="mt-8 flex flex-col gap-3 items-center w-full px-2">
+              <div className="mt-8 flex flex-col gap-3 items-center w-full">
                 {isAvailableToday ? (
-                  <div className="w-full h-14 bg-emerald-500/10 border border-emerald-500/20 flex flex-col items-center justify-center rounded-xl animate-pulse">
-                     <span className="font-black text-emerald-400 text-[14px]">کلێک لەسەر ڕیواردی ئەمڕۆ بکە</span>
-                  </div>
-                ) : (
-                  <div className="w-full h-14 bg-white/5 border border-white/10 flex items-center justify-center rounded-xl font-black text-slate-500 uppercase tracking-widest italic">
-                    سوبەھی وەرە بۆ خەلاتێ دی
-                  </div>
-                )}
+                  <button
+                    onClick={handleClaim}
+                    disabled={claiming}
+                    className="w-full h-14 bg-emerald-500 text-white rounded-md font-black text-lg shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center"
+                  >
+                    {claiming ? 'چاوەڕێ ببە...' : 'خەلاتێ خۆ وەرگرە'}
+                  </button>
+                ) : null}
 
                 <button 
-                  onClick={onClose}
-                  className="w-full h-10 flex items-center justify-center rounded-lg border border-white/5 text-white/40 hover:text-white/60 hover:bg-white/5 font-black text-xs uppercase tracking-[0.2em] transition-all"
+                  onClick={() => { playBackSfx(); onClose(); }}
+                  className="w-full h-12 flex items-center justify-center rounded-md bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white font-black text-xs uppercase tracking-[0.2em] transition-all"
                 >
-                  پاشێ (LATER)
+                  ڤەگەڕیان
                 </button>
               </div>
             </motion.div>
@@ -254,49 +262,61 @@ export default function DailyRewardModal({ isOpen, onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-110 flex items-center justify-center bg-[#020617]/95 backdrop-blur-3xl p-6"
+            className="fixed inset-0 z-110 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-6"
             onClick={() => { setShowSuccess(false); onClose(); }}
           >
             <motion.div
-              initial={{ scale: 0.5, y: 50, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.5, y: 50, opacity: 0 }}
-              className="text-center w-full max-w-xs"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="text-center w-full max-w-sm bg-[#0a1425] border border-white/10 rounded-md shadow-2xl p-10 flex flex-col items-center relative overflow-hidden"
             >
+              {/* Celebration Glow */}
+              <div className="absolute inset-0 bg-linear-to-b from-emerald-500/10 to-transparent pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full -mr-16 -mt-16" />
+
               {(() => {
                 const claimedItem = REWARDS_CONFIG.find(r => r.day === claimedDay) || REWARDS_CONFIG[0];
                 return (
                   <>
-                    <div className="flex flex-col items-center justify-center mx-auto mb-8 relative">
-                       <motion.div 
-                          animate={{ y: [0, -15, 0] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                          className="relative shrink-0 flex flex-col items-center justify-center drop-shadow-2xl"
-                       >
-                         {claimedItem.day === 7 ? (
-                            <ZerIcon size={160} /> 
-                         ) : claimedItem.type === 'fils' ? (
-                           <FilsIcon size={130} />
-                         ) : claimedItem.type === 'derhem' ? (
-                           <DerhemIcon size={130} />
-                         ) : claimedItem.type === 'zer' ? (
-                           <ZerIcon size={130} />
-                         ) : (
-                           <span className="material-symbols-outlined text-[130px]" style={{ color: claimedItem.color, filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3))' }}>
+                    <h3 className="text-4xl font-black text-white mb-2 tracking-tight">پیرۆزە!</h3>
+                    <p className="text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedItem.day)} وەرگرت</p>
+
+                    <div className="flex flex-col items-center justify-center mb-10 relative">
+                      <motion.div
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="relative flex flex-col items-center justify-center"
+                      >
+                        {claimedItem.day === 7 ? (
+                          <ZerIcon size={120} />
+                        ) : claimedItem.type === 'fils' ? (
+                          <FilsIcon size={100} />
+                        ) : claimedItem.type === 'derhem' ? (
+                          <DerhemIcon size={100} />
+                        ) : claimedItem.type === 'zer' ? (
+                          <ZerIcon size={100} />
+                        ) : (
+                          <div className="w-32 h-32 rounded-md bg-emerald-500/20 flex items-center justify-center">
+                            <span className="material-symbols-outlined text-[80px]" style={{ color: claimedItem.color }}>
                               {claimedItem.icon}
-                           </span>
-                         )}
-                         <h2 className="text-xl font-black mt-3 whitespace-nowrap" style={{ color: claimedItem.color || '#fbbf24', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-                           + {claimedItem.label}
-                         </h2>
-                       </motion.div>
+                            </span>
+                          </div>
+                        )}
+                        <div className="mt-4 px-6 py-2 bg-emerald-500 rounded-md text-white font-black text-xl shadow-lg shadow-emerald-500/20">
+                          + {claimedItem.label}
+                        </div>
+                      </motion.div>
                     </div>
-                    <h3 className="text-5xl font-black text-white mb-2 italic tracking-tighter uppercase mt-4">پیرۆزە!</h3>
-                    <p className="text-emerald-400 text-lg font-bold mb-10 text-opacity-80">تە خەلاتێ ڕۆژا {toKuDigits(claimedItem.day)} بدەستڤە هینات</p>
                   </>
                 );
               })()}
-              <button className="w-full h-16 bg-white text-black rounded-xl font-black text-xl shadow-2xl active:scale-95 transition-all">بەردەوام بە</button>
+              <button
+                onClick={() => { setShowSuccess(false); onClose(); }}
+                className="w-full h-14 bg-white text-[#0a1425] rounded-md font-black text-lg shadow-xl active:scale-95 transition-all"
+              >
+                بەردەوام بە
+              </button>
             </motion.div>
           </motion.div>
         )}

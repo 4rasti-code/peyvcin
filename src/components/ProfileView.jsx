@@ -33,7 +33,7 @@ export default function ProfileView({
    maxXP,
    dailyStreak
 }) {
-   const { playTabSound } = useGame();
+   const { playTabSound, playSaveSound } = useGame();
    const [activeTab, setActiveTab] = useState('profile');
    const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
    const [isAvatarBoxOpen, setIsAvatarBoxOpen] = useState(false);
@@ -152,6 +152,7 @@ export default function ProfileView({
    const handleSave = async () => {
       try {
          setIsUploading(true);
+         playSaveSound();
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
 
@@ -199,7 +200,7 @@ export default function ProfileView({
          </div>
 
          <div className="px-5 mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone">
-            <div className="relative w-full aspect-square max-w-[340px] rounded-[40px] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] bg-slate-950 group">
+            <div className="relative w-full aspect-square max-w-[300px] rounded-[50px] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] bg-slate-950 group">
 
                <div className="absolute inset-0 bg-linear-to-b from-[#1a1c2c] via-[#0a0b14] to-black opacity-100"></div>
 
@@ -229,7 +230,7 @@ export default function ProfileView({
 
                <svg
                   className="absolute inset-0 w-full h-full pointer-events-none z-50 transform -rotate-90"
-                  viewBox="0 0 340 340"
+                  viewBox="0 0 300 300"
                   preserveAspectRatio="none"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -242,16 +243,16 @@ export default function ProfileView({
                   </defs>
                   <rect
                      x="3" y="3"
-                     width="334" height="334"
-                     rx="38"
+                     width="294" height="294"
+                     rx="47"
                      stroke="white"
                      strokeWidth="4"
                      strokeOpacity="0.03"
                   />
                   <motion.rect
                      x="3" y="3"
-                     width="334" height="334"
-                     rx="38"
+                     width="294" height="294"
+                     rx="47"
                      stroke={tier.stop1}
                      strokeWidth="10"
                      strokeLinecap="round"
@@ -262,8 +263,8 @@ export default function ProfileView({
                   />
                   <motion.rect
                      x="3" y="3"
-                     width="334" height="334"
-                     rx="38"
+                     width="294" height="294"
+                     rx="47"
                      stroke="url(#barGradient)"
                      strokeWidth="6"
                      strokeLinecap="round"
@@ -276,16 +277,17 @@ export default function ProfileView({
                <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] mix-blend-overlay"></div>
 
                <div className="absolute top-0 left-0 right-0 h-16 z-50 px-6 flex justify-between items-center" dir="ltr">
-                  <div className="w-10 h-10 flex items-center justify-center">
-                     <AnimatePresence>
-                        {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess && (
+                  <div className="relative flex flex-col items-center pt-5 w-14 group/streak">
+                     <AnimatePresence mode="popLayout">
+                        {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess ? (
                            <motion.button
+                              key="save-btn"
                               initial={{ scale: 0, rotate: -90 }}
                               animate={{ scale: 1, rotate: 0 }}
                               exit={{ scale: 0, rotate: 90 }}
                               onClick={(e) => { e.stopPropagation(); handleSave(); }}
                               disabled={isUploading}
-                              className="w-12 h-12 bg-primary text-slate-950 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] flex items-center justify-center border-2 border-white/40 hover:scale-110 active:scale-95 transition-all"
+                              className="w-12 h-12 bg-primary text-slate-950 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] flex items-center justify-center border-2 border-white/40 hover:scale-110 active:scale-95 transition-all absolute top-2"
                            >
                               {isUploading ? (
                                  <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
@@ -293,6 +295,23 @@ export default function ProfileView({
                                  <span className="material-symbols-outlined text-2xl font-black">check_circle</span>
                               )}
                            </motion.button>
+                        ) : (
+                           <motion.div
+                              key="streak-badge"
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.8 }}
+                              className="flex flex-col items-center justify-center relative w-14 h-15"
+                           >
+                              <div className="relative text-xl leading-none drop-shadow-[0_4px_12px_rgba(249,115,22,0.8)] hover:scale-110 transition-transform cursor-pointer">
+                                 🔥
+                                 <div className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 blur-xl rounded-full z-[-1] animate-pulse"></div>
+                              </div>
+                              <div className="flex flex-col items-center z-10 w-full mt-1">
+                                 <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80 tracking-widest">ستریك</span>
+                                 <span className="text-lg font-black text-white leading-none drop-shadow-md">{toKuDigits(dailyStreak || 0)}</span>
+                              </div>
+                           </motion.div>
                         )}
                      </AnimatePresence>
                   </div>
@@ -318,7 +337,7 @@ export default function ProfileView({
                   </div>
                </div>
 
-               <div className="absolute top-4 left-0 right-0 flex flex-col items-center z-20">
+               <div className="absolute top-1 left-0 right-0 flex flex-col items-center z-20">
                   <div className="relative w-40 h-40 flex items-center justify-center">
                      <div
                         className="relative z-10 cursor-pointer hover:scale-105 active:scale-95 transition-all duration-300"
@@ -326,7 +345,7 @@ export default function ProfileView({
                      >
                         <div className="relative">
                            <Avatar src={draftAvatar} size="xl" className="w-32 h-32 rounded-full border-4 border-slate-950 shadow-2xl z-20" updatedAt={user?.updated_at} />
-                           <div className="absolute bottom-1 right-2 w-9 h-9 bg-white text-slate-950 rounded-full shadow-lg border-2 border-slate-950 flex items-center justify-center z-30">
+                           <div className="absolute bottom-0 right-0 w-10 h-10 bg-white text-slate-950 rounded-full shadow-lg border-2 border-slate-950 flex items-center justify-center z-30">
                               <span className="material-symbols-outlined text-[18px] font-black">photo_camera</span>
                            </div>
                         </div>
@@ -335,45 +354,42 @@ export default function ProfileView({
                </div>
 
                <div className="absolute bottom-4 left-4 right-4 z-40 text-right" dir="rtl">
-                  <div className="bg-slate-900/40 backdrop-blur-2xl rounded-[28px] border border-white/5 p-4 shadow-2xl relative overflow-hidden">
-                     <div className="absolute top-4 left-4 flex items-center gap-1 opacity-80 hover:opacity-100 transition-opacity">
-                        <span className="text-orange-500 font-black text-sm">{toKuDigits(dailyStreak || 0)}</span>
-                        <span className="text-base">🔥</span>
-                     </div>
+                  <div className="bg-slate-900/40 backdrop-blur-2xl rounded-[40px] border border-white/5 p-3.5 shadow-2xl relative overflow-hidden">
 
-                     <div className="flex flex-col items-center mb-4">
+
+                     <div className="flex flex-col items-center mb-2.5">
                         <h3 className="text-2xl font-black font-rabar text-white text-center leading-tight tracking-tight">{draftNickname || 'یاریکەر'}</h3>
                      </div>
                      <div className="grid grid-cols-3 gap-2 px-1" dir="ltr" style={{ color: level < 10 ? '#fff' : level < 25 ? '#1e293b' : level < 45 ? '#451a03' : '#000' }}>
                         <div
-                           className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 transition-colors duration-500"
+                           className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md border border-white/10 transition-colors duration-500"
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
                            <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>XP</span>
-                           <span className="text-lg font-black leading-none tracking-tighter text-white">{toKuDigits(currentXP)}</span>
+                           <span className="text-base font-black leading-none tracking-tighter text-white">{toKuDigits(currentXP)}</span>
                         </div>
 
                         <div
-                           className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl shadow-lg border-2 z-10 transition-all duration-500 scale-105"
+                           className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md shadow-lg border-2 z-10 transition-all duration-500 scale-105"
                            style={{
                               backgroundColor: tier.stop1,
                               borderColor: 'rgba(255,255,255,0.2)',
-                              boxShadow: `0 10px 20px -5px ${tier.shadow}`
+                              boxShadow: `0 8px 16px -4px ${tier.shadow}`
                            }}
                         >
                            <span className="text-[8px] font-black uppercase mb-0.5" style={{ color: level < 25 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.6)' }}>ڕێژە</span>
-                           <span className="text-xl font-black leading-none">{toKuDigits(Math.round(effectiveProgress * 100))}</span>
+                           <span className="text-lg font-black leading-none">{toKuDigits(Math.round(effectiveProgress * 100))}</span>
                         </div>
 
                         <div
-                           className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 relative overflow- group transition-colors duration-500"
+                           className="flex flex-col items-center justify-center py-1.5 px-1 rounded-md border border-white/10 relative overflow-hidden group transition-colors duration-500"
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
                            {userRank === 1 && (
                               <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
                            )}
                            <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>ڕێزبەندی</span>
-                           <span className={`text-lg font-black leading-none tracking-tighter text-white`}>
+                           <span className={`text-base font-black leading-none tracking-tighter text-white`}>
                               #{toKuDigits(userRank || 1)}
                            </span>
                         </div>

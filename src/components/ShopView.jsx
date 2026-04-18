@@ -31,17 +31,18 @@ const SHOP_ITEMS = {
 
 // Old HeaderStatusBar removed in favor of shared InventoryBar
 
-const PowerUpCard = ({ item, onPurchase, canAfford }) => {
+const PowerUpCard = ({ item, onPurchase, canAfford, playPurchaseSound }) => {
   const [showEffect, setShowEffect] = useState(false);
 
   return (
     <motion.button
       layout
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
       onClick={() => { 
         if (canAfford) {
           triggerHaptic(10); 
+          playPurchaseSound?.();
           onPurchase(item); 
           setShowEffect(true);
           setTimeout(() => setShowEffect(false), 2000);
@@ -49,14 +50,14 @@ const PowerUpCard = ({ item, onPurchase, canAfford }) => {
           triggerHaptic([50, 30, 50]);
         }
       }}
-      className="group relative w-full px-5 py-4 sm:px-6 sm:py-5 bg-[#0a0f1b]/60 rounded-[32px] border border-white/5 hover:bg-black/60 flex items-center gap-4 sm:gap-5 overflow-visible transition-all"
+      className="group relative w-full px-2 py-1 bg-white/95 rounded-md border border-slate-200/60 hover:bg-white flex items-center gap-2 overflow-visible transition-all shadow-sm"
     >
-      <div className={`w-[72px] h-[72px] sm:w-[84px] sm:h-[84px] rounded-[24px] bg-linear-to-br ${item.color} flex items-center justify-center text-white shrink-0 relative z-10 transition-transform group-hover:scale-105 duration-300`}>
-        <span className="material-symbols-outlined text-[32px] sm:text-[36px] drop-shadow-sm">{item.icon}</span>
+      <div className={`w-[40px] h-[40px] rounded-md bg-linear-to-br ${item.color} flex items-center justify-center text-white shrink-0 relative z-10 transition-transform group-hover:scale-105 duration-300 shadow-sm`}>
+        <span className="material-symbols-outlined text-[18px] drop-shadow-sm">{item.icon}</span>
       </div>
-      <div className="flex-1 text-right min-w-0 relative z-10 pr-1 sm:pr-2">
-        <h3 className="text-[20px] sm:text-[22px] font-black text-white mb-0.5 sm:mb-1 tracking-wide leading-tight">{item.name}</h3>
-        <p className="text-[12px] sm:text-[13px] font-bold text-slate-300 leading-tight">{item.description}</p>
+      <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
+        <h3 className="text-[14px] font-black text-slate-900 mb-0 tracking-tight leading-tight truncate">{item.name}</h3>
+        <p className="text-[9px] font-bold text-slate-500 leading-tight truncate">{item.description}</p>
       </div>
       <div className="flex flex-col items-center justify-center shrink-0 z-10 relative">
         <AnimatePresence>
@@ -67,23 +68,20 @@ const PowerUpCard = ({ item, onPurchase, canAfford }) => {
               exit={{ opacity: 0, scale: 0.8 }}
               className="absolute -top-4 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
             >
-              <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)] filter brightness-110">
+              <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.2)]">
                 -{toKuDigits(item.price)}
               </span>
-              <div className="w-5 h-5 flex items-center justify-center drop-shadow-md text-[#ef4444] scale-90">
+              <div className="w-5 h-5 flex items-center justify-center text-[#ef4444] scale-90">
                  {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'zer' ? <ZerIcon /> : <FilsIcon />}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-        <div className={`flex items-center gap-2.5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-slate-900/80 border border-white/5 transition-all ${!canAfford ? 'opacity-50' : 'group-hover:scale-110'}`}>
+        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-all shadow-sm ${!canAfford ? 'bg-slate-100/80 border border-slate-200 opacity-40' : 'bg-emerald-500 text-white group-hover:scale-105'}`}>
           <div className="flex flex-col items-center leading-none">
-            <span className={`text-[16px] sm:text-[18px] font-black ${!canAfford ? 'text-white/60' : 'text-primary'}`}>{toKuDigits(item.price || 0)}</span>
-            <span className={`text-[8px] font-black uppercase tracking-widest opacity-60 ${!canAfford ? 'text-white/40' : 'text-primary'}`}>
-              {item.currency === 'derhem' ? 'دەرهەم' : item.currency === 'zer' ? 'زێڕ' : 'فلس'}
-            </span>
+            <span className={`text-[13px] font-black ${!canAfford ? 'text-slate-400' : 'text-white'}`}>{toKuDigits(item.price || 0)}</span>
           </div>
-          <div className={`w-5 h-5 flex items-center justify-center drop-shadow-md ${!canAfford ? 'opacity-40 grayscale' : 'text-primary'}`}>
+          <div className={`w-3.5 h-3.5 flex items-center justify-center ${!canAfford ? 'opacity-40 grayscale' : ''}`}>
             {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'zer' ? <ZerIcon /> : <FilsIcon />}
           </div>
         </div>
@@ -92,45 +90,41 @@ const PowerUpCard = ({ item, onPurchase, canAfford }) => {
   );
 };
 
-const SpecialOfferCard = ({ item, onOpenGateway }) => (
+const SpecialOfferCard = ({ item, onOpenGateway, playPurchaseSound }) => (
   <motion.button
     layout
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.95 }}
-    onClick={() => { triggerHaptic(10); onOpenGateway(item); }}
-    className="group relative w-full p-6 sm:p-8 rounded-[32px] bg-linear-to-br from-yellow-300 via-amber-400 to-amber-600 border-4 border-yellow-200/60 flex flex-col gap-6 overflow- mb-6 shadow-[0_15px_40px_rgba(245,158,11,0.5),inset_0_4px_15px_rgba(255,255,255,0.7)]"
+    whileHover={{ scale: 1.01 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={() => { triggerHaptic(10); playPurchaseSound?.(); onOpenGateway(item); }}
+    className="group relative w-full p-6 sm:p-7 rounded-md bg-linear-to-br from-amber-400 via-amber-500 to-orange-600 border border-amber-300 shadow-lg flex flex-col gap-4 overflow-hidden mb-6"
   >
-    {/* Dynamic Shimmer Effect */}
-    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />
+    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />
     
-    <div className="flex items-center justify-between w-full relative z-10 pt-2">
-      <div className="flex items-center gap-4 sm:gap-6">
-        {/* Luxury Solid Icon */}
-        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[24px] sm:rounded-[32px] bg-white/30 flex items-center justify-center text-white shadow-[inset_0_4px_10px_rgba(255,255,255,0.8),0_10px_20px_rgba(180,83,9,0.3)] border border-white/60 group-hover:scale-105 transition-transform duration-500">
-           <span className="material-symbols-outlined text-[48px] sm:text-[56px] drop-shadow-[0_2px_4px_rgba(180,83,9,0.4)]">auto_awesome</span>
+    <div className="flex items-center justify-between w-full relative z-10">
+      <div className="flex items-center gap-4">
+        <div className="w-16 h-16 rounded-md bg-white/20 flex items-center justify-center text-white border border-white/40 shadow-inner group-hover:scale-105 transition-transform duration-500">
+           <span className="material-symbols-outlined text-[40px] drop-shadow-md">auto_awesome</span>
         </div>
         
-        <div className="text-right flex flex-col items-end">
-          <h3 className="text-2xl sm:text-3xl font-black text-yellow-950 leading-tight drop-shadow-[0_2px_0_rgba(255,255,255,0.5)] pb-1">پاکێجا زێڕین</h3>
-          <p className="text-[13px] font-black text-amber-900/80 tracking-widest leading-none mt-1">پێشنیارا تایبەت</p>
+        <div className="text-right">
+          <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-sm">پاکێجا زێڕین</h3>
+          <p className="text-[11px] font-bold text-white/80 tracking-widest uppercase mt-0.5">پێشنیارا تایبەت</p>
         </div>
       </div>
 
-      {/* Price Tag */}
-      <div className="flex flex-col items-center justify-center gap-0.5 bg-yellow-950/90 px-5 py-3 sm:px-6 sm:py-4 rounded-2xl border border-yellow-500/30 shadow-[0_4px_15px_rgba(180,83,9,0.4)] group-hover:shadow-[0_8px_20px_rgba(180,83,9,0.5)] transition-all">
-         <span className="text-2xl sm:text-3xl font-black text-yellow-300 drop-shadow-md leading-none">${toKuDigits(item.price_usd || 0)}</span>
-         <span className="text-[11px] font-bold text-yellow-300/70 tracking-wider mt-1">{toKuDigits(item.price_iqd || 0)} دینار</span>
+      <div className="flex flex-col items-center justify-center bg-white/20 px-4 py-2 rounded-md border border-white/30 shadow-md">
+         <span className="text-xl sm:text-2xl font-black text-white leading-none">${toKuDigits(item.price_usd || 0)}</span>
+         <span className="text-[10px] font-bold text-white/70 mt-1">{toKuDigits(item.price_iqd || 0)} دینار</span>
       </div>
     </div>
 
-    {/* Description / Content Box */}
-    <div className="flex items-center bg-white/20 p-4 sm:p-5 rounded-2xl border border-white/50 shadow-[inset_0_2px_8px_rgba(180,83,9,0.15)] relative z-10 w-full group-hover:bg-white/30 transition-colors text-right">
-       <span className="text-[13px] sm:text-[14px] font-bold text-yellow-950 leading-relaxed block w-full">{item.description}</span>
+    <div className="flex items-center bg-white/10 p-3.5 rounded-md border border-white/20 relative z-10 w-full text-right">
+       <span className="text-[12px] font-bold text-white leading-relaxed block w-full">{item.description}</span>
     </div>
   </motion.button>
 );
 
-export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default' }) {
+export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default', playPurchaseSound }) {
   const { playTabSound } = useGame();
   const [activeTab, setActiveTab] = useState('powerups');
   const [gatewayOpen, setGatewayOpen] = useState(false);
@@ -175,7 +169,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
         className="mb-4"
       />
 
-      <div className="flex p-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-xl overflow- relative">
+      <div className="flex p-1 bg-slate-100/95 backdrop-blur-2xl rounded border-2 border-slate-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative">
         {['powerups', 'avatars', 'themes'].map((tab) => (
           <button 
             key={tab}
@@ -184,18 +178,20 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                 playTabSound();
                 setActiveTab(tab); 
             }} 
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-2 rounded-full transition-all duration-300 relative z-10 ${
+            className={`flex-1 flex items-center justify-center py-2 px-2 transition-all duration-500 relative z-10 font-rabar font-black text-[14px] ${
               activeTab === tab 
-                ? 'bg-primary text-black shadow-lg scale-[1.03]' 
-                : 'text-white/40 hover:text-white/70'
+                ? 'text-white' 
+                : 'text-slate-400 hover:text-slate-600'
             }`}
           >
-            <span className="material-symbols-outlined text-[20px]">
-              {tab === 'powerups' ? 'auto_fix_high' : tab === 'avatars' ? 'person' : 'palette'}
-            </span>
-            <span className="font-bold text-[13px] uppercase tracking-wider">
-              {tab === 'powerups' ? 'ھاریکار' : tab === 'avatars' ? 'پەیڤچن' : 'نیشان'}
-            </span>
+            {activeTab === tab && (
+              <motion.div
+                layoutId="shopActiveTab"
+                className="absolute inset-0 bg-[#1e293b] rounded-sm shadow-[0_4px_12px_rgba(30,41,59,0.3)] z-[-1]"
+                transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+              />
+            )}
+            {tab === 'powerups' ? 'ھاریکار' : tab === 'avatars' ? 'پەیڤچن' : 'نیشان'}
           </button>
         ))}
       </div>
@@ -204,113 +200,110 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
         <AnimatePresence mode="wait">
           {activeTab === 'powerups' && (
             <motion.div key="powerups" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex flex-col gap-5">
-              <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} />
+              <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} playPurchaseSound={playPurchaseSound} />
               <div className="grid grid-cols-1 gap-4">
                 {SHOP_ITEMS.POWERUPS.map(item => (
-                  <PowerUpCard key={item.id} item={item} onPurchase={onPurchase} canAfford={fils >= item.price} />
+                  <PowerUpCard key={item.id} item={item} onPurchase={onPurchase} canAfford={fils >= item.price} playPurchaseSound={playPurchaseSound} />
                 ))}
               </div>
             </motion.div>
           )}
           {activeTab === 'avatars' && (
-            <motion.div key="avatars" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="flex flex-col gap-5">
+            <motion.div key="avatars" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="flex flex-col gap-3">
               {SHOP_ITEMS.AVATARS.map(avatar => (
                 <motion.div
                   key={avatar.id}
-                  className={`bg-white/5 backdrop-blur-xl p-7 rounded-2xl border border-white/10 flex items-center gap-7 transition-all ${ownedAvatars.includes(avatar.id) && equippedAvatar === avatar.id ? 'border-primary/50 ring-1 ring-primary/20' : ''}`}
+                  className={`bg-white/95 backdrop-blur-xl py-1 px-3 rounded-md border border-slate-200 flex items-center gap-3 transition-all shadow-sm ${ownedAvatars.includes(avatar.id) && equippedAvatar === avatar.id ? 'border-primary/50 ring-1 ring-primary/10' : ''}`}
                 >
-                  <div className="w-24 h-24 rounded-[20px] bg-white/10 border border-white/10 p-2 shrink-0 overflow-hidden relative group">
-                    <img src={avatar.image} alt={avatar.name} className="w-full h-full object-cover rounded-[15px] animate-character-idle" />
+                  <div className="w-12 h-12 rounded-md bg-slate-100 border border-slate-200 p-0.5 shrink-0 overflow-hidden relative group shadow-sm">
+                    <img src={avatar.image} alt={avatar.name} className="w-full h-full object-cover rounded-[8px] animate-character-idle" />
                   </div>
-                  <div className="flex-1 text-right">
-                    <h3 className="text-2xl font-bold text-white mb-2">{avatar.name}</h3>
-                    <p className="text-[13px] font-bold text-text-dim leading-snug opacity-90 mb-5">{avatar.description}</p>
-                    <div className="flex items-center justify-end gap-5">
-                      {ownedAvatars.includes(avatar.id) ? (
+                  <div className="flex-1 text-right min-w-0">
+                    <h3 className="text-md font-bold text-slate-900 mb-0 truncate">{avatar.name}</h3>
+                    <p className="text-[9px] font-bold text-slate-500 leading-tight truncate">{avatar.description}</p>
+                  </div>
+                  <div className="shrink-0 flex items-center">
+                    {ownedAvatars.includes(avatar.id) ? (
+                      <button
+                        onClick={() => { triggerHaptic(10); onEquipAvatar(avatar.id); }}
+                        className={`px-3 py-1 rounded-md font-bold text-[11px] transition-all ${equippedAvatar === avatar.id ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                      >
+                        {equippedAvatar === avatar.id ? 'چالاکە' : 'بکاربینە'}
+                      </button>
+                    ) : (
+                      <div className="relative">
+                        <AnimatePresence>
+                          {(showAvatarEffect === avatar.id) && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                              animate={{ opacity: 1, y: -45, scale: 1.1 }}
+                              exit={{ opacity: 0 }}
+                              className="absolute -top-10 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
+                            >
+                              <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)]">
+                                -{toKuDigits(avatar.price)}
+                              </span>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                         <button
-                          onClick={() => { triggerHaptic(10); onEquipAvatar(avatar.id); }}
-                          className={`px-8 py-3 rounded-full font-bold transition-all ${equippedAvatar === avatar.id ? 'bg-primary text-black' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                          onClick={() => { 
+                            if ((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) {
+                              triggerHaptic(10); 
+                              playPurchaseSound?.();
+                              onPurchaseAvatar(avatar.id, avatar.price, avatar.currency); 
+                              setShowAvatarEffect(avatar.id);
+                              setTimeout(() => setShowAvatarEffect(null), 2000);
+                            } else {
+                              triggerHaptic([50, 30, 50]);
+                            }
+                          }}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white hover:brightness-110 transition-all shadow-md ${((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) ? 'bg-emerald-500' : 'bg-slate-300 opacity-50 cursor-not-allowed'}`}
                         >
-                          {equippedAvatar === avatar.id ? 'چالاکە' : 'بکاربینە'}
+                          <div className="flex flex-col items-center leading-none">
+                            <span className="text-[13px] font-black">{toKuDigits(avatar.price || 0)}</span>
+                          </div>
+                          <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
+                             {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
+                          </div>
                         </button>
-                      ) : (
-                        <div className="relative">
-                          <AnimatePresence>
-                            {(showAvatarEffect === avatar.id) && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, y: -45, scale: 1.1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute -top-10 right-0 pointer-events-none flex items-center gap-1.5 whitespace-nowrap z-120"
-                              >
-                                <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)]">
-                                  -{toKuDigits(avatar.price)}
-                                </span>
-                                <div className="w-5 h-5 flex items-center justify-center text-[#ef4444] scale-90">
-                                   {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                          <button
-                            onClick={() => { 
-                              if ((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) {
-                                triggerHaptic(10); 
-                                onPurchaseAvatar(avatar.id, avatar.price, avatar.currency); 
-                                setShowAvatarEffect(avatar.id);
-                                setTimeout(() => setShowAvatarEffect(null), 2000);
-                              } else {
-                                triggerHaptic([50, 30, 50]);
-                              }
-                            }}
-                            className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-black hover:brightness-110 transition-all shadow-lg"
-                          >
-                            <div className="flex flex-col items-center leading-none">
-                              <span className="text-lg font-bold">{toKuDigits(avatar.price || 0)}</span>
-                              <span className="text-[8px] font-black uppercase tracking-widest opacity-60">{avatar.currency === 'derhem' ? 'دەرهەم' : 'فلس'}</span>
-                            </div>
-                            <div className="w-6 h-6 flex items-center justify-center shrink-0">
-                               {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
-                            </div>
-                          </button>
-                        </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}
             </motion.div>
           )}
           {activeTab === 'themes' && (
-            <motion.div key="themes" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex flex-col gap-5">
+            <motion.div key="themes" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex flex-col gap-3">
               {Object.values(THEMES).map(theme => (
                 <motion.div
                   key={theme.id}
-                  className={`p-7 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 transition-all flex items-center gap-7 group ${currentTheme === theme.id ? 'border-primary/50' : ''}`}
+                  className={`py-1 px-3 bg-white/95 backdrop-blur-xl rounded-md border border-slate-200 transition-all flex items-center gap-3 group shadow-sm ${currentTheme === theme.id ? 'border-primary/50 ring-1 ring-primary/10' : ''}`}
                 >
                   <div 
-                    className="w-20 h-20 rounded-[20px] border border-white/10 shrink-0 overflow-hidden relative shadow-lg"
+                    className="w-10 h-10 rounded-[8px] border border-white/10 shrink-0 overflow-hidden relative shadow-sm"
                     style={{ background: theme.colors.background }}
                   >
                     <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                       <span className="material-symbols-outlined text-4xl" style={{ color: theme.colors.primary }}>{theme.isHeritage ? 'auto_awesome' : 'palette'}</span>
+                       <span className="material-symbols-outlined text-xl" style={{ color: theme.colors.primary }}>{theme.isHeritage ? 'auto_awesome' : 'palette'}</span>
                     </div>
                   </div>
-
-                  <div className="flex-1 text-right">
-                    <div className="flex items-center justify-end gap-3 mb-2">
-                       {theme.price === 0 && <span className="px-3 py-1 rounded-full bg-green-500/20 text-[10px] font-bold text-green-400 uppercase tracking-tighter">Free</span>}
-                       <h3 className="text-2xl font-bold text-white">{theme.name}</h3>
+                  <div className="flex-1 text-right min-w-0">
+                    <div className="flex items-center justify-end gap-1 mb-0">
+                       {theme.price === 0 && <span className="px-1 py-0.5 rounded-md bg-green-500/10 text-[7px] font-bold text-green-600 uppercase tracking-tighter shadow-xs">Free</span>}
+                       <h3 className="text-[14px] font-black text-slate-900 truncate">{theme.name}</h3>
                     </div>
-                    <p className="text-[12px] font-bold text-white/50 mb-5 uppercase tracking-widest leading-relaxed">
-                      {theme.id === 'default' ? 'ستایلێ ئەسلیێ یاریێ' : theme.isHeritage ? 'ھونەرێ رەسەن یێ کوردی' : 'ستایلەکێ نوی بۆ یاریێ'}
+                    <p className="text-[9px] font-bold text-slate-500 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
+                      {theme.id === 'default' ? 'ستایلێ ئەسلیێ یاریێ' : theme.isHeritage ? 'ھونەرێ رەسەن یێ کوردی' : 'ستایلەکێ نوی بۆ یارێ'}
                     </p>
-
-                    <div className="flex items-center justify-end gap-5">
+                  </div>
+                  <div className="shrink-0 flex items-center">
+                    <div className="flex items-center justify-end gap-2">
                       {unlockedThemes.includes(theme.id) ? (
                         <button
                           onClick={() => { triggerHaptic(10); onEquipTheme(theme.id); }}
-                          className={`px-8 py-3 rounded-full font-bold transition-all ${currentTheme === theme.id ? 'bg-primary text-black' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                          className={`px-3 py-1 rounded-md font-bold text-[11px] transition-all ${currentTheme === theme.id ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                         >
                           {currentTheme === theme.id ? 'چالاکە' : 'بکاربینە'}
                         </button>
@@ -327,7 +320,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                                 <span className="text-[#ef4444] font-black text-xl drop-shadow-[0_2px_10px_rgba(239,68,68,0.4)]">
                                   -{toKuDigits(theme.price)}
                                 </span>
-                                <div className="w-5 h-5 flex items-center justify-center text-[#ef4444] scale-90">
+                                <div className="w-4 h-4 flex items-center justify-center text-[#ef4444] scale-90">
                                    {theme.currency === 'zer' ? <ZerIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}
                                 </div>
                               </motion.div>
@@ -338,6 +331,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                               const currentBalance = theme.currency === 'zer' ? zer : (theme.currency === 'derhem' ? derhem : fils);
                               if (currentBalance >= theme.price) {
                                 triggerHaptic(10); 
+                                playPurchaseSound?.();
                                 onPurchase({ ...theme, type: 'theme' }); 
                                 setShowThemeEffect(theme.id);
                                 setTimeout(() => setShowThemeEffect(null), 2000);
@@ -345,20 +339,15 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                                 triggerHaptic([50, 30, 50]);
                               }
                             }}
-                            className={`flex items-center gap-3 px-6 py-3 rounded-full text-black hover:brightness-110 transition-all shadow-lg ${theme.currency === 'zer' ? 'bg-primary' : (theme.currency === 'derhem' ? 'bg-slate-200' : 'bg-orange-200')}`}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white hover:brightness-110 transition-all shadow-md ${( (theme.currency === 'zer' ? zer : (theme.currency === 'derhem' ? derhem : fils)) >= theme.price) ? 'bg-emerald-500' : 'bg-slate-300 opacity-50 cursor-not-allowed'}`}
                           >
                             <div className="flex flex-col items-center leading-none">
-                              <span className="text-lg font-bold">
+                              <span className="text-[13px] font-black">
                                 {theme.price === 0 ? 'خۆڕایی' : toKuDigits(theme.price || 0)}
                               </span>
-                              {theme.price > 0 && (
-                                <span className="text-[8px] font-black uppercase tracking-widest opacity-60">
-                                  {theme.currency === 'zer' ? 'زێڕ' : (theme.currency === 'derhem' ? 'دەرهەم' : 'فلس')}
-                                </span>
-                              )}
                             </div>
                             {theme.price > 0 && (
-                              <div className="w-6 h-6 flex items-center justify-center shrink-0">
+                              <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
                                 {theme.currency === 'zer' ? <ZerIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}
                               </div>
                             )}

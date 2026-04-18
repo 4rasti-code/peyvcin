@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { FilsIcon } from './CurrencyIcon';
 import { useState } from 'react';
+import { playBackSfx } from '../utils/audio';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -38,16 +39,16 @@ const DefeatOverlay = ({
   onRetry, 
   onHome,
   breakdown,
-  gameMode = 'classic'
+  gameMode = 'classic',
+  playStartSound
 }) => {
   useEffect(() => {
     if (isVisible) {
       triggerHaptic(200);
       
-      // Auto-exit after 10 seconds (Redirect to lobby)
       const timer = setTimeout(() => {
         onHome();
-      }, 10000);
+      }, 7000);
 
       return () => clearTimeout(timer);
     }
@@ -142,7 +143,7 @@ const DefeatOverlay = ({
             {/* Action Buttons */}
             <div className="w-full flex flex-col gap-3">
               <button 
-                onClick={() => { triggerHaptic(10); onRetry(); }}
+                onClick={() => { triggerHaptic(10); playStartSound?.(); onRetry(); }}
                 className="w-full bg-linear-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white py-5 rounded-3xl font-black  text-xl shadow-[0_20px_40px_rgba(239,68,68,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">restart_alt</span>
@@ -150,8 +151,8 @@ const DefeatOverlay = ({
               </button>
 
               <button 
-                onClick={() => { triggerHaptic(10); onHome(); }}
-                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold  text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
+                onClick={() => { triggerHaptic(10); playBackSfx(); onHome(); }}
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">home</span>
                 ڤەگەڕیان

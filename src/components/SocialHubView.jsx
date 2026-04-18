@@ -163,7 +163,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
         <div className="relative group/bubble flex flex-col items-end">
           <div
             {...bind}
-            className={`message-bubble px-4 py-2.5 rounded-2xl text-sm font-bold font-rabar break-words whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe ? 'rounded-tr-none text-white' : 'bg-[#1e293b]/95 text-slate-100 rounded-tl-none border border-white/5'}`}
+            className={`message-bubble px-4 py-2.5 rounded-md text-sm font-bold font-rabar break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe ? 'rounded-tr-none text-white' : 'bg-[#1e293b]/95 text-slate-100 rounded-tl-none border border-white/5'}`}
             style={isMe ? { backgroundColor: '#0284c7', boxShadow: '0 2px 8px rgba(2, 132, 199, 0.2)' } : {}}
           >
             {m.content || m.text}
@@ -237,6 +237,7 @@ export default function SocialHubView({
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const scrollRef = useRef(null);
+  const textareaRef = useRef(null);
 
   const fetchGlobalMessages = useCallback(async () => {
     try {
@@ -515,6 +516,9 @@ export default function SocialHubView({
 
     // Clear input immediately for better UX
     setNewMessage('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
 
     try {
       if (activeTab === 'global') {
@@ -800,12 +804,12 @@ export default function SocialHubView({
               <div className="space-y-3">
                 <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">داخوازێن ھەڤالینیێ</h3>
                 {pendingRequests.map(req => (
-                  <div key={req.id} className="flex items-center gap-3 p-3 bg-[#1e293b] rounded-2xl border border-white/5">
+                  <div key={req.id} className="flex items-center gap-3 p-3 bg-white/95 backdrop-blur-xl rounded-md border border-slate-200 shadow-sm">
                     <Avatar src={req.sender?.avatar_url} lastActive={req.sender?.updated_at} showStatus={true} size="sm" />
                     <div className="flex-1 text-right">
-                      <div className="font-black text-sm">{req.sender?.nickname}</div>
+                      <div className="font-black text-sm text-slate-900">{req.sender?.nickname}</div>
                     </div>
-                    <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-slate-700 text-white rounded-xl font-black text-xs">پەژراندن</button>
+                    <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-emerald-500 text-white rounded-md font-black text-[10px] uppercase shadow-md hover:brightness-110 active:scale-95 transition-all">پەژراندن</button>
                   </div>
                 ))}
               </div>
@@ -824,15 +828,15 @@ export default function SocialHubView({
                   return activeB - activeA; // Secondary sort by last active
                 })
                 .map(f => (
-                <div key={f.id} className="flex items-center gap-3 p-3 bg-[#1e293b] rounded-2xl border border-white/5 group">
+                <div key={f.id} className="flex items-center gap-3 p-2 bg-white/95 backdrop-blur-xl rounded-md border border-slate-200 shadow-sm group hover:border-emerald-500/30 transition-all">
                   <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(f.friend); }}>
                     <Avatar src={f.friend?.avatar_url} lastActive={f.friend?.updated_at} showStatus={true} size="sm" />
                     <div className="flex-1 text-right">
-                      <div className="font-black text-sm group-hover:text-primary transition-colors">{f.friend?.nickname}</div>
+                      <div className="font-black text-sm text-slate-900 group-hover:text-emerald-600 transition-colors">{f.friend?.nickname}</div>
                     </div>
                   </div>
-                  <button onClick={() => { triggerHaptic(10); playBubblePopSound(); setActiveTab('private'); setSelectedChat(f.friend); }} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-800 hover:bg-primary hover:text-slate-950 transition-all">
-                    <span className="material-symbols-outlined text-xl">chat</span>
+                  <button onClick={() => { triggerHaptic(10); playBubblePopSound(); setActiveTab('private'); setSelectedChat(f.friend); }} className="w-10 h-10 flex items-center justify-center rounded-md bg-slate-100 text-slate-600 hover:bg-emerald-500 hover:text-white hover:shadow-md transition-all">
+                    <span className="material-symbols-outlined text-[20px] font-bold">chat</span>
                   </button>
                 </div>
               ))}
@@ -1056,12 +1060,13 @@ export default function SocialHubView({
             <button
               onClick={handleSendMessage}
               disabled={!newMessage.trim()}
-              className={`w-11 h-11 flex items-center justify-center rounded-full transition-all shadow-lg shrink-0 ${newMessage.trim() ? 'bg-[#00a884] text-white scale-100' : 'bg-slate-800 text-slate-500 opacity-50 scale-95'}`}
+              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shadow-lg shrink-0 ${newMessage.trim() ? 'bg-[#00a884] text-white scale-100' : 'bg-slate-800 text-slate-500 opacity-50 scale-95'}`}
               title="ھنارتن"
             >
               <span className="material-symbols-outlined font-black text-xl">send</span>
             </button>
             <textarea
+              ref={textareaRef}
               rows="1"
               value={newMessage}
               onChange={(e) => {
@@ -1078,7 +1083,7 @@ export default function SocialHubView({
               placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
               onFocus={() => onKeyboardToggle?.(true)}
               onBlur={() => onKeyboardToggle?.(false)}
-              className="flex-1 bg-slate-800/80 border-none rounded-2xl px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-white/10 transition-none outline-none resize-none overflow-y-auto no-scrollbar text-slate-200"
+              className="flex-1 bg-slate-800/80 border-none rounded-md px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-white/10 transition-none outline-none resize-none overflow-y-auto no-scrollbar text-slate-200"
             />
           </div>
           {/* Minimalist iOS-Style Home Indicator */}

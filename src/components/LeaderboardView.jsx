@@ -243,9 +243,9 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                       </div>
 
                       {/* Info and Name (CENTERED) */}
-                      <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-4">
-                         <span className="font-black text-slate-800 text-lg tracking-tight uppercase truncate">{effectiveNickname}</span>
-                         <span className="text-orange-500 text-lg">🔥</span>
+                      <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
+                         <span className="font-black text-slate-800 text-sm tracking-tighter uppercase truncate leading-none">{effectiveNickname}</span>
+                         <span className="text-orange-500 text-base shrink-0">🔥</span>
                       </div>
 
                       {/* Shield (RIGHT SIDE) */}
@@ -284,7 +284,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
         currentUser={{ id: userId }}
         onClose={() => setSelectedPlayer(null)}
         onToggleBlock={handleToggleBlock}
-        onMessage={onOpenChat}
+        onOpenChat={onOpenChat}
       />
     </div>
   );
