@@ -166,7 +166,7 @@ export default function InfoBar({
           <span className="text-xs font-black mt-0.5">{(guessesCount)}/{(maxGuesses)}</span>
           <span className="material-symbols-outlined text-[16px]">rotate_right</span>
         </div>
-        <div className="flex flex-col items-center justify-center overflow-hidden">
+        <div className="flex flex-col items-center justify-center overflow-">
           <span className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-0.5">بابەت</span>
           <span className="text-[12px] font-black font-heading text-primary truncate max-w-full">
             {category || 'گشتی'}

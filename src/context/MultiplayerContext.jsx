@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { getUnifiedWords } from '../data/wordList';
@@ -7,7 +8,12 @@ import { useGame } from './GameContext';
 const MultiplayerContext = createContext();
 
 export const MultiplayerProvider = ({ children }) => {
-  const { user } = useGame();
+  const { 
+    user, 
+    startSearchingSound, 
+    stopSearchingSound, 
+    playStartGameSound 
+  } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle'); // 'idle', 'searching', 'waiting', 'playing', 'game_over'
   const [matchmakingTime, setMatchmakingTime] = useState(0);
   const [activeMatch, setActiveMatch] = useState(null);
@@ -72,6 +78,27 @@ export const MultiplayerProvider = ({ children }) => {
     }
     return data;
   }, []);
+
+  const cancelMatch = useCallback(async () => {
+    const idToCancel = matchId || matchIdRef.current;
+    try {
+      if (idToCancel && multiplayerState !== 'playing' && multiplayerState !== 'game_over') {
+        await supabase.from('online_matches').delete().eq('id', idToCancel);
+      }
+    } catch (err) {
+      console.warn('[Multiplayer] Cancel deletion failed:', err);
+    } finally {
+      setMatchId(null);
+      setActiveMatch(null);
+      setOpponent(null);
+      setMultiplayerState('idle');
+      setMatchmakingTime(0);
+      setOpponentGuesses([]);
+      setScores({ p1: 0, p2: 0 });
+      setCurrentWordIndex(1);
+      stopSearchingSound(false);
+    }
+  }, [matchId, multiplayerState, stopSearchingSound]);
 
   // 1. POLLING FALLBACK: Detect player join automatically
   useEffect(() => {
@@ -156,6 +183,8 @@ export const MultiplayerProvider = ({ children }) => {
           // IMPORTANT: Only proceed if the user hasn't cancelled since then
           setMultiplayerState(prev => {
             if (prev === 'idle') return prev; 
+            stopSearchingSound(true);
+            setTimeout(() => playStartGameSound(), 400);
             return 'playing';
           });
           triggerHaptic([50, 50, 100]);
@@ -210,6 +239,7 @@ export const MultiplayerProvider = ({ children }) => {
     if (!user?.id) return;
 
     console.log('[Multiplayer] ONE-CLICK: Searching for rooms...');
+    startSearchingSound();
     setMultiplayerState('searching');
     setMatchmakingTime(0);
     setOpponent(null);
@@ -219,31 +249,27 @@ export const MultiplayerProvider = ({ children }) => {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
       await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'waiting');
 
-      // PHASE 1: SEARCH
-      const { data: waitingMatches, error: fetchError } = await supabase
-        .from('online_matches')
-        .select('*')
-        .eq('status', 'waiting')
-        .order('created_at', { ascending: false })
-        .limit(1);
+      // PHASE 1: SEARCH (ATOMIC QUEUE VIA RPC)
+      const { data: grabbedMatchId, error: queueError } = await supabase.rpc('join_matchmaking', {
+        p_user_id: user.id
+      });
 
-      if (fetchError) throw fetchError;
+      if (queueError) {
+        console.error('[Multiplayer] RPC Queue Error:', queueError);
+      }
 
-      const waitingMatch = (waitingMatches && waitingMatches.length > 0) ? waitingMatches[0] : null;
-
-      if (waitingMatch) {
-        console.log('[Multiplayer] JOINER: Room found, joining...', waitingMatch.id);
-        const { data: joinedMatch, error: joinError } = await supabase
+      if (grabbedMatchId) {
+        console.log('[Multiplayer] JOINER: Grabbed room via Queue! Fetching match data...', grabbedMatchId);
+        
+        // Fetch the full room details since the RPC only returns the ID
+        const { data: joinedMatch, error: fetchMatchError } = await supabase
           .from('online_matches')
-          .update({ player2_id: user.id, status: 'playing' })
-          .eq('id', waitingMatch.id)
-          .select()
-          .maybeSingle();
+          .select('*')
+          .eq('id', grabbedMatchId)
+          .single();
 
-        if (joinError) throw joinError;
-
-        if (joinedMatch) {
-          console.log('[Multiplayer] JOINER: Success! Match ID:', joinedMatch.id, 'Words:', joinedMatch.words?.[0]);
+        if (!fetchMatchError && joinedMatch) {
+          console.log('[Multiplayer] JOINER: Success! Words:', joinedMatch.words?.[0]);
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
           if (!hostProfile) throw new Error('Identity verification failed');
 
@@ -297,29 +323,12 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
+      stopSearchingSound(false);
       setMultiplayerState('idle');
     }
   };
 
-  const cancelMatch = async () => {
-    const idToCancel = matchId || matchIdRef.current;
-    try {
-      if (idToCancel && multiplayerState !== 'playing' && multiplayerState !== 'game_over') {
-        await supabase.from('online_matches').delete().eq('id', idToCancel);
-      }
-    } catch (err) {
-      console.warn('[Multiplayer] Cancel deletion failed:', err);
-    } finally {
-      setMatchId(null);
-      setActiveMatch(null);
-      setOpponent(null);
-      setMultiplayerState('idle');
-      setMatchmakingTime(0);
-      setOpponentGuesses([]);
-      setScores({ p1: 0, p2: 0 });
-      setCurrentWordIndex(1);
-    }
-  };
+
 
   const broadcastGuess = (colors, isWin = false) => {
     if (!channelRef.current || !user?.id) return;

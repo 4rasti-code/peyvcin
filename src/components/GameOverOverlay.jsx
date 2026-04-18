@@ -16,8 +16,8 @@ export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onR
   }, [onReturn]);
 
   return (
-    <div className="fixed inset-0 z-[500] bg-[#020617]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-8 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 z-500 bg-[#020617]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
+      <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
         {/* Dynamic Background Glow based on result */}
         <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 blur-[100px] rounded-full opacity-30 ${won ? 'bg-emerald-500 animate-pulse' : draw ? 'bg-amber-500' : 'bg-red-500'}`} />
         

@@ -68,7 +68,7 @@ export default function NotificationsView({
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="absolute top-full mt-2 right-0 w-80 max-h-[480px] z-50 bg-slate-900/95 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
+        className="absolute top-full mt-2 right-0 w-80 max-h-[480px] z-50 bg-slate-900/95 backdrop-blur-2xl rounded-2xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col overflow-"
         dir="rtl"
         onClick={(e) => e.stopPropagation()}
       >

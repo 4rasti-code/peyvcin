@@ -45,14 +45,15 @@ export default function Avatar({
     'md': 'w-12 h-12 text-2xl',
     'lg': 'w-14 h-14 text-2xl',
     'xl': 'w-20 h-20 text-4xl',
-    '2xl': 'w-28 h-28 text-5xl'
+    '2xl': 'w-28 h-28 text-5xl',
+    'full': 'w-full h-full text-5xl'
   };
 
   const selectedSizeClass = sizeClasses[size] || sizeClasses['md'];
 
   return (
     <div className={`relative shrink-0 rounded-full ${selectedSizeClass} ${className}`}>
-      <div className={`w-full h-full rounded-full flex items-center justify-center overflow-hidden relative ${border ? 'border border-white/10' : ''}`}>
+      <div className={`w-full h-full rounded-full flex items-center justify-center overflow- relative ${border ? 'border border-white/10' : ''}`}>
         {hasImage ? (
           <img 
             src={displaySrc} 
@@ -67,7 +68,7 @@ export default function Avatar({
         ) : null}
         
         <div 
-          className={`w-full h-full items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : 'flex'}`}
+          className={`w-full h-full items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : ''}`}
         >
           <span className="select-none leading-none drop-shadow-md">
              {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}

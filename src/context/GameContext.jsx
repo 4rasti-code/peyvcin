@@ -1,6 +1,15 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import { playSuccessSfx, playPopSfx, playNotifSfx, playMessageSfx, playGameStartSfx, playCoinSfx } from '../utils/audio';
+import { 
+  playAlertSfx, playStartGameSfx, playBackSfx, playSaveSfx,
+  playTabSfx, setBackgroundMusicVolume,
+  playSettingsOpenSfx, playSettingsCloseSfx,
+  playPopSfx, playSuccessSfx,
+  playNotifSfx, playMessageSfx, playCoinSfx,
+  playDailyOpenSfx, playDailyClaimSfx, playBubblePopSfx,
+  startSearchingSfx, stopSearchingSfx
+} from '../utils/audio';
 
 const GameContext = createContext();
 
@@ -10,9 +19,16 @@ export const GameProvider = ({ children }) => {
   const [winsTowardsSecret, setWinsTowardsSecret] = useState(0);
   const [currentXP, setCurrentXP] = useState(0);
   const [dailyStreak, setDailyStreak] = useState(0);
-  const [appSoundsEnabled, setAppSoundsEnabled] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_app_sounds');
-    return saved !== null ? saved === 'true' : true;
+  const [rewardStreak, setRewardStreak] = useState(0);
+  const [lastRewardClaimedAt, setLastRewardClaimedAt] = useState(null);
+
+  const [appSfxVolume, setAppSfxVolume] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_sfx_volume');
+    return saved !== null ? Number(saved) : 15; // 15% Default
+  });
+  const [bgMusicVolume, setBgMusicVolume] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_bg_music_volume');
+    return saved !== null ? Number(saved) : 6; // 6% Default
   });
   const [hapticEnabled, setHapticEnabled] = useState(() => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
@@ -62,28 +78,28 @@ export const GameProvider = ({ children }) => {
   const LEVEL_BASE_XP = 500;
   const LEVEL_FACTOR = 1.1;
 
-  const getLevelFromXP = (xp) => {
+  const getLevelFromXP = useCallback((xp) => {
     if (xp <= 0) return 1;
     return Math.floor(Math.log(xp * (LEVEL_FACTOR - 1) / LEVEL_BASE_XP + 1) / Math.log(LEVEL_FACTOR)) + 1;
-  };
+  }, []);
 
-  const getLevelData = (xp) => {
-    const level = getLevelFromXP(xp);
-    const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, level - 1) - 1) / (LEVEL_FACTOR - 1);
-    const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, level) - 1) / (LEVEL_FACTOR - 1);
+  const getLevelData = useCallback((xp) => {
+    const levelVal = getLevelFromXP(xp);
+    const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal - 1) - 1) / (LEVEL_FACTOR - 1);
+    const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal) - 1) / (LEVEL_FACTOR - 1);
     const levelWidth = nextLevelBase - currentLevelBase;
     const progressInLevel = xp - currentLevelBase;
     const progressPercent = levelWidth > 0 ? (progressInLevel / levelWidth) * 100 : 0;
     
     return {
-      level,
+      level: levelVal,
       currentLevelBase,
       nextLevelBase,
       progressInLevel,
       levelWidth,
       progressPercent: Math.min(100, Math.max(0, progressPercent))
     };
-  };
+  }, [getLevelFromXP]);
   
   const levelData = getLevelData(currentXP);
   const minXPForLevel = levelData.currentLevelBase;
@@ -153,18 +169,9 @@ export const GameProvider = ({ children }) => {
       try {
         let data, error;
         try {
-          // 1. Primary Attempt: All Premium Columns
-          const columns = 'level, xp, last_notified_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, inventory, app_sounds_enabled, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
+          // Use select('*') so Supabase returns whatever columns exist without throwing a 400 Bad Request for unmigrated fields
+          let result = await supabase.from('profiles').select('*').eq('id', userId).single();
           
-          let result = await supabase.from('profiles').select(columns).eq('id', userId).single();
-          
-          // 2. Defensive Fallback: If 42703 (Undefined Column) occurs, fetch only 100% Core columns
-          if (result.error && result.error.code === '42703') {
-            console.warn("Detection of missing columns in Supabase. Falling back to Core Select.");
-            const coreColumns = 'level, xp, last_notified_level, shayi, magnets, hints, skips'; // Basics that must exist
-            result = await supabase.from('profiles').select(coreColumns).eq('id', userId).single();
-          }
-
           data = result.data;
           error = result.error;
         } catch (fetchError) {
@@ -186,10 +193,13 @@ export const GameProvider = ({ children }) => {
               stats: { classic: { bestStreak: 0, totalCorrect: 0 } }
             },
             daily_streak: 0,
+            reward_streak: 0,
+            last_reward_claimed_at: null,
             updated_at: new Date().toISOString()
           };
           await supabase.from('profiles').insert([initialRecord]);
           setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
+          setRewardStreak(0); setLastRewardClaimedAt(null);
         } else if (data && !error) {
           // Safe Data Mapping (Try/Catch per field)
           const safeSet = (setter, val, fallback) => {
@@ -207,10 +217,28 @@ export const GameProvider = ({ children }) => {
           safeSet(setSkipCount, data.skips, 2);
           safeSet(setDailyStreak, data.daily_streak, 0);
           safeSet(setLastNotifiedLevel, data.last_notified_level, 1);
+          safeSet(setRewardStreak, data.reward_streak, 0);
+          safeSet(setLastRewardClaimedAt, data.last_reward_claimed_at, null);
           
-          // Safety fallback for sound/haptic columns
-          setAppSoundsEnabled(data.app_sounds_enabled !== undefined ? data.app_sounds_enabled : (localStorage.getItem('peyvchin_app_sounds') === 'true'));
+          // Safety fallback for haptic column
           setHapticEnabled(data.haptic_enabled !== undefined ? data.haptic_enabled : (localStorage.getItem('peyvchin_haptic_enabled') === 'true'));
+          
+          const inv = data.inventory || {};
+          setInventory(inv);
+          
+          const lsSfx = localStorage.getItem('peyvchin_sfx_volume');
+          const sfxVol = inv.settings?.app_sfx_volume ?? (lsSfx !== null ? Number(lsSfx) : 15);
+          setAppSfxVolume(sfxVol);
+          
+          const lsMusic = localStorage.getItem('peyvchin_bg_music_volume');
+          const musicVol = inv.settings?.bg_music_volume ?? (lsMusic !== null ? Number(lsMusic) : 6);
+          setBgMusicVolume(musicVol);
+
+          // Forward initial settings to the audio engine immediately
+          import('../utils/audio').then(m => {
+            m.setSfxVolume(sfxVol / 100);
+            m.setBackgroundMusicVolume(musicVol / 100);
+          });
           
           // Extended Data
           setUserNickname(data.nickname || 'یاریزان');
@@ -219,8 +247,6 @@ export const GameProvider = ({ children }) => {
           setIsInKurdistan(data.is_kurdistan ?? true);
           setCountryCode(data.country_code || 'IQ');
 
-          const inv = data.inventory || {};
-          setInventory(inv);
           if (inv.owned_avatars) setOwnedAvatars(inv.owned_avatars);
           if (inv.unlocked_themes) setUnlockedThemes(inv.unlocked_themes);
           if (inv.solved_words) setSolvedWords(inv.solved_words);
@@ -264,7 +290,8 @@ export const GameProvider = ({ children }) => {
           
           localStorage.setItem('peyvchin_skips', (data.skips ?? 2).toString());
           localStorage.setItem('peyvchin_daily_streak', (data.daily_streak ?? 0).toString());
-          localStorage.setItem('peyvchin_app_sounds', (data.app_sounds_enabled ?? true).toString());
+          localStorage.setItem('peyvchin_sfx_volume', (inv.settings?.app_sfx_volume ?? 15).toString());
+          localStorage.setItem('peyvchin_bg_music_volume', (inv.settings?.bg_music_volume ?? 6).toString());
           localStorage.setItem('peyvchin_haptic_enabled', (data.haptic_enabled ?? true).toString());
           
           refreshRank(data.xp || 0);
@@ -284,6 +311,7 @@ export const GameProvider = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ONLINE HEARTBEAT
@@ -292,7 +320,9 @@ export const GameProvider = ({ children }) => {
     const heartbeat = setInterval(async () => {
       try {
         await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
-      } catch { }
+      } catch (err) {
+        console.warn("Heartbeat update failed:", err);
+      }
     }, 60000);
     return () => clearInterval(heartbeat);
   }, [user]);
@@ -305,7 +335,7 @@ export const GameProvider = ({ children }) => {
   /**
    * processLevelCompletion (LEGACY - Kept for compatibility if needed)
    */
-  const processLevelCompletion = async (baseReward, xp, gameMode = 'classic', completedLevel = null) => {
+  const processLevelCompletion = useCallback(async (baseReward, xp, gameMode = 'classic', completedLevel = null) => {
     // We now prefer syncProgressToDatabase for primary game loops
     const multipliers = {
       'hard_words': 2.0,
@@ -334,7 +364,7 @@ export const GameProvider = ({ children }) => {
         p_completed_level: completedLevel
       });
     }
-  };
+  }, [user]);
 
   const addXP = useCallback((amount) => {
     if (!amount) return;
@@ -356,6 +386,8 @@ export const GameProvider = ({ children }) => {
     stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
   }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
 
+  const appSoundsEnabled = appSfxVolume > 0;
+
   const playPopSound = useCallback((bypassDebounce = false) => {
     playPopSfx(appSoundsEnabled, bypassDebounce);
   }, [appSoundsEnabled]);
@@ -368,9 +400,6 @@ export const GameProvider = ({ children }) => {
     playMessageSfx(appSoundsEnabled);
   }, [appSoundsEnabled]);
 
-  const playStartSound = useCallback(() => {
-    playGameStartSfx(appSoundsEnabled);
-  }, [appSoundsEnabled]);
 
   const playVictorySound = useCallback(() => {
     playSuccessSfx(appSoundsEnabled);
@@ -379,6 +408,91 @@ export const GameProvider = ({ children }) => {
   const playRewardSound = useCallback(() => {
     playCoinSfx(appSoundsEnabled);
   }, [appSoundsEnabled]);
+
+  const playSettingsOpenSound = useCallback(() => {
+    playSettingsOpenSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playSettingsCloseSound = useCallback(() => {
+    playSettingsCloseSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playTabSound = useCallback(() => {
+    playTabSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playAlertSound = useCallback(() => {
+    playAlertSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playBackSound = useCallback(() => {
+    playBackSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playBubblePopSound = useCallback(() => {
+    playBubblePopSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playSaveSound = useCallback(() => {
+    playSaveSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
+  const playStartGameSound = useCallback(() => {
+    playStartGameSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+  
+  const startSearchingSound = useCallback(() => {
+    startSearchingSfx();
+  }, []);
+
+  const stopSearchingSound = useCallback((fade = true) => {
+    stopSearchingSfx(fade);
+  }, []);
+
+  const updateMusicVolume = useCallback((val) => {
+    setBgMusicVolume(val);
+    localStorage.setItem('peyvchin_bg_music_volume', val.toString());
+    setBackgroundMusicVolume(val / 100);
+    
+    // Also sync to Supabase if user is logged in
+    const { user: currentUser, inventory: currentInv } = stateRef.current;
+    if (currentUser) {
+      const updatedInv = { 
+        ...(currentInv || {}), 
+        settings: { ...(currentInv?.settings || {}), bg_music_volume: val } 
+      };
+      setInventory(updatedInv);
+      supabase.from('profiles').update({ 
+        inventory: updatedInv,
+        updated_at: new Date().toISOString() 
+      }).eq('id', currentUser.id).then();
+    }
+  }, []);
+
+  const updateSfxVolume = useCallback((val) => {
+    setAppSfxVolume(val);
+    localStorage.setItem('peyvchin_sfx_volume', val.toString());
+    import('../utils/audio').then(m => m.setSfxVolume(val / 100));
+    
+    // Also sync to Supabase if user is logged in
+    const { user: currentUser, inventory: currentInv } = stateRef.current;
+    if (currentUser) {
+      const updatedInv = { 
+        ...(currentInv || {}), 
+        settings: { ...(currentInv?.settings || {}), app_sfx_volume: val } 
+      };
+      setInventory(updatedInv);
+      supabase.from('profiles').update({ 
+        inventory: updatedInv,
+        updated_at: new Date().toISOString() 
+      }).eq('id', currentUser.id).then();
+    }
+  }, []);
+
+  // Sync initial music volume with SoundEngine once loaded
+  useEffect(() => {
+    setBackgroundMusicVolume(bgMusicVolume / 100);
+  }, [bgMusicVolume]);
 
   /**
    * updateInventory ACTION (STABILIZED)
@@ -390,15 +504,38 @@ export const GameProvider = ({ children }) => {
       return saved !== null ? Number(saved) : fallback;
     };
 
-    // 2. Perform state updates using the functional pattern
-    if (updates.fils !== undefined) setFils(prev => isAdditive ? prev + updates.fils : updates.fils);
-    if (updates.derhem !== undefined) setDerhem(prev => isAdditive ? prev + updates.derhem : updates.derhem);
-    if (updates.zer !== undefined) setZer(prev => isAdditive ? prev + updates.zer : updates.zer);
-    if (updates.magnetCount !== undefined) setMagnetCount(prev => isAdditive ? prev + updates.magnetCount : updates.magnetCount);
-    if (updates.hintCount !== undefined) setHintCount(prev => isAdditive ? prev + updates.hintCount : updates.hintCount);
-    if (updates.skipCount !== undefined) setSkipCount(prev => isAdditive ? prev + updates.skipCount : updates.skipCount);
+    // 2. Calculate next values for state and DB
+    const calculateNext = (current, offset, additive) => additive ? (current + offset) : offset;
 
-    // 3. Persistent Local Storage Sync
+    const { 
+      user: currentUser, 
+      fils: currFils, 
+      derhem: currDerhem, 
+      zer: currZer, 
+      magnetCount: currMags, 
+      hintCount: currHints, 
+      skipCount: currSkips 
+    } = stateRef.current;
+
+    // Local results to ensure what we set in state matches what we send to DB
+    const nextValues = {
+      shayi: updates.fils !== undefined ? calculateNext(currFils, updates.fils, isAdditive) : undefined,
+      dirham: updates.derhem !== undefined ? calculateNext(currDerhem, updates.derhem, isAdditive) : undefined,
+      dinar: updates.zer !== undefined ? calculateNext(currZer, updates.zer, isAdditive) : undefined,
+      magnets: updates.magnetCount !== undefined ? calculateNext(currMags, updates.magnetCount, isAdditive) : undefined,
+      hints: updates.hintCount !== undefined ? calculateNext(currHints, updates.hintCount, isAdditive) : undefined,
+      skips: updates.skipCount !== undefined ? calculateNext(currSkips, updates.skipCount, isAdditive) : undefined
+    };
+
+    // 3. Perform state updates
+    if (nextValues.shayi !== undefined) setFils(nextValues.shayi);
+    if (nextValues.dirham !== undefined) setDerhem(nextValues.dirham);
+    if (nextValues.dinar !== undefined) setZer(nextValues.dinar);
+    if (nextValues.magnets !== undefined) setMagnetCount(nextValues.magnets);
+    if (nextValues.hints !== undefined) setHintCount(nextValues.hints);
+    if (nextValues.skips !== undefined) setSkipCount(nextValues.skips);
+
+    // 4. Persistent Local Storage Sync
     Object.entries(updates).forEach(([key, val]) => {
       const storageKey = key === 'magnetCount' ? 'peyvchin_magnets' : key === 'hintCount' ? 'peyvchin_hints' : key === 'skipCount' ? 'peyvchin_skips' : `peyvchin_${key}`;
       const fallback = key === 'fils' ? 250 : key === 'derhem' ? 50 : key === 'zer' ? 5 : key === 'magnetCount' ? 1 : key === 'hintCount' ? 2 : 1;
@@ -407,18 +544,12 @@ export const GameProvider = ({ children }) => {
       localStorage.setItem(storageKey, finalVal.toString());
     });
 
-    // 4. Remote Database Sync (Supabase) - Reading from Ref for stability
-    const { user: currentUser, fils: currFils, derhem: currDerhem, zer: currZer, magnetCount: currMags, hintCount: currHints, skipCount: currSkips } = stateRef.current;
-    
+    // 5. Remote Database Sync
     if (currentUser) {
-      const dbUpdates = {};
-      if (updates.fils !== undefined) dbUpdates.shayi = isAdditive ? (currFils + updates.fils) : updates.fils;
-      if (updates.derhem !== undefined) dbUpdates.dirham = isAdditive ? (currDerhem + updates.derhem) : updates.derhem;
-      if (updates.zer !== undefined) dbUpdates.dinar = isAdditive ? (currZer + updates.zer) : updates.zer;
-      if (updates.magnetCount !== undefined) dbUpdates.magnets = isAdditive ? (currMags + updates.magnetCount) : updates.magnetCount;
-      if (updates.hintCount !== undefined) dbUpdates.hints = isAdditive ? (currHints + updates.hintCount) : updates.hintCount;
-      if (updates.skipCount !== undefined) dbUpdates.skips = isAdditive ? (currSkips + updates.skipCount) : updates.skipCount;
-      dbUpdates.updated_at = new Date().toISOString();
+      const dbUpdates = { updated_at: new Date().toISOString() };
+      Object.entries(nextValues).forEach(([dbKey, val]) => {
+        if (val !== undefined) dbUpdates[dbKey] = val;
+      });
 
       try {
         await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id);
@@ -431,15 +562,29 @@ export const GameProvider = ({ children }) => {
   /**
    * syncProgressToDatabase (STABILIZED)
    */
-  const syncProgressToDatabase = useCallback(async (lettersCount, additionalData = {}) => {
-    const { user: currentUser, currentXP: currXP, level: currLevel, inventory: currInv } = stateRef.current;
+  const syncProgressToDatabase = useCallback(async (lettersCount, gameMode, additionalData = {}) => {
+    // USE REFS TO AVOID STALE CLOSURES (Critical for Async Saving)
+    const { 
+      user: currentUser, 
+      currentXP: currXP, 
+      level: currLevel, 
+      inventory: currInv,
+      derhem: currDerhem,
+      magnetCount: currMags,
+      hintCount: currHints,
+      skipCount: currSkips
+    } = stateRef.current;
+
     if (!currentUser?.id) return null;
 
     try {
+      // 1. Update XP and Shayi (Fils) via RPC in Database
+      const shayiBonus = Number(additionalData.shayiBonus || 5);
+      
       const { data, error } = await supabase.rpc('handle_game_xp', {
         p_user_id: currentUser.id,
         p_letters_count: lettersCount,
-        p_shayi_bonus: additionalData.shayiBonus || 5
+        p_shayi_bonus: shayiBonus
       });
 
       if (error) throw error;
@@ -448,15 +593,45 @@ export const GameProvider = ({ children }) => {
         const { new_level, xp_added, current_streak } = data;
         const finalXP = (currXP || 0) + xp_added;
 
-        const profileUpdates = { updated_at: new Date().toISOString() };
-        if (additionalData.solvedWords) profileUpdates.inventory = { ...currInv, solved_words: additionalData.solvedWords };
-        if (additionalData.winsTowardsSecret !== undefined) profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
-        if (additionalData.resetSecretProgress) profileUpdates.wins_towards_secret = 0;
+        // 2. Prepare Profile Updates (Inventory, Progress)
+        const profileUpdates = { 
+          updated_at: new Date().toISOString(),
+          magnets: currMags,
+          hints: currHints,
+          skips: currSkips
+        };
+        
+        // Add Derhem sync if bonus provided
+        if (additionalData.derhemBonus) {
+          profileUpdates.dirham = Number(currDerhem || 0) + additionalData.derhemBonus;
+        }
 
+        if (additionalData.solvedWords) {
+          profileUpdates.inventory = { ...currInv, solved_words: additionalData.solvedWords };
+        }
+        if (additionalData.winsTowardsSecret !== undefined) {
+          profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
+        }
+        if (additionalData.resetSecretProgress) {
+          profileUpdates.wins_towards_secret = 0;
+        }
+
+        // Save progress fields to Supabase
         await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
 
+        // 3. Update Local UI State (Instant Feedback)
         setCurrentXP(finalXP);
         setDailyStreak(current_streak);
+        
+        // Sync the coin reward locally
+        if (shayiBonus > 0) {
+          setFils(prev => Number(prev) + shayiBonus);
+        }
+
+        if (additionalData.derhemBonus) {
+          setDerhem(prev => Number(prev) + additionalData.derhemBonus);
+        }
+
         if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
         if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
         if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
@@ -491,7 +666,8 @@ export const GameProvider = ({ children }) => {
       const next = Math.min(3, prev + 1);
       localStorage.setItem('peyvchin_wins_towards_secret', next.toString());
       if (currentUser) {
-        supabase.from('profiles').update({ wins_towards_secret: next }).eq('id', currentUser.id).then();
+        supabase.from('profiles').update({ wins_towards_secret: next }).eq('id', currentUser.id).then(() => {
+        });
       }
       return next;
     });
@@ -506,7 +682,67 @@ export const GameProvider = ({ children }) => {
     }
   }, []);
 
+  const claimDailyReward = useCallback(async () => {
+    const { user: currentUser, rewardStreak: currRewardStreak, lastRewardClaimedAt: lastClaimed } = stateRef.current;
+    if (!currentUser?.id) return { success: false, error: "Tkaye pêşî wەرە ژوور" }; // Login required
+
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const lastClaimDate = lastClaimed ? new Date(lastClaimed).toISOString().split('T')[0] : null;
+
+    if (lastClaimDate === todayStr) {
+      return { success: false, error: "Te xەlatێ خۆ یێ ئەڤرۆ وەرگرتییە" }; // Already claimed today
+    }
+
+    // Determine next streak
+    let nextStreak = 1;
+    if (lastClaimDate) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      
+      if (lastClaimDate === yesterdayStr) {
+        nextStreak = (currRewardStreak % 7) + 1;
+      }
+    }
+
+    // Reward Logic
+    const rewards = {
+      1: { fils: 100 },
+      2: { magnetCount: 1 },
+      3: { derhem: 5 },
+      4: { hintCount: 1 },
+      5: { zer: 5 },
+      6: { skipCount: 1 },
+      7: { fils: 2000, magnetCount: 1, hintCount: 1, skipCount: 1 }
+    };
+
+    const currentReward = rewards[nextStreak];
+    
+    // Update State & DB
+    try {
+      setRewardStreak(nextStreak);
+      setLastRewardClaimedAt(now.toISOString());
+      
+      // Update Inventory
+      updateInventory(currentReward);
+      
+      // Sync to DB
+      await supabase.from('profiles').update({
+        reward_streak: nextStreak,
+        last_reward_claimed_at: now.toISOString(),
+        updated_at: now.toISOString()
+      }).eq('id', currentUser.id);
+
+      return { success: true, streak: nextStreak, reward: currentReward };
+    } catch (err) {
+      console.error("Daily Reward Claim Failed:", err);
+      return { success: false, error: "ئاریشەیەک د داتابەیسێ دا ھەبوو" };
+    }
+  }, [updateInventory]);
+
   const updateProfile = useCallback(async (profileData) => {
+
     const { user: currentUser, inventory: currInv } = stateRef.current;
     if (!currentUser?.id) return;
 
@@ -589,6 +825,7 @@ export const GameProvider = ({ children }) => {
     winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
     currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
     dailyStreak, setDailyStreak,
+    rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, setInventory,
     magnetCount, hintCount, skipCount,
     ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,
@@ -605,16 +842,24 @@ export const GameProvider = ({ children }) => {
     user, setUser,
     setFils, setDerhem, setZer,
     setMagnetCount, setHintCount, setSkipCount,
-    appSoundsEnabled, setAppSoundsEnabled,
+    appSfxVolume, updateSfxVolume,
+    appSoundsEnabled,
+    bgMusicVolume, updateMusicVolume,
     hapticEnabled, setHapticEnabled,
     playPopSound, playNotifSound, playMessageSound,
-    playStartSound, playVictorySound, playRewardSound,
+    playVictorySound, playRewardSound,
+    playSettingsOpenSound, playSettingsCloseSound,
+    playTabSound, playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
+    startSearchingSound, stopSearchingSound,
+    playStartGameSound,
+    playDailyOpenSfx, playDailyClaimSfx,
     setLevel, setCurrentXP,
     lastNotifiedLevel, setLastNotifiedLevel,
     loading 
   }), [
     level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, zer, 
-    dailyStreak, inventory, magnetCount, hintCount, skipCount, 
+    dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
+    inventory, magnetCount, hintCount, skipCount, 
     ownedAvatars, userAvatar, unlockedThemes, currentTheme, solvedWords, playerStats,
     userNickname, city, isInKurdistan, countryCode, userRank, user, loading,
     appSoundsEnabled, hapticEnabled, lastNotifiedLevel,
@@ -622,9 +867,16 @@ export const GameProvider = ({ children }) => {
     updateProfile, processLevelCompletion, syncProgressToDatabase, getLevelFromXP,
     getLevelData, handleToggleBlock, checkBlockStatus, refreshRank, setUser,
     setFils, setDerhem, setZer, setMagnetCount, setHintCount, setSkipCount,
-    setAppSoundsEnabled, setHapticEnabled, playPopSound, playNotifSound,
-    playMessageSound, playStartSound, playVictorySound, playRewardSound,
-    setLevel, setCurrentXP, setLastNotifiedLevel
+    setHapticEnabled, playPopSound, playNotifSound,
+    appSfxVolume, updateSfxVolume,
+    playMessageSound, playVictorySound, playRewardSound,
+    playSettingsOpenSound, playSettingsCloseSound,
+    playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
+    startSearchingSound, stopSearchingSound,
+    playTabSound,
+    playStartGameSound,
+    setLevel, setCurrentXP, setLastNotifiedLevel,
+    bgMusicVolume, updateMusicVolume
   ]);
 
   return (

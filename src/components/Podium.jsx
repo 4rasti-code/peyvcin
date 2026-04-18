@@ -12,7 +12,7 @@ const PodiumStep = ({ player, rank, delay, onPlayerClick }) => {
 
   const renderAvatar = (player, size = "md") => {
     return (
-      <div className={`${size === 'lg' ? 'w-16 h-16' : 'w-11 h-11'} rounded-2xl bg-white/5 border-2 ${isFirst ? 'border-[#d9a441] gold-glow' : isSecond ? 'border-white/30' : 'border-orange-500/30'} flex items-center justify-center overflow-hidden shadow-2xl z-10 relative backdrop-blur-xl`}>
+      <div className={`${size === 'lg' ? 'w-16 h-16' : 'w-11 h-11'} rounded-2xl bg-white/5 border-2 ${isFirst ? 'border-[#d9a441] gold-glow' : isSecond ? 'border-white/30' : 'border-orange-500/30'} flex items-center justify-center overflow- shadow-2xl z-10 relative backdrop-blur-xl`}>
         <Avatar 
           src={player?.avatar_url} 
           updatedAt={player?.updated_at} 
@@ -79,7 +79,7 @@ const PodiumStep = ({ player, rank, delay, onPlayerClick }) => {
       </div>
 
       {/* Podium Block - Deep Glass */}
-      <div className={`w-full ${style.height} ${style.bg} rounded-t-[40px] border-t border-x ${style.border} flex flex-col items-center pt-5 relative backdrop-blur-3xl overflow-hidden shadow-2xl`}>
+      <div className={`w-full ${style.height} ${style.bg} rounded-t-[40px] border-t border-x ${style.border} flex flex-col items-center pt-5 relative backdrop-blur-3xl overflow- shadow-2xl`}>
          <div className={`${style.rankColor} text-6xl font-black font-rabar opacity-10 absolute bottom-[-10px] leading-none select-none italic`}>
             {toKuDigits(rank || 0)}
          </div>

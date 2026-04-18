@@ -1,19 +1,33 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { triggerHaptic } from '../utils/haptics';
 
 function SettingsModal({ 
    isOpen, 
    onClose, 
    currentTheme, 
    onThemeChange, 
-   appSoundsEnabled, 
-   onAppSoundsToggle,
+   appSfxVolume, 
+   onAppSfxVolumeChange,
+   bgMusicVolume,
+   onBgMusicVolumeChange,
    hapticEnabled,
    onHapticToggle,
    user,
-   onLogout
+   onLogout,
+   onPlaySound
  }) {
    if (!isOpen) return null;
+
+   // Rasasi / Emerald Palette
+   const palette = {
+      bg: '#020617',      // Deep Nocturnal Blue
+      card: 'rgb(203, 213, 225)', // Light Slate / Blue-Gray
+      accent: '#10b981',  // Emerald Green
+      dark: '#1e293b',    // Slate 800
+      text: '#ffffff',    // White for headers
+      labels: '#0f172a'   // Deep Slate for card text
+   };
 
    return (
       <AnimatePresence>
@@ -22,136 +36,161 @@ function SettingsModal({
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
-               className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm p-4"
+               className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-[#020617]/90 backdrop-blur-xl p-4"
                onClick={onClose}
             >
                <motion.div 
-                  initial={{ scale: 0.9, y: 20 }}
+                  initial={{ scale: 0.9, y: 30 }}
                   animate={{ scale: 1, y: 0 }}
-                  exit={{ scale: 0.9, y: 20 }}
-                  className="w-full max-w-lg bg-[#0f172a] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden relative"
+                  exit={{ scale: 0.9, y: 30 }}
+                  style={{ backgroundColor: palette.bg }}
+                  className="w-full max-w-[360px] rounded-lg shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden relative font-rabar"
                   onClick={e => e.stopPropagation()}
                >
-                  {/* Header */}
-                  <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                  {/* Rasasi Header */}
+                  <div className="p-5 border-b border-white/5 flex items-center justify-between relative z-10">
                      <button 
                         onClick={onClose}
-                        className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/40 hover:bg-white/10 hover:text-white transition-all shadow-lg active:scale-95"
+                        className="w-10 h-10 rounded-sm bg-[#1e293b] flex items-center justify-center text-[#10b981] hover:brightness-125 transition-all shadow-lg active:scale-90 border border-white/10"
                      >
-                        <span className="material-symbols-outlined text-2xl font-bold">close</span>
+                        <span className="material-symbols-outlined text-lg font-black">close</span>
                      </button>
-                     <h2 className="text-3xl font-black font-heading text-white tracking-tight">ڕێکخستن</h2>
+                     <div className="flex flex-col items-end">
+                        <span className="material-symbols-outlined text-[#10b981] text-xl mb-0.5">settings</span>
+                        <h2 className="text-xl font-black italic tracking-tighter uppercase leading-none" style={{ color: palette.card }}>ڕێکخستن</h2>
+                     </div>
                   </div>
 
-                  <div className="p-8 space-y-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                    {/* Audio & Haptic Section */}
-                    <section className="space-y-6">
-                      <div className="flex items-center justify-between px-2">
-                        <span className="text-sm font-bold text-white/30 uppercase tracking-[0.2em]">دەنگ و لەرزین</span>
-                        <div className="h-[2px] flex-1 bg-gradient-to-r from-white/5 to-transparent mr-6" />
-                      </div>
+                  <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar relative z-10">
+                    
+                    {/* Audio Section */}
+                    <div className="space-y-3">
+                       {/* App Sounds Card */}
+                       <div 
+                          style={{ backgroundColor: palette.card }}
+                          className="rounded-sm p-3.5 shadow-sm border border-white/20"
+                       >
+                          <div className="flex items-center justify-between mb-1.5">
+                             <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>
+                                   {appSfxVolume > 0 ? 'volume_up' : 'volume_off'}
+                                </span>
+                                <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>دەنگێن ئەپی</span>
+                             </div>
+                             <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-[#1e293b] text-white tabular-nums shadow-sm">{appSfxVolume}%</span>
+                          </div>
+                          <input 
+                             type="range" 
+                             min="0" 
+                             max="100" 
+                             value={appSfxVolume} 
+                             onChange={(e) => onAppSfxVolumeChange(parseInt(e.target.value))}
+                             className="w-full h-1.5 rounded-none appearance-none cursor-pointer focus:outline-none"
+                             style={{
+                                background: `linear-gradient(to left, ${palette.accent} 0%, ${palette.accent} ${appSfxVolume}%, #94a3b8 ${appSfxVolume}%, #94a3b8 100%)`
+                             }}
+                          />
+                       </div>
 
-                      <div className="flex flex-col gap-4">
-                        {/* Master Sound Toggle */}
-                        <div className="bg-white/5 border-2 border-white/5 rounded-[32px] p-6 flex items-center justify-between gap-4">
-                           <div className="flex items-center gap-4 text-right">
-                              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white/60 shrink-0">
-                                 <span className="material-symbols-outlined text-2xl font-bold">
-                                    {appSoundsEnabled ? 'volume_up' : 'volume_off'}
-                                 </span>
-                              </div>
-                              <span className="text-xl font-black font-heading text-white whitespace-nowrap">دەنگێن ئەپی</span>
-                           </div>
-                           
-                           <button 
-                              onClick={onAppSoundsToggle}
-                              className={`w-16 h-10 rounded-full p-1 transition-all duration-300 relative shrink-0 ${
-                                 appSoundsEnabled ? 'bg-[#facc15]' : 'bg-white/10'
-                              }`}
-                           >
-                              <motion.div 
-                                 animate={{ x: appSoundsEnabled ? -24 : 0 }}
-                                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                 className={`w-8 h-8 rounded-full shadow-lg ${
-                                    appSoundsEnabled ? 'bg-amber-950' : 'bg-white/40'
-                                 }`}
-                              />
-                           </button>
-                        </div>
+                       {/* Music Card */}
+                       <div 
+                          style={{ backgroundColor: palette.card }}
+                          className="rounded-sm p-3.5 shadow-sm border border-white/20"
+                       >
+                          <div className="flex items-center justify-between mb-1.5">
+                             <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>music_note</span>
+                                <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>دەنگێ مۆزیکێ</span>
+                             </div>
+                             <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-[#1e293b] text-white tabular-nums shadow-sm">{bgMusicVolume}%</span>
+                          </div>
+                          <input 
+                             type="range" 
+                             min="0" 
+                             max="100" 
+                             value={bgMusicVolume} 
+                             onChange={(e) => onBgMusicVolumeChange(parseInt(e.target.value))}
+                             className="w-full h-1.5 rounded-none appearance-none cursor-pointer focus:outline-none"
+                             style={{
+                                background: `linear-gradient(to left, ${palette.accent} 0%, ${palette.accent} ${bgMusicVolume}%, #94a3b8 ${bgMusicVolume}%, #94a3b8 100%)`
+                             }}
+                          />
+                       </div>
 
-                        {/* Haptic Toggle */}
-                        <div className="bg-white/5 border-2 border-white/5 rounded-[32px] p-6 flex items-center justify-between gap-4">
-                           <div className="flex items-center gap-4 text-right">
-                              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white/60 shrink-0">
-                                 <span className="material-symbols-outlined text-2xl font-bold">
-                                    {hapticEnabled ? 'vibration' : 'mobile_off'}
-                                 </span>
-                              </div>
-                              <span className="text-xl font-black font-heading text-white whitespace-nowrap">لەرزینا ئەپی</span>
-                           </div>
-                           
-                           <button 
-                              onClick={onHapticToggle}
-                              className={`w-16 h-10 rounded-full p-1 transition-all duration-300 relative shrink-0 ${
-                                 hapticEnabled ? 'bg-[#facc15]' : 'bg-white/10'
-                              }`}
-                           >
-                              <motion.div 
-                                 animate={{ x: hapticEnabled ? -24 : 0 }}
-                                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                 className={`w-8 h-8 rounded-full shadow-lg ${
-                                    hapticEnabled ? 'bg-amber-950' : 'bg-white/40'
-                                 }`}
-                              />
-                           </button>
-                        </div>
-                      </div>
-                    </section>
+                       {/* Haptic Row */}
+                       <div 
+                          style={{ backgroundColor: palette.card }}
+                          className="rounded-sm p-2.5 px-4 flex items-center justify-between border border-white/20 shadow-sm"
+                       >
+                          <div className="flex items-center gap-2.5">
+                             <div className="w-8 h-8 rounded-sm bg-slate-100/50 flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>vibration</span>
+                             </div>
+                             <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>لەرزینا ئەپی</span>
+                          </div>
+                          <button 
+                             onClick={onHapticToggle}
+                             className={`w-12 h-7 rounded-sm p-1 transition-all duration-300 relative shrink-0 shadow-inner ${
+                                hapticEnabled ? 'bg-[#1e293b]' : 'bg-slate-300'
+                             }`}
+                          >
+                             <motion.div 
+                                animate={{ x: hapticEnabled ? -20 : 0 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                className={`w-5 h-5 rounded-sm shadow-md flex items-center justify-center ${
+                                   hapticEnabled ? 'bg-[#10b981]' : 'bg-white'
+                                }`}
+                             >
+                                {hapticEnabled && <div className="w-1 h-1 rounded-full bg-emerald-950" />}
+                             </motion.div>
+                          </button>
+                       </div>
+                    </div>
 
                     {/* Theme Section */}
-                    <section className="space-y-6">
-                      <div className="flex items-center justify-between px-2">
-                        <span className="text-sm font-bold text-white/30 uppercase tracking-[0.2em]">ڕووکار</span>
-                        <div className="h-[2px] flex-1 bg-gradient-to-r from-white/5 to-transparent mr-6" />
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        {[
-                          { id: 'default', name: 'سادە', color: 'bg-slate-800' },
-                          { id: 'zakho_nights', name: 'شەڤێن زاخۆ', color: 'bg-indigo-900' }
-                        ].map(theme => (
-                          <button
-                            key={theme.id}
-                            onClick={() => onThemeChange(theme.id)}
-                            className={`p-6 rounded-[32px] border-2 transition-all duration-300 ${
-                              currentTheme === theme.id 
-                                ? 'border-[#facc15] bg-[#facc15]/10 shadow-[0_0_20px_rgba(250,204,21,0.2)]' 
-                                : 'border-white/5 bg-white/5 hover:bg-white/10'
-                            }`}
-                          >
-                            <div className={`w-12 h-12 rounded-2xl ${theme.color} mb-4 mx-auto shadow-inner`} />
-                            <span className={`block text-center font-bold ${currentTheme === theme.id ? 'text-[#facc15]' : 'text-white/60'}`}>
-                              {theme.name}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    {/* Logout Section */}
-                    <div className="pt-6">
-                      <button
-                        onClick={onLogout}
-                        className="w-full bg-red-500/10 border-2 border-red-500/20 text-red-500 h-20 rounded-[32px] font-black text-xl hover:bg-red-500 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-3 shadow-lg"
-                      >
-                         <span className="material-symbols-outlined font-bold">logout</span>
-                         دەرکەفتن ژ ھەژمارێ
-                      </button>
+                    <div className="space-y-3 pt-1">
+                       <span className="text-[9px] font-black uppercase tracking-[0.2em] px-2 opacity-40 italic" style={{ color: palette.card }}>ڕووکار</span>
+                       <div className="grid grid-cols-2 gap-2.5">
+                          {[
+                            { id: 'default', name: 'سادە', color: '#1e293b' },
+                            { id: 'zakho_nights', name: 'زاخۆ', color: '#1a1c2c' }
+                          ].map(theme => (
+                            <button
+                              key={theme.id}
+                              onClick={() => { triggerHaptic(10); onPlaySound?.(); onThemeChange(theme.id); }}
+                              style={{ 
+                                 backgroundColor: currentTheme === theme.id ? palette.dark : palette.card,
+                                 borderColor: currentTheme === theme.id ? palette.accent : 'transparent'
+                              }}
+                              className={`p-3 rounded-sm border-2 transition-all duration-300 flex flex-col items-center gap-1.5 group shadow-sm hover:scale-[1.02] ${
+                                 currentTheme === theme.id ? 'z-20' : 'z-10'
+                              }`}
+                            >
+                              <div 
+                                 style={{ backgroundColor: theme.color }}
+                                 className="w-7 h-7 rounded-sm mb-0.5 shadow-inner border border-white/10 transition-transform group-hover:rotate-6" 
+                              />
+                              <span className={`text-[9px] font-black uppercase tracking-widest ${
+                                 currentTheme === theme.id ? 'text-white' : 'text-slate-900'
+                              }`}>
+                                {theme.name}
+                              </span>
+                            </button>
+                          ))}
+                       </div>
                     </div>
 
-                    <div className="text-center pb-4">
-                      <p className="text-white/20 text-sm font-bold tracking-widest uppercase">Peyvçîn v2.0</p>
-                    </div>
+                    {/* Logout Bar */}
+                    <button
+                      onClick={() => { onPlaySound?.(); onLogout(); }}
+                      className="w-full h-14 rounded-sm font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-2.5 shadow-lg mt-1 border border-white/10 font-heading"
+                      style={{ backgroundColor: palette.dark, color: '#ef4444' }}
+                    >
+                       <span className="material-symbols-outlined font-black text-lg">logout</span>
+                       دەرکەفتن ژ ھەژمارێ
+                    </button>
+
+                    <p className="text-center text-[8px] font-black tracking-[0.4em] uppercase opacity-20 pt-1 italic" style={{ color: palette.card }}>Peyvçîn v2.0</p>
                   </div>
                </motion.div>
             </motion.div>

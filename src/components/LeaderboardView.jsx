@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 import Avatar from './Avatar';
@@ -8,14 +8,31 @@ import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
+import FloatingLetterBackground from './FloatingLetterBackground';
 
 export default function LeaderboardView({ userId, userLevel, userXP, userFils, userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
-  const { getLevelFromXP, handleToggleBlock: toggleBlockInContext } = useGame();
+  const { 
+    getLevelFromXP, 
+    handleToggleBlock: toggleBlockInContext,
+    playTabSound
+  } = useGame();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userRank, setUserRank] = useState('--');
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+
+  const bgRef = useRef(null);
+
+  const handleBackgroundClick = (e) => {
+    // Only trigger if clicking the direct container to avoid item capture
+    if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      bgRef.current?.pulse(x, y);
+    }
+  };
 
   const handleToggleBlock = async (currentStatus) => {
     if (!selectedPlayer || !userId) return;
@@ -109,35 +126,11 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
 
   return (
-    <div className="w-full max-w-full px-4 md:px-6 pb-56 min-h-screen relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right">
-
-      {/* 0. WORDLE BACKGROUND (FLAT NEUTRAL) - MORE VISIBLE */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-50">
-        {[...Array(18)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-white font-black text-xl select-none font-rabar pointer-events-none"
-            style={{ 
-              left: Math.random() * 95 + '%', 
-              top: Math.random() * 95 + '%',
-            }}
-            animate={{ 
-              y: [0, -30, 30, 0], 
-              x: [0, 40, -40, 0],
-              rotate: [0, 15, -15, 0],
-              opacity: [0.2, 0.4, 0.2],
-              scale: [0.95, 1.05, 0.95]
-            }}
-            transition={{ 
-              duration: 20 + Math.random() * 20, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-          >
-            {['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ'][i % 12]}
-          </motion.div>
-        ))}
-      </div>
+    <div 
+      onClick={handleBackgroundClick}
+      className="w-full max-w-full px-4 md:px-6 pb-56 min-h-screen relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone"
+    >
+      <FloatingLetterBackground ref={bgRef} />
 
       <div className="relative z-10">
         <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center">
@@ -146,14 +139,18 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
         </div>
 
         {/* Top Tab Swapper - Synced Card Style */}
-        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden"
+        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-"
              style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
           {['global', 'friends'].map((tab) => {
             const isActive = view === tab;
             return (
               <button
                 key={tab}
-                onClick={() => { triggerHaptic(10); setView(tab); }}
+                onClick={() => { 
+                    triggerHaptic(10); 
+                    playTabSound();
+                    setView(tab); 
+                }}
                 className={`flex-1 py-2.5 px-4 rounded-md font-black text-sm transition-all duration-300 relative z-10 ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-600'
                   }`}
               >
@@ -209,7 +206,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                     whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
-                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow-hidden transition-all cursor-pointer shadow-sm`}
+                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow- transition-all cursor-pointer shadow-sm`}
                     style={{ 
                       backgroundColor: 'rgb(203, 213, 225)',
                       borderColor: 'rgba(255, 255, 255, 0.2)',

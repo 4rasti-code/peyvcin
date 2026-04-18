@@ -40,7 +40,7 @@ export default function PublicProfileModal({
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);
-  const { getLevelData } = useGame();
+  const { getLevelData, playBubblePopSound } = useGame();
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -283,13 +283,13 @@ export default function PublicProfileModal({
   const effectiveIsBlocked = internalBlocked || isBlocked;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden pointer-events-auto">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-6 sm:p-12 overflow- pointer-events-auto">
       {/* Heavy Backdrop */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onClose}
+        onClick={() => { playBubblePopSound(); onClose(); }}
         className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl"
       />
 
@@ -297,7 +297,7 @@ export default function PublicProfileModal({
         initial={{ scale: 0.9, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
-        className="relative w-full max-w-sm bg-slate-900 border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.8)] flex flex-col items-center p-6 text-center max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-sm bg-slate-900 border border-white/10 rounded-[2rem] overflow-hidden shadow-[0_35px_60px_-15px_rgba(0,0,0,0.8)]  flex-col items-center p-6 text-center max-h-[90vh] overflow-y-auto"
         dir="rtl"
       >
         {/* Deep Golden Glow */}
@@ -305,7 +305,7 @@ export default function PublicProfileModal({
 
         {/* Close Button */}
         <button 
-          onClick={onClose} 
+          onClick={() => { playBubblePopSound(); onClose(); }} 
           className="absolute top-4 left-4 w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all z-10"
         >
           <span className="material-symbols-outlined text-[18px]">close</span>
@@ -333,7 +333,7 @@ export default function PublicProfileModal({
         {/* Avatar Section */}
         <div className="relative mb-3 mt-2">
           <div className={`w-28 h-28 rounded-full p-1.5 flex items-center justify-center shadow-xl relative ${safeLevel >= 10 ? 'bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-600' : 'bg-slate-700'}`}>
-             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-5xl border-[3px] border-slate-900 overflow-hidden relative shadow-inner">
+             <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-5xl border-[3px] border-slate-900 overflow- relative shadow-inner">
                 <Avatar 
                    src={displayData.avatar_url} 
                    updatedAt={displayData.updated_at} 
@@ -399,8 +399,8 @@ export default function PublicProfileModal({
              <div className="w-full relative overflow-hidden px-2">
                 <div className="flex justify-between items-end mb-1.5 relative z-10">
                    <div className="text-right">
-                     <span className="text-[8px] font-black font-ui uppercase tracking-widest text-white/40 block">ئەزموون (XP)</span>
-                     <span className="text-base font-black text-white font-ui">{displayData.xp || 0}</span>
+                     <span className="text-[8px] font-black  uppercase tracking-widest text-white/40 block">ئەزموون (XP)</span>
+                     <span className="text-base font-black text-white ">{displayData.xp || 0}</span>
                    </div>
                    <span className="text-[9px] font-black text-white/20">/ {nextLevelXP}</span>
                 </div>
@@ -409,26 +409,26 @@ export default function PublicProfileModal({
                      initial={{ width: 0 }}
                      animate={{ width: `${progressRatio}%` }}
                      transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-                     className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full"
+                     className="h-full bg-linear-to-r from-amber-600 to-amber-400 rounded-full"
                    />
                 </div>
              </div>
 
              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
-                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 font-ui">باڵانس</span>
+                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center relative overflow- group">
+                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 ">باڵانس</span>
                    <div className="flex items-center gap-1.5">
                       <div className="flex flex-col items-end leading-none translate-y-0.5">
-                         <span className="text-xl font-black text-white font-ui">{toKuDigits(displayData.shayi || 0)}</span>
+                         <span className="text-xl font-black text-white ">{toKuDigits(displayData.shayi || 0)}</span>
                          <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-white/40">فلس</span>
                       </div>
                       <FilsIcon className="w-4 h-4" />
                    </div>
                 </div>
-                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center relative overflow-hidden group">
-                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 font-ui">ستریك</span>
+                <div className="bg-white/5 border border-white/5 p-3 rounded-2xl flex flex-col items-center justify-center relative overflow- group">
+                   <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 ">ستریك</span>
                    <div className="flex items-center gap-1.5">
-                      <span className="text-xl font-black text-white font-ui">{toKuDigits(displayData.daily_streak || 0)}</span>
+                      <span className="text-xl font-black text-white ">{toKuDigits(displayData.daily_streak || 0)}</span>
                       <span className="text-lg">🔥</span>
                    </div>
                 </div>
@@ -447,7 +447,7 @@ export default function PublicProfileModal({
                              setActiveTooltip(activeTooltip === m.id ? null : m.id);
                              if(activeTooltip !== m.id) setTimeout(() => setActiveTooltip(null), 3000);
                            }}
-                           className={`w-11 h-11 rounded-full border-[1.5px] flex flex-col items-center justify-center transition-all duration-500 overflow-hidden relative
+                           className={`w-11 h-11 rounded-full border-[1.5px] flex flex-col items-center justify-center transition-all duration-500 overflow- relative
                              ${isUnlocked ? `bg-white/10 border-white/20 ${m.glow}` : 'bg-white/5 border-white/5 grayscale opacity-20 hover:opacity-40'}`}
                          >
                             <span className={`material-symbols-outlined text-[18px] ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.icon}</span>

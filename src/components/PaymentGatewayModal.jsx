@@ -85,7 +85,7 @@ export default function PaymentGatewayModal({ isOpen, onClose, item, onComplete 
                         onClick={() => handlePayment(method.id)}
                         className="flex flex-col items-center justify-center gap-3 p-4 rounded-3xl bg-white/3 border border-white/10 hover:bg-white/5 transition-all group disabled:opacity-50 disabled:pointer-events-none"
                       >
-                        <div className="w-14 h-14 rounded-full bg-white p-2.5 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform overflow-hidden">
+                        <div className="w-14 h-14 rounded-full bg-white p-2.5 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform overflow-">
                           <img 
                             src={method.logo} 
                             alt={method.name} 
@@ -112,7 +112,7 @@ export default function PaymentGatewayModal({ isOpen, onClose, item, onComplete 
                           onClick={() => handlePayment(method.id)}
                           className="flex flex-col items-center justify-center gap-3 p-4 rounded-3xl bg-white/3 border border-white/10 hover:bg-white/5 transition-all group disabled:opacity-50 disabled:pointer-events-none"
                         >
-                          <div className="w-14 h-14 rounded-full bg-white p-2.5 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform overflow-hidden">
+                          <div className="w-14 h-14 rounded-full bg-white p-2.5 flex items-center justify-center shadow-xl group-hover:scale-110 transition-transform overflow-">
                             <img 
                               src={method.logo} 
                               alt={method.name} 

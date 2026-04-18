@@ -50,7 +50,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
         
         {/* Classic Mode Section */}
         <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
-           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#2563eb] shadow-md border border-white/10 noise-grain flex flex-col">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#2563eb] shadow-md border border-white/10 noise-grain  flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-white/10">
@@ -63,22 +63,22 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              {/* Stats Data */}
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">باشترین زنجیرە</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.classic?.bestStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.bestStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">زنجیرەیا نوکە</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.classic?.currentStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.currentStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">ھەمی پەیڤ</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.classic?.totalCorrect || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.totalCorrect || 0)}</span>
              </div>
            </div>
         </motion.div>
 
         {/* Daily Puzzle Section */}
         <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
-           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#ea580c] shadow-md border border-white/10 noise-grain flex flex-col">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#ea580c] shadow-md border border-white/10 noise-grain  flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-white/10">
@@ -91,22 +91,22 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              {/* Stats Data */}
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">ڕۆژێن ئاسایی</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.daily?.regularDays || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.daily?.regularDays || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">نمرێن زێدە</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.daily?.plusDays || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.daily?.plusDays || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">میدالیا</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(earnedTrophies.length)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(earnedTrophies.length)}</span>
              </div>
            </div>
         </motion.div>
 
         {/* Tournament Section */}
         <motion.div variants={itemVariants} className="flex flex-col items-center relative overflow-visible group h-full">
-           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#7c3aed] shadow-md border border-white/10 noise-grain flex flex-col">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#7c3aed] shadow-md border border-white/10 noise-grain  flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-purple-500/20">
@@ -117,11 +117,11 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-purple-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">باشترین نمرە</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-purple-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">پشکداری</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(0)}</span>
              </div>
              <p className="text-[7px] text-primary/60 font-black uppercase tracking-widest text-center py-1 bg-purple-500/15">زویترین دەم</p>
            </div>
@@ -129,7 +129,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
 
         {/* Global Stats Section */}
         <motion.div variants={itemVariants} className="relative overflow-visible group h-full">
-           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#059669] shadow-md border border-white/10 noise-grain flex flex-col">
+           <div className="relative z-10 w-full h-[145px] overflow-hidden rounded-lg bg-[#059669] shadow-md border border-white/10 noise-grain  flex-col">
              
              {/* Header Row */}
              <div className="flex items-center gap-1.5 p-2 border-b border-emerald-500/20">
@@ -140,15 +140,15 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">باشترین زنجیرە</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.global?.bestRoundsStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.global?.bestRoundsStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">گەڕێن تەمام</span>
-                <span className="text-white text-[13px] font-semibold font-ui tracking-tight text-pop">{toKuDigits(playerStats.global?.totalRoundsPlayed || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.global?.totalRoundsPlayed || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">پلە</span>
-                <span className="text-white text-[14px] font-bold font-ui tracking-tight text-pop">#{toKuDigits(rank || 0)}</span>
+                <span className="text-white text-[14px] font-bold  tracking-tight text-pop">#{toKuDigits(rank || 0)}</span>
              </div>
            </div>
         </motion.div>
@@ -189,7 +189,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
       <motion.div variants={itemVariants} className="mt-6 mb-4 mx-2">
         <button 
           onClick={() => onViewChange('dictionary')}
-          className="w-full h-26 rounded-2xl flex items-center justify-between px-8 group transition-all duration-500 puzzle-tile relative overflow-hidden shadow-2xl border border-white/10"
+          className="w-full h-26 rounded-2xl flex items-center justify-between px-8 group transition-all duration-500 puzzle-tile relative overflow- shadow-2xl border border-white/10"
         >
           {/* Enhanced Mesh Gradient Background */}
           <div className="absolute inset-0 bg-emerald-600/80" />
@@ -208,7 +208,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
             </div>
             
             <div className="flex flex-col">
-              <span className="text-white/60 text-[9px] font-black font-ui uppercase tracking-[0.2em] mb-0.5 no-stroke">گەوھەرا زمانێ مە</span>
+              <span className="text-white/60 text-[9px] font-black  uppercase tracking-[0.2em] mb-0.5 no-stroke">گەوھەرا زمانێ مە</span>
               <h3 className="text-2xl font-black font-rabar text-white text-pop drop-shadow-lg">فەرھەنگا من</h3>
               <p className="text-white/40 text-[10px] font-bold font-body mt-0.5">ھەمی پەیڤێن تە د ڤێرێ نە</p>
             </div>

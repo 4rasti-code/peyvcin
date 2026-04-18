@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { triggerHaptic } from '../utils/haptics';
+import { playAlertSfx, playBackSfx } from '../utils/audio';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
+import DataDeletion from './DataDeletion';
+import FloatingLetterBackground from './FloatingLetterBackground';
+import { useGame } from '../context/GameContext';
 
 const COUNTRIES = [
   { name: 'کوردستان', code: 'KD', flag: '☀️' },
@@ -70,12 +77,12 @@ const FlagIcon = ({ code, isKurdistan, size = 'w-10 h-10' }) => {
   );
 };
 
-const FloatingInput = ({ label, value, onChange, type = 'text', required = false, isError = false, suffix = null }) => {
+const FloatingInput = ({ label, value, onChange, type = 'text', required = false, isError = false, suffix = null, autoComplete = 'off', name = '' }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <div className="relative w-full text-right">
-      <label className={`block text-sm font-black font-rabar mb-2.5 pr-2 uppercase tracking-[0.15em] transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-white/70 hover:text-white/90'}`}>
+      <label className={`block text-[11px] font-black font-rabar mb-1.5 pr-2 uppercase tracking-[0.15em] transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-white/70 hover:text-white/90'}`}>
         {label}
       </label>
       <div className={`
@@ -91,8 +98,21 @@ const FloatingInput = ({ label, value, onChange, type = 'text', required = false
           onChange={onChange}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full bg-transparent py-2.5 pr-5 ${suffix ? 'pl-12' : 'pl-5'} font-rabar text-white text-xl font-bold focus:outline-none transition-all duration-200 caret-emerald-400`}
-          style={{ appearance: 'none' }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            e.target.select();
+          }}
+          autoComplete={autoComplete}
+          name={name}
+          className={`w-full bg-transparent py-2 pr-5 ${suffix ? 'pl-12' : 'pl-5'} font-rabar text-white text-lg font-bold focus:outline-none transition-all duration-200 caret-emerald-400 relative z-10`}
+          style={{ 
+            appearance: 'none', 
+            userSelect: 'text', 
+            WebkitUserSelect: 'text',
+            cursor: 'text',
+            touchAction: 'manipulation'
+          }}
         />
         {suffix && (
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-emerald-400 transition-colors z-20 flex items-center justify-center">
@@ -115,7 +135,7 @@ const FloatingInput = ({ label, value, onChange, type = 'text', required = false
 };
 
 export default function AuthView({ onAuthSuccess }) {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
@@ -127,6 +147,12 @@ export default function AuthView({ onAuthSuccess }) {
   // Validation States
   const [nameAvailability, setNameAvailability] = useState(null); // 'checking', 'available', 'taken', 'invalid'
   const [nameError, setNameError] = useState('');
+  
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmError, setConfirmError] = useState('');
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [activePolicyModal, setActivePolicyModal] = useState(null); // 'terms', 'privacy', 'deletion'
 
   // Real-time Availability Check
   React.useEffect(() => {
@@ -140,19 +166,19 @@ export default function AuthView({ onAuthSuccess }) {
       const raw = nickname.trim();
       
       // 1. Basic Format Validation
-      if (raw.length < 8) {
+      if (raw.includes(' ')) {
         setNameAvailability('invalid');
-        setNameError('نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت');
+        setNameError('نابیت چ ڤالاهی(سپەیس) دناڤبەرا ناڤێ تەدا هەبیت');
         return;
       }
-      if (raw.length > 15) {
+      if (raw.length < 8 || raw.length > 15) {
         setNameAvailability('invalid');
-        setNameError('نابیت ناسناڤێ تە ژ ١٥ پیتان زێدەتر بیت');
+        setNameError('کێمترە ژ ٨ پیتان یان زێدەترە ژ ١٥ پیتان');
         return;
       }
       if (!NICKNAME_REGEX.test(raw)) {
         setNameAvailability('invalid');
-        setNameError('ب تنێ پیت، ژمارە و (_) قەبوول دبن');
+        setNameError('بنتنێ پیت، ژمارە و (_) دهێنە پەژراندن');
         return;
       }
       if (RESERVED_WORDS.includes(raw.toLowerCase())) {
@@ -168,7 +194,7 @@ export default function AuthView({ onAuthSuccess }) {
           .from('profiles')
           .select('nickname')
           .ilike('nickname', raw)
-          .single();
+          .maybeSingle();
         
         if (data) {
           setNameAvailability('taken');
@@ -188,8 +214,34 @@ export default function AuthView({ onAuthSuccess }) {
     return () => clearTimeout(debounce);
   }, [nickname, isLogin]);
 
+  // Real-time Password Validation
+  React.useEffect(() => {
+    if (isLogin) {
+      setPasswordError('');
+      setConfirmError('');
+      return;
+    }
+
+    const hasNumber = /\d/.test(password);
+    const hasUpper = /[A-Z]/.test(password);
+
+    if (password && (password.length < 8 || !hasNumber || !hasUpper)) {
+      setPasswordError('پێدڤییە بۆرینپەیڤ کێمتر ژ ٨ پیتان نەبیت، و ژمارەک و پیتەکا مەزن تێدا بیت');
+    } else {
+      setPasswordError('');
+    }
+
+    if (confirmPassword && password !== confirmPassword) {
+      setConfirmError('بۆرینپەیڤ نە وەکی ئێکە، دوبارە تاقی بکە');
+    } else {
+      setConfirmError('');
+    }
+  }, [password, confirmPassword, isLogin]);
+
   const handleAuth = async (e) => {
-    if (e) e.preventDefault();
+    e.preventDefault();
+    triggerHaptic(10);
+    playTabSound();
     setLoading(true);
     setError(null);
 
@@ -203,8 +255,9 @@ export default function AuthView({ onAuthSuccess }) {
         onAuthSuccess(data.user, data.user?.user_metadata?.nickname);
       } else {
         // Double check validation before sign up
-        if (nameAvailability !== 'available') {
-          setError(nameError || 'ھیڤییە ناڤەکێ دروست ھەلبژێرھ');
+        if (nameAvailability !== 'available' || passwordError || confirmError || !password || !confirmPassword) {
+          playAlertSfx();
+          setError(nameError || passwordError || confirmError || 'ھیڤییە هەمی زانیاریان ب درستی پڕ بکەو');
           setLoading(false);
           return;
         }
@@ -225,20 +278,28 @@ export default function AuthView({ onAuthSuccess }) {
         if (data.session) {
           onAuthSuccess(data.user, nickname);
         } else {
-          alert('ئەکاونت ھاتە دروستکرن! ھیڤییە ئیمەیڵا خۆ پشتڕاست بکە (Check your email) پاشی بچۆ د ژۆردا.');
+          setRegistrationSuccess(true);
+          setConfirmPassword('');
+          setPassword('');
           setIsLogin(true);
+          // Scroll to top to see success message
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
       }
     } catch (err) {
+      playAlertSfx();
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const { playTabSound } = useGame();
+
   const handleSocialLogin = async (provider) => {
-    setLoading(true);
     try {
+      playTabSound();
+      triggerHaptic(10);
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -247,35 +308,109 @@ export default function AuthView({ onAuthSuccess }) {
       });
       if (error) throw error;
     } catch (err) {
+      playAlertSfx();
       setError(err.message);
       setLoading(false);
     }
   };
 
+  const bgRef = useRef(null);
+
+  const handleBackgroundClick = (e) => {
+    // Pulse on background void clicks or specific trigger zones
+    if (e.target === e.currentTarget || e.target.classList.contains('auth-view-container')) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      bgRef.current?.pulse(x, y);
+    }
+  };
+
   return (
-    <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-center justify-start pt-[calc(env(safe-area-inset-top,24px)+24px)] px-6 pb-12 min-h-screen animate-in fade-in duration-500 overflow-hidden relative">
+    <div 
+      onClick={handleBackgroundClick}
+      className="flex-1 w-full max-w-lg mx-auto flex flex-col items-center justify-center pt-[env(safe-area-inset-top,24px)] px-6 pb-[env(safe-area-inset-bottom,24px)] min-h-screen animate-in fade-in duration-500 overflow- relative auth-view-container bg-[#020617]"
+    >
+      <FloatingLetterBackground ref={bgRef} />
       
-      <div className="flex flex-col items-center mb-6 text-center relative z-10">
-         <h1 className="text-6xl font-black font-heading text-white text-pop tracking-tight transform hover:scale-110 transition-transform duration-500">پەیڤچن</h1>
-         <div className="w-16 h-1 bg-white/20 rounded-full mt-6"></div>
+      <div className="flex flex-col items-center mb-4 text-center relative z-20">
+         <h1 className="text-5xl font-black font-heading text-white text-pop tracking-tight transform hover:scale-110 transition-transform duration-500">پەیڤچن</h1>
+         <div className="w-12 h-0.5 bg-white/20 rounded-full mt-4"></div>
       </div>
 
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full modal-content px-10 py-8 sm:px-14 sm:py-10 relative puzzle-tile"
+        className="w-full px-8 py-5 sm:px-12 sm:py-7 relative z-20 bg-[#020617] rounded-[32px] border border-white/5 shadow-2xl"
       >
         <div className="relative z-10 w-full">
-          <div className="mb-6">
-            <h2 className="text-2xl font-black font-heading text-white text-pop mb-1.5 uppercase tracking-wide">
-              {isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}
-            </h2>
-            <p className="text-[10px] font-black font-rabar text-emerald-400 uppercase tracking-[0.25em] leading-none no-stroke">
-               {isLogin ? 'WELCOME BACK / بخێرھاتی' : 'NEW ACCOUNT / ھەژمارەکا نوی'}
-            </p>
+          {/* SEGMENTED TOGGLE (THE "BUTTON" PART) */}
+          <div className="flex p-0.5 bg-slate-900/95 rounded-2xl border border-white/10 mb-5 relative z-10">
+            <motion.div 
+              className="absolute top-1 bottom-1 bg-[#0095f6] rounded-xl shadow-[0_0_15px_rgba(0,149,246,0.5)]"
+              initial={false}
+              animate={{ 
+                right: isLogin ? '4px' : '50%', 
+                left: isLogin ? '50%' : '4px' 
+              }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            />
+            <button 
+              onClick={() => {
+                triggerHaptic(10);
+                playTabSound();
+                setIsLogin(true);
+              }}
+              className={`flex-1 relative z-10 py-3 text-sm font-black font-rabar transition-colors duration-300 ${isLogin ? 'text-white' : 'text-white/40 hover:text-white/60'}`}
+            >
+              چوونا ژوورێ
+            </button>
+            <button 
+              onClick={() => {
+                triggerHaptic(10);
+                playTabSound();
+                setIsLogin(false);
+              }}
+              className={`flex-1 relative z-10 py-3 text-sm font-black font-rabar transition-colors duration-300 ${!isLogin ? 'text-white' : 'text-white/40 hover:text-white/60'}`}
+            >
+              تۆمارکرن
+            </button>
           </div>
 
-          <form onSubmit={handleAuth} className="space-y-5">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isLogin ? 'login' : 'signup'}
+              initial={{ opacity: 0, x: isLogin ? -10 : 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isLogin ? 10 : -10 }}
+              className="mb-4"
+            >
+              <p className="text-[10px] font-black font-rabar text-emerald-400 uppercase tracking-[0.25em] leading-none no-stroke mb-1 text-right">
+                 {isLogin ? 'WELCOME BACK / بخێرھاتی' : 'NEW ACCOUNT / ھەژمارەکا نوی'}
+              </p>
+              <h2 className="text-2xl font-black font-heading text-white text-pop uppercase tracking-wide text-right">
+                {isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}
+              </h2>
+            </motion.div>
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {registrationSuccess && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3 text-emerald-400"
+              >
+                <span className="material-symbols-outlined shrink-0 text-2xl">check_circle</span>
+                <p className="text-xs font-black font-rabar leading-relaxed">
+                  هەژمار ب سەرکەڤتی هاتە دروستکرن! نۆکە تو دشێی بچیە د ژوورڤە
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <form onSubmit={handleAuth} className="space-y-4" autoComplete="off">
             {!isLogin && (
               <div className="grid grid-cols-1 gap-5">
                 <div className="space-y-2">
@@ -284,6 +419,8 @@ export default function AuthView({ onAuthSuccess }) {
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     required
+                    name="peyvcin_reg_user"
+                    autoComplete="off"
                     isError={nameAvailability === 'taken' || nameAvailability === 'invalid'}
                   />
                   
@@ -320,26 +457,63 @@ export default function AuthView({ onAuthSuccess }) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              name="peyvcin_auth_email"
+              autoComplete="off"
             />
 
             <FloatingInput 
-              label="پەیڤا نھێنی"
+              label="بۆرینپەیڤ"
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="peyvcin_auth_pass"
+              autoComplete={isLogin ? "current-password" : "new-password"}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (registrationSuccess) setRegistrationSuccess(false);
+              }}
               required
               suffix={
-            <button 
-              type="button" 
-              onClick={() => setShowPassword(!showPassword)}
-              className="flex items-center justify-center p-2 text-slate-900 hover:text-emerald-600 transition-colors"
-            >
-              <span className="material-symbols-outlined text-xl">
-                {showPassword ? 'visibility_off' : 'visibility'}
-              </span>
-            </button>
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="flex items-center justify-center p-2 text-slate-900 hover:text-emerald-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-xl">
+                    {showPassword ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
               }
             />
+
+            {!isLogin && (
+              <div className="space-y-2">
+                <FloatingInput 
+                  label="دوبارەکرنا بۆرینپەیڤ"
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  name="peyvcin_reg_confirm"
+                  autoComplete="new-password"
+                />
+                
+                <AnimatePresence>
+                  {(passwordError || confirmError) && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="text-[10px] font-black font-rabar pt-1 pr-2 flex items-center gap-1.5 text-red-400">
+                        <span className="material-symbols-outlined text-[14px]">error</span>
+                        {passwordError || confirmError}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             <AnimatePresence>
               {error && (
@@ -365,25 +539,13 @@ export default function AuthView({ onAuthSuccess }) {
                 <span>{isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}</span>
               )}
             </button>
-            <div className="mt-6 flex justify-center">
-              <button 
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-lg font-rabar no-stroke group/link"
-              >
-                <span className="text-white/60 group-hover/link:text-white/80 transition-colors">{isLogin ? 'ھێشتا تە پڕۆفایل نینە؟ ' : 'بەری نۆکە تە ئەکاوەنت ھەبوو؟ '}</span>
-                <span className="text-[#0095f6] font-black hover:text-[#1877f2] transition-all ml-1 underline-offset-4 hover:underline">
-                  {isLogin ? 'تۆمارکرن' : 'چوونا ژوورێ'}
-                </span>
-              </button>
-            </div>
           </form>
 
           {/* Minimal Social Section */}
           <div className="mt-12">
              <div className="flex items-center gap-4 mb-8 text-on-surface/30">
                 <div className="flex-1 h-px bg-current opacity-20"></div>
-                <span className="text-[10px] font-bold font-ui uppercase tracking-widest font-body opacity-60">یان</span>
+                <span className="text-[10px] font-bold  uppercase tracking-widest font-body opacity-60">یان</span>
                 <div className="flex-1 h-px bg-current opacity-20"></div>
              </div>
 
@@ -412,21 +574,100 @@ export default function AuthView({ onAuthSuccess }) {
              </div>
           </div>
 
-          <div className="mt-12 flex flex-col items-center gap-6">
+          <div className="mt-8 flex flex-col items-center gap-6">
             <p className="text-[10px] text-on-surface/30 font-bold uppercase text-center tracking-widest max-w-xs leading-relaxed italic">
                ب کۆماربوونێ د ناڤ یاریێدا، تو دشێی نمرێن خۆ پارێزی و پێشبڕکێیێ بکەی.
             </p>
 
-        <div className="flex items-center gap-4 text-[10px] font-bold font-ui uppercase tracking-[0.2em] text-on-surface/20">
-          <a href="/terms-of-service" className="hover:text-primary transition-colors">Terms</a>
+        <div className="flex items-center gap-4 text-[10px] font-bold  uppercase tracking-[0.2em] text-on-surface/20">
+          <button 
+            type="button"
+            onClick={() => setActivePolicyModal('terms')} 
+            className="hover:text-primary transition-colors uppercase"
+          >
+            Terms
+          </button>
           <span className="w-1 h-1 rounded-full bg-on-surface/5"></span>
-          <a href="/privacy-policy" className="hover:text-primary transition-colors">Privacy</a>
+          <button 
+            type="button"
+            onClick={() => setActivePolicyModal('privacy')} 
+            className="hover:text-primary transition-colors uppercase"
+          >
+            Privacy
+          </button>
           <span className="w-1 h-1 rounded-full bg-on-surface/5"></span>
-          <a href="/data-deletion" className="hover:text-primary transition-colors">Deletion</a>
+          <button 
+            type="button"
+            onClick={() => setActivePolicyModal('deletion')} 
+            className="hover:text-primary transition-colors uppercase"
+          >
+            Deletion
+          </button>
         </div>
           </div>
         </div>
       </motion.div>
+
+      <PolicyModal 
+        isOpen={!!activePolicyModal} 
+        onClose={() => setActivePolicyModal(null)} 
+        type={activePolicyModal} 
+        onViewChange={setActivePolicyModal}
+      />
     </div>
+  );
+}
+
+const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = 0;
+    }
+  }, [type]);
+
+  const renderContent = () => {
+    const props = { onViewChange, onClose };
+    switch (type) {
+      case 'terms': return <TermsOfService {...props} />;
+      case 'privacy': return <PrivacyPolicy {...props} />;
+      case 'deletion': return <DataDeletion {...props} />;
+      default: return null;
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          ref={scrollRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-1000 flex flex-col bg-[#050510] overflow-y-auto"
+        >
+          {/* Custom Header for Policy Modals */}
+          <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-[#050510]/80 backdrop-blur-xl border-b border-white/5">
+            <h3 className="text-xl font-black font-heading text-white uppercase tracking-wider">
+               {type === 'terms' ? 'Terms of Service' : type === 'privacy' ? 'Privacy Policy' : 'Data Deletion'}
+            </h3>
+            <button 
+              onClick={() => {
+                playBackSfx();
+                onClose();
+              }}
+              className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
+            >
+              <span className="material-symbols-outlined text-white text-2xl">close</span>
+            </button>
+          </div>
+          
+          <div className="flex-1">
+            {renderContent()}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

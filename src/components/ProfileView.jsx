@@ -11,6 +11,8 @@ import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import ExperienceBar from './ExperienceBar';
 import Avatar from './Avatar';
+import { useGame } from '../context/GameContext';
+import FloatingLetterBackground from './FloatingLetterBackground';
 
 export default function ProfileView({
    user,
@@ -31,6 +33,7 @@ export default function ProfileView({
    maxXP,
    dailyStreak
 }) {
+   const { playTabSound } = useGame();
    const [activeTab, setActiveTab] = useState('profile');
    const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
    const [isAvatarBoxOpen, setIsAvatarBoxOpen] = useState(false);
@@ -49,6 +52,18 @@ export default function ProfileView({
    const [pendingFile, setPendingFile] = useState(null);
    const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
    const nicknameInputRef = useRef(null);
+   const bgRef = useRef(null);
+
+   const handleBackgroundClick = (e) => {
+      // Pulse on background void clicks
+      const isInteractiveElement = e.target.closest('button') || e.target.closest('input') || e.target.closest('.interactive-zone');
+      if (!isInteractiveElement || e.target.classList.contains('bg-trigger-zone')) {
+         const rect = e.currentTarget.getBoundingClientRect();
+         const x = (e.clientX - rect.left) / rect.width;
+         const y = (e.clientY - rect.top) / rect.height;
+         bgRef.current?.pulse(x, y);
+      }
+   };
 
    useEffect(() => {
       setDraftNickname(userNickname);
@@ -175,12 +190,18 @@ export default function ProfileView({
    const selectedCountryName = draftIsInKurdistan ? 'کوردستان' : (COUNTRIES.find(c => c.code === draftCountryCode)?.name || 'جیھان');
 
    return (
-      <div className="w-screen max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x-hidden relative z-10">
+      <div 
+         onClick={handleBackgroundClick}
+         className="w-screen max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x- relative z-10 bg-[#020617] bg-trigger-zone"
+      >
+         <div className="absolute inset-0 pointer-events-none z-0">
+            <FloatingLetterBackground ref={bgRef} />
+         </div>
 
-         <div className="px-5 mb-4 text-center flex flex-col items-center">
+         <div className="px-5 mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone">
             <div className="relative w-full aspect-square max-w-[340px] rounded-[40px] overflow-hidden border border-white/10 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] bg-slate-950 group">
 
-               <div className="absolute inset-0 bg-gradient-to-b from-[#1a1c2c] via-[#0a0b14] to-black opacity-100"></div>
+               <div className="absolute inset-0 bg-linear-to-b from-[#1a1c2c] via-[#0a0b14] to-black opacity-100"></div>
 
                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-black/20 z-50 overflow-hidden">
                   <motion.div
@@ -345,7 +366,7 @@ export default function ProfileView({
                         </div>
 
                         <div
-                           className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 relative overflow-hidden group transition-colors duration-500"
+                           className="flex flex-col items-center justify-center py-2.5 px-1 rounded-xl border border-white/10 relative overflow- group transition-colors duration-500"
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
                            {userRank === 1 && (
@@ -363,7 +384,7 @@ export default function ProfileView({
          </div>
 
          <div className="mx-6 mb-4">
-            <div className="flex p-1 rounded-md border shadow-sm relative overflow-hidden transition-all"
+            <div className="flex p-1 rounded-md border shadow-sm relative overflow- transition-all"
                style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                {[
                   { id: 'profile', label: 'بەرپەڕ', icon: 'person' },
@@ -374,7 +395,11 @@ export default function ProfileView({
                   return (
                      <button
                         key={tab.id}
-                        onClick={() => { triggerHaptic(10); setActiveTab(tab.id); }}
+                        onClick={() => { 
+                           triggerHaptic(10); 
+                           playTabSound();
+                           setActiveTab(tab.id); 
+                        }}
                         className={`flex-1 relative py-2.5 rounded-md flex items-center justify-center gap-2 transition-all duration-300 z-10 ${isActive
                            ? 'text-white'
                            : 'text-slate-500 hover:text-slate-700'
@@ -395,7 +420,7 @@ export default function ProfileView({
             </div>
          </div>
 
-         <div className="flex-1 overflow-y-auto px-4 pb-[80px] scrollbar-hide">
+         <div className="flex-1 overflow-y-auto px-4 pb-[80px] scrollbar-hide relative z-10 bg-trigger-zone">
             <AnimatePresence mode="wait">
                {activeTab === 'friends' && (
                   <motion.div key="friends" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
@@ -404,7 +429,7 @@ export default function ProfileView({
                            <span className="material-symbols-outlined text-2xl text-primary font-bold">person_add</span>
                         </div>
                         <h4 className="text-lg font-black font-body text-slate-900 mb-1">ھەڤالێن خوە داخواز بکە</h4>
-                        <p className="text-slate-500 text-[11px] font-bold font-body mb-5 leading-relaxed max-w-[200px]">بۆ ھەڤالێ خوە بھنێرە و پێکڤە یاریێ بکەن بۆ بدەستڤەھینانا خەلاتان</p>
+                        <p className="text-white/40 text-[11px] font-bold font-body mb-5 leading-relaxed max-w-[200px]">بۆ ھەڤالێ خوە بھنێرە و پێکڤە یاریێ بکەن بۆ بدەستڤەھینانا خەلاتان</p>
                         <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="w-full bg-primary text-black py-2.5 rounded-md font-black font-body text-sm shadow-md hover:brightness-110 active:scale-95 transition-all">
                            کۆپی کرنا لینکی
                         </button>
@@ -421,7 +446,7 @@ export default function ProfileView({
                {activeTab === 'profile' && (
                   <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 pt-2">
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-slate-500 px-2 uppercase tracking-widest text-right block w-full mt-1">ناسناڤێ تە</label>
+                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ناسناڤێ تە</label>
                         <div className="flex items-center gap-2 w-full">
                            <div className="relative w-full">
                               <input
@@ -464,15 +489,15 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-slate-500 px-2 uppercase tracking-widest text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
-                        <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow-hidden mb-1">
+                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
+                        <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow- mb-1">
                            <span className="truncate">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
                            <span className="material-symbols-outlined text-[18px] mr-2 text-slate-400">mail</span>
                         </div>
                      </div>
 
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-slate-500 px-1 uppercase tracking-widest text-right block w-full">وەڵات</label>
+                        <label className="text-[10px] font-bold text-white/60 px-1 uppercase tracking-widest text-right block w-full">وەڵات</label>
                         <div className="flex items-center gap-2 w-full">
                            <div className="relative w-full">
                               <button ref={flagButtonRef} onClick={() => { triggerHaptic(10); setIsFlagBoxOpen(!isFlagBoxOpen); }} className={`flex items-center px-3 h-10 rounded-md border transition-all w-full justify-between flex-row-reverse ${isFlagBoxOpen ? 'bg-primary border-primary shadow-md' : 'bg-white border-slate-200/80 shadow-xs hover:bg-slate-50'}`}>
@@ -512,11 +537,11 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-slate-500 px-4 uppercase tracking-widest text-right block w-full">ھەلبژارتنا ئاڤاتاری</label>
+                        <label className="text-[10px] font-bold text-white/60 px-4 uppercase tracking-widest text-right block w-full">ھەلبژارتنا ئاڤاتاری</label>
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 noise-grain">
                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3 max-h-55 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
                               {AVATARS.map((avatar) => (
-                                 <button key={avatar.id} onClick={() => { triggerHaptic(10); setDraftAvatar(avatar.id); }} className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all relative overflow-hidden ${draftAvatar === avatar.id ? 'bg-primary shadow-lg scale-110 z-10' : 'bg-white border border-slate-200'}`}><Avatar src={avatar.id} size="sm" border={false} />{draftAvatar === avatar.id && <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-20"><span className="material-symbols-outlined text-[10px] font-bold">check</span></div>}</button>
+                                 <button key={avatar.id} onClick={() => { triggerHaptic(10); setDraftAvatar(avatar.id); }} className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all relative overflow- ${draftAvatar === avatar.id ? 'bg-primary shadow-lg scale-110 z-10' : 'bg-white border border-slate-200'}`}><Avatar src={avatar.id} size="sm" border={false} />{draftAvatar === avatar.id && <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-20"><span className="material-symbols-outlined text-[10px] font-bold">check</span></div>}</button>
                               ))}
                            </div>
                         </div>

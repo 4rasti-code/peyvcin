@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
 import { triggerHaptic } from '../utils/haptics';
+import { useGame } from '../context/GameContext';
 
 export default function DictionaryView({ solvedWords, wordList, highlightWord, onBack }) {
+  const { playTabSound } = useGame();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -81,7 +82,7 @@ export default function DictionaryView({ solvedWords, wordList, highlightWord, o
                پەرتووکخانا من
             </p>
           </div>
-          <div className="bg-white/5 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2.5 border border-white/10 shadow-lg hidden sm:flex">
+          <div className="bg-white/5 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2.5 border border-white/10 shadow-lg  sm:flex">
             <span className="text-xl font-bold text-white">{solvedWords.length}</span>
           </div>
         </div>
@@ -113,7 +114,11 @@ export default function DictionaryView({ solvedWords, wordList, highlightWord, o
           {categories.map(cat => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => {
+                triggerHaptic(5);
+                playTabSound();
+                setActiveCategory(cat);
+              }}
               className={`whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-xs transition-all border ${
                 activeCategory === cat
                   ? 'bg-primary text-black border-primary shadow-lg scale-105'
@@ -133,7 +138,7 @@ export default function DictionaryView({ solvedWords, wordList, highlightWord, o
             {discoveredWords.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex flex-col gap-3 relative overflow-hidden highlight-target shadow-xl hover:bg-white/10 transition-all"
+                className="bg-white/5 backdrop-blur-xl p-6 rounded-3xl border border-white/10 flex flex-col gap-3 relative overflow- highlight-target shadow-xl hover:bg-white/10 transition-all"
                 data-word={item.word.replace('_', ' ')}
               >
                 <div className="flex justify-between items-center relative z-10">

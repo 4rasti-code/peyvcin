@@ -1171,3 +1171,12 @@ body,
   background-size: 200% 200%;
   animation: gradient-flow 3s ease infinite;
 }
+
+/* Scoped Text Selection for Auth Page only */
+.auth-view-container input {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+  cursor: text !important;
+}

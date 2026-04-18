@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
+import FloatingLetterBackground from './FloatingLetterBackground';
 
 export default function LobbyView({ 
   onStartClassic, 
@@ -11,11 +12,24 @@ export default function LobbyView({
   onStartWordFever, 
   onStartMultiplayer, // Handle matchmaking
   onSocialClick, 
+  onDailyRewardClick,
   dailyStreak,
   onViewChange,
   notificationCount = 0,
   winsTowardsSecret = 0
 }) {
+  const bgRef = useRef(null);
+  
+  const handleBackgroundClick = (e) => {
+    // Only trigger if clicking the direct container to avoid button double-triggers
+    if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      bgRef.current?.pulse(x, y);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
@@ -52,35 +66,10 @@ export default function LobbyView({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-[#020617] relative min-h-screen"
+      onClick={handleBackgroundClick}
+      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x- bg-[#020617] relative min-h-screen bg-trigger-zone"
     >
-      {/* WORDLE BACKGROUND (FLOATING LETTERS) - MATCHING RANKING STYLE */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-50">
-        {[...Array(18)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-white font-black text-xl select-none font-rabar pointer-events-none"
-            style={{ 
-              left: Math.random() * 95 + '%', 
-              top: Math.random() * 95 + '%',
-            }}
-            animate={{ 
-              y: [0, -30, 30, 0], 
-              x: [0, 40, -40, 0],
-              rotate: [0, 15, -15, 0],
-              opacity: [0.2, 0.4, 0.2],
-              scale: [0.95, 1.05, 0.95]
-            }}
-            transition={{ 
-              duration: 20 + Math.random() * 20, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-          >
-            {['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ'][i % 12]}
-          </motion.div>
-        ))}
-      </div>
+      <FloatingLetterBackground ref={bgRef} />
 
       <div className="relative z-10">
         <div className="grid grid-cols-2 gap-4">
@@ -90,7 +79,7 @@ export default function LobbyView({
             variants={itemVariants}
             onClick={() => { triggerHaptic(15); onStartMultiplayer(); }}
             {...bentoMotionProps}
-            className="col-span-2 relative h-28 rounded-[32px] overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 shadow-xl group border-none"
+            className="col-span-2 relative h-28 rounded-[32px] overflow-hidden bg-linear-to-r from-emerald-500 to-teal-600 shadow-xl group border-none"
           >
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
@@ -105,6 +94,24 @@ export default function LobbyView({
             
             {/* Animated Pulse Ring */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full border-4 border-white/10 rounded-[32px] animate-pulse pointer-events-none" />
+          </motion.button>
+
+          {/* DAILY REWARD (NEW) */}
+          <motion.button 
+            variants={itemVariants}
+            onClick={() => { triggerHaptic(15); onDailyRewardClick(); }}
+            {...bentoMotionProps}
+            className="col-span-2 relative h-20 rounded-[32px] overflow-hidden bg-white/5 border border-white/10 backdrop-blur-xl shadow-xl group"
+          >
+            <div className="relative z-10 flex items-center justify-between px-8 h-full">
+              <div className="flex flex-col items-start">
+                <h3 className="text-xl font-black font-heading text-white">خەلاتێن ڕۆژانە</h3>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-wider text-white/40 leading-none">٧ ڕۆژ - خەلاتێن بەردەوام</span>
+              </div>
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                <span className="material-symbols-outlined text-2xl text-emerald-400">redeem</span>
+              </div>
+            </div>
           </motion.button>
 
           {/* CLASSIC MODE */}
@@ -157,10 +164,6 @@ export default function LobbyView({
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">پەیڤێن دژوار</h3>
                 <span className="text-[9px] font-medium font-rabar uppercase tracking-wider text-white/50 mt-1 leading-none">بۆ شارەزایان</span>
-                <div className="flex items-center gap-1.5 bg-black/20 px-2 py-0.5 rounded-full border border-white/20 mt-1">
-                  <DerhemIcon className="w-2.5 h-2.5 saturate-[0] brightness-[100]" />
-                  <span className="text-[10px] font-black text-white font-ui">{dailyStreak}</span>
-                </div>
               </div>
             </div>
           </motion.button>
@@ -191,7 +194,7 @@ export default function LobbyView({
             {...(isSecretUnlocked ? bentoMotionProps : {})}
             className={`col-span-2 relative h-24 rounded-[32px] overflow-hidden transition-all duration-500 shadow-xl border-none ${
               isSecretUnlocked 
-                ? 'bg-gradient-to-br from-[#2e1065] to-[#4c1d95] border-2 border-yellow-400/50 shadow-[0_0_40px_rgba(0,0,0,0.8)]' 
+                ? 'bg-linear-to-br from-[#2e1065] to-[#4c1d95] border-2 border-yellow-400/50 shadow-[0_0_40px_rgba(0,0,0,0.8)]' 
                 : 'bg-white/5 border border-white/10 backdrop-blur-md opacity-80'
             }`}
           >
@@ -234,7 +237,7 @@ export default function LobbyView({
 
             {/* Golden Key Glow Background for Unlocked state */}
             {isSecretUnlocked && (
-              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-r from-yellow-400/5 to-transparent pointer-events-none" />
             )}
           </motion.button>
         </div>

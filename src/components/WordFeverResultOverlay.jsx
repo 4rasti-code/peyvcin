@@ -34,7 +34,7 @@ const WordFeverResultOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#0f0f0f]/90 backdrop-blur-2xl p-6"
+          className="fixed inset-0 z-1000 flex items-center justify-center bg-[#0f0f0f]/90 backdrop-blur-2xl p-6"
         >
           <motion.div 
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -48,8 +48,8 @@ const WordFeverResultOverlay = ({
                 initial={{ scale: 0.5, rotate: -15 }}
                 animate={{ scale: 1, rotate: 0 }}
                 className={`w-32 h-32 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 
-                ${isWin ? 'bg-gradient-to-br from-yellow-400/20 to-orange-500/20 text-yellow-500 border border-yellow-500/30 ring-8 ring-yellow-500/5' 
-                       : 'bg-gradient-to-br from-red-500/20 to-orange-600/20 text-red-500 border border-red-500/30 ring-8 ring-red-500/5'}`}
+                ${isWin ? 'bg-linear-to-br from-yellow-400/20 to-orange-500/20 text-yellow-500 border border-yellow-500/30 ring-8 ring-yellow-500/5' 
+                       : 'bg-linear-to-br from-red-500/20 to-orange-600/20 text-red-500 border border-red-500/30 ring-8 ring-red-500/5'}`}
               >
                 <span className="material-symbols-outlined text-[72px] drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]">
                   {isWin ? 'emoji_events' : 'timer_off'}
@@ -81,7 +81,7 @@ const WordFeverResultOverlay = ({
               {isWin ? (
                 <button 
                   onClick={() => { triggerHaptic(10); onContinue(); }}
-                  className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white py-5 rounded-3xl font-black font-ui text-xl shadow-[0_20px_40px_rgba(168,85,247,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                  className="w-full bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white py-5 rounded-3xl font-black  text-xl shadow-[0_20px_40px_rgba(168,85,247,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   <span className="material-symbols-outlined">play_arrow</span>
                   بەردەوام بە
@@ -89,7 +89,7 @@ const WordFeverResultOverlay = ({
               ) : (
                 <button 
                   onClick={() => { triggerHaptic(10); onRepeat(); }}
-                  className="w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white py-5 rounded-3xl font-black font-ui text-xl shadow-[0_20px_40px_rgba(239,68,68,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                  className="w-full bg-linear-to-r from-red-500 to-orange-600 hover:from-red-400 hover:to-orange-500 text-white py-5 rounded-3xl font-black  text-xl shadow-[0_20px_40px_rgba(239,68,68,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   <span className="material-symbols-outlined">restart_alt</span>
                   بەردەوام بە
@@ -98,7 +98,7 @@ const WordFeverResultOverlay = ({
 
               <button 
                 onClick={() => { triggerHaptic(10); onHome(); }}
-                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold font-ui text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold  text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">home</span>
                 ڤەگەڕیان

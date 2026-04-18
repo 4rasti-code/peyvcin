@@ -78,7 +78,7 @@ const VictoryOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-[#0f0f0f]/90 backdrop-blur-2xl p-6"
+          className="fixed inset-0 z-1000 flex items-center justify-center bg-[#0f0f0f]/90 backdrop-blur-2xl p-6"
         >
           <motion.div 
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
@@ -91,7 +91,7 @@ const VictoryOverlay = ({
               <motion.div 
                 initial={{ scale: 0.5, rotate: 15 }}
                 animate={{ scale: 1, rotate: 0 }}
-                className="w-32 h-32 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 bg-gradient-to-br from-emerald-500/20 to-teal-600/20 text-emerald-400 border border-emerald-500/30 ring-8 ring-emerald-500/5"
+                className="w-32 h-32 rounded-2xl flex items-center justify-center shadow-2xl relative z-10 bg-linear-to-br from-emerald-500/20 to-teal-600/20 text-emerald-400 border border-emerald-500/30 ring-8 ring-emerald-500/5"
               >
                 <span className="material-symbols-outlined text-[72px] drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">
                   workspace_premium
@@ -118,7 +118,7 @@ const VictoryOverlay = ({
 
               {/* Stats & Rewards Table */}
               <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-3xl border border-emerald-500/10 shadow-inner">
-                <div className="flex justify-between items-center text-sm font-black font-ui group/row">
+                <div className="flex justify-between items-center text-sm font-black  group/row">
                   <span className="text-white/80 transition-colors group-hover/row:text-white">خەلاتێ سەرکەفتنێ</span>
                   <div className="flex items-center gap-2 text-emerald-400">
                     <div className="flex flex-col items-end leading-none pt-0.5">
@@ -128,9 +128,34 @@ const VictoryOverlay = ({
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
                 </div>
+
+                {/* Detailed Stats Breakdown */}
+                <div className="space-y-1 pt-1 opacity-70">
+                  <div className="flex justify-between items-center text-[10px] font-bold">
+                    <div className="flex items-center gap-1.5 text-emerald-400">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
+                      <span>پیتا ڕاست</span>
+                    </div>
+                    <span className="text-white">{breakdown?.greenCount || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold">
+                    <div className="flex items-center gap-1.5 text-yellow-500">
+                      <div className="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]" />
+                      <span>پیتا ڕاست ل جهێ شاش</span>
+                    </div>
+                    <span className="text-white">{breakdown?.yellowCount || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] font-bold">
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <div className="w-2 h-2 rounded-full bg-slate-500" />
+                      <span>پیتا شاش (سزا)</span>
+                    </div>
+                    <span className="text-white">-{breakdown?.gray || 0}</span>
+                  </div>
+                </div>
                 
-                {breakdown?.mode === 'Multiplayer' && (
-                  <div className="flex justify-between items-center text-sm font-black font-ui group/row">
+                {(xp > 0 || breakdown?.mode === 'Multiplayer') && (
+                  <div className="flex justify-between items-center text-sm font-black  group/row mt-1 pt-1 border-t border-white/5">
                     <span className="text-white/80 transition-colors group-hover/row:text-white">بۆنوسا هەڤڕکیێ</span>
                     <div className="flex items-center gap-2 text-yellow-500">
                       <AnimatedNumber value={xp || 50} prefix="+" />
@@ -157,7 +182,7 @@ const VictoryOverlay = ({
             <div className="w-full flex flex-col gap-3">
               <button 
                 onClick={() => { triggerHaptic(10); onNext(); }}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white py-5 rounded-3xl font-black font-ui text-xl shadow-[0_20px_40px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
+                className="w-full bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white py-5 rounded-3xl font-black  text-xl shadow-[0_20px_40px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">arrow_left</span>
                 بەردەوام بە
@@ -165,7 +190,7 @@ const VictoryOverlay = ({
 
               <button 
                 onClick={() => { triggerHaptic(10); onHome(); }}
-                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold font-ui text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white/60 hover:text-white py-4 rounded-2xl font-bold  text-lg active:scale-95 transition-all flex items-center justify-center gap-3"
               >
                 <span className="material-symbols-outlined">home</span>
                 ڤەگەڕیان

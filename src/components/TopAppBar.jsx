@@ -35,6 +35,7 @@ export default function TopAppBar({
   notifications = [],
   onNotificationAction,
   gameMode = 'classic',
+  onPlaySound,
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
   const displayCategory = category === 'پەیڤێن دژوار' ? 'پەیڤێن دژوار' 
@@ -142,7 +143,7 @@ export default function TopAppBar({
                             }}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => { triggerHaptic(10); setIsNotifsOpen(!isNotifsOpen); }}
+                            onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
                             className={`w-16 h-16 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#facc15]' : 'text-[#facc15]/60'}`}
                          >
                            <span className="material-symbols-outlined text-[54px] font-black">notifications</span>
@@ -177,7 +178,7 @@ export default function TopAppBar({
                        <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" />
                      )}
                      
-                     <div className="hidden sm:flex items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
+                     <div className="hidden sm: items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
                         <div className="flex flex-col items-start leading-none pt-0.5">
                            <span className="text-[17px] font-black font-heading text-white">{level || 1}</span>
                            <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-[0.2em] mt-0.5">ئاست</span>

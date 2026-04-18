@@ -107,7 +107,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   }
 
   return (
-    <div className="flex flex-col h-[100dvh] bg-[#020617] overflow-hidden">
+    <div className="flex flex-col h-dvh bg-[#020617] overflow-">
       <style>
         {`
           .battle-grid-container {
@@ -223,7 +223,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[500] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-8 overflow-hidden"
+            className="fixed inset-0 z-500 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-8 overflow-"
           >
             {/* Background Clash Elements */}
             <motion.div 

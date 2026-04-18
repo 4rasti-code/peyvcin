@@ -95,17 +95,57 @@ class GameErrorBoundary extends React.Component {
   }
 }
 
+// --- UI SUB-COMPONENTS (HOISTED FOR PERFORMANCE) ---
+const ScrollingMatchFinder = ({ opponent }) => {
+  const [randomPool] = useState(() => 
+    [...AVATARS, ...AVATARS].sort(() => 0.5 - Math.random())
+  );
+  
+  return (
+    <div className="relative w-32 h-32 rounded-full border-4 border-emerald-500/30 overflow-hidden bg-black/40 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
+      <AnimatePresence mode="wait">
+        {!opponent ? (
+          <motion.div
+            key="scrolling"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
+            className="absolute inset-0"
+          >
+            <motion.div
+              animate={{ y: [0, -1200] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              className="flex flex-col items-center"
+            >
+              {randomPool.map((av, i) => (
+                <div key={i} className="w-32 h-32 flex items-center justify-center shrink-0">
+                  <Avatar src={av.id} size="full" border={false} />
+                </div>
+              ))}
+            </motion.div>
+            {/* Vertical Blur & Fade Overlay */}
+            <div className="absolute inset-0 bg-linear-to-b from-[#020617] via-transparent to-[#020617] opacity-60" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="found"
+            initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            className="absolute inset-0 flex items-center justify-center bg-emerald-500/10"
+          >
+            <Avatar src={opponent.avatar_url} size="full" border={false} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function App() {
   const [currentView, setCurrentView] = useState('lobby');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [, setIsMobile] = useState(window.innerWidth < 1024);
 
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const [targetWord, setTargetWord] = useState('');
   const [targetHint, setTargetHint] = useState('');
@@ -145,8 +185,11 @@ export default function App() {
 
     appSoundsEnabled, setAppSoundsEnabled,
     hapticEnabled, setHapticEnabled,
+    appSfxVolume, updateSfxVolume,
+    bgMusicVolume, updateMusicVolume,
     playPopSound, playNotifSound, playMessageSound,
-    playStartSound, playVictorySound, playRewardSound,
+    playStartGameSound, playVictorySound, playRewardSound, playBubblePopSound,
+    playSettingsOpenSound, playSettingsCloseSound,
     user, setUser,
     userRank, refreshRank,
     loading: isGameLoading
@@ -589,52 +632,7 @@ export default function App() {
 
   // Core logic is now handled by useGameLogic hook
  
-  // MATCHMAKING ANIMATION COMPONENT
-  const ScrollingMatchFinder = ({ opponent }) => {
-    const [randomPool] = useState(() => 
-      [...AVATARS, ...AVATARS].sort(() => 0.5 - Math.random())
-    );
-    
-    return (
-      <div className="relative w-32 h-32 rounded-full border-4 border-emerald-500/30 overflow-hidden bg-black/40 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
-        <AnimatePresence mode="wait">
-          {!opponent ? (
-            <motion.div
-              key="scrolling"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
-              className="absolute inset-0"
-            >
-              <motion.div
-                animate={{ y: [0, -1200] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                className="flex flex-col items-center"
-              >
-                {randomPool.map((av, i) => (
-                  <div key={i} className="w-32 h-32 flex items-center justify-center shrink-0">
-                    <Avatar src={av.id} size="xl" border={false} />
-                  </div>
-                ))}
-              </motion.div>
-              {/* Vertical Blur & Fade Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617] opacity-60" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="found"
-              initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
-              animate={{ scale: 1, opacity: 1, rotate: 0 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              className="absolute inset-0 flex items-center justify-center bg-emerald-500/10"
-            >
-              <Avatar src={opponent.avatar_url} size="2xl" border={false} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  };
+
 
   const handleProfileSave = async (profileData) => {
     if (!user || !user.id) {
@@ -706,12 +704,12 @@ export default function App() {
   useEffect(() => {
     if (currentView === 'game') {
       try {
-        playStartSound();
+        playStartGameSound();
       } catch (e) {
         console.warn("Start sound trigger failed", e);
       }
     }
-  }, [currentView, playStartSound]);
+  }, [currentView, playStartGameSound]);
 
   const handleOpenChat = (player) => {
     setActiveChatPartner(player);
@@ -990,7 +988,7 @@ export default function App() {
   if (!isAppReady || !isAuthChecked) return <div className="h-screen flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
 
   return (
-    <div className={`flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-slate-950 text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
+    <div className={`flex flex-col h-dvh w-full max-w-[100vw] overflow- bg-slate-950 text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
       {/* Panic Overlay for Word Fever Mode Critical Time */}
       {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
         <div className="panic-overlay" />
@@ -1002,10 +1000,11 @@ export default function App() {
           user={user} fils={fils} derhem={derhem} zer={zer}
           level={level} dailyStreak={dailyStreak}
           currentView={currentView} onEarlyExit={handleEarlyExit}
-          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
           notifications={notificationsList}
           onNotificationAction={handleNotificationAction}
           onOpenSocial={() => {
+            playBubblePopSound();
             setCurrentView('social_hub');
           }}
           onForfeit={handleForfeit}
@@ -1014,11 +1013,12 @@ export default function App() {
           gameMode={gameMode}
           timeLeft={timeLeft}
           notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+          onPlaySound={playBubblePopSound}
         />
       )}
 
       {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-      <main className={`flex-1 ${currentView === 'game' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+      <main className={`flex-1 ${currentView === 'game' || currentView === 'social_hub' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
         {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
           setUser(u);
           if (nicknameHint) {
@@ -1074,7 +1074,7 @@ export default function App() {
         )}
 
         {currentView === 'game' && (
-          <div className="flex-1 flex flex-col overflow-hidden relative h-full">
+          <div className="flex-1 flex flex-col overflow- relative h-full">
             {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
             <div className="flex-1 flex flex-col items-center min-h-0">
               {/* Question Section */}
@@ -1258,7 +1258,12 @@ export default function App() {
 
       {/* 3. CONDITIONAL BOTTOM NAV */}
       {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && multiplayerState !== 'playing' && (
-        <BottomNav currentView={currentView} setCurrentView={setCurrentView} onSettingsToggle={() => { setIsSettingsOpen(true); }} />
+        <BottomNav 
+          currentView={currentView} 
+          setCurrentView={setCurrentView} 
+          onSettingsToggle={() => { setIsSettingsOpen(true); }} 
+          onTabClickSound={playBubblePopSound} 
+        />
       )}
 
       {/* 4. GLOBAL OVERLAYS */}
@@ -1277,16 +1282,13 @@ export default function App() {
       />
       <SettingsModal
         isOpen={isSettingsOpen}
-        onClose={() => { setIsSettingsOpen(false); }}
+        onClose={() => { playSettingsCloseSound(); setIsSettingsOpen(false); }}
         currentTheme={currentTheme}
         onThemeChange={(id) => updateProfile({ currentTheme: id })}
-        appSoundsEnabled={appSoundsEnabled}
-        onAppSoundsToggle={() => {
-          const next = !appSoundsEnabled;
-          setAppSoundsEnabled(next);
-          localStorage.setItem('peyvchin_app_sounds', next.toString());
-          updateProfile({ app_sounds_enabled: next });
-        }}
+        appSfxVolume={appSfxVolume}
+        onAppSfxVolumeChange={updateSfxVolume}
+        bgMusicVolume={bgMusicVolume}
+        onBgMusicVolumeChange={updateMusicVolume}
         hapticEnabled={hapticEnabled}
         onHapticToggle={() => {
           const next = !hapticEnabled;
@@ -1296,11 +1298,12 @@ export default function App() {
         }}
         user={user}
         onLogout={handleLogout}
+        onPlaySound={playBubblePopSound}
       />
 
       <AnimatePresence>
         {isForfeitConfirmOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
             <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[40px] p-10 text-center">
               <h2 className="text-2xl font-black mb-4">پشتراستی؟</h2>
               <div className="flex flex-col gap-3">
@@ -1372,7 +1375,7 @@ export default function App() {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-8 text-center"
+            className="fixed inset-0 z-200 flex flex-col items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-8 text-center"
           >
             {/* Pulsing Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px] animate-pulse" />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { playBackSfx } from '../utils/audio';
 
 const KurdistanFlag = () => (
   <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
@@ -39,9 +40,25 @@ const USFlag = () => (
   </svg>
 );
 
-const PrivacyPolicy = () => {
-    const [lang, setLang] = useState('en'); // 'en' or 'ku'
+const PrivacyPolicy = ({ onViewChange, onClose }) => {
+    const [lang, setLang] = useState('ku'); // 'en' or 'ku'
     const navigate = useNavigate();
+
+    const handleNavigate = (path, policyKey) => {
+        if (onViewChange && policyKey) {
+            onViewChange(policyKey);
+        } else {
+            navigate(path);
+        }
+    };
+
+    const handleClose = () => {
+        if (onClose) {
+            onClose();
+        } else {
+            navigate('/');
+        }
+    };
 
     const content = {
         en: {
@@ -139,22 +156,17 @@ const PrivacyPolicy = () => {
 
     return (
         <div className="min-h-screen bg-[#050510] text-[#E0E0E0] selection:bg-primary/30 selection:text-white font-body p-6 sm:p-12" dir={isRTL ? 'rtl' : 'ltr'}>
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[150px] rounded-full animate-pulse-slow"></div>
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[150px] rounded-full"></div>
-            </div>
-
             <div className="max-w-4xl mx-auto relative">
                 {/* Header Section */}
                 <div className="flex flex-col sm:flex-row items-center justify-between mb-16 gap-8">
-                    <div className="flex items-center gap-6 group cursor-pointer" onClick={() => navigate('/')}>
+                    <div className="flex items-center gap-6 group cursor-pointer" onClick={handleClose}>
                         <div className="w-16 h-16 rounded-lg bg-linear-to-br from-primary to-primary-container p-0.5 shadow-xl transition-all group-hover:scale-105 active:scale-95 shadow-primary/20">
-                            <div className="w-full h-full bg-[#0F0F1A] rounded-[1.4rem] flex items-center justify-center overflow-hidden">
-                                <span className="text-3xl font-bold font-ui text-primary">P</span>
+                            <div className="w-full h-full bg-[#0F0F1A] rounded-[1.4rem] flex items-center justify-center overflow-">
+                                <span className="text-3xl font-bold  text-primary">P</span>
                             </div>
                         </div>
                         <div>
-                            <h1 className="text-4xl font-bold font-ui tracking-tight text-white mb-1">پەیڤچن</h1>
+                            <h1 className="text-4xl font-bold  tracking-tight text-white mb-1">پەیڤچن</h1>
                             <p className="text-text-dim/60 text-xs font-bold uppercase tracking-[0.2em]">Heritage Reborn</p>
                         </div>
                     </div>
@@ -167,7 +179,7 @@ const PrivacyPolicy = () => {
                             <div className="w-5 h-3.5 rounded-[2px] overflow-hidden shadow-sm">
                                 <KurdistanFlag />
                             </div>
-                            <span>بادینی</span>
+                            <span>بەهدینی</span>
                         </button>
                         <button 
                             onClick={() => setLang('en')}
@@ -191,7 +203,7 @@ const PrivacyPolicy = () => {
                     <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-primary/50 to-transparent opacity-30"></div>
 
                     <header className="mb-16 text-center sm:text-start">
-                        <h2 className="text-4xl sm:text-5xl font-bold font-ui text-white mb-4 leading-tight">{current.title}</h2>
+                        <h2 className="text-4xl sm:text-5xl font-bold  text-white mb-4 leading-tight">{current.title}</h2>
                         <span className="text-primary/70 font-bold text-sm tracking-wide bg-primary/10 px-4 py-2 rounded-full border border-primary/20">{current.subtitle}</span>
                     </header>
 
@@ -202,7 +214,7 @@ const PrivacyPolicy = () => {
                     <div className="space-y-16">
                         {current.sections.map((section, idx) => (
                             <section key={idx} className="relative">
-                                <h3 className="text-2xl font-bold font-ui text-white mb-6 flex items-center gap-4">
+                                <h3 className="text-2xl font-bold  text-white mb-6 flex items-center gap-4">
                                     <span className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center text-sm">{idx + 1}</span>
                                     {section.title}
                                 </h3>
@@ -218,7 +230,7 @@ const PrivacyPolicy = () => {
                                     </ul>
                                 )}
                                 {section.email && (
-                                    <a href={`mailto:${section.email}`} className="inline-block mt-4 text-primary font-bold font-ui text-xl hover:text-white transition-colors border-b-2 border-primary/20 pb-1">
+                                    <a href={`mailto:${section.email}`} className="inline-block mt-4 text-primary font-bold  text-xl hover:text-white transition-colors border-b-2 border-primary/20 pb-1">
                                         {section.email}
                                     </a>
                                 )}
@@ -230,21 +242,24 @@ const PrivacyPolicy = () => {
                 {/* Footer */}
                 <div className="mt-16 text-center space-y-8">
                     <div className="flex flex-wrap items-center justify-center gap-6 text-white/30 font-bold text-xs uppercase tracking-widest">
-                        <button onClick={() => navigate('/terms-of-service')} className="hover:text-primary transition-colors">Terms of Service</button>
+                        <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-primary transition-colors">Terms of Service</button>
                         <span className="w-1 h-1 rounded-full bg-white/10"></span>
-                        <button onClick={() => navigate('/privacy-policy')} className="text-primary hover:text-white transition-colors">Privacy Policy</button>
+                        <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="text-primary hover:text-white transition-colors">Privacy Policy</button>
                         <span className="w-1 h-1 rounded-full bg-white/10"></span>
-                        <button onClick={() => navigate('/data-deletion')} className="hover:text-primary transition-colors">Data Deletion</button>
+                        <button onClick={() => handleNavigate('/data-deletion', 'deletion')} className="hover:text-primary transition-colors">Data Deletion</button>
                     </div>
                     
                     <button 
-                        onClick={() => navigate('/')}
-                        className="text-white/30 hover:text-primary transition-all font-bold text-sm uppercase tracking-[0.3em] flex items-center justify-center gap-2 mx-auto pt-4"
+                        onClick={() => {
+                            playBackSfx();
+                            handleClose();
+                        }}
+                        className="bg-primary text-white px-10 py-5 rounded-2xl font-black  text-sm uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto pt-4 mt-8"
                     >
-                        <span className="material-symbols-outlined text-sm">arrow_back</span>
-                        Back to پەیڤچن
+                        <span className="material-symbols-outlined text-xl">arrow_back</span>
+                        {lang === 'ku' ? 'ڤەگەڕە' : 'Back to Game'}
                     </button>
-                    <p className="mt-8 text-[10px] text-white/10 uppercase font-bold font-ui tracking-widest italic">&copy; 2026 پەیڤچن App. All Rights Reserved.</p>
+                    <p className="mt-8 text-[10px] text-white/10 uppercase font-bold  tracking-widest italic">&copy; 2026 پەیڤچن App. All Rights Reserved.</p>
                 </div>
             </div>
 

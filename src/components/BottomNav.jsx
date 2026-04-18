@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function BottomNav({ currentView, setCurrentView, onSettingsToggle }) {
+export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound }) {
   const tabs = [
     { id: 'stats', icon: 'person', label: 'بەرپەڕ' },
     { id: 'leaderboard', icon: 'workspace_premium', label: 'ڕێزبەندی' },
@@ -25,6 +25,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
             whileTap={{ scale: 0.9 }}
             onClick={() => { 
                 triggerHaptic(10);
+                if (onTabClickSound) onTabClickSound();
                 if (isSettings) onSettingsToggle(); 
                 else setCurrentView(tab.id); 
             }}

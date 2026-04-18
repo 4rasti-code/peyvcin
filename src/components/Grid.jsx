@@ -38,7 +38,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       initial={false}
       animate={isFlipped ? { rotateY: 360 } : {}}
       transition={{ duration: 0.6, delay: flipDelay / 1000 }}
-      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden flex items-center justify-center`}
+      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden  items-center justify-center`}
     >
       <span 
         className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
@@ -177,7 +177,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
   const tileSize = compact ? 'clamp(38px, 9vw, 42px)' : 'clamp(45px, 12vw, 60px)';
 
   return (
-    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow-hidden relative`} dir="rtl">
+    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow- relative`} dir="rtl">
       <style>
         {`
           .forced-tile {
@@ -222,7 +222,6 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
                 isCurrent={isCurrent}
                 revealedIndices={isCurrent ? revealedIndices : []}
                 lastHintIndex={lastHintIndex}
-                targetWord={targetWord}
                 isMobile={isMobile}
                 isShaking={isCurrent && isShaking}
                 isSecretMode={isSecretMode}

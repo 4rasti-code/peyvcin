@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { playBackSfx } from '../utils/audio';
 
 const KurdistanFlag = () => (
   <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
@@ -38,9 +39,27 @@ const USFlag = () => (
   </svg>
 );
 
-const DataDeletion = () => {
+const DataDeletion = ({ onViewChange, onClose }) => {
     const [isKurdish, setIsKurdish] = useState(true);
     const navigate = useNavigate();
+
+    const handleNavigate = (path, policyKey) => {
+        playBackSfx();
+        if (onViewChange && policyKey) {
+            onViewChange(policyKey);
+        } else {
+            navigate(path);
+        }
+    };
+
+    const handleClose = () => {
+        playBackSfx();
+        if (onClose) {
+            onClose();
+        } else {
+            navigate('/');
+        }
+    };
 
     const content = {
         en: {
@@ -89,22 +108,18 @@ const DataDeletion = () => {
             ],
             section3Title: "٣. دەمێ جێبەجێکرنێ",
             section3Text: "داخوازێن ب ڕێکا ئیمەیلێ ب گشتی د ناڤبەرا ٣-٥ رۆژێن کار دا دھێنە جێبەجێکرن. پشتی ژێبرنێ، ئەڤ زانیارییە ناھێنە ڤەگەراندن.",
-            backButton: "ڤەگەران بۆ یاریێ",
+            backButton: "ڤەگەڕە",
         }
     };
 
     const t = isKurdish ? content.ku : content.en;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-[#f0f0f0] font-body selection:bg-primary/30 p-4 sm:p-8 md:p-12 relative">
-            {/* Background Decorative Elements */}
-            <div className="absolute top-[-10%] right-[-10%] w-125 h-125 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-100 h-100 bg-secondary/5 rounded-full blur-[100px]" />
-
+        <div className="min-h-screen bg-[#050510] text-[#f0f0f0] font-body selection:bg-primary/30 p-4 sm:p-8 md:p-12 relative">
             <div className="max-w-4xl mx-auto relative z-10">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 bg-surface-container/20 backdrop-blur-3xl p-6 rounded-2xl border border-outline/10 shadow-2xl">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={handleClose}>
                         <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary to-primary-container flex items-center justify-center shadow-lg shadow-primary/20">
                             <span className="material-symbols-outlined text-white text-2xl">delete_sweep</span>
                         </div>
@@ -117,7 +132,7 @@ const DataDeletion = () => {
                     <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
                         <button
                             onClick={() => setIsKurdish(false)}
-                            className={`px-6 py-2.5 rounded-xl text-xs font-bold font-ui transition-all duration-500 flex items-center gap-2 ${!isKurdish ? 'bg-white text-black shadow-xl scale-105' : 'text-white/40 hover:text-white/70'}`}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-bold  transition-all duration-500 flex items-center gap-2 ${!isKurdish ? 'bg-white text-black shadow-xl scale-105' : 'text-white/40 hover:text-white/70'}`}
                         >
                             <div className="w-5 h-3.5 rounded-[2px] overflow-hidden shadow-sm">
                                 <USFlag />
@@ -126,9 +141,9 @@ const DataDeletion = () => {
                         </button>
                         <button
                             onClick={() => setIsKurdish(true)}
-                            className={`px-6 py-2.5 rounded-xl text-xs font-bold font-ui transition-all duration-500 flex items-center gap-2 ${isKurdish ? 'bg-primary text-white shadow-xl scale-105 shadow-primary/20' : 'text-white/40 hover:text-white/70'}`}
+                            className={`px-6 py-2.5 rounded-xl text-xs font-bold  transition-all duration-500 flex items-center gap-2 ${isKurdish ? 'bg-primary text-white shadow-xl scale-105 shadow-primary/20' : 'text-white/40 hover:text-white/70'}`}
                         >
-                            <span>بادینی</span>
+                            <span>بەهدینی</span>
                             <div className="w-5 h-3.5 rounded-[2px] overflow-hidden shadow-sm">
                                 <KurdistanFlag />
                             </div>
@@ -141,8 +156,8 @@ const DataDeletion = () => {
                     <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-primary/40 to-transparent" />
                     
                     <div className="flex flex-col items-center text-center mb-12">
-                        <h2 className="text-4xl md:text-5xl font-bold font-ui mb-4 leading-tight">{t.title}</h2>
-                        <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold font-ui tracking-widest text-primary uppercase">
+                        <h2 className="text-4xl md:text-5xl font-bold  mb-4 leading-tight">{t.title}</h2>
+                        <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold  tracking-widest text-primary uppercase">
                             {t.lastUpdated}
                         </span>
                     </div>
@@ -154,8 +169,8 @@ const DataDeletion = () => {
 
                         <section className="space-y-6 animate-in slide-in-from-bottom-4 duration-700">
                             <div className="flex items-center gap-4">
-                                <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold font-ui text-sm">1</span>
-                                <h3 className="text-2xl font-bold font-ui">{t.section1Title}</h3>
+                                <span className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold  text-sm">1</span>
+                                <h3 className="text-2xl font-bold ">{t.section1Title}</h3>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-8 rounded-[2rem] space-y-4">
                                 <p className="text-text-dim italic">{t.section1Text}</p>
@@ -172,8 +187,8 @@ const DataDeletion = () => {
 
                         <section className="space-y-6 animate-in slide-in-from-bottom-4 delay-100 duration-700">
                             <div className="flex items-center gap-4">
-                                <span className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold font-ui text-sm">2</span>
-                                <h3 className="text-2xl font-bold font-ui">{t.section2Title}</h3>
+                                <span className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold  text-sm">2</span>
+                                <h3 className="text-2xl font-bold ">{t.section2Title}</h3>
                             </div>
                             <div className="bg-white/5 border border-white/5 p-8 rounded-[2rem] space-y-4">
                                 <p className="text-text-dim italic">{t.section2Text}</p>
@@ -190,8 +205,8 @@ const DataDeletion = () => {
 
                         <section className="space-y-6 animate-in slide-in-from-bottom-4 delay-200 duration-700">
                             <div className="flex items-center gap-4">
-                                <span className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold font-ui text-sm">3</span>
-                                <h3 className="text-2xl font-bold font-ui">{t.section3Title}</h3>
+                                <span className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center font-bold  text-sm">3</span>
+                                <h3 className="text-2xl font-bold ">{t.section3Title}</h3>
                             </div>
                             <div className="bg-primary/5 border border-primary/10 p-8 rounded-[2rem]">
                                 <p className="text-white/90 leading-relaxed font-medium">
@@ -205,22 +220,22 @@ const DataDeletion = () => {
                 {/* Footer Section */}
                 <div className="mt-16 text-center space-y-8">
                     <div className="flex flex-wrap items-center justify-center gap-6 text-white/30 font-bold text-xs uppercase tracking-widest">
-                        <button onClick={() => navigate('/terms-of-service')} className="hover:text-primary transition-colors">Terms of Service</button>
+                        <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-primary transition-colors">Terms of Service</button>
                         <span className="w-1 h-1 rounded-full bg-white/10"></span>
-                        <button onClick={() => navigate('/privacy-policy')} className="hover:text-primary transition-colors">Privacy Policy</button>
+                        <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="hover:text-primary transition-colors">Privacy Policy</button>
                         <span className="w-1 h-1 rounded-full bg-white/10"></span>
-                        <button onClick={() => navigate('/data-deletion')} className="text-primary hover:text-white transition-colors">Data Deletion</button>
+                        <button onClick={() => handleNavigate('/data-deletion', 'deletion')} className="text-primary hover:text-white transition-colors">Data Deletion</button>
                     </div>
 
                     <button 
-                        onClick={() => navigate('/')}
-                        className="bg-white/10 text-white/40 px-12 py-4 rounded-2xl font-bold font-ui text-xs hover:bg-white hover:text-black active:scale-95 transition-all shadow-2xl flex items-center gap-3 mx-auto"
+                        onClick={handleClose}
+                        className="bg-primary text-white px-10 py-5 rounded-2xl font-black  text-sm uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto pt-4 mt-8"
                     >
-                        <span className="material-symbols-outlined">arrow_back</span>
+                        <span className="material-symbols-outlined text-xl">arrow_back</span>
                         {t.backButton}
                     </button>
 
-                    <footer className="mt-12 text-center text-white/20 text-[10px] font-bold font-ui uppercase tracking-[0.3em] antialiased">
+                    <footer className="mt-12 text-center text-white/20 text-[10px] font-bold  uppercase tracking-[0.3em] antialiased">
                         © 2026 پەیڤچن Team • Built for Heritage
                     </footer>
                 </div>

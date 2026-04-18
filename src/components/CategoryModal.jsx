@@ -52,7 +52,7 @@ export default function CategoryModal({ onSelect, isOpen, onClose }) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="w-full max-w-xl bg-[#1e293b] border-2 border-white/10 rounded-[40px] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative z-10 overflow-hidden flex flex-col max-h-[85vh]"
+        className="w-full max-w-xl bg-[#1e293b] border-2 border-white/10 rounded-[40px] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative z-10 overflow-hidden  flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Block - SOLID */}
@@ -67,7 +67,7 @@ export default function CategoryModal({ onSelect, isOpen, onClose }) {
           </motion.button>
           
           <h2 className="text-4xl font-black font-heading text-white tracking-tight text-center">بەشەکێ ھەلبژێرە</h2>
-          <p className="text-[11px] font-black font-ui text-[#facc15] uppercase tracking-[0.3em] mt-3 opacity-90">CHOOSE YOUR CHALLENGE</p>
+          <p className="text-[11px] font-black  text-[#facc15] uppercase tracking-[0.3em] mt-3 opacity-90">CHOOSE YOUR CHALLENGE</p>
         </div>
 
         {/* Scrollable Grid Section */}
@@ -95,7 +95,7 @@ export default function CategoryModal({ onSelect, isOpen, onClose }) {
 
         {/* Footer Accent Section */}
         <div className="mt-10 pt-4 flex justify-center text-center border-t-2 border-white/5 shrink-0">
-            <span className="text-[11px] text-white/30 font-black font-ui uppercase tracking-[0.25em]">سلێمانى • ھەولێر • دھۆک • کەرکووک</span>
+            <span className="text-[11px] text-white/30 font-black  uppercase tracking-[0.25em]">سلێمانى • ھەولێر • دھۆک • کەرکووک</span>
         </div>
         
         {/* Floating Accent Bar */}

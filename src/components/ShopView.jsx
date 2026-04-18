@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { THEMES } from '../data/themes';
@@ -7,10 +7,12 @@ import PaymentGatewayModal from './PaymentGatewayModal';
 import { toKuDigits } from '../utils/formatters';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import InventoryBar from './InventoryBar';
+import { useGame } from '../context/GameContext';
+import FloatingLetterBackground from './FloatingLetterBackground';
 
 const SHOP_ITEMS = {
   POWERUPS: [
-    { id: 'attractor_field', name: 'موگناتیس (ڕاکێشان)', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 3000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
+    { id: 'attractor_field', name: 'موگناتیس', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 3000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
     { id: 'hint_pack', name: 'ھاریکاری', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 1000, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
     { id: 'full_skip', name: 'دەربازبوون', description: 'دەربازبوونا ب تەمام ژ پەیڤێ', icon: 'fast_forward', price: 2000, color: 'from-blue-400 to-cyan-600', glow: 'shadow-blue-500/40', currency: 'fils' }
   ],
@@ -96,7 +98,7 @@ const SpecialOfferCard = ({ item, onOpenGateway }) => (
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.95 }}
     onClick={() => { triggerHaptic(10); onOpenGateway(item); }}
-    className="group relative w-full p-6 sm:p-8 rounded-[32px] bg-linear-to-br from-yellow-300 via-amber-400 to-amber-600 border-4 border-yellow-200/60 flex flex-col gap-6 overflow-hidden mb-6 shadow-[0_15px_40px_rgba(245,158,11,0.5),inset_0_4px_15px_rgba(255,255,255,0.7)]"
+    className="group relative w-full p-6 sm:p-8 rounded-[32px] bg-linear-to-br from-yellow-300 via-amber-400 to-amber-600 border-4 border-yellow-200/60 flex flex-col gap-6 overflow- mb-6 shadow-[0_15px_40px_rgba(245,158,11,0.5),inset_0_4px_15px_rgba(255,255,255,0.7)]"
   >
     {/* Dynamic Shimmer Effect */}
     <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/50 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />
@@ -129,11 +131,23 @@ const SpecialOfferCard = ({ item, onOpenGateway }) => (
 );
 
 export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default' }) {
+  const { playTabSound } = useGame();
   const [activeTab, setActiveTab] = useState('powerups');
   const [gatewayOpen, setGatewayOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [showAvatarEffect, setShowAvatarEffect] = useState(null);
   const [showThemeEffect, setShowThemeEffect] = useState(null);
+  const bgRef = useRef(null);
+
+  const handleBackgroundClick = (e) => {
+    // Pulse on background void clicks
+    if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      bgRef.current?.pulse(x, y);
+    }
+  };
 
   const openGateway = (offer) => {
     setSelectedOffer({ ...offer, usd: offer.price_usd, iqd: offer.price_iqd });
@@ -147,7 +161,11 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
   };
 
   return (
-    <div className="flex-1 w-full bg-transparent px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden">
+    <div 
+      onClick={handleBackgroundClick}
+      className="flex-1 w-full bg-[#020617] px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x- relative bg-trigger-zone"
+    >
+      <FloatingLetterBackground ref={bgRef} />
       
       <InventoryBar 
         magnetCount={magnetCount} 
@@ -157,11 +175,15 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
         className="mb-4"
       />
 
-      <div className="flex p-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-xl overflow-hidden relative">
+      <div className="flex p-1.5 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-xl overflow- relative">
         {['powerups', 'avatars', 'themes'].map((tab) => (
           <button 
             key={tab}
-            onClick={() => { triggerHaptic(10); setActiveTab(tab); }} 
+            onClick={() => { 
+                triggerHaptic(10); 
+                playTabSound();
+                setActiveTab(tab); 
+            }} 
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-2 rounded-full transition-all duration-300 relative z-10 ${
               activeTab === tab 
                 ? 'bg-primary text-black shadow-lg scale-[1.03]' 

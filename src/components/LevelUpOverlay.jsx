@@ -4,7 +4,6 @@ import { triggerHaptic } from '../utils/haptics';
 import { useGame } from '../context/GameContext';
 
 const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
-  const [show, setShow] = useState(false);
   const { user } = useGame();
 
   // Fail-safe: close if session is lost
@@ -16,8 +15,6 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
 
   useEffect(() => {
     if (isVisible) {
-      setShow(true);
-      
       // High-saturation celebration
       const colors = ['#10b981', '#facc15', '#3b82f6', '#ffffff'];
       confetti({
@@ -29,12 +26,10 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
       
       // Level Up Triple-Pulse
       triggerHaptic([40, 60, 40, 60, 80]);
-    } else {
-      setShow(false);
     }
   }, [isVisible]);
 
-  if (!show) return null;
+  if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 z-5000 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-500">
@@ -45,11 +40,11 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
            <span className="material-symbols-outlined text-5xl" style={{fontVariationSettings: "'FILL' 1"}}>trending_up</span>
         </div>
         
-        <h2 className="text-4xl font-bold font-ui font-body text-secondary mb-2 leading-tight tracking-tight">
+        <h2 className="text-4xl font-bold  font-body text-secondary mb-2 leading-tight tracking-tight">
           پیرۆزە!
         </h2>
         
-        <p className="text-xl font-body font-bold font-ui text-white/90 mb-6">
+        <p className="text-xl font-body font-bold  text-white/90 mb-6">
           تو گەھشتیە ئاستێ <br/>
           <span className="text-secondary text-6xl drop-shadow-[0_0_15px_rgba(251,192,45,0.3)]">{newLevel}</span>
         </p>
@@ -60,9 +55,9 @@ const LevelUpOverlay = ({ isVisible, newLevel, onClose }) => {
         >
            <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-white text-3xl animate-bounce" style={{fontVariationSettings: "'FILL' 1"}}>payments</span>
-              <span className="font-body font-bold font-ui text-white text-xl">+٥٠٠ فلس دیاری</span>
+              <span className="font-body font-bold  text-white text-xl">+٥٠٠ فلس دیاری</span>
            </div>
-           <span className="text-[10px] uppercase font-bold font-ui tracking-[0.2em] text-white/60 group-hover:text-white transition-colors">وەربگرە</span>
+           <span className="text-[10px] uppercase font-bold  tracking-[0.2em] text-white/60 group-hover:text-white transition-colors">وەربگرە</span>
         </button>
       </div>
     </div>
