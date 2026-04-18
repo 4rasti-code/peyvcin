@@ -13,7 +13,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
 
   return (
     <LayoutGroup>
-      <nav className="relative w-full z-40 min-h-[80px] pb-[calc(10px+env(safe-area-inset-bottom))] pt-2 bg-slate-950/80 backdrop-blur-md border-t border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
+      <nav className="relative w-full z-40 min-h-[80px] pb-[env(safe-area-inset-bottom)] pt-2 bg-slate-950/80 backdrop-blur-md border-t border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
       {tabs.map((tab) => {
         const isActive = currentView === tab.id;
         const isSettings = tab.id === 'settings';

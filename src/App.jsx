@@ -1061,7 +1061,7 @@ export default function App() {
   if (!isAppReady || !isAuthChecked) return <div className="h-screen flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
 
   return (
-    <div className={`flex flex-col h-dvh w-full max-w-[100vw] overflow- bg-slate-950 text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
+    <div className={`flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-slate-950 text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
       {/* Panic Overlay for Word Fever Mode Critical Time */}
       {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
         <div className="panic-overlay" />
