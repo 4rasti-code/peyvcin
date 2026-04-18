@@ -189,7 +189,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
       <motion.div variants={itemVariants} className="mt-6 mb-4 mx-2">
         <button 
           onClick={() => onViewChange('dictionary')}
-          className="w-full h-26 rounded-2xl flex items-center justify-between px-8 group transition-all duration-500 puzzle-tile relative overflow- shadow-2xl border border-white/10"
+          className="w-full min-h-[104px] rounded-2xl flex items-center justify-between px-8 group transition-all duration-500 puzzle-tile relative overflow-hidden shadow-2xl border border-white/10"
         >
           {/* Enhanced Mesh Gradient Background */}
           <div className="absolute inset-0 bg-emerald-600/80" />

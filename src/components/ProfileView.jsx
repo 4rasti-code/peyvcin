@@ -193,7 +193,7 @@ export default function ProfileView({
    return (
       <div 
          onClick={handleBackgroundClick}
-         className="w-screen max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x- relative z-10 bg-[#020617] bg-trigger-zone"
+         className="w-screen max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x-hidden relative z-10 bg-[#020617] bg-trigger-zone"
       >
          <div className="absolute inset-0 pointer-events-none z-0">
             <FloatingLetterBackground ref={bgRef} />
@@ -400,7 +400,7 @@ export default function ProfileView({
          </div>
 
          <div className="mx-6 mb-4">
-            <div className="flex p-1 rounded-md border shadow-sm relative overflow- transition-all"
+            <div className="flex p-1 rounded-md border shadow-sm relative overflow-hidden transition-all"
                style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
                {[
                   { id: 'profile', label: 'بەرپەڕ', icon: 'person' },
@@ -439,7 +439,7 @@ export default function ProfileView({
          <div className="flex-1 overflow-y-auto px-4 pb-[80px] scrollbar-hide relative z-10 bg-trigger-zone">
             <AnimatePresence mode="wait">
                {activeTab === 'friends' && (
-                  <motion.div key="friends" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
+                  <motion.div key="friends" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4 w-full">
                      <div className="bg-[#f8fafc] p-6 rounded-lg border border-slate-200 flex flex-col items-center text-center noise-grain shadow-[4px_4px_0px_rgba(0,0,0,0.04)]">
                         <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]">
                            <span className="material-symbols-outlined text-2xl text-primary font-bold">person_add</span>
@@ -454,13 +454,13 @@ export default function ProfileView({
                )}
 
                {activeTab === 'stats' && (
-                  <motion.div key="stats" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}>
+                  <motion.div key="stats" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="w-full">
                      <StatsView playerStats={playerStats} rank={userRank} userNickname={userNickname} userAvatar={userAvatar} level={level} currentXP={currentXP} onViewChange={onViewChange} />
                   </motion.div>
                )}
 
                {activeTab === 'profile' && (
-                  <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 pt-2">
+                  <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 pt-2 w-full">
                      <div className="space-y-2 flex flex-col items-end">
                         <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ناسناڤێ تە</label>
                         <div className="flex items-center gap-2 w-full">
