@@ -506,7 +506,7 @@ export default function ProfileView({
 
                      <div className="space-y-2 flex flex-col items-end">
                         <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
-                        <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow- mb-1">
+                        <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow-hidden mb-1">
                            <span className="truncate">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
                            <span className="material-symbols-outlined text-[18px] mr-2 text-slate-400">mail</span>
                         </div>
@@ -557,7 +557,7 @@ export default function ProfileView({
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 noise-grain">
                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3 max-h-55 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
                               {AVATARS.map((avatar) => (
-                                 <button key={avatar.id} onClick={() => { triggerHaptic(10); setDraftAvatar(avatar.id); }} className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all relative overflow- ${draftAvatar === avatar.id ? 'bg-primary shadow-lg scale-110 z-10' : 'bg-white border border-slate-200'}`}><Avatar src={avatar.id} size="sm" border={false} />{draftAvatar === avatar.id && <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-20"><span className="material-symbols-outlined text-[10px] font-bold">check</span></div>}</button>
+                                 <button key={avatar.id} onClick={() => { triggerHaptic(10); setDraftAvatar(avatar.id); }} className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-full transition-all relative overflow-hidden ${draftAvatar === avatar.id ? 'bg-primary shadow-lg scale-110 z-10' : 'bg-white border border-slate-200'}`}><Avatar src={avatar.id} size="sm" border={false} />{draftAvatar === avatar.id && <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 text-white w-4 h-4 rounded-full flex items-center justify-center border-2 border-white z-20"><span className="material-symbols-outlined text-[10px] font-bold">check</span></div>}</button>
                               ))}
                            </div>
                         </div>
