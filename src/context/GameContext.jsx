@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import { 
+import {
   playAlertSfx, playStartGameSfx, playBackSfx, playSaveSfx,
   playTabSfx, setBackgroundMusicVolume,
   playSettingsOpenSfx, playSettingsCloseSfx,
@@ -14,6 +14,36 @@ import {
 
 const GameContext = createContext();
 
+/**
+ * EXPONENTIAL PROGRESSION FORMULA
+ * Base: 500, Factor: 1.1 (10% increase per level)
+ */
+const LEVEL_BASE_XP = 500;
+const LEVEL_FACTOR = 1.1;
+
+const getLevelFromXP = (xp) => {
+  if (xp <= 0) return 1;
+  return Math.floor(Math.log(xp * (LEVEL_FACTOR - 1) / LEVEL_BASE_XP + 1) / Math.log(LEVEL_FACTOR)) + 1;
+};
+
+const getLevelData = (xp) => {
+  const levelVal = getLevelFromXP(xp);
+  const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal - 1) - 1) / (LEVEL_FACTOR - 1);
+  const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal) - 1) / (LEVEL_FACTOR - 1);
+  const levelWidth = nextLevelBase - currentLevelBase;
+  const progressInLevel = xp - currentLevelBase;
+  const progressPercent = levelWidth > 0 ? (progressInLevel / levelWidth) * 100 : 0;
+
+  return {
+    level: levelVal,
+    currentLevelBase,
+    nextLevelBase,
+    progressInLevel,
+    levelWidth,
+    progressPercent: Math.min(100, Math.max(0, progressPercent))
+  };
+};
+
 export const GameProvider = ({ children }) => {
   const [level, setLevel] = useState(1);
   const [lastNotifiedLevel, setLastNotifiedLevel] = useState(1);
@@ -25,21 +55,21 @@ export const GameProvider = ({ children }) => {
 
   const [appSfxVolume, setAppSfxVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_sfx_volume');
-    return saved !== null ? Number(saved) : 15; // 15% Default
+    return saved !== null ? Number(saved) : 20; // 20% Default (Increased from 15%)
   });
   const [bgMusicVolume, setBgMusicVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_bg_music_volume');
-    return saved !== null ? Number(saved) : 30; // 30% Default
+    return saved !== null ? Number(saved) : 10; // 10% Default (Reduced from 30%)
   });
   const [hapticEnabled, setHapticEnabled] = useState(() => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
     return saved !== null ? saved === 'true' : true;
   });
   const [user, setUser] = useState(null);
-   const [loading, setLoading] = useState(true);
-   const [userRank, setUserRank] = useState(1);
-   const [inventory, setInventory] = useState({ badges: [] });
- 
+  const [loading, setLoading] = useState(true);
+  const [userRank, setUserRank] = useState(1);
+  const [inventory, setInventory] = useState({ badges: [] });
+
 
 
   // INVENTORY STATE (Robust Initialization)
@@ -61,9 +91,17 @@ export const GameProvider = ({ children }) => {
   const [city, setCity] = useState('');
   const [isInKurdistan, setIsInKurdistan] = useState(true);
   const [countryCode, setCountryCode] = useState('IQ');
-  const [ownedAvatars, setOwnedAvatars] = useState(['default']);
-  const [unlockedThemes, setUnlockedThemes] = useState(['default']);
-  const [currentTheme, setCurrentTheme] = useState('default');
+  const [ownedAvatars, setOwnedAvatars] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_owned_avatars');
+    return saved ? JSON.parse(saved) : ['default'];
+  });
+  const [unlockedThemes, setUnlockedThemes] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_unlocked_themes');
+    return saved ? JSON.parse(saved) : ['default'];
+  });
+  const [currentTheme, setCurrentTheme] = useState(() => {
+    return localStorage.getItem('peyvchin_current_theme') || 'default';
+  });
   const [solvedWords, setSolvedWords] = useState([]);
   const [playerStats, setPlayerStats] = useState({
     classic: { bestStreak: 0, currentStreak: 0, totalCorrect: 0 },
@@ -72,36 +110,8 @@ export const GameProvider = ({ children }) => {
     wordFever: { bestTime: 0, totalWins: 0 }
   });
 
-  /**
-   * EXPONENTIAL PROGRESSION FORMULA
-   * Base: 500, Factor: 1.1 (10% increase per level)
-   */
-  const LEVEL_BASE_XP = 500;
-  const LEVEL_FACTOR = 1.1;
 
-  const getLevelFromXP = useCallback((xp) => {
-    if (xp <= 0) return 1;
-    return Math.floor(Math.log(xp * (LEVEL_FACTOR - 1) / LEVEL_BASE_XP + 1) / Math.log(LEVEL_FACTOR)) + 1;
-  }, []);
 
-  const getLevelData = useCallback((xp) => {
-    const levelVal = getLevelFromXP(xp);
-    const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal - 1) - 1) / (LEVEL_FACTOR - 1);
-    const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal) - 1) / (LEVEL_FACTOR - 1);
-    const levelWidth = nextLevelBase - currentLevelBase;
-    const progressInLevel = xp - currentLevelBase;
-    const progressPercent = levelWidth > 0 ? (progressInLevel / levelWidth) * 100 : 0;
-    
-    return {
-      level: levelVal,
-      currentLevelBase,
-      nextLevelBase,
-      progressInLevel,
-      levelWidth,
-      progressPercent: Math.min(100, Math.max(0, progressPercent))
-    };
-  }, [getLevelFromXP]);
-  
   const levelData = getLevelData(currentXP);
   const minXPForLevel = levelData.currentLevelBase;
   const maxXP = levelData.nextLevelBase;
@@ -110,11 +120,17 @@ export const GameProvider = ({ children }) => {
   const lastRefreshTime = useRef(0);
   const lastXPRef = useRef(-1);
 
+  // CRITICAL: stateRef for stable async state access
+  const stateRef = useRef({ fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory });
+  useEffect(() => {
+    stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
+  }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
+
   const refreshRank = useCallback(async (xpValue = currentXP) => {
     // 1. Guard: If value hasn't changed AND we refreshed very recently (< 2s), skip
     const now = Date.now();
     if (xpValue === lastXPRef.current && (now - lastRefreshTime.current < 2000)) {
-       return;
+      return;
     }
 
     try {
@@ -135,27 +151,231 @@ export const GameProvider = ({ children }) => {
     }
   }, [currentXP]);
 
-  // 1. DATA SYNCHRONIZATION LIFECYCLE
+
+  const updateProfile = useCallback(async (profileData) => {
+    const { user: currentUser, inventory: currInv } = stateRef.current;
+    if (!currentUser?.id) return;
+
+    if (profileData.nickname !== undefined) setUserNickname(profileData.nickname);
+    if (profileData.avatar_url !== undefined) setUserAvatar(profileData.avatar_url);
+    if (profileData.city !== undefined) setCity(profileData.city);
+    if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
+    if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
+
+    const dbUpdates = {};
+    if (profileData.lastNotifiedLevel !== undefined) {
+      dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
+      setLastNotifiedLevel(profileData.lastNotifiedLevel);
+    }
+    if (profileData.nickname !== undefined) dbUpdates.nickname = profileData.nickname.trim();
+    if (profileData.avatar_url !== undefined) dbUpdates.avatar_url = profileData.avatar_url;
+    if (profileData.city !== undefined) dbUpdates.city = profileData.city;
+    if (profileData.is_kurdistan !== undefined) dbUpdates.is_kurdistan = profileData.is_kurdistan;
+    if (profileData.country_code !== undefined) dbUpdates.country_code = profileData.country_code;
+    if (profileData.app_sounds_enabled !== undefined) dbUpdates.app_sounds_enabled = profileData.app_sounds_enabled;
+    if (profileData.haptic_enabled !== undefined) {
+      dbUpdates.haptic_enabled = profileData.haptic_enabled;
+      setHapticEnabled(profileData.haptic_enabled);
+      localStorage.setItem('peyvchin_haptic_enabled', profileData.haptic_enabled.toString());
+    }
+    if (profileData.currentTheme !== undefined) {
+      dbUpdates.preferred_theme = profileData.currentTheme;
+      setCurrentTheme(profileData.currentTheme);
+      localStorage.setItem('peyvchin_current_theme', profileData.currentTheme);
+    }
+
+    let nextInventory = { ...currInv };
+    let hasInventoryUpdate = false;
+    if (profileData.ownedAvatars) { nextInventory.owned_avatars = profileData.ownedAvatars; setOwnedAvatars(profileData.ownedAvatars); hasInventoryUpdate = true; }
+    if (profileData.unlockedThemes) { nextInventory.unlocked_themes = profileData.unlockedThemes; setUnlockedThemes(profileData.unlockedThemes); hasInventoryUpdate = true; }
+    if (profileData.solvedWords) { nextInventory.solved_words = profileData.solvedWords; setSolvedWords(profileData.solvedWords); hasInventoryUpdate = true; }
+    if (profileData.playerStats) { nextInventory.stats = profileData.playerStats; setPlayerStats(profileData.playerStats); hasInventoryUpdate = true; }
+    if (profileData.currentTheme) { nextInventory.equipped_theme = profileData.currentTheme; hasInventoryUpdate = true; }
+
+    if (hasInventoryUpdate) {
+      dbUpdates.inventory = nextInventory;
+      setInventory(nextInventory);
+    }
+
+    dbUpdates.updated_at = new Date().toISOString();
+    try {
+      await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  }, []);
+
+  const handleToggleBlock = useCallback(async (targetId, currentStatus) => {
+    const { user: currentUser } = stateRef.current;
+    if (!currentUser?.id) return;
+    try {
+      if (currentStatus) {
+        await supabase.from('blocks').delete().eq('blocker_id', currentUser.id).eq('blocked_id', targetId);
+      } else {
+        await supabase.from('blocks').insert([{ blocker_id: currentUser.id, blocked_id: targetId }]);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const syncProfile = useCallback(async (userId) => {
+    try {
+      let data, error;
+      try {
+        let result = await supabase.from('profiles').select('*').eq('id', userId).single();
+        data = result.data;
+        error = result.error;
+      } catch (fetchError) {
+        console.warn("Supabase fetch fatal error:", fetchError);
+        return;
+      }
+
+      if (error && error.code === 'PGRST116') {
+        const initialRecord = {
+          id: userId, level: 1, xp: 0, last_notified_level: 1,
+          shayi: 1000, dirham: 50, dinar: 5,
+          magnets: 3, hints: 5, skips: 2,
+          inventory: {
+            badges: [],
+            owned_avatars: ['default'],
+            unlocked_themes: ['default'],
+            equipped_theme: 'default',
+            solved_words: [],
+            stats: { classic: { bestStreak: 0, totalCorrect: 0 } }
+          },
+          daily_streak: 0,
+          reward_streak: 0,
+          last_reward_claimed_at: null,
+          updated_at: new Date().toISOString()
+        };
+        await supabase.from('profiles').insert([initialRecord]);
+        setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
+        setRewardStreak(0); setLastRewardClaimedAt(null);
+      } else if (data && !error) {
+        const userInventoryData = data.inventory || {};
+        setInventory(userInventoryData);
+
+        const safeSet = (setter, val, fallback) => {
+          try { setter(val ?? fallback); } catch (e) { console.warn("Mapping failed:", e); }
+        };
+
+        safeSet(setLevel, data.level, 1);
+        safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
+        safeSet(setCurrentXP, data.xp, 0);
+        safeSet(setFils, data.shayi, 1000);
+        safeSet(setDerhem, data.dirham, 50);
+        safeSet(setZer, data.dinar, 5);
+        safeSet(setMagnetCount, data.magnets, 3);
+        safeSet(setHintCount, data.hints, 5);
+        safeSet(setSkipCount, data.skips, 2);
+        safeSet(setDailyStreak, data.daily_streak, 0);
+        safeSet(setLastNotifiedLevel, data.last_notified_level, 1);
+        safeSet(setRewardStreak, data.reward_streak, 0);
+        safeSet(setLastRewardClaimedAt, data.last_reward_claimed_at, null);
+
+        const sfxVol = data.sfx_volume ?? userInventoryData.settings?.app_sfx_volume ?? 20;
+        setAppSfxVolume(sfxVol);
+        localStorage.setItem('peyvchin_sfx_volume', sfxVol.toString());
+
+        const musicEnabled = data.music_enabled ?? true;
+        const bgVol = musicEnabled ? (userInventoryData.settings?.bg_music_volume ?? 10) : 0;
+        setBgMusicVolume(bgVol);
+        localStorage.setItem('peyvchin_bg_music_volume', bgVol.toString());
+
+        const haptic = data.haptic_enabled ?? true;
+        setHapticEnabled(haptic);
+        localStorage.setItem('peyvchin_haptic_enabled', haptic.toString());
+
+        const theme = data.preferred_theme ?? userInventoryData.equipped_theme ?? 'default';
+        setCurrentTheme(theme);
+        localStorage.setItem('peyvchin_current_theme', theme);
+
+        if (userInventoryData.unlocked_themes) {
+          setUnlockedThemes(userInventoryData.unlocked_themes);
+          localStorage.setItem('peyvchin_unlocked_themes', JSON.stringify(userInventoryData.unlocked_themes));
+        }
+
+        import('../utils/audio').then(m => {
+          m.setSfxVolume(sfxVol / 100);
+          m.setBackgroundMusicVolume(bgVol / 100);
+        });
+
+        setUserNickname(data.nickname || 'یاریزان');
+        setUserAvatar(data.avatar_url || 'default');
+        setCity(data.city || '');
+        setIsInKurdistan(data.is_kurdistan ?? true);
+        setCountryCode(data.country_code || 'IQ');
+
+        if (userInventoryData.owned_avatars) setOwnedAvatars(userInventoryData.owned_avatars);
+        if (userInventoryData.unlocked_themes) setUnlockedThemes(userInventoryData.unlocked_themes);
+        if (userInventoryData.solved_words) setSolvedWords(userInventoryData.solved_words);
+        if (userInventoryData.stats) setPlayerStats(userInventoryData.stats);
+        if (userInventoryData.equipped_theme) setCurrentTheme(userInventoryData.equipped_theme);
+
+        const today = new Date().toISOString().split('T')[0];
+        const lastLoginDate = userInventoryData.last_login;
+        let newStreak = data.daily_streak || 0;
+
+        if (!lastLoginDate) {
+          newStreak = 1;
+          updateProfile({ playerStats: { ...userInventoryData.stats, last_login: today }, dailyStreak: 1 });
+        } else if (lastLoginDate !== today) {
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+          if (lastLoginDate === yesterdayStr) {
+            newStreak += 1;
+          } else {
+            newStreak = 1;
+          }
+
+          const nextInv = { ...userInventoryData, last_login: today };
+          setInventory(nextInv);
+          setDailyStreak(newStreak);
+
+          supabase.from('profiles').update({
+            daily_streak: newStreak,
+            inventory: nextInv,
+            updated_at: new Date().toISOString()
+          }).eq('id', userId).then();
+        } else {
+          setDailyStreak(newStreak);
+        }
+
+        localStorage.setItem('peyvchin_skips', (data.skips ?? 2).toString());
+        localStorage.setItem('peyvchin_daily_streak', (data.daily_streak ?? 0).toString());
+        localStorage.setItem('peyvchin_sfx_volume', (sfxVol).toString());
+        localStorage.setItem('peyvchin_bg_music_volume', (bgVol).toString());
+        localStorage.setItem('peyvchin_haptic_enabled', (haptic).toString());
+
+        refreshRank(data.xp || 0);
+      }
+    } catch (err) {
+      console.warn("Profile Sync Error [v2]:", err);
+    }
+  }, [refreshRank, updateProfile]);
+
   useEffect(() => {
     const initializeSession = async () => {
-      // Get current session
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
         await syncProfile(session.user.id);
       } else {
-        // Fallback to local storage for guests
         const localXP = localStorage.getItem('peyvchin_xp');
         const localLvl = localStorage.getItem('peyvchin_level');
         const localNotifiedLvl = localStorage.getItem('peyvchin_last_notified_level');
         const localUnlockProgress = localStorage.getItem('peyvchin_wins_towards_secret');
-        
+
         if (localXP) setCurrentXP(parseFloat(localXP));
         if (localLvl) setLevel(parseInt(localLvl));
         if (localNotifiedLvl) setLastNotifiedLevel(parseInt(localNotifiedLvl));
         if (localUnlockProgress) setWinsTowardsSecret(parseInt(localUnlockProgress));
-        
-        // Sync items
+
         setFils(getInitial('peyvchin_fils', 1000));
         setDerhem(getInitial('peyvchin_derhem', 50));
         setZer(getInitial('peyvchin_zer', 5));
@@ -166,144 +386,6 @@ export const GameProvider = ({ children }) => {
       setLoading(false);
     };
 
-    const syncProfile = async (userId) => {
-      try {
-        let data, error;
-        try {
-          // Use select('*') so Supabase returns whatever columns exist without throwing a 400 Bad Request for unmigrated fields
-          let result = await supabase.from('profiles').select('*').eq('id', userId).single();
-          
-          data = result.data;
-          error = result.error;
-        } catch (fetchError) {
-          console.warn("Supabase fetch fatal error:", fetchError);
-          return;
-        }
-
-        if (error && error.code === 'PGRST116') {
-          const initialRecord = {
-            id: userId, level: 1, xp: 0, last_notified_level: 1,
-            shayi: 1000, dirham: 50, dinar: 5,
-            magnets: 3, hints: 5, skips: 2,
-            inventory: {
-              badges: [],
-              owned_avatars: ['default'],
-              unlocked_themes: ['default'],
-              equipped_theme: 'default',
-              solved_words: [],
-              stats: { classic: { bestStreak: 0, totalCorrect: 0 } }
-            },
-            daily_streak: 0,
-            reward_streak: 0,
-            last_reward_claimed_at: null,
-            updated_at: new Date().toISOString()
-          };
-          await supabase.from('profiles').insert([initialRecord]);
-          setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
-          setRewardStreak(0); setLastRewardClaimedAt(null);
-        } else if (data && !error) {
-          // Safe Data Mapping (Try/Catch per field)
-          const safeSet = (setter, val, fallback) => {
-            try { setter(val ?? fallback); } catch(e) { console.warn("Mapping failed for field", e); }
-          };
-
-          safeSet(setLevel, data.level, 1);
-          safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
-          safeSet(setCurrentXP, data.xp, 0);
-          safeSet(setFils, data.shayi, 1000);
-          safeSet(setDerhem, data.dirham, 50);
-          safeSet(setZer, data.dinar, 5);
-          safeSet(setMagnetCount, data.magnets, 3);
-          safeSet(setHintCount, data.hints, 5);
-          safeSet(setSkipCount, data.skips, 2);
-          safeSet(setDailyStreak, data.daily_streak, 0);
-          safeSet(setLastNotifiedLevel, data.last_notified_level, 1);
-          safeSet(setRewardStreak, data.reward_streak, 0);
-          safeSet(setLastRewardClaimedAt, data.last_reward_claimed_at, null);
-          
-          // Safety fallback for haptic column
-          setHapticEnabled(data.haptic_enabled !== undefined ? data.haptic_enabled : (localStorage.getItem('peyvchin_haptic_enabled') === 'true'));
-          
-          const inv = data.inventory || {};
-          setInventory(inv);
-          
-          const lsSfx = localStorage.getItem('peyvchin_sfx_volume');
-          const sfxVol = inv.settings?.app_sfx_volume ?? (lsSfx !== null ? Number(lsSfx) : 15);
-          setAppSfxVolume(sfxVol);
-          
-          const lsMusic = localStorage.getItem('peyvchin_bg_music_volume');
-          const musicVol = inv.settings?.bg_music_volume ?? (lsMusic !== null ? Number(lsMusic) : 30);
-          setBgMusicVolume(musicVol);
-
-          // Forward initial settings to the audio engine immediately
-          import('../utils/audio').then(m => {
-            m.setSfxVolume(sfxVol / 100);
-            m.setBackgroundMusicVolume(musicVol / 100);
-          });
-          
-          // Extended Data
-          setUserNickname(data.nickname || 'یاریزان');
-          setUserAvatar(data.avatar_url || 'default');
-          setCity(data.city || '');
-          setIsInKurdistan(data.is_kurdistan ?? true);
-          setCountryCode(data.country_code || 'IQ');
-
-          if (inv.owned_avatars) setOwnedAvatars(inv.owned_avatars);
-          if (inv.unlocked_themes) setUnlockedThemes(inv.unlocked_themes);
-          if (inv.solved_words) setSolvedWords(inv.solved_words);
-          if (inv.stats) setPlayerStats(inv.stats);
-          if (inv.equipped_theme) setCurrentTheme(inv.equipped_theme);
-          
-
-          // Daily Streak Logic
-          const today = new Date().toISOString().split('T')[0];
-          const lastLoginDate = inv.last_login;
-          let newStreak = data.daily_streak || 0;
-
-          if (!lastLoginDate) {
-            newStreak = 1;
-            updateProfile({ playerStats: { ...inv.stats, last_login: today }, dailyStreak: 1 });
-          } else if (lastLoginDate !== today) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-            if (lastLoginDate === yesterdayStr) {
-               newStreak += 1;
-            } else {
-               newStreak = 1;
-            }
-            
-            // Persist the new streak and update login date
-            const nextInv = { ...inv, last_login: today };
-            setInventory(nextInv);
-            setDailyStreak(newStreak);
-            
-            // Sync to DB
-            supabase.from('profiles').update({ 
-               daily_streak: newStreak,
-               inventory: nextInv,
-               updated_at: new Date().toISOString()
-            }).eq('id', userId).then();
-          } else {
-            setDailyStreak(newStreak);
-          }
-          
-          localStorage.setItem('peyvchin_skips', (data.skips ?? 2).toString());
-          localStorage.setItem('peyvchin_daily_streak', (data.daily_streak ?? 0).toString());
-          localStorage.setItem('peyvchin_sfx_volume', (inv.settings?.app_sfx_volume ?? 15).toString());
-          localStorage.setItem('peyvchin_bg_music_volume', (inv.settings?.bg_music_volume ?? 6).toString());
-          localStorage.setItem('peyvchin_haptic_enabled', (data.haptic_enabled ?? true).toString());
-          
-          refreshRank(data.xp || 0);
-        }
-      } catch (err) {
-        console.warn("Profile Sync Error:", err);
-      }
-    };
- 
-
-
     initializeSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -312,8 +394,7 @@ export const GameProvider = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [syncProfile]);
 
   // ONLINE HEARTBEAT
   useEffect(() => {
@@ -349,13 +430,13 @@ export const GameProvider = ({ children }) => {
     const reward = Math.ceil(baseReward * multiplier);
 
     setFils(prev => prev + reward);
-    
+
     setCurrentXP(prevXP => {
       const nextXP = prevXP + xp;
       // Level increment is handled by the useEffect above
       return nextXP;
     });
-    
+
     if (user) {
       await supabase.rpc('handle_level_completion', {
         p_user_id: user.id,
@@ -380,12 +461,6 @@ export const GameProvider = ({ children }) => {
     });
   }, []);
 
-  // --- STABILIZATION REFS ---
-  // We mirror state in refs to allow actions to have [] dependencies
-  const stateRef = useRef({ fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory });
-  useEffect(() => {
-    stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
-  }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
 
   const appSoundsEnabled = appSfxVolume > 0;
 
@@ -433,11 +508,11 @@ export const GameProvider = ({ children }) => {
   }, [appSoundsEnabled]);
 
   const playStartGameSound = useCallback(() => {
-    playStartGameSfx(appSoundsEnabled);
+    try { playStartGameSfx(appSoundsEnabled); } catch (e) { console.warn("Audio fail:", e); }
   }, [appSoundsEnabled]);
-  
+
   const startSearchingSound = useCallback(() => {
-    startSearchingSfx();
+    try { startSearchingSfx(); } catch (e) { console.warn("Audio fail:", e); }
   }, []);
 
   const stopSearchingSound = useCallback((fade = true) => {
@@ -456,18 +531,13 @@ export const GameProvider = ({ children }) => {
     setBgMusicVolume(val);
     localStorage.setItem('peyvchin_bg_music_volume', val.toString());
     setBackgroundMusicVolume(val / 100);
-    
+
     // Also sync to Supabase if user is logged in
-    const { user: currentUser, inventory: currentInv } = stateRef.current;
+    const { user: currentUser } = stateRef.current;
     if (currentUser) {
-      const updatedInv = { 
-        ...(currentInv || {}), 
-        settings: { ...(currentInv?.settings || {}), bg_music_volume: val } 
-      };
-      setInventory(updatedInv);
-      supabase.from('profiles').update({ 
-        inventory: updatedInv,
-        updated_at: new Date().toISOString() 
+      supabase.from('profiles').update({
+        music_enabled: val > 0,
+        updated_at: new Date().toISOString()
       }).eq('id', currentUser.id).then();
     }
   }, []);
@@ -476,18 +546,13 @@ export const GameProvider = ({ children }) => {
     setAppSfxVolume(val);
     localStorage.setItem('peyvchin_sfx_volume', val.toString());
     import('../utils/audio').then(m => m.setSfxVolume(val / 100));
-    
+
     // Also sync to Supabase if user is logged in
-    const { user: currentUser, inventory: currentInv } = stateRef.current;
+    const { user: currentUser } = stateRef.current;
     if (currentUser) {
-      const updatedInv = { 
-        ...(currentInv || {}), 
-        settings: { ...(currentInv?.settings || {}), app_sfx_volume: val } 
-      };
-      setInventory(updatedInv);
-      supabase.from('profiles').update({ 
-        inventory: updatedInv,
-        updated_at: new Date().toISOString() 
+      supabase.from('profiles').update({
+        sfx_volume: val,
+        updated_at: new Date().toISOString()
       }).eq('id', currentUser.id).then();
     }
   }, []);
@@ -510,14 +575,14 @@ export const GameProvider = ({ children }) => {
     // 2. Calculate next values for state and DB
     const calculateNext = (current, offset, additive) => additive ? (current + offset) : offset;
 
-    const { 
-      user: currentUser, 
-      fils: currFils, 
-      derhem: currDerhem, 
-      zer: currZer, 
-      magnetCount: currMags, 
-      hintCount: currHints, 
-      skipCount: currSkips 
+    const {
+      user: currentUser,
+      fils: currFils,
+      derhem: currDerhem,
+      zer: currZer,
+      magnetCount: currMags,
+      hintCount: currHints,
+      skipCount: currSkips
     } = stateRef.current;
 
     // Local results to ensure what we set in state matches what we send to DB
@@ -567,10 +632,10 @@ export const GameProvider = ({ children }) => {
    */
   const syncProgressToDatabase = useCallback(async (lettersCount, gameMode, additionalData = {}) => {
     // USE REFS TO AVOID STALE CLOSURES (Critical for Async Saving)
-    const { 
-      user: currentUser, 
-      currentXP: currXP, 
-      level: currLevel, 
+    const {
+      user: currentUser,
+      currentXP: currXP,
+      level: currLevel,
       inventory: currInv,
       derhem: currDerhem,
       magnetCount: currMags,
@@ -583,7 +648,7 @@ export const GameProvider = ({ children }) => {
     try {
       // 1. Update XP and Shayi (Fils) via RPC in Database
       const shayiBonus = Number(additionalData.shayiBonus || 5);
-      
+
       const { data, error } = await supabase.rpc('handle_game_xp', {
         p_user_id: currentUser.id,
         p_letters_count: lettersCount,
@@ -597,13 +662,13 @@ export const GameProvider = ({ children }) => {
         const finalXP = (currXP || 0) + xp_added;
 
         // 2. Prepare Profile Updates (Inventory, Progress)
-        const profileUpdates = { 
+        const profileUpdates = {
           updated_at: new Date().toISOString(),
           magnets: currMags,
           hints: currHints,
           skips: currSkips
         };
-        
+
         // Add Derhem sync if bonus provided
         if (additionalData.derhemBonus) {
           profileUpdates.dirham = Number(currDerhem || 0) + additionalData.derhemBonus;
@@ -625,7 +690,7 @@ export const GameProvider = ({ children }) => {
         // 3. Update Local UI State (Instant Feedback)
         setCurrentXP(finalXP);
         setDailyStreak(current_streak);
-        
+
         // Sync the coin reward locally
         if (shayiBonus > 0) {
           setFils(prev => Number(prev) + shayiBonus);
@@ -638,7 +703,7 @@ export const GameProvider = ({ children }) => {
         if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
         if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
         if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
-        
+
         if (new_level > currLevel) {
           setLevel(new_level);
           refreshRank(finalXP);
@@ -703,7 +768,7 @@ export const GameProvider = ({ children }) => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split('T')[0];
-      
+
       if (lastClaimDate === yesterdayStr) {
         nextStreak = (currRewardStreak % 7) + 1;
       }
@@ -721,15 +786,15 @@ export const GameProvider = ({ children }) => {
     };
 
     const currentReward = rewards[nextStreak];
-    
+
     // Update State & DB
     try {
       setRewardStreak(nextStreak);
       setLastRewardClaimedAt(now.toISOString());
-      
+
       // Update Inventory
       updateInventory(currentReward);
-      
+
       // Sync to DB
       await supabase.from('profiles').update({
         reward_streak: nextStreak,
@@ -744,67 +809,6 @@ export const GameProvider = ({ children }) => {
     }
   }, [updateInventory]);
 
-  const updateProfile = useCallback(async (profileData) => {
-
-    const { user: currentUser, inventory: currInv } = stateRef.current;
-    if (!currentUser?.id) return;
-
-    if (profileData.nickname !== undefined) setUserNickname(profileData.nickname);
-    if (profileData.avatar_url !== undefined) setUserAvatar(profileData.avatar_url);
-    if (profileData.city !== undefined) setCity(profileData.city);
-    if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
-    if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
-
-    const dbUpdates = {};
-    if (profileData.lastNotifiedLevel !== undefined) {
-      dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
-      setLastNotifiedLevel(profileData.lastNotifiedLevel);
-    }
-    if (profileData.nickname !== undefined) dbUpdates.nickname = profileData.nickname.trim();
-    if (profileData.avatar_url !== undefined) dbUpdates.avatar_url = profileData.avatar_url;
-    if (profileData.city !== undefined) dbUpdates.city = profileData.city;
-    if (profileData.is_kurdistan !== undefined) dbUpdates.is_kurdistan = profileData.is_kurdistan;
-    if (profileData.country_code !== undefined) dbUpdates.country_code = profileData.country_code;
-    if (profileData.app_sounds_enabled !== undefined) dbUpdates.app_sounds_enabled = profileData.app_sounds_enabled;
-    if (profileData.haptic_enabled !== undefined) dbUpdates.haptic_enabled = profileData.haptic_enabled;
-    
-    let nextInventory = { ...currInv };
-    let hasInventoryUpdate = false;
-    if (profileData.ownedAvatars) { nextInventory.owned_avatars = profileData.ownedAvatars; setOwnedAvatars(profileData.ownedAvatars); hasInventoryUpdate = true; }
-    if (profileData.unlockedThemes) { nextInventory.unlocked_themes = profileData.unlockedThemes; setUnlockedThemes(profileData.unlockedThemes); hasInventoryUpdate = true; }
-    if (profileData.solvedWords) { nextInventory.solved_words = profileData.solvedWords; setSolvedWords(profileData.solvedWords); hasInventoryUpdate = true; }
-    if (profileData.playerStats) { nextInventory.stats = profileData.playerStats; setPlayerStats(profileData.playerStats); hasInventoryUpdate = true; }
-    if (profileData.currentTheme) { nextInventory.equipped_theme = profileData.currentTheme; setCurrentTheme(profileData.currentTheme); hasInventoryUpdate = true; }
-
-    if (hasInventoryUpdate) {
-      dbUpdates.inventory = nextInventory;
-      setInventory(nextInventory);
-    }
-
-    dbUpdates.updated_at = new Date().toISOString();
-    try {
-      await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id);
-      return { success: true };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
-  }, []);
-
-  const handleToggleBlock = useCallback(async (targetId, currentStatus) => {
-    const { user: currentUser } = stateRef.current;
-    if (!currentUser?.id) return;
-    try {
-      if (currentStatus) {
-        await supabase.from('blocks').delete().eq('blocker_id', currentUser.id).eq('blocked_id', targetId);
-      } else {
-        await supabase.from('blocks').insert([{ blocker_id: currentUser.id, blocked_id: targetId }]);
-      }
-      return true;
-    } catch {
-      // Ignore
-      return false;
-    }
-  }, []);
 
   const checkBlockStatus = useCallback(async (targetId) => {
     if (!user?.id) return false;
@@ -823,8 +827,8 @@ export const GameProvider = ({ children }) => {
     }
   }, [user?.id]);
 
-  const value = useMemo(() => ({ 
-    level, 
+  const value = useMemo(() => ({
+    level,
     winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
     currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
     dailyStreak, setDailyStreak,
@@ -840,7 +844,7 @@ export const GameProvider = ({ children }) => {
     syncProgressToDatabase,
     getLevelFromXP, getLevelData,
     handleToggleBlock, checkBlockStatus,
-    userRank, 
+    userRank,
     refreshRank,
     user, setUser,
     setFils, setDerhem, setZer,
@@ -859,11 +863,11 @@ export const GameProvider = ({ children }) => {
     playDailyOpenSfx, playDailyClaimSfx,
     setLevel, setCurrentXP,
     lastNotifiedLevel, setLastNotifiedLevel,
-    loading 
+    loading
   }), [
-    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, zer, 
+    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, zer,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
-    inventory, magnetCount, hintCount, skipCount, 
+    inventory, magnetCount, hintCount, skipCount,
     ownedAvatars, userAvatar, unlockedThemes, currentTheme, solvedWords, playerStats,
     userNickname, city, isInKurdistan, countryCode, userRank, user, loading,
     appSoundsEnabled, hapticEnabled, lastNotifiedLevel,

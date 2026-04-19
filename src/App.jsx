@@ -17,7 +17,7 @@ import useMultiplayer from './hooks/useMultiplayer';
 import useGameLogic from './hooks/useGameLogic';
 import { AVATARS } from './data/avatars';
 
-import { initAudio, stopBackgroundMusic } from './utils/audio';
+import { initAudio, startBackgroundMusic, stopBackgroundMusic, forceResumeAudio } from './utils/audio';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
@@ -172,6 +172,7 @@ export default function App() {
 
   // Results & UI State
   const [victoryBreakdown, setVictoryBreakdown] = useState({ base: 0, streak: 0, hints: 0, total: 0 });
+  const [victoryCustomText, setVictoryCustomText] = useState(null);
   const [lastSolvedWord, setLastSolvedWord] = useState('');
   const [isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
   const [isWordFeverResultVisible, setIsWordFeverResultVisible] = useState(false);
@@ -526,6 +527,19 @@ export default function App() {
       }
     }
   }, [user?.id, isGameLoading, currentView]);
+  
+  // MUSIC SUPPRESSION (Disable music in registration section)
+  useEffect(() => {
+    if (currentView === 'auth') {
+      stopBackgroundMusic();
+    } else if (bgMusicVolume > 0) {
+      // Small delay to ensure audio engine is ready if it's the first time
+      const timer = setTimeout(() => {
+        startBackgroundMusic();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [currentView, bgMusicVolume]);
 
   // REAL-TIME NOTIFICATIONS (Messages & Friend Requests)
   useEffect(() => {
@@ -744,9 +758,21 @@ export default function App() {
       
       // 1. Set result breakdown for overlays
       if (lastMatchResult === 'victory') {
+        const isForfeit = multiplayerState === 'game_over' && forfeitStatus;
+        
         setIsVictory(true);
         playRewardSound();
-        setVictoryBreakdown({ base: 0, mistakes: 0, total: 0, mode: 'Multiplayer' });
+        setVictoryBreakdown({ base: 50, mistakes: 0, total: 50, mode: 'Multiplayer' });
+        setRewardAmountXp(100);
+
+        if (isForfeit) {
+          setVictoryCustomText({
+            title: "هەڤڕکێ تە دەرکەفت",
+            description: "opponent has disconnected"
+          });
+        } else {
+          setVictoryCustomText(null);
+        }
       } else if (lastMatchResult === 'defeat') {
         setIsDefeat(true);
         setDefeatBreakdown({ base: 0, mistakes: 0, total: 0, mode: 'Multiplayer' });
@@ -1061,7 +1087,7 @@ export default function App() {
   if (!isAppReady || !isAuthChecked) return <div className="h-screen flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
 
   return (
-    <div className={`flex flex-col h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-slate-950 text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
+    <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden bg-[#020617] text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
       {/* Panic Overlay for Word Fever Mode Critical Time */}
       {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
         <div className="panic-overlay" />
@@ -1099,7 +1125,7 @@ export default function App() {
       )}
 
       {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-      <main className={`flex-1 ${currentView === 'game' || currentView === 'social_hub' ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+      <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
         {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
           setUser(u);
           if (nicknameHint) {
@@ -1115,9 +1141,11 @@ export default function App() {
           </Suspense>
         )}
 
-        {currentView === 'lobby' && multiplayerState !== 'playing' && multiplayerState !== 'game_over' && (
+        {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
+        {currentView === 'lobby' && multiplayerState === 'idle' && (
           <LobbyView
             onStartClassic={() => {
+              forceResumeAudio();
               playTabSound();
               stopBGM();
               triggerHaptic(10);
@@ -1165,6 +1193,7 @@ export default function App() {
             onViewChange={setCurrentView}
             notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
             onStartMultiplayer={() => {
+              forceResumeAudio(); // iOS Unlock on User Gesture
               playTabSound();
               stopBGM();
               startMatchmaking();
@@ -1173,7 +1202,7 @@ export default function App() {
         )}
 
         {currentView === 'game' && (
-          <div className="flex-1 flex flex-col overflow- relative h-full">
+          <div className="flex-1 flex flex-col overflow-hidden relative h-full">
             {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
             <div className="flex-1 flex flex-col items-center min-h-0">
               {/* Question Section */}
@@ -1215,7 +1244,7 @@ export default function App() {
             </div>
 
             {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="keyboard-safety-area">
+            <div className="keyboard-safety-area mt-auto pb-[env(safe-area-inset-bottom)]">
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}
@@ -1359,7 +1388,7 @@ export default function App() {
       </main>
 
       {/* 3. CONDITIONAL BOTTOM NAV */}
-      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && multiplayerState !== 'playing' && (
+      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && multiplayerState === 'idle' && (
         <BottomNav 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
@@ -1374,9 +1403,14 @@ export default function App() {
         breakdown={victoryBreakdown}
         solvedWord={lastSolvedWord}
         xp={rewardAmountXp}
-        onNext={handleNextGame}
-        playStartSound={playStartGameSound}
+        customTitle={victoryCustomText?.title}
+        customDescription={victoryCustomText?.description}
+        onNext={() => {
+          setIsVictory(false);
+          handleNextGame();
+        }}
         onHome={handleGoHome}
+        playStartSound={playStartGameSound}
       />
       <SettingsModal
         isOpen={isSettingsOpen}
@@ -1389,10 +1423,7 @@ export default function App() {
         onBgMusicVolumeChange={updateMusicVolume}
         hapticEnabled={hapticEnabled}
         onHapticToggle={() => {
-          const next = !hapticEnabled;
-          setHapticEnabled(next);
-          localStorage.setItem('peyvchin_haptic_enabled', next.toString());
-          updateProfile({ haptic_enabled: next });
+          updateProfile({ haptic_enabled: !hapticEnabled });
         }}
         user={user}
         onLogout={handleLogout}

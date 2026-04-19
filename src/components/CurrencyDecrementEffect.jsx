@@ -11,13 +11,19 @@ import { playCoinSfx } from '../utils/audio';
  */
 const CurrencyDecrementEffect = ({ value, currency, children, className = "" }) => {
   const [changes, setChanges] = useState([]);
-  const prevValue = useRef(value);
+  const prevValue = useRef(null);
 
   useEffect(() => {
-    // Detect decrease
+    // Skip initial run on mount to prevent false deductions on view switch
+    if (prevValue.current === null) {
+      prevValue.current = value;
+      return;
+    }
+
     const numericValue = Number(value) || 0;
     const previousNumericValue = Number(prevValue.current) || 0;
 
+    // Only trigger if the change is a real decrease
     if (numericValue < previousNumericValue) {
       const diff = previousNumericValue - numericValue;
       const id = Date.now() + Math.random();

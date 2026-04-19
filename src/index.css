@@ -138,11 +138,14 @@
 html,
 body,
 #root {
-  height: 100%;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
   margin: 0;
   padding: 0;
   overflow: hidden;
   width: 100vw;
+  max-width: 100vw;
+  background-color: #020617;
   touch-action: none;
   overscroll-behavior: none;
 }

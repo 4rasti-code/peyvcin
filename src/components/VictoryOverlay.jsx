@@ -35,12 +35,14 @@ const AnimatedNumber = ({ value, prefix = "" }) => {
 
 const VictoryOverlay = ({ 
   isVisible, 
-  breakdown, 
   solvedWord, 
+  breakdown, 
   xp, 
   onNext, 
-  onHome,
-  playStartSound
+  onHome, 
+  playStartSound, 
+  customTitle, 
+  customDescription 
 }) => {
   const hasTriggeredRef = useRef(false);
 
@@ -103,10 +105,10 @@ const VictoryOverlay = ({
             {/* Message Area */}
             <div className="text-center space-y-4 w-full">
               <h2 className="text-4xl font-black font-heading text-emerald-400">
-                 تە سەرکەفتن ئینا!
+                 {customTitle || "تە سەرکەفتن ئینا!"}
               </h2>
               <p className="text-lg font-bold font-body text-white/60 leading-relaxed px-4">
-                 پیرۆزە! هەوڵەکانت بێ ئەنجام نەبوون و تە پەیڤا دروست دیت.
+                 {customDescription || "پیرۆزە! هەوڵەکانت بێ ئەنجام نەبوون و تە پەیڤا دروست دیت."}
               </p>
 
               {solvedWord && (

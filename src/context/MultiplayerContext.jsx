@@ -29,6 +29,10 @@ export const MultiplayerProvider = ({ children }) => {
   const [isRoundWinner, setIsRoundWinner] = useState(false);
   const [winnerNickname, setWinnerNickname] = useState('');
   const [roundMessage, setRoundMessage] = useState('');
+  const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
+  const [forfeitCountdown, setForfeitCountdown] = useState(30);
+  const forfeitTimerRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
 
   const stateRef = useRef(multiplayerState);
   const wordIndexRef = useRef(currentWordIndex);
@@ -96,6 +100,11 @@ export const MultiplayerProvider = ({ children }) => {
       setOpponentGuesses([]);
       setScores({ p1: 0, p2: 0 });
       setCurrentWordIndex(1);
+      setForfeitStatus(null);
+      if (forfeitTimerRef.current) {
+        clearTimeout(forfeitTimerRef.current);
+        forfeitTimerRef.current = null;
+      }
       stopSearchingSound(false);
     }
   }, [matchId, multiplayerState, stopSearchingSound]);
@@ -131,7 +140,12 @@ export const MultiplayerProvider = ({ children }) => {
         { event: 'UPDATE', schema: 'public', table: 'online_matches', filter: `id=eq.${matchId}` },
         (payload) => {
           const updatedMatch = payload.new;
-          console.log('[Multiplayer] Realtime Update:', updatedMatch.id, 'State:', updatedMatch.status);
+          console.log('[Multiplayer] Realtime Update:', updatedMatch.id, {
+            status: updatedMatch.status,
+            p2: updatedMatch.player2_id ? 'Joined' : 'Waiting',
+            p1_score: updatedMatch.p1_score,
+            p2_score: updatedMatch.p2_score
+          });
           setActiveMatch(prev => prev ? { ...prev, ...updatedMatch } : updatedMatch);
         }
       )
@@ -151,17 +165,88 @@ export const MultiplayerProvider = ({ children }) => {
           }
         }
       )
-      .subscribe((status) => {
+      .on('presence', { event: 'sync' }, () => {
+        const newState = channel.presenceState();
+        const presences = Object.values(newState).flat();
+        const opponentId = opponentRef.current?.id;
+        
+        // If opponent was pending forfeit but is now back in sync
+        const isOpponentPresent = presences.some(p => p.user_id === opponentId);
+        if (isOpponentPresent && forfeitTimerRef.current) {
+          console.log('[Multiplayer] Opponent reconnected, cancelling forfeit timer');
+          clearTimeout(forfeitTimerRef.current);
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+          forfeitTimerRef.current = null;
+          countdownIntervalRef.current = null;
+          setForfeitStatus(null);
+          setForfeitCountdown(30);
+        }
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        const opponentId = opponentRef.current?.id;
+        const opponentLeft = leftPresences.some(p => p.user_id === opponentId);
+        
+        if (opponentLeft && stateRef.current === 'playing') {
+          console.log('[Multiplayer] Opponent left, starting 30s grace period...');
+          setForfeitStatus('pending');
+          setForfeitCountdown(30);
+          
+          if (forfeitTimerRef.current) clearTimeout(forfeitTimerRef.current);
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+
+          // Start countdown interval
+          countdownIntervalRef.current = setInterval(() => {
+            setForfeitCountdown(prev => Math.max(0, prev - 1));
+          }, 1000);
+
+          forfeitTimerRef.current = setTimeout(() => {
+            console.log('[Multiplayer] Grace period expired, triggering forfeit.');
+            if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+            triggerForfeitVictory();
+          }, 30000);
+        }
+      })
+      .subscribe(async (status) => {
+        console.log(`[Multiplayer] Realtime Channel (${matchId}):`, status);
         if (status === 'SUBSCRIBED') {
           channelRef.current = channel;
+          await channel.track({
+            user_id: user?.id,
+            online_at: new Date().toISOString(),
+          });
+        }
+        if (status === 'CHANNEL_ERROR') {
+          console.error('[Multiplayer] Realtime Connection Failed. Check Policies/Realtime settings.');
         }
       });
 
     return () => {
       supabase.removeChannel(channel);
       channelRef.current = null;
+      if (forfeitTimerRef.current) {
+        clearTimeout(forfeitTimerRef.current);
+        forfeitTimerRef.current = null;
+      }
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
     };
   }, [matchId, user?.id]);
+
+  // 2.5 APP STATE VISIBILITY HANDLER
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[Multiplayer] App returned to foreground, checking connection...');
+        if (supabase.realtime && !supabase.realtime.isConnected()) {
+          supabase.realtime.connect();
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // 3. SYNC EFFECT: Silent Auto-Handshake
   useEffect(() => {
@@ -202,10 +287,10 @@ export const MultiplayerProvider = ({ children }) => {
       setOpponentGuesses([]);
       setIsRoundWinner(false);
       setWinnerNickname('');
-      setTimeout(() => setRoundMessage(''), 3000);
+      setTimeout(() => setRoundMessage(''), 4000);
     }
 
-    if (activeMatch.status === 'finished' && multiplayerState !== 'idle' && multiplayerState !== 'game_over') {
+    if (activeMatch.status === 'finished' && multiplayerState !== 'idle') {
       const isP1 = activeMatch.player1_id === user.id;
       const myScore = isP1 ? activeMatch.p1_score : activeMatch.p2_score;
       const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
@@ -241,37 +326,70 @@ export const MultiplayerProvider = ({ children }) => {
     if (!user?.id) return;
 
     console.log('[Multiplayer] ONE-CLICK: Searching for rooms...');
-    startSearchingSound();
+    
+    // 0. Failsafe Audio Initialization
+    try { startSearchingSound(); } catch (e) { console.warn("Searching Sfx fail:", e); }
+
+    // 1. Aggressive Connection Guard (Flush and Re-establish)
+    if (supabase.realtime) {
+      console.log('[Multiplayer] Forcing fresh connection for search...');
+      supabase.realtime.disconnect();
+      supabase.realtime.connect();
+    }
+
     setMultiplayerState('searching');
     setMatchmakingTime(0);
     setOpponent(null);
     setOpponentGuesses([]);
 
+    // 2. HARD TIMEOUT FALLBACK (15 Seconds)
+    // If we're still searching after 15s, reset to prevent infinite hang.
+    const searchTimeout = setTimeout(() => {
+      if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
+        console.warn('[Multiplayer] Matchmaking timed out after 15s. Cleaning up...');
+        cancelMatch();
+      }
+    }, 15000);
+
     try {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
       await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'waiting');
 
-      // PHASE 1: SEARCH (ATOMIC QUEUE VIA RPC)
-      const { data: grabbedMatchId, error: queueError } = await supabase.rpc('join_matchmaking', {
-        p_user_id: user.id
-      });
+      // PHASE 1: SEARCH (DIRECT CLIENT-SIDE JOIN - AUDITED)
+      console.log('[Multiplayer] SEARCH: Querying for status=waiting AND player2_id=NULL...');
+      const { data: openMatches, error: searchError } = await supabase
+        .from('online_matches')
+        .select('id, player1_id')
+        .eq('status', 'waiting')
+        .is('player2_id', null)
+        .neq('player1_id', user.id)
+        .order('created_at', { ascending: true })
+        .limit(1);
 
-      if (queueError) {
-        console.error('[Multiplayer] RPC Queue Error:', queueError);
+      if (searchError) {
+        console.error('[Multiplayer] Search Query Error:', searchError);
       }
 
-      if (grabbedMatchId) {
-        console.log('[Multiplayer] JOINER: Grabbed room via Queue! Fetching match data...', grabbedMatchId);
-        
-        // Fetch the full room details since the RPC only returns the ID
-        const { data: joinedMatch, error: fetchMatchError } = await supabase
+      if (openMatches && openMatches.length > 0) {
+        const targetMatch = openMatches[0];
+        console.log('[Multiplayer] JOINER: Found target room:', targetMatch.id, '. Attempting atomic claim...');
+
+        // ATOMIC CLAIM: Update only if it's still waiting with no p2
+        const { data: joinedMatch, error: claimError } = await supabase
           .from('online_matches')
-          .select('*')
-          .eq('id', grabbedMatchId)
+          .update({ 
+            player2_id: user.id,
+            status: 'playing' // Optional: move to playing immediately OR let handshake decide
+          })
+          .eq('id', targetMatch.id)
+          .is('player2_id', null)
+          .select()
           .single();
 
-        if (!fetchMatchError && joinedMatch) {
-          console.log('[Multiplayer] JOINER: Success! Words:', joinedMatch.words?.[0]);
+        if (!claimError && joinedMatch) {
+          clearTimeout(searchTimeout);
+          console.log('[Multiplayer] JOINER: Claim SUCCESS! Handshaking with Host:', joinedMatch.player1_id);
+          
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
           if (!hostProfile) throw new Error('Identity verification failed');
 
@@ -279,6 +397,8 @@ export const MultiplayerProvider = ({ children }) => {
           setActiveMatch(joinedMatch);
           setCurrentWordIndex(joinedMatch.current_word_index || 0);
           return;
+        } else {
+          console.warn('[Multiplayer] JOINER: Claim failed (someone else got it?). Falling back to Host.');
         }
       }
 
@@ -325,7 +445,8 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
-      stopSearchingSound(false);
+      clearTimeout(searchTimeout);
+      try { stopSearchingSound(false); } catch(e) {}
       setMultiplayerState('idle');
     }
   };
@@ -379,6 +500,78 @@ export const MultiplayerProvider = ({ children }) => {
     }
   };
 
+  const submitFailure = async () => {
+    if (!matchId || !activeMatch) return;
+    
+    const isP1 = activeMatch.player1_id === user?.id;
+    const currentIdx = activeMatch.current_word_index || 0;
+    
+    // 1. Give point to opponent
+    const updates = { 
+      [isP1 ? 'p2_score' : 'p1_score']: (isP1 ? activeMatch.p2_score : activeMatch.p1_score) + 1,
+      p1_colors: [],
+      p2_colors: []
+    };
+
+    // 2. Determine if it was the final round
+    if (currentIdx >= 2) {
+      updates.status = 'finished';
+      // Force opponent victory by setting their score to 3
+      if (isP1) updates.p2_score = 3; else updates.p1_score = 3;
+      setMultiplayerState('game_over');
+    } else {
+      // Move to next round
+      updates.current_word_index = currentIdx + 1;
+    }
+
+    await supabase.from('online_matches').update(updates).eq('id', matchId);
+  };
+
+  const { setFils, addXP, playCoinSound } = useGame();
+
+  const triggerForfeitVictory = async () => {
+    const mId = matchId || matchIdRef.current;
+    if (!mId) return;
+
+    try {
+      setForfeitStatus('confirmed');
+      const isP1 = activeMatch?.player1_id === user?.id;
+      
+      // 1. Update DB immediately
+      const updates = { 
+        status: 'finished',
+        // Award the win to the remaining player by setting score 
+        // Or just let the result logic handle it
+      };
+      // To ensure victory, we make sure current player has more points or we just set result
+      if (isP1) updates.p1_score = 3; else updates.p2_score = 3;
+
+      await supabase.from('online_matches').update(updates).eq('id', mId);
+
+      // 2. Award Rewards
+      const coinReward = 50;
+      const xpReward = 100;
+      setFils(prev => prev + coinReward);
+      addXP(xpReward);
+      playCoinSound();
+
+      // 3. UI Update
+      setLastMatchResult('victory');
+      setMatchResultTrigger(prev => prev + 1);
+      
+      // Cleanup
+      if (forfeitTimerRef.current) {
+        clearTimeout(forfeitTimerRef.current);
+        forfeitTimerRef.current = null;
+      }
+
+      // Transition out of playing state
+      setMultiplayerState('game_over');
+    } catch (err) {
+      console.error('[Multiplayer] Forfeit handling failed:', err);
+    }
+  };
+
   const resetMatchResultTrigger = () => {
     setMatchResultTrigger(0);
     setLastMatchResult(null);
@@ -404,7 +597,11 @@ export const MultiplayerProvider = ({ children }) => {
       fetchOpponentProfile,
       lastMatchResult,
       matchResultTrigger,
-      resetMatchResultTrigger
+      resetMatchResultTrigger,
+      forfeitStatus,
+      forfeitCountdown,
+      triggerForfeitVictory,
+      submitFailure
     }}>
       {children}
     </MultiplayerContext.Provider>

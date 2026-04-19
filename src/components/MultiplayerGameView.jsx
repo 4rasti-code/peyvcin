@@ -7,6 +7,7 @@ import { useGame } from '../context/GameContext';
 import useGameLogic from '../hooks/useGameLogic';
 import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
+import RoundIntro from './RoundIntro';
 import { triggerHaptic } from '../utils/haptics';
 
 export default function MultiplayerGameView({ opponent: propOpponent }) {
@@ -24,6 +25,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     multiplayerState,
     setMultiplayerState,
     fetchOpponentProfile,
+    resetMatchResultTrigger,
+    forfeitStatus,
+    forfeitCountdown,
+    triggerForfeitVictory,
+    submitFailure,
     cancelMatch
   } = useMultiplayer();
 
@@ -65,7 +71,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     targetWord,
     maxRows: 3,
     gameMode: 'multiplayer',
-    onGuessSubmitted
+    onGuessSubmitted,
+    onLoss: async () => {
+      console.log('[Multiplayer] Round Loss detected locally. Submitting failure.');
+      await submitFailure();
+    }
   });
 
   // 3. IDENTITY HEALING: Ensure opponent is fetched if missing
@@ -107,7 +117,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   }
 
   return (
-    <div className="flex flex-col h-dvh bg-[#020617] overflow-">
+    <div className="flex flex-col flex-1 h-full w-full bg-[#020617] overflow-hidden">
       <style>
         {`
           .battle-grid-container {
@@ -123,7 +133,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </style>
       
       {/* 1. SCOREBOARD (Dedicated Header) */}
-      <div className="px-6 py-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
+      <div className="shrink-0 px-6 py-4 pt-[env(safe-area-inset-top)] bg-white/5 border-b border-white/10 flex items-center justify-between">
         {/* RIGHT (First child in RTL): OPPONENT */}
         <div className="flex items-center gap-3 text-right">
           <motion.div
@@ -205,7 +215,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
 
       {/* 3. KEYBOARD (With hidePowerups=true) */}
-      <div className="p-2 bg-black/20 pb-8">
+      <div className="shrink-0 p-2 bg-[#020617]/40 pb-[env(safe-area-inset-bottom)] mt-auto m-0">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
@@ -216,86 +226,14 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         />
       </div>
 
-      {/* AGGRESSIVE VERSUS CLASH OVERLAY */}
-      <AnimatePresence>
-        {roundMessage && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-500 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-8 overflow-"
-          >
-            {/* Background Clash Elements */}
-            <motion.div 
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1.5, opacity: 0.2 }}
-              transition={{ duration: 0.5 }}
-              className="absolute w-full h-40 bg-red-600 blur-[120px]"
-            />
-            
-            <div className="relative z-10 w-full flex flex-col items-center gap-12">
-              <div className="flex items-center justify-center gap-4 sm:gap-12 w-full max-w-2xl px-4">
-                {/* YOU (Left) */}
-                <motion.div 
-                  initial={{ x: -200, opacity: 0, rotate: -15 }}
-                  animate={{ x: 0, opacity: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                  className="flex flex-col items-center gap-4"
-                >
-                  <div className="relative">
-                    <div className="absolute -inset-2 bg-emerald-500/20 blur-xl rounded-full" />
-                    <Avatar src={userAvatar} size="2xl" className="relative border-4 border-emerald-500/50 shadow-[0_0_40px_rgba(16,185,129,0.3)]" border={false} />
-                  </div>
-                  <span className="text-emerald-400 font-black text-lg tracking-wider uppercase drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">{userNickname}</span>
-                </motion.div>
-
-                {/* VS Center */}
-                <motion.div 
-                   initial={{ scale: 3, opacity: 0, rotate: 45 }}
-                   animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                   transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.3 }}
-                   className="flex flex-col items-center"
-                >
-                   <div className="text-7xl sm:text-9xl font-black text-red-600 italic tracking-tighter drop-shadow-[0_0_30px_rgba(220,38,38,0.8)]">VS</div>
-                    <motion.div 
-                      animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="text-white/60 font-black text-base uppercase tracking-[0.4em] mt-3 whitespace-nowrap font-noto-sans-arabic"
-                    >
-                      دەستپێکر
-                    </motion.div>
-                </motion.div>
-
-                {/* FOE (Right) */}
-                <motion.div 
-                  initial={{ x: 200, opacity: 0, rotate: 15 }}
-                  animate={{ x: 0, opacity: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                  className="flex flex-col items-center gap-4"
-                >
-                  <div className="relative">
-                    <div className="absolute -inset-2 bg-red-600/20 blur-xl rounded-full" />
-                    <Avatar src={opponent?.avatar_url} size="2xl" className="relative border-4 border-red-600/50 shadow-[0_0_40px_rgba(220,38,38,0.3)]" border={false} />
-                  </div>
-                  <span className="text-red-500 font-black text-lg tracking-wider uppercase drop-shadow-[0_0_10px_rgba(239,68,68,0.5)]">{opponent?.nickname || 'هەڤڕک'}</span>
-                </motion.div>
-              </div>
-
-              {/* ACTION TEXT */}
-              <motion.div
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="w-full py-8"
-              >
-                <h1 className="text-6xl sm:text-8xl font-black text-white font-noto-sans-arabic drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                  گەڕ {currentRound + 1}
-                </h1>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* TEKKEN-STYLE CINEMATIC ROUND INTRO */}
+      <RoundIntro 
+        roundMessage={roundMessage}
+        opponent={opponent}
+        userAvatar={userAvatar}
+        userNickname={userNickname}
+        currentRound={currentRound}
+      />
 
       {/* ROUND WINNER OVERLAY */}
       <AnimatePresence>
@@ -370,6 +308,46 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
                 >
                   نەخێر، مانەوە
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 6. FORFEIT PENDING (GRACE PERIOD) OVERLAY */}
+      <AnimatePresence>
+        {forfeitStatus === 'pending' && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[700] bg-black/90 backdrop-blur-xl flex items-center justify-center p-8 text-center"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="bg-amber-500/10 border-2 border-amber-500/30 p-10 rounded-[40px] shadow-2xl max-w-sm w-full"
+            >
+              <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="material-symbols-outlined text-4xl text-amber-400 animate-pulse">wifi_off</span>
+              </div>
+              <h2 className="text-2xl font-black text-white mb-2 leading-tight font-noto-sans-arabic">
+                هەڤڕک یێ پچڕایە...
+              </h2>
+              <p className="text-amber-100/60 text-lg font-bold mb-6 font-noto-sans-arabic">
+                چاوەڕێبە {forfeitCountdown} چرکان
+              </p>
+              
+              <div className="flex items-center justify-center gap-3">
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '200ms' }} />
+                 <div className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '400ms' }} />
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-white/5">
+                <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em]">
+                  MATCH RESUMES AUTOMATICALLY ON RETURN
+                </p>
               </div>
             </motion.div>
           </motion.div>

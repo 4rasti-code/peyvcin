@@ -24,7 +24,8 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => { 
-                triggerHaptic(10);
+                // Don't trigger haptic when opening the store to prevent 'automatic' feeling vibration
+                if (tab.id !== 'store') triggerHaptic(10);
                 if (onTabClickSound) onTabClickSound();
                 if (isSettings) onSettingsToggle(); 
                 else setCurrentView(tab.id); 

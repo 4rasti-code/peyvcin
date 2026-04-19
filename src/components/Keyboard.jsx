@@ -115,7 +115,7 @@ const Keyboard = memo(({
   }, [onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState]);
 
   return (
-    <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation pb-1 pt-2 relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
+    <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
       
       {!hidePowerups && (
         <InventoryBar 

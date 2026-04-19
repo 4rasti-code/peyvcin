@@ -97,24 +97,31 @@ function SettingsModal({
                           style={{ backgroundColor: palette.card }}
                           className="rounded-sm p-3.5 shadow-sm border border-white/20"
                        >
-                          <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center justify-between">
                              <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>music_note</span>
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>
+                                   {bgMusicVolume > 0 ? 'music_note' : 'music_off'}
+                                </span>
                                 <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>دەنگێ مۆزیکێ</span>
                              </div>
-                             <span className="text-[10px] font-black px-2 py-0.5 rounded-sm bg-[#1e293b] text-white tabular-nums shadow-sm">{bgMusicVolume}%</span>
+                             
+                             <button 
+                                onClick={() => onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 10)}
+                                className={`w-12 h-7 rounded-sm p-1 transition-all duration-300 relative shrink-0 shadow-inner ${
+                                   bgMusicVolume > 0 ? 'bg-[#1e293b]' : 'bg-slate-300'
+                                }`}
+                             >
+                                <motion.div 
+                                   animate={{ x: bgMusicVolume > 0 ? -20 : 0 }}
+                                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                   className={`w-5 h-5 rounded-sm shadow-md flex items-center justify-center ${
+                                      bgMusicVolume > 0 ? 'bg-[#10b981]' : 'bg-white'
+                                   }`}
+                                >
+                                   {bgMusicVolume > 0 && <div className="w-1 h-1 rounded-full bg-emerald-950" />}
+                                </motion.div>
+                             </button>
                           </div>
-                          <input 
-                             type="range" 
-                             min="0" 
-                             max="100" 
-                             value={bgMusicVolume} 
-                             onChange={(e) => onBgMusicVolumeChange(parseInt(e.target.value))}
-                             className="w-full h-1.5 rounded-none appearance-none cursor-pointer focus:outline-none"
-                             style={{
-                                background: `linear-gradient(to left, ${palette.accent} 0%, ${palette.accent} ${bgMusicVolume}%, #94a3b8 ${bgMusicVolume}%, #94a3b8 100%)`
-                             }}
-                          />
                        </div>
 
                        {/* Haptic Row */}

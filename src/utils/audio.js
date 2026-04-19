@@ -21,6 +21,9 @@ const SFX_PATHS = {
   PURCHASE: '/coin-drop-229314.wav',
   EARNING: '/coin-jingle-trio-89078.wav',
   BOOSTER: '/hit-shell-01-266294.wav',
+  SWORD_COMBO: '/freesound_crunchpixstudio-rpg-sword-attack-combo-34-388950.mp3',
+  SWORD_SLASH: '/gargamel10-sword-slashing-game-sound-effect-2-379229.mp3',
+  WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
 };
 
 const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
@@ -31,8 +34,8 @@ class SoundEngine {
     this.context = null;
     this.buffers = {};
     this.initialized = false;
-    this.masterVolume = 0.15; // 15% Default as requested
-    this.musicVolume = 0.30;
+    this.masterVolume = 0.20; // 20% Default as requested
+    this.musicVolume = 0.10;
     
     // Music management (Streaming)
     this.musicAudioElement = null;
@@ -128,6 +131,21 @@ class SoundEngine {
   }
 
   /**
+   * Force resume AudioContext (iOS Fix)
+   */
+  async forceResume() {
+    if (!this.initialized) await this.init();
+    if (this.context && this.context.state === 'suspended') {
+      try {
+        await this.context.resume();
+        console.log("🔊 [AudioEngine] Context Resumed Successfully");
+      } catch (e) {
+        console.warn("🔊 [AudioEngine] Context Resume Failed:", e);
+      }
+    }
+  }
+
+  /**
    * Stop Music
    */
   stopMusic() {
@@ -162,7 +180,7 @@ class SoundEngine {
     if (!this.initialized || !this.buffers[key]) return;
 
     if (this.context.state === 'suspended') {
-      this.context.resume();
+      this.context.resume().catch(() => {});
     }
 
     const { volume = 1.0, pitchRandomization = 0, detune = 0 } = options;
@@ -179,6 +197,9 @@ class SoundEngine {
     if (key === 'START_GAME') baseVolume *= 0.2;
     if (key === 'TAB') baseVolume *= 0.6;
     if (key === 'BUBBLE_POP') baseVolume *= 0.8;
+    if (key === 'SWORD_COMBO') baseVolume *= 0.6;
+    if (key === 'SWORD_SLASH') baseVolume *= 0.5;
+    if (key === 'WHOOSH') baseVolume *= 1.0;
     
     gainNode.gain.value = baseVolume * this.masterVolume;
 
@@ -201,7 +222,7 @@ class SoundEngine {
     if (!this.initialized) return;
 
     if (this.context.state === 'suspended') {
-      this.context.resume();
+      this.context.resume().catch(() => {});
     }
 
     // Initialize the element if it doesn't exist
@@ -380,7 +401,9 @@ export const playBubblePopSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('BUBBLE_POP', { pitchRandomization: 10 });
 };
-
+export const playSwordComboSfx = () => engine.play('SWORD_COMBO');
+export const playSwordSlashSfx = () => engine.play('SWORD_SLASH', { pitchRandomization: 50 });
+export const playWhooshSfx = () => engine.play('WHOOSH');
 export const startSearchingSfx = () => engine.startSearchingSfx();
 export const stopSearchingSfx = (fade = true) => engine.stopSearchingSfx(fade);
-
+export const forceResumeAudio = () => engine.forceResume();

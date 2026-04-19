@@ -202,6 +202,10 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
 
   const executePurchase = (payload) => {
     const { type, data } = payload;
+    
+    // Successful transaction haptic
+    triggerHaptic(20); 
+
     if (type === 'powerup') {
        onPurchase(data);
     } else if (type === 'avatar') {
