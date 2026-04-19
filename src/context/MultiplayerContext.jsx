@@ -102,9 +102,7 @@ export const MultiplayerProvider = ({ children }) => {
       }
 
       await supabase.from('online_matches').update(updates).eq('id', matchId);
-      setIsRoundWinner(true);
       triggerHaptic([50, 50, 100]);
-      setTimeout(() => setIsRoundWinner(false), 3000);
     }
   };
 
@@ -114,22 +112,25 @@ export const MultiplayerProvider = ({ children }) => {
     const isP1 = activeMatch.player1_id === user?.id;
     const currentIdx = activeMatch.current_word_index || 0;
     
-    // 1. Give point to opponent
+    // 1. Mark as failed locally (Ghost Grid update)
     const updates = { 
-      [isP1 ? 'p2_score' : 'p1_score']: (isP1 ? activeMatch.p2_score : activeMatch.p1_score) + 1,
-      p1_colors: [],
-      p2_colors: []
+      [isP1 ? 'p1_colors' : 'p2_colors']: [...(isP1 ? activeMatch.p1_colors : activeMatch.p2_colors || []), ["#334155","#334155","#334155","#334155","#334155"]] // Placeholder colors for failure
     };
 
-    // 2. Determine if it was the final round
-    if (currentIdx >= 2) {
-      updates.status = 'finished';
-      // Force opponent victory by setting their score to 3
-      if (isP1) updates.p2_score = 3; else updates.p1_score = 3;
-      setMultiplayerState('game_over');
-    } else {
-      // Move to next round
-      updates.current_word_index = currentIdx + 1;
+    // 2. Check if opponent already failed OR if we are the last ones to fail
+    const oppColors = isP1 ? activeMatch.p2_colors : activeMatch.p1_colors;
+    const oppFailed = oppColors && (oppColors.length >= 3); // MaxRows is 3
+
+    if (oppFailed) {
+      // Both failed: 0 points for both, next round
+      updates.p1_colors = [];
+      updates.p2_colors = [];
+      if (currentIdx >= 2) {
+        updates.status = 'finished';
+        setMultiplayerState('game_over');
+      } else {
+        updates.current_word_index = currentIdx + 1;
+      }
     }
 
     await supabase.from('online_matches').update(updates).eq('id', matchId);
@@ -445,12 +446,11 @@ export const MultiplayerProvider = ({ children }) => {
 
     if (activeMatch.current_word_index !== undefined && activeMatch.current_word_index !== wordIndexRef.current) {
       const newIndex = activeMatch.current_word_index || 0;
-      setRoundMessage('ئامادەکارن بۆ گەڕێ');
       setCurrentWordIndex(newIndex);
       setOpponentGuesses([]);
       setIsRoundWinner(false);
       setWinnerNickname('');
-      setTimeout(() => setRoundMessage(''), 4000);
+      setRoundMessage('');
     }
 
     if (activeMatch.status === 'finished' && multiplayerState !== 'idle' && multiplayerState !== 'game_over') {

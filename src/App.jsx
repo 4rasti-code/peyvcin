@@ -57,6 +57,7 @@ import TermsOfService from './components/TermsOfService';
 import ProfileView from './components/ProfileView';
 import KurdishSunLoader from './components/KurdishSunLoader';
 import DailyRewardModal from './components/DailyRewardModal';
+import MultiplayerResultOverlay from './components/MultiplayerResultOverlay';
 
 
 
@@ -215,18 +216,26 @@ export default function App() {
   } = useGame();
 
   const {
+    matchId,
     multiplayerState,
     matchmakingTime,
+    opponent,
     cancelMatch,
     startMatchmaking,
-
-    opponent,
     lastMatchResult,
+    scores,
     matchResultTrigger,
     submitFailure,
     resetMatchResultTrigger,
     forfeitStatus
   } = useMultiplayer();
+
+  // TRANSITION: Return to Lobby when Match ends (Multiplayer High-Speed Flow)
+  useEffect(() => {
+    if (multiplayerState === 'game_over') {
+      setCurrentView('lobby');
+    }
+  }, [multiplayerState]);
 
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
@@ -1525,7 +1534,6 @@ export default function App() {
       />
 
       {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
-      {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
       <AnimatePresence>
         {(multiplayerState === 'searching' || multiplayerState === 'waiting') && (
           <motion.div 
@@ -1585,6 +1593,23 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+ 
+      <MultiplayerResultOverlay
+        isVisible={multiplayerState === 'game_over' && lastMatchResult !== null}
+        result={lastMatchResult}
+        scores={scores}
+        opponent={opponent}
+        userAvatar={userAvatar}
+        userNickname={userNickname}
+        onPlayAgain={() => {
+          resetMatchResultTrigger();
+          startMatchmaking();
+        } }
+        onClose={() => {
+          resetMatchResultTrigger();
+          cancelMatch(); // Reset state to idle
+        } }
+      />
 
     </div>
   );

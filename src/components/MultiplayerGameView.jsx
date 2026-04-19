@@ -235,29 +235,6 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         currentRound={currentRound}
       />
 
-      {/* ROUND WINNER OVERLAY */}
-      <AnimatePresence>
-        {(isRoundWinner || winnerNickname) && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[300] bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center"
-          >
-             <motion.div 
-               initial={{ scale: 0.8, y: 20 }} animate={{ scale: 1, y: 0 }}
-               className="bg-emerald-500/10 border-2 border-emerald-500/30 p-12 rounded-[40px] shadow-2xl"
-             >
-                <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                   <span className="material-symbols-outlined text-4xl text-emerald-400">celebration</span>
-                </div>
-                <h2 className="text-4xl font-black text-white mb-2 leading-tight">
-                  {isRoundWinner ? 'تە پەیڤ دۆزییەوە!' : `${winnerNickname} پەیڤ دۆزییەوە!`}
-                </h2>
-                <p className="text-emerald-100/60 text-xl font-medium">خۆڕاگر بە، ڕاوندێن دی ل ڕێینە...</p>
-             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* FLOATING EXIT BUTTON (TOP LEFT - BELOW HEADER) */}
       <div className="fixed top-40 left-4 z-[450]">
         <motion.button 
