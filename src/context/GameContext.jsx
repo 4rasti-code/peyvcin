@@ -145,6 +145,9 @@ export const GameProvider = ({ children }) => {
       // Only perform DB update if values changed or haven't been synced yet
       if (calculatedLevel !== dbSyncRef.current.lastSyncedLevel || currentXP !== dbSyncRef.current.lastSyncedXP) {
         try {
+          // The database trigger 'trg_sync_profile_level' will automatically calculate 
+          // the 'level' column based on 'xp', but we still pass calculatedLevel
+          // as a fallback and to ensure the local state stays in sync.
           await supabase.from('profiles').update({ 
             xp: currentXP, 
             level: calculatedLevel,
