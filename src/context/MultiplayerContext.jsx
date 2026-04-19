@@ -40,6 +40,7 @@ export const MultiplayerProvider = ({ children }) => {
   const opponentRef = useRef(opponent);
   const matchIdRef = useRef(matchId);
   const channelRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
 
   useEffect(() => { stateRef.current = multiplayerState; }, [multiplayerState]);
   useEffect(() => { wordIndexRef.current = currentWordIndex; }, [currentWordIndex]);
