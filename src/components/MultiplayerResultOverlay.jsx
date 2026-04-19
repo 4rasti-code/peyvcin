@@ -51,7 +51,7 @@ export default function MultiplayerResultOverlay({
         {/* Cinematic Backdrop Glow */}
         <div 
           className={`absolute inset-0 opacity-20 blur-[120px] rounded-full transition-colors duration-1000 ${
-            isVictory ? 'bg-emerald-500' : isDraw ? 'bg-amber-500' : 'bg-red-500'
+            isVictory ? 'bg-emerald-500' : isDraw ? 'bg-indigo-400' : 'bg-red-500'
           }`} 
         />
 
@@ -68,7 +68,7 @@ export default function MultiplayerResultOverlay({
               animate={{ scale: 1 }}
               transition={{ type: 'spring', damping: 12, stiffness: 200, delay: 0.2 }}
               className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 ${
-                isVictory ? 'bg-emerald-500/20 text-emerald-400' : isDraw ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-500'
+                isVictory ? 'bg-emerald-500/20 text-emerald-400' : isDraw ? 'bg-slate-500/20 text-slate-300' : 'bg-red-500/20 text-red-500'
               }`}
             >
               <span className="material-symbols-outlined text-6xl">
@@ -77,9 +77,9 @@ export default function MultiplayerResultOverlay({
             </motion.div>
             
             <h1 className={`text-4xl font-black font-rabar tracking-tight mb-2 ${
-              isVictory ? 'text-emerald-400' : isDraw ? 'text-amber-400' : 'text-red-400'
+              isVictory ? 'text-emerald-400' : isDraw ? 'text-slate-300' : 'text-red-400'
             }`}>
-              {isVictory ? 'سەرکەفتن!' : isDraw ? 'یەکسان بوون!' : 'خوسارەتی!'}
+              {isVictory ? 'سەرکەفتن!' : isDraw ? 'یەکسانبوون!' : 'خوسارەتی!'}
             </h1>
             <p className="text-white/40 font-medium">ئەنجامێ دووفاییک یێ یاریێ</p>
           </div>
@@ -135,7 +135,7 @@ export default function MultiplayerResultOverlay({
               initial={{ width: '100%' }}
               animate={{ width: '0%' }}
               transition={{ duration: 10, ease: 'linear' }}
-              className={`h-full ${isVictory ? 'bg-emerald-500' : isDraw ? 'bg-amber-500' : 'bg-red-500'}`}
+              className={`h-full ${isVictory ? 'bg-emerald-500' : isDraw ? 'bg-slate-400' : 'bg-red-500'}`}
             />
           </div>
         </motion.div>
