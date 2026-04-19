@@ -502,14 +502,15 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponent(null);
     setOpponentGuesses([]);
 
-    // 2. HARD TIMEOUT FALLBACK (15 Seconds)
-    // If we're still searching after 15s, reset to prevent infinite hang.
-    const searchTimeout = setTimeout(() => {
-      if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
-        console.warn('[Multiplayer] Matchmaking timed out after 15s. Cleaning up...');
-        cancelMatch();
+    // 2. HARD TIMEOUT FALLBACK (60 Seconds)
+    // If we're still searching after 60s, reset to prevent infinite hang.
+    searchTimeoutRef.current = setTimeout(() => {
+      if (stateRef.current.multiplayerState === 'searching') {
+        console.warn('[Multiplayer] Matchmaking timed out after 60s. Cleaning up...');
+        setMultiplayerState('idle'); 
+        alert("چو یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
       }
-    }, 15000);
+    }, 60000);
 
     try {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
