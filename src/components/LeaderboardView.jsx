@@ -80,11 +80,10 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
         if (pError) throw pError;
         leaderData = data || [];
       } else {
-        // GLOBAL VIEW - Order by Level FIRST, then XP
+        // GLOBAL VIEW - Order by XP (Most Reliable Metric)
         const { data, error: leaderError } = await supabase
           .from('profiles')
           .select('*')
-          .order('level', { ascending: false })
           .order('xp', { ascending: false })
           .limit(20);
           
@@ -94,11 +93,11 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
       
       setLeaders(leaderData);
 
-      // Rank calculation: Count users with higher level OR (same level and higher XP)
+      // Rank calculation: Count users with more XP
       const { count, error: rankError } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
-        .or(`level.gt.${userLevel},and(level.eq.${userLevel},xp.gt.${userXP})`);
+        .gt('xp', userXP);
 
       if (!rankError) setUserRank(count + 1);
     } catch (err) {

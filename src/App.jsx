@@ -222,31 +222,15 @@ export default function App() {
 
     opponent,
     lastMatchResult,
-    matchResultTrigger
+    matchResultTrigger,
+    submitFailure,
+    resetMatchResultTrigger,
+    forfeitStatus
   } = useMultiplayer();
 
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
-  // --- AUTOMATIC BACKGROUND MUSIC (BGM) ENGINE ---
-  useEffect(() => {
-    // Menu Tabs where BGM should be ON
-    const menuViews = ['lobby', 'social_hub', 'store', 'leaderboard', 'stats', 'dictionary'];
-    
-    // Gameplay or Matchmaking states where BGM should be OFF
-    const isGameplayActive = currentView === 'game' || 
-                             multiplayerState === 'searching' || 
-                             multiplayerState === 'waiting' || 
-                             multiplayerState === 'playing';
-                             
-    const isAuth = currentView === 'auth';
-
-    if (isGameplayActive || isAuth) {
-      stopBGM();
-    } else if (menuViews.includes(currentView)) {
-      startBGM();
-    }
-  }, [currentView, multiplayerState, startBGM, stopBGM]);
 
   // 5. Notification Sound Trigger (Distinguishing between messages and others)
   const prevNotifCount = useRef(0);
@@ -321,9 +305,16 @@ export default function App() {
   }, [handleGameCompletion, playRewardSound]);
 
   const onLossHandler = useCallback((finalGuesses) => {
-    const { targetWord: tWord, gameMode: gMode } = gameRefs.current;
+    const { targetWord: tWord, gameMode: gMode, multiplayerState: mState } = gameRefs.current;
     
     setLastSolvedWord(tWord);
+    
+    // If in multiplayer, trigger the failure scoring logic (Round based)
+    if (mState === 'playing') {
+      submitFailure();
+      return;
+    }
+
     if (gMode === 'word_fever') {
         setWordFeverResultType('fail');
         setIsWordFeverResultVisible(true);
@@ -331,7 +322,7 @@ export default function App() {
         handleGameCompletion(finalGuesses, false);
         if (gMode === 'secret_word') resetSecretWordProgress();
     }
-  }, [handleGameCompletion, resetSecretWordProgress]);
+  }, [handleGameCompletion, resetSecretWordProgress, submitFailure]);
 
   const {
     guesses,
@@ -351,8 +342,36 @@ export default function App() {
     onWin: onWinHandler,
     onLoss: onLossHandler
   });
+  
+  // --- UNIFIED AUTOMATIC BACKGROUND MUSIC (BGM) CONTROLLER ---
+  // Ensures BGM is only active in main menu views and stops in all gameplay/matchmaking/auth states.
+  useEffect(() => {
+    // 1. Define where BGM SHOULD be active (Menu/Static Views)
+    const menuViews = ['lobby', 'social_hub', 'store', 'leaderboard', 'stats', 'dictionary'];
+    
+    // 2. Define where BGM SHOULD be suppressed (Gameplay/Transition/Auth)
+    // We also check for victory/defeat overlays to keep music off during results
+    const isGameplayActive = currentView === 'game' || 
+                             multiplayerState === 'searching' || 
+                             multiplayerState === 'waiting' || 
+                             multiplayerState === 'playing' ||
+                             isVictory || 
+                             isDefeat ||
+                             isWordFeverResultVisible;
+                             
+    const isAuth = currentView === 'auth';
 
-  const { resetMatchResultTrigger } = useMultiplayer();
+    if (isGameplayActive || isAuth || bgMusicVolume === 0) {
+      stopBGM();
+    } else if (menuViews.includes(currentView)) {
+      // Small safety delay for engine context initialization on first load
+      const timer = setTimeout(() => {
+        startBGM();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentView, multiplayerState, isVictory, isDefeat, isWordFeverResultVisible, bgMusicVolume, startBGM, stopBGM]);
+
 
   // Centralized Navigation (Fixes Ghost Overlays)
   const handleGoHome = useCallback(() => {
@@ -362,9 +381,10 @@ export default function App() {
     setIsDailyActive(false);
     setCategory('');
     setTargetWord('');
-    if (resetMatchResultTrigger) resetMatchResultTrigger();
+    // Ensure full multiplayer reset when returning from any result screen
+    if (cancelMatch) cancelMatch();
     setCurrentView('lobby');
-  }, [setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setIsDailyActive, setCategory, setTargetWord, resetMatchResultTrigger, setCurrentView]);
+  }, [setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setIsDailyActive, setCategory, setTargetWord, cancelMatch, setCurrentView]);
 
   // Dynamic Hint Limit Logic
   const getMaxHintsForWord = useCallback((length) => {
@@ -528,19 +548,6 @@ export default function App() {
     }
   }, [user?.id, isGameLoading, currentView]);
   
-  // MUSIC SUPPRESSION (Disable music in registration section)
-  useEffect(() => {
-    if (currentView === 'auth') {
-      stopBackgroundMusic();
-    } else if (bgMusicVolume > 0) {
-      // Small delay to ensure audio engine is ready if it's the first time
-      const timer = setTimeout(() => {
-        startBackgroundMusic();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [currentView, bgMusicVolume]);
-
   // REAL-TIME NOTIFICATIONS (Messages & Friend Requests)
   useEffect(() => {
     if (!user?.id) return;
@@ -765,10 +772,10 @@ export default function App() {
         setVictoryBreakdown({ base: 50, mistakes: 0, total: 50, mode: 'Multiplayer' });
         setRewardAmountXp(100);
 
-        if (isForfeit) {
+        if (forfeitStatus === 'confirmed') {
           setVictoryCustomText({
             title: "هەڤڕکێ تە دەرکەفت",
-            description: "opponent has disconnected"
+            description: "هەڤڕکێ تە یێ پچڕای، تو ب سەرکەفتی!"
           });
         } else {
           setVictoryCustomText(null);
@@ -1387,8 +1394,11 @@ export default function App() {
         </Suspense>
       </main>
 
-      {/* 3. CONDITIONAL BOTTOM NAV */}
-      {currentView !== 'game' && currentView !== 'auth' && !isKeyboardOpen && multiplayerState === 'idle' && (
+      {/* 3. CONDITIONAL BOTTOM NAV (Hide during ANY gameplay or multiplayer) */}
+      {currentView !== 'game' && 
+       currentView !== 'auth' && 
+       (multiplayerState === 'idle' || multiplayerState === 'game_over') && 
+       !isKeyboardOpen && (
         <BottomNav 
           currentView={currentView} 
           setCurrentView={setCurrentView} 

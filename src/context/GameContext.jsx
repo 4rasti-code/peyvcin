@@ -45,13 +45,19 @@ const getLevelData = (xp) => {
 };
 
 export const GameProvider = ({ children }) => {
-  const [level, setLevel] = useState(1);
   const [lastNotifiedLevel, setLastNotifiedLevel] = useState(1);
   const [winsTowardsSecret, setWinsTowardsSecret] = useState(0);
   const [currentXP, setCurrentXP] = useState(0);
   const [dailyStreak, setDailyStreak] = useState(0);
   const [rewardStreak, setRewardStreak] = useState(0);
   const [lastRewardClaimedAt, setLastRewardClaimedAt] = useState(null);
+  
+  // Derived state for level (Always in sync with XP)
+  const levelData = useMemo(() => getLevelData(currentXP), [currentXP]);
+  const level = levelData.level;
+  const minXPForLevel = levelData.currentLevelBase;
+  const maxXP = levelData.nextLevelBase;
+  const progressPercent = levelData.progressPercent;
 
   const [appSfxVolume, setAppSfxVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_sfx_volume');
@@ -112,9 +118,7 @@ export const GameProvider = ({ children }) => {
 
 
 
-  const levelData = getLevelData(currentXP);
-  const minXPForLevel = levelData.currentLevelBase;
-  const maxXP = levelData.nextLevelBase;
+  const dbSyncRef = useRef({ lastSyncedXP: -1, lastSyncedLevel: -1 });
 
 
   const lastRefreshTime = useRef(0);
@@ -125,6 +129,40 @@ export const GameProvider = ({ children }) => {
   useEffect(() => {
     stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
   }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
+
+  // --- AUTOMATIC LEVEL & XP PERSIStENCE WATCHER ---
+  // Ensures that whenever currentXP changes, the 'level' column in Supabase is also updated if needed.
+  useEffect(() => {
+    const syncLevelToDB = async () => {
+      if (!user?.id || currentXP === dbSyncRef.current.lastSyncedXP) return;
+
+      const calculatedLevel = getLevelFromXP(currentXP);
+      
+      // Update local storage for guest-to-auth transitions
+      localStorage.setItem('peyvchin_xp', currentXP.toString());
+      localStorage.setItem('peyvchin_level', calculatedLevel.toString());
+
+      // Only perform DB update if values changed or haven't been synced yet
+      if (calculatedLevel !== dbSyncRef.current.lastSyncedLevel || currentXP !== dbSyncRef.current.lastSyncedXP) {
+        try {
+          await supabase.from('profiles').update({ 
+            xp: currentXP, 
+            level: calculatedLevel,
+            updated_at: new Date().toISOString()
+          }).eq('id', user.id);
+          
+          dbSyncRef.current = { lastSyncedXP: currentXP, lastSyncedLevel: calculatedLevel };
+          refreshRank(currentXP);
+          console.log(`[GameContext] Auto-Synced: XP=${currentXP}, Level=${calculatedLevel}`);
+        } catch (err) {
+          console.warn("[GameContext] Auto-Sync failed:", err);
+        }
+      }
+    };
+
+    const timeout = setTimeout(syncLevelToDB, 1000); // Debounce sync to avoid spamming DB
+    return () => clearTimeout(timeout);
+  }, [currentXP, user?.id]);
 
   const refreshRank = useCallback(async (xpValue = currentXP) => {
     // 1. Guard: If value hasn't changed AND we refreshed very recently (< 2s), skip
@@ -163,6 +201,7 @@ export const GameProvider = ({ children }) => {
     if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
 
     const dbUpdates = {};
+    // Note: 'level' is now handled exclusively by the XP watcher for consistency
     if (profileData.lastNotifiedLevel !== undefined) {
       dbUpdates.last_notified_level = profileData.lastNotifiedLevel;
       setLastNotifiedLevel(profileData.lastNotifiedLevel);
@@ -262,7 +301,6 @@ export const GameProvider = ({ children }) => {
           try { setter(val ?? fallback); } catch (e) { console.warn("Mapping failed:", e); }
         };
 
-        safeSet(setLevel, data.level, 1);
         safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
         safeSet(setCurrentXP, data.xp, 0);
         safeSet(setFils, data.shayi, 1000);
@@ -372,7 +410,6 @@ export const GameProvider = ({ children }) => {
         const localUnlockProgress = localStorage.getItem('peyvchin_wins_towards_secret');
 
         if (localXP) setCurrentXP(parseFloat(localXP));
-        if (localLvl) setLevel(parseInt(localLvl));
         if (localNotifiedLvl) setLastNotifiedLevel(parseInt(localNotifiedLvl));
         if (localUnlockProgress) setWinsTowardsSecret(parseInt(localUnlockProgress));
 
@@ -450,15 +487,8 @@ export const GameProvider = ({ children }) => {
 
   const addXP = useCallback((amount) => {
     if (!amount) return;
-    const { user: currentUser } = stateRef.current;
-    setCurrentXP(prev => {
-      const next = prev + amount;
-      localStorage.setItem('peyvchin_xp', next.toString());
-      if (currentUser) {
-        supabase.from('profiles').update({ xp: next }).eq('id', currentUser.id).then();
-      }
-      return next;
-    });
+    setCurrentXP(prev => prev + amount);
+    // The useEffect watcher above handles the database synchronization
   }, []);
 
 
@@ -704,12 +734,7 @@ export const GameProvider = ({ children }) => {
         if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
         if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
 
-        if (new_level > currLevel) {
-          setLevel(new_level);
-          refreshRank(finalXP);
-        } else {
-          refreshRank(finalXP);
-        }
+        refreshRank(finalXP);
 
         return {
           xpAdded: xp_added,
@@ -861,7 +886,7 @@ export const GameProvider = ({ children }) => {
     startBGM, stopBGM,
     playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx,
-    setLevel, setCurrentXP,
+    setCurrentXP,
     lastNotifiedLevel, setLastNotifiedLevel,
     loading
   }), [
@@ -884,7 +909,7 @@ export const GameProvider = ({ children }) => {
     startBGM, stopBGM,
     playTabSound,
     playStartGameSound,
-    setLevel, setCurrentXP, setLastNotifiedLevel,
+    setCurrentXP, setLastNotifiedLevel,
     bgMusicVolume, updateMusicVolume
   ]);
 
