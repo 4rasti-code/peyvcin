@@ -245,21 +245,25 @@ export default function App() {
   const HUB_VIEWS = ['lobby', 'stats', 'leaderboard', 'store', 'social_hub', 'dictionary'];
   
   useEffect(() => {
+    // Defensive check to ensure we have the required functions and state
+    if (!startBGM || !stopBGM || currentView === undefined) return;
+
+    const HUB_VIEWS = ['lobby', 'stats', 'leaderboard', 'store', 'social_hub', 'dictionary'];
     const isHubView = HUB_VIEWS.includes(currentView);
-    const isMultiplayerActive = multiplayerState !== 'idle';
+    const isMultiplayerActive = (multiplayerState && multiplayerState !== 'idle');
     
     // Policy: Play music in any Hub view, provided no multiplayer match is active.
     const shouldPlay = isHubView && !isMultiplayerActive;
 
     if (shouldPlay) {
       if (lastBgmAction.current !== 'play') {
-        console.log(`🔊 [App] Hub Navigation Detected (${currentView}): Resuming BGM.`);
+        console.log(`🔊 [AudioEngine] Continuous Policy: Resuming Hub BGM on ${currentView}`);
         startBGM();
         lastBgmAction.current = 'play';
       }
     } else {
       if (lastBgmAction.current !== 'stop') {
-        console.log(`🔊 [App] Gameplay/Auth Detected (${currentView}): Pausing BGM.`);
+        console.log(`🔊 [AudioEngine] Continuous Policy: Pausing BGM for ${currentView}`);
         stopBGM();
         lastBgmAction.current = 'stop';
       }
