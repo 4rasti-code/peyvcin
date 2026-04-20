@@ -241,35 +241,6 @@ export default function App() {
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
-  // --- CONTINUOUS HUB BGM WATCHER REFINED: PERSIST ACROSS TABS ---
-  const lastBgmAction = useRef(null); 
-  const HUB_VIEWS = ['lobby', 'stats', 'leaderboard', 'store', 'social_hub', 'dictionary'];
-  
-  useEffect(() => {
-    // Defensive check to ensure we have the required functions and state
-    if (!startBGM || !stopBGM || currentView === undefined) return;
-
-    const HUB_VIEWS = ['lobby', 'stats', 'leaderboard', 'store', 'social_hub', 'dictionary'];
-    const isHubView = HUB_VIEWS.includes(currentView);
-    const isMultiplayerActive = (multiplayerState && multiplayerState !== 'idle');
-    
-    // Policy: Play music in any Hub view, provided no multiplayer match is active.
-    const shouldPlay = isHubView && !isMultiplayerActive;
-
-    if (shouldPlay) {
-      if (lastBgmAction.current !== 'play') {
-        console.log(`🔊 [AudioEngine] Continuous Policy: Resuming Hub BGM on ${currentView}`);
-        startBGM();
-        lastBgmAction.current = 'play';
-      }
-    } else {
-      if (lastBgmAction.current !== 'stop') {
-        console.log(`🔊 [AudioEngine] Continuous Policy: Pausing BGM for ${currentView}`);
-        stopBGM();
-        lastBgmAction.current = 'stop';
-      }
-    }
-  }, [currentView, multiplayerState, startBGM, stopBGM]); 
 
 
   // 5. Notification Sound Trigger (Distinguishing between messages and others)
@@ -386,11 +357,12 @@ export default function App() {
   // --- UNIFIED AUTOMATIC BACKGROUND MUSIC (BGM) CONTROLLER ---
   // Ensures BGM is only active in main menu views and stops in all gameplay/matchmaking/auth states.
   useEffect(() => {
-    // 1. Define where BGM SHOULD be active (Menu/Static Views)
+    if (!startBGM || !stopBGM || currentView === undefined) return;
+
+    // Define where BGM SHOULD be active (Menu/Static Views)
     const menuViews = ['lobby', 'social_hub', 'store', 'leaderboard', 'stats', 'dictionary'];
     
-    // 2. Define where BGM SHOULD be suppressed (Gameplay/Transition/Auth)
-    // We also check for victory/defeat overlays to keep music off during results
+    // Define where BGM SHOULD be suppressed (Gameplay/Transition/Auth)
     const isGameplayActive = currentView === 'game' || 
                              multiplayerState === 'searching' || 
                              multiplayerState === 'waiting' || 
@@ -401,14 +373,17 @@ export default function App() {
                              
     const isAuth = currentView === 'auth';
 
-    if (isGameplayActive || isAuth || bgMusicVolume === 0) {
-      stopBGM();
-    } else if (menuViews.includes(currentView)) {
+    // Policy: Play music ONLY in menu views, and ONLY if gameplay is not active
+    const shouldPlay = menuViews.includes(currentView) && !isGameplayActive && !isAuth && bgMusicVolume > 0;
+
+    if (shouldPlay) {
       // Small safety delay for engine context initialization on first load
       const timer = setTimeout(() => {
         startBGM();
       }, 300);
       return () => clearTimeout(timer);
+    } else {
+      stopBGM();
     }
   }, [currentView, multiplayerState, isVictory, isDefeat, isWordFeverResultVisible, bgMusicVolume, startBGM, stopBGM]);
 

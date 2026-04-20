@@ -42,6 +42,7 @@ class SoundEngine {
     this.musicAudioElement = null;
     this.musicMediaSource = null;
     this.musicGain = null;
+    this.isStoppedByPolicy = false; // Flag to handle strict BGM suppression
     
     // Matchmaking Loop Management
     this.searchingNodes = [];
@@ -112,7 +113,7 @@ class SoundEngine {
    * Start Looping Music (Streaming)
    */
   startMusic() {
-    if (!this.initialized || !this.musicAudioElement) return;
+    if (!this.initialized || !this.musicAudioElement || this.isStoppedByPolicy) return;
 
     // Only attempt to resume context natively if user has interacted, stopping the yellow console warning
     if (navigator.userActivation && navigator.userActivation.hasBeenActive) {
@@ -324,8 +325,14 @@ if (typeof window !== "undefined") {
  * Public API
  */
 export const initAudio = () => engine.init();
-export const startBackgroundMusic = () => engine.startMusic();
-export const stopBackgroundMusic = () => engine.stopMusic();
+export const startBackgroundMusic = () => {
+  engine.isStoppedByPolicy = false;
+  engine.startMusic();
+};
+export const stopBackgroundMusic = () => {
+  engine.isStoppedByPolicy = true;
+  engine.stopMusic();
+};
 export const setBackgroundMusicVolume = (volume) => engine.setMusicVolume(volume);
 export const setSfxVolume = (volume) => engine.setSfxVolume(volume);
 
