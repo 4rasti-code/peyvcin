@@ -94,8 +94,8 @@ const DefeatOverlay = ({
 
               {gameMode !== 'secret_word' && solvedWord && (
                 <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block">
-                  <span className="text-white/40 text-[10px] font-bold uppercase block mb-1">پەیڤا دروست ئەڤە بوو</span>
-                  <span className="text-2xl font-black text-primary font-heading">{solvedWord}</span>
+                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">پەیڤا دروست ئەڤە بوو</span>
+                  <span className="text-2xl font-black text-primary font-heading tracking-wider">{solvedWord}</span>
                 </div>
               )}
 
@@ -106,7 +106,7 @@ const DefeatOverlay = ({
                   <div className="flex items-center gap-2 text-red-400">
                     <div className="flex flex-col items-end leading-none pt-0.5">
                       <AnimatedNumber value={breakdown?.base || 0} prefix="-" />
-                      <span className="text-[7px] font-black uppercase opacity-60">فلس</span>
+                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
                     </div>
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
@@ -116,7 +116,7 @@ const DefeatOverlay = ({
                   <div className="flex items-center gap-2 text-red-500">
                     <div className="flex flex-col items-end leading-none pt-0.5">
                       <AnimatedNumber value={breakdown?.mistakes || 0} prefix="-" />
-                      <span className="text-[7px] font-black uppercase opacity-60">فلس</span>
+                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
                     </div>
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
@@ -127,7 +127,7 @@ const DefeatOverlay = ({
                   <div className="flex items-center gap-2 text-red-500 drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
                     <div className="flex flex-col items-end leading-none pt-1">
                       <AnimatedNumber value={breakdown?.total || 0} prefix="-" />
-                      <span className="text-[9px] font-black uppercase opacity-70">فلس</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest opacity-70">فلس</span>
                     </div>
                     <FilsIcon size={18} />
                   </div>

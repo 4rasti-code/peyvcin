@@ -55,7 +55,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
           >
             <div className="relative">
               <div className="px-12 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_0_50px_rgba(124,58,237,0.3)]">
-                <span className="text-white font-rabar font-black text-3xl sm:text-4xl uppercase drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+                <span className="text-white font-rabar font-black text-3xl sm:text-4xl uppercase tracking-[0.2em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
                   ھەڤڕکی
                 </span>
               </div>
@@ -105,7 +105,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                     ھەڤڕک
                   </div>
                 </div>
-                <span className="text-white font-black text-2xl sm:text-3xl drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
+                <span className="text-white font-black text-2xl sm:text-3xl tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
                   {opponent?.nickname || 'ھەڤڕک'}
                 </span>
               </motion.div>
@@ -162,7 +162,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                     تۆ
                   </div>
                 </div>
-                <span className="text-white font-black text-2xl sm:text-3xl drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
+                <span className="text-white font-black text-2xl sm:text-3xl tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
                   {userNickname}
                 </span>
               </motion.div>
@@ -178,7 +178,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             className="absolute bottom-16 z-50 text-center px-10"
           >
             <div className="flex flex-col items-center">
-              <h2 className="text-2xl sm:text-3xl font-black text-white font-rabar uppercase drop-shadow-2xl">
+              <h2 className="text-2xl sm:text-3xl font-black text-white font-rabar uppercase tracking-[0.35em] drop-shadow-2xl">
                 گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">دەستپێکر</span>
               </h2>
               <div className="mt-4 w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full opacity-50" />
