@@ -82,10 +82,10 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
           <div className="relative w-full h-full p-8 sm:p-16 z-20 flex flex-col justify-between items-center max-w-5xl mx-auto">
             
             {/* OPPONENT - TOP LEFT */}
-            <div className="w-full flex justify-start">
+            <div className="w-full flex justify-center mt-12">
               <motion.div
-                initial={{ x: -300, y: -300, opacity: 0, scale: 0.3 }}
-                animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+                initial={{ y: -200, opacity: 0, scale: 0.3 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
                 className="flex flex-col items-center gap-4"
               >
@@ -94,7 +94,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   <div className="relative p-2 rounded-full bg-gradient-to-br from-red-600 via-orange-500 to-red-900 shadow-[0_0_60px_rgba(220,38,38,0.5)]">
                     <Avatar 
                       src={opponent?.avatar_url} 
-                      size="3xl" 
+                      size="2xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
                       level={opponent?.level} 
@@ -139,19 +139,19 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             </motion.div>
 
             {/* YOU - BOTTOM RIGHT */}
-            <div className="w-full flex justify-end">
+            <div className="w-full flex justify-start mb-12">
               <motion.div
-                initial={{ x: 300, y: 300, opacity: 0, scale: 0.3 }}
+                initial={{ x: -200, y: 200, opacity: 0, scale: 0.3 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
-                className="flex flex-col items-center gap-4"
+                className="flex flex-col items-center gap-4 ml-12"
               >
                 <div className="relative">
                   {/* Outer Circular Glow Container */}
                   <div className="relative p-2 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-900 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
                     <Avatar 
                       src={userAvatar} 
-                      size="3xl" 
+                      size="2xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
                       level={userLevel} 
