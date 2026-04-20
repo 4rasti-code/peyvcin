@@ -171,7 +171,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     // 2. Check if opponent already failed OR if we are the last ones to fail
     const oppColors = isP1 ? activeMatch.p2_colors : activeMatch.p1_colors;
-    const oppFailed = oppColors && (oppColors.length >= 6); // MaxRows is 6
+    const oppFailed = oppColors && (oppColors.length >= 3); // MaxRows is 3
 
     if (oppFailed) {
       // Both failed: 0 points for both, next round
