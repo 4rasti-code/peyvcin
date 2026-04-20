@@ -22,6 +22,18 @@ export const MultiplayerProvider = ({ children }) => {
   const [lastMatchResult, setLastMatchResult] = useState(null);
   const [matchResultTrigger, setMatchResultTrigger] = useState(0);
 
+  // New Game State
+  const [opponentGuesses, setOpponentGuesses] = useState([]);
+  const [scores, setScores] = useState({ p1: 0, p2: 0 });
+  const [currentWordIndex, setCurrentWordIndex] = useState(1);
+  const [isRoundWinner, setIsRoundWinner] = useState(false);
+  const [winnerNickname, setWinnerNickname] = useState('');
+  const [roundMessage, setRoundMessage] = useState('');
+  const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
+  const [forfeitCountdown, setForfeitCountdown] = useState(30);
+  const forfeitTimerRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
+
   const [opponentLiveStatuses, setOpponentLiveStatuses] = useState([]);
   const [opponentLiveCursor, setOpponentLiveCursor] = useState(0);
 
@@ -313,8 +325,6 @@ export const MultiplayerProvider = ({ children }) => {
           setActiveMatch(prev => prev ? { ...prev, ...updatedMatch } : updatedMatch);
         }
       )
-        }
-      )
       .on(
         'broadcast',
         { event: 'GUESS_SUBMITTED' },
@@ -583,7 +593,7 @@ export const MultiplayerProvider = ({ children }) => {
     // 2. HARD TIMEOUT FALLBACK (60 Seconds)
     // If we're still searching after 60s, reset to prevent infinite hang.
     matchmakingTimeoutRef.current = setTimeout(() => {
-      if (stateRef.current.multiplayerState === 'searching') {
+      if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
         console.warn('[Multiplayer] Matchmaking timed out after 60s. Cleaning up...');
         setMultiplayerState('idle'); 
         alert("چو یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
