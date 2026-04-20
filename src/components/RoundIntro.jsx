@@ -100,12 +100,12 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
           <div className="relative z-20 w-full h-full flex flex-col items-center justify-center gap-12 sm:gap-20">
             
             {/* AVATAR CLASH (Centered much closer) */}
-            <div className="flex items-center justify-center gap-0 sm:gap-2 w-full relative">
+            <div className="flex items-center justify-center gap-0 sm:gap-4 w-full relative">
               
               {/* YOU (Player 1 / Right in RTL) */}
               <motion.div
                 initial={{ x: 400, opacity: 0, scale: 0.2 }}
-                animate={{ x: -60, opacity: 1, scale: 0.85 }}
+                animate={{ x: -15, opacity: 1, scale: 0.85 }}
                 exit={{ x: 600, opacity: 0, transition: { duration: 0.4 } }}
                 transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
                 className="flex flex-col items-center gap-4 z-20"
@@ -148,7 +148,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                 transition={{ 
                   scale: { duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: 0.35 }
                 }}
-                className="relative z-30 mx-[-60px] sm:mx-[-40px]"
+                className="relative z-30 mx-0"
               >
                 {/* Background Flare */}
                 <motion.div 
@@ -192,7 +192,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
               {/* OPPONENT (Player 2 / Left in RTL) */}
               <motion.div
                 initial={{ x: -400, opacity: 0, scale: 0.2 }}
-                animate={{ x: 60, opacity: 1, scale: 0.85 }}
+                animate={{ x: 15, opacity: 1, scale: 0.85 }}
                 exit={{ x: -600, opacity: 0, transition: { duration: 0.4 } }}
                 transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
                 className="flex flex-col items-center gap-4 z-20"
