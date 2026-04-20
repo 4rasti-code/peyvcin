@@ -72,7 +72,7 @@ function SettingsModal({
                        >
                           <div className="flex items-center justify-between mb-1.5">
                              <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.accent }}>
                                    {appSfxVolume > 0 ? 'volume_up' : 'volume_off'}
                                 </span>
                                 <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>دەنگێن ئەپی</span>
@@ -99,7 +99,7 @@ function SettingsModal({
                        >
                           <div className="flex items-center justify-between">
                              <div className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.accent }}>
                                    {bgMusicVolume > 0 ? 'music_note' : 'music_off'}
                                 </span>
                                 <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>دەنگێ مۆزیکێ</span>
@@ -131,7 +131,7 @@ function SettingsModal({
                        >
                           <div className="flex items-center gap-2.5">
                              <div className="w-8 h-8 rounded-sm bg-slate-100/50 flex items-center justify-center shrink-0">
-                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.dark }}>vibration</span>
+                                <span className="material-symbols-outlined text-lg font-black" style={{ color: palette.accent }}>vibration</span>
                              </div>
                              <span className="text-xs font-black uppercase tracking-tight" style={{ color: palette.labels }}>لەرزینا ئەپی</span>
                           </div>

@@ -125,15 +125,15 @@ export default function TopAppBar({
             ) : (
               currentView !== 'store' && (
                 <div className="flex items-center gap-1">
-                  {currentView === 'stats' && (
+                  {(currentView === 'stats' || currentView === 'lobby') && (
                     <motion.button 
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-                      className="w-12 h-12 flex items-center justify-center text-[#facc15]/60 transition-all"
+                      className="w-12 h-12 flex items-center justify-center text-[#10b981] transition-all"
                     >
-                      <span className="material-symbols-outlined text-[28px] font-black">settings</span>
+                      <span className="material-symbols-outlined text-[32px] font-black">settings</span>
                     </motion.button>
                   )}
                 </div>
