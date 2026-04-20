@@ -490,6 +490,11 @@ export const MultiplayerProvider = ({ children }) => {
           // IMPORTANT: Only proceed if the user hasn't cancelled since then
           setMultiplayerState(prev => {
             if (prev === 'idle') return prev; 
+            
+            // Trigger Round Intro for the FIRST time
+            setRoundMessage('ROUND 1');
+            setTimeout(() => setRoundMessage(''), 4000); // 4s for full cinematic
+            
             return 'playing';
           });
           triggerHaptic([50, 50, 100]);
@@ -504,7 +509,10 @@ export const MultiplayerProvider = ({ children }) => {
       setOpponentGuesses([]);
       setIsRoundWinner(false);
       setWinnerNickname('');
-      setRoundMessage('');
+      
+      // Trigger Round Intro for mid-game transition
+      setRoundMessage(`ROUND ${newIndex + 1}`);
+      setTimeout(() => setRoundMessage(''), 4000);
     }
 
     if (activeMatch.status === 'finished' && multiplayerState !== 'idle') {
