@@ -9,15 +9,18 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
   let extraClasses = '';
 
   const showStatus = (!isCurrent && status !== STATUS.NONE) || isRevealed;
-  const isFlipped = showStatus;
+  
+  // SPECIAL: If we have a status but no char (Live Masked Mode), treat it as showStatus
+  const isMaskedLive = isCurrent && hideLetters && status !== STATUS.NONE;
+  const isFlipped = showStatus && !isMaskedLive;
 
-  if (showStatus && (status === STATUS.CORRECT || isRevealed)) {
+  if ((showStatus || isMaskedLive) && (status === STATUS.CORRECT || isRevealed)) {
     bgColor = 'bg-[#10b981] border-none shadow-[0_8px_20px_rgba(16,185,129,0.4)]';
     textColor = 'text-white';
-  } else if (showStatus && (status === STATUS.WRONG_POS)) {
+  } else if ((showStatus || isMaskedLive) && (status === STATUS.WRONG_POS)) {
     bgColor = 'bg-[#f59e0b] border-none shadow-[0_8px_20px_rgba(245,158,11,0.4)]';
     textColor = 'text-white';
-  } else if (showStatus && status === STATUS.INCORRECT) {
+  } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
     bgColor = 'bg-[#334155] border-none opacity-40 grayscale';
     textColor = 'text-white/30';
   } else if (isFocused) {
@@ -31,7 +34,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
   
   if (isNewHint) extraClasses += ' animate-hint-glow';
 
-  const shouldHideText = isSecretMode && !showStatus;
+  const shouldHideText = (isSecretMode || hideLetters) && !showStatus;
 
   return (
     <motion.div 
@@ -49,7 +52,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       >
         {char}
       </span>
-      {shouldHideText && char && (
+      {shouldHideText && (char || isMaskedLive) && (
          <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-2.5 h-2.5 rounded-full bg-white/40 animate-pulse" />
          </div>
@@ -67,13 +70,13 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
          prev.hideLetters === next.hideLetters;
 });
 
-const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px' }) => {
+const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null }) => {
   const activeClass = isCurrent ? 'ring-2 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-primary/5' : '';
 
   // PRE-CALCULATE CONSTANTS for the row maps
   const guessArr = Array.isArray(guess) ? guess : (typeof guess === 'string' ? guess.split('') : []);
   const firstEmptyIndex = guessArr.findIndex(c => c === '');
-  const actualFocusIndex = firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex;
+  const actualFocusIndex = forcedFocusIndex !== null ? forcedFocusIndex : (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex);
 
   return (
     <div 
@@ -121,8 +124,6 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
     </div>
   );
 }, (prev, next) => {
-  // ATOMIC COMPARISON: Row only re-renders if its specific content changed.
-  // We use string conversion for deep array comparison (fastest for small arrays).
   const prevStr = Array.isArray(prev.guess) ? prev.guess.join('') : prev.guess;
   const nextStr = Array.isArray(next.guess) ? next.guess.join('') : next.guess;
 
@@ -131,11 +132,13 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
          prev.isShaking === next.isShaking &&
          prev.isSecretMode === next.isSecretMode &&
          prev.wordLength === next.wordLength &&
+         prev.forcedFocusIndex === next.forcedFocusIndex &&
+         JSON.stringify(prev.forcedStatuses) === JSON.stringify(next.forcedStatuses) &&
          prev.revealedIndices?.length === next.revealedIndices?.length &&
          prev.lastHintIndex === next.lastHintIndex;
 });
 
-const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null }) => {
+const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null }) => {
   if (wordLength === 0) return null;
 
   const rows = [...guesses];
@@ -212,6 +215,17 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
           {rows.map((guess, i) => {
             const isCurrent = activeRowIndex !== null ? i === activeRowIndex : i === guesses.length;
             if (i >= maxRows) return null;
+
+            // Map numeric statuses to STATUS constants if this is the live row
+            let forcedStatuses = opponentStatuses[i] || null;
+            if (isCurrent && opponentLiveStatuses && opponentLiveStatuses.length > 0) {
+              forcedStatuses = opponentLiveStatuses.map(code => {
+                if (code === 1) return STATUS.CORRECT;
+                if (code === 2) return STATUS.WRONG_POS;
+                if (code === 3) return STATUS.INCORRECT;
+                return STATUS.NONE;
+              });
+            }
             
             return (
               <Row 
@@ -226,7 +240,8 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
                 isShaking={isCurrent && isShaking}
                 isSecretMode={isSecretMode}
                 hideLetters={hideLetters}
-                forcedStatuses={opponentStatuses[i] || null}
+                forcedStatuses={forcedStatuses}
+                forcedFocusIndex={isCurrent ? opponentLiveCursor : null}
                 gap={finalGap}
               />
             );

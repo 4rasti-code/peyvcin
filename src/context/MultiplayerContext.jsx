@@ -22,17 +22,8 @@ export const MultiplayerProvider = ({ children }) => {
   const [lastMatchResult, setLastMatchResult] = useState(null);
   const [matchResultTrigger, setMatchResultTrigger] = useState(0);
 
-  // New Game State
-  const [opponentGuesses, setOpponentGuesses] = useState([]);
-  const [scores, setScores] = useState({ p1: 0, p2: 0 });
-  const [currentWordIndex, setCurrentWordIndex] = useState(1);
-  const [isRoundWinner, setIsRoundWinner] = useState(false);
-  const [winnerNickname, setWinnerNickname] = useState('');
-  const [roundMessage, setRoundMessage] = useState('');
-  const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
-  const [forfeitCountdown, setForfeitCountdown] = useState(30);
-  const forfeitTimerRef = useRef(null);
-  const countdownIntervalRef = useRef(null);
+  const [opponentLiveStatuses, setOpponentLiveStatuses] = useState([]);
+  const [opponentLiveCursor, setOpponentLiveCursor] = useState(0);
 
   const stateRef = useRef(multiplayerState);
   const wordIndexRef = useRef(currentWordIndex);
@@ -40,7 +31,7 @@ export const MultiplayerProvider = ({ children }) => {
   const opponentRef = useRef(opponent);
   const matchIdRef = useRef(matchId);
   const channelRef = useRef(null);
-  const searchTimeoutRef = useRef(null);
+  const matchmakingTimeoutRef = useRef(null);
 
   useEffect(() => { stateRef.current = multiplayerState; }, [multiplayerState]);
   useEffect(() => { wordIndexRef.current = currentWordIndex; }, [currentWordIndex]);
@@ -52,8 +43,24 @@ export const MultiplayerProvider = ({ children }) => {
   useEffect(() => {
     let interval;
     if (multiplayerState === 'searching' || multiplayerState === 'waiting') {
-      interval = setInterval(() => {
-        setMatchmakingTime(prev => prev + 1);
+      interval = setInterval(async () => {
+        setMatchmakingTime(prev => {
+          const next = prev + 1;
+          // 2.2 DEEP FETCH FALLBACK: If stuck for 12s, force a manual record check
+          if (next === 12 && stateRef.current !== 'playing') {
+            console.log('[Multiplayer] 12s Deep Fetch Check...');
+            const mId = matchIdRef.current;
+            if (mId) {
+              supabase.from('online_matches').select('*').eq('id', mId).maybeSingle().then(({ data }) => {
+                if (data && (data.player2_id || data.status === 'playing')) {
+                  console.log('[Multiplayer] Deep check found match state change! Force sync.');
+                  setActiveMatch(prevMatch => ({ ...prevMatch, ...data }));
+                }
+              });
+            }
+          }
+          return next;
+        });
       }, 1000);
     } else {
       setMatchmakingTime(0);
@@ -71,9 +78,22 @@ export const MultiplayerProvider = ({ children }) => {
     });
   };
 
+  const broadcastLiveAction = (statuses, cursorIndex) => {
+    if (!channelRef.current || !user?.id) return;
+    
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'LIVE_SYNC',
+      payload: { senderId: user.id, statuses, cursorIndex }
+    });
+  };
+
   const submitGuess = async (colors, isWin) => {
     if (!matchId || !activeMatch) return;
     broadcastGuess(colors, isWin);
+
+    // Clear live feedback upon submission
+    broadcastLiveAction([], 0);
 
     const isP1 = activeMatch.player1_id === user.id;
 
@@ -109,6 +129,9 @@ export const MultiplayerProvider = ({ children }) => {
   const submitFailure = async () => {
     if (!matchId || !activeMatch) return;
     
+    // Clear live feedback upon failure
+    broadcastLiveAction([], 0);
+
     const isP1 = activeMatch.player1_id === user?.id;
     const currentIdx = activeMatch.current_word_index || 0;
     
@@ -251,7 +274,7 @@ export const MultiplayerProvider = ({ children }) => {
 
   // 1. POLLING FALLBACK: Detect player join automatically
   useEffect(() => {
-    if (multiplayerState !== 'waiting' || !matchId) return;
+    if ((multiplayerState !== 'waiting' && multiplayerState !== 'searching') || !matchId) return;
 
     const pollInterval = setInterval(async () => {
       const { data: match } = await supabase
@@ -260,7 +283,8 @@ export const MultiplayerProvider = ({ children }) => {
         .eq('id', matchId)
         .maybeSingle();
 
-      if (match && match.player2_id && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
+      if (match && (match.player2_id || match.status === 'playing') && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
+        console.log('[Multiplayer] Polling Fallback found opponent! Syncing.');
         setActiveMatch(prev => ({ ...prev, ...match }));
         clearInterval(pollInterval);
       }
@@ -289,6 +313,8 @@ export const MultiplayerProvider = ({ children }) => {
           setActiveMatch(prev => prev ? { ...prev, ...updatedMatch } : updatedMatch);
         }
       )
+        }
+      )
       .on(
         'broadcast',
         { event: 'GUESS_SUBMITTED' },
@@ -302,6 +328,17 @@ export const MultiplayerProvider = ({ children }) => {
               triggerHaptic([100, 100, 100]);
               setTimeout(() => setWinnerNickname(''), 3000);
             }
+          }
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'LIVE_SYNC' },
+        (payload) => {
+          const data = payload.payload || payload;
+          if (user?.id && data.senderId !== user.id) {
+            setOpponentLiveStatuses(data.statuses || []);
+            setOpponentLiveCursor(data.cursorIndex || 0);
           }
         }
       )
@@ -431,7 +468,7 @@ export const MultiplayerProvider = ({ children }) => {
         stopSearchingSound(true);
         playStartGameSound();
 
-        // Wait 4 seconds to let the player see the opponent's profile
+        // Snappy Handshake: Reduced from 4s to 1.5s for faster transition
         setTimeout(() => {
           // IMPORTANT: Only proceed if the user hasn't cancelled since then
           setMultiplayerState(prev => {
@@ -439,7 +476,7 @@ export const MultiplayerProvider = ({ children }) => {
             return 'playing';
           });
           triggerHaptic([50, 50, 100]);
-        }, 4000);
+        }, 1500);
       }
     };
     verifyAndStart();
@@ -482,6 +519,46 @@ export const MultiplayerProvider = ({ children }) => {
     }
   }, [activeMatch, user?.id, multiplayerState, fetchOpponentProfile, opponentGuesses.length, cancelMatch]);
 
+  // 4. MOUNT-TIME RECOVERY EFFECT
+  useEffect(() => {
+    if (!user?.id || multiplayerState !== 'idle') return;
+
+    const recoverActiveMatch = async () => {
+      console.log('[Multiplayer] Checking for active match sessions to recover...');
+      try {
+        const { data, error } = await supabase
+          .from('online_matches')
+          .select('*')
+          .or(`player1_id.eq.${user.id},player2_id.eq.${user.id}`)
+          .eq('status', 'playing')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data) {
+          console.log('[Multiplayer] Recovering active match:', data.id);
+          const oppId = data.player1_id === user.id ? data.player2_id : data.player1_id;
+          
+          setMatchId(data.id);
+          setActiveMatch(data);
+          
+          if (oppId) {
+            await fetchOpponentProfile(oppId);
+          }
+          
+          setMultiplayerState('playing');
+          triggerHaptic([100, 50]);
+        }
+      } catch (err) {
+        console.warn('[Multiplayer] Active match recovery failed:', err);
+      }
+    };
+
+    recoverActiveMatch();
+  }, [user?.id]);
+
   // UNIFIED ONE-CLICK MATCHMAKING
   const startMatchmaking = async () => {
     if (!user?.id) return;
@@ -505,7 +582,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     // 2. HARD TIMEOUT FALLBACK (60 Seconds)
     // If we're still searching after 60s, reset to prevent infinite hang.
-    searchTimeoutRef.current = setTimeout(() => {
+    matchmakingTimeoutRef.current = setTimeout(() => {
       if (stateRef.current.multiplayerState === 'searching') {
         console.warn('[Multiplayer] Matchmaking timed out after 60s. Cleaning up...');
         setMultiplayerState('idle'); 
@@ -549,7 +626,7 @@ export const MultiplayerProvider = ({ children }) => {
           .single();
 
         if (!claimError && joinedMatch) {
-          clearTimeout(searchTimeout);
+          clearTimeout(matchmakingTimeoutRef.current);
           console.log('[Multiplayer] JOINER: Claim SUCCESS! Handshaking with Host:', joinedMatch.player1_id);
           
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
@@ -607,7 +684,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
-      clearTimeout(searchTimeout);
+      clearTimeout(matchmakingTimeoutRef.current);
       try { stopSearchingSound(false); } catch(e) {}
       setMultiplayerState('idle');
     }
@@ -651,7 +728,10 @@ export const MultiplayerProvider = ({ children }) => {
       fetchOpponentProfile,
       forfeitStatus,
       forfeitCountdown,
-      triggerForfeitVictory
+      triggerForfeitVictory,
+      broadcastLiveAction,
+      opponentLiveStatuses,
+      opponentLiveCursor
     }}>
       {children}
     </MultiplayerContext.Provider>

@@ -30,7 +30,10 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     forfeitCountdown,
     triggerForfeitVictory,
     submitFailure,
-    cancelMatch
+    cancelMatch,
+    broadcastLiveAction,
+    opponentLiveStatuses,
+    opponentLiveCursor
   } = useMultiplayer();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
@@ -78,6 +81,28 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     }
   });
 
+  // 1.5 MASKED LIVE SYNC BROADCASTER
+  useEffect(() => {
+    if (multiplayerState !== 'playing' || !broadcastLiveAction || !targetWord) return;
+
+    // Calculate masked statuses for current guess
+    // 0: empty, 1: correct, 2: wrong_place, 3: absent
+    const statuses = currentGuess.map((char, i) => {
+      if (!char) return 0;
+      const status = getLetterStatus(currentGuess, i, targetWord);
+      if (status === 'CORRECT') return 1;
+      if (status === 'WRONG_POS') return 2;
+      if (status === 'INCORRECT') return 3;
+      return 0;
+    });
+
+    // Find cursor index (first empty cell)
+    const cursorIndex = currentGuess.findIndex(c => c === '');
+    const finalCursor = cursorIndex === -1 ? targetWord.length - 1 : cursorIndex;
+
+    broadcastLiveAction(statuses, finalCursor);
+  }, [currentGuess, multiplayerState, broadcastLiveAction, targetWord, getLetterStatus]);
+
   // 3. IDENTITY HEALING: Ensure opponent is fetched if missing
   useEffect(() => {
     if (activeMatch && !opponent) {
@@ -104,8 +129,6 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
     );
   }
-
-
 
   if (multiplayerState === 'waiting') {
     return (
@@ -209,6 +232,8 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               getLetterStatus={() => ''}
               compact={true}
               activeRowIndex={opponentGuesses.length}
+              opponentLiveStatuses={opponentLiveStatuses}
+              opponentLiveCursor={opponentLiveCursor}
             />
           </div>
         </div>
