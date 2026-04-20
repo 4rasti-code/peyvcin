@@ -74,17 +74,15 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
           .from('profiles')
           .select('*')
           .in('id', uniqueIds)
-          .order('level', { ascending: false })
           .order('xp', { ascending: false });
           
         if (pError) throw pError;
         leaderData = data || [];
       } else {
-        // GLOBAL VIEW - Order by Level, then XP (Ground Truth)
+        // GLOBAL VIEW - Order strictly by XP (Ground Truth)
         const { data, error: leaderError } = await supabase
           .from('profiles')
           .select('*')
-          .order('level', { ascending: false })
           .order('xp', { ascending: false })
           .limit(20);
           
@@ -92,13 +90,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
         leaderData = data || [];
       }
       
-      // FRONTEND SAFEGUARD: Guarantee numeric sorting by Level, then XP
-      const sortedData = [...leaderData].sort((a, b) => {
-        if ((b.level || 0) !== (a.level || 0)) return (b.level || 0) - (a.level || 0);
-        return (b.xp || 0) - (a.xp || 0);
-      });
-
-      setLeaders(sortedData);
+      setLeaders(leaderData);
 
       // Rank calculation: Count users with more XP
       const { count, error: rankError } = await supabase
@@ -268,7 +260,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                             </svg>
                              <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
                                 <span className="text-[7px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
-                                <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(isMe ? userLevel : player.level)}</span>
+                                <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
                              </div>
                          </div>
                       </div>
