@@ -240,18 +240,28 @@ export default function App() {
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
-  // --- BULLETPROOF BGM WATCHER: STICKY LOBBY-ONLY RULE ---
+  // --- BULLETPROOF BGM WATCHER REFINED: Prevent Infinite Loops ---
+  const lastBgmAction = useRef(null); // Track last sent command ('play' | 'stop')
+  
   useEffect(() => {
     // 1. Strict Enforcement: If shifted away from lobby, KILL MUSIC INSTANTLY.
     if (currentView !== 'lobby') {
-      console.log(`🔊 [App] Navigation Detected (${currentView}): Killing BGM.`);
-      stopBGM();
+      if (lastBgmAction.current !== 'stop') {
+        console.log(`🔊 [App] Navigation Detected (${currentView}): Killing BGM.`);
+        stopBGM();
+        lastBgmAction.current = 'stop';
+      }
     } 
     // 2. Recovery: If returned to lobby, start music (respecting Mute settings)
-    else if (currentView === 'lobby') {
-      startBGM();
+    else {
+      if (lastBgmAction.current !== 'play') {
+        console.log(`🔊 [App] Welcome Back to Lobby: Starting BGM.`);
+        startBGM();
+        lastBgmAction.current = 'play';
+      }
     }
-  }, [currentView, startBGM, stopBGM]); // Enforce on every view change
+    // We only depend on currentView here. startBGM/stopBGM are stable wrappers.
+  }, [currentView, startBGM, stopBGM]); 
 
 
   // 5. Notification Sound Trigger (Distinguishing between messages and others)
