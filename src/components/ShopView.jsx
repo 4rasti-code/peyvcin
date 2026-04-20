@@ -225,6 +225,14 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
     setItemToConfirm(null);
   };
 
+  if (loadingAuth) {
+    return (
+      <div className="flex-1 w-full flex items-center justify-center bg-[#020617]">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div 
       onClick={handleBackgroundClick}
@@ -237,8 +245,15 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
         hintCount={hintCount} 
         skipCount={skipCount}
         isShop={true}
-        className="mb-4"
+        className="mb-0" // Reduce margin due to floating indicators
       />
+
+      {/* Floating Currency Jump Guard Indicators */}
+      <div className="flex items-center justify-center gap-10 -mt-2">
+         <CurrencyDecrementEffect value={fils} currency="fils" resetKey={activeTab} />
+         <CurrencyDecrementEffect value={derhem} currency="derhem" resetKey={activeTab} />
+         <CurrencyDecrementEffect value={dinar} currency="dinar" resetKey={activeTab} />
+      </div>
 
       <div className="flex p-1 bg-slate-100/95 backdrop-blur-2xl rounded border-2 border-slate-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative">
         {['powerups', 'avatars', 'themes'].map((tab) => (

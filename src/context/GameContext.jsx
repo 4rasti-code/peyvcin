@@ -940,11 +940,11 @@ export const GameProvider = ({ children }) => {
     startBGM, stopBGM,
     playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx,
-    setCurrentXP,
-    lastNotifiedLevel, setLastNotifiedLevel,
-    loading, loadingAuth,
-    refreshProfile: syncProfile
-  }), [
+    playTabSound,
+    playStartGameSound,
+    setCurrentXP, setLastNotifiedLevel,
+    syncProfile
+  ]), [
     level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, progressPercent, fils, derhem, dinar,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
@@ -965,12 +965,18 @@ export const GameProvider = ({ children }) => {
     playTabSound,
     playStartGameSound,
     setCurrentXP, setLastNotifiedLevel,
-    bgMusicVolume, updateMusicVolume,
     syncProfile
   ]);
 
+  const valueWithRefs = useMemo(() => ({
+    ...value,
+    loadingAuth,
+    loading,
+    refreshProfile: syncProfile
+  }), [value, loadingAuth, loading, syncProfile]);
+
   return (
-    <GameContext.Provider value={value}>
+    <GameContext.Provider value={valueWithRefs}>
       {children}
     </GameContext.Provider>
   );
