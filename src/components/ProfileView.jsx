@@ -13,6 +13,7 @@ import ExperienceBar from './ExperienceBar';
 import Avatar from './Avatar';
 import { useGame } from '../context/GameContext';
 import FloatingLetterBackground from './FloatingLetterBackground';
+import { getLevelData } from '../utils/progression';
 
 export default function ProfileView({
    user,
@@ -103,18 +104,6 @@ export default function ProfileView({
    if (!user || user === null) {
       return <div className="flex flex-col items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
    }
-
-   const getLevelData = (xp) => {
-      const baseXP = 500;
-      const factor = 1.1;
-      if (xp <= 0) return { level: 1, progressPercent: 0 };
-      const lvl = Math.floor(Math.log(xp * (factor - 1) / baseXP + 1) / Math.log(factor)) + 1;
-      const currentLevelBase = baseXP * (Math.pow(factor, lvl - 1) - 1) / (factor - 1);
-      const nextLevelBase = baseXP * (Math.pow(factor, lvl) - 1) / (factor - 1);
-      const width = nextLevelBase - currentLevelBase;
-      const progress = xp - currentLevelBase;
-      return { level: lvl, progressPercent: Math.min(100, (progress / width) * 100) };
-   };
 
    const levelInfo = getLevelData(Number(currentXP) || 0);
    const safeLevel = levelInfo.level;

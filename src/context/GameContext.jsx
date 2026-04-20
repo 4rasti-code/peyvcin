@@ -12,37 +12,9 @@ import {
   startBackgroundMusic, stopBackgroundMusic
 } from '../utils/audio';
 
+import { getLevelFromXP, getLevelData } from '../utils/progression';
+
 const GameContext = createContext();
-
-/**
- * EXPONENTIAL PROGRESSION FORMULA
- * Base: 500, Factor: 1.1 (10% increase per level)
- */
-const LEVEL_BASE_XP = 500;
-const LEVEL_FACTOR = 1.1;
-
-const getLevelFromXP = (xp) => {
-  if (xp <= 0) return 1;
-  return Math.floor(Math.log(xp * (LEVEL_FACTOR - 1) / LEVEL_BASE_XP + 1) / Math.log(LEVEL_FACTOR)) + 1;
-};
-
-const getLevelData = (xp) => {
-  const levelVal = getLevelFromXP(xp);
-  const currentLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal - 1) - 1) / (LEVEL_FACTOR - 1);
-  const nextLevelBase = LEVEL_BASE_XP * (Math.pow(LEVEL_FACTOR, levelVal) - 1) / (LEVEL_FACTOR - 1);
-  const levelWidth = nextLevelBase - currentLevelBase;
-  const progressInLevel = xp - currentLevelBase;
-  const progressPercent = levelWidth > 0 ? (progressInLevel / levelWidth) * 100 : 0;
-
-  return {
-    level: levelVal,
-    currentLevelBase,
-    nextLevelBase,
-    progressInLevel,
-    levelWidth,
-    progressPercent: Math.min(100, Math.max(0, progressPercent))
-  };
-};
 
 export const GameProvider = ({ children }) => {
   const [lastNotifiedLevel, setLastNotifiedLevel] = useState(1);

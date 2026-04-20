@@ -8,11 +8,11 @@ import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
+import { getLevelFromXP } from '../utils/progression';
 import FloatingLetterBackground from './FloatingLetterBackground';
 
 export default function LeaderboardView({ userId, userLevel, userXP, userFils, userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
   const { 
-    getLevelFromXP, 
     handleToggleBlock: toggleBlockInContext,
     playTabSound
   } = useGame();
