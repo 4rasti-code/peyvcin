@@ -99,120 +99,167 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
           {/* 3. CENTER SLAM CONTENT */}
           <div className="relative z-20 w-full h-full flex flex-col items-center justify-center gap-12 sm:gap-20">
             
-            {/* AVATAR CLASH (Centered closer) */}
-            <div className="flex items-center justify-center gap-6 sm:gap-20 w-full">
+            {/* AVATAR CLASH (Centered much closer) */}
+            <div className="flex items-center justify-center -gap-4 sm:gap-4 w-full relative">
               
-              {/* YOU */}
+              {/* YOU (Player 1 / Left) */}
               <motion.div
-                initial={{ x: -400, opacity: 0, scale: 0.2 }}
-                animate={{ x: 0, opacity: 1, scale: 0.65 }}
-                exit={{ x: -600, opacity: 0, transition: { duration: 0.5 } }}
-                transition={{ type: "spring", stiffness: 180, damping: 12, delay: 0.1 }}
-                className="flex flex-col items-center gap-4"
+                initial={{ x: -600, opacity: 0, scale: 0.2 }}
+                animate={{ x: 30, opacity: 1, scale: 0.75 }}
+                exit={{ x: -800, opacity: 0, transition: { duration: 0.4 } }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+                className="flex flex-col items-center gap-4 z-20"
               >
-                <div className="relative">
+                <div className="relative group">
                   <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-[30px]" 
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -inset-6 bg-emerald-500/30 rounded-full blur-[40px]" 
                   />
                   <Avatar 
                     src={userAvatar} 
                     size="2xl" 
-                    className="relative border-[8px] border-emerald-500 shadow-[0_0_80px_rgba(16,185,129,0.5)] z-10" 
+                    className="relative border-[10px] border-emerald-500 shadow-[0_0_100px_rgba(16,185,129,0.4)] z-10" 
                     border={false} 
                   />
+                  {/* Title Overlay */}
+                  <div className="absolute -top-4 -right-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg z-20">تۆ</div>
                 </div>
-                <span className="text-emerald-400 font-black text-2xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(52,211,153,0.8)] font-rabar">
+                <span className="text-emerald-400 font-black text-3xl tracking-[0.1em] drop-shadow-[0_0_20px_rgba(52,211,153,0.9)] font-rabar">
                   {userNickname}
                 </span>
               </motion.div>
 
               {/* VS TEXT (Tekken Slam) */}
               <motion.div
-                initial={{ scale: 15, opacity: 0, filter: 'blur(20px)' }}
+                initial={{ scale: 20, opacity: 0, filter: 'blur(30px)' }}
                 animate={{ 
                   scale: 1, 
                   opacity: 1,
                   filter: 'blur(0px)',
-                  rotate: [0, -5, 5, 0],
+                  rotate: -5
                 }}
-                exit={{ scale: 0.2, opacity: 0, transition: { duration: 0.3 } }}
+                exit={{ scale: 0.1, opacity: 0, transition: { duration: 0.3 } }}
                 onAnimationStart={() => {
                   setTimeout(() => {
                     playSwordComboSfx();
-                    triggerHaptic([100, 100, 100]); // Ultra strong impact
+                    triggerHaptic([100, 100, 100]);
                   }, 300);
                 }}
                 transition={{ 
-                  scale: { duration: 0.45, ease: "easeIn", delay: 0.35 },
-                  rotate: { duration: 0.2, delay: 0.4 }
+                  scale: { duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: 0.35 }
                 }}
-                className="relative"
+                className="relative z-30 mx-[-40px] sm:mx-0"
               >
-                <span className="text-7xl sm:text-9xl font-black italic select-none bg-gradient-to-b from-white via-red-200 to-red-600 bg-clip-text text-transparent drop-shadow-[0_0_50px_rgba(255,50,50,0.8)] px-4">
-                  VS
-                </span>
+                {/* Background Flare */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: [0, 1, 0], scale: [0, 2, 2.5] }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="absolute inset-0 bg-gradient-to-r from-red-600 via-white to-orange-500 blur-[80px] rounded-full mix-blend-screen opacity-50"
+                />
+
+                <div className="relative">
+                   {/* Main VS Text */}
+                  <h1 className="text-8xl sm:text-[12rem] font-black italic select-none leading-none
+                    bg-gradient-to-b from-white via-red-500 to-red-950 bg-clip-text text-transparent 
+                    drop-shadow-[0_0_60px_rgba(255,0,0,1)] px-8 py-4 filter contrast-125">
+                    VS
+                  </h1>
+                  
+                  {/* Text Reflection/Outline */}
+                  <h1 className="absolute inset-0 text-8xl sm:text-[12rem] font-black italic select-none leading-none
+                    text-white/20 blur-[2px] translate-y-1 translate-x-1 -z-10">
+                    VS
+                  </h1>
+
+                  {/* Impact Sparks */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <div className="w-full h-1 bg-white blur-sm scale-x-[3] rotate-45 opacity-60" />
+                    <div className="w-full h-1 bg-white blur-sm scale-x-[3] -rotate-45 opacity-60 ml-[-100%]" />
+                  </motion.div>
+                </div>
+
                 {/* Impact Ring */}
                 <motion.div 
-                  initial={{ scale: 0.5, opacity: 0 }}
-                  animate={{ scale: 4, opacity: [0, 0.8, 0] }}
-                  transition={{ duration: 0.6, delay: 0.45 }}
-                  className="absolute inset-0 border-4 border-white/40 rounded-full blur-[8px]"
+                  initial={{ scale: 0.3, opacity: 0 }}
+                  animate={{ scale: 5, opacity: [0, 1, 0] }}
+                  transition={{ duration: 0.7, delay: 0.4 }}
+                  className="absolute inset-0 border-8 border-white/60 rounded-full blur-[15px]"
                 />
               </motion.div>
 
-              {/* OPPONENT */}
+              {/* OPPONENT (Player 2 / Right) */}
               <motion.div
-                initial={{ x: 400, opacity: 0, scale: 0.2 }}
-                animate={{ x: 0, opacity: 1, scale: 0.65 }}
-                exit={{ x: 600, opacity: 0, transition: { duration: 0.5 } }}
-                transition={{ type: "spring", stiffness: 180, damping: 12, delay: 0.1 }}
-                className="flex flex-col items-center gap-4"
+                initial={{ x: 600, opacity: 0, scale: 0.2 }}
+                animate={{ x: -30, opacity: 1, scale: 0.75 }}
+                exit={{ x: 800, opacity: 0, transition: { duration: 0.4 } }}
+                transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
+                className="flex flex-col items-center gap-4 z-20"
               >
-                <div className="relative">
+                <div className="relative group">
                   <motion.div 
-                    animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -inset-4 bg-red-600/20 rounded-full blur-[30px]" 
+                    animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                    className="absolute -inset-6 bg-red-600/30 rounded-full blur-[40px]" 
                   />
                   <Avatar 
                     src={opponent?.avatar_url} 
                     size="2xl" 
-                    className="relative border-[8px] border-red-600 shadow-[0_0_80px_rgba(220,38,38,0.5)] z-10" 
+                    className="relative border-[10px] border-red-600 shadow-[0_0_100px_rgba(220,38,38,0.4)] z-10" 
                     border={false} 
                   />
+                  {/* Title Overlay */}
+                  <div className="absolute -top-4 -left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg z-20">هەڤڕک</div>
                 </div>
-                <span className="text-red-500 font-black text-2xl tracking-[0.2em] drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] font-rabar">
+                <span className="text-red-500 font-black text-3xl tracking-[0.1em] drop-shadow-[0_0_20px_rgba(239,68,68,0.9)] font-rabar text-center">
                   {opponent?.nickname || 'هەڤڕک'}
                 </span>
               </motion.div>
             </div>
 
-            {/* 4. ROUND TEXT (Zoom & Pulse) */}
+            {/* 4. ROUND TEXT (Zoom & Shine) */}
             <motion.div
-              initial={{ scale: 0, opacity: 0, letterSpacing: '40px' }}
+              initial={{ scale: 0, opacity: 0, y: 50 }}
               animate={{ 
-                scale: [0, 1.2, 1], 
+                scale: 1, 
                 opacity: 1, 
-                letterSpacing: ['40px', '2px', '4px'],
+                y: 0,
               }}
-              exit={{ scale: 3, opacity: 0, transition: { duration: 0.4 } }}
+              exit={{ scale: 2, opacity: 0, filter: 'blur(20px)', transition: { duration: 0.4 } }}
               transition={{ 
-                scale: { duration: 0.6, delay: 0.8, ease: "circOut" },
-                letterSpacing: { duration: 2, delay: 1.4, repeat: Infinity, repeatType: "reverse" }
+                scale: { type: "spring", stiffness: 300, damping: 20, delay: 0.9 },
+                opacity: { duration: 0.5, delay: 0.9 }
               }}
-              className="flex flex-col items-center pointer-events-none"
+              className="relative flex flex-col items-center pointer-events-none px-6"
             >
-              <h2 className="text-4xl sm:text-7xl font-black text-white text-center font-rabar uppercase tracking-widest bg-gradient-to-b from-white via-white to-white/40 bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(255,255,255,0.4)]">
-                گەڕا {getRoundOrdinal(currentRound)} دەستپێکر
+              {/* Shimmering Text Background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent blur-xl animate-shimmer" />
+              
+              <h2 className="text-5xl sm:text-8xl font-black text-white text-center font-rabar uppercase tracking-tight
+                bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent 
+                drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] relative z-10">
+                گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]">دەستپێکر</span>
               </h2>
-              {/* Pulsing Glow Bar under text */}
+
+              {/* Cinematic Flare Line */}
               <motion.div 
-                animate={{ width: ['40%', '100%', '40%'], opacity: [0, 0.5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
-                className="h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent mt-4"
-              />
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: '120%', opacity: [0, 1, 0.5] }}
+                transition={{ duration: 1, delay: 1.2 }}
+                className="h-[3px] bg-gradient-to-r from-transparent via-red-500 to-transparent mt-6 relative overflow-hidden"
+              >
+                <motion.div 
+                   animate={{ x: ['-100%', '100%'] }}
+                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent w-1/2"
+                />
+              </motion.div>
             </motion.div>
 
           </div>
