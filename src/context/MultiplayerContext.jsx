@@ -30,7 +30,7 @@ export const MultiplayerProvider = ({ children }) => {
   const [winnerNickname, setWinnerNickname] = useState('');
   const [roundMessage, setRoundMessage] = useState('');
   const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
-  const [forfeitCountdown, setForfeitCountdown] = useState(30);
+  const [forfeitCountdown, setForfeitCountdown] = useState(10);
   const forfeitTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
 
@@ -373,7 +373,7 @@ export const MultiplayerProvider = ({ children }) => {
           forfeitTimerRef.current = null;
           countdownIntervalRef.current = null;
           setForfeitStatus(null);
-          setForfeitCountdown(30);
+          setForfeitCountdown(10);
         }
 
         // 2. DISCONNECT DETECTION (Fallback): If we are playing but opponent is missing from sync
@@ -425,7 +425,7 @@ export const MultiplayerProvider = ({ children }) => {
 
   const startGracePeriod = useCallback(() => {
     setForfeitStatus('pending');
-    setForfeitCountdown(30);
+    setForfeitCountdown(10);
     
     clearForfeitLogic();
 
@@ -443,7 +443,7 @@ export const MultiplayerProvider = ({ children }) => {
     forfeitTimerRef.current = setTimeout(() => {
       console.log('[Multiplayer] Grace period expired, triggering forfeit.');
       triggerForfeitVictory();
-    }, 30000);
+    }, 10000);
   }, [triggerForfeitVictory, clearForfeitLogic]);
 
   // 2.5 APP STATE VISIBILITY HANDLER (Clinical Recovery)
