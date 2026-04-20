@@ -342,7 +342,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
                 هێل یا هاتییە بڕین...
               </h2>
               <p className="text-amber-100/60 text-lg font-bold mb-6 font-noto-sans-arabic">
-                چاڤەڕێبە {forfeitCountdown} چرکان
+                چاڤەڕێبە {forfeitCountdown} چرکەیان
               </p>
               
               <div className="flex items-center justify-center gap-3">
