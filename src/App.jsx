@@ -1296,7 +1296,7 @@ export default function App() {
             </div>
 
             {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="keyboard-safety-area mt-auto pb-[env(safe-area-inset-bottom)]">
+            <div className="keyboard-safety-area mt-auto pb-[calc(env(safe-area-inset-bottom)+20px)]">
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}
