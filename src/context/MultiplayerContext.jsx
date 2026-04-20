@@ -254,23 +254,19 @@ export const MultiplayerProvider = ({ children }) => {
   const cancelMatch = useCallback(async () => {
     const idToCancel = matchId || matchIdRef.current;
     try {
-      if (idToCancel && multiplayerState !== 'playing' && multiplayerState !== 'game_over') {
-        await supabase.from('online_matches').delete().eq('id', idToCancel);
-      }
-      if (status === 'finished') {
-        console.log('[Multiplayer] Match marked as FINISHED in DB.');
-        setMultiplayerState('game_over');
-        
-        // Stop any active forfeit timers
-        if (forfeitTimerRef.current) {
-          clearTimeout(forfeitTimerRef.current);
-          forfeitTimerRef.current = null;
+      if (idToCancel) {
+        if (multiplayerState === 'playing' || multiplayerState === 'game_over') {
+          // If in a match, mark as finished/forfeited instead of deleting
+          await supabase.from('online_matches').update({ status: 'finished' }).eq('id', idToCancel);
+          console.log('[Multiplayer] Match marked as FINISHED in DB via Cancel.');
+        } else {
+          // If just searching/waiting, delete the record
+          await supabase.from('online_matches').delete().eq('id', idToCancel);
+          console.log('[Multiplayer] Match DELETED from DB via Cancel.');
         }
-        setForfeitStatus(null);
-        return;
       }
     } catch (err) {
-      console.warn('[Multiplayer] Cancel deletion failed:', err);
+      console.warn('[Multiplayer] Cancel/Cleanup failed:', err);
     } finally {
       setMatchId(null);
       setActiveMatch(null);
@@ -548,6 +544,17 @@ export const MultiplayerProvider = ({ children }) => {
         if (error) throw error;
 
         if (data) {
+          // 4.1 EXPIRATION CHECK: If match is older than 15 minutes, auto-finish it
+          const createdAt = new Date(data.created_at);
+          const now = new Date();
+          const diffInMinutes = (now - createdAt) / (1000 * 60);
+
+          if (diffInMinutes > 15) {
+            console.log('[Multiplayer] Found stale match (15m+). Auto-finishing in DB.');
+            await supabase.from('online_matches').update({ status: 'finished' }).eq('id', data.id);
+            return; // Stay in idle
+          }
+
           console.log('[Multiplayer] Recovering active match:', data.id);
           const oppId = data.player1_id === user.id ? data.player2_id : data.player1_id;
           
