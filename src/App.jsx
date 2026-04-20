@@ -19,6 +19,7 @@ import useGameLogic from './hooks/useGameLogic';
 import { AVATARS } from './data/avatars';
 
 import { initAudio, startBackgroundMusic, stopBackgroundMusic, forceResumeAudio } from './utils/audio';
+import { normalizeKurdishInput } from './utils/textUtils';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
