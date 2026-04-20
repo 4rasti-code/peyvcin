@@ -24,8 +24,8 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
     bgColor = 'bg-[#334155] border-none opacity-40 grayscale';
     textColor = 'text-white/30';
   } else if (isFocused) {
-    bgColor = 'bg-[#1e293b] border-[#10b981] shadow-[0_0_20px_rgba(16,185,129,0.4)]';
-    extraClasses = 'z-20 scale-105 border-[3px]';
+    bgColor = 'bg-[#020617] ring-2 ring-inset ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]';
+    extraClasses = 'z-20 border-transparent';
     textColor = 'text-white';
   } else if (char && isCurrent) {
     bgColor = 'bg-[#020617] border border-white/30 z-10 shadow-2xl';
