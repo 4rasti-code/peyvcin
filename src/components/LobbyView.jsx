@@ -85,7 +85,7 @@ export default function LobbyView({
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
               <div className="flex flex-col items-start">
                 <h3 className="text-2xl font-black font-heading text-white">ھەڤڕکی</h3>
-                <span className="text-[10px] font-medium font-rabar uppercase tracking-[0.2em] text-emerald-100/70 leading-none">دەستەودەست (ONLINE)</span>
+                <span className="text-[10px] font-medium font-rabar uppercase tracking-[0.2em] text-emerald-100/70 leading-none">BATTLE (ONLINE)</span>
               </div>
               <div className="w-14 h-14 rounded-lg bg-white/20 flex items-center justify-center border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.15)] group-hover:scale-105 transition-all duration-300">
                 <span className="material-symbols-outlined text-4xl text-white">groups</span>
