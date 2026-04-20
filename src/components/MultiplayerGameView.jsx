@@ -54,12 +54,13 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   const onGuessSubmitted = useCallback(async (colors, isWin) => {
     if (isWin) {
         await submitGuess(colors, true);
-        playVictorySound();
+        // Only play sound at the very end of the match (handled by Context/Overlay)
+        // playVictorySound(); // REMOVED - requested by user
     } else {
         broadcastGuess(colors, false);
         playPopSound(true);
     }
-  }, [submitGuess, broadcastGuess, playVictorySound, playPopSound]);
+  }, [submitGuess, broadcastGuess, playPopSound]);
 
   const {
     guesses,
