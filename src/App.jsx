@@ -749,7 +749,7 @@ export default function App() {
     };
   };
 
-  const normalizeKurdishInput = (input) => { if (!input) return ''; let clean = input.trim().replace(/ك/g, 'ک').replace(/[يى]/g, 'ی').replace(/ھ/g, 'ھ'); return clean; };
+
 
 
 

@@ -59,8 +59,8 @@ export default function useGameLogic({
   const getLetterStatus = useCallback((guess, index, customTarget = targetWordRef.current) => {
     if (!customTarget || !guess) return STATUS.NONE;
     const guessString = Array.isArray(guess) ? guess.join('') : guess;
-    const targetArr = customTarget.split('');
-    const guessArr = guessString.split('');
+    const targetArr = normalizeKurdishInput(customTarget).split('');
+    const guessArr = normalizeKurdishInput(guessString).split('');
     
     // Pass 1: Correct positions
     if (guessArr[index] === targetArr[index]) return STATUS.CORRECT;
@@ -157,7 +157,7 @@ export default function useGameLogic({
     isSubmittingRef.current = true;
     
     const colors = guessString.split('').map((_, i) => getLetterStatus(guessString, i, target));
-    const isWin = guessString === target;
+    const isWin = normalizeKurdishInput(guessString) === normalizeKurdishInput(target);
     const currentGuesses = guessesRef.current;
     
     // Update Guesses
