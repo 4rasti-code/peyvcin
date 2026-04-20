@@ -69,22 +69,22 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "circOut" }}
-            className="absolute w-[150%] h-[6px] bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_40px_rgba(34,211,238,0.9)] z-10 origin-center rotate-[35deg]"
+            className="absolute w-[150%] h-[6px] bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-[35deg]"
           />
           
           <motion.div
-            animate={{ x: ['-100%', '100%'] }}
+            animate={{ x: ['100%', '-100%'] }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[150%] h-[12px] bg-white/60 blur-md z-10 rotate-[35deg] pointer-events-none"
+            className="absolute w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-[35deg] pointer-events-none"
           />
 
           {/* 4. PLAYER CONTENT (DIAGONAL) */}
           <div className="relative w-full h-full p-8 sm:p-16 z-20 flex flex-col justify-between items-center max-w-5xl mx-auto">
             
-            {/* OPPONENT - TOP RIGHT */}
-            <div className="w-full flex justify-end">
+            {/* OPPONENT - TOP LEFT */}
+            <div className="w-full flex justify-start">
               <motion.div
-                initial={{ x: 300, y: -300, opacity: 0, scale: 0.3 }}
+                initial={{ x: -300, y: -300, opacity: 0, scale: 0.3 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
                 className="flex flex-col items-center gap-4"
@@ -97,11 +97,11 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                       size="3xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
-                      level={opponent?.level} // Pass actual profile level
+                      level={opponent?.level} 
                     />
                   </div>
-                  {/* Identity Label */}
-                  <div className="absolute -bottom-3 -left-3 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
+                  {/* Identity Label (Matches mockup position) */}
+                  <div className="absolute -bottom-3 -right-3 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
                     هەڤڕک
                   </div>
                 </div>
@@ -113,7 +113,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
 
             {/* VS CENTER */}
             <motion.div
-              initial={{ scale: 0, opacity: 0, rotate: -90, filter: 'blur(20px)' }}
+              initial={{ scale: 0, opacity: 0, rotate: 90, filter: 'blur(20px)' }}
               animate={{ scale: 1, opacity: 1, rotate: 0, filter: 'blur(0px)' }}
               transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.8 }}
               className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40"
@@ -123,11 +123,11 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.9, 0.6] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute -inset-16 bg-gradient-to-r from-orange-600 to-red-600 rounded-full blur-[60px] mix-blend-screen"
+                  className="absolute -inset-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
                 />
                 <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none
-                  bg-gradient-to-b from-yellow-300 via-orange-500 to-red-600 bg-clip-text text-transparent
-                  drop-shadow-[0_0_50px_rgba(249,115,22,1)] filter brightness-125">
+                  bg-gradient-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
+                  drop-shadow-[0_0_50px_rgba(251,191,36,1)] filter brightness-125">
                   VS
                 </h1>
                 {/* Ghost Text for Depth */}
@@ -138,10 +138,10 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
               </div>
             </motion.div>
 
-            {/* YOU - BOTTOM LEFT */}
-            <div className="w-full flex justify-start">
+            {/* YOU - BOTTOM RIGHT */}
+            <div className="w-full flex justify-end">
               <motion.div
-                initial={{ x: -300, y: 300, opacity: 0, scale: 0.3 }}
+                initial={{ x: 300, y: 300, opacity: 0, scale: 0.3 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
                 className="flex flex-col items-center gap-4"
@@ -154,11 +154,11 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                       size="3xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
-                      level={userLevel} // Pass actual user level
+                      level={userLevel} 
                     />
                   </div>
-                  {/* Identity Label */}
-                  <div className="absolute -bottom-3 -right-3 bg-cyan-500 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
+                  {/* Identity Label (Matches mockup position) */}
+                  <div className="absolute -bottom-3 -left-3 bg-cyan-500 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
                     تۆ
                   </div>
                 </div>
