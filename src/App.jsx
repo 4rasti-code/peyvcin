@@ -532,10 +532,6 @@ export default function App() {
     });
   }, [onEnter, updateInventory]); // onEnter and updateInventory are stable
 
-  // Audio Pre-loading once on mount
-  useEffect(() => {
-    initAudio();
-  }, []);
 
   // TRIGGER LEVEL UP UI (Standardized)
   useEffect(() => {

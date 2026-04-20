@@ -282,22 +282,40 @@ class SoundEngine {
 const engine = new SoundEngine();
 
 // Initialize on user activity
+// 1. INVISIBLE UNLOCK: Attach a one-time global interaction listener
 if (typeof window !== "undefined") {
-  const unlock = () => {
-    engine.init();
-    if (engine.initialized) {
-      if (engine.context && engine.context.state === 'suspended') {
-        engine.context.resume().catch(()=>{});
-      }
-      engine.startMusic();
+  const unlockAudio = async () => {
+    console.log("🔊 [AudioEngine] Interaction detected, unlocking AudioContext...");
+    
+    // Initialize if not already done
+    if (!engine.initialized) {
+      await engine.init();
     }
-    window.removeEventListener('click', unlock);
-    window.removeEventListener('keydown', unlock);
-    window.removeEventListener('touchstart', unlock);
+    
+    // Resume context if suspended (Chrome Autoplay Policy)
+    if (engine.context && engine.context.state === 'suspended') {
+      try {
+        await engine.context.resume();
+        console.log("🔊 [AudioEngine] AudioContext successfully resumed.");
+      } catch (err) {
+        console.warn("🔊 [AudioEngine] Failed to resume AudioContext:", err);
+      }
+    }
+    
+    // Start music if it should be playing
+    engine.startMusic();
+    
+    // Cleanup: Remove listeners immediately after first success
+    window.removeEventListener('click', unlockAudio);
+    window.removeEventListener('keydown', unlockAudio);
+    window.removeEventListener('touchstart', unlockAudio);
+    window.removeEventListener('mousedown', unlockAudio);
   };
-  window.addEventListener('click', unlock);
-  window.addEventListener('keydown', unlock);
-  window.addEventListener('touchstart', unlock);
+
+  window.addEventListener('click', unlockAudio);
+  window.addEventListener('keydown', unlockAudio);
+  window.addEventListener('touchstart', unlockAudio);
+  window.addEventListener('mousedown', unlockAudio);
 }
 
 /**
