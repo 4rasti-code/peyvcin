@@ -682,17 +682,33 @@ export const MultiplayerProvider = ({ children }) => {
       let selectedRiddles = [];
 
       try {
-        const { data: randomSample, error: wordError } = await supabase.from('words').select('word, definition').limit(20);
-        if (!wordError && randomSample?.length >= 3) {
-          const shuffled = randomSample.sort(() => 0.5 - Math.random());
-          selectedWords = shuffled.slice(0, 3).map(e => e.word);
-          selectedRiddles = shuffled.slice(0, 3).map(e => e.definition || 'No riddle');
+        // Fetch a larger sample to ensure we find enough 5-letter words
+        const { data: randomSample, error: wordError } = await supabase
+          .from('words')
+          .select('word, definition')
+          .limit(100);
+          
+        if (!wordError && randomSample?.length > 0) {
+          // Filter strictly for 5-letter words
+          const fiveLetterWords = randomSample.filter(e => e.word && e.word.length === 5);
+          
+          if (fiveLetterWords.length >= 3) {
+            const shuffled = fiveLetterWords.sort(() => 0.5 - Math.random());
+            selectedWords = shuffled.slice(0, 3).map(e => e.word);
+            selectedRiddles = shuffled.slice(0, 3).map(e => e.definition || 'No riddle');
+          } else {
+             console.warn('[Multiplayer] Not enough 5-letter words in DB, falling back to local.');
+             throw new Error('Insufficient DB words');
+          }
         } else {
-          throw new Error('Fallback');
+          throw new Error('DB Fetch Error or Empty');
         }
-      } catch {
+      } catch (e) {
+        console.log('[Multiplayer] Using local fallback for 5-letter words.');
         const localWords = getUnifiedWords();
-        const fallback = [...localWords].sort(() => 0.5 - Math.random()).slice(0, 3);
+        // Filter local words for 5 letters
+        const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
+        const fallback = [...fiveLetterLocal].sort(() => 0.5 - Math.random()).slice(0, 3);
         selectedWords = fallback.map(w => w.word);
         selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
       }
