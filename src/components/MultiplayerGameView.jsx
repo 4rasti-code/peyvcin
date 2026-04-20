@@ -157,7 +157,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </style>
       
       {/* 1. SCOREBOARD (Dedicated Header) */}
-      <div className="shrink-0 px-6 py-4 pt-[env(safe-area-inset-top)] bg-white/5 border-b border-white/10 flex items-center justify-between">
+      <div className="shrink-0 px-6 pt-[calc(env(safe-area-inset-top)+16px)] pb-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
         {/* RIGHT (First child in RTL): OPPONENT */}
         <div className="flex items-center gap-3 text-right">
           <motion.div
