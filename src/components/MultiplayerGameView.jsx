@@ -241,7 +241,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
 
       {/* 3. KEYBOARD (With hidePowerups=true) */}
-      <div className="shrink-0 p-2 bg-[#020617]/40 pb-[env(safe-area-inset-bottom)] mt-auto m-0">
+      <div className="shrink-0 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+20px)] mt-auto m-0">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
