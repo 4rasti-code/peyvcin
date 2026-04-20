@@ -82,7 +82,7 @@ const FloatingInput = ({ label, value, onChange, type = 'text', required = false
 
   return (
     <div className="relative w-full text-right">
-      <label className={`block text-[11px] font-black font-rabar mb-1.5 pr-2 uppercase transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-white/70 hover:text-white/90'}`}>
+      <label className={`block text-[11px] font-black font-rabar mb-1.5 pr-2 uppercase tracking-[0.15em] transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-white/70 hover:text-white/90'}`}>
         {label}
       </label>
       <div className={`
@@ -385,10 +385,10 @@ export default function AuthView({ onAuthSuccess }) {
               exit={{ opacity: 0, x: isLogin ? 10 : -10 }}
               className="mb-4"
             >
-              <p className="text-[10px] font-black font-rabar text-emerald-400 uppercase leading-none no-stroke mb-1 text-right">
+              <p className="text-[10px] font-black font-rabar text-emerald-400 uppercase tracking-[0.25em] leading-none no-stroke mb-1 text-right">
                  {isLogin ? 'WELCOME BACK / بخێرھاتی' : 'NEW ACCOUNT / ھەژمارەکا نوی'}
               </p>
-              <h2 className="text-2xl font-black font-heading text-white text-pop uppercase text-right">
+              <h2 className="text-2xl font-black font-heading text-white text-pop uppercase tracking-wide text-right">
                 {isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}
               </h2>
             </motion.div>
