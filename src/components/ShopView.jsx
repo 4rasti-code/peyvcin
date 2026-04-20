@@ -263,12 +263,12 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
         <AnimatePresence mode="wait">
           {activeTab === 'powerups' && (
             <motion.div key="powerups" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex flex-col gap-5">
-              <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} playPurchaseSound={playPurchaseSound} />
               <div className="grid grid-cols-1 gap-4">
                 {SHOP_ITEMS.POWERUPS.map(item => (
                   <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => setItemToConfirm({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
                 ))}
               </div>
+              <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} playPurchaseSound={playPurchaseSound} />
             </motion.div>
           )}
           {activeTab === 'avatars' && (

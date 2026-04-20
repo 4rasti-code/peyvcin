@@ -12,6 +12,7 @@ import LobbyView from './components/LobbyView';
 import DictionaryView from './components/DictionaryView';
 import { getRandomWordFromCategory, wordList } from './data/wordList';
 import { STATUS } from './data/constants';
+import { getLocalDateString } from './utils/formatters';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import useGameLogic from './hooks/useGameLogic';
@@ -1170,7 +1171,7 @@ export default function App() {
           }}
           isDailyAvailable={
             !lastRewardClaimedAt || 
-            new Date(lastRewardClaimedAt).toISOString().split('T')[0] !== new Date().toISOString().split('T')[0]
+            (lastRewardClaimedAt.includes('T') ? lastRewardClaimedAt.split('T')[0] : lastRewardClaimedAt) !== getLocalDateString()
           }
         />
       )}

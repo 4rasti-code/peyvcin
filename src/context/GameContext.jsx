@@ -9,10 +9,12 @@ import {
   playNotifSfx, playMessageSfx, playVictorySfx, playCoinSfx, playRewardSfx, playPurchaseSfx, playBoosterSfx,
   playDailyOpenSfx, playDailyClaimSfx, playBubblePopSfx,
   startSearchingSfx, stopSearchingSfx,
+  playMessageSentSfx,
   startBackgroundMusic, stopBackgroundMusic
 } from '../utils/audio';
 
 import { getLevelFromXP, getLevelData } from '../utils/progression';
+import { getLocalDateString, isYesterday } from '../utils/formatters';
 
 const GameContext = createContext();
 
@@ -481,6 +483,10 @@ export const GameProvider = ({ children }) => {
     playMessageSfx(appSoundsEnabled);
   }, [appSoundsEnabled]);
 
+  const playMessageSentSound = useCallback(() => {
+    playMessageSentSfx(appSoundsEnabled);
+  }, [appSoundsEnabled]);
+
 
   const playVictorySound = useCallback(() => playVictorySfx(appSoundsEnabled), [appSoundsEnabled]);
   const playRewardSound = useCallback(() => playRewardSfx(appSoundsEnabled), [appSoundsEnabled]);
@@ -755,26 +761,22 @@ export const GameProvider = ({ children }) => {
     if (!currentUser?.id) return { success: false, error: "Tkaye pêşî wەرە ژوور" }; // Login required
 
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    const lastClaimDate = lastClaimed ? new Date(lastClaimed).toISOString().split('T')[0] : null;
+    const todayStr = getLocalDateString(now);
+    
+    // lastClaimed from DB might be a full ISO string, we need just the YYYY-MM-DD part
+    const lastClaimDate = lastClaimed ? (lastClaimed.includes('T') ? lastClaimed.split('T')[0] : lastClaimed) : null;
 
     if (lastClaimDate === todayStr) {
       return { success: false, error: "Te xەlatێ خۆ یێ ئەڤرۆ وەرگرتییە" }; // Already claimed today
     }
 
-    // Determine next streak
+    // Determine next streak mathematically
     let nextStreak = 1;
-    if (lastClaimDate) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-      if (lastClaimDate === yesterdayStr) {
-        nextStreak = (currRewardStreak % 7) + 1;
-      }
+    if (lastClaimDate && isYesterday(lastClaimDate, now)) {
+      nextStreak = (currRewardStreak % 7) + 1;
     }
 
-    // Reward Logic
+    // Reward Mapping (Based on the newly calculated nextStreak)
     const rewards = {
       1: { fils: 100 },
       2: { magnetCount: 1 },
@@ -787,24 +789,28 @@ export const GameProvider = ({ children }) => {
 
     const currentReward = rewards[nextStreak];
 
-    // Update State & DB
+    // Atomic Update: State & DB
     try {
+      // 1. Update State immediately for UI responsiveness
       setRewardStreak(nextStreak);
-      setLastRewardClaimedAt(now.toISOString());
+      setLastRewardClaimedAt(todayStr); // Store just the date for cleaner comparison next time
 
-      // Update Inventory
+      // 2. Grant the items
       updateInventory(currentReward);
 
-      // Sync to DB
-      await supabase.from('profiles').update({
+      // 3. Persist to DB
+      const { error: dbError } = await supabase.from('profiles').update({
         reward_streak: nextStreak,
-        last_reward_claimed_at: now.toISOString(),
+        last_reward_claimed_at: todayStr,
         updated_at: now.toISOString()
       }).eq('id', currentUser.id);
+
+      if (dbError) throw dbError;
 
       return { success: true, streak: nextStreak, reward: currentReward };
     } catch (err) {
       console.error("Daily Reward Claim Failed:", err);
+      // Optional: rollback local state if needed, but usually Supabase eventual consistency or retry is better
       return { success: false, error: "ئاریشەیەک د داتابەیسێ دا ھەبوو" };
     }
   }, [updateInventory]);
@@ -833,6 +839,7 @@ export const GameProvider = ({ children }) => {
     currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
     dailyStreak, setDailyStreak,
     rewardStreak, lastRewardClaimedAt, claimDailyReward,
+    playMessageSound, playMessageSentSound,
     inventory, setInventory,
     magnetCount, hintCount, skipCount,
     ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,

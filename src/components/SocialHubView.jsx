@@ -216,7 +216,7 @@ export default function SocialHubView({
   onViewFriends,
   onKeyboardToggle
 }) {
-  const { userNickname, playNotifSound, playTabSound, playBubblePopSound, handleToggleBlock: toggleBlockInContext } = useGame();
+  const { userNickname, playNotifSound, playMessageSound, playMessageSentSound, playTabSound, playBubblePopSound, handleToggleBlock: toggleBlockInContext } = useGame();
   const [activeTab, setActiveTab] = useState(initialTab || (initialChatPartner ? 'private' : 'global'));
   const [messages, setMessages] = useState([]);
   const [privateChats, setPrivateChats] = useState([]);
@@ -513,6 +513,7 @@ export default function SocialHubView({
     const msgContent = newMessage.trim();
     const currentUserId = user?.id;
     triggerHaptic(15);
+    playMessageSentSound();
 
     // Clear input immediately for better UX
     setNewMessage('');
@@ -681,7 +682,7 @@ export default function SocialHubView({
               key={tab.id}
               onClick={() => { 
                 triggerHaptic(10); 
-                playBubblePopSound();
+                playTabSound();
                 setActiveTab(tab.id); 
                 setSelectedChat(null); 
               }}

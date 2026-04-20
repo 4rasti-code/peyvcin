@@ -24,6 +24,7 @@ const SFX_PATHS = {
   SWORD_COMBO: '/freesound_crunchpixstudio-rpg-sword-attack-combo-34-388950.mp3',
   SWORD_SLASH: '/gargamel10-sword-slashing-game-sound-effect-2-379229.mp3',
   WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
+  MESSAGE_SENT: '/sending_message.mp3',
 };
 
 const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
@@ -380,6 +381,10 @@ export const playTabSfx = (enabled = true) => {
 
 export const playNotifSfx = playNotificationSfx;
 export const playMessageSfx = playNotificationSfx;
+export const playMessageSentSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('MESSAGE_SENT');
+};
 export const playGameStartSfx = playStartGameSfx;
 export const playSuccessSfx = (enabled = true) => {
   if (!enabled) return;

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useGame } from '../context/GameContext';
 import { triggerHaptic } from '../utils/haptics';
-import { toKuDigits } from '../utils/formatters';
+import { toKuDigits, getLocalDateString, isYesterday } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
 import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
 
@@ -38,25 +38,21 @@ export default function DailyRewardModal({ isOpen, onClose }) {
     }
   }, [isOpen, playDailyOpenSfx, hapticEnabled]);
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const lastClaimDate = lastRewardClaimedAt ? new Date(lastRewardClaimedAt).toISOString().split('T')[0] : null;
+  const todayStr = getLocalDateString();
+  const lastClaimDate = lastRewardClaimedAt ? (lastRewardClaimedAt.includes('T') ? lastRewardClaimedAt.split('T')[0] : lastRewardClaimedAt) : null;
   const isAvailableToday = lastClaimDate !== todayStr;
 
   let nextDay = 1;
   let isStreakBroken = false;
 
   if (lastClaimDate) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-    if (lastClaimDate === yesterdayStr) {
+    if (isYesterday(lastClaimDate)) {
       nextDay = (rewardStreak % 7) + 1;
     } else if (lastClaimDate !== todayStr) {
       isStreakBroken = true;
       nextDay = 1;
     } else {
-      nextDay = rewardStreak; // They already claimed today, so the highest claimed day is currently rewardStreak
+      nextDay = rewardStreak; // They already claimed today
     }
   }
 

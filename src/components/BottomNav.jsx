@@ -46,12 +46,26 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
               <motion.div 
                  layoutId="active-nav-line"
                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                 className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#facc15] shadow-[0_0_12px_rgba(250,204,21,0.8)] rounded-b-full z-10" 
+                 className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[3px] bg-[#10b981] shadow-[0_0_12px_rgba(16,185,129,0.8)] rounded-b-full z-10" 
               />
             )}
 
             {/* Icon Wrapper */}
-            <div className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-[#facc15]' : 'text-slate-500 group-hover:text-white/80'}`}>
+            <div className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-[#10b981]' : 'text-slate-500 group-hover:text-white/80'}`}>
+                {tab.id === 'store' && (
+                  <motion.div 
+                    animate={{ 
+                      scale: [1, 1.4, 1],
+                      opacity: [0.6, 1, 0.6]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 1.5,
+                      ease: "easeInOut"
+                    }}
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-slate-950 z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                  />
+                )}
                 <motion.span 
                   animate={{ 
                      y: isActive ? -2 : 0, 

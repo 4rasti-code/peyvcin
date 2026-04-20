@@ -1,8 +1,30 @@
 /**
+ * Returns a YYYY-MM-DD string in the user's local timezone.
+ * Avoids UTC boundary issues.
+ * @param {Date} date - Optional date object, defaults to now.
+ */
+export const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Checks if comparisonDateStr (YYYY-MM-DD) was the calendar day immediately preceding relativeToDate.
+ */
+export const isYesterday = (comparisonDateStr, relativeToDate = new Date()) => {
+  if (!comparisonDateStr) return false;
+  
+  const yesterday = new Date(relativeToDate);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = getLocalDateString(yesterday);
+  
+  return comparisonDateStr === yesterdayStr;
+};
+
+/**
  * Converts English digits (0-9) to Kurdish/Eastern Arabic digits (٠-٩).
- * This ensures consistency across browsers that may not support the 'ku-IQ' locale correctly.
- * @param {number|string} val - The number or string to convert.
- * @returns {string} - The converted string with Kurdish digits.
  */
 export const toKuDigits = (val) => {
   if (val === undefined || val === null) return '';
