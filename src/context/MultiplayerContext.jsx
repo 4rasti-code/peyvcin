@@ -131,16 +131,16 @@ export const MultiplayerProvider = ({ children }) => {
       updates.p1_colors = [];
       updates.p2_colors = [];
 
-      if (currentIdx >= 2) {
+      const myNewScore = (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1;
+      const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+
+      if (currentIdx >= 2 || myNewScore >= 2) {
         updates.status = 'finished';
         
         // --- WINNER RESULT CALCULATION ---
-        const myFinalScore = (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1;
-        const oppFinalScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
-        
         let result = 'draw';
-        if (myFinalScore > oppFinalScore) result = 'victory';
-        else if (myFinalScore < oppFinalScore) result = 'defeat';
+        if (myNewScore > oppScore) result = 'victory';
+        else if (myNewScore < oppScore) result = 'defeat';
         
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
@@ -170,7 +170,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     // 2. Check if opponent already failed OR if we are the last ones to fail
     const oppColors = isP1 ? activeMatch.p2_colors : activeMatch.p1_colors;
-    const oppFailed = oppColors && (oppColors.length >= 3); // MaxRows is 3
+    const oppFailed = oppColors && (oppColors.length >= 6); // MaxRows is 6
 
     if (oppFailed) {
       // Both failed: 0 points for both, next round
@@ -472,6 +472,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     const verifyAndStart = async () => {
       if ((multiplayerState === 'waiting' || multiplayerState === 'searching') && activeMatch.player2_id) {
+        safeClearMatchmakingTimeout();
         const oppId = activeMatch.player2_id === user.id ? activeMatch.player1_id : activeMatch.player2_id;
         const oppProfile = await fetchOpponentProfile(oppId);
 

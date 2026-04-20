@@ -73,7 +73,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     resetLocalBoard
   } = useGameLogic({
     targetWord,
-    maxRows: 3,
+    maxRows: 6,
     gameMode: 'multiplayer',
     onGuessSubmitted,
     onLoss: async () => {
@@ -177,7 +177,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         {/* CENTER: ROUND & VS */}
         <div className="flex flex-col items-center relative">
             <div className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black mb-1">BATTLE</div>
-            <div className="text-xs font-black text-white/30 truncate">گەڕ {currentRound}/3</div>
+            <div className="text-xs font-black text-white/30 truncate">گەڕ {currentRound + 1}/3</div>
         </div>
 
         {/* LEFT (Last child in RTL): YOU */}
@@ -215,7 +215,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               currentGuess={currentGuess}
               wordLength={targetWord.length}
               getLetterStatus={getLetterStatus}
-              maxRows={3}
+              maxRows={6}
               targetWord={targetWord}
               compact={true}
             />
@@ -231,7 +231,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
             <Grid 
               opponentStatuses={opponentGuesses}
               wordLength={targetWord.length}
-              maxRows={3}
+              maxRows={6}
               hideLetters={true}
               targetWord={targetWord}
               getLetterStatus={() => ''}
@@ -251,7 +251,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           onDelete={onDelete} 
           onEnter={onEnter} 
           usedKeys={usedKeys}
-          gameState={guesses.length >= 3 ? 'lost' : 'playing'}
+          gameState={guesses.length >= 6 ? 'lost' : 'playing'}
           hidePowerups={true}
         />
       </div>

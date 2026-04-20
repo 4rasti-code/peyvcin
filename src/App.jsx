@@ -1112,7 +1112,7 @@ export default function App() {
   }, [navigateTo]);
 
 
-  if (!isAppReady || !isAuthChecked) return <div className="h-screen flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
+  if (!isAppReady || !isAuthChecked) return <div className="h-[100dvh] flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
 
   return (
     <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden bg-[#020617] text-white font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
