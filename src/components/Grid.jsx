@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) => {
   
-  let bgColor = 'bg-[#1e293b] border-2 border-white/5 shadow-xl';
+  let bgColor = 'bg-[#0f172a] border-2 border-white/10 shadow-2xl';
   let textColor = 'text-white';
   let extraClasses = '';
 
@@ -28,7 +28,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
     extraClasses = 'z-20 scale-105 border-[3px]';
     textColor = 'text-white';
   } else if (char && isCurrent) {
-    bgColor = 'bg-[#1e293b] border-white/10 z-10 shadow-lg';
+    bgColor = 'bg-[#0f172a] border-2 border-white/20 z-10 shadow-2xl';
     textColor = 'text-white';
   }
   
@@ -41,7 +41,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       initial={false}
       animate={isFlipped ? { rotateY: 360 } : {}}
       transition={{ duration: 0.6, delay: flipDelay / 1000 }}
-      className={`${bgColor} ${extraClasses} forced-tile rounded-[12px] transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden  items-center justify-center`}
+      className={`${bgColor} ${extraClasses} forced-tile rounded-[4px] transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden items-center justify-center`}
     >
       <span 
         className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
