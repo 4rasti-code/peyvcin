@@ -43,7 +43,7 @@ export default function PublicProfileModal({
   const { getLevelData, playBubblePopSound } = useGame();
 
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profile?.id || profile.id === 'undefined' || typeof profile.id !== 'string') return;
     const loadProfile = async () => {
       const { data } = await supabase
         .from('profiles')
@@ -181,13 +181,13 @@ export default function PublicProfileModal({
     const { error } = await supabase
       .from('profiles')
       .update({ 
-        shayi: (displayData.shayi || 0) + amount,
+        fils: (displayData.fils || 0) + amount,
         mastery_claims: newClaims
       })
       .eq('id', currentUser?.id);
 
     if (!error) {
-      setFullData({ ...displayData, shayi: (displayData.shayi || 0) + amount, mastery_claims: newClaims });
+      setFullData({ ...displayData, fils: (displayData.fils || 0) + amount, mastery_claims: newClaims });
       setShowCoinAnim(true);
       setTimeout(() => setShowCoinAnim(false), 3500);
     }
@@ -421,7 +421,7 @@ export default function PublicProfileModal({
                    <span className="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1 ">باڵانس</span>
                    <div className="flex items-center gap-1.5">
                       <div className="flex flex-col items-end leading-none translate-y-0.5">
-                         <span className="text-xl font-black text-white ">{toKuDigits(displayData.shayi || 0)}</span>
+                         <span className="text-xl font-black text-white ">{toKuDigits(displayData.fils || 0)}</span>
                          <span className="text-[8px] font-black uppercase tracking-widest opacity-60 text-white/40">فلس</span>
                       </div>
                       <FilsIcon className="w-4 h-4" />

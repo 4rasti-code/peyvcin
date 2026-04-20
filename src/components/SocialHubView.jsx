@@ -216,7 +216,16 @@ export default function SocialHubView({
   onViewFriends,
   onKeyboardToggle
 }) {
-  const { userNickname, playNotifSound, playMessageSound, playMessageSentSound, playTabSound, playBubblePopSound, handleToggleBlock: toggleBlockInContext } = useGame();
+  const { 
+    userNickname, 
+    playNotifSound, 
+    playMessageSound, 
+    playMessageSentSound, 
+    playTabSound, 
+    playBubblePopSound, 
+    handleToggleBlock: toggleBlockInContext,
+    loadingAuth
+  } = useGame();
   const [activeTab, setActiveTab] = useState(initialTab || (initialChatPartner ? 'private' : 'global'));
   const [messages, setMessages] = useState([]);
   const [privateChats, setPrivateChats] = useState([]);
@@ -304,7 +313,7 @@ export default function SocialHubView({
   }, [user?.id]);
 
   const fetchPrivateConversations = useCallback(async () => {
-    if (!user?.id) return;
+    if (loadingAuth || !user?.id || user.id === 'undefined') return;
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -335,7 +344,7 @@ export default function SocialHubView({
   }, [user?.id]);
 
   const fetchPrivateChatHistory = useCallback(async (partnerId) => {
-    if (!user?.id || !partnerId) return;
+    if (loadingAuth || !user?.id || user.id === 'undefined' || !partnerId) return;
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -418,9 +427,12 @@ export default function SocialHubView({
   const handleSearchPlayers = async (query) => {
     setSearchQuery(query);
     if (query.length < 2) { setSearchResults([]); return; }
+    if (loadingAuth || !user?.id || user.id === 'undefined') return;
     setSearching(true);
     try {
-      const { data, error } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').ilike('nickname', `%${query}%`).neq('id', user?.id).limit(10);
+      let queryBuilder = supabase.from('profiles').select('id, nickname, avatar_url, updated_at').ilike('nickname', `%${query}%`);
+      queryBuilder = queryBuilder.neq('id', user.id);
+      const { data, error } = await queryBuilder.limit(10);
       if (error) throw error;
       setSearchResults(data || []);
     } catch (err) { console.error("Search error:", err); } finally { setSearching(false); }

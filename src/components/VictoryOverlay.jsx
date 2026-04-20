@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { FilsIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
 
@@ -113,71 +113,63 @@ const VictoryOverlay = ({
 
               {solvedWord && (
                 <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block">
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">پەیڤا دۆزراوە</span>
-                  <span className="text-2xl font-black text-emerald-400 font-heading tracking-wider">{solvedWord}</span>
+                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا دۆزراوە</span>
+                  <span className="text-2xl font-black text-emerald-400 font-heading tracking-normal">{solvedWord}</span>
                 </div>
               )}
 
-              {/* Stats & Rewards Table */}
-              <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-3xl border border-emerald-500/10 shadow-inner">
-                <div className="flex justify-between items-center text-sm font-black  group/row">
-                  <span className="text-white/80 transition-colors group-hover/row:text-white">خەلاتێ سەرکەفتنێ</span>
-                  <div className="flex items-center gap-2 text-emerald-400">
-                    <div className="flex flex-col items-end leading-none pt-0.5">
-                      <AnimatedNumber value={breakdown?.base || 0} prefix="+" />
-                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
-                    </div>
-                    <FilsIcon size={12} className="opacity-80" />
+            {/* Stats & Rewards Table */}
+            <div className="w-full space-y-3 mt-2 bg-black/40 p-5 rounded-[2.5rem] border border-emerald-500/10 shadow-inner">
+              <div className="flex justify-between items-center text-lg font-black group/row">
+                <span className="text-white/80 transition-colors group-hover/row:text-white">خەلاتێ تە</span>
+                <div className="flex items-center gap-3 text-emerald-400">
+                  <div className="flex flex-col items-end leading-none pt-0.5">
+                    <AnimatedNumber 
+                      value={breakdown?.awardAmount || 50} 
+                      prefix="+" 
+                    />
+                    <span className="text-[9px] font-black uppercase tracking-normal opacity-60">
+                      {(breakdown?.awardType || 'fils') === 'derhem' ? 'دەرهەم' : (breakdown?.awardType || 'fils') === 'dinar' ? 'دینار' : 'فلس'}
+                    </span>
                   </div>
+                  {(breakdown?.awardType || 'fils') === 'derhem' ? (
+                    <DerhemIcon size={24} className="opacity-90" />
+                  ) : (breakdown?.awardType || 'fils') === 'dinar' ? (
+                    <DinarIcon size={24} className="opacity-90" />
+                  ) : (
+                    <FilsIcon size={24} className="opacity-90" />
+                  )}
                 </div>
+              </div>
 
-                {/* Detailed Stats Breakdown */}
-                <div className="space-y-1 pt-1 opacity-70">
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <div className="flex items-center gap-1.5 text-emerald-400">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" />
-                      <span>پیتا ڕاست</span>
-                    </div>
-                    <span className="text-white">{breakdown?.greenCount || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <div className="flex items-center gap-1.5 text-yellow-500">
-                      <div className="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_5px_rgba(234,179,8,0.5)]" />
-                      <span>پیتا ڕاست ل جهێ شاش</span>
-                    </div>
-                    <span className="text-white">{breakdown?.yellowCount || 0}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <div className="flex items-center gap-1.5 text-slate-400">
-                      <div className="w-2 h-2 rounded-full bg-slate-500" />
-                      <span>پیتا شاش (سزا)</span>
-                    </div>
-                    <span className="text-white">-{breakdown?.gray || 0}</span>
-                  </div>
-                </div>
-                
-                {(xp > 0 || breakdown?.mode === 'Multiplayer') && (
-                  <div className="flex justify-between items-center text-sm font-black  group/row mt-1 pt-1 border-t border-white/5">
-                    <span className="text-white/80 transition-colors group-hover/row:text-white">بۆنوسا ھەڤڕکیێ</span>
-                    <div className="flex items-center gap-2 text-yellow-500">
-                      <AnimatedNumber value={xp || 50} prefix="+" />
-                      <span className="text-[10px] font-black tracking-tighter opacity-80">XP</span>
-                    </div>
-                  </div>
-                )}
+              <div className="h-px bg-white/5 my-1" />
 
-                <div className="h-px bg-white/5 my-2" />
-                <div className="flex justify-between items-center text-lg font-black font-rabar">
-                  <span className="text-white">سەرجەم</span>
-                  <div className="flex items-center gap-2 text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
-                    <div className="flex flex-col items-end leading-none pt-1">
-                      <AnimatedNumber value={breakdown?.total || 0} prefix="+" />
-                      <span className="text-[9px] font-black uppercase tracking-widest opacity-70">فلس</span>
-                    </div>
-                    <FilsIcon size={18} />
+              <div className="flex justify-between items-center text-base font-black group/row mt-1">
+                <span className="text-white/80 transition-colors group-hover/row:text-white">خەلاتێ ئێکس پی</span>
+                <div className="flex items-center gap-2 text-yellow-500">
+                  <div className="flex flex-col items-end leading-none">
+                    <AnimatedNumber value={breakdown?.xpAdded || xp || 25} prefix="+" />
+                    <span className="text-[9px] font-black tracking-tighter opacity-60">XP</span>
                   </div>
                 </div>
               </div>
+
+              {/* Minimalist Stats Summary (Horizontal) */}
+              <div className="flex items-center justify-center gap-4 pt-3 mt-1 border-t border-white/5 opacity-50">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-[10px] font-bold text-white">{breakdown?.greenCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                  <span className="text-[10px] font-bold text-white">{breakdown?.yellowCount || 0}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-slate-500" />
+                  <span className="text-[10px] font-bold text-white">{breakdown?.grayCount || 0}</span>
+                </div>
+              </div>
+            </div>
             </div>
 
             {/* Action Buttons */}

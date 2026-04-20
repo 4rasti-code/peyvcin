@@ -49,14 +49,14 @@ export default function InfoBar({
       <div className="w-full flex flex-col items-center justify-center py-0 px-4 sm:px-8 mt-2 animate-in fade-in duration-700 relative">
         
         <div className="w-full max-w-2xl flex items-center justify-center pt-2 pb-2 text-center relative z-10">
-          <p className="text-xl sm:text-3xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+          <p className="text-[17px] sm:text-2xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
             {displayText}
           </p>
         </div>
 
         {/* NEON VIBRANT CORE (Keshkha Orange Edition) */}
         {isWordFever && (
-          <div className={`relative flex items-center justify-center mt-5 ${timerStyle.pulse} transition-all duration-300`}>
+          <div className={`relative flex items-center justify-center -mt-3 ${timerStyle.pulse} transition-all duration-300`}>
              
              {/* SUCCESS SPLASH EFFECT */}
              <AnimatePresence>

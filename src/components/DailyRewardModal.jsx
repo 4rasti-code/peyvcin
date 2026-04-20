@@ -5,14 +5,14 @@ import { useGame } from '../context/GameContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits, getLocalDateString, isYesterday } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
-import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
   { day: 2, label: '١ موگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#8b5cf6' },
   { day: 3, label: '٥ دەرھەم', type: 'derhem', reward: { derhem: 5 }, color: '#A0A0A0' },
   { day: 4, label: '١ ھاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
-  { day: 5, label: '٥ دینار', type: 'zer', reward: { zer: 5 }, color: '#B8860B' },
+  { day: 5, label: '٥ دینار', type: 'dinar', reward: { dinar: 5 }, color: '#B8860B' },
   { day: 6, label: '١ دەربازبوون', icon: 'fast_forward', reward: { skipCount: 1 }, color: '#0ea5e9' },
   { day: 7, label: '٢٠٠٠ فلس + دیاری', type: 'fils', reward: { fils: 2000, magnetCount: 1, hintCount: 1, skipCount: 1 }, color: '#FFD700', isGrand: true }
 ];
@@ -176,13 +176,13 @@ export default function DailyRewardModal({ isOpen, onClose }) {
 
                       <div className={`relative flex items-center justify-center ${isDay7 ? 'w-24' : 'flex-1 w-full min-h-0'}`}>
                          {isDay7 ? (
-                            <ZerIcon size={70} /> 
+                            <DinarIcon size={70} /> 
                          ) : item.type === 'fils' ? (
                            <FilsIcon size={36} />
                          ) : item.type === 'derhem' ? (
                            <DerhemIcon size={36} />
-                         ) : item.type === 'zer' ? (
-                           <ZerIcon size={36} />
+                         ) : item.type === 'dinar' ? (
+                           <DinarIcon size={36} />
                          ) : (
                            <div className="w-10 h-10 rounded-md flex items-center justify-center" style={{ backgroundColor: `${item.color}15` }}>
                              <span className="material-symbols-outlined text-2xl" style={{ color: item.color }}>
@@ -285,13 +285,13 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                         className="relative flex flex-col items-center justify-center"
                       >
                         {claimedItem.day === 7 ? (
-                          <ZerIcon size={120} />
+                          <DinarIcon size={120} />
                         ) : claimedItem.type === 'fils' ? (
                           <FilsIcon size={100} />
                         ) : claimedItem.type === 'derhem' ? (
                           <DerhemIcon size={100} />
-                        ) : claimedItem.type === 'zer' ? (
-                          <ZerIcon size={100} />
+                        ) : claimedItem.type === 'dinar' ? (
+                          <DinarIcon size={100} />
                         ) : (
                           <div className="w-32 h-32 rounded-md bg-emerald-500/20 flex items-center justify-center">
                             <span className="material-symbols-outlined text-[80px]" style={{ color: claimedItem.color }}>

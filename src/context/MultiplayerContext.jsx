@@ -12,7 +12,8 @@ export const MultiplayerProvider = ({ children }) => {
     user, 
     startSearchingSound, 
     stopSearchingSound, 
-    playStartGameSound 
+    playStartGameSound,
+    syncProgressToDatabase
   } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle'); // 'idle', 'searching', 'waiting', 'playing', 'game_over'
   const [matchmakingTime, setMatchmakingTime] = useState(0);
@@ -32,6 +33,7 @@ export const MultiplayerProvider = ({ children }) => {
   const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
   const [forfeitCountdown, setForfeitCountdown] = useState(10);
   const [isForfeitWin, setIsForfeitWin] = useState(false);
+  const [matchReward, setMatchReward] = useState(null);
   const forfeitTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
 
@@ -68,7 +70,7 @@ export const MultiplayerProvider = ({ children }) => {
           // 2.2 DEEP FETCH FALLBACK: If stuck for 12s, force a manual record check
           if (next === 12 && stateRef.current !== 'playing') {
             const mId = matchIdRef.current;
-            if (mId) {
+            if (mId && typeof mId === 'string' && mId !== 'undefined') {
               supabase.from('online_matches').select('*').eq('id', mId).maybeSingle().then(({ data }) => {
                 if (data && (data.player2_id || data.status === 'playing')) {
                   console.log('[Multiplayer] Deep check found match state change! Force sync.');
@@ -146,6 +148,13 @@ export const MultiplayerProvider = ({ children }) => {
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
         setMultiplayerState('game_over');
+
+        // SYNC REWARDS TO DATABASE
+        if (result === 'victory') {
+          syncProgressToDatabase(5, 'battle').then(rewardData => {
+            if (rewardData) setMatchReward(rewardData);
+          });
+        }
       } else {
         updates.current_word_index = currentIdx + 1;
       }
@@ -188,7 +197,7 @@ export const MultiplayerProvider = ({ children }) => {
     await supabase.from('online_matches').update(updates).eq('id', matchId);
   };
 
-  const { setFils, addXP, playCoinSound } = useGame();
+  const { playCoinSound } = useGame();
 
   const triggerForfeitVictory = async () => {
     const mId = matchId || matchIdRef.current;
@@ -209,12 +218,10 @@ export const MultiplayerProvider = ({ children }) => {
       if (isP1) updates.p1_score = 3; else updates.p2_score = 3;
 
       await supabase.from('online_matches').update(updates).eq('id', mId);
-
-      // 2. Award Rewards
-      const coinReward = 100;
-      const xpReward = 150;
-      setFils(prev => prev + coinReward);
-      addXP(xpReward);
+      
+      // Standardized DB Reward Sync (Battle Reward: 1 Dinar, 100 XP)
+      const rewardData = await syncProgressToDatabase(5, 'battle');
+      if (rewardData) setMatchReward(rewardData);
       // Trigger reward sound
       const { playRewardSound } = useGame();
       try { playRewardSound(); } catch(e) {}
@@ -243,7 +250,7 @@ export const MultiplayerProvider = ({ children }) => {
   };
 
   const fetchOpponentProfile = useCallback(async (opponentId) => {
-    if (!opponentId) return null;
+    if (!opponentId || opponentId === 'undefined') return null;
     if (opponentRef.current?.id === opponentId) return opponentRef.current;
 
     const { data, error } = await supabase
@@ -304,6 +311,7 @@ export const MultiplayerProvider = ({ children }) => {
     if ((multiplayerState !== 'waiting' && multiplayerState !== 'searching') || !matchId) return;
 
     const pollInterval = setInterval(async () => {
+      if (!matchId || matchId === 'undefined') return;
       const { data: match } = await supabase
         .from('online_matches')
         .select('*')
@@ -322,7 +330,8 @@ export const MultiplayerProvider = ({ children }) => {
 
   // 2. REALTIME SUBSCRIPTION
   useEffect(() => {
-    if (!matchId) return;
+    if (!matchId || matchId === 'undefined') return;
+    console.log('[Multiplayer] Constructing subscription filter for:', matchId);
 
     const channel = supabase
       .channel(`match_room_${matchId}`)
@@ -453,7 +462,8 @@ export const MultiplayerProvider = ({ children }) => {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        console.log('[Multiplayer] App returned to foreground, forcing re-sync...');
+        if (!user?.id) return; // Guard against unauthenticated syncs
+        console.log('[Multiplayer] App returned to foreground, checking sync...');
         // Force re-initialize supabase connection if dropped
         if (supabase.realtime && !supabase.realtime.isConnected()) {
           supabase.realtime.connect();
@@ -534,6 +544,13 @@ export const MultiplayerProvider = ({ children }) => {
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
         setMultiplayerState('game_over');
+
+        // SYNC REWARDS TO DATABASE (For Sync-Side Winner)
+        if (result === 'victory') {
+          syncProgressToDatabase(5, 'battle').then(rewardData => {
+            if (rewardData) setMatchReward(rewardData);
+          });
+        }
       }
     }
 
@@ -762,6 +779,7 @@ export const MultiplayerProvider = ({ children }) => {
         setActiveMatch(null);
         setOpponent(null);
         setLastMatchResult(null);
+        setMatchReward(null);
         setMatchResultTrigger(0);
         if (channelRef.current) {
           supabase.removeChannel(channelRef.current);
@@ -777,6 +795,7 @@ export const MultiplayerProvider = ({ children }) => {
       isRoundWinner,
       matchResultTrigger,
       lastMatchResult,
+      matchReward,
       resetMatchResultTrigger,
       winnerNickname,
       roundMessage,

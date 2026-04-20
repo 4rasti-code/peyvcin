@@ -13,7 +13,7 @@ import {
   startBackgroundMusic, stopBackgroundMusic
 } from '../utils/audio';
 
-import { getLevelFromXP, getLevelData } from '../utils/progression';
+import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
 import { getLocalDateString, isYesterday } from '../utils/formatters';
 
 const GameContext = createContext();
@@ -47,6 +47,7 @@ export const GameProvider = ({ children }) => {
   });
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingAuth, setLoadingAuth] = useState(true);
   const [userRank, setUserRank] = useState(1);
   const [inventory, setInventory] = useState({ badges: [] });
 
@@ -58,9 +59,9 @@ export const GameProvider = ({ children }) => {
     return (saved !== null) ? Number(saved) : fallback;
   };
 
-  const [fils, setFils] = useState(() => getInitial('peyvchin_fils', 1000));
-  const [derhem, setDerhem] = useState(() => getInitial('peyvchin_derhem', 50));
-  const [zer, setZer] = useState(() => getInitial('peyvchin_zer', 5));
+  const [fils, setFils] = useState(() => getInitial('peyvchin_fils', null));
+  const [derhem, setDerhem] = useState(() => getInitial('peyvchin_derhem', null));
+  const [dinar, setDinar] = useState(() => getInitial('peyvchin_dinar', null));
   const [magnetCount, setMagnetCount] = useState(() => getInitial('peyvchin_magnets', 3));
   const [hintCount, setHintCount] = useState(() => getInitial('peyvchin_hints', 5));
   const [skipCount, setSkipCount] = useState(() => getInitial('peyvchin_skips', 2));
@@ -87,7 +88,9 @@ export const GameProvider = ({ children }) => {
     classic: { bestStreak: 0, currentStreak: 0, totalCorrect: 0 },
     mamak: { totalCorrect: 0 },
     hard: { totalCorrect: 0 },
-    wordFever: { bestTime: 0, totalWins: 0 }
+    wordFever: { bestTime: 0, totalWins: 0 },
+    battle: { totalWins: 0, totalLosses: 0 },
+    secretWord: { totalSolved: 0 }
   });
 
 
@@ -99,10 +102,22 @@ export const GameProvider = ({ children }) => {
   const lastXPRef = useRef(-1);
 
   // CRITICAL: stateRef for stable async state access
-  const stateRef = useRef({ fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory });
+  const stateRef = useRef({ 
+    fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+    user, currentXP, level, inventory,
+    dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret
+  });
   useEffect(() => {
-    stateRef.current = { fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory };
-  }, [fils, derhem, zer, magnetCount, hintCount, skipCount, user, currentXP, level, inventory]);
+    stateRef.current = { 
+      fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+      user, currentXP, level, inventory,
+      dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret
+    };
+  }, [
+    fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+    user, currentXP, level, inventory,
+    dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret
+  ]);
 
   // --- AUTOMATIC LEVEL & XP PERSIStENCE WATCHER ---
   // Ensures that whenever currentXP changes, the 'level' column in Supabase is also updated if needed.
@@ -141,10 +156,10 @@ export const GameProvider = ({ children }) => {
     return () => clearTimeout(timeout);
   }, [currentXP, user?.id]);
 
-  const refreshRank = useCallback(async (xpValue = currentXP) => {
+  const refreshRank = useCallback(async (xpValue = currentXP, force = false) => {
     // 1. Guard: If value hasn't changed AND we refreshed very recently (< 2s), skip
     const now = Date.now();
-    if (xpValue === lastXPRef.current && (now - lastRefreshTime.current < 2000)) {
+    if (!force && xpValue === lastXPRef.current && (now - lastRefreshTime.current < 2000)) {
       return;
     }
 
@@ -238,10 +253,16 @@ export const GameProvider = ({ children }) => {
   }, []);
 
   const syncProfile = useCallback(async (userId) => {
+    // 1. HARDENED GUARD: Reject invalid, undefined, or non-string IDs immediately
+    const activeUserId = userId || user?.id;
+    if (!activeUserId || activeUserId === 'undefined' || typeof activeUserId !== 'string' || activeUserId.length < 5) {
+      return;
+    }
+
     try {
       let data, error;
       try {
-        let result = await supabase.from('profiles').select('*').eq('id', userId).single();
+        let result = await supabase.from('profiles').select('*').eq('id', activeUserId).single();
         data = result.data;
         error = result.error;
       } catch (fetchError) {
@@ -252,7 +273,7 @@ export const GameProvider = ({ children }) => {
       if (error && error.code === 'PGRST116') {
         const initialRecord = {
           id: userId, level: 1, xp: 0, last_notified_level: 1,
-          shayi: 1000, dirham: 50, dinar: 5,
+          fils: 1000, derhem: 50, dinar: 5,
           magnets: 3, hints: 5, skips: 2,
           inventory: {
             badges: [],
@@ -280,9 +301,9 @@ export const GameProvider = ({ children }) => {
 
         safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
         safeSet(setCurrentXP, data.xp, 0);
-        safeSet(setFils, data.shayi, 1000);
-        safeSet(setDerhem, data.dirham, 50);
-        safeSet(setZer, data.dinar, 5);
+        safeSet(setFils, data.fils, 1000);
+        safeSet(setDerhem, data.derhem, 50);
+        safeSet(setDinar, data.dinar, 5);
         safeSet(setMagnetCount, data.magnets, 3);
         safeSet(setHintCount, data.hints, 5);
         safeSet(setSkipCount, data.skips, 2);
@@ -290,6 +311,15 @@ export const GameProvider = ({ children }) => {
         safeSet(setLastNotifiedLevel, data.last_notified_level, 1);
         safeSet(setRewardStreak, data.reward_streak, 0);
         safeSet(setLastRewardClaimedAt, data.last_reward_claimed_at, null);
+
+        // SYNC LOCAL STORAGE: Ensure local storage matches the authenticated user to prevent "ghost" snaps
+        localStorage.setItem('peyvchin_xp', (data.xp || 0).toString());
+        localStorage.setItem('peyvchin_fils', (data.fils || 1000).toString());
+        localStorage.setItem('peyvchin_derhem', (data.derhem || 50).toString());
+        localStorage.setItem('peyvchin_dinar', (data.dinar || 5).toString());
+        localStorage.setItem('peyvchin_magnets', (data.magnets || 3).toString());
+        localStorage.setItem('peyvchin_hints', (data.hints || 5).toString());
+        localStorage.setItem('peyvchin_skips', (data.skips || 2).toString());
 
         const sfxVol = data.sfx_volume ?? userInventoryData.settings?.app_sfx_volume ?? 20;
         setAppSfxVolume(sfxVol);
@@ -356,7 +386,7 @@ export const GameProvider = ({ children }) => {
             daily_streak: newStreak,
             inventory: nextInv,
             updated_at: new Date().toISOString()
-          }).eq('id', userId).then();
+          }).eq('id', activeUserId).then();
         } else {
           setDailyStreak(newStreak);
         }
@@ -376,28 +406,34 @@ export const GameProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await syncProfile(session.user.id);
-      } else {
-        const localXP = localStorage.getItem('peyvchin_xp');
-        const localLvl = localStorage.getItem('peyvchin_level');
-        const localNotifiedLvl = localStorage.getItem('peyvchin_last_notified_level');
-        const localUnlockProgress = localStorage.getItem('peyvchin_wins_towards_secret');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          await syncProfile(session.user.id);
+        } else {
+          const localXP = localStorage.getItem('peyvchin_xp');
+          const localLvl = localStorage.getItem('peyvchin_level');
+          const localNotifiedLvl = localStorage.getItem('peyvchin_last_notified_level');
+          const localUnlockProgress = localStorage.getItem('peyvchin_wins_towards_secret');
 
-        if (localXP) setCurrentXP(parseFloat(localXP));
-        if (localNotifiedLvl) setLastNotifiedLevel(parseInt(localNotifiedLvl));
-        if (localUnlockProgress) setWinsTowardsSecret(parseInt(localUnlockProgress));
+          if (localXP) setCurrentXP(parseFloat(localXP));
+          if (localNotifiedLvl) setLastNotifiedLevel(parseInt(localNotifiedLvl));
+          if (localUnlockProgress) setWinsTowardsSecret(parseInt(localUnlockProgress));
 
-        setFils(getInitial('peyvchin_fils', 1000));
-        setDerhem(getInitial('peyvchin_derhem', 50));
-        setZer(getInitial('peyvchin_zer', 5));
-        setMagnetCount(getInitial('peyvchin_magnets', 3));
-        setHintCount(getInitial('peyvchin_hints', 5));
-        setSkipCount(getInitial('peyvchin_skips', 2));
+          setFils(getInitial('peyvchin_fils', 1000));
+          setDerhem(getInitial('peyvchin_derhem', 50));
+          setDinar(getInitial('peyvchin_dinar', 5));
+          setMagnetCount(getInitial('peyvchin_magnets', 3));
+          setHintCount(getInitial('peyvchin_hints', 5));
+          setSkipCount(getInitial('peyvchin_skips', 2));
+        }
+      } catch (err) {
+        console.error("[GameContext] Session init failed:", err);
+      } finally {
+        setLoadingAuth(false);
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeSession();
@@ -412,7 +448,7 @@ export const GameProvider = ({ children }) => {
 
   // ONLINE HEARTBEAT
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id || loadingAuth) return;
     const heartbeat = setInterval(async () => {
       try {
         await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
@@ -590,7 +626,7 @@ export const GameProvider = ({ children }) => {
       user: currentUser,
       fils: currFils,
       derhem: currDerhem,
-      zer: currZer,
+      dinar: currDinar,
       magnetCount: currMags,
       hintCount: currHints,
       skipCount: currSkips
@@ -598,18 +634,18 @@ export const GameProvider = ({ children }) => {
 
     // Local results to ensure what we set in state matches what we send to DB
     const nextValues = {
-      shayi: updates.fils !== undefined ? calculateNext(currFils, updates.fils, isAdditive) : undefined,
-      dirham: updates.derhem !== undefined ? calculateNext(currDerhem, updates.derhem, isAdditive) : undefined,
-      dinar: updates.zer !== undefined ? calculateNext(currZer, updates.zer, isAdditive) : undefined,
+      fils: updates.fils !== undefined ? calculateNext(currFils, updates.fils, isAdditive) : undefined,
+      derhem: updates.derhem !== undefined ? calculateNext(currDerhem, updates.derhem, isAdditive) : undefined,
+      dinar: updates.dinar !== undefined ? calculateNext(currDinar, updates.dinar, isAdditive) : undefined,
       magnets: updates.magnetCount !== undefined ? calculateNext(currMags, updates.magnetCount, isAdditive) : undefined,
       hints: updates.hintCount !== undefined ? calculateNext(currHints, updates.hintCount, isAdditive) : undefined,
       skips: updates.skipCount !== undefined ? calculateNext(currSkips, updates.skipCount, isAdditive) : undefined
     };
 
     // 3. Perform state updates
-    if (nextValues.shayi !== undefined) setFils(nextValues.shayi);
-    if (nextValues.dirham !== undefined) setDerhem(nextValues.dirham);
-    if (nextValues.dinar !== undefined) setZer(nextValues.dinar);
+    if (nextValues.fils !== undefined) setFils(nextValues.fils);
+    if (nextValues.derhem !== undefined) setDerhem(nextValues.derhem);
+    if (nextValues.dinar !== undefined) setDinar(nextValues.dinar);
     if (nextValues.magnets !== undefined) setMagnetCount(nextValues.magnets);
     if (nextValues.hints !== undefined) setHintCount(nextValues.hints);
     if (nextValues.skips !== undefined) setSkipCount(nextValues.skips);
@@ -617,7 +653,7 @@ export const GameProvider = ({ children }) => {
     // 4. Persistent Local Storage Sync
     Object.entries(updates).forEach(([key, val]) => {
       const storageKey = key === 'magnetCount' ? 'peyvchin_magnets' : key === 'hintCount' ? 'peyvchin_hints' : key === 'skipCount' ? 'peyvchin_skips' : `peyvchin_${key}`;
-      const fallback = key === 'fils' ? 250 : key === 'derhem' ? 50 : key === 'zer' ? 5 : key === 'magnetCount' ? 1 : key === 'hintCount' ? 2 : 1;
+      const fallback = key === 'fils' ? 250 : key === 'derhem' ? 50 : key === 'dinar' ? 5 : key === 'magnetCount' ? 1 : key === 'hintCount' ? 2 : 1;
       const current = getLocalVal(storageKey, fallback);
       const finalVal = isAdditive ? (current + val) : val;
       localStorage.setItem(storageKey, finalVal.toString());
@@ -641,38 +677,69 @@ export const GameProvider = ({ children }) => {
   /**
    * syncProgressToDatabase (STABILIZED)
    */
-  const syncProgressToDatabase = useCallback(async (lettersCount, gameMode, additionalData = {}) => {
+  const syncProgressToDatabase = useCallback(async (lettersCount, mode = 'classic', additionalData = {}) => {
     // USE REFS TO AVOID STALE CLOSURES (Critical for Async Saving)
     const {
       user: currentUser,
       currentXP: currXP,
-      level: currLevel,
-      inventory: currInv,
+      fils: currFils,
       derhem: currDerhem,
+      dinar: currDinar,
       magnetCount: currMags,
       hintCount: currHints,
       skipCount: currSkips
     } = stateRef.current;
 
-    if (!currentUser?.id) return null;
+    const currentAward = getRewardForMode(mode);
+    const xpToAdd = currentAward.xp;
 
+    // 2. Instant Local Feedback (Guest & Auth)
+    const newLocalXP = Number(currXP) + xpToAdd;
+    setCurrentXP(newLocalXP);
+    
+    // Currency Update
+    if (currentAward.type === 'fils') setFils(prev => Number(prev) + currentAward.amount);
+    if (currentAward.type === 'derhem') setDerhem(prev => Number(prev) + currentAward.amount);
+    if (currentAward.type === 'dinar') setDinar(prev => Number(prev) + currentAward.amount);
+
+    // Streak Logic (If Classic or specialized mode)
+    if (mode === 'classic' || mode === 'hard_words' || mode === 'mamak') {
+      setDailyStreak(prev => {
+        const next = prev + 1;
+        localStorage.setItem('peyvchin_daily_streak', next.toString());
+        return next;
+      });
+    }
+
+    // Local Storage for Guests
+    if (!currentUser) {
+       localStorage.setItem('peyvchin_xp', newLocalXP.toString());
+       if (currentAward.type === 'fils') localStorage.setItem('peyvchin_fils', (Number(currFils) + currentAward.amount).toString());
+       // ... other currencies follow same pattern if needed
+       return { 
+          xpAdded: xpToAdd, 
+          newLevel: getLevelFromXP(newLocalXP), 
+          awards: currentAward, 
+          isGuest: true 
+       };
+    }
+
+    // 3. Database Synchronization (Auth Users)
     try {
-      // 1. Update XP and Shayi (Fils) via RPC in Database
-      const shayiBonus = Number(additionalData.shayiBonus || 5);
-
       const { data, error } = await supabase.rpc('handle_game_xp', {
         p_user_id: currentUser.id,
-        p_letters_count: lettersCount,
-        p_shayi_bonus: shayiBonus
+        p_award_xp: xpToAdd,
+        p_currency_type: currentAward.type,
+        p_currency_amount: currentAward.amount
       });
 
       if (error) throw error;
 
       if (data) {
-        const { new_level, xp_added, current_streak } = data;
-        const finalXP = (currXP || 0) + xp_added;
+        const { new_level, new_xp, award_xp, award_amount, award_type } = data;
+        const finalXP = new_xp;
 
-        // 2. Prepare Profile Updates (Inventory, Progress)
+        // 3. Prepare Profile Updates (Inventory, Progress)
         const profileUpdates = {
           updated_at: new Date().toISOString(),
           magnets: currMags,
@@ -680,52 +747,57 @@ export const GameProvider = ({ children }) => {
           skips: currSkips
         };
 
-        // Add Derhem sync if bonus provided
-        if (additionalData.derhemBonus) {
-          profileUpdates.dirham = Number(currDerhem || 0) + additionalData.derhemBonus;
-        }
-
-        if (additionalData.solvedWords) {
-          profileUpdates.inventory = { ...currInv, solved_words: additionalData.solvedWords };
-        }
-        if (additionalData.winsTowardsSecret !== undefined) {
-          profileUpdates.wins_towards_secret = additionalData.winsTowardsSecret;
-        }
-        if (additionalData.resetSecretProgress) {
-          profileUpdates.wins_towards_secret = 0;
-        }
-
-        // Save progress fields to Supabase
-        await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
-
-        // 3. Update Local UI State (Instant Feedback)
-        setCurrentXP(finalXP);
-        setDailyStreak(current_streak);
-
-        // Sync the coin reward locally
-        if (shayiBonus > 0) {
-          setFils(prev => Number(prev) + shayiBonus);
-        }
-
-        if (additionalData.derhemBonus) {
-          setDerhem(prev => Number(prev) + additionalData.derhemBonus);
-        }
+        // 5. Update Statistics (Wins/Correct/Etc)
+        setPlayerStats(prev => {
+          const next = { ...prev };
+          if (mode === 'classic') {
+             if (!next.classic) next.classic = { bestStreak: 0, currentStreak: 0, totalCorrect: 0 };
+             next.classic.totalCorrect = (next.classic.totalCorrect || 0) + 1;
+             next.classic.currentStreak = (next.classic.currentStreak || 0) + 1;
+             if (next.classic.currentStreak > next.classic.bestStreak) next.classic.bestStreak = next.classic.currentStreak;
+          } else if (mode === 'battle') {
+             if (!next.battle) next.battle = { totalWins: 0, totalLosses: 0 };
+             next.battle.totalWins = (next.battle.totalWins || 0) + 1;
+          } else if (mode === 'mamak') {
+             if (!next.mamak) next.mamak = { totalCorrect: 0 };
+             next.mamak.totalCorrect = (next.mamak.totalCorrect || 0) + 1;
+          } else if (mode === 'hard_words') {
+             if (!next.hard) next.hard = { totalCorrect: 0 };
+             next.hard.totalCorrect = (next.hard.totalCorrect || 0) + 1;
+          } else if (mode === 'word_fever') {
+             if (!next.wordFever) next.wordFever = { bestTime: 0, totalWins: 0 };
+             next.wordFever.totalWins = (next.wordFever.totalWins || 0) + 1;
+          } else if (mode === 'secret_word') {
+             if (!next.secretWord) next.secretWord = { totalSolved: 0 };
+             next.secretWord.totalSolved = (next.secretWord.totalSolved || 0) + 1;
+          }
+          
+          // Persist Stats to DB periodically or immediately
+          profileUpdates.inventory = { ...stateRef.current.inventory, stats: next };
+          if (additionalData.solvedWords) {
+            profileUpdates.inventory.solved_words = additionalData.solvedWords;
+          }
+          return next;
+        });
 
         if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
-        if (additionalData.winsTowardsSecret !== undefined) setWinsTowardsSecret(additionalData.winsTowardsSecret);
-        if (additionalData.resetSecretProgress) setWinsTowardsSecret(0);
+        
+        // Final Sync for metadata (Inventory, Stats)
+        await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
+        
+        // Forced Rank Refresh (Auth Only)
+        refreshRank(finalXP, true);
 
-        refreshRank(finalXP);
-
+        // Typography: tracking-normal ensuring no letter-spacing on Kurdish dynamic text
         return {
-          xpAdded: xp_added,
-          currentStreak: current_streak,
+          xpAdded: award_xp,
           newLevel: new_level,
-          bahdiniMsg: current_streak > 1 ? `ستریکێن تە: ${current_streak} ڕۆژ 🔥` : `دەستپێکرنەکا باشە! ✨`
+          awards: currentAward,
+          bahdiniMsg: `سەرکەفتنەکا نوی! ✨`
         };
       }
     } catch (err) {
-      console.error("XP Sync Failed:", err.message);
+      console.error("Unified XP Sync Failed:", err.message);
       return null;
     }
     return null;
@@ -782,7 +854,7 @@ export const GameProvider = ({ children }) => {
       2: { magnetCount: 1 },
       3: { derhem: 5 },
       4: { hintCount: 1 },
-      5: { zer: 5 },
+      5: { dinar: 5 },
       6: { skipCount: 1 },
       7: { fils: 2000, magnetCount: 1, hintCount: 1, skipCount: 1 }
     };
@@ -836,7 +908,7 @@ export const GameProvider = ({ children }) => {
   const value = useMemo(() => ({
     level,
     winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
-    currentXP, maxXP, minXPForLevel, fils, derhem, zer, addXP,
+    currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, setDailyStreak,
     rewardStreak, lastRewardClaimedAt, claimDailyReward,
     playMessageSound, playMessageSentSound,
@@ -854,7 +926,7 @@ export const GameProvider = ({ children }) => {
     userRank,
     refreshRank,
     user, setUser,
-    setFils, setDerhem, setZer,
+    setFils, setDerhem, setDinar,
     setMagnetCount, setHintCount, setSkipCount,
     appSfxVolume, updateSfxVolume,
     appSoundsEnabled,
@@ -870,18 +942,19 @@ export const GameProvider = ({ children }) => {
     playDailyOpenSfx, playDailyClaimSfx,
     setCurrentXP,
     lastNotifiedLevel, setLastNotifiedLevel,
-    loading
+    loading, loadingAuth,
+    refreshProfile: syncProfile
   }), [
-    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, zer,
+    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, progressPercent, fils, derhem, dinar,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
     ownedAvatars, userAvatar, unlockedThemes, currentTheme, solvedWords, playerStats,
-    userNickname, city, isInKurdistan, countryCode, userRank, user, loading,
+    userNickname, city, isInKurdistan, countryCode, userRank, user, loading, loadingAuth,
     appSoundsEnabled, hapticEnabled, lastNotifiedLevel,
     incrementSecretWordProgress, resetSecretWordProgress, addXP, updateInventory,
     updateProfile, processLevelCompletion, syncProgressToDatabase, getLevelFromXP,
     getLevelData, handleToggleBlock, checkBlockStatus, refreshRank, setUser,
-    setFils, setDerhem, setZer, setMagnetCount, setHintCount, setSkipCount,
+    setFils, setDerhem, setDinar, setMagnetCount, setHintCount, setSkipCount,
     setHapticEnabled, playPopSound, playNotifSound,
     appSfxVolume, updateSfxVolume,
     playMessageSound, playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
@@ -892,7 +965,8 @@ export const GameProvider = ({ children }) => {
     playTabSound,
     playStartGameSound,
     setCurrentXP, setLastNotifiedLevel,
-    bgMusicVolume, updateMusicVolume
+    bgMusicVolume, updateMusicVolume,
+    syncProfile
   ]);
 
   return (

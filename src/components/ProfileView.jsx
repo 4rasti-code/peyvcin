@@ -6,7 +6,7 @@ import { COUNTRIES } from '../data/countries';
 import { supabase } from '../lib/supabase';
 import FlagBadge from './FlagBadge';
 import StatsView from './StatsView';
-import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import ExperienceBar from './ExperienceBar';
@@ -27,7 +27,7 @@ export default function ProfileView({
    currentXP,
    fils,
    derhem,
-   zer,
+   dinar,
    playerStats,
    userRank,
    onViewChange,
@@ -297,7 +297,7 @@ export default function ProfileView({
                                  <div className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 blur-xl rounded-full z-[-1] animate-pulse"></div>
                               </div>
                               <div className="flex flex-col items-center z-10 w-full mt-1">
-                                 <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80 tracking-widest">ستریك</span>
+                                 <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80 tracking-normal">ستریك</span>
                                  <span className="text-lg font-black text-white leading-none drop-shadow-md">{toKuDigits(dailyStreak || 0)}</span>
                               </div>
                            </motion.div>
@@ -347,7 +347,7 @@ export default function ProfileView({
 
 
                      <div className="flex flex-col items-center mb-2.5">
-                        <h3 className="text-2xl font-black font-rabar text-white text-center leading-tight tracking-tight">{draftNickname || 'یاریکەر'}</h3>
+                        <h3 className="text-2xl font-black font-rabar text-white text-center leading-tight tracking-normal">{draftNickname || 'یاریکەر'}</h3>
                      </div>
                      <div className="grid grid-cols-3 gap-2 px-1" dir="ltr" style={{ color: level < 10 ? '#fff' : level < 25 ? '#1e293b' : level < 45 ? '#451a03' : '#000' }}>
                         <div
@@ -418,7 +418,7 @@ export default function ProfileView({
                            />
                         )}
                         <span className={`material-symbols-outlined text-[20px] relative z-10 ${isActive ? 'font-bold' : ''}`}>{tab.icon}</span>
-                        <span className="text-xs font-black relative z-10 tracking-tight">{tab.label}</span>
+                        <span className="text-xs font-black relative z-10 tracking-normal">{tab.label}</span>
                      </button>
                   );
                })}
@@ -451,7 +451,7 @@ export default function ProfileView({
                {activeTab === 'profile' && (
                   <motion.div key="profile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-6 pt-2 w-full">
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ناسناڤێ تە</label>
+                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-normal text-right block w-full mt-1">ناسناڤێ تە</label>
                         <div className="flex items-center gap-2 w-full">
                            <div className="relative w-full">
                               <input
@@ -494,7 +494,7 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-widest text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
+                        <label className="text-[10px] font-bold text-white/60 px-2 uppercase tracking-normal text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</label>
                         <div className="w-full h-11 bg-slate-100 border border-slate-200 rounded-md px-4 flex items-center justify-end font-bold text-slate-500 text-[13px] noise-grain shadow-sm overflow-hidden mb-1">
                            <span className="truncate">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
                            <span className="material-symbols-outlined text-[18px] mr-2 text-slate-400">mail</span>
@@ -502,7 +502,7 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-2 flex flex-col items-end">
-                        <label className="text-[10px] font-bold text-white/60 px-1 uppercase tracking-widest text-right block w-full">وەڵات</label>
+                        <label className="text-[10px] font-bold text-white/60 px-1 uppercase tracking-normal text-right block w-full">وەڵات</label>
                         <div className="flex items-center gap-2 w-full">
                            <div className="relative w-full">
                               <button ref={flagButtonRef} onClick={() => { triggerHaptic(10); setIsFlagBoxOpen(!isFlagBoxOpen); }} className={`flex items-center px-3 h-10 rounded-md border transition-all w-full justify-between flex-row-reverse ${isFlagBoxOpen ? 'bg-primary border-primary shadow-md' : 'bg-white border-slate-200/80 shadow-xs hover:bg-slate-50'}`}>
@@ -542,7 +542,7 @@ export default function ProfileView({
                      </div>
 
                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-white/60 px-4 uppercase tracking-widest text-right block w-full">ھەلبژارتنا ئاڤاتاری</label>
+                        <label className="text-[10px] font-bold text-white/60 px-4 uppercase tracking-normal text-right block w-full">ھەلبژارتنا ئاڤاتاری</label>
                         <div className="bg-[#f8fafc] border border-slate-200 rounded-xl p-4 noise-grain">
                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3 max-h-55 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
                               {AVATARS.map((avatar) => (

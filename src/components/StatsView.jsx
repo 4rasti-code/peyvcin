@@ -123,7 +123,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">پشکداری</span>
                 <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(0)}</span>
              </div>
-             <p className="text-[7px] text-primary/60 font-black uppercase tracking-widest text-center py-1 bg-purple-500/15">زویترین دەم</p>
+             <p className="text-[7px] text-primary/60 font-black uppercase tracking-normal text-center py-1 bg-purple-500/15">زویترین دەم</p>
            </div>
         </motion.div>
 
@@ -144,11 +144,11 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">گەڕێن تەمام</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.global?.totalRoundsPlayed || 0)}</span>
+                <span className="text-white text-[13px] font-semibold text-pop">{toKuDigits(playerStats.global?.totalRoundsPlayed || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">پلە</span>
-                <span className="text-white text-[14px] font-bold  tracking-tight text-pop">#{toKuDigits(rank || 0)}</span>
+                <span className="text-white text-[14px] font-bold text-pop">#{toKuDigits(rank || 0)}</span>
              </div>
            </div>
         </motion.div>
@@ -162,7 +162,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
             <div className="flex items-center justify-center">
                <span className="material-symbols-outlined text-amber-500 text-lg" style={{fontVariationSettings: "'FILL' 1"}}>stars</span>
             </div>
-            <h3 className="text-[13px] font-bold font-rabar text-white text-pop leading-tight uppercase tracking-wide">میدالیا و دەستکەفتن</h3>
+            <h3 className="text-[13px] font-bold font-rabar text-white text-pop leading-tight uppercase tracking-normal">میدالیا و دەستکەفتن</h3>
           </div>
 
           <div className="grid grid-cols-5 gap-2 relative z-10">
@@ -175,7 +175,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
                       {trophy.icon}
                     </span>
                   </div>
-                  <span className={`text-[10px] font-medium font-body uppercase tracking-tight no-stroke text-center truncate w-full ${isEarned ? 'text-white' : 'text-white/50'}`}>
+                  <span className={`text-[10px] font-medium font-body uppercase tracking-normal no-stroke text-center truncate w-full ${isEarned ? 'text-white' : 'text-white/50'}`}>
                     {trophy.name}
                   </span>
                 </div>
@@ -208,7 +208,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
             </div>
             
             <div className="flex flex-col">
-              <span className="text-white/60 text-[9px] font-black  uppercase tracking-[0.2em] mb-0.5 no-stroke">گەوھەرا زمانێ مە</span>
+              <span className="text-white/60 text-[9px] font-black  uppercase tracking-normal mb-0.5 no-stroke">گەوھەرا زمانێ مە</span>
               <h3 className="text-2xl font-black font-rabar text-white text-pop drop-shadow-lg">فەرھەنگا من</h3>
               <p className="text-white/40 text-[10px] font-bold font-body mt-0.5">ھەمی پەیڤێن تە د ڤێرێ نە</p>
             </div>
@@ -219,7 +219,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
             <div className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md flex items-center justify-center group-hover:translate-x--1 transition-transform shadow-inner border border-white/10">
                <span className="material-symbols-outlined text-white text-xl font-black">chevron_left</span>
             </div>
-            <span className="text-[8px] font-black text-white/50 uppercase tracking-widest hidden sm:block">ڤەکەرە</span>
+            <span className="text-[8px] font-black text-white/50 uppercase tracking-normal hidden sm:block">ڤەکەرە</span>
           </div>
 
           {/* Premium Glass Highlights */}

@@ -107,7 +107,7 @@ export default function LobbyView({
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
               <div className="flex flex-col items-start">
                 <h3 className="text-xl font-black font-heading text-amber-950">پەیڤچن</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-[0.2em] text-amber-900/80 leading-none">کلاسیک</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-normal text-amber-900/80 leading-none">کلاسیک</span>
               </div>
               <div className="w-12 h-12 rounded-md bg-white/20 flex items-center justify-center border border-white/30 shadow-sm group-hover:scale-105 transition-transform">
                 <span className="material-symbols-outlined text-3xl text-amber-950">videogame_asset</span>
@@ -125,7 +125,7 @@ export default function LobbyView({
             <div className="relative z-10 flex items-center justify-between px-8 h-full">
               <div className="flex flex-col items-start">
                 <h3 className="text-xl font-black font-heading text-white">مامک</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-[0.2em] text-white/50 leading-none">پەیدا بکە</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-normal text-white/50 leading-none">پەیدا بکە</span>
               </div>
               <div className="w-12 h-12 rounded-md bg-white/20 flex items-center justify-center border border-white/30 shadow-sm group-hover:scale-105 transition-transform">
                 <span className="material-symbols-outlined text-3xl text-white">emoji_objects</span>
@@ -146,7 +146,7 @@ export default function LobbyView({
               </div>
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">پەیڤێن دژوار</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-wider text-white/50 mt-1 leading-none">بۆ شارەزایان</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-normal text-white/50 mt-1 leading-none">بۆ شارەزایان</span>
               </div>
             </div>
           </motion.button>
@@ -164,7 +164,7 @@ export default function LobbyView({
               </div>
               <div className="flex flex-col items-center">
                 <h3 className="text-lg font-black font-heading text-white">تایا پەیڤان</h3>
-                <span className="text-[9px] font-medium font-rabar uppercase tracking-widest text-white/50 mt-1 leading-none">بەرھەڤ بە</span>
+                <span className="text-[9px] font-medium font-rabar uppercase tracking-normal text-white/50 mt-1 leading-none">بەرھەڤ بە</span>
               </div>
             </div>
           </motion.button>

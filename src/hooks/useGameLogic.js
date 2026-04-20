@@ -6,6 +6,7 @@ import { triggerHaptic } from '../utils/haptics';
 export default function useGameLogic({ 
   targetWord, 
   maxRows = 6, 
+  gameMode = 'classic',
   revealedIndices = [],
   onGuessSubmitted = null,
   onWin = null,
@@ -174,12 +175,13 @@ export default function useGameLogic({
     });
 
     // Trigger Win/Loss Side Effects
+    const finalStateGuesses = [...currentGuesses, guessString];
     if (isWin) {
       setIsVictory(true);
-      if (onWinRef.current) onWinRef.current([...currentGuesses, guessString]);
-    } else if (currentGuesses.length + 1 >= maxRows) {
+      if (onWinRef.current) onWinRef.current(finalStateGuesses, targetWord, gameMode);
+    } else if (finalStateGuesses.length >= maxRows) {
       setIsDefeat(true);
-      if (onLossRef.current) onLossRef.current([...currentGuesses, guessString]);
+      if (onLossRef.current) onLossRef.current(finalStateGuesses, targetWord, gameMode);
     }
 
     // Notify caller
@@ -196,7 +198,7 @@ export default function useGameLogic({
 
     setTimeout(() => { isSubmittingRef.current = false; }, 300);
     return { success: true, colors, isWin };
-  }, [maxRows, getLetterStatus]); 
+  }, [maxRows, getLetterStatus, targetWord, gameMode]); 
 
   return {
     guesses,

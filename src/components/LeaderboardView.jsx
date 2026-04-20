@@ -14,7 +14,8 @@ import FloatingLetterBackground from './FloatingLetterBackground';
 export default function LeaderboardView({ userId, userLevel, userXP, userFils, userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
   const { 
     handleToggleBlock: toggleBlockInContext,
-    playTabSound
+    playTabSound,
+    loadingAuth
   } = useGame();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
   };
 
   const handleToggleBlock = async (currentStatus) => {
-    if (!selectedPlayer || !userId) return;
+    if (!selectedPlayer || !userId || userId === 'undefined') return;
     const success = await toggleBlockInContext(selectedPlayer.id, currentStatus);
     if (success) {
       if (!currentStatus) alert("یاریزان ھاتە بلۆککرن!");
@@ -45,7 +46,11 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
   };
 
   const fetchData = async () => {
-    if (!userId) return;
+    // 1. HARDENED GUARD: Reject invalid, undefined, or loading states
+    if (loadingAuth || !userId || userId === 'undefined' || userId.length < 5) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     
     try {
@@ -93,12 +98,14 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
       setLeaders(leaderData);
 
       // Rank calculation: Count users with more XP
-      const { count, error: rankError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .gt('xp', userXP);
+      if (typeof userXP === 'number' && !isNaN(userXP)) {
+        const { count, error: rankError } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .gt('xp', userXP);
 
-      if (!rankError) setUserRank(count + 1);
+        if (!rankError) setUserRank(count + 1);
+      }
     } catch (err) {
       console.warn("Leaderboard fetch error:", err);
     } finally {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { FilsIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
 
@@ -118,8 +118,8 @@ const WordFeverResultOverlay = ({
 
               {solvedWord && (
                 <div className={`bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block ${isWin ? 'ring-1 ring-sky-400/20' : ''}`}>
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">پەیڤا دۆزراوە</span>
-                  <span className={`text-2xl font-black font-heading tracking-wider ${isWin ? 'text-sky-400' : 'text-red-400'}`}>{solvedWord}</span>
+                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا دۆزراوە</span>
+                  <span className={`text-2xl font-black font-heading tracking-normal ${isWin ? 'text-sky-400' : 'text-red-400'}`}>{solvedWord}</span>
                 </div>
               )}
 
@@ -131,10 +131,12 @@ const WordFeverResultOverlay = ({
                   </span>
                   <div className={`flex items-center gap-2 ${isWin ? 'text-sky-400' : 'text-red-500'}`}>
                     <div className="flex flex-col items-end leading-none pt-0.5">
-                      <AnimatedNumber value={isWin ? breakdown?.total : 50} prefix={isWin ? "+" : "-"} />
-                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
+                      <AnimatedNumber value={isWin ? (breakdown?.awardAmount || 75) : 50} prefix={isWin ? "+" : "-"} />
+                      <span className="text-[7px] font-black uppercase tracking-normal opacity-60">
+                        {breakdown?.awardType === 'fils' ? 'فلس' : breakdown?.awardType === 'derhem' ? 'دەرهەم' : 'دینار'}
+                      </span>
                     </div>
-                    <FilsIcon size={12} className="opacity-80" />
+                    {breakdown?.awardType === 'fils' || !isWin ? <FilsIcon size={12} className="opacity-80" /> : breakdown?.awardType === 'derhem' ? <DerhemIcon size={12} className="opacity-80" /> : <DinarIcon size={12} className="opacity-80" />}
                   </div>
                 </div>
 
@@ -163,11 +165,11 @@ const WordFeverResultOverlay = ({
                   </div>
                 </div>
                 
-                {isWin && xp > 0 && (
+                {isWin && (breakdown?.xpAdded || xp) > 0 && (
                   <div className="flex justify-between items-center text-sm font-black group/row mt-1 pt-1 border-t border-white/5">
                     <span className="text-white/80 transition-colors group-hover/row:text-white">خەلاتێ XP</span>
                     <div className="flex items-center gap-2 text-yellow-500">
-                      <AnimatedNumber value={xp} prefix="+" />
+                      <AnimatedNumber value={breakdown?.xpAdded || xp || 0} prefix="+" />
                       <span className="text-[10px] font-black tracking-tighter opacity-80">XP</span>
                     </div>
                   </div>
@@ -180,10 +182,12 @@ const WordFeverResultOverlay = ({
                       <span className="text-white">سەرجەم</span>
                       <div className="flex items-center gap-2 text-sky-400 drop-shadow-[0_0_10px_rgba(14,165,233,0.3)]">
                         <div className="flex flex-col items-end leading-none pt-1">
-                          <AnimatedNumber value={breakdown?.total || 0} prefix="+" />
-                          <span className="text-[9px] font-black uppercase tracking-widest opacity-70">فلس</span>
+                          <AnimatedNumber value={breakdown?.awardAmount || 75} prefix="+" />
+                          <span className="text-[9px] font-black uppercase tracking-normal opacity-70">
+                            {breakdown?.awardType === 'derhem' ? 'دەرهەم' : breakdown?.awardType === 'dinar' ? 'دینار' : 'فلس'}
+                          </span>
                         </div>
-                        <FilsIcon size={18} />
+                        {breakdown?.awardType === 'derhem' ? <DerhemIcon size={18} /> : (breakdown?.awardType === 'dinar' ? <DinarIcon size={18} /> : <FilsIcon size={18} />)}
                       </div>
                     </div>
                   </>

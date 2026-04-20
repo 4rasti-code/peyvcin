@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { THEMES } from '../data/themes';
-import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import PaymentGatewayModal from './PaymentGatewayModal';
 import { toKuDigits } from '../utils/formatters';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
@@ -35,7 +35,7 @@ const ConfirmPurchaseModal = ({ itemConfig, onConfirm, onCancel }) => {
   const { data, type } = itemConfig;
   const currency = type === 'theme' ? data.currency : (type === 'avatar' ? data.currency : 'fils');
   const price = data.price;
-  const CurrencyIcon = currency === 'derhem' ? DerhemIcon : (currency === 'zer' ? ZerIcon : FilsIcon);
+  const CurrencyIcon = currency === 'derhem' ? DerhemIcon : (currency === 'dinar' ? DinarIcon : FilsIcon);
   const title = type === 'powerup' ? data.name : (type === 'avatar' ? data.name : data.name);
   const categoryLabel = type === 'powerup' ? 'ھاریکار' : (type === 'avatar' ? 'پەیڤچن' : 'نیشان');
 
@@ -129,7 +129,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
             <span className={`text-[13px] font-black ${!canAfford ? 'text-slate-400' : 'text-white'}`}>{toKuDigits(item.price || 0)}</span>
           </div>
           <div className={`w-3.5 h-3.5 flex items-center justify-center ${!canAfford ? 'opacity-40 grayscale' : ''}`}>
-            {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'zer' ? <ZerIcon /> : <FilsIcon />}
+            {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'dinar' ? <DinarIcon /> : <FilsIcon />}
           </div>
         </div>
       </div>
@@ -171,13 +171,21 @@ const SpecialOfferCard = ({ item, onOpenGateway, playPurchaseSound }) => (
   </motion.button>
 );
 
-export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default', playPurchaseSound }) {
-  const { playTabSound } = useGame();
+export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default', playPurchaseSound }) {
+  const { playTabSound, refreshProfile, user, loadingAuth } = useGame();
   const [activeTab, setActiveTab] = useState('powerups');
   const [gatewayOpen, setGatewayOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [itemToConfirm, setItemToConfirm] = useState(null);
   const bgRef = useRef(null);
+
+  // FORCE SYNC: Ensure state is parity with DB when opening the shop
+  // Guarded to prevent "id=eq.undefined" 400 errors.
+  useEffect(() => {
+    if (!loadingAuth && user?.id && user.id !== 'undefined') {
+      refreshProfile?.();
+    }
+  }, [refreshProfile, user?.id, loadingAuth]);
 
   const handleBackgroundClick = (e) => {
     // Pulse on background void clicks
@@ -241,7 +249,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                 playTabSound();
                 setActiveTab(tab); 
             }} 
-            className={`flex-1 flex items-center justify-center py-2 px-2 transition-all duration-500 relative z-10 font-rabar font-black text-[14px] ${
+            className={`flex-1 flex items-center justify-center py-2 px-2 transition-all duration-500 relative z-10 font-rabar font-black text-[14px] tracking-normal ${
               activeTab === tab 
                 ? 'text-white' 
                 : 'text-slate-400 hover:text-slate-600'
@@ -357,7 +365,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                         <div className="relative">
                           <button
                             onClick={() => { 
-                              const currentBalance = theme.currency === 'zer' ? zer : (theme.currency === 'derhem' ? derhem : fils);
+                              const currentBalance = theme.currency === 'dinar' ? dinar : (theme.currency === 'derhem' ? derhem : fils);
                               if (currentBalance >= theme.price) {
                                 triggerHaptic(10); 
                                 setItemToConfirm({ data: theme, type: 'theme' });
@@ -365,7 +373,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                                 triggerHaptic([50, 30, 50]);
                               }
                             }}
-                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white hover:brightness-110 transition-all shadow-md ${( (theme.currency === 'zer' ? zer : (theme.currency === 'derhem' ? derhem : fils)) >= theme.price) ? 'bg-emerald-500' : 'bg-slate-300 opacity-50 cursor-not-allowed'}`}
+                            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-white hover:brightness-110 transition-all shadow-md ${( (theme.currency === 'dinar' ? dinar : (theme.currency === 'derhem' ? derhem : fils)) >= theme.price) ? 'bg-emerald-500' : 'bg-slate-300 opacity-50 cursor-not-allowed'}`}
                           >
                             <div className="flex flex-col items-center leading-none">
                               <span className="text-[13px] font-black">
@@ -374,7 +382,7 @@ export default function ShopView({ fils, derhem, zer, magnetCount, hintCount, sk
                             </div>
                             {theme.price > 0 && (
                               <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
-                                {theme.currency === 'zer' ? <ZerIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}
+                                {theme.currency === 'dinar' ? <DinarIcon /> : (theme.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />)}
                               </div>
                             )}
                           </button>

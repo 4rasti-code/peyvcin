@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 
-  const CurrencyStat = ({ value, Icon: IconComponent, color, bg, currency = 'fils' }) => {
-    const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'zer' ? 'زێڕ' : 'فلس';
+  const CurrencyStat = ({ value, Icon: IconComponent, color, bg, currency = 'fils', resetKey }) => {
+    const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
     return (
-      <CurrencyDecrementEffect value={value} currency={currency}>
+      <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-[12px] ${bg || 'bg-transparent'} transition-all duration-300`}>
           <div className={`w-5 h-5 flex items-center justify-center ${color} drop-shadow-sm`}>
             <IconComponent className="w-full h-full" />
           </div>
           <div className="flex flex-col items-center leading-none">
             <span className="text-[17px] font-black font-heading text-white">{(value || 0).toLocaleString('ku-IQ')}</span>
-            <span className={`text-[8px] font-black uppercase tracking-widest mt-0.5 ${color} opacity-60`}>{currencyName}</span>
+            <span className={`text-[8px] font-black uppercase mt-0.5 ${color} opacity-60`}>{currencyName}</span>
           </div>
         </div>
       </CurrencyDecrementEffect>
@@ -25,7 +25,7 @@ import NotificationsView from './NotificationsView';
 export default function TopAppBar({ 
   fils = 0, 
   derhem = 0,
-  zer = 0,
+  dinar = 0,
   level, 
   onOpenSettings, 
   currentView, 
@@ -151,36 +151,36 @@ export default function TopAppBar({
                 <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center leading-tight">
                   {displayCategory && (
                     <>
-                      <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-0.5">بابەت</span>
+                      <span className="text-[10px] font-bold text-white/30 uppercase mb-0.5">بابەت</span>
                       <span className="text-sm sm:text-base font-black text-[#facc15] font-noto-sans-arabic">{displayCategory}</span>
                     </>
                   )}
                 </div>
                 {/* Right Balance */}
-                <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" />
+                <CurrencyStat key="lobby-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
               </>
             ) : (
               /* Informative Header for Non-Classic Modes */
               <div className="flex items-center gap-3">
                 {displayCategory && (
                   <div className="flex flex-col items-end leading-tight ml-2">
-                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">بابەت</span>
+                    <span className="text-[9px] font-black text-white/40 uppercase">بابەت</span>
                     <span className="text-[13px] font-bold text-primary font-noto-sans-arabic">{displayCategory}</span>
                   </div>
                 )}
                 {displayCategory && <div className="w-[1.5px] h-6 bg-white/15 mx-1.5 rounded-full" />}
-                <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" />
+                <CurrencyStat key="nonclassic-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
               </div>
             )
           ) : (
             showStats && (
               <div className="flex items-center gap-2 sm:gap-4">
                  {currentView === 'store' ? (
-                   <>
-                     <CurrencyStat value={zer} Icon={ZerIcon} color="text-yellow-400" currency="zer" bg="bg-black/20" />
-                     <CurrencyStat value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" />
-                     <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" />
-                   </>
+                    <>
+                      <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
+                      <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
+                      <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
+                    </>
                  ) : (
                    <>
                      {currentView === 'lobby' && (
@@ -229,13 +229,13 @@ export default function TopAppBar({
                      )}
                      
                      {currentView !== 'lobby' && (
-                       <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" />
+                       <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
                      )}
                      
                      <div className="hidden sm: items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
                         <div className="flex flex-col items-start leading-none pt-0.5">
                            <span className="text-[17px] font-black font-heading text-white">{level || 1}</span>
-                           <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-[0.2em] mt-0.5">ئاست</span>
+                           <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-normal mt-0.5">ئاست</span>
                         </div>
                         <div className="w-9 h-9 rounded-[14px] bg-white/20 flex items-center justify-center text-white border border-white/30 shadow-inner" style={{ minWidth: '36px' }}>
                            <span className="material-symbols-outlined text-xl font-bold">military_tech</span>

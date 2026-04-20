@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { toKuDigits } from '../utils/formatters';
 import { playCoinSfx } from '../utils/audio';
 
@@ -9,13 +9,23 @@ import { playCoinSfx } from '../utils/audio';
  * A premium feedback component that displays a floating "-X [Icon]" animation 
  * whenever the provided value decreases.
  */
-const CurrencyDecrementEffect = ({ value, currency, children, className = "" }) => {
+const CurrencyDecrementEffect = ({ value, currency, children, className = "", resetKey = "" }) => {
   const [changes, setChanges] = useState([]);
+  const [isSettled, setIsSettled] = useState(false);
   const prevValue = useRef(null);
+  const componentMountTime = useRef(Date.now());
+
+  // View Transition Stabilization: Reset settling period when navigation occurs
+  useEffect(() => {
+    setIsSettled(false);
+    setChanges([]); // Clear any pending animations when moving between views
+    const timer = setTimeout(() => setIsSettled(true), 2000); // Extended 2s silence window for initial syncs
+    return () => clearTimeout(timer);
+  }, [resetKey]);
 
   useEffect(() => {
-    // Skip initial run on mount to prevent false deductions on view switch
-    if (prevValue.current === null) {
+    // 1. Skip if not settled or first run to prevent ghost animations during syncs
+    if (prevValue.current === null || !isSettled) {
       prevValue.current = value;
       return;
     }
@@ -23,9 +33,22 @@ const CurrencyDecrementEffect = ({ value, currency, children, className = "" }) 
     const numericValue = Number(value) || 0;
     const previousNumericValue = Number(prevValue.current) || 0;
 
-    // Only trigger if the change is a real decrease
-    if (numericValue < previousNumericValue) {
+    // 2. GHOST GUARD: Ignore drops from common initialization defaults (1000, 50, 5)
+    // unless they happen much later in the session.
+    const isInitializationDrop = (previousNumericValue === 1000 || previousNumericValue === 50 || previousNumericValue === 5) 
+                               && (Date.now() - componentMountTime.current < 5000);
+
+    // 3. Only trigger if the change is a real decrease and we are settled and NOT a ghost drop
+    if (numericValue < previousNumericValue && !isInitializationDrop) {
       const diff = previousNumericValue - numericValue;
+      
+      // Safety: Ignore unrealistic drops (> 300) during the first 5s of mounting OR while not settled
+      // This prevents "Ghost -895" when jumping from high defaults to real low balances
+      if ((diff > 300 && (Date.now() - componentMountTime.current < 5000)) || !isSettled) {
+        prevValue.current = value;
+        return;
+      }
+
       const id = Date.now() + Math.random();
       
       // Play sound effect
@@ -40,13 +63,13 @@ const CurrencyDecrementEffect = ({ value, currency, children, className = "" }) 
       return () => clearTimeout(timer);
     }
     prevValue.current = value;
-  }, [value]);
+  }, [value, isSettled]);
 
   const IconComponent = () => {
     const props = { className: "w-5 h-5", size: 20 };
     switch (currency) {
       case 'derhem': return <DerhemIcon {...props} />;
-      case 'zer': return <ZerIcon {...props} />;
+      case 'dinar': return <DinarIcon {...props} />;
       case 'fils':
       default: return <FilsIcon {...props} />;
     }
