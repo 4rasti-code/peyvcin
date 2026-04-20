@@ -240,28 +240,31 @@ export default function App() {
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
-  // --- BULLETPROOF BGM WATCHER REFINED: Prevent Infinite Loops ---
-  const lastBgmAction = useRef(null); // Track last sent command ('play' | 'stop')
+  // --- CONTINUOUS HUB BGM WATCHER REFINED: PERSIST ACROSS TABS ---
+  const lastBgmAction = useRef(null); 
+  const HUB_VIEWS = ['lobby', 'stats', 'leaderboard', 'store', 'social_hub', 'dictionary'];
   
   useEffect(() => {
-    // 1. Strict Enforcement: If shifted away from lobby, KILL MUSIC INSTANTLY.
-    if (currentView !== 'lobby') {
-      if (lastBgmAction.current !== 'stop') {
-        console.log(`🔊 [App] Navigation Detected (${currentView}): Killing BGM.`);
-        stopBGM();
-        lastBgmAction.current = 'stop';
-      }
-    } 
-    // 2. Recovery: If returned to lobby, start music (respecting Mute settings)
-    else {
+    const isHubView = HUB_VIEWS.includes(currentView);
+    const isMultiplayerActive = multiplayerState !== 'idle';
+    
+    // Policy: Play music in any Hub view, provided no multiplayer match is active.
+    const shouldPlay = isHubView && !isMultiplayerActive;
+
+    if (shouldPlay) {
       if (lastBgmAction.current !== 'play') {
-        console.log(`🔊 [App] Welcome Back to Lobby: Starting BGM.`);
+        console.log(`🔊 [App] Hub Navigation Detected (${currentView}): Resuming BGM.`);
         startBGM();
         lastBgmAction.current = 'play';
       }
+    } else {
+      if (lastBgmAction.current !== 'stop') {
+        console.log(`🔊 [App] Gameplay/Auth Detected (${currentView}): Pausing BGM.`);
+        stopBGM();
+        lastBgmAction.current = 'stop';
+      }
     }
-    // We only depend on currentView here. startBGM/stopBGM are stable wrappers.
-  }, [currentView, startBGM, stopBGM]); 
+  }, [currentView, multiplayerState, startBGM, stopBGM]); 
 
 
   // 5. Notification Sound Trigger (Distinguishing between messages and others)
@@ -1068,13 +1071,12 @@ export default function App() {
   }, [user?.id]);
 
 
-  // WRAPPED NAVIGATION: Sync BGM stopping for instant feedback
+  // WRAPPED NAVIGATION: Unified state transition
   const navigateTo = useCallback((view) => {
-    if (view !== 'lobby') {
-      stopBGM();
-    }
+    // We no longer call stopBGM() here for Hub->Hub transitions.
+    // The global effect handles Hub->Game boundary crossing.
     setCurrentView(view);
-  }, [stopBGM]);
+  }, []);
 
   const handleNotificationAction = async (item) => {
     // Optimistically remove from list so it disappears instantly as requested

@@ -152,8 +152,7 @@ class SoundEngine {
   stopMusic() {
     if (this.musicAudioElement) {
       this.musicAudioElement.pause();
-      this.musicAudioElement.currentTime = 0; // Reset to start
-      console.log("🎵 [AudioEngine] Strict Policy: Music Streaming Stopped & Reset");
+      console.log("🎵 [AudioEngine] Strict Policy: Music Streaming Paused (for Gameplay)");
     }
   }
 
