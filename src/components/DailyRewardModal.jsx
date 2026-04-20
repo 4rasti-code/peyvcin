@@ -10,7 +10,7 @@ import { FilsIcon, DerhemIcon, ZerIcon } from './CurrencyIcon';
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
   { day: 2, label: '١ موگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#8b5cf6' },
-  { day: 3, label: '٥ دەرهەم', type: 'derhem', reward: { derhem: 5 }, color: '#A0A0A0' },
+  { day: 3, label: '٥ دەرھەم', type: 'derhem', reward: { derhem: 5 }, color: '#A0A0A0' },
   { day: 4, label: '١ ھاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
   { day: 5, label: '٥ دینار', type: 'zer', reward: { zer: 5 }, color: '#B8860B' },
   { day: 6, label: '١ دەربازبوون', icon: 'fast_forward', reward: { skipCount: 1 }, color: '#0ea5e9' },

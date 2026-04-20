@@ -56,7 +56,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             <div className="relative">
               <div className="px-12 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_0_50px_rgba(124,58,237,0.3)]">
                 <span className="text-white font-rabar font-black text-3xl sm:text-4xl uppercase tracking-[0.2em] drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-                  هەڤڕکی
+                  ھەڤڕکی
                 </span>
               </div>
               {/* Animated Glow Border */}
@@ -102,11 +102,11 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   </div>
                   {/* Identity Label (Matches mockup position) */}
                   <div className="absolute -bottom-3 -right-3 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
-                    هەڤڕک
+                    ھەڤڕک
                   </div>
                 </div>
                 <span className="text-white font-black text-2xl sm:text-3xl tracking-wide drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
-                  {opponent?.nickname || 'هەڤڕک'}
+                  {opponent?.nickname || 'ھەڤڕک'}
                 </span>
               </motion.div>
             </div>

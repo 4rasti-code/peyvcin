@@ -158,7 +158,7 @@ const VictoryOverlay = ({
                 
                 {(xp > 0 || breakdown?.mode === 'Multiplayer') && (
                   <div className="flex justify-between items-center text-sm font-black  group/row mt-1 pt-1 border-t border-white/5">
-                    <span className="text-white/80 transition-colors group-hover/row:text-white">بۆنوسا هەڤڕکیێ</span>
+                    <span className="text-white/80 transition-colors group-hover/row:text-white">بۆنوسا ھەڤڕکیێ</span>
                     <div className="flex items-center gap-2 text-yellow-500">
                       <AnimatedNumber value={xp || 50} prefix="+" />
                       <span className="text-[10px] font-black tracking-tighter opacity-80">XP</span>
