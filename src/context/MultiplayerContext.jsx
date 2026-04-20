@@ -566,7 +566,6 @@ export const MultiplayerProvider = ({ children }) => {
   // UNIFIED ONE-CLICK MATCHMAKING
   const startMatchmaking = async () => {
     if (!user?.id) return;
-    let searchTimeout = null; // Explicit declaration to prevent ReferenceError
 
     console.log('[Multiplayer] ONE-CLICK: Searching for rooms...');
     
@@ -585,13 +584,13 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponentGuesses([]);
 
     // 2. HARD TIMEOUT FALLBACK (60 Seconds)
-    searchTimeout = setTimeout(() => {
+    if (matchmakingTimeoutRef.current) clearTimeout(matchmakingTimeoutRef.current);
+    matchmakingTimeoutRef.current = setTimeout(() => {
       if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
         setMultiplayerState('idle'); 
         alert("چو یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
       }
     }, 60000);
-    matchmakingTimeoutRef.current = searchTimeout;
 
     try {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
@@ -629,7 +628,10 @@ export const MultiplayerProvider = ({ children }) => {
           .single();
 
         if (!claimError && joinedMatch) {
-          clearTimeout(searchTimeout);
+          if (matchmakingTimeoutRef.current) {
+            clearTimeout(matchmakingTimeoutRef.current);
+            matchmakingTimeoutRef.current = null;
+          }
           console.log('[Multiplayer] JOINER: Claim SUCCESS! Handshaking with Host:', joinedMatch.player1_id);
           
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
@@ -687,7 +689,10 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
-      clearTimeout(searchTimeout);
+      if (matchmakingTimeoutRef.current) {
+        clearTimeout(matchmakingTimeoutRef.current);
+        matchmakingTimeoutRef.current = null;
+      }
       try { stopSearchingSound(false); } catch(e) {}
       setMultiplayerState('idle');
     }
