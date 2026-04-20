@@ -944,7 +944,7 @@ export const GameProvider = ({ children }) => {
     playStartGameSound,
     setCurrentXP, setLastNotifiedLevel,
     syncProfile
-  ]), [
+  }), [
     level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, progressPercent, fils, derhem, dinar,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
