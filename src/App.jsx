@@ -1272,7 +1272,7 @@ export default function App() {
             </div>
 
             {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-1 m-0">
+            <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-4 m-0">
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}
