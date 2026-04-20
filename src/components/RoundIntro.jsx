@@ -100,14 +100,14 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
           <div className="relative z-20 w-full h-full flex flex-col items-center justify-center gap-12 sm:gap-20">
             
             {/* AVATAR CLASH (Centered much closer) */}
-            <div className="flex items-center justify-center gap-0 sm:gap-4 w-full relative">
+            <div className="flex items-center justify-center gap-0 sm:gap-2 w-full relative">
               
               {/* YOU (Player 1 / Right in RTL) */}
               <motion.div
                 initial={{ x: 400, opacity: 0, scale: 0.2 }}
-                animate={{ x: -40, opacity: 1, scale: 0.8 }}
+                animate={{ x: -85, opacity: 1, scale: 0.85 }}
                 exit={{ x: 600, opacity: 0, transition: { duration: 0.4 } }}
-                transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
                 className="flex flex-col items-center gap-4 z-20"
               >
                 <div className="relative group">
@@ -119,12 +119,12 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                   <Avatar 
                     src={userAvatar} 
                     size="2xl" 
-                    className="relative border-[10px] border-emerald-500 shadow-[0_0_100px_rgba(16,185,129,0.4)] z-10" 
+                    className="relative border-[10px] border-emerald-500 shadow-[0_0_120px_rgba(16,185,129,0.5)] z-10" 
                     border={false} 
                   />
                   <div className="absolute -top-4 -right-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg z-20">تۆ</div>
                 </div>
-                <span className="text-emerald-400 font-black text-2xl sm:text-3xl tracking-[0.1em] drop-shadow-[0_0_20px_rgba(52,211,153,0.9)] font-rabar">
+                <span className="text-emerald-400 font-black text-2xl sm:text-3xl tracking-[0.05em] drop-shadow-[0_0_20px_rgba(52,211,153,0.9)] font-rabar">
                   {userNickname}
                 </span>
               </motion.div>
@@ -148,7 +148,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                 transition={{ 
                   scale: { duration: 0.4, ease: [0.23, 1, 0.32, 1], delay: 0.35 }
                 }}
-                className="relative z-30 mx-[-50px] sm:mx-0"
+                className="relative z-30 mx-[-90px] sm:mx-[-40px]"
               >
                 {/* Background Flare */}
                 <motion.div 
@@ -159,13 +159,13 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                 />
 
                 <div className="relative">
-                  <h1 className="text-[7rem] sm:text-[12rem] font-black italic select-none leading-none
+                  <h1 className="text-[5.5rem] sm:text-[9rem] font-black italic select-none leading-none
                     bg-gradient-to-b from-white via-red-500 to-red-950 bg-clip-text text-transparent 
-                    drop-shadow-[0_0_60px_rgba(255,0,0,1)] px-8 py-4 filter contrast-125">
+                    drop-shadow-[0_0_50px_rgba(255,0,0,1)] px-6 py-4 filter contrast-125">
                     VS
                   </h1>
                   
-                  <h1 className="absolute inset-0 text-[7rem] sm:text-[12rem] font-black italic select-none leading-none
+                  <h1 className="absolute inset-0 text-[5.5rem] sm:text-[9rem] font-black italic select-none leading-none
                     text-white/20 blur-[2px] translate-y-1 translate-x-1 -z-10">
                     VS
                   </h1>
@@ -192,9 +192,9 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
               {/* OPPONENT (Player 2 / Left in RTL) */}
               <motion.div
                 initial={{ x: -400, opacity: 0, scale: 0.2 }}
-                animate={{ x: 40, opacity: 1, scale: 0.8 }}
+                animate={{ x: 85, opacity: 1, scale: 0.85 }}
                 exit={{ x: -600, opacity: 0, transition: { duration: 0.4 } }}
-                transition={{ type: "spring", stiffness: 200, damping: 18, delay: 0.1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
                 className="flex flex-col items-center gap-4 z-20"
               >
                 <div className="relative group">
@@ -206,12 +206,12 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                   <Avatar 
                     src={opponent?.avatar_url} 
                     size="2xl" 
-                    className="relative border-[10px] border-red-600 shadow-[0_0_100px_rgba(220,38,38,0.4)] z-10" 
+                    className="relative border-[10px] border-red-600 shadow-[0_0_120px_rgba(220,38,38,0.5)] z-10" 
                     border={false} 
                   />
                   <div className="absolute -top-4 -left-2 bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-lg z-20">هەڤڕک</div>
                 </div>
-                <span className="text-red-500 font-black text-2xl sm:text-3xl tracking-[0.1em] drop-shadow-[0_0_20px_rgba(239,68,68,0.9)] font-rabar text-center">
+                <span className="text-red-500 font-black text-2xl sm:text-3xl tracking-[0.05em] drop-shadow-[0_0_20px_rgba(239,68,68,0.9)] font-rabar text-center">
                   {opponent?.nickname || 'هەڤڕک'}
                 </span>
               </motion.div>
