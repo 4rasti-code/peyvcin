@@ -60,7 +60,6 @@ export const MultiplayerProvider = ({ children }) => {
           const next = prev + 1;
           // 2.2 DEEP FETCH FALLBACK: If stuck for 12s, force a manual record check
           if (next === 12 && stateRef.current !== 'playing') {
-            console.log('[Multiplayer] 12s Deep Fetch Check...');
             const mId = matchIdRef.current;
             if (mId) {
               supabase.from('online_matches').select('*').eq('id', mId).maybeSingle().then(({ data }) => {
@@ -316,12 +315,6 @@ export const MultiplayerProvider = ({ children }) => {
         { event: 'UPDATE', schema: 'public', table: 'online_matches', filter: `id=eq.${matchId}` },
         (payload) => {
           const updatedMatch = payload.new;
-          console.log('[Multiplayer] Realtime Update:', updatedMatch.id, {
-            status: updatedMatch.status,
-            p2: updatedMatch.player2_id ? 'Joined' : 'Waiting',
-            p1_score: updatedMatch.p1_score,
-            p2_score: updatedMatch.p2_score
-          });
           setActiveMatch(prev => prev ? { ...prev, ...updatedMatch } : updatedMatch);
         }
       )
@@ -345,8 +338,9 @@ export const MultiplayerProvider = ({ children }) => {
         'broadcast',
         { event: 'LIVE_SYNC' },
         (payload) => {
+          // Robust payload extraction for broadcast
           const data = payload.payload || payload;
-          if (user?.id && data.senderId !== user.id) {
+          if (user?.id && data.senderId && data.senderId !== user.id) {
             setOpponentLiveStatuses(data.statuses || []);
             setOpponentLiveCursor(data.cursorIndex || 0);
           }
@@ -572,6 +566,7 @@ export const MultiplayerProvider = ({ children }) => {
   // UNIFIED ONE-CLICK MATCHMAKING
   const startMatchmaking = async () => {
     if (!user?.id) return;
+    let searchTimeout = null; // Explicit declaration to prevent ReferenceError
 
     console.log('[Multiplayer] ONE-CLICK: Searching for rooms...');
     
@@ -580,7 +575,6 @@ export const MultiplayerProvider = ({ children }) => {
 
     // 1. Aggressive Connection Guard (Flush and Re-establish)
     if (supabase.realtime) {
-      console.log('[Multiplayer] Forcing fresh connection for search...');
       supabase.realtime.disconnect();
       supabase.realtime.connect();
     }
@@ -591,14 +585,13 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponentGuesses([]);
 
     // 2. HARD TIMEOUT FALLBACK (60 Seconds)
-    // If we're still searching after 60s, reset to prevent infinite hang.
-    matchmakingTimeoutRef.current = setTimeout(() => {
+    searchTimeout = setTimeout(() => {
       if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
-        console.warn('[Multiplayer] Matchmaking timed out after 60s. Cleaning up...');
         setMultiplayerState('idle'); 
         alert("چو یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
       }
     }, 60000);
+    matchmakingTimeoutRef.current = searchTimeout;
 
     try {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
@@ -636,7 +629,7 @@ export const MultiplayerProvider = ({ children }) => {
           .single();
 
         if (!claimError && joinedMatch) {
-          clearTimeout(matchmakingTimeoutRef.current);
+          clearTimeout(searchTimeout);
           console.log('[Multiplayer] JOINER: Claim SUCCESS! Handshaking with Host:', joinedMatch.player1_id);
           
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
@@ -694,7 +687,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
-      clearTimeout(matchmakingTimeoutRef.current);
+      clearTimeout(searchTimeout);
       try { stopSearchingSound(false); } catch(e) {}
       setMultiplayerState('idle');
     }
