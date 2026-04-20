@@ -245,7 +245,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom) */}
-      <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+10px)] m-0">
+      <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-1 m-0">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
