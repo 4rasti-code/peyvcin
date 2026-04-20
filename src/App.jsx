@@ -240,6 +240,19 @@ export default function App() {
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
 
+  // --- BULLETPROOF BGM WATCHER: STICKY LOBBY-ONLY RULE ---
+  useEffect(() => {
+    // 1. Strict Enforcement: If shifted away from lobby, KILL MUSIC INSTANTLY.
+    if (currentView !== 'lobby') {
+      console.log(`🔊 [App] Navigation Detected (${currentView}): Killing BGM.`);
+      stopBGM();
+    } 
+    // 2. Recovery: If returned to lobby, start music (respecting Mute settings)
+    else if (currentView === 'lobby') {
+      startBGM();
+    }
+  }, [currentView, startBGM, stopBGM]); // Enforce on every view change
+
 
   // 5. Notification Sound Trigger (Distinguishing between messages and others)
   const prevNotifCount = useRef(0);
@@ -1069,31 +1082,39 @@ export default function App() {
     if (item.type === 'message') {
       setActiveChatPartner({ id: item.sender_id, nickname: item.user_nickname, avatar_url: item.user_avatar });
       setInitialSocialTab('private');
-      setCurrentView('social_hub');
+      navigateTo('social_hub');
     } else if (item.type === 'friend') {
       setInitialSocialTab('friends');
-      setCurrentView('social_hub');
+      navigateTo('social_hub');
     } else {
       setInitialSocialTab('global');
-      setCurrentView('social_hub');
+      navigateTo('social_hub');
     }
   };
   
   const handleOpenChat = useCallback((partner) => {
     setActiveChatPartner(partner);
     setInitialSocialTab('private');
-    setCurrentView('social_hub');
-  }, []);
+    navigateTo('social_hub');
+  }, [navigateTo]);
+
+  // WRAPPED NAVIGATION: Sync BGM stopping for instant feedback
+  const navigateTo = useCallback((view) => {
+    if (view !== 'lobby') {
+      stopBGM();
+    }
+    setCurrentView(view);
+  }, [stopBGM]);
 
   const handleViewMessages = useCallback(() => {
     setInitialSocialTab('private');
-    setCurrentView('social_hub');
-  }, []);
+    navigateTo('social_hub');
+  }, [navigateTo]);
 
   const handleViewFriends = useCallback(() => {
     setInitialSocialTab('friends');
-    setCurrentView('social_hub');
-  }, []);
+    navigateTo('social_hub');
+  }, [navigateTo]);
 
 
   if (!isAppReady || !isAuthChecked) return <div className="h-screen flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
@@ -1187,7 +1208,7 @@ export default function App() {
               resetSecretWordProgress();
             }}
             onSocialClick={() => {
-              setCurrentView('social_hub');
+              navigateTo('social_hub');
             }}
             onDailyRewardClick={() => {
               playBubblePopSound();
@@ -1386,7 +1407,7 @@ export default function App() {
               playerStats={playerStats}
               userRank={userRank}
               dailyStreak={dailyStreak}
-              onViewChange={setCurrentView}
+              onViewChange={navigateTo}
             />
           )}
           {currentView === 'dictionary' && (
@@ -1406,7 +1427,7 @@ export default function App() {
        !isKeyboardOpen && (
         <BottomNav 
           currentView={currentView} 
-          setCurrentView={setCurrentView} 
+          setCurrentView={navigateTo} 
           onSettingsToggle={() => { setIsSettingsOpen(true); }} 
           onTabClickSound={playBubblePopSound} 
         />

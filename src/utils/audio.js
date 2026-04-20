@@ -146,12 +146,14 @@ class SoundEngine {
   }
 
   /**
-   * Stop Music
+   * STOP MUSIC (Strict Lobby Only Policy)
+   * This MUST be called as soon as the user leaves the 'lobby' view.
    */
   stopMusic() {
     if (this.musicAudioElement) {
       this.musicAudioElement.pause();
-      console.log("🎵 [AudioEngine] Music Streaming Stopped");
+      this.musicAudioElement.currentTime = 0; // Reset to start
+      console.log("🎵 [AudioEngine] Strict Policy: Music Streaming Stopped & Reset");
     }
   }
 
