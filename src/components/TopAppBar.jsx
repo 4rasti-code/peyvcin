@@ -198,9 +198,9 @@ export default function TopAppBar({
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
-                            className={`w-16 h-16 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#facc15]' : 'text-[#facc15]/60'}`}
+                            className={`w-16 h-16 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#10b981]' : 'text-[#10b981]/60'}`}
                          >
-                           <span className="material-symbols-outlined text-[54px] font-black">notifications</span>
+                           <span className="material-symbols-outlined text-[54px] font-black" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
                            {notificationCount > 0 && (
                              <motion.div 
                                initial={{ scale: 0 }}
