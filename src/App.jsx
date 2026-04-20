@@ -1232,7 +1232,7 @@ export default function App() {
         {currentView === 'game' && (
           <div className="flex-1 flex flex-col overflow-hidden relative h-full">
             {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
-            <div className="flex-1 flex flex-col items-center min-h-0">
+            <div className="flex-1 flex flex-col items-center min-h-0 overflow-y-auto pb-56 no-scrollbar">
               {/* Question Section */}
               <div className={`w-full flex flex-col items-center ${gameMode === 'classic' ? 'justify-center py-2' : 'mt-4 mb-2'}`}>
                 <InfoBar
@@ -1272,7 +1272,7 @@ export default function App() {
             </div>
 
             {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="shrink-0 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+20px)] mt-auto m-0">
+            <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+10px)] m-0">
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}

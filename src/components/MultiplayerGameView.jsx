@@ -192,7 +192,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
 
       {/* 2. SYMMETRIC BATTLEFIELD */}
-      <div className="flex-1 flex flex-col overflow-y-auto no-scrollbar" dir="rtl">
+      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pb-56 no-scrollbar" dir="rtl">
         
         {/* RIDDLE DISPLAY (Classic Mode Style) */}
         <div className="w-full flex flex-col items-center justify-center py-4 px-2 animate-in fade-in duration-700">
@@ -244,8 +244,8 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
       </div>
 
-      {/* 3. KEYBOARD (With hidePowerups=true) */}
-      <div className="shrink-0 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+40px)] mt-auto m-0">
+      {/* 3. KEYBOARD (Pinned to bottom) */}
+      <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-[calc(env(safe-area-inset-bottom)+10px)] m-0">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
