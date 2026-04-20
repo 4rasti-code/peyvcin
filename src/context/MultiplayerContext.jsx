@@ -133,6 +133,17 @@ export const MultiplayerProvider = ({ children }) => {
 
       if (currentIdx >= 2) {
         updates.status = 'finished';
+        
+        // --- WINNER RESULT CALCULATION ---
+        const myFinalScore = (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1;
+        const oppFinalScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+        
+        let result = 'draw';
+        if (myFinalScore > oppFinalScore) result = 'victory';
+        else if (myFinalScore < oppFinalScore) result = 'defeat';
+        
+        setLastMatchResult(result);
+        setMatchResultTrigger(prev => prev + 1);
         setMultiplayerState('game_over');
       } else {
         updates.current_word_index = currentIdx + 1;
@@ -496,21 +507,22 @@ export const MultiplayerProvider = ({ children }) => {
       setRoundMessage('');
     }
 
-    if (activeMatch.status === 'finished' && multiplayerState !== 'idle' && multiplayerState !== 'game_over') {
-      const isP1 = activeMatch.player1_id === user.id;
-      const myScore = isP1 ? activeMatch.p1_score : activeMatch.p2_score;
-      const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
-      
-      let result = 'draw';
-      if (myScore > oppScore) result = 'victory';
-      else if (myScore < oppScore) result = 'defeat';
-      
-      console.log(`[Multiplayer] Match finished! Result: ${result}. Syncing state.`);
-      setLastMatchResult(result);
-      setMatchResultTrigger(prev => prev + 1);
-      
-      // Transition to game_over to signify it's time for overlays
-      setMultiplayerState('game_over');
+    if (activeMatch.status === 'finished' && multiplayerState !== 'idle') {
+      // Logic for anyone who didn't trigger the game_over state locally (e.g. the loser)
+      if (multiplayerState !== 'game_over' || lastMatchResult === null) {
+        const isP1 = activeMatch.player1_id === user.id;
+        const myScore = isP1 ? activeMatch.p1_score : activeMatch.p2_score;
+        const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+        
+        let result = 'draw';
+        if (myScore > oppScore) result = 'victory';
+        else if (myScore < oppScore) result = 'defeat';
+        
+        console.log(`[Multiplayer] Sync found finished match. Result: ${result}.`);
+        setLastMatchResult(result);
+        setMatchResultTrigger(prev => prev + 1);
+        setMultiplayerState('game_over');
+      }
     }
 
     if (activeMatch.p1_score !== scoresRef.current.p1 || activeMatch.p2_score !== scoresRef.current.p2) {
