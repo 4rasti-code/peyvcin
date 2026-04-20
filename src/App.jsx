@@ -1057,6 +1057,15 @@ export default function App() {
     return () => { supabase.removeChannel(socialChannel); };
   }, [user?.id]);
 
+
+  // WRAPPED NAVIGATION: Sync BGM stopping for instant feedback
+  const navigateTo = useCallback((view) => {
+    if (view !== 'lobby') {
+      stopBGM();
+    }
+    setCurrentView(view);
+  }, [stopBGM]);
+
   const handleNotificationAction = async (item) => {
     // Optimistically remove from list so it disappears instantly as requested
     setNotificationsList(prev => prev.filter(n => n.id !== item.id));
@@ -1098,13 +1107,6 @@ export default function App() {
     navigateTo('social_hub');
   }, [navigateTo]);
 
-  // WRAPPED NAVIGATION: Sync BGM stopping for instant feedback
-  const navigateTo = useCallback((view) => {
-    if (view !== 'lobby') {
-      stopBGM();
-    }
-    setCurrentView(view);
-  }, [stopBGM]);
 
   const handleViewMessages = useCallback(() => {
     setInitialSocialTab('private');
