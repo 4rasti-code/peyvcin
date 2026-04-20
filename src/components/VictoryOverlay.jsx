@@ -113,8 +113,8 @@ const VictoryOverlay = ({
 
               {solvedWord && (
                 <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block">
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">پەیڤا دۆزراوە</span>
-                  <span className="text-2xl font-black text-emerald-400 font-heading tracking-wider">{solvedWord}</span>
+                  <span className="text-white/40 text-[10px] font-bold uppercase block mb-1">پەیڤا دۆزراوە</span>
+                  <span className="text-2xl font-black text-emerald-400 font-heading">{solvedWord}</span>
                 </div>
               )}
 
@@ -125,7 +125,7 @@ const VictoryOverlay = ({
                   <div className="flex items-center gap-2 text-emerald-400">
                     <div className="flex flex-col items-end leading-none pt-0.5">
                       <AnimatedNumber value={breakdown?.base || 0} prefix="+" />
-                      <span className="text-[7px] font-black uppercase tracking-widest opacity-60">فلس</span>
+                      <span className="text-[7px] font-black uppercase opacity-60">فلس</span>
                     </div>
                     <FilsIcon size={12} className="opacity-80" />
                   </div>
@@ -172,7 +172,7 @@ const VictoryOverlay = ({
                   <div className="flex items-center gap-2 text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
                     <div className="flex flex-col items-end leading-none pt-1">
                       <AnimatedNumber value={breakdown?.total || 0} prefix="+" />
-                      <span className="text-[9px] font-black uppercase tracking-widest opacity-70">فلس</span>
+                      <span className="text-[9px] font-black uppercase opacity-70">فلس</span>
                     </div>
                     <FilsIcon size={18} />
                   </div>
