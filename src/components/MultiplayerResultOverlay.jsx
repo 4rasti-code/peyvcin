@@ -11,7 +11,8 @@ export default function MultiplayerResultOverlay({
   userAvatar, 
   userNickname,
   onPlayAgain, 
-  onClose 
+  onClose,
+  isForfeitWin 
 }) {
   const [countdown, setCountdown] = useState(10);
 
@@ -76,11 +77,22 @@ export default function MultiplayerResultOverlay({
               </span>
             </motion.div>
             
-            <h1 className={`text-4xl font-black font-rabar tracking-tight mb-2 ${
+            <h1 className={`text-4xl font-black font-rabar mb-2 ${
               isVictory ? 'text-emerald-400' : isDraw ? 'text-slate-300' : 'text-red-400'
             }`}>
               {isVictory ? 'سەرکەفتن!' : isDraw ? 'یەکسانبوون!' : 'خوسارەتی!'}
             </h1>
+
+            {isVictory && isForfeitWin && (
+              <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-amber-500/10 text-amber-400 px-4 py-1 rounded-full text-sm font-bold font-rabar mb-3 border border-amber-500/20"
+              >
+                سەرکەفتن ب دەستژێبەردانا ھەڤڕکی!
+              </motion.div>
+            )}
+
             <p className="text-white/40 font-medium">ئەنجامێ دووفاییک یێ یاریێ</p>
           </div>
 

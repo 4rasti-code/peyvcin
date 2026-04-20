@@ -31,6 +31,7 @@ export const MultiplayerProvider = ({ children }) => {
   const [roundMessage, setRoundMessage] = useState('');
   const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
   const [forfeitCountdown, setForfeitCountdown] = useState(10);
+  const [isForfeitWin, setIsForfeitWin] = useState(false);
   const forfeitTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
 
@@ -195,6 +196,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     try {
       setForfeitStatus('confirmed');
+      setIsForfeitWin(true);
       const isP1 = activeMatch?.player1_id === user?.id;
       
       // 1. Update DB immediately
@@ -237,6 +239,7 @@ export const MultiplayerProvider = ({ children }) => {
   const resetMatchResultTrigger = () => {
     setMatchResultTrigger(0);
     setLastMatchResult(null);
+    setIsForfeitWin(false);
   };
 
   const fetchOpponentProfile = useCallback(async (opponentId) => {
@@ -783,7 +786,8 @@ export const MultiplayerProvider = ({ children }) => {
       triggerForfeitVictory,
       broadcastLiveAction,
       opponentLiveStatuses,
-      opponentLiveCursor
+      opponentLiveCursor,
+      isForfeitWin
     }}>
       {children}
     </MultiplayerContext.Provider>

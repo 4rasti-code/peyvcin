@@ -229,7 +229,8 @@ export default function App() {
     matchResultTrigger,
     submitFailure,
     resetMatchResultTrigger,
-    forfeitStatus
+    forfeitStatus,
+    isForfeitWin
   } = useMultiplayer();
 
   // TRANSITION: Return to Lobby when Match ends (Multiplayer High-Speed Flow)
@@ -1621,6 +1622,7 @@ export default function App() {
           resetMatchResultTrigger();
           cancelMatch(); // Reset state to idle
         } }
+        isForfeitWin={isForfeitWin}
       />
 
     </div>
