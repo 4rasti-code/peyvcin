@@ -97,7 +97,9 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
           </div>
 
           {/* 3. CENTER SLAM CONTENT */}
-          <div className="relative z-20 w-full h-full flex flex-col items-center justify-center gap-12 sm:gap-20">            {/* AVATAR CLASH (Centered much closer) */}
+          <div className="relative z-20 w-full h-full flex flex-col items-center justify-center gap-12 sm:gap-20">
+            
+            {/* AVATAR CLASH (Centered much closer) */}
             <div className="flex items-center justify-center gap-0 sm:gap-4 w-full relative">
               
               {/* YOU (Player 1 / Right in RTL) */}
@@ -213,7 +215,6 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
                   {opponent?.nickname || 'هەڤڕک'}
                 </span>
               </motion.div>
-            </div>ion.div>
             </div>
 
             {/* 4. ROUND TEXT (Zoom & Shine) */}
