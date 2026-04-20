@@ -14,7 +14,8 @@ export default function Avatar({
   showStatus = false,
   className = "", 
   size = "md", // 'sm', 'md', 'lg', 'xl', '2xl'
-  border = true
+  border = true,
+  level = null
 }) {
   const isRemote = typeof src === 'string' && src.startsWith('http');
   const avatarData = AVATARS.find(a => a.id === src);
@@ -46,38 +47,52 @@ export default function Avatar({
     'lg': 'w-14 h-14 text-2xl',
     'xl': 'w-20 h-20 text-4xl',
     '2xl': 'w-28 h-28 text-5xl',
+    '3xl': 'w-36 h-36 text-6xl',
+    '4xl': 'w-48 h-48 text-7xl',
     'full': 'w-full h-full text-3xl'
   };
 
   const selectedSizeClass = sizeClasses[size] || sizeClasses['md'];
 
   return (
-    <div className={`relative shrink-0 rounded-full overflow-hidden ${selectedSizeClass} ${border ? 'border border-white/10' : ''} ${className}`}>
-      <div className="w-full h-full flex items-center justify-center relative">
-        {hasImage ? (
-          <img 
-            src={displaySrc} 
-            alt="User Avatar" 
-            className="w-full h-full object-cover"
-            loading="lazy"
-            onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-        ) : null}
-        
-        <div 
-          className={`w-full h-full flex items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : ''}`}
-        >
-          <span className="select-none leading-none drop-shadow-md flex items-center justify-center">
-             {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
-          </span>
+    <div className={`relative shrink-0 ${selectedSizeClass} group ${className}`}>
+      {/* LEVEL BADGE */}
+      {level !== null && (
+        <div className="absolute -top-1 -left-1 z-[25] flex items-center justify-center">
+            <div className="bg-amber-500 text-white font-black rounded-full border-2 border-white shadow-lg flex items-center justify-center p-1.5 min-w-[24px] min-h-[24px] text-[10px] leading-none">
+              {level}
+            </div>
+            <div className="absolute inset-0 bg-amber-500 rounded-full blur-[4px] opacity-50 -z-10 animate-pulse" />
         </div>
+      )}
 
-        {showStatus && isOnline && (
-          <div className="absolute inset-0 border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
-        )}
+      <div className={`relative w-full h-full shrink-0 rounded-full overflow-hidden ${border ? 'border border-white/10' : ''}`}>
+        <div className="w-full h-full flex items-center justify-center relative">
+          {hasImage ? (
+            <img 
+              src={displaySrc} 
+              alt="User Avatar" 
+              className="w-full h-full object-cover"
+              loading="lazy"
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          
+          <div 
+            className={`w-full h-full flex items-center justify-center bg-slate-800 ${hasImage ? 'hidden' : ''}`}
+          >
+            <span className="select-none leading-none drop-shadow-md flex items-center justify-center">
+               {symbol || avatarData?.symbol || (src && src !== 'default' && !isRemote ? '👤' : DEFAULT_AVATAR.symbol)}
+            </span>
+          </div>
+
+          {showStatus && isOnline && (
+            <div className="absolute inset-0 border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
+          )}
+        </div>
       </div>
       
       {/* STATUS INDICATORS - Outside overflow-hidden */}

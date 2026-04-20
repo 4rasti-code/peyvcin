@@ -262,6 +262,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         opponent={opponent}
         userAvatar={userAvatar}
         userNickname={userNickname}
+        userLevel={user?.level}
         currentRound={currentRound}
       />
 
