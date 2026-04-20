@@ -108,14 +108,14 @@ function SettingsModal({
                              <button 
                                 onClick={() => onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 10)}
                                 className={`w-12 h-7 rounded-sm p-1 transition-all duration-300 relative shrink-0 shadow-inner ${
-                                   bgMusicVolume > 0 ? 'bg-[#1e293b]' : 'bg-slate-300'
+                                   bgMusicVolume > 0 ? 'bg-[#1e293b]' : 'bg-red-500/10'
                                 }`}
                              >
                                 <motion.div 
                                    animate={{ x: bgMusicVolume > 0 ? -20 : 0 }}
                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                    className={`w-5 h-5 rounded-sm shadow-md flex items-center justify-center ${
-                                      bgMusicVolume > 0 ? 'bg-[#10b981]' : 'bg-white'
+                                      bgMusicVolume > 0 ? 'bg-[#10b981]' : 'bg-red-500'
                                    }`}
                                 >
                                    {bgMusicVolume > 0 && <div className="w-1 h-1 rounded-full bg-emerald-950" />}
@@ -138,14 +138,14 @@ function SettingsModal({
                           <button 
                              onClick={onHapticToggle}
                              className={`w-12 h-7 rounded-sm p-1 transition-all duration-300 relative shrink-0 shadow-inner ${
-                                hapticEnabled ? 'bg-[#1e293b]' : 'bg-slate-300'
+                                hapticEnabled ? 'bg-[#1e293b]' : 'bg-red-500/10'
                              }`}
                           >
                              <motion.div 
                                 animate={{ x: hapticEnabled ? -20 : 0 }}
                                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                 className={`w-5 h-5 rounded-sm shadow-md flex items-center justify-center ${
-                                   hapticEnabled ? 'bg-[#10b981]' : 'bg-white'
+                                   hapticEnabled ? 'bg-[#10b981]' : 'bg-red-500'
                                 }`}
                              >
                                 {hapticEnabled && <div className="w-1 h-1 rounded-full bg-emerald-950" />}
