@@ -125,13 +125,13 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   transition={{ duration: 1.5, repeat: Infinity }}
                   className="absolute -inset-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
                 />
-                <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none
+                <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
                   bg-gradient-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
                   drop-shadow-[0_0_50px_rgba(251,191,36,1)] filter brightness-125">
                   VS
                 </h1>
                 {/* Ghost Text for Depth */}
-                <h1 className="absolute inset-0 text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none
+                <h1 className="absolute inset-0 text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
                   text-white/20 blur-[3px] translate-y-1 translate-x-1 -z-10">
                   VS
                 </h1>
