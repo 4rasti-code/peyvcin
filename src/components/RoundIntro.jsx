@@ -235,7 +235,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, current
               {/* Shimmering Text Background */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent blur-xl animate-shimmer" />
               
-              <h2 className="text-5xl sm:text-8xl font-black text-white text-center font-rabar uppercase tracking-tight
+              <h2 className="text-3xl sm:text-6xl font-black text-white text-center font-rabar uppercase tracking-tight
                 bg-gradient-to-b from-white via-gray-100 to-gray-400 bg-clip-text text-transparent 
                 drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)] relative z-10">
                 گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.6)]">دەستپێکر</span>
