@@ -339,10 +339,10 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
                 <span className="material-symbols-outlined text-4xl text-amber-400 animate-pulse">wifi_off</span>
               </div>
               <h2 className="text-2xl font-black text-white mb-2 leading-tight font-noto-sans-arabic">
-                هەڤڕک یێ پچڕایە...
+                هێل یا هاتییە بڕین...
               </h2>
               <p className="text-amber-100/60 text-lg font-bold mb-6 font-noto-sans-arabic">
-                چاوەڕێبە {forfeitCountdown} چرکان
+                چاڤەڕێبە {forfeitCountdown} چرکان
               </p>
               
               <div className="flex items-center justify-center gap-3">
@@ -352,9 +352,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               </div>
 
               <div className="mt-8 pt-6 border-t border-white/5">
-                <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.2em]">
-                  MATCH RESUMES AUTOMATICALLY ON RETURN
-                </p>
+                {/* English Text Removed */}
               </div>
             </motion.div>
           </motion.div>
