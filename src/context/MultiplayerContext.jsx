@@ -44,6 +44,12 @@ export const MultiplayerProvider = ({ children }) => {
   const matchIdRef = useRef(matchId);
   const channelRef = useRef(null);
   const matchmakingTimeoutRef = useRef(null);
+  const safeClearMatchmakingTimeout = useCallback(() => {
+    if (matchmakingTimeoutRef.current) {
+      clearTimeout(matchmakingTimeoutRef.current);
+      matchmakingTimeoutRef.current = null;
+    }
+  }, []);
 
   useEffect(() => { stateRef.current = multiplayerState; }, [multiplayerState]);
   useEffect(() => { wordIndexRef.current = currentWordIndex; }, [currentWordIndex]);
@@ -584,7 +590,7 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponentGuesses([]);
 
     // 2. HARD TIMEOUT FALLBACK (60 Seconds)
-    if (matchmakingTimeoutRef.current) clearTimeout(matchmakingTimeoutRef.current);
+    safeClearMatchmakingTimeout();
     matchmakingTimeoutRef.current = setTimeout(() => {
       if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
         setMultiplayerState('idle'); 
@@ -628,10 +634,7 @@ export const MultiplayerProvider = ({ children }) => {
           .single();
 
         if (!claimError && joinedMatch) {
-          if (matchmakingTimeoutRef.current) {
-            clearTimeout(matchmakingTimeoutRef.current);
-            matchmakingTimeoutRef.current = null;
-          }
+          safeClearMatchmakingTimeout();
           console.log('[Multiplayer] JOINER: Claim SUCCESS! Handshaking with Host:', joinedMatch.player1_id);
           
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
@@ -689,10 +692,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
-      if (matchmakingTimeoutRef.current) {
-        clearTimeout(matchmakingTimeoutRef.current);
-        matchmakingTimeoutRef.current = null;
-      }
+      safeClearMatchmakingTimeout();
       try { stopSearchingSound(false); } catch(e) {}
       setMultiplayerState('idle');
     }
