@@ -160,7 +160,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
       if (!isMobile) return 1;
       
       const horizontalSpace = window.innerWidth - 32;
-      const verticalSpace = window.innerHeight * 0.38; // Account for floating keyboard margins
+      const verticalSpace = compact ? window.innerHeight * 0.22 : window.innerHeight * 0.38; // More aggressive scaling for compact/multiplayer
       
       const contentWidth = (wordLength * 58) + ((wordLength - 1) * 8);
       const contentHeight = (maxRows * 58) + ((maxRows - 1) * 8);

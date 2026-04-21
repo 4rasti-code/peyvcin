@@ -147,14 +147,23 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     <div className="flex flex-col flex-1 h-full w-full bg-[#020617] overflow-hidden">
       <style>
         {`
-          .battle-grid-container {
+          .battlefield-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 0;
+            justify-content: space-evenly;
             flex: 1;
             min-height: 0;
+            overflow-y-auto;
+          }
+          @media (max-height: 700px) {
+            .battle-item-padding {
+              padding-top: 0.25rem !important;
+              padding-bottom: 0.25rem !important;
+            }
+            .riddle-text {
+              font-size: 1.125rem !important;
+              line-height: 1.5rem !important;
+            }
           }
         `}
       </style>
@@ -195,21 +204,21 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
 
       {/* 2. SYMMETRIC BATTLEFIELD */}
-      <div className="flex-1 flex flex-col min-h-0 overflow-y-auto pb-56 no-scrollbar" dir="rtl">
+      <div className="battlefield-container no-scrollbar" dir="rtl">
         
         {/* RIDDLE DISPLAY (Classic Mode Style) */}
-        <div className="w-full flex flex-col items-center justify-center py-4 px-2 animate-in fade-in duration-700">
+        <div className="w-full flex flex-col items-center justify-center py-2 sm:py-4 px-2 animate-in fade-in duration-700 battle-item-padding">
           <div className="w-full max-w-2xl flex items-center justify-center text-center relative z-10">
-            <p className="text-xl sm:text-2xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
+            <p className="text-lg sm:text-2xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
               {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
             </p>
           </div>
-          <div className="w-[65%] h-[0.5px] bg-white/10 rounded-full mt-2" />
+          <div className="w-[65%] h-[0.5px] bg-white/10 rounded-full mt-1" />
         </div>
 
         {/* TOP HALF: YOUR GUESSES */}
-        <div className="flex flex-col items-center justify-center py-4 border-b border-white/5 w-full">
-          <span className="text-[10px] font-black text-emerald-400/60 mb-2 uppercase tracking-normal px-4 font-rabar">
+        <div className="flex flex-col items-center justify-center py-2 sm:py-4 border-b border-white/5 w-full battle-item-padding">
+          <span className="text-[10px] font-black text-emerald-400/60 mb-1 uppercase tracking-normal px-4 font-rabar">
             {userNickname}
           </span>
           <div className="w-full flex justify-center" dir="rtl">
@@ -226,8 +235,8 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
 
         {/* BOTTOM HALF: OPPONENT PROGRESS */}
-        <div className="flex flex-col items-center justify-center py-4 w-full">
-          <span className="text-[10px] font-black text-amber-400/60 mb-2 uppercase tracking-normal px-4 font-rabar">
+        <div className="flex flex-col items-center justify-center py-2 sm:py-4 w-full battle-item-padding">
+          <span className="text-[10px] font-black text-amber-400/60 mb-1 uppercase tracking-normal px-4 font-rabar">
             {opponent?.nickname || 'ھەڤڕک'}
           </span>
           <div className="w-full flex justify-center" dir="rtl">
@@ -247,8 +256,8 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
       </div>
 
-      {/* 3. KEYBOARD (Pinned to bottom) */}
-      <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-[12%] m-0">
+      {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
+      <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
