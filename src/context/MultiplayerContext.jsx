@@ -134,9 +134,11 @@ export const MultiplayerProvider = ({ children }) => {
       
       broadcastLiveAction([], 0);
 
-      // 1. Calculate scores
-      const myNewScore = isWin ? (isP1 ? activeMatch.p1_score + 1 : activeMatch.p2_score + 1) : (isP1 ? activeMatch.p1_score : activeMatch.p2_score);
-      const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+      // 1. Calculate scores (with safety defaults to prevent NaN)
+      const p1Score = activeMatch.p1_score || 0;
+      const p2Score = activeMatch.p2_score || 0;
+      const myNewScore = isWin ? (isP1 ? p1Score + 1 : p2Score + 1) : (isP1 ? p1Score : p2Score);
+      const oppScore = isP1 ? p2Score : p1Score;
 
       // 2. Win-by-Two Logic & 3-3 Match Draw Policy
       const scoreDiff = Math.abs(myNewScore - oppScore);
@@ -149,7 +151,6 @@ export const MultiplayerProvider = ({ children }) => {
         
         const updateData = {
           status: 'finished',
-          last_action_by: user.id,
           current_word_index: currentIdx, 
           [isP1 ? 'p1_score' : 'p2_score']: myNewScore
         };
@@ -183,7 +184,6 @@ export const MultiplayerProvider = ({ children }) => {
           .from('online_matches')
           .update({
             current_word_index: currentIdx + 1,
-            last_action_by: user.id,
             [isP1 ? 'p1_score' : 'p2_score']: myNewScore,
             p1_colors: [],
             p2_colors: []
@@ -221,7 +221,6 @@ export const MultiplayerProvider = ({ children }) => {
         .from('online_matches')
         .update({
           current_word_index: currentIdx + 1,
-          last_action_by: user.id,
           p1_failed: false,
           p2_failed: false,
           p1_colors: [],

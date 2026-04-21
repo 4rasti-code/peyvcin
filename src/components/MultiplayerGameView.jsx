@@ -42,7 +42,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   
   const [isConfirmingExit, setIsConfirmingExit] = useState(false);
   
-  const { user, userNickname, userAvatar, playPopSound, playVictorySound, playStartSound } = useGame();
+  const { user, userNickname, userAvatar, level: userLevel, playPopSound, playVictorySound, playStartSound } = useGame();
   
   // 1. TOP-LEVEL DERIVED DATA (DECLARE BEFORE ANY RETURNS)
   const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);
@@ -261,12 +261,12 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
       {/* TEKKEN-STYLE CINEMATIC ROUND INTRO */}
       <RoundIntro 
-        roundMessage={roundMessage}
         opponent={opponent}
         userAvatar={userAvatar}
         userNickname={userNickname}
-        userLevel={user?.level}
+        userLevel={userLevel}
         currentRound={currentRound}
+        roundMessage={roundMessage}
       />
 
       {/* FLOATING EXIT BUTTON (TOP LEFT - BELOW HEADER) */}
