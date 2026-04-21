@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) => {
   
-  let bgColor = 'bg-white/5 border border-white/40 shadow-2xl';
+  let bgColor = 'bg-[#020617] border border-white/20 shadow-2xl';
   let textColor = 'text-white';
   let extraClasses = '';
 
@@ -28,7 +28,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
     extraClasses = 'z-20 border-transparent';
     textColor = 'text-white';
   } else if (char && isCurrent) {
-    bgColor = 'bg-[#020617] border border-white/60 z-10 shadow-2xl';
+    bgColor = 'bg-[#020617] border border-white/30 z-10 shadow-2xl';
     textColor = 'text-white';
   }
   
@@ -155,7 +155,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
 
   const finalGap = compact ? '4px' : (isMobile ? '6px' : '10px');
   // Use vh-based sizing to ensure it fits between header and keyboard on all heights
-  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(40px, 7.5vh, 60px)';
+  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(36px, 6vh, 62px)';
 
   return (
     <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 relative overflow-visible`} dir="rtl">

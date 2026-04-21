@@ -132,46 +132,45 @@ const Keyboard = memo(({
         />
       )}
 
-      <div className="w-full max-w-[650px] mx-auto flex flex-col gap-1.5">
-        {ROWS.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-[clamp(2px,0.5vw,5px)] w-full justify-center">
-            {rowIndex === 3 && (
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
-                className="flex-[1.8] h-[clamp(35px,4.8vh,55px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
-              >
-                <span className="font-rabar font-light text-[clamp(0.9rem,2.2vmin,1.2rem)]">{SPECIAL_KEYS.ENTER}</span>
-              </motion.button>
-            )}
+      <div className="w-[40%] h-[1px] bg-white/5 mx-auto mb-3" />
 
-            {row.map((key) => (
-               <Key 
-                 key={key}
-                 k={key}
-                 status={usedKeys[key]}
-                 isDisabled={(magnetDisabledKeys || []).includes(key)}
-                 onKeyPress={handleKeyPress}
-                 style={{ height: 'clamp(35px, 4.8vh, 55px)', fontSize: 'clamp(0.9rem, 2.5vmin, 1.4rem)' }}
-               />
-            ))}
+      {ROWS.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex gap-1 w-full justify-center">
+          {rowIndex === 3 && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
+              className="flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
+            >
+              <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
+            </motion.button>
+          )}
 
-            {rowIndex === 3 && (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
-                className="flex-[1.2] h-[clamp(35px,4.8vh,55px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
-              >
-                <span className="material-symbols-outlined text-[clamp(18px,2.5vmin,24px)]">backspace</span>
-              </motion.button>
-            )}
-          </div>
-        ))}
-      </div>
+          {row.map((key) => (
+             <Key 
+               key={key}
+               k={key}
+               status={usedKeys[key]}
+               isDisabled={(magnetDisabledKeys || []).includes(key)}
+               onKeyPress={handleKeyPress}
+             />
+          ))}
+
+          {rowIndex === 3 && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
+              className="flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
+            >
+              <span className="material-symbols-outlined text-[20px]">backspace</span>
+            </motion.button>
+          )}
+        </div>
+      ))}
     </div>
   );
 });
