@@ -63,15 +63,15 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              {/* Stats Data */}
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">باشترین زنجیرە</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.bestStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.classic?.bestStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">زنجیرەیا نوکە</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.currentStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.classic?.currentStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">ھەمی پەیڤ</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.classic?.totalCorrect || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.classic?.totalCorrect || 0)}</span>
              </div>
            </div>
         </motion.div>
@@ -91,15 +91,15 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              {/* Stats Data */}
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">ڕۆژێن ئاسایی</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.daily?.regularDays || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.daily?.regularDays || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-white/5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">نمرێن زێدە</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.daily?.plusDays || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.daily?.plusDays || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5">
                 <span className="text-white/80 text-[10px] font-medium font-body no-stroke">میدالیا</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(earnedTrophies.length)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(earnedTrophies.length)}</span>
              </div>
            </div>
         </motion.div>
@@ -117,11 +117,11 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-purple-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">باشترین نمرە</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-purple-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">پشکداری</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(0)}</span>
              </div>
              <p className="text-[7px] text-primary/60 font-black uppercase tracking-normal text-center py-1 bg-purple-500/15">زویترین دەم</p>
            </div>
@@ -140,7 +140,7 @@ export default function StatsView({ playerStats, rank, onViewChange }) {
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">باشترین زنجیرە</span>
-                <span className="text-white text-[13px] font-semibold  tracking-tight text-pop">{toKuDigits(playerStats.global?.bestRoundsStreak || 0)}</span>
+                <span className="text-white text-[13px] font-semibold  tracking-normal text-pop">{toKuDigits(playerStats.global?.bestRoundsStreak || 0)}</span>
              </div>
              <div className="flex justify-between items-center p-1.5 px-2.5 border-b border-emerald-500/10">
                 <span className="text-white/70 text-[10px] font-medium font-body no-stroke">گەڕێن تەمام</span>

@@ -115,7 +115,7 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                 <div className="w-16 h-16 rounded-md bg-emerald-500 flex items-center justify-center text-white mb-4 shadow-lg shadow-emerald-500/20">
                   <span className="material-symbols-outlined text-4xl">redeem</span>
                 </div>
-                <h2 className="text-3xl font-black font-heading text-white tracking-tight">خەلاتێن ڕۆژانە</h2>
+                <h2 className="text-3xl font-black font-heading text-white tracking-normal">خەلاتێن ڕۆژانە</h2>
                 <p className="text-white/50 text-sm font-medium mt-1">٧ ڕۆژ - خەلاتێن بەردەوام و نایاب</p>
               </div>
 
@@ -164,11 +164,11 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                       )}
 
                       <div className={`flex flex-col relative z-10 ${isDay7 ? 'items-start' : 'items-center'}`}>
-                        <span className={`font-black text-[10px] uppercase tracking-widest ${isDay7 ? 'text-purple-200/60' : isNext ? 'text-emerald-600' : 'text-slate-400'}`}>
+                        <span className={`font-black text-[10px] uppercase tracking-normal ${isDay7 ? 'text-purple-200/60' : isNext ? 'text-emerald-600' : 'text-slate-400'}`}>
                           ڕۆژا {toKuDigits(item.day)}
                         </span>
                         {isDay7 && (
-                          <span className={`text-2xl font-black italic tracking-tighter ${visualClaimed ? 'text-slate-600' : 'text-white text-shadow-sm'}`}>
+                          <span className={`text-2xl font-black italic tracking-normal ${visualClaimed ? 'text-slate-600' : 'text-white text-shadow-sm'}`}>
                             {item.label}
                           </span>
                         )}
@@ -208,7 +208,7 @@ export default function DailyRewardModal({ isOpen, onClose }) {
 
                       {!isDay7 && (
                         <div className="w-full text-center px-0.5">
-                          <span className={`font-black uppercase tracking-tight text-[11px] leading-tight block truncate ${isFuture ? 'text-slate-400' : 'text-slate-900'}`}>
+                          <span className={`font-black uppercase tracking-normal text-[11px] leading-tight block truncate ${isFuture ? 'text-slate-400' : 'text-slate-900'}`}>
                             {item.label}
                           </span>
                         </div>
@@ -275,7 +275,7 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                 const claimedItem = REWARDS_CONFIG.find(r => r.day === claimedDay) || REWARDS_CONFIG[0];
                 return (
                   <>
-                    <h3 className="text-4xl font-black text-white mb-2 tracking-tight">پیرۆزە!</h3>
+                    <h3 className="text-4xl font-black text-white mb-2 tracking-normal">پیرۆزە!</h3>
                     <p className="text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedItem.day)} وەرگرت</p>
 
                     <div className="flex flex-col items-center justify-center mb-10 relative">

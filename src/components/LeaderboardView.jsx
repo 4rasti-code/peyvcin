@@ -140,7 +140,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
       <div className="relative z-10">
         <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center">
           <span className="material-symbols-outlined text-4xl text-primary mb-2.5 drop-shadow-lg">leaderboard</span>
-          <h2 className="text-5xl font-black font-rabar tracking-tighter italic uppercase" style={{ color: 'rgb(203, 213, 225)' }}>رێزبەندی</h2>
+          <h2 className="text-5xl font-black font-rabar tracking-normal italic uppercase" style={{ color: 'rgb(203, 213, 225)' }}>رێزبەندی</h2>
         </div>
 
         {/* Top Tab Swapper - Synced Card Style */}
@@ -166,7 +166,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                     transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
                   />
                 )}
-                <span className="relative z-20 uppercase tracking-widest font-rabar">
+                <span className="relative z-20 uppercase tracking-normal font-rabar">
                   {tab === 'global' ? 'جیھانی' : 'ھەڤال'}
                 </span>
               </button>
@@ -223,7 +223,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
                       {/* Sleek Metallic Rank Number (MINIMALIST) */}
                       <div className="flex items-center justify-center w-10 shrink-0 z-10">
-                         <span className={`text-2xl font-black italic tracking-tighter ${
+                         <span className={`text-2xl font-black italic tracking-normal ${
                              rank === 1 ? 'text-[#92400e]' :
                              rank === 2 ? 'text-[#334155]' :
                              rank === 3 ? 'text-[#7c2d12]' :
@@ -249,7 +249,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
                       {/* Info and Name (CENTERED) */}
                       <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
-                         <span className="font-black text-slate-800 text-sm tracking-tighter uppercase truncate leading-none">{effectiveNickname}</span>
+                         <span className="font-black text-slate-800 text-sm tracking-normal uppercase truncate leading-none">{effectiveNickname}</span>
                          <span className="text-orange-500 text-base shrink-0">🔥</span>
                       </div>
 

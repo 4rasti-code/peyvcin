@@ -355,7 +355,7 @@ export default function ProfileView({
                            style={{ backgroundColor: tier.stop1 + '20', borderColor: tier.stop1 + '30' }}
                         >
                            <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>XP</span>
-                           <span className="text-base font-black leading-none tracking-tighter text-white">{toKuDigits(currentXP)}</span>
+                           <span className="text-base font-black leading-none tracking-normal text-white">{toKuDigits(currentXP)}</span>
                         </div>
 
                         <div
@@ -378,7 +378,7 @@ export default function ProfileView({
                               <div className="absolute inset-0 bg-white/10 animate-pulse"></div>
                            )}
                            <span className="text-[8px] font-black uppercase mb-0.5 opacity-60" style={{ color: tier.stop1 }}>ڕێزبەندی</span>
-                           <span className={`text-base font-black leading-none tracking-tighter text-white`}>
+                           <span className={`text-base font-black leading-none tracking-normal text-white`}>
                               #{toKuDigits(userRank || 1)}
                            </span>
                         </div>
@@ -509,7 +509,7 @@ export default function ProfileView({
                                  <span className={`material-symbols-outlined text-[16px] transition-transform ${isFlagBoxOpen ? 'rotate-180 text-slate-950' : 'text-slate-400'}`}>expand_more</span>
                                  <div className="flex items-center gap-2">
                                     <FlagBadge countryCode={draftCountryCode} isInKurdistan={draftIsInKurdistan} size="xs" />
-                                    <span className="text-[11px] font-black font-rabar tracking-wide text-slate-600">{selectedCountryName}</span>
+                                    <span className="text-[11px] font-black font-rabar tracking-normal text-slate-600">{selectedCountryName}</span>
                                  </div>
                               </button>
                            </div>

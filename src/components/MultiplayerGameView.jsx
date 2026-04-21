@@ -209,7 +209,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
         {/* TOP HALF: YOUR GUESSES */}
         <div className="flex flex-col items-center justify-center py-4 border-b border-white/5 w-full">
-          <span className="text-[10px] font-black text-emerald-400/60 mb-2 uppercase tracking-[0.2em] px-4 font-rabar">
+          <span className="text-[10px] font-black text-emerald-400/60 mb-2 uppercase tracking-normal px-4 font-rabar">
             {userNickname}
           </span>
           <div className="w-full flex justify-center" dir="rtl">
@@ -227,7 +227,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
 
         {/* BOTTOM HALF: OPPONENT PROGRESS */}
         <div className="flex flex-col items-center justify-center py-4 w-full">
-          <span className="text-[10px] font-black text-amber-400/60 mb-2 uppercase tracking-[0.2em] px-4 font-rabar">
+          <span className="text-[10px] font-black text-amber-400/60 mb-2 uppercase tracking-normal px-4 font-rabar">
             {opponent?.nickname || 'ھەڤڕک'}
           </span>
           <div className="w-full flex justify-center" dir="rtl">
