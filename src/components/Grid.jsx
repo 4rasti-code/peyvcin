@@ -153,18 +153,19 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const finalGap = compact ? '6px' : (isMobile ? '8px' : '12px');
-  const tileSize = compact ? 'clamp(34px, 7vmin, 42px)' : 'clamp(42px, 11vmin, 62px)';
+  const finalGap = compact ? '4px' : (isMobile ? '6px' : '10px');
+  // Use vh-based sizing to ensure it fits between header and keyboard on all heights
+  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(42px, 6.5vh, 62px)';
 
   return (
-    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 relative overflow-hidden`} dir="rtl">
+    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 relative overflow-visible`} dir="rtl">
       <style>
         {`
           .forced-tile {
             width: ${tileSize} !important;
             height: ${tileSize} !important;
-            min-width: ${compact ? '34px' : '42px'} !important;
-            min-height: ${compact ? '34px' : '42px'} !important;
+            min-width: ${compact ? '32px' : '42px'} !important;
+            min-height: ${compact ? '32px' : '42px'} !important;
             aspect-ratio: 1 / 1 !important;
             display: flex !important;
             align-items: center !important;
