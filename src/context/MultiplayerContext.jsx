@@ -140,7 +140,10 @@ export const MultiplayerProvider = ({ children }) => {
       const myNewScore = isWin ? (isP1 ? p1Score + 1 : p2Score + 1) : (isP1 ? p1Score : p2Score);
       const oppScore = isP1 ? p2Score : p1Score;
 
-      // 2. Win-by-Two Logic & 3-3 Match Draw Policy
+      // ========================================================
+      // CORE BATTLE POLICY: WIN-BY-TWO & 3-3 MATCH DRAW
+      // DO NOT MODIFY WITHOUT EXPLICIT USER INSTRUCTION
+      // ========================================================
       const scoreDiff = Math.abs(myNewScore - oppScore);
       const isMatchDraw = (myNewScore === 3 && oppScore === 3);
       const isMatchEnd = scoreDiff >= 2 || isMatchDraw;
@@ -212,6 +215,9 @@ export const MultiplayerProvider = ({ children }) => {
     const hasOtherFailed = isP1 ? activeMatch.p2_failed : activeMatch.p1_failed;
 
     if (hasOtherFailed) {
+      // ========================================================
+      // ROUND TIE POLICY: BOTH FAIL -> NO POINTS -> NEXT ROUND
+      // ========================================================
       console.log('[Multiplayer] BOTH FAILED. Moving to next round (Round Draw).');
       const currentIdx = activeMatch.current_word_index || 0;
       
@@ -554,13 +560,21 @@ export const MultiplayerProvider = ({ children }) => {
 
     if (activeMatch.current_word_index !== undefined && activeMatch.current_word_index !== wordIndexRef.current) {
       const newIndex = activeMatch.current_word_index || 0;
+      
+      // DETECT TIE: If word index increased but total scores remained unchanged from our previous local ref
+      const wasTie = (activeMatch.p1_score === scoresRef.current.p1 && activeMatch.p2_score === scoresRef.current.p2);
+
       setCurrentWordIndex(newIndex);
       setOpponentGuesses([]);
       setIsRoundWinner(false);
       setWinnerNickname('');
       
       // Trigger Round Intro for mid-game transition
-      setRoundMessage(`ROUND ${newIndex + 1}`);
+      if (wasTie && newIndex > 0) {
+        setRoundMessage('ROUND_DRAW');
+      } else {
+        setRoundMessage(`ROUND ${newIndex + 1}`);
+      }
       setTimeout(() => setRoundMessage(''), 4000);
     }
 
@@ -572,7 +586,9 @@ export const MultiplayerProvider = ({ children }) => {
         const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
         
         let result = 'draw';
-        // Win-by-Two result check
+        // ========================================================
+        // SYNC-SIDE MATCH RESULT POLICY (Matches submitGuess logic)
+        // ========================================================
         if (myScore - oppScore >= 2) result = 'victory';
         else if (oppScore - myScore >= 2) result = 'defeat';
         else if (myScore === 3 && oppScore === 3) result = 'draw';

@@ -181,7 +181,12 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
           >
             <div className="flex flex-col items-center">
               <h2 className="text-2xl sm:text-3xl font-black text-white font-rabar uppercase tracking-[0.35em] drop-shadow-2xl">
-                گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">دەستپێکر</span>
+                {/* CORE TIE MESSAGE: DO NOT REMOVE */}
+                {roundMessage === 'ROUND_DRAW' ? (
+                  <>یەکسانبوون! <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">گەڕا نووی</span></>
+                ) : (
+                  <>گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">دەستپێکر</span></>
+                )}
               </h2>
               <div className="mt-4 w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full opacity-50" />
             </div>
