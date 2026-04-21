@@ -153,9 +153,17 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const finalGap = compact ? '4px' : (isMobile ? '6px' : '10px');
-  // Use vh-based sizing to ensure it fits between header and keyboard on all heights
-  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(36px, 6vh, 62px)';
+  const finalGap = compact ? '4px' : (wordLength > 7 ? '4px' : (isMobile ? '6px' : '10px'));
+  
+  // DYNAMIC SCALING:
+  // 1. Height-based (vh) to fit between info and keyboard
+  // 2. Width-based (vw) to fit horizontal screen width (max 92vw available)
+  const vhSize = compact ? '4.5vh' : '6vh';
+  const vwSize = `((92vw - ${(wordLength - 1) * 6}px) / ${wordLength})`;
+  
+  const tileSize = compact 
+    ? `clamp(28px, min(4.5vh, ${vwSize}), 40px)` 
+    : `clamp(32px, min(6vh, ${vwSize}), 62px)`;
 
   return (
     <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 relative overflow-visible`} dir="rtl">
