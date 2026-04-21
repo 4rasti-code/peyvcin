@@ -155,7 +155,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
 
   const finalGap = compact ? '4px' : (isMobile ? '6px' : '10px');
   // Use vh-based sizing to ensure it fits between header and keyboard on all heights
-  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(36px, 6vh, 75px)';
+  const tileSize = compact ? 'clamp(32px, 4.5vh, 40px)' : 'clamp(45px, 8vh, 95px)';
 
   return (
     <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 relative overflow-visible`} dir="rtl">
