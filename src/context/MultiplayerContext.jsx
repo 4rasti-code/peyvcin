@@ -10,6 +10,8 @@ const MultiplayerContext = createContext();
 export const MultiplayerProvider = ({ children }) => {
   const { 
     user, 
+    userNickname,
+    userAvatar,
     startSearchingSound, 
     stopSearchingSound, 
     playStartGameSound,
