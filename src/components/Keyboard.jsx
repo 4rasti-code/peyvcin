@@ -128,9 +128,11 @@ const Keyboard = memo(({
           hintTaps={hintTaps}
           hintLimit={hintLimit}
           magnetUsedInRound={magnetUsedInRound}
-          className="mb-[clamp(8px,2vh,20px)]"
+          className="mb-1"
         />
       )}
+
+      <div className="w-[40%] h-[1px] bg-white/5 mx-auto mb-3" />
 
       {ROWS.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1 w-full justify-center">

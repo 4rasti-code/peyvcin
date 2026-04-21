@@ -36,7 +36,7 @@ export default function InventoryBar({
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <div className="bg-[#1e293b]/95 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-md flex items-center gap-5 shadow-2xl">
+      <div className="flex items-center gap-8 py-2">
         
         {/* Hint (Bulb) */}
         <div className="relative group/hint">

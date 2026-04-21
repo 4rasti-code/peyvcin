@@ -1206,7 +1206,7 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
+              <div className="shrink-0 w-full z-50 p-3 bg-[#020617]/80 backdrop-blur-md border-t border-white/5 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}
