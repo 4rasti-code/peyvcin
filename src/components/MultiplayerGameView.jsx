@@ -175,36 +175,36 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </style>
       
       {/* 1. SCOREBOARD (Dedicated Header) */}
-      <div className="shrink-0 px-6 pt-[calc(env(safe-area-inset-top)+16px)] pb-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
+      <div className="shrink-0 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
         {/* RIGHT (First child in RTL): OPPONENT */}
-        <div className="flex items-center gap-3 text-right">
+        <div className="flex items-center gap-2 text-right">
           <motion.div
             animate={{ opacity: (activeMatch?.opp_avatar_url || opponent?.avatar_url) ? 1 : 0.5 }}
             transition={{ duration: 0.5 }}
           >
-            <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+            <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xs" />
           </motion.div>
           <div className="flex flex-col text-right">
-            <span className="text-sm font-black text-amber-400 truncate max-w-[100px]">
+            <span className="text-[10px] font-black text-amber-400 truncate max-w-[80px]">
               {(activeMatch?.opp_nickname || opponent?.nickname || 'چاڤەڕێ...').toUpperCase()}
             </span>
-            <span className="text-xl font-black text-white">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
+            <span className="text-lg font-black text-white leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
           </div>
         </div>
 
         {/* CENTER: ROUND & VS */}
         <div className="flex flex-col items-center relative">
-            <div className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black mb-1">BATTLE</div>
-            <div className="text-xs font-black text-white/30 truncate">گەڕ {toKuDigits(currentRound + 1)}</div>
+            <div className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black mb-0.5">BATTLE</div>
+            <div className="text-[10px] font-black text-white/30 leading-none">گەڕ {toKuDigits(currentRound + 1)}</div>
         </div>
 
         {/* LEFT (Last child in RTL): YOU */}
-        <div className="flex items-center gap-4 text-left">
+        <div className="flex items-center gap-2 text-left">
           <div className="flex flex-col text-left">
-            <span className="text-sm font-black text-emerald-400 truncate max-w-[100px]">{(userNickname || 'یاریزان').toUpperCase()}</span>
-            <span className="text-xl font-black text-white">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+            <span className="text-[10px] font-black text-emerald-400 truncate max-w-[80px]">{(userNickname || 'یاریزان').toUpperCase()}</span>
+            <span className="text-lg font-black text-white leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
           </div>
-          <Avatar src={userAvatar} size="sm" />
+          <Avatar src={userAvatar} size="xs" />
         </div>
       </div>
 
@@ -213,13 +213,12 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       <div className="battlefield-container no-scrollbar" dir="rtl">
         
         {/* RIDDLE DISPLAY (Classic Mode Style) */}
-        <div className="w-full flex flex-col items-center justify-center py-1 sm:py-2 px-2 animate-in fade-in duration-700 battle-item-padding shrink-0">
+        <div className="w-full flex flex-col items-center justify-center py-1.5 px-2 animate-in fade-in duration-700 battle-item-padding shrink-0 bg-white/5 border-b border-white/5">
           <div className="w-full max-w-2xl flex items-center justify-center text-center relative z-10">
-            <p className="text-lg sm:text-2xl font-light text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
+            <p className="text-lg sm:text-2xl font-light text-white leading-none font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
               {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
             </p>
           </div>
-          <div className="w-[65%] h-[0.5px] bg-white/10 rounded-full mt-1" />
         </div>
 
         {/* TOP HALF: YOUR GUESSES */}
