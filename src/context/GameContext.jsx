@@ -520,7 +520,8 @@ export const GameProvider = ({ children }) => {
     setCurrentXP, setLastNotifiedLevel,
     checkBlockStatus,
     syncProfile,
-    syncProgressToDatabase
+    syncProgressToDatabase,
+    getLevelData
   }), [
     user, level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, dinar,
     dailyStreak, rewardStreak, lastRewardClaimedAt,
@@ -535,7 +536,7 @@ export const GameProvider = ({ children }) => {
     playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
     startSearchingSound, stopSearchingSound, startBGM, stopBGM, playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx, syncProfile, playMessageSound, playMessageSentSound,
-    checkBlockStatus, syncProgressToDatabase
+    checkBlockStatus, syncProgressToDatabase, getLevelData
   ]);
 
   const valueWithRefs = useMemo(() => ({
