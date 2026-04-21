@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Avatar from './Avatar';
 import { playSwordComboSfx, playWhooshSfx } from '../utils/audio';
 import { triggerHaptic } from '../utils/haptics';
+import { toKuDigits } from '../utils/formatters';
 
 export default function RoundIntro({ opponent, userAvatar, userNickname, userLevel, currentRound, roundMessage }) {
   // Localization helper
   const getRoundOrdinal = (idx) => {
     const ordinals = ['ئێکێ', 'دوویێ', 'سێیێ'];
-    return ordinals[idx] || 'نوی';
+    if (idx < 3) return ordinals[idx];
+    return toKuDigits(idx + 1);
   };
 
   // Trigger sounds on start

@@ -173,7 +173,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
             <span className="text-sm font-black text-amber-400 truncate max-w-[100px]">
               {(activeMatch?.opp_nickname || opponent?.nickname || 'چاڤەڕێ...').toUpperCase()}
             </span>
-            <span className="text-xl font-black text-white">{isPlayer1 ? scores.p2 : scores.p1}</span>
+            <span className="text-xl font-black text-white">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         <div className="flex items-center gap-4 text-left">
           <div className="flex flex-col text-left">
             <span className="text-sm font-black text-emerald-400 truncate max-w-[100px]">{(userNickname || 'یاریزان').toUpperCase()}</span>
-            <span className="text-xl font-black text-white">{isPlayer1 ? scores.p1 : scores.p2}</span>
+            <span className="text-xl font-black text-white">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
           </div>
           <Avatar src={userAvatar} size="sm" />
         </div>
