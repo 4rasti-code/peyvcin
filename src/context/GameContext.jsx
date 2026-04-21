@@ -90,6 +90,7 @@ export const GameProvider = ({ children }) => {
   });
 
   const dbSyncRef = useRef({ lastSyncedXP: -1, lastSyncedLevel: -1 });
+  const isProfileLoaded = useRef(false);
   const lastRefreshTime = useRef(0);
   const lastXPRef = useRef(-1);
 
@@ -112,7 +113,13 @@ export const GameProvider = ({ children }) => {
 
   useEffect(() => {
     const syncLevelToDB = async () => {
-      if (!user?.id || currentXP === dbSyncRef.current.lastSyncedXP) return;
+      // XP GUARD: Never sync to DB if user is loading, or if XP is 0 (likely default state), or if initial fetch hasn't completed.
+      const isGuest = !user?.id;
+      if (!isGuest) {
+        if (!isProfileLoaded.current || currentXP === 0) return;
+      }
+
+      if (currentXP === dbSyncRef.current.lastSyncedXP) return;
       const calculatedLevel = getLevelFromXP(currentXP);
       localStorage.setItem('peyvchin_xp', currentXP.toString());
       localStorage.setItem('peyvchin_level', calculatedLevel.toString());
@@ -266,6 +273,7 @@ export const GameProvider = ({ children }) => {
         if (userInventoryData.solved_words) setSolvedWords(userInventoryData.solved_words);
         if (userInventoryData.stats) setPlayerStats(userInventoryData.stats);
 
+        isProfileLoaded.current = true;
         refreshRank(data.xp || 0);
       }
     } catch (err) { console.warn("Profile Sync Error [v2]:", err); }
@@ -293,7 +301,11 @@ export const GameProvider = ({ children }) => {
     initializeSession();
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) syncProfile(session.user.id);
+      if (session?.user) {
+        syncProfile(session.user.id);
+      } else {
+        isProfileLoaded.current = false;
+      }
     });
     return () => subscription.unsubscribe();
   }, [syncProfile]);
