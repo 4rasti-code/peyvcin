@@ -39,28 +39,6 @@ export default function MultiplayerResultOverlay({
   onClose,
   isForfeitWin 
 }) {
-  const [countdown, setCountdown] = useState(10);
-
-  useEffect(() => {
-    if (!isVisible) {
-      setCountdown(10);
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          onClose(); // Auto-dismiss 
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isVisible, onClose]);
-
   if (!isVisible) return null;
 
   const isVictory = result === 'victory';
@@ -87,6 +65,17 @@ export default function MultiplayerResultOverlay({
           exit={{ scale: 0.9, y: 20, opacity: 0 }}
           className="relative w-full max-w-sm bg-white/5 border border-white/10 rounded-[48px] p-8 shadow-2xl overflow-hidden"
         >
+          {/* Close/Exit Button */}
+          <button
+            onClick={() => {
+              triggerHaptic(10);
+              onClose();
+            }}
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/40 hover:bg-white/20 hover:text-white active:scale-95 transition-all z-50 group"
+          >
+            <span className="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-300">close</span>
+          </button>
+
           {/* Header Status */}
           <div className="flex flex-col items-center mb-8">
             <motion.div
@@ -177,38 +166,9 @@ export default function MultiplayerResultOverlay({
             </motion.div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => {
-                triggerHaptic(20);
-                onPlayAgain();
-              }}
-              className="h-16 w-full bg-emerald-500 text-white rounded-2xl font-black text-lg shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-3"
-            >
-              <span className="material-symbols-outlined">restart_alt</span>
-              دوبارە یاری بکە
-            </button>
-            
-            <button
-              onClick={() => {
-                triggerHaptic(10);
-                onClose();
-              }}
-              className="h-16 w-full bg-white/5 text-white/60 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-white/10 active:scale-95 transition-all"
-            >
-              ڤەگەڕیان بۆ لۆبی ({countdown}س)
-            </button>
-          </div>
-
-          {/* Minimal Countdown Bar */}
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/5">
-            <motion.div 
-              initial={{ width: '100%' }}
-              animate={{ width: '0%' }}
-              transition={{ duration: 10, ease: 'linear' }}
-              className={`h-full ${isVictory ? 'bg-emerald-500' : isDraw ? 'bg-slate-400' : 'bg-red-500'}`}
-            />
+          {/* Action Buttons Removed per User Request */}
+          <div className="mt-4">
+             {/* Spacing for layout consistency */}
           </div>
         </motion.div>
       </motion.div>
