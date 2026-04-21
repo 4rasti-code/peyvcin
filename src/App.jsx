@@ -1186,7 +1186,7 @@ export default function App() {
               </div>
 
               {/* Grid Section (Centers content in remaining space) */}
-              <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden">
+              <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-visible min-h-[25vh]">
                 <div className="game-grid-core">
                   <Grid
                     guesses={guesses}
