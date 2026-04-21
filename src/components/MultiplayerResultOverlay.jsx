@@ -118,7 +118,7 @@ export default function MultiplayerResultOverlay({
               </motion.div>
             )}
 
-            <p className="text-white/40 font-medium">ئەنجامێ دووفاییک یێ یاریێ</p>
+            <p className="text-white/40 font-medium">ئەنجامێ یاریێ</p>
           </div>
 
           {/* Scores Comparison */}
