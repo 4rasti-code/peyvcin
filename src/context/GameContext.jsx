@@ -79,14 +79,21 @@ export const GameProvider = ({ children }) => {
   const [currentTheme, setCurrentTheme] = useState(() => {
     return localStorage.getItem('peyvchin_current_theme') || 'default';
   });
-  const [solvedWords, setSolvedWords] = useState([]);
-  const [playerStats, setPlayerStats] = useState({
-    classic: { bestStreak: 0, currentStreak: 0, totalCorrect: 0 },
-    mamak: { totalCorrect: 0 },
-    hard: { totalCorrect: 0 },
-    wordFever: { bestTime: 0, totalWins: 0 },
-    battle: { totalWins: 0, totalLosses: 0 },
-    secretWord: { totalSolved: 0 }
+  const [solvedWords, setSolvedWords] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_solved_words');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [playerStats, setPlayerStats] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_stats');
+    return saved ? JSON.parse(saved) : {
+      classic: { bestStreak: 0, currentStreak: 0, totalCorrect: 0 },
+      mamak: { totalCorrect: 0 },
+      hard: { totalCorrect: 0 },
+      wordFever: { bestTime: 0, totalWins: 0 },
+      battle: { totalWins: 0, totalLosses: 0 },
+      secretWord: { totalSolved: 0 }
+    };
   });
 
   const dbSyncRef = useRef({ lastSyncedXP: -1, lastSyncedLevel: -1 });
@@ -222,6 +229,51 @@ export const GameProvider = ({ children }) => {
         setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
       } else if (data && !error) {
         const userInventoryData = data.inventory || {};
+        
+        // --- SAFE MERGE LOGIC: Local vs Cloud ---
+        const localXP = Number(localStorage.getItem('peyvchin_xp')) || 0;
+        const localFils = Number(localStorage.getItem('peyvchin_fils')) || 0;
+        const localDerhem = Number(localStorage.getItem('peyvchin_derhem')) || 0;
+        const localDinar = Number(localStorage.getItem('peyvchin_dinar')) || 0;
+        const localSolvedWords = JSON.parse(localStorage.getItem('peyvchin_solved_words') || '[]');
+        
+        const dbXP = data.xp || 0;
+        const dbFils = data.fils || 0;
+        const dbDerhem = data.derhem || 0;
+        const dbDinar = data.dinar || 0;
+        const dbSolvedWords = userInventoryData.solved_words || [];
+
+        // Determine if local is more advanced
+        const needsCloudUpdate = (localXP > dbXP) || (localFils > dbFils) || (localDerhem > dbDerhem) || (localDinar > dbDinar) || (localSolvedWords.length > dbSolvedWords.length);
+
+        if (needsCloudUpdate) {
+          console.log("[GameContext] Local progress is ahead. Merging and pushing to cloud...");
+          const mergedXP = Math.max(localXP, dbXP);
+          const mergedFils = Math.max(localFils, dbFils);
+          const mergedDerhem = Math.max(localDerhem, dbDerhem);
+          const mergedDinar = Math.max(localDinar, dbDinar);
+          const mergedWordsSet = new Set([...localSolvedWords, ...dbSolvedWords]);
+          const mergedWords = Array.from(mergedWordsSet);
+          
+          const dbUpdates = {
+            xp: mergedXP,
+            fils: mergedFils,
+            derhem: mergedDerhem,
+            dinar: mergedDinar,
+            inventory: { ...userInventoryData, solved_words: mergedWords },
+            updated_at: new Date().toISOString()
+          };
+          
+          await supabase.from('profiles').update(dbUpdates).eq('id', activeUserId);
+          
+          // Re-map DB data to the newly merged values for state setters
+          data.xp = mergedXP;
+          data.fils = mergedFils;
+          data.derhem = mergedDerhem;
+          data.dinar = mergedDinar;
+          userInventoryData.solved_words = mergedWords;
+        }
+
         setInventory(userInventoryData);
         const safeSet = (setter, val, fallback) => { try { setter(val ?? fallback); } catch { console.warn("Mapping failed"); } };
         safeSet(setWinsTowardsSecret, data.wins_towards_secret, 0);
@@ -395,7 +447,11 @@ export const GameProvider = ({ children }) => {
           else if (mode === 'word_fever') { if (!next.wordFever) next.wordFever = { bestTime: 0, totalWins: 0 }; next.wordFever.totalWins = (next.wordFever.totalWins || 0) + 1; }
           else if (mode === 'secret_word') { if (!next.secretWord) next.secretWord = { totalSolved: 0 }; next.secretWord.totalSolved = (next.secretWord.totalSolved || 0) + 1; }
           profileUpdates.inventory = { ...stateRef.current.inventory, stats: next };
-          if (additionalData.solvedWords) profileUpdates.inventory.solved_words = additionalData.solvedWords;
+          if (additionalData.solvedWords) {
+            profileUpdates.inventory.solved_words = additionalData.solvedWords;
+            localStorage.setItem('peyvchin_solved_words', JSON.stringify(additionalData.solvedWords));
+          }
+          localStorage.setItem('peyvchin_stats', JSON.stringify(next));
           return next;
         });
         if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
