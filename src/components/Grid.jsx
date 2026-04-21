@@ -162,7 +162,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
   const vwSize = `((92vw - ${(wordLength - 1) * 6}px) / ${wordLength})`;
   
   const tileSize = compact 
-    ? `clamp(28px, min(4.5vh, ${vwSize}), 40px)` 
+    ? `clamp(24px, min(4.2vh, ${vwSize}), 38px)` 
     : `clamp(32px, min(6vh, ${vwSize}), 62px)`;
 
   return (

@@ -213,7 +213,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       <div className="battlefield-container no-scrollbar" dir="rtl">
         
         {/* RIDDLE DISPLAY (Classic Mode Style) */}
-        <div className="w-full flex flex-col items-center justify-center py-2 sm:py-4 px-2 animate-in fade-in duration-700 battle-item-padding">
+        <div className="w-full flex flex-col items-center justify-center py-1 sm:py-2 px-2 animate-in fade-in duration-700 battle-item-padding shrink-0">
           <div className="w-full max-w-2xl flex items-center justify-center text-center relative z-10">
             <p className="text-lg sm:text-2xl font-light text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
               {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
