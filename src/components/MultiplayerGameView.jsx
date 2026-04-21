@@ -150,21 +150,21 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           .battlefield-container {
             display: flex;
             flex-direction: column;
-            justify-content: space-evenly;
             flex: 1;
             min-height: 0;
-            overflow-y-auto;
+            overflow: hidden;
+            width: 100%;
           }
           @media (max-height: 700px) {
             .battle-item-padding {
-              padding-top: 0.25rem !important;
-              padding-bottom: 0.25rem !important;
+              padding-top: 0.1rem !important;
+              padding-bottom: 0.1rem !important;
             }
             .riddle-text {
-              font-size: clamp(0.6rem, 3.5vw, 1.25rem) !important;
+              font-size: clamp(0.55rem, 3.2vw, 1.1rem) !important;
               line-height: 1 !important;
               white-space: nowrap !important;
-              font-weight: 300 !important; /* font-light */
+              font-weight: 300 !important;
             }
           }
           .riddle-text {
@@ -223,11 +223,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
 
         {/* TOP HALF: YOUR GUESSES */}
-        <div className="flex flex-col items-center justify-center py-2 sm:py-4 border-b border-white/5 w-full battle-item-padding">
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center border-b border-white/5 w-full bg-white/[0.02]">
           <span className="text-[10px] font-black text-emerald-400/60 mb-1 uppercase tracking-normal px-4 font-rabar">
             {userNickname}
           </span>
-          <div className="w-full flex justify-center" dir="rtl">
+          <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
               guesses={guesses}
               currentGuess={currentGuess}
@@ -241,11 +241,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         </div>
 
         {/* BOTTOM HALF: OPPONENT PROGRESS */}
-        <div className="flex flex-col items-center justify-center py-2 sm:py-4 w-full battle-item-padding">
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center w-full bg-black/10">
           <span className="text-[10px] font-black text-amber-400/60 mb-1 uppercase tracking-normal px-4 font-rabar">
             {opponent?.nickname || 'ھەڤڕک'}
           </span>
-          <div className="w-full flex justify-center" dir="rtl">
+          <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
               opponentStatuses={opponentGuesses}
               wordLength={targetWord.length}
