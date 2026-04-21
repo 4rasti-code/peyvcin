@@ -161,9 +161,15 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               padding-bottom: 0.25rem !important;
             }
             .riddle-text {
-              font-size: 1.125rem !important;
-              line-height: 1.5rem !important;
+              font-size: clamp(0.6rem, 3.5vw, 1.25rem) !important;
+              line-height: 1 !important;
+              white-space: nowrap !important;
+              font-weight: 300 !important; /* font-light */
             }
+          }
+          .riddle-text {
+            white-space: nowrap !important;
+            font-size: clamp(0.6rem, 3.5vw, 1.25rem) !important;
           }
         `}
       </style>
@@ -209,7 +215,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         {/* RIDDLE DISPLAY (Classic Mode Style) */}
         <div className="w-full flex flex-col items-center justify-center py-2 sm:py-4 px-2 animate-in fade-in duration-700 battle-item-padding">
           <div className="w-full max-w-2xl flex items-center justify-center text-center relative z-10">
-            <p className="text-lg sm:text-2xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
+            <p className="text-lg sm:text-2xl font-light text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
               {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
             </p>
           </div>
