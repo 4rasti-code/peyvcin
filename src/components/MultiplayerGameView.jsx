@@ -263,7 +263,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
+      <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t border-white/5">
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
