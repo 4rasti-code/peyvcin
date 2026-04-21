@@ -192,9 +192,9 @@ export default function DailyRewardModal({ isOpen, onClose }) {
                          )}
                         
                         {visualClaimed && (
-                          <div className="absolute inset-0 flex items-center justify-center pt-2">
-                             <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
-                                <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                             <div className="w-8 h-8 bg-emerald-500/90 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white/50 backdrop-blur-sm scale-110">
+                                <span className="material-symbols-outlined text-[18px] font-bold">check</span>
                              </div>
                           </div>
                         )}
