@@ -273,15 +273,15 @@ export default function App() {
   // --- CORE GAME ENGINE (Unified) ---
   const handleGameCompletion = useCallback(async (finalGuesses, isWin, forcedMode = null, forcedTarget = null, precalcBreakdown = null, precalcPenalty = null) => {
     const { targetWord: refTWord, solvedWords: sWords, gameMode: refGMode, winsTowardsSecret: wts, fils: currFils } = gameRefs.current;
-    
+
     // Prioritize passed arguments over refs to avoid race conditions
     const tWord = forcedTarget || refTWord;
     const gMode = forcedMode || refGMode;
-    
+
     if (isWin) {
       const nextSolved = [...sWords, tWord];
       const breakdown = precalcBreakdown || calculateLevelRewards(tWord, finalGuesses, gMode);
-      
+
       // Ensure local state is current (redundant safety)
       setVictoryBreakdown(breakdown);
       setRewardAmount(breakdown.awardAmount);
@@ -320,10 +320,10 @@ export default function App() {
 
   const onWinHandler = useCallback((finalGuesses, winWord, winMode) => {
     const { hapticEnabled: hEnabled } = gameRefs.current;
-    
+
     // 1. Calculate Rewards IMMEDIATELY from snapshots
     const breakdown = calculateLevelRewards(winWord, finalGuesses, winMode);
-    
+
     // 2. Population states BEFORE showing overlay
     setVictoryBreakdown(breakdown);
     setRewardAmount(breakdown.awardAmount);
@@ -339,16 +339,16 @@ export default function App() {
     } else {
       if (hEnabled) triggerHaptic(25);
     }
-    
+
     // 3. Trigger completion (Async DB sync)
     handleGameCompletion(finalGuesses, true, winMode, winWord, breakdown);
   }, [handleGameCompletion, playRewardSound]);
 
   const onLossHandler = useCallback((finalGuesses, lossWord, lossMode) => {
     const { hapticEnabled: hEnabled, multiplayerState: mState } = gameRefs.current;
-    
+
     setLastSolvedWord(lossWord);
-    
+
     // Calculate penalty snap
     const penalty = calculateDefeatPenalty(lossWord, finalGuesses, lossMode);
     setDefeatBreakdown(penalty);
@@ -425,12 +425,12 @@ export default function App() {
   const handleGoHome = useCallback(() => {
     setIsVictory(false);
     setIsDefeat(false);
-    setVictoryBreakdown({ 
-      awardAmount: 0, 
-      xpAdded: 0, 
-      greenCount: 0, 
-      yellowCount: 0, 
-      grayCount: 0 
+    setVictoryBreakdown({
+      awardAmount: 0,
+      xpAdded: 0,
+      greenCount: 0,
+      yellowCount: 0,
+      grayCount: 0
     });
     setRewardAmountXp(0);
     setVictoryCustomText(null);
@@ -1050,514 +1050,514 @@ export default function App() {
   return (
     <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full items-center bg-[#000000] bg-[radial-gradient(circle_at_center,_#111827_0%,_#000000_100%)] font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
       <div className="flex-1 flex flex-col w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto bg-[#020617] text-white relative overflow-hidden shadow-2xl">
-      {/* Panic Overlay for Word Fever Mode Critical Time */}
-      {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
-        <div className="panic-overlay" />
-      )}
-
-      {/* 1. STATE-BASED NAVIGATION HEADER */}
-      {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && multiplayerState !== 'playing' && (
-        <TopAppBar
-          user={user} fils={fils} derhem={derhem} dinar={dinar}
-          level={level} dailyStreak={dailyStreak}
-          currentView={currentView} onEarlyExit={handleEarlyExit}
-          onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
-          notifications={notificationsList}
-          onNotificationAction={handleNotificationAction}
-          onOpenSocial={() => {
-            playBubblePopSound();
-            setCurrentView('social_hub');
-          }}
-          onForfeit={handleForfeit}
-          category={category}
-          equippedAvatar={equippedAvatar}
-          gameMode={gameMode}
-          timeLeft={timeLeft}
-          notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
-          onPlaySound={playBubblePopSound}
-          onDailyRewardClick={() => {
-            playBubblePopSound();
-            setIsDailyRewardOpen(true);
-          }}
-          isDailyAvailable={
-            !lastRewardClaimedAt ||
-            (lastRewardClaimedAt.includes('T') ? lastRewardClaimedAt.split('T')[0] : lastRewardClaimedAt) !== getLocalDateString()
-          }
-        />
-      )}
-
-      {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-      <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
-        {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
-          setUser(u);
-          if (nicknameHint) {
-            await updateProfile({ nickname: nicknameHint });
-          }
-          // Small delay to allow state sync before navigating to lobby
-          setTimeout(() => setCurrentView('lobby'), 300);
-        }} />}
-
-        {(multiplayerState === 'playing' || multiplayerState === 'game_over') && (
-          <Suspense fallback={<KurdishSunLoader />}>
-            <MultiplayerGameView opponent={opponent} />
-          </Suspense>
+        {/* Panic Overlay for Word Fever Mode Critical Time */}
+        {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
+          <div className="panic-overlay" />
         )}
 
-        {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
-        {currentView === 'lobby' && multiplayerState === 'idle' && (
-          <LobbyView
-            onStartClassic={() => {
-              forceResumeAudio();
-              playTabSound();
-              stopBGM();
-              triggerHaptic(10);
-              setIsDailyActive(false);
-              selectCategory('generalWordPool', 'classic'); // Direct start with Unified Pool
+        {/* 1. STATE-BASED NAVIGATION HEADER */}
+        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && multiplayerState !== 'playing' && (
+          <TopAppBar
+            user={user} fils={fils} derhem={derhem} dinar={dinar}
+            level={level} dailyStreak={dailyStreak}
+            currentView={currentView} onEarlyExit={handleEarlyExit}
+            onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
+            notifications={notificationsList}
+            onNotificationAction={handleNotificationAction}
+            onOpenSocial={() => {
+              playBubblePopSound();
+              setCurrentView('social_hub');
             }}
-            onStartHardWords={() => {
-              playTabSound();
-              stopBGM();
-              triggerHaptic(10);
-              setIsDailyActive(true);
-              selectCategory('generalWordPool', 'hard_words'); // Filtered by length internally
-            }}
-            onStartWordFever={() => {
-              playTabSound();
-              stopBGM();
-              triggerHaptic(10);
-              setIsDailyActive(false);
-              selectCategory('generalWordPool', 'word_fever');
-            }}
-            onStartSecretWord={() => {
-              playTabSound();
-              stopBGM();
-              triggerHaptic(10);
-              setIsDailyActive(false);
-              selectCategory('generalWordPool', 'secret_word');
-              resetSecretWordProgress();
-            }}
-            onSocialClick={() => {
-              navigateTo('social_hub');
-            }}
+            onForfeit={handleForfeit}
+            category={category}
+            equippedAvatar={equippedAvatar}
+            gameMode={gameMode}
+            timeLeft={timeLeft}
+            notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+            onPlaySound={playBubblePopSound}
             onDailyRewardClick={() => {
               playBubblePopSound();
               setIsDailyRewardOpen(true);
             }}
-            onStartMamak={() => {
-              playTabSound();
-              stopBGM();
-              triggerHaptic(10);
-              setIsDailyActive(false);
-              selectCategory('مامک', 'mamak');
-            }}
-            winsTowardsSecret={winsTowardsSecret}
-            dailyStreak={dailyStreak}
-            onViewChange={setCurrentView}
-            notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
-            onStartMultiplayer={() => {
-              forceResumeAudio(); // iOS Unlock on User Gesture
-              playTabSound();
-              stopBGM();
-              startMatchmaking();
-            }}
+            isDailyAvailable={
+              !lastRewardClaimedAt ||
+              (lastRewardClaimedAt.includes('T') ? lastRewardClaimedAt.split('T')[0] : lastRewardClaimedAt) !== getLocalDateString()
+            }
           />
         )}
 
-        {currentView === 'game' && (
-          <div className="flex-1 flex flex-col overflow-hidden relative h-full">
-            {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
-            <div className="flex-1 flex flex-col items-center min-h-0 overflow-y-auto pb-56 no-scrollbar">
-              {/* Question Section */}
-              <div className={`w-full flex flex-col items-center ${gameMode === 'classic' ? 'justify-center py-2' : 'mt-4 mb-2'}`}>
-                <InfoBar
-                  targetHint={targetHint}
-                  category={category}
-                  gameMode={gameMode}
-                  guessesCount={guesses.length}
-                  maxGuesses={gameMode === 'word_fever' ? 3 : 6}
-                  fils={fils}
-                  currentXP={currentXP}
-                  minXP={minXPForLevel}
-                  maxXP={maxXP}
-                  level={level}
-                  timeLeft={timeLeft}
-                  showSuccessSplash={isSuccessSplash}
-                />
-              </div>
+        {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
+        <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+          {currentView === 'auth' && <AuthView onAuthSuccess={async (u, nicknameHint) => {
+            setUser(u);
+            if (nicknameHint) {
+              await updateProfile({ nickname: nicknameHint });
+            }
+            // Small delay to allow state sync before navigating to lobby
+            setTimeout(() => setCurrentView('lobby'), 300);
+          }} />}
 
-              {/* Grid Section (Centers content in remaining space) */}
-              <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-visible min-h-[25vh]">
-                <div className="game-grid-core">
-                  <Grid
-                    guesses={guesses}
-                    currentGuess={currentGuess}
-                    wordLength={targetWord.length}
-                    getLetterStatus={getLetterStatus}
-                    revealedIndices={revealedIndices}
-                    lastHintIndex={-1}
-                    targetWord={targetWord}
-                    maxRows={gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6)}
-                    isSecretMode={gameMode === 'secret_word'}
-                    isShaking={isShaking}
-                  />
-
-                </div>
-              </div>
-            </div>
-
-            {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
-              <Keyboard
-                onKey={onKey}
-                onDelete={onDelete}
-                onEnter={handleOnEnter}
-                usedKeys={usedKeys}
-                gameState={isVictory ? 'won' : isDefeat ? 'lost' : 'playing'}
-                magnetDisabledKeys={magnetDisabledKeys}
-                onHint={handleHint}
-                onMagnet={handleMagnet}
-                onSkip={handleSkip}
-                hintCount={hintCount}
-                magnetCount={magnetCount}
-                skipCount={skipCount}
-                fils={fils}
-                gameMode={gameMode}
-                hintTaps={hintTaps}
-                hintLimit={getMaxHintsForWord(targetWord.length)}
-                magnetUsedInRound={magnetUsedInRound}
-                keyboardSoundEnabled={appSoundsEnabled}
-                hapticEnabled={hapticEnabled}
-              />
-            </div>
-          </div>
-        )}
-
-        <Suspense fallback={<KurdishSunLoader />}>
-
-          {currentView === 'social_hub' && (
-            <SocialHubView
-              user={user}
-              initialChatPartner={activeChatPartner}
-              initialTab={initialSocialTab}
-              onBack={() => {
-                setActiveChatPartner(null);
-                setInitialSocialTab(null);
-                setCurrentView('lobby');
-              }}
-              onViewMessages={handleViewMessages}
-              onViewFriends={handleViewFriends}
-              onKeyboardToggle={setIsKeyboardOpen}
-            />
+          {(multiplayerState === 'playing' || multiplayerState === 'game_over') && (
+            <Suspense fallback={<KurdishSunLoader />}>
+              <MultiplayerGameView opponent={opponent} />
+            </Suspense>
           )}
-          {currentView === 'leaderboard' && (
-            <LeaderboardView
-              userId={user?.id}
-              userLevel={level}
-              userXP={currentXP}
-              userFils={fils}
-              userNickname={userNickname}
-              userAvatar={userAvatar}
-              isInKurdistan={isInKurdistan}
-              countryCode={countryCode}
-              lastProfileUpdate={lastProfileUpdate}
-              onOpenChat={handleOpenChat}
-            />
-          )}
-          {currentView === 'store' && (
-            <ShopView
-              fils={fils}
-              derhem={derhem}
-              dinar={dinar}
-              magnetCount={magnetCount}
-              hintCount={hintCount}
-              skipCount={skipCount}
-              onPurchase={(item) => {
-                if (item.type === 'currency') {
-                  updateInventory({ fils: item.amount });
-                  playPurchaseSound();
-                } else if (item.type === 'package') {
-                  updateInventory({
-                    fils: 1000,
-                    magnetCount: 3,
-                    skipCount: 2,
-                    hintCount: 1
-                  });
-                  playPurchaseSound();
-                } else {
-                  // Standard item purchase logic
-                  const updates = {};
-                  const price = -item.price;
-                  if (item.currency === 'fils') updates.fils = price;
-                  else if (item.currency === 'derhem') updates.derhem = price;
-                  else if (item.currency === 'dinar') updates.dinar = price;
 
-                  if (item.id === 'attractor_field') updates.magnetCount = 1;
-                  if (item.id === 'hint_pack') updates.hintCount = 1;
-                  if (item.id === 'full_skip') updates.skipCount = 1;
-
-                  updateInventory(updates);
-                  playPurchaseSound();
-                }
+          {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
+          {currentView === 'lobby' && multiplayerState === 'idle' && (
+            <LobbyView
+              onStartClassic={() => {
+                forceResumeAudio();
+                playTabSound();
+                stopBGM();
+                triggerHaptic(10);
+                setIsDailyActive(false);
+                selectCategory('generalWordPool', 'classic'); // Direct start with Unified Pool
               }}
-              onEquipTheme={(id) => updateProfile({ currentTheme: id })}
-              onPurchaseAvatar={(id, price, currency) => {
-                updateInventory({ [currency]: -price });
-                playPurchaseSound();
-                updateProfile({ ownedAvatars: [...ownedAvatars, id] });
+              onStartHardWords={() => {
+                playTabSound();
+                stopBGM();
+                triggerHaptic(10);
+                setIsDailyActive(true);
+                selectCategory('generalWordPool', 'hard_words'); // Filtered by length internally
               }}
-              onEquipAvatar={(id) => updateProfile({ avatar_url: id })}
-              onPurchaseTheme={(theme) => {
-                updateInventory({ [theme.currency]: -theme.price });
-                playPurchaseSound();
-                updateProfile({ unlockedThemes: [...unlockedThemes, theme.id] });
+              onStartWordFever={() => {
+                playTabSound();
+                stopBGM();
+                triggerHaptic(10);
+                setIsDailyActive(false);
+                selectCategory('generalWordPool', 'word_fever');
               }}
-              playPurchaseSound={playPurchaseSound}
-              ownedAvatars={ownedAvatars}
-              equippedAvatar={equippedAvatar}
-              unlockedThemes={unlockedThemes}
-              currentTheme={currentTheme}
-            />
-          )}
-          {currentView === 'stats' && (
-            <ProfileView
-              user={user}
-              userNickname={userNickname}
-              onProfileSave={handleProfileSave}
-              userAvatar={userAvatar}
-              userCity={city}
-              isInKurdistan={isInKurdistan}
-              countryCode={countryCode}
-              level={level}
-              currentXP={currentXP}
-              maxXP={maxXP}
-              fils={fils}
-              derhem={derhem}
-              dinar={dinar}
-              playerStats={playerStats}
-              userRank={userRank}
+              onStartSecretWord={() => {
+                playTabSound();
+                stopBGM();
+                triggerHaptic(10);
+                setIsDailyActive(false);
+                selectCategory('generalWordPool', 'secret_word');
+                resetSecretWordProgress();
+              }}
+              onSocialClick={() => {
+                navigateTo('social_hub');
+              }}
+              onDailyRewardClick={() => {
+                playBubblePopSound();
+                setIsDailyRewardOpen(true);
+              }}
+              onStartMamak={() => {
+                playTabSound();
+                stopBGM();
+                triggerHaptic(10);
+                setIsDailyActive(false);
+                selectCategory('مامک', 'mamak');
+              }}
+              winsTowardsSecret={winsTowardsSecret}
               dailyStreak={dailyStreak}
-              onViewChange={navigateTo}
+              onViewChange={setCurrentView}
+              notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+              onStartMultiplayer={() => {
+                forceResumeAudio(); // iOS Unlock on User Gesture
+                playTabSound();
+                stopBGM();
+                startMatchmaking();
+              }}
             />
           )}
-          {currentView === 'dictionary' && (
-            <DictionaryView
-              solvedWords={solvedWords}
-              wordList={wordList}
-              onBack={() => setCurrentView('lobby')}
-            />
-          )}
-        </Suspense>
-      </main>
 
-      {/* 3. CONDITIONAL BOTTOM NAV (Hide during ANY gameplay or multiplayer) */}
-      {currentView !== 'game' &&
-        currentView !== 'auth' &&
-        (multiplayerState === 'idle' || multiplayerState === 'game_over') &&
-        !isKeyboardOpen && (
-          <BottomNav
-            currentView={currentView}
-            setCurrentView={navigateTo}
-            onSettingsToggle={() => { setIsSettingsOpen(true); }}
-            onTabClickSound={playBubblePopSound}
-          />
-        )}
+          {currentView === 'game' && (
+            <div className="flex-1 flex flex-col overflow-hidden relative h-full">
+              {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
+              <div className="flex-1 flex flex-col items-center min-h-0 overflow-y-auto no-scrollbar">
+                {/* Question Section */}
+                <div className={`w-full flex flex-col items-center ${gameMode === 'classic' ? 'justify-center py-2' : 'mt-4 mb-2'}`}>
+                  <InfoBar
+                    targetHint={targetHint}
+                    category={category}
+                    gameMode={gameMode}
+                    guessesCount={guesses.length}
+                    maxGuesses={gameMode === 'word_fever' ? 3 : 6}
+                    fils={fils}
+                    currentXP={currentXP}
+                    minXP={minXPForLevel}
+                    maxXP={maxXP}
+                    level={level}
+                    timeLeft={timeLeft}
+                    showSuccessSplash={isSuccessSplash}
+                  />
+                </div>
 
-      {/* 4. GLOBAL OVERLAYS */}
-      <VictoryOverlay
-        isVisible={isVictory && gameMode !== 'word_fever'}
-        breakdown={victoryBreakdown}
-        solvedWord={lastSolvedWord}
-        xp={rewardAmountXp}
-        customTitle={victoryCustomText?.title}
-        customDescription={victoryCustomText?.description}
-        onNext={() => {
-          setIsVictory(false);
-          handleNextGame();
-        }}
-        onHome={handleGoHome}
-        playStartSound={playStartGameSound}
-      />
-      <SettingsModal
-        isOpen={isSettingsOpen}
-        onClose={() => { playSettingsCloseSound(); setIsSettingsOpen(false); }}
-        currentTheme={currentTheme}
-        onThemeChange={(id) => updateProfile({ currentTheme: id })}
-        appSfxVolume={appSfxVolume}
-        onAppSfxVolumeChange={updateSfxVolume}
-        bgMusicVolume={bgMusicVolume}
-        onBgMusicVolumeChange={updateMusicVolume}
-        hapticEnabled={hapticEnabled}
-        onHapticToggle={() => {
-          updateProfile({ haptic_enabled: !hapticEnabled });
-        }}
-        user={user}
-        onLogout={handleLogout}
-        onPlaySound={playBubblePopSound}
-      />
+                {/* Grid Section (Centers content in remaining space) */}
+                <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden">
+                  <div className="game-grid-core">
+                    <Grid
+                      guesses={guesses}
+                      currentGuess={currentGuess}
+                      wordLength={targetWord.length}
+                      getLetterStatus={getLetterStatus}
+                      revealedIndices={revealedIndices}
+                      lastHintIndex={-1}
+                      targetWord={targetWord}
+                      maxRows={gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6)}
+                      isSecretMode={gameMode === 'secret_word'}
+                      isShaking={isShaking}
+                    />
 
-      <AnimatePresence>
-        {isForfeitConfirmOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[40px] p-10 text-center">
-              <h2 className="text-2xl font-black mb-4">پشتراستی؟</h2>
-              <div className="flex flex-col gap-3">
-                <button onClick={executeForfeitConfirmed} className="h-16 bg-red-500 rounded-2xl font-black">بەلێ، دەستژێبەردان</button>
-                <button onClick={() => setIsForfeitConfirmOpen(false)} className="h-16 bg-white/5 rounded-2xl font-bold">نەخێر</button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {hintLimitToast.visible && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-32 left-1/2 -track-x-1/2 z-1000 -translate-x-1/2"
-          >
-            <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-red-500/30 px-8 py-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
-                <span className="material-symbols-outlined text-[24px]">info</span>
-              </div>
-              <span className="text-white font-black text-lg font-rabar">{hintLimitToast.message}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <DefeatOverlay
-        isVisible={isDefeat && gameMode !== 'word_fever'}
-        solvedWord={lastSolvedWord}
-        breakdown={defeatBreakdown}
-        gameMode={gameMode}
-        playStartSound={playStartGameSound}
-        onRetry={() => {
-          setIsDefeat(false);
-          // Fixed: passing gameMode correctly to maintain difficulty/length rules on retry
-          const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
-          if (wordObj) resetBoard(wordObj);
-        }}
-        onHome={handleGoHome}
-      />
-
-      <WordFeverResultOverlay
-        isVisible={isWordFeverResultVisible}
-        type={wordFeverResultType}
-        solvedWord={lastSolvedWord}
-        breakdown={wordFeverResultType === 'win' ? victoryBreakdown : defeatBreakdown}
-        xp={rewardAmountXp}
-        playStartSound={playStartGameSound}
-        onContinue={() => {
-          setIsWordFeverResultVisible(false);
-          handleNextGame();
-        }}
-        onRepeat={() => {
-          setIsWordFeverResultVisible(false);
-          // For Word Fever mode retry, we pick a new word but keep the mode
-          handleNextGame();
-        }}
-        onHome={handleGoHome}
-      />
-
-      {user && currentView !== 'auth' && isLevelingUp && level > lastNotifiedLevel && (
-        <LevelUpOverlay
-          isVisible={isLevelingUp}
-          newLevel={level}
-          onClose={async () => {
-            // 1. Update Database FIRST (Ensure persistence before UI close)
-            await updateProfile({ lastNotifiedLevel: level });
-            // 2. Then Close Modal Locally
-            setIsLevelingUp(false);
-          }}
-        />
-      )}
-
-      <DailyRewardModal
-        isOpen={isDailyRewardOpen}
-        onClose={() => setIsDailyRewardOpen(false)}
-      />
-
-      {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
-      <AnimatePresence>
-        {(multiplayerState === 'searching' || multiplayerState === 'waiting') && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-200 flex flex-col items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-8 text-center"
-          >
-            {/* Pulsing Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px] animate-pulse" />
-
-            <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
-              <div className="relative">
-                <ScrollingMatchFinder opponent={opponent} />
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute -inset-4 border-2 border-emerald-500/30 rounded-full"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex flex-col items-center gap-2">
-                  <h2 className="text-3xl font-black font-heading text-white">لێگەڕیان لدویڤ ھەڤڕکەکێ...</h2>
-                  {/* LIVE TIMER UI */}
-                  <div className="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                    <span className="text-emerald-400 font-black font-mono text-xl tracking-widest tabular-nums">
-                      {Math.floor(matchmakingTime / 60).toString().padStart(2, '0')}:
-                      {(matchmakingTime % 60).toString().padStart(2, '0')}
-                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={cancelMatch}
-                  className="h-16 bg-white/5 border border-white/10 rounded-2xl font-black text-white/50 hover:bg-white/10 hover:text-white transition-all active:scale-95"
-                >
-                  پەشێمان بووم (Cancel)
-                </button>
+              {/* Tier 3: Keyboard (Pinned to bottom) */}
+              <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
+                <Keyboard
+                  onKey={onKey}
+                  onDelete={onDelete}
+                  onEnter={handleOnEnter}
+                  usedKeys={usedKeys}
+                  gameState={isVictory ? 'won' : isDefeat ? 'lost' : 'playing'}
+                  magnetDisabledKeys={magnetDisabledKeys}
+                  onHint={handleHint}
+                  onMagnet={handleMagnet}
+                  onSkip={handleSkip}
+                  hintCount={hintCount}
+                  magnetCount={magnetCount}
+                  skipCount={skipCount}
+                  fils={fils}
+                  gameMode={gameMode}
+                  hintTaps={hintTaps}
+                  hintLimit={getMaxHintsForWord(targetWord.length)}
+                  magnetUsedInRound={magnetUsedInRound}
+                  keyboardSoundEnabled={appSoundsEnabled}
+                  hapticEnabled={hapticEnabled}
+                />
               </div>
             </div>
+          )}
 
-            <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
-              {['پ', 'ە', 'ی', 'ڤ', 'چ', 'ن'].map((char, i) => (
-                <motion.span
-                  key={i}
-                  animate={{ y: [-10, 10, -10] }}
-                  transition={{ duration: 3, delay: i * 0.5, repeat: Infinity }}
-                  className="text-4xl font-black font-rabar"
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </div>
-          </motion.div>
+          <Suspense fallback={<KurdishSunLoader />}>
+
+            {currentView === 'social_hub' && (
+              <SocialHubView
+                user={user}
+                initialChatPartner={activeChatPartner}
+                initialTab={initialSocialTab}
+                onBack={() => {
+                  setActiveChatPartner(null);
+                  setInitialSocialTab(null);
+                  setCurrentView('lobby');
+                }}
+                onViewMessages={handleViewMessages}
+                onViewFriends={handleViewFriends}
+                onKeyboardToggle={setIsKeyboardOpen}
+              />
+            )}
+            {currentView === 'leaderboard' && (
+              <LeaderboardView
+                userId={user?.id}
+                userLevel={level}
+                userXP={currentXP}
+                userFils={fils}
+                userNickname={userNickname}
+                userAvatar={userAvatar}
+                isInKurdistan={isInKurdistan}
+                countryCode={countryCode}
+                lastProfileUpdate={lastProfileUpdate}
+                onOpenChat={handleOpenChat}
+              />
+            )}
+            {currentView === 'store' && (
+              <ShopView
+                fils={fils}
+                derhem={derhem}
+                dinar={dinar}
+                magnetCount={magnetCount}
+                hintCount={hintCount}
+                skipCount={skipCount}
+                onPurchase={(item) => {
+                  if (item.type === 'currency') {
+                    updateInventory({ fils: item.amount });
+                    playPurchaseSound();
+                  } else if (item.type === 'package') {
+                    updateInventory({
+                      fils: 1000,
+                      magnetCount: 3,
+                      skipCount: 2,
+                      hintCount: 1
+                    });
+                    playPurchaseSound();
+                  } else {
+                    // Standard item purchase logic
+                    const updates = {};
+                    const price = -item.price;
+                    if (item.currency === 'fils') updates.fils = price;
+                    else if (item.currency === 'derhem') updates.derhem = price;
+                    else if (item.currency === 'dinar') updates.dinar = price;
+
+                    if (item.id === 'attractor_field') updates.magnetCount = 1;
+                    if (item.id === 'hint_pack') updates.hintCount = 1;
+                    if (item.id === 'full_skip') updates.skipCount = 1;
+
+                    updateInventory(updates);
+                    playPurchaseSound();
+                  }
+                }}
+                onEquipTheme={(id) => updateProfile({ currentTheme: id })}
+                onPurchaseAvatar={(id, price, currency) => {
+                  updateInventory({ [currency]: -price });
+                  playPurchaseSound();
+                  updateProfile({ ownedAvatars: [...ownedAvatars, id] });
+                }}
+                onEquipAvatar={(id) => updateProfile({ avatar_url: id })}
+                onPurchaseTheme={(theme) => {
+                  updateInventory({ [theme.currency]: -theme.price });
+                  playPurchaseSound();
+                  updateProfile({ unlockedThemes: [...unlockedThemes, theme.id] });
+                }}
+                playPurchaseSound={playPurchaseSound}
+                ownedAvatars={ownedAvatars}
+                equippedAvatar={equippedAvatar}
+                unlockedThemes={unlockedThemes}
+                currentTheme={currentTheme}
+              />
+            )}
+            {currentView === 'stats' && (
+              <ProfileView
+                user={user}
+                userNickname={userNickname}
+                onProfileSave={handleProfileSave}
+                userAvatar={userAvatar}
+                userCity={city}
+                isInKurdistan={isInKurdistan}
+                countryCode={countryCode}
+                level={level}
+                currentXP={currentXP}
+                maxXP={maxXP}
+                fils={fils}
+                derhem={derhem}
+                dinar={dinar}
+                playerStats={playerStats}
+                userRank={userRank}
+                dailyStreak={dailyStreak}
+                onViewChange={navigateTo}
+              />
+            )}
+            {currentView === 'dictionary' && (
+              <DictionaryView
+                solvedWords={solvedWords}
+                wordList={wordList}
+                onBack={() => setCurrentView('lobby')}
+              />
+            )}
+          </Suspense>
+        </main>
+
+        {/* 3. CONDITIONAL BOTTOM NAV (Hide during ANY gameplay or multiplayer) */}
+        {currentView !== 'game' &&
+          currentView !== 'auth' &&
+          (multiplayerState === 'idle' || multiplayerState === 'game_over') &&
+          !isKeyboardOpen && (
+            <BottomNav
+              currentView={currentView}
+              setCurrentView={navigateTo}
+              onSettingsToggle={() => { setIsSettingsOpen(true); }}
+              onTabClickSound={playBubblePopSound}
+            />
+          )}
+
+        {/* 4. GLOBAL OVERLAYS */}
+        <VictoryOverlay
+          isVisible={isVictory && gameMode !== 'word_fever'}
+          breakdown={victoryBreakdown}
+          solvedWord={lastSolvedWord}
+          xp={rewardAmountXp}
+          customTitle={victoryCustomText?.title}
+          customDescription={victoryCustomText?.description}
+          onNext={() => {
+            setIsVictory(false);
+            handleNextGame();
+          }}
+          onHome={handleGoHome}
+          playStartSound={playStartGameSound}
+        />
+        <SettingsModal
+          isOpen={isSettingsOpen}
+          onClose={() => { playSettingsCloseSound(); setIsSettingsOpen(false); }}
+          currentTheme={currentTheme}
+          onThemeChange={(id) => updateProfile({ currentTheme: id })}
+          appSfxVolume={appSfxVolume}
+          onAppSfxVolumeChange={updateSfxVolume}
+          bgMusicVolume={bgMusicVolume}
+          onBgMusicVolumeChange={updateMusicVolume}
+          hapticEnabled={hapticEnabled}
+          onHapticToggle={() => {
+            updateProfile({ haptic_enabled: !hapticEnabled });
+          }}
+          user={user}
+          onLogout={handleLogout}
+          onPlaySound={playBubblePopSound}
+        />
+
+        <AnimatePresence>
+          {isForfeitConfirmOpen && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+              <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[40px] p-10 text-center">
+                <h2 className="text-2xl font-black mb-4">پشتراستی؟</h2>
+                <div className="flex flex-col gap-3">
+                  <button onClick={executeForfeitConfirmed} className="h-16 bg-red-500 rounded-2xl font-black">بەلێ، دەستژێبەردان</button>
+                  <button onClick={() => setIsForfeitConfirmOpen(false)} className="h-16 bg-white/5 rounded-2xl font-bold">نەخێر</button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {hintLimitToast.visible && (
+            <motion.div
+              initial={{ opacity: 0, y: 50, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.9 }}
+              className="fixed bottom-32 left-1/2 -track-x-1/2 z-1000 -translate-x-1/2"
+            >
+              <div className="bg-[#0f172a]/90 backdrop-blur-2xl border border-red-500/30 px-8 py-4 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+                  <span className="material-symbols-outlined text-[24px]">info</span>
+                </div>
+                <span className="text-white font-black text-lg font-rabar">{hintLimitToast.message}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <DefeatOverlay
+          isVisible={isDefeat && gameMode !== 'word_fever'}
+          solvedWord={lastSolvedWord}
+          breakdown={defeatBreakdown}
+          gameMode={gameMode}
+          playStartSound={playStartGameSound}
+          onRetry={() => {
+            setIsDefeat(false);
+            // Fixed: passing gameMode correctly to maintain difficulty/length rules on retry
+            const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
+            if (wordObj) resetBoard(wordObj);
+          }}
+          onHome={handleGoHome}
+        />
+
+        <WordFeverResultOverlay
+          isVisible={isWordFeverResultVisible}
+          type={wordFeverResultType}
+          solvedWord={lastSolvedWord}
+          breakdown={wordFeverResultType === 'win' ? victoryBreakdown : defeatBreakdown}
+          xp={rewardAmountXp}
+          playStartSound={playStartGameSound}
+          onContinue={() => {
+            setIsWordFeverResultVisible(false);
+            handleNextGame();
+          }}
+          onRepeat={() => {
+            setIsWordFeverResultVisible(false);
+            // For Word Fever mode retry, we pick a new word but keep the mode
+            handleNextGame();
+          }}
+          onHome={handleGoHome}
+        />
+
+        {user && currentView !== 'auth' && isLevelingUp && level > lastNotifiedLevel && (
+          <LevelUpOverlay
+            isVisible={isLevelingUp}
+            newLevel={level}
+            onClose={async () => {
+              // 1. Update Database FIRST (Ensure persistence before UI close)
+              await updateProfile({ lastNotifiedLevel: level });
+              // 2. Then Close Modal Locally
+              setIsLevelingUp(false);
+            }}
+          />
         )}
-      </AnimatePresence>
 
-      <MultiplayerResultOverlay
-        isVisible={multiplayerState === 'game_over' && lastMatchResult !== null}
-        result={lastMatchResult}
-        scores={scores}
-        opponent={opponent}
-        userAvatar={userAvatar}
-        userNickname={userNickname}
-        onPlayAgain={() => {
-          resetMatchResultTrigger();
-          startMatchmaking();
-        }}
-        onClose={() => {
-          resetMatchResultTrigger();
-          cancelMatch(); // Reset state to idle
-        }}
-        isForfeitWin={isForfeitWin}
-        rewards={matchReward}
-      />
+        <DailyRewardModal
+          isOpen={isDailyRewardOpen}
+          onClose={() => setIsDailyRewardOpen(false)}
+        />
+
+        {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
+        <AnimatePresence>
+          {(multiplayerState === 'searching' || multiplayerState === 'waiting') && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-200 flex flex-col items-center justify-center bg-[#020617]/95 backdrop-blur-xl p-8 text-center"
+            >
+              {/* Pulsing Background Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-emerald-500/20 rounded-full blur-[80px] animate-pulse" />
+
+              <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
+                <div className="relative">
+                  <ScrollingMatchFinder opponent={opponent} />
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="absolute -inset-4 border-2 border-emerald-500/30 rounded-full"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex flex-col items-center gap-2">
+                    <h2 className="text-3xl font-black font-heading text-white">لێگەڕیان لدویڤ ھەڤڕکەکێ...</h2>
+                    {/* LIVE TIMER UI */}
+                    <div className="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                      <span className="text-emerald-400 font-black font-mono text-xl tracking-widest tabular-nums">
+                        {Math.floor(matchmakingTime / 60).toString().padStart(2, '0')}:
+                        {(matchmakingTime % 60).toString().padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3 w-full">
+                  <button
+                    onClick={cancelMatch}
+                    className="h-16 bg-white/5 border border-white/10 rounded-2xl font-black text-white/50 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+                  >
+                    پەشێمان بووم (Cancel)
+                  </button>
+                </div>
+              </div>
+
+              <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
+                {['پ', 'ە', 'ی', 'ڤ', 'چ', 'ن'].map((char, i) => (
+                  <motion.span
+                    key={i}
+                    animate={{ y: [-10, 10, -10] }}
+                    transition={{ duration: 3, delay: i * 0.5, repeat: Infinity }}
+                    className="text-4xl font-black font-rabar"
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <MultiplayerResultOverlay
+          isVisible={multiplayerState === 'game_over' && lastMatchResult !== null}
+          result={lastMatchResult}
+          scores={scores}
+          opponent={opponent}
+          userAvatar={userAvatar}
+          userNickname={userNickname}
+          onPlayAgain={() => {
+            resetMatchResultTrigger();
+            startMatchmaking();
+          }}
+          onClose={() => {
+            resetMatchResultTrigger();
+            cancelMatch(); // Reset state to idle
+          }}
+          isForfeitWin={isForfeitWin}
+          rewards={matchReward}
+        />
       </div>
     </div>
   );
