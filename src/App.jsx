@@ -1049,7 +1049,7 @@ export default function App() {
 
   return (
     <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full items-center bg-[#000000] bg-[radial-gradient(circle_at_center,_#111827_0%,_#000000_100%)] font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
-      <div className="flex-1 flex flex-col w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto bg-[#020617] text-white relative overflow-hidden shadow-2xl">
+      <div className="flex-1 flex flex-col w-full h-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto bg-[#020617] text-white relative overflow-hidden shadow-2xl">
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
           <div className="panic-overlay" />
