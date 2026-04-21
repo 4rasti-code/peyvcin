@@ -55,7 +55,7 @@ export default function TopAppBar({
       className="relative top-0 w-full z-100 bg-[#0a0f1b] border-b border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible" 
       dir="ltr"
     >
-      <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full max-w-425 mx-auto relative gap-4">
+      <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full mx-auto relative gap-4">
       
         {/* Left Section: Close (X) or Settings / Daily Reward */}
         <div className="flex items-center justify-start flex-1">

@@ -128,7 +128,7 @@ const Keyboard = memo(({
           hintTaps={hintTaps}
           hintLimit={hintLimit}
           magnetUsedInRound={magnetUsedInRound}
-          className="mb-6"
+          className="mb-[clamp(12px,3vh,32px)]"
         />
       )}
 
