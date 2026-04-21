@@ -9,6 +9,7 @@ import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
 import RoundIntro from './RoundIntro';
 import { triggerHaptic } from '../utils/haptics';
+import { toKuDigits } from '../utils/formatters';
 
 export default function MultiplayerGameView({ opponent: propOpponent }) {
   const { 
@@ -46,8 +47,10 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   // 1. TOP-LEVEL DERIVED DATA (DECLARE BEFORE ANY RETURNS)
   const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);
   const targetWord = useMemo(() => {
-    if (!activeMatch?.words) return '';
-    return (activeMatch.words[currentRound]) || (activeMatch.words[0]) || '';
+    if (!activeMatch?.words?.length) return '';
+    // Safe modulo access in case of extreme round counts
+    const idx = currentRound % activeMatch.words.length;
+    return activeMatch.words[idx] || '';
   }, [activeMatch, currentRound]);
 
   // CORE ENGINE
@@ -177,7 +180,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         {/* CENTER: ROUND & VS */}
         <div className="flex flex-col items-center relative">
             <div className="text-[10px] bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full font-black mb-1">BATTLE</div>
-            <div className="text-xs font-black text-white/30 truncate">گەڕ {currentRound + 1}/3</div>
+            <div className="text-xs font-black text-white/30 truncate">گەڕ {toKuDigits(currentRound + 1)}</div>
         </div>
 
         {/* LEFT (Last child in RTL): YOU */}
@@ -198,7 +201,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         <div className="w-full flex flex-col items-center justify-center py-4 px-2 animate-in fade-in duration-700">
           <div className="w-full max-w-2xl flex items-center justify-center text-center relative z-10">
             <p className="text-xl sm:text-2xl font-bold text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-              {activeMatch?.riddles?.[currentRound] || '...'}
+              {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
             </p>
           </div>
           <div className="w-[65%] h-[0.5px] bg-white/10 rounded-full mt-2" />

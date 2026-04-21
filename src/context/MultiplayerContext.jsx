@@ -130,36 +130,64 @@ export const MultiplayerProvider = ({ children }) => {
       const currentIdx = activeMatch.current_word_index || 0;
       const updates = { [isP1 ? 'p1_score' : 'p2_score']: (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1 };
 
-      // Clear colors for next round
-      updates.p1_colors = [];
-      updates.p2_colors = [];
-
-      const myNewScore = (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1;
+      // 1. Calculate next state
+      const isP1 = activeMatch.player1_id === user.id;
+      const myNewScore = isWin ? (isP1 ? activeMatch.p1_score + 1 : activeMatch.p2_score + 1) : (isP1 ? activeMatch.p1_score : activeMatch.p2_score);
       const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+      const currentIdx = activeMatch.current_word_index || 0;
 
-      if (currentIdx >= 2 || myNewScore >= 2) {
-        updates.status = 'finished';
+      // 2. Win-by-Two Logic & 3-3 Match Draw Policy
+      const scoreDiff = Math.abs(myNewScore - oppScore);
+      const isMatchDraw = (myNewScore === 3 && oppScore === 3);
+      const isMatchEnd = scoreDiff >= 2 || isMatchDraw;
+
+      if (isMatchEnd) {
+        console.log(`[Multiplayer] MATCH OVER. Final Score: ${myNewScore}-${oppScore}. Draw: ${isMatchDraw}`);
+        const result = isMatchDraw ? 'draw' : 'victory';
         
-        // --- WINNER RESULT CALCULATION ---
-        let result = 'draw';
-        if (myNewScore > oppScore) result = 'victory';
-        else if (myNewScore < oppScore) result = 'defeat';
-        
+        const updateData = {
+          status: 'finished',
+          last_action_by: user.id,
+          current_word_index: currentIdx, 
+          [isP1 ? 'p1_score' : 'p2_score']: myNewScore
+        };
+
+        const { error } = await supabase
+          .from('online_matches')
+          .update(updateData)
+          .eq('id', activeMatch.id);
+          
+        if (error) throw error;
+
+        // LOCAL UPDATE
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
         setMultiplayerState('game_over');
 
-        // SYNC REWARDS TO DATABASE
+        // SYNC REWARDS (Only for direct victory, not match draws)
         if (result === 'victory') {
-          syncProgressToDatabase(5, 'battle').then(rewardData => {
-            if (rewardData) setMatchReward(rewardData);
-          });
+          const rewardData = await syncProgressToDatabase(10, 'battle'); // Awarding 10 for Win-by-Two effort
+          if (rewardData) setMatchReward(rewardData);
+        } else {
+          setMatchReward(null); // Explicitly 0 for draw
         }
       } else {
-        updates.current_word_index = currentIdx + 1;
+        // Continue to Next Round
+        console.log(`[Multiplayer] Round won! Continuing... Current Index: ${currentIdx}`);
+        setIsRoundWinner(true);
+        setWinnerNickname(userNickname);
+        
+        await supabase
+          .from('online_matches')
+          .update({
+            current_word_index: currentIdx + 1,
+            last_action_by: user.id,
+            [isP1 ? 'p1_score' : 'p2_score']: myNewScore,
+            p1_colors: [],
+            p2_colors: []
+          })
+          .eq('id', activeMatch.id);
       }
-
-      await supabase.from('online_matches').update(updates).eq('id', matchId);
       triggerHaptic([50, 50, 100]);
     }
   };
@@ -171,30 +199,36 @@ export const MultiplayerProvider = ({ children }) => {
     broadcastLiveAction([], 0);
 
     const isP1 = activeMatch.player1_id === user?.id;
-    const currentIdx = activeMatch.current_word_index || 0;
     
     // 1. Mark as failed locally (Ghost Grid update)
     const updates = { 
-      [isP1 ? 'p1_colors' : 'p2_colors']: [...(isP1 ? activeMatch.p1_colors : activeMatch.p2_colors || []), ["#334155","#334155","#334155","#334155","#334155"]] // Placeholder colors for failure
+      [isP1 ? 'p1_colors' : 'p2_colors']: [...(isP1 ? activeMatch.p1_colors : activeMatch.p2_colors || []), ["#334155","#334155","#334155","#334155","#334155"]],
+      [isP1 ? 'p1_failed' : 'p2_failed']: true
     };
 
-    // 2. Check if opponent already failed OR if we are the last ones to fail
-    const oppColors = isP1 ? activeMatch.p2_colors : activeMatch.p1_colors;
-    const oppFailed = oppColors && (oppColors.length >= 3); // MaxRows is 3
+    // 2. Check if opponent already failed
+    const hasOtherFailed = isP1 ? activeMatch.p2_failed : activeMatch.p1_failed;
 
-    if (oppFailed) {
-      // Both failed: 0 points for both, next round
-      updates.p1_colors = [];
-      updates.p2_colors = [];
-      if (currentIdx >= 2) {
-        updates.status = 'finished';
-        setMultiplayerState('game_over');
-      } else {
-        updates.current_word_index = currentIdx + 1;
-      }
+    if (hasOtherFailed) {
+      console.log('[Multiplayer] BOTH FAILED. Moving to next round (Round Draw).');
+      const currentIdx = activeMatch.current_word_index || 0;
+      
+      // Match Draw Policy only applies to points, so we simply move to next round if both fail.
+      // There is no score increase here.
+      await supabase
+        .from('online_matches')
+        .update({
+          current_word_index: currentIdx + 1,
+          last_action_by: user.id,
+          p1_failed: false,
+          p2_failed: false,
+          p1_colors: [],
+          p2_colors: []
+        })
+        .eq('id', activeMatch.id);
+    } else {
+      await supabase.from('online_matches').update(updates).eq('id', matchId);
     }
-
-    await supabase.from('online_matches').update(updates).eq('id', matchId);
   };
 
   const { playCoinSound } = useGame();
@@ -537,17 +571,19 @@ export const MultiplayerProvider = ({ children }) => {
         const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
         
         let result = 'draw';
-        if (myScore > oppScore) result = 'victory';
-        else if (myScore < oppScore) result = 'defeat';
+        // Win-by-Two result check
+        if (myScore - oppScore >= 2) result = 'victory';
+        else if (oppScore - myScore >= 2) result = 'defeat';
+        else if (myScore === 3 && oppScore === 3) result = 'draw';
         
-        console.log(`[Multiplayer] Sync found finished match. Result: ${result}.`);
+        console.log(`[Multiplayer] Sync found finished match. Scores: ${myScore}-${oppScore}. Result: ${result}.`);
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
         setMultiplayerState('game_over');
 
         // SYNC REWARDS TO DATABASE (For Sync-Side Winner)
         if (result === 'victory') {
-          syncProgressToDatabase(5, 'battle').then(rewardData => {
+          syncProgressToDatabase(10, 'battle').then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         }
@@ -713,10 +749,10 @@ export const MultiplayerProvider = ({ children }) => {
           // Filter strictly for 5-letter words
           const fiveLetterWords = randomSample.filter(e => e.word && e.word.length === 5);
           
-          if (fiveLetterWords.length >= 3) {
+          if (fiveLetterWords.length >= 10) {
             const shuffled = fiveLetterWords.sort(() => 0.5 - Math.random());
-            selectedWords = shuffled.slice(0, 3).map(e => e.word);
-            selectedRiddles = shuffled.slice(0, 3).map(e => e.definition || 'No riddle');
+            selectedWords = shuffled.slice(0, 10).map(e => e.word);
+            selectedRiddles = shuffled.slice(0, 10).map(e => e.definition || 'No riddle');
           } else {
              console.warn('[Multiplayer] Not enough 5-letter words in DB, falling back to local.');
              throw new Error('Insufficient DB words');
@@ -729,7 +765,7 @@ export const MultiplayerProvider = ({ children }) => {
         const localWords = getUnifiedWords();
         // Filter local words for 5 letters
         const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
-        const fallback = [...fiveLetterLocal].sort(() => 0.5 - Math.random()).slice(0, 3);
+        const fallback = [...fiveLetterLocal].sort(() => 0.5 - Math.random()).slice(0, 10);
         selectedWords = fallback.map(w => w.word);
         selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
       }
