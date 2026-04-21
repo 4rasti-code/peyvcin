@@ -153,41 +153,18 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // AGGRESSIVE SCALING LOGIC: Fit 6 rows of 58px tiles into any viewport height
-  const [gridScale, setGridScale] = useState(1);
-  useLayoutEffect(() => {
-    const calculateScale = () => {
-      if (!isMobile) return 1;
-      
-      const horizontalSpace = window.innerWidth - 32;
-      const verticalSpace = compact ? window.innerHeight * 0.22 : window.innerHeight * 0.38; // More aggressive scaling for compact/multiplayer
-      
-      const contentWidth = (wordLength * 58) + ((wordLength - 1) * 8);
-      const contentHeight = (maxRows * 58) + ((maxRows - 1) * 8);
-      
-      const hScale = horizontalSpace / contentWidth;
-      const vScale = verticalSpace / contentHeight;
-      
-      setGridScale(Math.min(1, hScale, vScale));
-    };
-    
-    calculateScale();
-    window.addEventListener('resize', calculateScale);
-    return () => window.removeEventListener('resize', calculateScale);
-  }, [wordLength, maxRows, isMobile]);
-
   const finalGap = compact ? '6px' : (isMobile ? '8px' : '12px');
-  const tileSize = compact ? 'clamp(38px, 8vmin, 44px)' : 'clamp(45px, 12vmin, 62px)';
+  const tileSize = compact ? 'clamp(34px, 7vmin, 42px)' : 'clamp(42px, 11vmin, 62px)';
 
   return (
-    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow- relative`} dir="rtl">
+    <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 relative overflow-hidden`} dir="rtl">
       <style>
         {`
           .forced-tile {
             width: ${tileSize} !important;
             height: ${tileSize} !important;
-            min-width: ${compact ? '38px' : '45px'} !important;
-            min-height: ${compact ? '38px' : '45px'} !important;
+            min-width: ${compact ? '34px' : '42px'} !important;
+            min-height: ${compact ? '34px' : '42px'} !important;
             aspect-ratio: 1 / 1 !important;
             display: flex !important;
             align-items: center !important;
@@ -200,8 +177,8 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
         className={`p-1 sm:p-2 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center ${comboGlow ? 'shadow-[0_0_40px_rgba(168,85,247,0.3)]' : ''}`} 
         style={{ 
           width: 'auto',
-          transform: `scale(${gridScale})`,
-          maxHeight: compact ? '22vh' : '45vh',
+          maxWidth: '100%',
+          maxHeight: '100%',
           display: 'grid',
           gridTemplateRows: `repeat(${maxRows}, auto)`, 
           gap: finalGap,
