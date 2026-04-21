@@ -1168,7 +1168,7 @@ export default function App() {
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar">
                 {/* Question Section */}
-                <div className={`w-full shrink-0 flex flex-col items-center ${gameMode === 'classic' ? 'justify-center py-2' : 'mt-4 mb-2'}`}>
+                <div className={`w-full shrink-0 flex flex-col items-center my-1`}>
                   <InfoBar
                     targetHint={targetHint}
                     category={category}
