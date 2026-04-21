@@ -36,7 +36,7 @@ export default function InventoryBar({
 
   return (
     <div className={`flex items-center justify-center ${className}`}>
-      <div className="bg-white/95 backdrop-blur-xl border border-slate-200 px-4 py-1.5 rounded-md flex items-center gap-5 shadow-sm">
+      <div className="bg-[#1e293b]/95 backdrop-blur-xl border border-white/10 px-4 py-1.5 rounded-md flex items-center gap-5 shadow-2xl">
         
         {/* Hint (Bulb) */}
         <div className="relative group/hint">
@@ -62,7 +62,7 @@ export default function InventoryBar({
           )}
         </div>
 
-        <div className="w-[1px] h-4 bg-slate-200" />
+        <div className="w-[1px] h-4 bg-white/10" />
 
         {/* Magnet (Magic Wand) */}
         <Item 

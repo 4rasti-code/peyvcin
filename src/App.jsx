@@ -1186,8 +1186,8 @@ export default function App() {
               </div>
 
               {/* Grid Section (Centers content in remaining space) */}
-              <div className="grid-protection-wrapper flex-1">
-                <div className="game-grid-core -mt-40 sm:-mt-64">
+              <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden">
+                <div className="game-grid-core">
                   <Grid
                     guesses={guesses}
                     currentGuess={currentGuess}
@@ -1206,7 +1206,7 @@ export default function App() {
             </div>
 
             {/* Tier 3: Keyboard (Pinned to bottom) */}
-            <div className="fixed bottom-0 left-0 w-full z-50 p-2 bg-[#020617]/40 pb-[12%] m-0">
+            <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
               <Keyboard
                 onKey={onKey}
                 onDelete={onDelete}

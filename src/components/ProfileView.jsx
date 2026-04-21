@@ -425,7 +425,7 @@ export default function ProfileView({
             </div>
          </div>
 
-         <div className="flex-1 overflow-y-auto px-4 pb-[80px] scrollbar-hide relative z-10 bg-trigger-zone">
+         <div className="flex-1 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),80px)] scrollbar-hide relative z-10 bg-trigger-zone">
             <AnimatePresence mode="wait">
                {activeTab === 'friends' && (
                   <motion.div key="friends" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4 w-full">
