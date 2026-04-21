@@ -72,14 +72,14 @@ export default function LobbyView({
       <FloatingLetterBackground ref={bgRef} />
 
       <div className="relative z-10">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           
           {/* ONLINE MULTIPLAYER (NEW) */}
           <motion.button 
             variants={itemVariants}
             onClick={() => { triggerHaptic(15); onStartMultiplayer(); }}
             {...bentoMotionProps}
-            className="col-span-2 relative h-28 rounded-md overflow-hidden bg-linear-to-r from-emerald-500 to-teal-600 shadow-xl group border-none"
+            className="col-span-2 md:col-span-4 relative h-28 rounded-md overflow-hidden bg-linear-to-r from-emerald-500 to-teal-600 shadow-xl group border-none"
           >
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
             <div className="relative z-10 flex items-center justify-between px-8 h-full">

@@ -177,7 +177,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
   }, [wordLength, maxRows, isMobile]);
 
   const finalGap = compact ? '6px' : (isMobile ? '8px' : '12px');
-  const tileSize = compact ? 'clamp(38px, 9vw, 42px)' : 'clamp(45px, 12vw, 60px)';
+  const tileSize = compact ? 'clamp(38px, 8vmin, 44px)' : 'clamp(45px, 12vmin, 62px)';
 
   return (
     <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 sm:py-2 overflow- relative`} dir="rtl">
