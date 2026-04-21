@@ -49,7 +49,7 @@ export default function InfoBar({
       <div className="w-full flex flex-col items-center justify-center py-0 px-4 sm:px-8 mt-2 animate-in fade-in duration-700 relative">
         
         <div className="w-full max-w-3xl flex items-center justify-center pt-2 pb-2 text-center relative z-10">
-          <p className="text-[clamp(1rem,2.5vh,1.35rem)] font-black text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]">
+          <p className="text-[clamp(0.9rem,3.5vh,1.7rem)] font-black text-white leading-relaxed font-noto-sans-arabic drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]">
             {displayText}
           </p>
         </div>
