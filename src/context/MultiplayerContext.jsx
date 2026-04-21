@@ -127,14 +127,14 @@ export const MultiplayerProvider = ({ children }) => {
     }
 
     if (isWin) {
-      const currentIdx = activeMatch.current_word_index || 0;
-      const updates = { [isP1 ? 'p1_score' : 'p2_score']: (isP1 ? activeMatch.p1_score : activeMatch.p2_score) + 1 };
-
-      // 1. Calculate next state
       const isP1 = activeMatch.player1_id === user.id;
+      const currentIdx = activeMatch.current_word_index || 0;
+      
+      broadcastLiveAction([], 0);
+
+      // 1. Calculate scores
       const myNewScore = isWin ? (isP1 ? activeMatch.p1_score + 1 : activeMatch.p2_score + 1) : (isP1 ? activeMatch.p1_score : activeMatch.p2_score);
       const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
-      const currentIdx = activeMatch.current_word_index || 0;
 
       // 2. Win-by-Two Logic & 3-3 Match Draw Policy
       const scoreDiff = Math.abs(myNewScore - oppScore);

@@ -918,54 +918,226 @@ export const GameProvider = ({ children }) => {
     solvedWords, playerStats,
     userNickname, userAvatar, city, isInKurdistan, countryCode,
     updateInventory,
-    updateProfile,
-    processLevelCompletion,
-    syncProgressToDatabase,
-    getLevelFromXP, getLevelData,
-    handleToggleBlock, checkBlockStatus,
-    userRank,
-    refreshRank,
-    user, setUser,
-    setFils, setDerhem, setDinar,
-    setMagnetCount, setHintCount, setSkipCount,
-    appSfxVolume, updateSfxVolume,
-    appSoundsEnabled,
+    loadingAuth,
+    loading,
+    refreshProfile: syncProfile
+  }), [value, loadingAuth, loading, syncProfile]);
+        p_user_id: currentUser.id,
+        p_award_xp: xpToAdd,
+        p_currency_type: currentAward.type,
+        p_currency_amount: currentAward.amount
+      });
+
+      if (error) throw error;
+
+      if (data) {
+        const { new_level, new_xp, award_xp, award_amount, award_type } = data;
+        const finalXP = new_xp;
+
+        // 3. Prepare Profile Updates (Inventory, Progress)
+        const profileUpdates = {
+          updated_at: new Date().toISOString(),
+          magnets: currMags,
+          hints: currHints,
+          skips: currSkips
+        };
+
+        // 5. Update Statistics (Wins/Correct/Etc)
+        setPlayerStats(prev => {
+          const next = { ...prev };
+          if (mode === 'classic') {
+             if (!next.classic) next.classic = { bestStreak: 0, currentStreak: 0, totalCorrect: 0 };
+             next.classic.totalCorrect = (next.classic.totalCorrect || 0) + 1;
+             next.classic.currentStreak = (next.classic.currentStreak || 0) + 1;
+             if (next.classic.currentStreak > next.classic.bestStreak) next.classic.bestStreak = next.classic.currentStreak;
+          } else if (mode === 'battle') {
+             if (!next.battle) next.battle = { totalWins: 0, totalLosses: 0 };
+             next.battle.totalWins = (next.battle.totalWins || 0) + 1;
+          } else if (mode === 'mamak') {
+             if (!next.mamak) next.mamak = { totalCorrect: 0 };
+             next.mamak.totalCorrect = (next.mamak.totalCorrect || 0) + 1;
+          } else if (mode === 'hard_words') {
+             if (!next.hard) next.hard = { totalCorrect: 0 };
+             next.hard.totalCorrect = (next.hard.totalCorrect || 0) + 1;
+          } else if (mode === 'word_fever') {
+             if (!next.wordFever) next.wordFever = { bestTime: 0, totalWins: 0 };
+             next.wordFever.totalWins = (next.wordFever.totalWins || 0) + 1;
+          } else if (mode === 'secret_word') {
+             if (!next.secretWord) next.secretWord = { totalSolved: 0 };
+             next.secretWord.totalSolved = (next.secretWord.totalSolved || 0) + 1;
+          }
+          
+          // Persist Stats to DB periodically or immediately
+          profileUpdates.inventory = { ...stateRef.current.inventory, stats: next };
+          if (additionalData.solvedWords) {
+            profileUpdates.inventory.solved_words = additionalData.solvedWords;
+          }
+          return next;
+        });
+
+        if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
+        
+        // Final Sync for metadata (Inventory, Stats)
+        await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
+        
+        // Forced Rank Refresh (Auth Only)
+        refreshRank(finalXP, true);
+
+        // Typography: tracking-normal ensuring no letter-spacing on Kurdish dynamic text
+        return {
+          xpAdded: award_xp,
+          newLevel: new_level,
+          awards: currentAward,
+          bahdiniMsg: `سەرکەفتنەکا نوی! ✨`
+        };
+      }
+    } catch (err) {
+      console.error("Unified XP Sync Failed:", err.message);
+      return null;
+    }
+    return null;
+  }, [refreshRank]);
+
+  /**
+   * incrementSecretWordProgress (STABILIZED)
+   */
+  const incrementSecretWordProgress = useCallback(async () => {
+    const { user: currentUser } = stateRef.current;
+    setWinsTowardsSecret(prev => {
+      const next = Math.min(3, prev + 1);
+      localStorage.setItem('peyvchin_wins_towards_secret', next.toString());
+      if (currentUser) {
+        supabase.from('profiles').update({ wins_towards_secret: next }).eq('id', currentUser.id).then(() => {
+        });
+      }
+      return next;
+    });
+  }, []);
+
+  const resetSecretWordProgress = useCallback(async () => {
+    const { user: currentUser } = stateRef.current;
+    setWinsTowardsSecret(0);
+    localStorage.setItem('peyvchin_wins_towards_secret', '0');
+    if (currentUser) {
+      await supabase.from('profiles').update({ wins_towards_secret: 0 }).eq('id', currentUser.id);
+    }
+  }, []);
+
+  const claimDailyReward = useCallback(async () => {
+    const { user: currentUser, rewardStreak: currRewardStreak, lastRewardClaimedAt: lastClaimed } = stateRef.current;
+    if (!currentUser?.id) return { success: false, error: "Tkaye pêşî wەرە ژوور" }; // Login required
+
+    const now = new Date();
+    const todayStr = getLocalDateString(now);
+    
+    // lastClaimed from DB might be a full ISO string, we need just the YYYY-MM-DD part
+    const lastClaimDate = lastClaimed ? (lastClaimed.includes('T') ? lastClaimed.split('T')[0] : lastClaimed) : null;
+
+    if (lastClaimDate === todayStr) {
+      return { success: false, error: "Te xەlatێ خۆ یێ ئەڤرۆ وەرگرتییە" }; // Already claimed today
+    }
+
+    // Determine next streak mathematically
+    let nextStreak = 1;
+    if (lastClaimDate && isYesterday(lastClaimDate, now)) {
+      nextStreak = (currRewardStreak % 7) + 1;
+    }
+
+    // Reward Mapping (Based on the newly calculated nextStreak)
+    const rewards = {
+      1: { fils: 100 },
+      2: { magnetCount: 1 },
+      3: { derhem: 5 },
+      4: { hintCount: 1 },
+      5: { dinar: 5 },
+      6: { skipCount: 1 },
+      7: { fils: 2000, magnetCount: 1, hintCount: 1, skipCount: 1 }
+    };
+
+    const currentReward = rewards[nextStreak];
+
+    // Atomic Update: State & DB
+    try {
+      // 1. Update State immediately for UI responsiveness
+      setRewardStreak(nextStreak);
+      setLastRewardClaimedAt(todayStr); // Store just the date for cleaner comparison next time
+
+      // 2. Grant the items
+      updateInventory(currentReward);
+
+      // 3. Persist to DB
+      const { error: dbError } = await supabase.from('profiles').update({
+        reward_streak: nextStreak,
+        last_reward_claimed_at: todayStr,
+        updated_at: now.toISOString()
+      }).eq('id', currentUser.id);
+
+      if (dbError) throw dbError;
+
+      return { success: true, streak: nextStreak, reward: currentReward };
+    } catch (err) {
+      console.error("Daily Reward Claim Failed:", err);
+      // Optional: rollback local state if needed, but usually Supabase eventual consistency or retry is better
+      return { success: false, error: "ئاریشەیەک د داتابەیسێ دا ھەبوو" };
+    }
+  }, [updateInventory]);
+
+
+  const checkBlockStatus = useCallback(async (targetId) => {
+    if (!user?.id) return false;
+    try {
+      const { data, error } = await supabase
+        .from('blocks')
+        .select('id')
+        .eq('blocker_id', user.id)
+        .eq('blocked_id', targetId)
+        .maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error;
+      return !!data;
+    } catch (err) {
+      console.warn("Failed to check block status (possibly RLS):", err);
+      return false;
+    }
+  }, [user?.id]);
+
+  const value = useMemo(() => ({
+    level,
+    winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
+    currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
+    dailyStreak, setDailyStreak,
+    rewardStreak, lastRewardClaimedAt, claimDailyReward,
+    playMessageSound, playMessageSentSound,
+    inventory, setInventory,
+    magnetCount, hintCount, skipCount,
+    ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,
+    solvedWords, playerStats,
+    userNickname, userAvatar, city, isInKurdistan, countryCode,
+    updateInventory,
+    appSfxVolume, updateSfxVolume, appSoundsEnabled,
     bgMusicVolume, updateMusicVolume,
     hapticEnabled, setHapticEnabled,
-    playPopSound, playNotifSound, playMessageSound,
-    playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
+    playPopSound, playNotifSound, playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
     playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
     startSearchingSound, stopSearchingSound,
-    startBGM, stopBGM,
-    playStartGameSound,
+    startBGM, stopBGM, playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx,
-    playTabSound,
-    playStartGameSound,
     setCurrentXP, setLastNotifiedLevel,
     syncProfile
   }), [
-    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, progressPercent, fils, derhem, dinar,
-    dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
+    level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, dinar,
+    dailyStreak, rewardStreak, lastRewardClaimedAt,
     inventory, magnetCount, hintCount, skipCount,
     ownedAvatars, userAvatar, unlockedThemes, currentTheme, solvedWords, playerStats,
-    userNickname, city, isInKurdistan, countryCode, userRank, user, loading, loadingAuth,
-    appSoundsEnabled, hapticEnabled, lastNotifiedLevel,
-    incrementSecretWordProgress, resetSecretWordProgress, addXP, updateInventory,
-    updateProfile, processLevelCompletion, syncProgressToDatabase, getLevelFromXP,
-    getLevelData, handleToggleBlock, checkBlockStatus, refreshRank, setUser,
-    setFils, setDerhem, setDinar, setMagnetCount, setHintCount, setSkipCount,
-    setHapticEnabled, playPopSound, playNotifSound,
-    appSfxVolume, updateSfxVolume,
-    playMessageSound, playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
-    playSettingsOpenSound, playSettingsCloseSound,
+    userNickname, city, isInKurdistan, countryCode, user, loadingAuth, loading,
+    appSoundsEnabled, hapticEnabled, lastNotifiedLevel, appSfxVolume, bgMusicVolume,
+    incrementSecretWordProgress, resetSecretWordProgress, addXP, claimDailyReward,
+    updateInventory, updateSfxVolume, updateMusicVolume, setHapticEnabled,
+    playPopSound, playNotifSound, playVictorySound, playRewardSound, playPurchaseSound,
+    playBoosterSound, playSettingsOpenSound, playSettingsCloseSound, playTabSound,
     playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
-    startSearchingSound, stopSearchingSound,
-    startBGM, stopBGM,
-    playTabSound,
-    playStartGameSound,
-    setCurrentXP, setLastNotifiedLevel,
-    syncProfile
+    startSearchingSound, stopSearchingSound, startBGM, stopBGM, playStartGameSound,
+    playDailyOpenSfx, playDailyClaimSfx, syncProfile
   ]);
 
   const valueWithRefs = useMemo(() => ({
