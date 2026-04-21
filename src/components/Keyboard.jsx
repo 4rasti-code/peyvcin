@@ -142,7 +142,7 @@ const Keyboard = memo(({
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
-              className="flex-[1.8] h-[clamp(32px,5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
+              className="flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
             >
               <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
             </motion.button>
@@ -164,7 +164,7 @@ const Keyboard = memo(({
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
-              className="flex-[1.2] h-[clamp(32px,5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
+              className="flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
             >
               <span className="material-symbols-outlined text-[20px]">backspace</span>
             </motion.button>
