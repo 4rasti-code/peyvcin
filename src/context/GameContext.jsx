@@ -576,6 +576,8 @@ export const GameProvider = ({ children }) => {
     setCurrentXP, setLastNotifiedLevel,
     checkBlockStatus,
     syncProfile,
+    updateProfile,
+    handleToggleBlock,
     syncProgressToDatabase,
     getLevelData
   }), [
@@ -591,7 +593,8 @@ export const GameProvider = ({ children }) => {
     playBoosterSound, playSettingsOpenSound, playSettingsCloseSound, playTabSound,
     playAlertSound, playBackSound, playSaveSound, playBubblePopSound,
     startSearchingSound, stopSearchingSound, startBGM, stopBGM, playStartGameSound,
-    playDailyOpenSfx, playDailyClaimSfx, syncProfile, playMessageSound, playMessageSentSound,
+    playDailyOpenSfx, playDailyClaimSfx, syncProfile, updateProfile, handleToggleBlock,
+    playMessageSound, playMessageSentSound,
     checkBlockStatus, syncProgressToDatabase, getLevelData
   ]);
 
