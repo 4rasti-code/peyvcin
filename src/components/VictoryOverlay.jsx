@@ -42,7 +42,7 @@ const VictoryOverlay = ({
   onHome, 
   playStartSound, 
   customTitle, 
-  customDescription 
+  customDescription
 }) => {
   const hasTriggeredRef = useRef(false);
 
@@ -65,13 +65,12 @@ const VictoryOverlay = ({
       const timer = setTimeout(() => {
         onHome();
       }, 7000);
-
       return () => clearTimeout(timer);
     } else {
       // Reset trigger flag when overlay is hidden
       hasTriggeredRef.current = false;
     }
-  }, [isVisible, onNext]);
+  }, [isVisible, onNext, onHome]);
 
   return (
     <AnimatePresence>
@@ -86,8 +85,9 @@ const VictoryOverlay = ({
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-md bg-[#1a1a1a] border-2 border-emerald-500/30 rounded-[3.5rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center gap-8"
+            className="w-full max-w-md bg-[#1a1a1a] border-2 border-emerald-500/30 rounded-[3.5rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center gap-8 relative"
           >
+
             {/* Status Icon Hub */}
             <div className="relative flex flex-col items-center">
               <motion.div 

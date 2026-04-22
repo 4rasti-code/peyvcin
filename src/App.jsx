@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TopAppBar from './components/TopAppBar';
+import RoundIntro from './components/RoundIntro';
+import BattleResultOverlay from './components/BattleResultOverlay';
 import Avatar from './components/Avatar';
 import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
@@ -61,7 +63,6 @@ import TermsOfService from './components/TermsOfService';
 import ProfileView from './components/ProfileView';
 import KurdishSunLoader from './components/KurdishSunLoader';
 import DailyRewardModal from './components/DailyRewardModal';
-import MultiplayerResultOverlay from './components/MultiplayerResultOverlay';
 
 
 
@@ -226,6 +227,7 @@ export default function App() {
   } = useGame();
 
   const {
+    activeMatch,
     matchId,
     multiplayerState,
     matchmakingTime,
@@ -703,41 +705,20 @@ export default function App() {
     }
   };
 
-  // 7. MULTIPLAYER RESULT REDIRECTION & AUTO-HIDE TIMER
+  // 7. MULTIPLAYER RESULT REDIRECTION (CLEANUP)
+  // Decoupled from shared isVictory/isDefeat state to prevent double overlays.
+  // BattleResultOverlay now consumes lastMatchResult directly from MultiplayerContext.
   useEffect(() => {
     if (matchResultTrigger > 0 && lastMatchResult) {
-      console.log(`[Multiplayer] Redirecting result: ${lastMatchResult}`);
-
-      // 1. Set result breakdown for overlays
+      console.log(`[Multiplayer] Result detected: ${lastMatchResult}. View redirected to Lobby.`);
+      
       if (lastMatchResult === 'victory') {
-        const isForfeit = multiplayerState === 'game_over' && forfeitStatus;
-
-        setIsVictory(true);
-        playRewardSound();
-        setVictoryBreakdown({ base: 50, mistakes: 0, total: 50, mode: 'Multiplayer' });
-        setRewardAmountXp(100);
-
-        if (forfeitStatus === 'confirmed') {
-          setVictoryCustomText({
-            title: "هەڤڕکێ تە دەرکەفت",
-            description: "هەڤڕکێ تە یێ پچڕای، تو ب سەرکەفتی!"
-          });
-        } else {
-          setVictoryCustomText(null);
-        }
-      } else if (lastMatchResult === 'defeat') {
-        setIsDefeat(true);
-        setDefeatBreakdown({ base: 0, mistakes: 0, total: 0, mode: 'Multiplayer' });
+         playRewardSound();
       }
-
-      // 2. Transition back to Lobby (if not already there)
+      
       setCurrentView('lobby');
-
-      // 3. Delegation: The VictoryOverlay and DefeatOverlay components
-      // now handle their own 10-second auto-dismissal logic by calling
-      // onNext or onHome, which triggers the necessary state cleanups.
     }
-  }, [matchResultTrigger, lastMatchResult, setCurrentView, setIsDefeat, setIsVictory]);
+  }, [matchResultTrigger, lastMatchResult, setCurrentView]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
@@ -1362,21 +1343,63 @@ export default function App() {
             />
           )}
 
-        {/* 4. GLOBAL OVERLAYS */}
-        <VictoryOverlay
-          isVisible={isVictory && gameMode !== 'word_fever'}
-          breakdown={victoryBreakdown}
-          solvedWord={lastSolvedWord}
-          xp={rewardAmountXp}
-          customTitle={victoryCustomText?.title}
-          customDescription={victoryCustomText?.description}
+        {/* 4. GLOBAL OVERLAYS (SINGLE PLAYER ONLY) */}
+        {multiplayerState === 'idle' && (
+          <>
+            {/* Single Player Victory */}
+            <VictoryOverlay
+              isVisible={isVictory && currentView === 'game' && gameMode !== 'word_fever'}
+              breakdown={victoryBreakdown}
+              solvedWord={lastSolvedWord}
+              xp={rewardAmountXp}
+              customTitle={victoryCustomText?.title}
+              customDescription={victoryCustomText?.description}
+              onNext={() => {
+                setIsVictory(false);
+                handleNextGame();
+              }}
+              onHome={handleGoHome}
+              playStartSound={playStartGameSound}
+            />
+
+            {/* Single Player Defeat */}
+            <DefeatOverlay
+              isVisible={isDefeat && currentView === 'game' && gameMode !== 'word_fever'}
+              solvedWord={lastSolvedWord}
+              breakdown={defeatBreakdown}
+              gameMode={gameMode}
+              playStartSound={playStartGameSound}
+              onRetry={() => {
+                setIsDefeat(false);
+                const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
+                if (wordObj) resetBoard(wordObj);
+              }}
+              onHome={handleGoHome}
+            />
+          </>
+        )}
+
+        {/* UNIFIED MULTIPLAYER BATTLE RESULT */}
+        <BattleResultOverlay
+          isVisible={multiplayerState === 'game_over' && !!lastMatchResult}
+          result={lastMatchResult}
+          scores={scores}
+          opponent={opponent}
+          user={{ nickname: userNickname, avatar_url: userAvatar, level: level }}
+          isPlayer1={activeMatch?.player1_id === user?.id}
+          breakdown={lastMatchResult === 'victory' ? (matchReward?.awards ? { awardAmount: matchReward.awards.amount, awardType: matchReward.awards.type, xpAdded: matchReward.xpAdded } : { awardAmount: 1, awardType: 'derhem', xpAdded: 100 }) : { awardAmount: 0, xpAdded: 20 }}
+          xp={lastMatchResult === 'victory' ? 100 : 20}
           onNext={() => {
-            setIsVictory(false);
-            handleNextGame();
+            resetMatchResultTrigger();
+            handleGoHome();
           }}
-          onHome={handleGoHome}
+          onExit={() => {
+            resetMatchResultTrigger();
+            handleGoHome();
+          }}
           playStartSound={playStartGameSound}
         />
+
         <SettingsModal
           isOpen={isSettingsOpen}
           onClose={() => { playSettingsCloseSound(); setIsSettingsOpen(false); }}
@@ -1426,22 +1449,6 @@ export default function App() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        <DefeatOverlay
-          isVisible={isDefeat && gameMode !== 'word_fever'}
-          solvedWord={lastSolvedWord}
-          breakdown={defeatBreakdown}
-          gameMode={gameMode}
-          playStartSound={playStartGameSound}
-          onRetry={() => {
-            setIsDefeat(false);
-            // Fixed: passing gameMode correctly to maintain difficulty/length rules on retry
-            const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
-            if (wordObj) resetBoard(wordObj);
-          }}
-          onHome={handleGoHome}
-        />
-
         <WordFeverResultOverlay
           isVisible={isWordFeverResultVisible}
           type={wordFeverResultType}
@@ -1540,24 +1547,7 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        <MultiplayerResultOverlay
-          isVisible={multiplayerState === 'game_over' && lastMatchResult !== null}
-          result={lastMatchResult}
-          scores={scores}
-          opponent={opponent}
-          userAvatar={userAvatar}
-          userNickname={userNickname}
-          onPlayAgain={() => {
-            resetMatchResultTrigger();
-            startMatchmaking();
-          }}
-          onClose={() => {
-            resetMatchResultTrigger();
-            cancelMatch(); // Reset state to idle
-          }}
-          isForfeitWin={isForfeitWin}
-          rewards={matchReward}
-        />
+
       </div>
     </div>
   );

@@ -49,7 +49,6 @@ const DefeatOverlay = ({
       const timer = setTimeout(() => {
         onHome();
       }, 7000);
-
       return () => clearTimeout(timer);
     }
   }, [isVisible, onHome]);
@@ -67,7 +66,7 @@ const DefeatOverlay = ({
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-full max-w-md bg-[#1a1a1a] border-2 border-red-500/30 rounded-[3.5rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center gap-8"
+            className="w-full max-w-md bg-[#1a1a1a] border-2 border-red-500/30 rounded-[3.5rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.8)] flex flex-col items-center gap-8 relative"
           >
             {/* Status Icon Hub */}
             <div className="relative flex flex-col items-center">
@@ -100,7 +99,7 @@ const DefeatOverlay = ({
               )}
 
               {/* Stats & Penalties Table */}
-              <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-3xl border border-red-500/10 shadow-inner">
+              <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-[2.5rem] border border-red-500/10 shadow-inner">
                 <div className="flex justify-between items-center text-sm font-black  group/row">
                   <span className="text-white/80 transition-colors group-hover/row:text-white">سزایێ دۆڕاندنێ</span>
                   <div className="flex items-center gap-2 text-red-400">
@@ -132,6 +131,7 @@ const DefeatOverlay = ({
                     <FilsIcon size={18} />
                   </div>
                 </div>
+
                 {breakdown?.total === 0 && (
                    <div className="mt-2 text-[9px] font-bold text-blue-400 opacity-60 italic">
                      🛡️ پاراستنا بانکڕۆتیێ کار دکەت

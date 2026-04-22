@@ -75,7 +75,7 @@ export const getRewardForMode = (mode) => {
     'word_fever': { type: 'fils', amount: 75, xp: 60 },
     'mamak': { type: 'derhem', amount: 5, xp: 50 },
     'hard_words': { type: 'fils', amount: 100, xp: 80 },
-    'battle': { type: 'dinar', amount: 1, xp: 100 },
+    'battle': { type: 'derhem', amount: 1, xp: 100 },
     'secret_word': { type: 'dinar', amount: 1, xp: 120 } // Unified to Dinar per final request
   };
   

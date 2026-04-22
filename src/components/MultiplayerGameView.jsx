@@ -250,7 +250,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           onDelete={onDelete} 
           onEnter={onEnter} 
           usedKeys={usedKeys}
-          gameState={guesses.length >= 3 ? 'lost' : 'playing'}
+          gameState={(multiplayerState === 'game_over' || isRoundWinner) ? 'won' : (guesses.length >= 3 ? 'lost' : 'playing')}
           hidePowerups={true}
         />
       </div>
