@@ -11,7 +11,6 @@ export default function LobbyView({
   onStartSecretWord, 
   onStartWordFever, 
   onStartMultiplayer, // Handle matchmaking
-  onSocialClick, 
   onDailyRewardClick,
   dailyStreak,
   onViewChange,

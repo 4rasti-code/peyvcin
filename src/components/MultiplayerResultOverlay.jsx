@@ -35,7 +35,6 @@ export default function MultiplayerResultOverlay({
   opponent, 
   userAvatar, 
   userNickname,
-  onPlayAgain, 
   onClose,
   isForfeitWin 
 }) {

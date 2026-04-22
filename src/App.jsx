@@ -711,11 +711,11 @@ export default function App() {
   useEffect(() => {
     if (matchResultTrigger > 0 && lastMatchResult) {
       console.log(`[Multiplayer] Result detected: ${lastMatchResult}. View redirected to Lobby.`);
-      
+
       if (lastMatchResult === 'victory') {
-         playRewardSound();
+        playRewardSound();
       }
-      
+
       setCurrentView('lobby');
     }
   }, [matchResultTrigger, lastMatchResult, setCurrentView]);
@@ -1117,9 +1117,7 @@ export default function App() {
                 selectCategory('generalWordPool', 'secret_word');
                 resetSecretWordProgress();
               }}
-              onSocialClick={() => {
-                navigateTo('social_hub');
-              }}
+
               onDailyRewardClick={() => {
                 playBubblePopSound();
                 setIsDailyRewardOpen(true);
@@ -1390,6 +1388,10 @@ export default function App() {
           breakdown={lastMatchResult === 'victory' ? (matchReward?.awards ? { awardAmount: matchReward.awards.amount, awardType: matchReward.awards.type, xpAdded: matchReward.xpAdded } : { awardAmount: 1, awardType: 'derhem', xpAdded: 100 }) : { awardAmount: 0, xpAdded: 20 }}
           xp={lastMatchResult === 'victory' ? 100 : 20}
           onNext={() => {
+            resetMatchResultTrigger();
+            handleGoHome();
+          }}
+          onExit={() => {
             resetMatchResultTrigger();
             handleGoHome();
           }}

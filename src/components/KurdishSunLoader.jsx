@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const KurdishSunLoader = ({ size = 60, color = "#FFD700" }) => {
+const KurdishSunLoader = ({ size = 70, color = "#FFD700" }) => {
   return (
     <div className="flex items-center justify-center p-4">
       <motion.svg
@@ -15,7 +15,7 @@ const KurdishSunLoader = ({ size = 60, color = "#FFD700" }) => {
       >
         {/* Central Disk */}
         <circle cx="50" cy="50" r="18" fill={color} />
-        
+
         {/* 21 Rays of the Kurdish Sun */}
         {Array.from({ length: 21 }).map((_, i) => {
           const angle = (i * 360) / 21;

@@ -11,7 +11,6 @@ export const MultiplayerProvider = ({ children }) => {
   const { 
     user, 
     userNickname,
-    userAvatar,
     startSearchingSound, 
     stopSearchingSound, 
     playStartGameSound,
@@ -339,13 +338,28 @@ export const MultiplayerProvider = ({ children }) => {
       setScores({ p1: 0, p2: 0 });
       setCurrentWordIndex(1);
       setForfeitStatus(null);
+      setMatchResultTrigger(0);
+      setLastMatchResult(null);
+      setMatchReward(null);
+      
       if (forfeitTimerRef.current) {
         clearTimeout(forfeitTimerRef.current);
         forfeitTimerRef.current = null;
       }
-      stopSearchingSound(false);
+
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
+
+      // STOP SEARCHING SOUND
+      try { 
+        stopSearchingSound(false); 
+      } catch (e) {
+        console.warn("Failed to stop searching sound:", e);
+      }
     }
-  }, [matchId, multiplayerState, stopSearchingSound]);
+  }, [matchId, multiplayerState, stopSearchingSound, supabase]);
 
   // 1. POLLING FALLBACK: Detect player join automatically
   useEffect(() => {
@@ -825,20 +839,7 @@ export const MultiplayerProvider = ({ children }) => {
       opponent,
       setMultiplayerState,
       startMatchmaking,
-      cancelMatch: () => {
-        // Full clean logic for manually returning to lobby
-        setMultiplayerState('idle');
-        setMatchId(null);
-        setActiveMatch(null);
-        setOpponent(null);
-        setLastMatchResult(null);
-        setMatchReward(null);
-        setMatchResultTrigger(0);
-        if (channelRef.current) {
-          supabase.removeChannel(channelRef.current);
-          channelRef.current = null;
-        }
-      },
+      cancelMatch,
       submitGuess,
       submitFailure,
       broadcastGuess,
