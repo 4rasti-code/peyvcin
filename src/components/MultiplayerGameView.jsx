@@ -174,24 +174,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         `}
       </style>
       
-      {/* 1. SCOREBOARD (Dedicated Header) */}
-      <div className="shrink-0 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 bg-white/5 border-b border-white/10 flex items-center justify-between">
-        {/* OPPONENT SCORE */}
+      {/* 1. MINIMAL HEADER (Round Info Only) */}
+      <div className="shrink-0 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 flex items-center justify-center relative">
         <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black text-amber-400 uppercase">هەڤڕک</span>
-          <span className="text-xl font-black text-white leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
-        </div>
-
-        {/* CENTER: ROUND & VS */}
-        <div className="flex flex-col items-center relative">
-            <div className="text-[9px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black mb-0.5 tracking-widest">BATTLE</div>
-            <div className="text-[11px] font-black text-white/40 leading-none">گەڕ {toKuDigits(currentRound + 1)}</div>
-        </div>
-
-        {/* YOUR SCORE */}
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] font-black text-emerald-400 uppercase">تۆ</span>
-          <span className="text-xl font-black text-white leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+            <div className="text-[9px] bg-emerald-500/20 text-emerald-400 px-3 py-0.5 rounded-full font-black mb-0.5 tracking-[0.2em]">BATTLE</div>
+            <div className="text-[12px] font-black text-white/30 uppercase">گەڕ {toKuDigits(currentRound + 1)}</div>
         </div>
       </div>
 
@@ -200,19 +187,19 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       <div className="battlefield-container no-scrollbar" dir="rtl">
         
         {/* RIDDLE DISPLAY */}
-        <div className="w-full flex flex-col items-center justify-center py-2 px-2 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
+        <div className="w-full flex flex-col items-center justify-center py-2 px-4 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
           <p className="text-lg sm:text-2xl font-light text-white leading-none font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
         </div>
 
         {/* TOP HALF: YOUR GRID */}
-        <div className="flex-1 min-h-0 flex items-center justify-center gap-2 px-4 border-b border-white/5 w-full bg-white/[0.01]">
-          <div className="flex flex-col items-center gap-1 shrink-0 animate-in slide-in-from-right duration-500">
-             <Avatar src={userAvatar} size="xs" border={true} />
-             <span className="text-[9px] font-black text-emerald-400/80 uppercase truncate max-w-[60px]">{userNickname}</span>
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1 w-full bg-white/[0.01]">
+          <div className="flex items-center gap-2 opacity-60 scale-90">
+             <Avatar src={userAvatar} size="xs" />
+             <span className="text-[10px] font-black text-emerald-400 uppercase">{userNickname}</span>
           </div>
-          <div className="flex-1 flex justify-center overflow-hidden" dir="rtl">
+          <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
               guesses={guesses}
               currentGuess={currentGuess}
@@ -225,13 +212,24 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           </div>
         </div>
 
+        {/* CENTER VS BAR: THE SCORES */}
+        <div className="shrink-0 flex items-center justify-center gap-4 py-1.5 z-20 relative">
+           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent h-[1px] top-1/2 -translate-y-1/2 w-full" />
+           
+           <div className="flex items-center gap-3 bg-[#020617] px-5 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
+              <div className="flex flex-col items-center">
+                 <span className="text-[14px] font-black text-emerald-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+              </div>
+              <div className="w-[1px] h-4 bg-white/10 mx-1" />
+              <div className="flex flex-col items-center">
+                 <span className="text-[14px] font-black text-amber-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
+              </div>
+           </div>
+        </div>
+
         {/* BOTTOM HALF: OPPONENT GRID */}
-        <div className="flex-1 min-h-0 flex items-center justify-center gap-2 px-4 w-full bg-black/10">
-          <div className="flex flex-col items-center gap-1 shrink-0 animate-in slide-in-from-right duration-500 delay-100">
-             <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xs" border={true} />
-             <span className="text-[9px] font-black text-amber-400/80 uppercase truncate max-w-[60px]">{opponent?.nickname || 'چاڤەڕێ'}</span>
-          </div>
-          <div className="flex-1 flex justify-center overflow-hidden" dir="rtl">
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1 w-full bg-black/10">
+          <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
               opponentStatuses={opponentGuesses}
               wordLength={targetWord.length}
@@ -244,6 +242,10 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               opponentLiveStatuses={opponentLiveStatuses}
               opponentLiveCursor={opponentLiveCursor}
             />
+          </div>
+          <div className="flex items-center gap-2 opacity-60 scale-90">
+             <span className="text-[10px] font-black text-amber-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
+             <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xs" />
           </div>
         </div>
       </div>
