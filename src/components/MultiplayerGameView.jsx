@@ -188,7 +188,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1 w-full bg-white/[0.01]">
           <div className="flex items-center gap-2 opacity-60 scale-90">
              <Avatar src={userAvatar} size="xs" />
-             <span className="text-[10px] font-black text-emerald-400 uppercase">{userNickname}</span>
+             <span className="text-[10px] font-black text-blue-400 uppercase">{userNickname}</span>
           </div>
           <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
@@ -209,13 +209,13 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
            
            <div className="flex items-center gap-3 bg-[#020617] px-4 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-emerald-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+                 <span className="text-[14px] font-black text-blue-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
               </div>
               <div className="w-[1px] h-3 bg-white/10 mx-1" />
               <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter">گەڕ {toKuDigits(currentRound + 1)}</div>
               <div className="w-[1px] h-3 bg-white/10 mx-1" />
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-amber-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
+                 <span className="text-[14px] font-black text-red-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
               </div>
            </div>
         </div>
@@ -237,7 +237,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
             />
           </div>
           <div className="flex items-center gap-2 opacity-60 scale-90">
-             <span className="text-[10px] font-black text-amber-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
+             <span className="text-[10px] font-black text-red-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
              <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xs" />
           </div>
         </div>
