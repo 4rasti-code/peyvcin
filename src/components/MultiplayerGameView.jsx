@@ -209,13 +209,19 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
            
            <div className="flex items-center gap-3 bg-[#020617] px-4 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-emerald-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+                 <span className="text-[14px] font-black text-emerald-400 leading-none">
+                    {toKuDigits(isPlayer1 ? (scores?.p1 ?? 0) : (scores?.p2 ?? 0))}
+                 </span>
               </div>
               <div className="w-[1px] h-3 bg-white/10 mx-1" />
-              <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter">گەڕ {toKuDigits(currentRound + 1)}</div>
+              <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter">
+                گەڕ {toKuDigits(currentRound || 1)}
+              </div>
               <div className="w-[1px] h-3 bg-white/10 mx-1" />
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-amber-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
+                 <span className="text-[14px] font-black text-amber-400 leading-none">
+                    {toKuDigits(isPlayer1 ? (scores?.p2 ?? 0) : (scores?.p1 ?? 0))}
+                 </span>
               </div>
            </div>
         </div>
@@ -224,16 +230,16 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-1 w-full bg-black/10">
           <div className="w-full flex justify-center overflow-hidden" dir="rtl">
             <Grid 
-              opponentStatuses={opponentGuesses}
-              wordLength={targetWord.length}
+              opponentStatuses={opponentGuesses || []}
+              wordLength={targetWord?.length || 5}
               maxRows={3}
               hideLetters={true}
-              targetWord={targetWord}
+              targetWord={targetWord || ''}
               getLetterStatus={() => ''}
               compact={true}
-              activeRowIndex={opponentGuesses.length}
-              opponentLiveStatuses={opponentLiveStatuses}
-              opponentLiveCursor={opponentLiveCursor}
+              activeRowIndex={opponentGuesses?.length || 0}
+              opponentLiveStatuses={opponentLiveStatuses || []}
+              opponentLiveCursor={opponentLiveCursor || 0}
             />
           </div>
           <div className="flex items-center gap-2 opacity-60 scale-90">
