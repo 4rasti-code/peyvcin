@@ -530,7 +530,15 @@ export const GameProvider = ({ children }) => {
     const lastClaimDate = lastClaimed ? (lastClaimed.includes('T') ? lastClaimed.split('T')[0] : lastClaimed) : null;
     if (lastClaimDate === todayStr) return { success: false, error: "Te xەلاتێ خۆ یێ ئەڤرۆ وەرگرتییە" };
     let nextStreak = (lastClaimDate && isYesterday(lastClaimDate, now)) ? (currRewardStreak % 7) + 1 : 1;
-    const rewards = { 1: { fils: 100 }, 2: { magnetCount: 1 }, 3: { derhem: 5 }, 4: { hintCount: 1 }, 5: { dinar: 5 }, 6: { skipCount: 1 }, 7: { fils: 2000, magnetCount: 1, hintCount: 1, skipCount: 1 } };
+    const rewards = { 
+      1: { fils: 200 }, 
+      2: { hintCount: 1 }, 
+      3: { derhem: 5 }, 
+      4: { magnetCount: 1 }, 
+      5: { derhem: 15 }, 
+      6: { skipCount: 1 }, 
+      7: { fils: 2000, dinar: 1 } 
+    };
     const currentReward = rewards[nextStreak];
     try {
       setRewardStreak(nextStreak);
