@@ -194,12 +194,12 @@ export default function ProfileView({
                <div className="absolute inset-0 bg-linear-to-b from-[#1a1c2c] via-[#0a0b14] to-black opacity-100"></div>
 
                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-black/20 z-50 overflow-hidden">
-                  <motion.div
-                     key="liquid-xp-bar"
-                     initial={{ height: 0 }}
-                     animate={{ height: `${progressPercent}%` }}
-                     transition={{ duration: 2, ease: "circOut" }}
-                     className="absolute bottom-0 left-0 w-full rounded-t-full shadow-[0_0_10px_rgba(255,255,255,0.4)]"
+                     <motion.div
+                        key="liquid-xp-bar"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: progressPercent / 100 }}
+                        transition={{ duration: 2, ease: "circOut" }}
+                        className="absolute bottom-0 left-0 w-full rounded-t-full shadow-[0_0_10px_rgba(255,255,255,0.4)] origin-bottom"
                      style={{
                         background: `linear-gradient(to top, ${tier.stop2}, ${tier.stop1}, #fff)`
                      }}
@@ -481,11 +481,11 @@ export default function ProfileView({
                            <div className="w-full text-right px-1 mt-1">
                               <AnimatePresence>
                                  {draftNickname.length > 0 && draftNickname.length < 8 && (
-                                    <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت</motion.p>
+                                                                         <motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت</motion.p>
                                  )}
 
                                  {draftNickname.length > 15 && (
-                                    <motion.p initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناڤێ تە ژ ١٥ پیتان زێدەتر بیت</motion.p>
+                                                                         <motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-red-500 text-[10px] font-black">نابیت ناڤێ تە ژ ١٥ پیتان زێدەتر بیت</motion.p>
                                  )}
 
                               </AnimatePresence>

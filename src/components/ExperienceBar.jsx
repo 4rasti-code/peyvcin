@@ -67,8 +67,9 @@ const ExperienceBar = () => {
             background-size: 200% 100%; 
             animation: flowWavesGlobal 2.5s linear infinite;
             box-shadow: inset 0 -3px 6px rgba(0,0,0,0.2), inset 0 4px 6px rgba(255,255,255,0.4);
-            border-radius: 50px 0 0 50px;
-            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scaleX(1);
+            transform-origin: left;
+            transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
           }
         `}
       </style>
@@ -85,7 +86,7 @@ const ExperienceBar = () => {
           {/* LIQUID WATER FILL */}
           <div className="liquid-water-global" style={{
               position: 'absolute', top: 0, left: 0, height: '100%',
-              width: fillPercentage + '%', zIndex: 1
+              width: '100%', transform: `scaleX(${fillPercentage / 100})`, zIndex: 1
             }}></div>
 
           {/* XP NUMBERS */}

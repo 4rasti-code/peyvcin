@@ -491,16 +491,29 @@ export const GameProvider = ({ children }) => {
     setBgMusicVolume(val);
     localStorage.setItem('peyvchin_bg_music_volume', val.toString());
     setBackgroundMusicVolume(val / 100);
+    
+    // Optimized: Only sync with DB after 1s of inactivity or on "interaction complete" logic elsewhere
     const { user: currentUser } = stateRef.current;
-    if (currentUser) supabase.from('profiles').update({ music_enabled: val > 0, updated_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+    if (currentUser) {
+      if (stateRef.current.musicUpdateTimeout) clearTimeout(stateRef.current.musicUpdateTimeout);
+      stateRef.current.musicUpdateTimeout = setTimeout(() => {
+        supabase.from('profiles').update({ music_enabled: val > 0, updated_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+      }, 1000);
+    }
   }, []);
 
   const updateSfxVolume = useCallback((val) => {
     setAppSfxVolume(val);
     localStorage.setItem('peyvchin_sfx_volume', val.toString());
     import('../utils/audio').then(m => m.setSfxVolume(val / 100));
+    
     const { user: currentUser } = stateRef.current;
-    if (currentUser) supabase.from('profiles').update({ sfx_volume: val, updated_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+    if (currentUser) {
+      if (stateRef.current.sfxUpdateTimeout) clearTimeout(stateRef.current.sfxUpdateTimeout);
+      stateRef.current.sfxUpdateTimeout = setTimeout(() => {
+        supabase.from('profiles').update({ sfx_volume: val, updated_at: new Date().toISOString() }).eq('id', currentUser.id).then();
+      }, 1000);
+    }
   }, []);
 
   useEffect(() => { setBackgroundMusicVolume(bgMusicVolume / 100); }, [bgMusicVolume]);

@@ -84,7 +84,8 @@ function SettingsModal({
                              min="0" 
                              max="100" 
                              value={appSfxVolume} 
-                             onChange={(e) => onAppSfxVolumeChange(parseInt(e.target.value))}
+                                                           onChange={(e) => onAppSfxVolumeChange(parseInt(e.target.value))}
+                              onPointerUp={(e) => onAppSfxVolumeChange(parseInt(e.target.value))}
                              className="w-full h-1.5 rounded-none appearance-none cursor-pointer focus:outline-none"
                              style={{
                                 background: `linear-gradient(to left, ${palette.accent} 0%, ${palette.accent} ${appSfxVolume}%, #94a3b8 ${appSfxVolume}%, #94a3b8 100%)`

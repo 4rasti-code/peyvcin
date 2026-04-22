@@ -1,7 +1,7 @@
-import React, { useMemo, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { motion, useSpring, useMotionValue, useTransform, animate } from 'framer-motion';
+import React, { useMemo, useEffect, useRef, forwardRef, useImperativeHandle, memo } from 'react';
+import { motion, useSpring, useMotionValue, useTransform, animate, useMotionValueEvent } from 'framer-motion';
 
-const FloatingLetter = ({ char, initialX, initialY, pulsePos }) => {
+const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
   // Movement springs - Low stiffness, High damping for "liquid" feel
   const springConfig = { damping: 35, stiffness: 12 };
   const x = useSpring(0, springConfig);
@@ -34,16 +34,16 @@ const FloatingLetter = ({ char, initialX, initialY, pulsePos }) => {
     };
   }, []);
 
-  // Pulse (Fish Reaction) Logic
-  useEffect(() => {
-    if (!pulsePos) return;
+  // Pulse (Fish Reaction) Logic via MotionValue Subscription
+  useMotionValueEvent(pulseMV, "change", (latest) => {
+    if (!latest) return;
 
     // Relative coordinates
     const nx = initialX / 100;
     const ny = initialY / 100;
     
-    const dx = nx - pulsePos.x;
-    const dy = ny - pulsePos.y;
+    const dx = nx - latest.x;
+    const dy = ny - latest.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     // If within interaction range
@@ -64,16 +64,14 @@ const FloatingLetter = ({ char, initialX, initialY, pulsePos }) => {
       opacity.set(0.35);
 
       // Smoothly return
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         x.set(0);
         y.set(0);
         rotate.set(0);
         opacity.set(0.12);
       }, 1500 + Math.random() * 1000);
-
-      return () => clearTimeout(timer);
     }
-  }, [pulsePos]);
+  });
 
   return (
     <motion.div
@@ -90,14 +88,15 @@ const FloatingLetter = ({ char, initialX, initialY, pulsePos }) => {
       {char}
     </motion.div>
   );
-};
+});
 
 const FloatingLetterBackground = forwardRef((props, ref) => {
-  const [pulsePos, setPulsePos] = React.useState(null);
+  // Use MotionValue instead of state to avoid re-rendering 40+ letters on every pulse
+  const pulseMV = useMotionValue(null);
   
   const chars = ['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ', 'گ', 'چ', 'ژ', 'هـ'];
   
-  // Adjusted density for medium small letters (40 letters)
+  // Memoize positions
   const letters = useMemo(() => {
     return [...Array(40)].map((_, i) => ({
       id: i,
@@ -110,7 +109,8 @@ const FloatingLetterBackground = forwardRef((props, ref) => {
   // Expose pulse method
   useImperativeHandle(ref, () => ({
     pulse: (px, py) => {
-      setPulsePos({ x: px, y: py, t: Date.now() });
+      // Setting MotionValue does NOT trigger React re-render of this component
+      pulseMV.set({ x: px, y: py, t: Date.now() });
     }
   }));
 
@@ -124,11 +124,11 @@ const FloatingLetterBackground = forwardRef((props, ref) => {
           char={letter.char}
           initialX={letter.x}
           initialY={letter.y}
-          pulsePos={pulsePos}
+          pulseMV={pulseMV}
         />
       ))}
     </div>
   );
 });
 
-export default FloatingLetterBackground;
+export default memo(FloatingLetterBackground);

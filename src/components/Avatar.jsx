@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 
 /**
@@ -6,7 +6,7 @@ import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
  * Handles dual-source logic: local assets vs Supabase Storage URLs.
  * Implements smart versioning (?v=) for remote images to bypass cache.
  */
-export default function Avatar({ 
+const Avatar = memo(({ 
   src, 
   symbol, 
   updatedAt, 
@@ -16,7 +16,7 @@ export default function Avatar({
   size = "md", // 'sm', 'md', 'lg', 'xl', '2xl'
   border = true,
   level = null
-}) {
+}) => {
   const isRemote = typeof src === 'string' && src.startsWith('http');
   const avatarData = AVATARS.find(a => a.id === src);
   
@@ -101,4 +101,6 @@ export default function Avatar({
       )}
     </div>
   );
-}
+};
+
+export default Avatar;

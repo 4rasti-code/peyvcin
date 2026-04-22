@@ -4,7 +4,7 @@ import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import FloatingLetterBackground from './FloatingLetterBackground';
 
-export default function LobbyView({ 
+const LobbyView = React.memo(({ 
   onStartClassic, 
   onStartMamak,
   onStartHardWords, 
@@ -16,7 +16,7 @@ export default function LobbyView({
   onViewChange,
   notificationCount = 0,
   winsTowardsSecret = 0
-}) {
+}) => {
   const bgRef = useRef(null);
   
   const handleBackgroundClick = (e) => {
@@ -226,4 +226,6 @@ export default function LobbyView({
       </div>
     </motion.div>
   );
-}
+};
+
+export default LobbyView;

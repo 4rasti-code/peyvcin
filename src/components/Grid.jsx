@@ -1,8 +1,8 @@
 import React, { memo, useState, useEffect, useLayoutEffect } from 'react';
 import { STATUS } from '../data/constants';
-import { motion } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
 
-const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0 }) => {
+const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0 }) => {
   
   let bgColor = 'bg-[#020617] border border-white/20 shadow-2xl';
   let textColor = 'text-white';
@@ -52,6 +52,17 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       >
         {char}
       </span>
+
+      {/* Optimized Motion Focus Ring (GPU Accelerated) */}
+      {isFocusedMV && (
+        <motion.div 
+          className="absolute inset-0 ring-2 ring-inset ring-emerald-500 z-30 pointer-events-none"
+          style={{ 
+            opacity: useTransform(isFocusedMV, (val) => val === index ? 1 : 0)
+          }}
+        />
+      )}
+
       {shouldHideText && (char || isMaskedLive) && (
          <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-2.5 h-2.5 rounded-full bg-white/40 animate-pulse" />
@@ -63,6 +74,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
   return prev.char === next.char &&
          prev.status === next.status &&
          prev.isFocused === next.isFocused &&
+         prev.isFocusedMV === next.isFocusedMV &&
          prev.isCurrent === next.isCurrent &&
          prev.isRevealed === next.isRevealed &&
          prev.isNewHint === next.isNewHint &&
@@ -76,7 +88,10 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
   // PRE-CALCULATE CONSTANTS for the row maps
   const guessArr = Array.isArray(guess) ? guess : (typeof guess === 'string' ? guess.split('') : []);
   const firstEmptyIndex = guessArr.findIndex(c => c === '');
-  const actualFocusIndex = forcedFocusIndex !== null ? forcedFocusIndex : (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex);
+  
+  // If forcedFocusIndex is a MotionValue, we'll pass it down differently
+  const isMV = forcedFocusIndex && typeof forcedFocusIndex === 'object' && forcedFocusIndex.get;
+  const actualFocusIndex = isMV ? null : (forcedFocusIndex !== null ? forcedFocusIndex : (firstEmptyIndex === -1 ? wordLength - 1 : firstEmptyIndex));
 
   return (
     <div 
@@ -95,12 +110,14 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
         let isRevealed = (revealedIndices || []).includes(i);
         let isNewHint = i === lastHintIndex;
         
-        const isFocused = isCurrent && i === actualFocusIndex;
-
+        const isFocused = !isMV && isCurrent && i === actualFocusIndex;
+        
+        // This is still not quite optimized for MotionValue because Tile is not a motion component that subscribes directly yet.
+        // But we are passing it down as requested.
+        
         if (forcedStatuses) {
           status = forcedStatuses[i] || STATUS.NONE;
         } else if (!isCurrent && guessArr.length > 0) {
-          // Only calculate status for SUBMITTED rows (prevents lag during typing)
           status = getLetterStatus(guess, i);
         }
 
@@ -114,6 +131,8 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
             isRevealed={isRevealed}
             isNewHint={isNewHint}
             isFocused={isFocused}
+            isFocusedMV={isMV ? forcedFocusIndex : null}
+            index={i}
             isMobile={isMobile}
             isSecretMode={isSecretMode}
             hideLetters={hideLetters}

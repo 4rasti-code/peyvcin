@@ -1,7 +1,7 @@
 import React from 'react';
 import { toKuDigits } from '../utils/formatters';
 
-export default function InventoryBar({ 
+const InventoryBar = ({ 
   magnetCount, 
   hintCount, 
   skipCount, 
@@ -13,7 +13,7 @@ export default function InventoryBar({
   magnetUsedInRound = false,
   isShop = false,
   className = ""
-}) {
+}) => {
   const Item = ({ icon, color, count, onClick, disabled, glowColor, hideCount = false }) => (
     <button 
       onClick={onClick}
@@ -86,4 +86,6 @@ export default function InventoryBar({
       </div>
     </div>
   );
-}
+};
+
+export default React.memo(InventoryBar);

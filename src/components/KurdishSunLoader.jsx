@@ -36,4 +36,4 @@ const KurdishSunLoader = ({ size = 70, color = "#FFD700" }) => {
   );
 };
 
-export default KurdishSunLoader;
+export default React.memo(KurdishSunLoader);

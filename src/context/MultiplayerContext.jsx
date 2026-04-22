@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useMotionValue } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { getUnifiedWords } from '../data/wordList';
 import { triggerHaptic } from '../utils/haptics';
@@ -37,9 +38,8 @@ export const MultiplayerProvider = ({ children }) => {
   const [matchReward, setMatchReward] = useState(null);
   const forfeitTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
-
   const [opponentLiveStatuses, setOpponentLiveStatuses] = useState([]);
-  const [opponentLiveCursor, setOpponentLiveCursor] = useState(0);
+  const opponentLiveCursor = useMotionValue(0);
 
   const stateRef = useRef(multiplayerState);
   const wordIndexRef = useRef(currentWordIndex);
@@ -422,7 +422,7 @@ export const MultiplayerProvider = ({ children }) => {
           const data = payload.payload || payload;
           if (user?.id && data.senderId && data.senderId !== user.id) {
             setOpponentLiveStatuses(data.statuses || []);
-            setOpponentLiveCursor(data.cursorIndex || 0);
+            opponentLiveCursor.set(data.cursorIndex || 0);
           }
         }
       )
