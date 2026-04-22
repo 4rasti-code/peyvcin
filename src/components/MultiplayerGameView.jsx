@@ -174,20 +174,11 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         `}
       </style>
       
-      {/* 1. MINIMAL HEADER (Round Info Only) */}
-      <div className="shrink-0 px-4 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 flex items-center justify-center relative">
-        <div className="flex flex-col items-center">
-            <div className="text-[9px] bg-emerald-500/20 text-emerald-400 px-3 py-0.5 rounded-full font-black mb-0.5 tracking-[0.2em]">BATTLE</div>
-            <div className="text-[12px] font-black text-white/30 uppercase">گەڕ {toKuDigits(currentRound + 1)}</div>
-        </div>
-      </div>
-
-
-      {/* 2. SYMMETRIC BATTLEFIELD */}
-      <div className="battlefield-container no-scrollbar" dir="rtl">
+      {/* 1. SYMMETRIC BATTLEFIELD */}
+      <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+8px)]" dir="rtl">
         
         {/* RIDDLE DISPLAY */}
-        <div className="w-full flex flex-col items-center justify-center py-2 px-4 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
+        <div className="w-full flex flex-col items-center justify-center py-3 px-4 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
           <p className="text-lg sm:text-2xl font-light text-white leading-none font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
@@ -212,16 +203,18 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           </div>
         </div>
 
-        {/* CENTER VS BAR: THE SCORES */}
-        <div className="shrink-0 flex items-center justify-center gap-4 py-1.5 z-20 relative">
+        {/* CENTER VS BAR: THE SCORES & ROUND */}
+        <div className="shrink-0 flex items-center justify-center gap-4 py-2 z-20 relative">
            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent h-[1px] top-1/2 -translate-y-1/2 w-full" />
            
-           <div className="flex items-center gap-3 bg-[#020617] px-5 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
-              <div className="flex flex-col items-center">
+           <div className="flex items-center gap-3 bg-[#020617] px-4 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
+              <div className="flex items-center gap-2">
                  <span className="text-[14px] font-black text-emerald-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
               </div>
-              <div className="w-[1px] h-4 bg-white/10 mx-1" />
-              <div className="flex flex-col items-center">
+              <div className="w-[1px] h-3 bg-white/10 mx-1" />
+              <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter">گەڕ {toKuDigits(currentRound + 1)}</div>
+              <div className="w-[1px] h-3 bg-white/10 mx-1" />
+              <div className="flex items-center gap-2">
                  <span className="text-[14px] font-black text-amber-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
               </div>
            </div>
