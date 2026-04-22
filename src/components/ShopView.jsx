@@ -37,7 +37,7 @@ const ConfirmPurchaseModal = ({ itemConfig, onConfirm, onCancel }) => {
   const price = data.price;
   const CurrencyIcon = currency === 'derhem' ? DerhemIcon : (currency === 'dinar' ? DinarIcon : FilsIcon);
   const title = type === 'powerup' ? data.name : (type === 'avatar' ? data.name : data.name);
-  const categoryLabel = type === 'powerup' ? 'ھاریکار' : (type === 'avatar' ? 'پەیڤچن' : 'نیشان');
+  const categoryLabel = type === 'powerup' ? 'ھاریکار' : (type === 'avatar' ? 'ئێمۆجی' : 'نیشان');
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-6 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
@@ -277,7 +277,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                 transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
               />
             )}
-            {tab === 'powerups' ? 'ھاریکار' : tab === 'avatars' ? 'پەیڤچن' : 'نیشان'}
+            {tab === 'powerups' ? 'ھاریکار' : tab === 'avatars' ? 'ئێمۆجی' : 'نیشان'}
           </button>
         ))}
       </div>
