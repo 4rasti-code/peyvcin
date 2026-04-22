@@ -175,7 +175,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </style>
       
       {/* 1. SYMMETRIC BATTLEFIELD */}
-      <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+8px)]" dir="rtl">
+      <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+52px)]" dir="rtl">
         
         {/* RIDDLE DISPLAY */}
         <div className="w-full flex flex-col items-center justify-center py-3 px-4 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
@@ -265,16 +265,14 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
         roundMessage={roundMessage}
       />
 
-      {/* FLOATING EXIT BUTTON (TOP LEFT - BELOW HEADER) */}
-      <div className="fixed top-40 left-4 z-[450]">
-        <motion.button 
-          whileHover={{ scale: 1.1, backgroundColor: 'rgba(239, 68, 68, 0.2)' }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { triggerHaptic(10); setIsConfirmingExit(true); }}
-          className="w-7 h-7 rounded-lg bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#ef4444] shadow-2xl transition-colors"
+      {/* FIXED BACK BUTTON */}
+      <div className="fixed top-[calc(env(safe-area-inset-top)+8px)] left-4 z-[400]">
+        <button 
+          onClick={handleManualLeave}
+          className="w-8 h-8 rounded-lg bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center text-[#ff4444] shadow-2xl transition-colors hover:bg-white/10"
         >
           <span className="material-symbols-outlined text-base font-black rotate-180">logout</span>
-        </motion.button>
+        </button>
       </div>
 
       {/* 5. CONFIRM EXIT OVERLAY */}
