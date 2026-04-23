@@ -226,6 +226,6 @@ const LobbyView = React.memo(({
       </div>
     </motion.div>
   );
-};
+});
 
 export default LobbyView;

@@ -101,6 +101,6 @@ const Avatar = memo(({
       )}
     </div>
   );
-};
+});
 
 export default Avatar;
