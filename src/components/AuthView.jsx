@@ -262,19 +262,44 @@ export default function AuthView({ onAuthSuccess }) {
           return;
         }
 
+        // SIGNUP FLOW (Registration Bridge)
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
               nickname: nickname,
+              name: nickname,       // دا کو ڕۆبۆتێ سۆپەبێیسێ تێبگەهیت
+              username: nickname,   // نوسخەیەکا دی بۆ دڵنیابوونێ
               country: selectedCountry.name,
               country_code: selectedCountry.code,
             }
           }
         });
+        
         if (error) throw error;
         
+        // BRIDGE: Manually ensure the profile is created with correct defaults
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: data.user.id,
+              nickname: nickname,
+              country_code: selectedCountry.code,
+              xp: 0,
+              level: 1,
+              fils: 1000,
+              derhem: 50,
+              dinar: 5,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
+
+          if (profileError) {
+            console.error("Supabase Error Details:", profileError.message, profileError.details);
+          }
+        }
+
         if (data.session) {
           onAuthSuccess(data.user, nickname);
         } else {
@@ -287,6 +312,7 @@ export default function AuthView({ onAuthSuccess }) {
         }
       }
     } catch (err) {
+      console.error("Supabase Error Details:", err); // ئەڤە زێدە بکە
       playAlertSfx();
       setError(err.message);
     } finally {

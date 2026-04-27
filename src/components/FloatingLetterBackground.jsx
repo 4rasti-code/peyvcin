@@ -41,7 +41,7 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
     // Relative coordinates
     const nx = initialX / 100;
     const ny = initialY / 100;
-    
+
     const dx = nx - latest.x;
     const dy = ny - latest.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -49,11 +49,11 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
     // If within interaction range
     if (distance < 0.45) {
       const force = (1 - distance / 0.45);
-      
+
       // Calculate flee vector
-      const fleeX = (dx / distance) * force * 130; 
+      const fleeX = (dx / distance) * force * 130;
       const fleeY = (dy / distance) * force * 130;
-      
+
       // Calculate rotation - "face" away from the click
       const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
 
@@ -76,8 +76,8 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
   return (
     <motion.div
       className="absolute text-white font-black text-[14px] select-none font-rabar pointer-events-none"
-      style={{ 
-        left: `${initialX}%`, 
+      style={{
+        left: `${initialX}%`,
         top: `${initialY}%`,
         x,
         y,
@@ -93,9 +93,9 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
 const FloatingLetterBackground = forwardRef((props, ref) => {
   // Use MotionValue instead of state to avoid re-rendering 40+ letters on every pulse
   const pulseMV = useMotionValue(null);
-  
+
   const chars = ['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ', 'گ', 'چ', 'ژ', 'هـ'];
-  
+
   // Memoize positions
   const letters = useMemo(() => {
     return [...Array(40)].map((_, i) => ({
@@ -117,7 +117,7 @@ const FloatingLetterBackground = forwardRef((props, ref) => {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 bg-[#020617]">
       <div className="absolute inset-0 bg-linear-to-b from-transparent via-blue-500/5 to-transparent pointer-none" />
-      
+
       {letters.map((letter) => (
         <FloatingLetter
           key={letter.id}
