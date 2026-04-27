@@ -262,7 +262,7 @@ export default function AuthView({ onAuthSuccess }) {
           return;
         }
 
-        // SIGNUP FLOW (Registration Bridge)
+        // SIGNUP FLOW
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -279,26 +279,9 @@ export default function AuthView({ onAuthSuccess }) {
         
         if (error) throw error;
         
-        // BRIDGE: Manually ensure the profile is created with correct defaults
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: data.user.id,
-              nickname: nickname,
-              country_code: selectedCountry.code,
-              xp: 0,
-              level: 1,
-              fils: 1000,
-              derhem: 50,
-              dinar: 5,
-              updated_at: new Date().toISOString()
-            }, { onConflict: 'id' });
-
-          if (profileError) {
-            console.error("Supabase Error Details:", profileError.message, profileError.details);
-          }
-        }
+        // The profile creation (Registration Bridge) is handled entirely by the Supabase 
+        // handle_new_user trigger which reads the metadata provided above. 
+        // We do not do a manual insert here to avoid 409 Conflicts and RLS errors.
 
         if (data.session) {
           onAuthSuccess(data.user, nickname);

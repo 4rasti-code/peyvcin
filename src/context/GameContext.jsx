@@ -213,11 +213,21 @@ export const GameProvider = ({ children }) => {
     } catch { return false; }
   }, []);
 
+  const syncPromiseRef = useRef(null);
+
   const syncProfile = useCallback(async (userId) => {
     const activeUserId = userId || user?.id;
     if (!activeUserId || activeUserId === 'undefined' || typeof activeUserId !== 'string' || activeUserId.length < 5) return;
-    try {
-      let { data, error } = await supabase.from('profiles').select('*').eq('id', activeUserId).single();
+    
+    // Prevent concurrent syncs for the same user
+    if (syncPromiseRef.current) {
+      await syncPromiseRef.current;
+      return;
+    }
+
+    const doSync = async () => {
+      try {
+        let { data, error } = await supabase.from('profiles').select('*').eq('id', activeUserId).single();
       if (error && error.code === 'PGRST116') {
         const initialRecord = {
           id: userId, level: 1, xp: 0, last_notified_level: 1,
@@ -225,7 +235,18 @@ export const GameProvider = ({ children }) => {
           inventory: { badges: [], owned_avatars: ['default'], unlocked_themes: ['default'], equipped_theme: 'default', solved_words: [], stats: { classic: { bestStreak: 0, totalCorrect: 0 } } },
           daily_streak: 0, reward_streak: 0, last_reward_claimed_at: null, updated_at: new Date().toISOString()
         };
-        await supabase.from('profiles').insert([initialRecord]);
+        const { error: insertError } = await supabase.from('profiles').insert([initialRecord]);
+        if (insertError) {
+          if (insertError.code === '23503') {
+            // Ghost session: User exists in local storage but was deleted from the database.
+            console.warn("Ghost session detected. Logging out...");
+            await supabase.auth.signOut();
+            window.location.reload();
+            return;
+          } else if (insertError.code !== '23505') {
+            console.warn("Profile initialization error:", insertError);
+          }
+        }
         setFils(1000); setMagnetCount(3); setHintCount(5); setSkipCount(2); setDailyStreak(0);
       } else if (data && !error) {
         const userInventoryData = data.inventory || {};
@@ -329,7 +350,15 @@ export const GameProvider = ({ children }) => {
         refreshRank(data.xp || 0);
       }
     } catch (err) { console.warn("Profile Sync Error [v2]:", err); }
-  }, [refreshRank]);
+  };
+
+  syncPromiseRef.current = doSync();
+  try {
+    await syncPromiseRef.current;
+  } finally {
+    syncPromiseRef.current = null;
+  }
+}, [refreshRank]);
 
   useEffect(() => {
     const initializeSession = async () => {
