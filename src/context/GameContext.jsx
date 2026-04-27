@@ -120,27 +120,27 @@ export const GameProvider = ({ children }) => {
 
   useEffect(() => {
     const syncLevelToDB = async () => {
-      // XP GUARD: Never sync to DB if user is loading, or if XP is 0 (likely default state), or if initial fetch hasn't completed.
-      const isGuest = !user?.id;
-      if (!isGuest) {
-        if (!isProfileLoaded.current || currentXP === 0) return;
-      }
-
       if (currentXP === dbSyncRef.current.lastSyncedXP) return;
       const calculatedLevel = getLevelFromXP(currentXP);
+      
       localStorage.setItem('peyvchin_xp', currentXP.toString());
       localStorage.setItem('peyvchin_level', calculatedLevel.toString());
-      if (calculatedLevel !== dbSyncRef.current.lastSyncedLevel || currentXP !== dbSyncRef.current.lastSyncedXP) {
-        try {
-          await supabase.from('profiles').update({ 
-            xp: currentXP, 
-            level: calculatedLevel,
-            updated_at: new Date().toISOString()
-          }).eq('id', user.id);
-          dbSyncRef.current = { lastSyncedXP: currentXP, lastSyncedLevel: calculatedLevel };
-          refreshRank(currentXP);
-        } catch (err) { console.warn("[GameContext] Auto-Sync failed:", err); }
+      
+      // Cloud sync guard: Abort DB update if guest, if profile not loaded, or if XP is 0
+      if (!user?.id || !isProfileLoaded.current || currentXP === 0) {
+        dbSyncRef.current = { lastSyncedXP: currentXP, lastSyncedLevel: calculatedLevel };
+        return;
       }
+
+      try {
+        await supabase.from('profiles').update({ 
+          xp: currentXP, 
+          level: calculatedLevel,
+          updated_at: new Date().toISOString()
+        }).eq('id', user.id);
+        dbSyncRef.current = { lastSyncedXP: currentXP, lastSyncedLevel: calculatedLevel };
+        refreshRank(currentXP);
+      } catch (err) { console.warn("[GameContext] Auto-Sync failed:", err); }
     };
     const timeout = setTimeout(syncLevelToDB, 1000);
     return () => clearTimeout(timeout);
