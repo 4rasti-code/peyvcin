@@ -241,6 +241,15 @@ export const GameProvider = ({ children }) => {
             // Ghost session: User exists in local storage but was deleted from the database.
             console.warn("Ghost session detected. Logging out...");
             await supabase.auth.signOut();
+            
+            // Clear local storage progression
+            const keysToKeep = ['peyvchin_app_sfx_volume', 'peyvchin_bg_music_volume', 'peyvchin_haptic_enabled', 'peyvchin_current_theme'];
+            Object.keys(localStorage).forEach(key => {
+              if (key.startsWith('peyvchin_') && !keysToKeep.includes(key)) {
+                localStorage.removeItem(key);
+              }
+            });
+            
             window.location.reload();
             return;
           } else if (insertError.code !== '23505') {

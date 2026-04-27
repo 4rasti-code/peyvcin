@@ -871,6 +871,13 @@ export default function App() {
     setIsSettingsOpen(false);
     const { error } = await supabase.auth.signOut();
     if (!error) {
+      // Clear all progression/inventory data from local storage to prevent data leakage to next user
+      const keysToKeep = ['peyvchin_app_sfx_volume', 'peyvchin_bg_music_volume', 'peyvchin_haptic_enabled', 'peyvchin_current_theme'];
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('peyvchin_') && !keysToKeep.includes(key)) {
+          localStorage.removeItem(key);
+        }
+      });
       // Force a clean state refresh - most reliable way to handle logouts
       window.location.href = '/';
     }
