@@ -1,16 +1,29 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import {
-  playAlertSfx, playStartGameSfx, playBackSfx, playSaveSfx,
-  playTabSfx, setBackgroundMusicVolume,
-  playSettingsOpenSfx, playSettingsCloseSfx,
-  playPopSfx, playSuccessSfx,
-  playNotifSfx, playMessageSfx, playVictorySfx, playCoinSfx, playRewardSfx, playPurchaseSfx, playBoosterSfx,
-  playDailyOpenSfx, playDailyClaimSfx, playBubblePopSfx,
-  startSearchingSfx, stopSearchingSfx,
+import { 
+  playPopSfx, 
+  playNotifSfx, 
+  playMessageSfx,
   playMessageSentSfx,
-  startBackgroundMusic, stopBackgroundMusic
+  playVictorySfx,
+  playRewardSfx, 
+  playPurchaseSfx, 
+  playBoosterSfx, 
+  playBubblePopSfx,
+  playSettingsOpenSfx, 
+  playSettingsCloseSfx,
+  playTabSfx,
+  playAlertSfx,
+  playBackSfx,
+  playSaveSfx,
+  playStartGameSfx,
+  startSearchingSfx,
+  stopSearchingSfx,
+  setBackgroundMusicVolume,
+  startBackgroundMusic, 
+  stopBackgroundMusic, 
+  setSfxVolume
 } from '../utils/audio';
 
 import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
@@ -31,7 +44,6 @@ export const GameProvider = ({ children }) => {
   const level = levelData.level;
   const minXPForLevel = levelData.currentLevelBase;
   const maxXP = levelData.nextLevelBase;
-  const progressPercent = levelData.progressPercent;
 
   const [appSfxVolume, setAppSfxVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_sfx_volume');
@@ -48,7 +60,7 @@ export const GameProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingAuth, setLoadingAuth] = useState(true);
-  const [userRank, setUserRank] = useState(1);
+  const [_userRank, setUserRank] = useState(1);
   const [inventory, setInventory] = useState({ badges: [] });
 
   const getInitial = (key, fallback) => {
@@ -442,10 +454,12 @@ export const GameProvider = ({ children }) => {
   }, []);
 
   const syncProgressToDatabase = useCallback(async (lettersCount, mode = 'classic', additionalData = {}) => {
-    const { user: currentUser, currentXP: currXP, magnetCount: currMags, hintCount: currHints, skipCount: currSkips } = stateRef.current;
+    const { user: currentUser, currentXP: currXP } = stateRef.current;
     const currentAward = getRewardForMode(mode);
     const xpToAdd = currentAward.xp;
     const newLocalXP = Number(currXP) + xpToAdd;
+
+    // LOCAL UPDATES (For instant UI feedback)
     setCurrentXP(newLocalXP);
     if (currentAward.type === 'fils') setFils(prev => Number(prev) + currentAward.amount);
     if (currentAward.type === 'derhem') setDerhem(prev => Number(prev) + currentAward.amount);
@@ -465,41 +479,37 @@ export const GameProvider = ({ children }) => {
     }
 
     try {
-      const { data, error } = await supabase.rpc('handle_game_xp', {
-        p_user_id: currentUser.id, p_award_xp: xpToAdd, p_currency_type: currentAward.type, p_currency_amount: currentAward.amount
+      // NEW SECURED SYNC: Only send what was USED, server calculates REWARDS
+      const { data, error } = await supabase.rpc('sync_game_session', {
+        p_user_id: currentUser.id,
+        p_mode: mode,
+        p_magnets_used: additionalData.magnetsUsed || 0,
+        p_hints_used: additionalData.hintsUsed || 0,
+        p_skips_used: additionalData.skipsUsed || 0,
+        p_solved_words: additionalData.solvedWords || []
       });
+
       if (error) throw error;
       if (data) {
         const { new_level, new_xp, award_xp } = data;
-        const profileUpdates = { updated_at: new Date().toISOString(), magnets: currMags, hints: currHints, skips: currSkips };
-        setPlayerStats(prev => {
-          const next = { ...prev };
-          if (mode === 'classic') {
-             if (!next.classic) next.classic = { bestStreak: 0, currentStreak: 0, totalCorrect: 0 };
-             next.classic.totalCorrect = (next.classic.totalCorrect || 0) + 1;
-             next.classic.currentStreak = (next.classic.currentStreak || 0) + 1;
-             if (next.classic.currentStreak > next.classic.bestStreak) next.classic.bestStreak = next.classic.currentStreak;
-          } else if (mode === 'battle') { if (!next.battle) next.battle = { totalWins: 0, totalLosses: 0 }; next.battle.totalWins = (next.battle.totalWins || 0) + 1; }
-          else if (mode === 'mamak') { if (!next.mamak) next.mamak = { totalCorrect: 0 }; next.mamak.totalCorrect = (next.mamak.totalCorrect || 0) + 1; }
-          else if (mode === 'hard_words') { if (!next.hard) next.hard = { totalCorrect: 0 }; next.hard.totalCorrect = (next.hard.totalCorrect || 0) + 1; }
-          else if (mode === 'word_fever') { if (!next.wordFever) next.wordFever = { bestTime: 0, totalWins: 0 }; next.wordFever.totalWins = (next.wordFever.totalWins || 0) + 1; }
-          else if (mode === 'secret_word') { if (!next.secretWord) next.secretWord = { totalSolved: 0 }; next.secretWord.totalSolved = (next.secretWord.totalSolved || 0) + 1; }
-          profileUpdates.inventory = { ...stateRef.current.inventory, stats: next };
-          if (additionalData.solvedWords) {
-            profileUpdates.inventory.solved_words = additionalData.solvedWords;
-            localStorage.setItem('peyvchin_solved_words', JSON.stringify(additionalData.solvedWords));
-          }
-          localStorage.setItem('peyvchin_stats', JSON.stringify(next));
-          return next;
-        });
-        if (additionalData.solvedWords) setSolvedWords(additionalData.solvedWords);
-        await supabase.from('profiles').update(profileUpdates).eq('id', currentUser.id);
+        
+        // Refresh local stats (server already updated them)
+        await syncProfile(currentUser.id); 
         refreshRank(new_xp, true);
-        return { xpAdded: award_xp, newLevel: new_level, awards: currentAward, bahdiniMsg: `سەرکەفتنەکا نوی! ✨` };
+
+        return { 
+          xpAdded: award_xp, 
+          newLevel: new_level, 
+          awards: currentAward, 
+          bahdiniMsg: `سەرکەفتنەکا نوی! ✨ (پاراستی)` 
+        };
       }
-    } catch (err) { console.error("Unified XP Sync Failed:", err.message); return null; }
+    } catch (err) { 
+      console.error("Secured Sync Failed:", err.message); 
+      return null; 
+    }
     return null;
-  }, [refreshRank]);
+  }, [refreshRank, syncProfile]);
 
   const addXP = useCallback((amount) => { if (amount) setCurrentXP(prev => prev + amount); }, []);
 
@@ -622,6 +632,7 @@ export const GameProvider = ({ children }) => {
     ownedAvatars, equippedAvatar: userAvatar, unlockedThemes, currentTheme,
     solvedWords, playerStats,
     userNickname, userAvatar, city, isInKurdistan, countryCode,
+    userRank: _userRank,
     updateInventory,
     appSfxVolume, updateSfxVolume, appSoundsEnabled,
     bgMusicVolume, updateMusicVolume,
@@ -654,7 +665,8 @@ export const GameProvider = ({ children }) => {
     startSearchingSound, stopSearchingSound, startBGM, stopBGM, playStartGameSound,
     playDailyOpenSfx, playDailyClaimSfx, syncProfile, updateProfile, handleToggleBlock,
     playMessageSound, playMessageSentSound,
-    checkBlockStatus, syncProgressToDatabase, getLevelData
+    checkBlockStatus, syncProgressToDatabase, getLevelData,
+    _userRank
   ]);
 
   const valueWithRefs = useMemo(() => ({

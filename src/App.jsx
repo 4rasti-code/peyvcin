@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
@@ -21,9 +22,8 @@ import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatu
 import useGameLogic from './hooks/useGameLogic';
 import { AVATARS } from './data/avatars';
 
-import { initAudio, startBackgroundMusic, stopBackgroundMusic, forceResumeAudio } from './utils/audio';
+import { forceResumeAudio } from './utils/audio';
 import { normalizeKurdishInput } from './utils/textUtils';
-import { getRewardForMode } from './utils/progression';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
@@ -112,14 +112,14 @@ const ScrollingMatchFinder = ({ opponent }) => {
     <div className="relative w-32 h-32 rounded-full border-4 border-emerald-500/30 overflow-hidden bg-black/40 shadow-[0_0_40px_rgba(16,185,129,0.3)]">
       <AnimatePresence mode="wait">
         {!opponent ? (
-          <motion.div
+          <Motion.div
             key="scrolling"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
             className="absolute inset-0"
           >
-            <motion.div
+            <Motion.div
               animate={{ y: [0, -1200] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
               className="flex flex-col items-center"
@@ -129,12 +129,12 @@ const ScrollingMatchFinder = ({ opponent }) => {
                   <Avatar src={av.id} size="full" border={false} />
                 </div>
               ))}
-            </motion.div>
+            </Motion.div>
             {/* Vertical Blur & Fade Overlay */}
             <div className="absolute inset-0 bg-linear-to-b from-[#020617] via-transparent to-[#020617] opacity-60" />
-          </motion.div>
+          </Motion.div>
         ) : (
-          <motion.div
+          <Motion.div
             key="found"
             initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -142,7 +142,7 @@ const ScrollingMatchFinder = ({ opponent }) => {
             className="absolute inset-0 flex items-center justify-center bg-emerald-500/10"
           >
             <Avatar src={opponent.avatar_url} size="full" border={false} />
-          </motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>
@@ -150,7 +150,28 @@ const ScrollingMatchFinder = ({ opponent }) => {
 };
 
 export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [currentView, setCurrentView] = useState('lobby');
+
+  // --- 1. DEEP LINKING & ROUTING ENGINE ---
+  // Sync URL -> State (Initial Load & Back Button)
+  useEffect(() => {
+    const path = location.pathname.replace('/', '') || 'lobby';
+    if (path !== currentView) {
+      setCurrentView(path);
+    }
+  }, [location.pathname]);
+
+  // Sync State -> URL
+  useEffect(() => {
+    const path = location.pathname.replace('/', '') || 'lobby';
+    if (path !== currentView) {
+      navigate('/' + currentView);
+    }
+  }, [currentView, navigate, location.pathname]);
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
   const [activeChatPartner, setActiveChatPartner] = useState(null);
@@ -175,6 +196,9 @@ export default function App() {
   const [isSuccessSplash, setIsSuccessSplash] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState([]);
   const [hintTaps, setHintTaps] = useState(0);
+  const [skipsUsedInRound, setSkipsUsedInRound] = useState(0);
+  const [magnetsUsedInRoundCount, setMagnetsUsedInRoundCount] = useState(0);
+  const [hintsUsedInRound, setHintsUsedInRound] = useState(0);
 
   // Results & UI State
   const [victoryBreakdown, setVictoryBreakdown] = useState({
@@ -213,12 +237,12 @@ export default function App() {
 
     syncProgressToDatabase,
 
-    appSoundsEnabled, setAppSoundsEnabled,
-    hapticEnabled, setHapticEnabled,
+    appSoundsEnabled,
+    hapticEnabled,
     appSfxVolume, updateSfxVolume,
     bgMusicVolume, updateMusicVolume,
     playPopSound, playNotifSound, playMessageSound,
-    playStartGameSound, playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound, playBubblePopSound,
+    playStartGameSound, playRewardSound, playPurchaseSound, playBoosterSound, playBubblePopSound,
     playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, startBGM, stopBGM,
     user, setUser,
@@ -228,20 +252,17 @@ export default function App() {
 
   const {
     activeMatch,
-    matchId,
     multiplayerState,
-    matchmakingTime,
+    MatchmakingTime,
     opponent,
     cancelMatch,
     startMatchmaking,
-    lastMatchResult,
-    matchReward,
+    LastMatchResult,
+    MatchReward,
     scores,
-    matchResultTrigger,
-    resetMatchResultTrigger,
-    submitFailure,
-    forfeitStatus,
-    isForfeitWin
+    MatchResultTrigger,
+    ResetMatchResultTrigger,
+    submitFailure
   } = useMultiplayer();
 
   // TRANSITION: Return to Lobby when Match ends (Multiplayer High-Speed Flow)
@@ -305,7 +326,10 @@ export default function App() {
           solvedWords: nextSolved,
           winsTowardsSecret: nextWinsTowardsSecret,
           resetSecretProgress,
-          filsBonus: breakdown.awardAmount
+          filsBonus: breakdown.awardAmount,
+          magnetsUsed: magnetsUsedInRoundCount,
+          hintsUsed: hintsUsedInRound,
+          skipsUsed: skipsUsedInRound
         }
       );
       // Extra verification from server if needed (Optional: syncData.xpAdded can overwrite if different)
@@ -347,7 +371,7 @@ export default function App() {
   }, [handleGameCompletion, playRewardSound]);
 
   const onLossHandler = useCallback((finalGuesses, lossWord, lossMode) => {
-    const { hapticEnabled: hEnabled, multiplayerState: mState } = gameRefs.current;
+    const { multiplayerState: mState } = gameRefs.current;
 
     setLastSolvedWord(lossWord);
 
@@ -486,7 +510,7 @@ export default function App() {
 
   // Sync refs every time state changes
   useEffect(() => {
-    gameRefs.current = {
+    Object.assign(gameRefs.current, {
       targetWord,
       category,
       hintCount,
@@ -505,7 +529,7 @@ export default function App() {
       fils,
       targetHint,
       hintTaps
-    };
+    });
   }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps]);
 
   // Wrapped handlers to manage UI feedback (shaking, messages)
@@ -549,6 +573,7 @@ export default function App() {
       hintCount: -1
     });
     setHintTaps(prev => prev + 1);
+    setHintsUsedInRound(prev => prev + 1);
   }, [updateInventory]); // updateInventory is stable from GameContext
 
   const handleMagnet = useCallback(() => {
@@ -565,6 +590,7 @@ export default function App() {
 
     setMagnetDisabledKeys(prev => [...prev, ...toDisable]);
     setMagnetUsedInRound(true);
+    setMagnetsUsedInRoundCount(prev => prev + 1);
     updateInventory({
       magnetCount: -1
     });
@@ -577,6 +603,7 @@ export default function App() {
     triggerHaptic(25);
     playBoosterSound();
     onEnter(tWord, true); // Use targetWord as forced guess
+    setSkipsUsedInRound(prev => prev + 1);
     updateInventory({
       skipCount: -1
     });
@@ -655,7 +682,7 @@ export default function App() {
     };
   }, [user?.id]);
 
-  const [lastProfileUpdate, setLastProfileUpdate] = useState(Date.now());
+  const [lastProfileUpdate, setLastProfileUpdate] = useState(() => Date.now());
 
   // Shared Logic (Haptic, Audio, Normalized, etc.) now handled in src/utils/gameStatus.js
 
@@ -707,18 +734,18 @@ export default function App() {
 
   // 7. MULTIPLAYER RESULT REDIRECTION (CLEANUP)
   // Decoupled from shared isVictory/isDefeat state to prevent double overlays.
-  // BattleResultOverlay now consumes lastMatchResult directly from MultiplayerContext.
+  // BattleResultOverlay now consumes LastMatchResult directly from MultiplayerContext.
   useEffect(() => {
-    if (matchResultTrigger > 0 && lastMatchResult) {
-      console.log(`[Multiplayer] Result detected: ${lastMatchResult}. View redirected to Lobby.`);
+    if (MatchResultTrigger > 0 && LastMatchResult) {
+      console.log(`[Multiplayer] Result detected: ${LastMatchResult}. View redirected to Lobby.`);
 
-      if (lastMatchResult === 'victory') {
+      if (LastMatchResult === 'victory') {
         playRewardSound();
       }
 
       setCurrentView('lobby');
     }
-  }, [matchResultTrigger, lastMatchResult, setCurrentView]);
+  }, [MatchResultTrigger, LastMatchResult, setCurrentView]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
@@ -734,7 +761,22 @@ export default function App() {
 
   // Handlers now provided by useGameLogic
 
-  // handleGameCompletion is now defined above to ensure initialization order
+  // handleGameCompletion is now defined above 
+  const ResetRoundBoosters = useCallback(() => {
+    setHintTaps(0);
+    setHintsUsedInRound(0);
+    setMagnetsUsedInRoundCount(0);
+    setSkipsUsedInRound(0);
+    setRevealedIndices([]);
+    setMagnetUsedInRound(false);
+    setMagnetDisabledKeys([]);
+    setVictoryBreakdown({ awardAmount: 0, xpAdded: 0, greenCount: 0, yellowCount: 0, grayCount: 0 });
+    setVictoryCustomText(null);
+    setRewardAmount(0);
+    setRewardAmountXp(0);
+    setDefeatBreakdown({ base: 0, mistakes: 0, total: 0 });
+    setLastSolvedWord('');
+  }, []); // Stable initializer
 
   const resetBoard = useCallback((wordObj) => {
     const { hapticEnabled: hEnabled, gameMode: gMode } = gameRefs.current;
@@ -975,10 +1017,10 @@ export default function App() {
 
   // WRAPPED NAVIGATION: Unified state transition
   const navigateTo = useCallback((view) => {
-    // We no longer call stopBGM() here for Hub->Hub transitions.
-    // The global effect handles Hub->Game boundary crossing.
+    // Sync URL with State
+    navigate('/' + view);
     setCurrentView(view);
-  }, []);
+  }, [navigate]);
 
   const handleNotificationAction = async (item) => {
     // Optimistically remove from list so it disappears instantly as requested
@@ -1386,24 +1428,24 @@ export default function App() {
 
         {/* UNIFIED MULTIPLAYER BATTLE RESULT */}
         <BattleResultOverlay
-          isVisible={multiplayerState === 'game_over' && !!lastMatchResult}
-          result={lastMatchResult}
+          isVisible={multiplayerState === 'game_over' && !!LastMatchResult}
+          result={LastMatchResult}
           scores={scores}
           opponent={opponent}
           user={{ nickname: userNickname, avatar_url: userAvatar, level: level }}
           isPlayer1={activeMatch?.player1_id === user?.id}
-          breakdown={lastMatchResult === 'victory' ? (matchReward?.awards ? { awardAmount: matchReward.awards.amount, awardType: matchReward.awards.type, xpAdded: matchReward.xpAdded } : { awardAmount: 1, awardType: 'derhem', xpAdded: 100 }) : { awardAmount: 0, xpAdded: 20 }}
-          xp={lastMatchResult === 'victory' ? 100 : 20}
+          breakdown={LastMatchResult === 'victory' ? (MatchReward?.awards ? { awardAmount: MatchReward.awards.amount, awardType: MatchReward.awards.type, xpAdded: MatchReward.xpAdded } : { awardAmount: 1, awardType: 'derhem', xpAdded: 100 }) : { awardAmount: 0, xpAdded: 20 }}
+          xp={LastMatchResult === 'victory' ? 100 : 20}
           onNext={() => {
-            resetMatchResultTrigger();
+            ResetMatchResultTrigger();
             handleGoHome();
           }}
           onExit={() => {
-            resetMatchResultTrigger();
+            ResetMatchResultTrigger();
             handleGoHome();
           }}
           onExit={() => {
-            resetMatchResultTrigger();
+            ResetMatchResultTrigger();
             handleGoHome();
           }}
           playStartSound={playStartGameSound}
@@ -1429,7 +1471,7 @@ export default function App() {
 
         <AnimatePresence>
           {isForfeitConfirmOpen && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+            <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
               <div className="w-full max-w-sm bg-slate-900 border border-white/10 rounded-[40px] p-10 text-center">
                 <h2 className="text-2xl font-black mb-4">پشتراستی؟</h2>
                 <div className="flex flex-col gap-3">
@@ -1437,13 +1479,13 @@ export default function App() {
                   <button onClick={() => setIsForfeitConfirmOpen(false)} className="h-16 bg-white/5 rounded-2xl font-bold">نەخێر</button>
                 </div>
               </div>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {hintLimitToast.visible && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.9 }}
@@ -1455,7 +1497,7 @@ export default function App() {
                 </div>
                 <span className="text-white font-black text-lg font-rabar">{hintLimitToast.message}</span>
               </div>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
         <WordFeverResultOverlay
@@ -1498,7 +1540,7 @@ export default function App() {
         {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
         <AnimatePresence>
           {(multiplayerState === 'searching' || multiplayerState === 'waiting') && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -1510,7 +1552,7 @@ export default function App() {
               <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm">
                 <div className="relative">
                   <ScrollingMatchFinder opponent={opponent} />
-                  <motion.div
+                  <Motion.div
                     animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                     transition={{ duration: 2, repeat: Infinity }}
                     className="absolute -inset-4 border-2 border-emerald-500/30 rounded-full"
@@ -1523,8 +1565,8 @@ export default function App() {
                     {/* LIVE TIMER UI */}
                     <div className="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
                       <span className="text-emerald-400 font-black font-mono text-xl tracking-widest tabular-nums">
-                        {Math.floor(matchmakingTime / 60).toString().padStart(2, '0')}:
-                        {(matchmakingTime % 60).toString().padStart(2, '0')}
+                        {Math.floor(MatchmakingTime / 60).toString().padStart(2, '0')}:
+                        {(MatchmakingTime % 60).toString().padStart(2, '0')}
                       </span>
                     </div>
                   </div>
@@ -1542,17 +1584,17 @@ export default function App() {
 
               <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
                 {['پ', 'ە', 'ی', 'ڤ', 'چ', 'ن'].map((char, i) => (
-                  <motion.span
+                  <Motion.span
                     key={i}
                     animate={{ y: [-10, 10, -10] }}
                     transition={{ duration: 3, delay: i * 0.5, repeat: Infinity }}
                     className="text-4xl font-black font-rabar"
                   >
                     {char}
-                  </motion.span>
+                  </Motion.span>
                 ))}
               </div>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 

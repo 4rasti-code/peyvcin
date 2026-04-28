@@ -15,15 +15,16 @@ export const MultiplayerProvider = ({ children }) => {
     startSearchingSound, 
     stopSearchingSound, 
     playStartGameSound,
+    playRewardSound,
     syncProgressToDatabase
   } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle'); // 'idle', 'searching', 'waiting', 'playing', 'game_over'
-  const [matchmakingTime, setMatchmakingTime] = useState(0);
+  const [MatchmakingTime, setMatchmakingTime] = useState(0);
   const [activeMatch, setActiveMatch] = useState(null);
   const [matchId, setMatchId] = useState(null);
   const [opponent, setOpponent] = useState(null);
-  const [lastMatchResult, setLastMatchResult] = useState(null);
-  const [matchResultTrigger, setMatchResultTrigger] = useState(0);
+  const [LastMatchResult, setLastMatchResult] = useState(null);
+  const [MatchResultTrigger, setMatchResultTrigger] = useState(0);
 
   // New Game State
   const [opponentGuesses, setOpponentGuesses] = useState([]);
@@ -35,7 +36,7 @@ export const MultiplayerProvider = ({ children }) => {
   const [forfeitStatus, setForfeitStatus] = useState(null); // 'pending', 'confirmed'
   const [forfeitCountdown, setForfeitCountdown] = useState(10);
   const [isForfeitWin, setIsForfeitWin] = useState(false);
-  const [matchReward, setMatchReward] = useState(null);
+  const [MatchReward, setMatchReward] = useState(null);
   const forfeitTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
   const [opponentLiveStatuses, setOpponentLiveStatuses] = useState([]);
@@ -237,8 +238,6 @@ export const MultiplayerProvider = ({ children }) => {
     }
   };
 
-  const { playCoinSound } = useGame();
-
   const triggerForfeitVictory = async () => {
     const mId = matchId || matchIdRef.current;
     if (!mId) return;
@@ -263,8 +262,7 @@ export const MultiplayerProvider = ({ children }) => {
       const rewardData = await syncProgressToDatabase(5, 'battle');
       if (rewardData) setMatchReward(rewardData);
       // Trigger reward sound
-      const { playRewardSound } = useGame();
-      try { playRewardSound(); } catch(e) {}
+      try { playRewardSound(); } catch(_) {}
 
       // 3. UI Update with specific disconnect message
       setLastMatchResult('victory');
@@ -283,7 +281,7 @@ export const MultiplayerProvider = ({ children }) => {
     }
   };
 
-  const resetMatchResultTrigger = () => {
+  const ResetMatchResultTrigger = () => {
     setMatchResultTrigger(0);
     setLastMatchResult(null);
     setIsForfeitWin(false);
@@ -594,7 +592,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     if (activeMatch.status === 'finished' && multiplayerState !== 'idle') {
       // Logic for anyone who didn't trigger the game_over state locally (e.g. the loser)
-      if (multiplayerState !== 'game_over' || lastMatchResult === null) {
+      if (multiplayerState !== 'game_over' || LastMatchResult === null) {
         const isP1 = activeMatch.player1_id === user.id;
         const myScore = isP1 ? activeMatch.p1_score : activeMatch.p2_score;
         const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
@@ -791,7 +789,7 @@ export const MultiplayerProvider = ({ children }) => {
         } else {
           throw new Error('DB Fetch Error or Empty');
         }
-      } catch (e) {
+      } catch (_) {
         console.log('[Multiplayer] Using local fallback for 5-letter words.');
         const localWords = getUnifiedWords();
         // Filter local words for 5 letters
@@ -824,7 +822,7 @@ export const MultiplayerProvider = ({ children }) => {
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
       safeClearMatchmakingTimeout();
-      try { stopSearchingSound(false); } catch(e) {}
+      try { stopSearchingSound(false); } catch(_) {}
       setMultiplayerState('idle');
     }
   };
@@ -834,7 +832,7 @@ export const MultiplayerProvider = ({ children }) => {
   return (
     <MultiplayerContext.Provider value={{
       multiplayerState,
-      matchmakingTime,
+      MatchmakingTime,
       activeMatch,
       opponent,
       setMultiplayerState,
@@ -847,10 +845,10 @@ export const MultiplayerProvider = ({ children }) => {
       scores,
       currentRound: currentWordIndex,
       isRoundWinner,
-      matchResultTrigger,
-      lastMatchResult,
-      matchReward,
-      resetMatchResultTrigger,
+      MatchResultTrigger,
+      LastMatchResult,
+      MatchReward,
+      ResetMatchResultTrigger,
       winnerNickname,
       roundMessage,
       fetchOpponentProfile,
