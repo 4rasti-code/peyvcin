@@ -13,6 +13,8 @@ import {
   playBubblePopSfx,
   playSettingsOpenSfx, 
   playSettingsCloseSfx,
+  playDailyOpenSfx,
+  playDailyClaimSfx,
   playTabSfx,
   playAlertSfx,
   playBackSfx,
