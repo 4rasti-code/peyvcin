@@ -412,7 +412,8 @@ export default function App() {
     revealedIndices,
     isLevelingUp,
     onWin: onWinHandler,
-    onLoss: onLossHandler
+    onLoss: onLossHandler,
+    isActive: currentView === 'game'
   });
 
   // --- UNIFIED AUTOMATIC BACKGROUND MUSIC (BGM) CONTROLLER ---
@@ -618,58 +619,6 @@ export default function App() {
   }, [onEnter, updateInventory]); // onEnter and updateInventory are stable
 
 
-  // --- PHYSICAL KEYBOARD SUPPORT ---
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      const { isVictory: isV, isDefeat: isD, currentView: cView } = gameRefs.current;
-      
-      // 1. Safety Check: Ignore if typing in a real input/textarea
-      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return;
-      
-      // 2. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
-      if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-      // 3. State Check: Only allow if in 'game' view and not in result screen
-      if (cView !== 'game' || isV || isD) return;
-
-      let inputChar = e.key;
-
-      // 4. Special Keys Mapping
-      if (inputChar === 'Enter') {
-        e.preventDefault();
-        handleOnEnter();
-        return;
-      }
-      if (inputChar === 'Backspace') {
-        e.preventDefault();
-        onDelete();
-        return;
-      }
-
-      // 5. Strict Unicode Normalizer (Windows Central Kurdish Layout)
-      const normalizeMap = {
-        'ه': 'ھ', // Fixes 'h' key output
-        'ك': 'ک',
-        'ي': 'ی',
-        'ة': 'ە'
-      };
-      
-      // Optional: Preserve convenience mappings for Latin keyboards if needed
-      const latinMap = { 'h': 'ھ', 'H': 'ھ', 'r': 'ر', 'R': 'ڕ' };
-      
-      if (normalizeMap[inputChar]) inputChar = normalizeMap[inputChar];
-      else if (latinMap[inputChar]) inputChar = latinMap[inputChar];
-
-      // 6. Alphabet Validation & Trigger
-      const alphabet = 'ئابپت جچحخد ر ڕ ز ژ س ش ع غ ف ڤ ق ک گ ل ڵ م ن و ۆ ھ ە ی ێ'.replace(/\s/g, '');
-      if (alphabet.includes(inputChar)) {
-        onKey(inputChar);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleOnEnter, onKey, onDelete]);
 
 
 

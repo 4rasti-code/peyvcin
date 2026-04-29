@@ -11,7 +11,8 @@ export default function useGameLogic({
   onGuessSubmitted = null,
   onWin = null,
   onLoss = null,
-  isLevelingUp = false
+  isLevelingUp = false,
+  isActive = false
 }) {
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState(new Array(targetWord?.length || 5).fill(''));
@@ -134,6 +135,53 @@ export default function useGameLogic({
     });
   }, []); // COMPLETELY STABLE
 
+  // --- CENTRALIZED PHYSICAL KEYBOARD SUPPORT ---
+  useEffect(() => {
+    if (!isActive || !targetWordRef.current) return;
+
+    const handleKeyDown = (e) => {
+      // 1. Safety Check: Ignore if typing in a real input/textarea
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return;
+      
+      // 2. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      const inputKey = e.key;
+
+      // 3. Special Keys Mapping
+      if (inputKey === 'Enter') {
+        e.preventDefault();
+        onEnter();
+        return;
+      }
+      if (inputKey === 'Backspace') {
+        e.preventDefault();
+        onDelete();
+        return;
+      }
+
+      // 4. Kurdish Normalization
+      let char = inputKey;
+      const normalizeMap = {
+        'ه': 'ھ', 'ك': 'ک', 'ي': 'ی', 'ة': 'ە'
+      };
+      const latinMap = { 'h': 'ھ', 'H': 'ھ', 'r': 'ر', 'R': 'ڕ' };
+      
+      if (normalizeMap[char]) char = normalizeMap[char];
+      else if (latinMap[char]) char = latinMap[char];
+
+      // 5. Alphabet Validation
+      const alphabet = 'ئابپت جچحخد ر ڕ ز ژ س ش ع غ ف ڤ ق ک گ ل ڵ م ن و ۆ ھ ە ی ێ'.replace(/\s/g, '');
+      if (alphabet.includes(char)) {
+        onKey(char);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isActive, onKey, onDelete, onEnter]);
+
+  // Internal hooks for cleanup and stability
   const onWinRef = useRef(onWin);
   const onLossRef = useRef(onLoss);
   const onGuessSubmittedRef = useRef(onGuessSubmitted);
