@@ -672,11 +672,11 @@ export default function ProfileView({
                         cropShape="round"
                         restrictPosition={true}
                         style={{
-                           containerStyle: { background: '#000' },
+                           containerStyle: { background: '#000', padding: 0 },
                            cropAreaStyle: { 
                               width: '100%', 
                               height: '100%',
-                              border: '2px solid rgba(255,255,255,0.4)',
+                              border: '1px solid rgba(255,255,255,0.5)',
                               boxShadow: '0 0 0 9999px rgba(0,0,0,0.85)'
                            }
                         }}
