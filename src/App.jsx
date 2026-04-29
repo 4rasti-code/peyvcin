@@ -269,10 +269,21 @@ export default function App() {
 
   // TRANSITION: Return to Lobby when Match ends (Multiplayer High-Speed Flow)
   useEffect(() => {
-    if (multiplayerState === 'game_over') {
+    // Only redirect to lobby if we aren't already in another main view (to prevent infinite loops)
+    const mainViews = ['store', 'social_hub', 'leaderboard', 'stats', 'dictionary', 'profile'];
+    if (multiplayerState === 'game_over' && !mainViews.includes(currentView)) {
       setCurrentView('lobby');
     }
-  }, [multiplayerState]);
+  }, [multiplayerState, currentView]);
+
+  // CLEANUP: Ensure multiplayer state is reset when navigating away from results
+  useEffect(() => {
+    const mainViews = ['store', 'social_hub', 'leaderboard', 'stats', 'dictionary', 'profile', 'lobby'];
+    if (multiplayerState === 'game_over' && mainViews.includes(currentView)) {
+      // If we are in a result state but moved to a menu, clean up the match record
+      if (cancelMatch) cancelMatch();
+    }
+  }, [currentView, multiplayerState, cancelMatch]);
 
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
