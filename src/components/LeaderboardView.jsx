@@ -243,9 +243,9 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                  <span 
                                    className="text-2xl select-none block relative z-10"
                                    style={{
-                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
-                                             rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
-                                             'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
+                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' :
+                                             rank === 2 ? 'grayscale(1) brightness(1.6) contrast(1.2) drop-shadow(0 0 5px rgba(255,255,255,0.4))' :
+                                             'sepia(0.5) saturate(3) hue-rotate(-15deg) brightness(0.7) contrast(1.3) drop-shadow(0 0 5px rgba(205,127,50,0.4))'
                                    }}
                                  >👑</span>
                                  
@@ -261,7 +261,9 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                      style={{ 
                                        WebkitBackgroundClip: 'text',
                                        backgroundClip: 'text',
-                                       filter: 'blur(1px)'
+                                       filter: rank === 1 ? 'none' : 
+                                               rank === 2 ? 'grayscale(1) brightness(1.6)' : 
+                                               'sepia(0.5) saturate(3) hue-rotate(-15deg) brightness(0.7)'
                                      }}
                                    >
                                      👑
