@@ -248,27 +248,6 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                              'sepia(1) saturate(2.5) hue-rotate(-30deg) brightness(0.4) contrast(1.2) drop-shadow(0 0 5px rgba(139,69,19,0.4))'
                                    }}
                                  >👑</span>
-                                 
-                                 {/* Animated Shine Mask Layer */}
-                                 <motion.div 
-                                   className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
-                                   style={{ clipPath: 'inset(0)' }}
-                                 >
-                                   <motion.span
-                                     animate={{ x: ['-100%', '200%'] }}
-                                     transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }}
-                                     className="absolute inset-0 text-2xl select-none block text-transparent bg-gradient-to-r from-transparent via-white/80 to-transparent bg-[length:50%_100%] bg-no-repeat"
-                                     style={{ 
-                                       WebkitBackgroundClip: 'text',
-                                       backgroundClip: 'text',
-                                       filter: rank === 1 ? 'none' : 
-                                               rank === 2 ? 'grayscale(1) brightness(1.6)' : 
-                                               'sepia(1) saturate(2.5) hue-rotate(-30deg) brightness(0.4)'
-                                     }}
-                                   >
-                                     👑
-                                   </motion.span>
-                                 </motion.div>
                                </div>
                             </motion.div>
                          )}
