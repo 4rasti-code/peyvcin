@@ -124,6 +124,54 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     }
   }, [currentRound, targetWord, resetLocalBoard, playStartSound]);
 
+  // --- PHYSICAL KEYBOARD SUPPORT FOR MULTIPLAYER ---
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // 1. Safety Check: Ignore if typing in a real input/textarea or if game over
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return;
+      if (multiplayerState !== 'playing' || isRoundWinner) return;
+      
+      // 2. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      let inputChar = e.key;
+
+      // 3. Special Keys Mapping
+      if (inputChar === 'Enter') {
+        e.preventDefault();
+        onEnter();
+        return;
+      }
+      if (inputChar === 'Backspace') {
+        e.preventDefault();
+        onDelete();
+        return;
+      }
+
+      // 4. Strict Unicode Normalizer (Windows Central Kurdish Layout)
+      const normalizeMap = {
+        'ه': 'ھ',
+        'ك': 'ک',
+        'ي': 'ی',
+        'ة': 'ە'
+      };
+      
+      const latinMap = { 'h': 'ھ', 'H': 'ھ', 'r': 'ر', 'R': 'ڕ' };
+      
+      if (normalizeMap[inputChar]) inputChar = normalizeMap[inputChar];
+      else if (latinMap[inputChar]) inputChar = latinMap[inputChar];
+
+      // 5. Alphabet Validation & Trigger
+      const alphabet = 'ئابپت جچحخد ر ڕ ز ژ س ش ع غ ف ڤ ق ک گ ل ڵ م ن و ۆ ھ ە ی ێ'.replace(/\s/g, '');
+      if (alphabet.includes(inputChar)) {
+        onKey(inputChar);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onKey, onDelete, onEnter, multiplayerState, isRoundWinner]);
+
   // --- GUARDS & EARLY RETURNS (Declare AFTER all hooks) ---
   if (!activeMatch) {
     return (
