@@ -251,7 +251,7 @@ export default function App() {
     userRank, refreshRank,
     claimDailyReward,
     updateInventory,
-    loading: gameLoading
+    loading: isGameLoading
   } = useGame();
 
   const {
