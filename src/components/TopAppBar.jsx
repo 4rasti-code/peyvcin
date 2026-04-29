@@ -55,11 +55,6 @@ export default function TopAppBar({
   isDailyAvailable = false,
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
-  const displayCategory = category === 'پەیڤێن دژوار' ? 'پەیڤێن دژوار' 
-                        : category === 'تایا پەیڤان' ? 'تایا پەیڤان'
-                        : category === 'پەیڤێن نەھێنی' ? 'پەیڤا نھێنی'
-                        : category === 'generalWordPool' ? null 
-                        : category;
 
   const isPlaying = currentView === 'game';
   const showStats = ['lobby', 'store', 'leaderboard', 'stats', 'dictionary'].includes(currentView);
@@ -160,37 +155,9 @@ export default function TopAppBar({
         {/* Right Section: In-Game Info (Mode Specific) OR Global Stats + Notification */}
         <div className="flex items-center justify-end gap-3 flex-1 relative">
           {isPlaying ? (
-            isClassic ? (
-              <>
-                {/* Center Section: Topic (Category) - Classic Only */}
-                <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center leading-tight">
-                  {displayCategory && (
-                    <>
-                      <span className="text-[10px] font-bold text-white/30 uppercase mb-0.5">بابەت</span>
-                      <span className="text-sm sm:text-base font-black text-[#facc15] font-noto-sans-arabic">{displayCategory}</span>
-                    </>
-                  )}
-                </div>
-                {/* Right Balance */}
-                <div className="flex items-center gap-2">
-                  
-                  <CurrencyStat key="lobby-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
-                </div>
-              </>
-            ) : (
-              /* Informative Header for Non-Classic Modes */
-              <div className="flex items-center gap-2">
-                {displayCategory && (
-                  <div className="flex flex-col items-end leading-tight ml-2">
-                    <span className="text-[9px] font-black text-white/40 uppercase">بابەت</span>
-                    <span className="text-[13px] font-bold text-primary font-noto-sans-arabic">{displayCategory}</span>
-                  </div>
-                )}
-                {displayCategory && <div className="w-[1px] h-4 bg-white/10 mx-1" />}
-                
-                <CurrencyStat key="nonclassic-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
-              </div>
-            )
+            <div className="flex items-center gap-2">
+              <CurrencyStat key="ingame-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
+            </div>
           ) : (
             showStats && (
               <div className="flex items-center gap-2 sm:gap-3">
@@ -234,7 +201,7 @@ export default function TopAppBar({
                              <motion.div 
                                initial={{ scale: 0 }}
                                animate={{ scale: 1 }}
-                               className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-[#0a0f1b] flex items-center justify-center shadow-lg pointer-events-none"
+                               className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-[#0a0f1b] shadow-lg flex items-center justify-center shadow-lg pointer-events-none"
                              >
                                <span className="text-[11px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
                                <span className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-40" />
