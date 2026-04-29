@@ -237,20 +237,31 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                       <div className="flex items-center gap-3 z-10 px-1">
                          {/* Avatar Wrapper for Crown Positioning */}
                          <div className="relative">
-                            {rank === 1 && (
+                            {rank <= 3 && (
                               <motion.div 
-                                initial={{ y: 0, rotate: -5 }}
+                                initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
                                 animate={{ 
                                   y: [-2, 2, -2],
-                                  rotate: [-5, 5, -5]
+                                  rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                                 }}
-                                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                                className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]"
+                                transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
+                                className={`absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter`}
+                                style={{
+                                  dropShadow: rank === 1 ? '0 0 10px rgba(255,215,0,0.5)' : 
+                                               rank === 2 ? '0 0 10px rgba(192,192,192,0.5)' : 
+                                               '0 0 10px rgba(205,127,50,0.5)'
+                                }}
                               >
-                                 <span className="text-2xl select-none brightness-110 saturate-150">👑</span>
+                                 <span 
+                                   className="text-2xl select-none"
+                                   style={{
+                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
+                                             rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
+                                             'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
+                                   }}
+                                 >👑</span>
                               </motion.div>
                             )}
-                            
                             {/* Clean Avatar (No Borders) */}
                             <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0 relative z-10">
                               <Avatar
