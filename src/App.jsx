@@ -246,11 +246,12 @@ export default function App() {
     winsTowardsSecret, resetSecretWordProgress,
     solvedWords, playerStats,
     syncProgressToDatabase,
+    processPurchase,
     getFreshWord,
     userRank, refreshRank,
-    loading: isGameLoading,
+    claimDailyReward,
     updateInventory,
-    processPurchase
+    loading: gameLoading
   } = useGame();
 
   const {
