@@ -235,15 +235,32 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
                       {/* Avatar Section */}
                       <div className="flex items-center gap-3 z-10 px-1">
-                         {/* Clean Avatar (No Borders) */}
-                         <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0">
-                           <Avatar
-                             src={effectiveAvatar}
-                             updatedAt={isMe ? lastProfileUpdate : player.updated_at}
-                             size="full"
-                             className="rounded-full object-cover w-full h-full"
-                             border={false}
-                           />
+                         {/* Avatar Wrapper for Crown Positioning */}
+                         <div className="relative">
+                            {rank === 1 && (
+                              <motion.div 
+                                initial={{ y: 0, rotate: -5 }}
+                                animate={{ 
+                                  y: [-3, 3, -3],
+                                  rotate: [-5, 5, -5]
+                                }}
+                                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+                                className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]"
+                              >
+                                 <span className="text-4xl select-none brightness-110 saturate-150">👑</span>
+                              </motion.div>
+                            )}
+                            
+                            {/* Clean Avatar (No Borders) */}
+                            <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0 relative z-10">
+                              <Avatar
+                                src={effectiveAvatar}
+                                updatedAt={isMe ? lastProfileUpdate : player.updated_at}
+                                size="full"
+                                className="rounded-full object-cover w-full h-full"
+                                border={false}
+                              />
+                            </div>
                          </div>
                       </div>
 
