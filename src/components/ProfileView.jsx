@@ -689,7 +689,7 @@ export default function ProfileView({
                         <div className="flex items-center justify-between px-1">
                            <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">زۆمکرنا وێنەی (Zoom)</span>
                            <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-[12px] font-black tabular-nums border border-primary/30">
-                              {Math.round(zoom * 100)}%
+                              {zoom.toFixed(1)}x
                            </span>
                         </div>
                         
