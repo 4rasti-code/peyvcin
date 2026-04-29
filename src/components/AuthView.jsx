@@ -295,9 +295,19 @@ export default function AuthView({ onAuthSuccess }) {
         }
       }
     } catch (err) {
-      console.error("Supabase Error Details:", err); // ئەڤە زێدە بکە
+      console.error("Supabase Error Details:", err);
       playAlertSfx();
-      setError(err.message);
+      
+      let kurdishError = err.message;
+      if (err.message.includes('User already registered')) {
+        kurdishError = 'ئەڤ ئیمەیڵە بەری نوکە هاتییە تۆمارکرن';
+      } else if (err.message.includes('Invalid login credentials')) {
+        kurdishError = 'ئیمەیڵ یان بۆرینپەیڤ یێ خەلەتە';
+      } else if (err.message.includes('Email not confirmed')) {
+        kurdishError = 'هیڤییە ئیمەیڵێ خۆ ل ناڤ ئیمەیڵا خۆ پشتڕاست بکە';
+      }
+      
+      setError(kurdishError);
     } finally {
       setLoading(false);
     }
