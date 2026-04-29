@@ -244,7 +244,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                    className="text-2xl select-none block relative z-10"
                                    style={{
                                      filter: rank === 1 ? 'brightness(1.1) saturate(1.5) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' :
-                                             rank === 2 ? 'grayscale(1) brightness(1.6) contrast(1.2) drop-shadow(0 0 5px rgba(255,255,255,0.4))' :
+                                             rank === 2 ? 'grayscale(1) brightness(1.1) contrast(1.3) drop-shadow(0 2px 3px rgba(0,0,0,0.2))' :
                                              'sepia(1) saturate(2.5) hue-rotate(-30deg) brightness(0.4) contrast(1.2) drop-shadow(0 0 5px rgba(139,69,19,0.4))'
                                    }}
                                  >👑</span>
