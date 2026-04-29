@@ -241,13 +241,13 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                               <motion.div 
                                 initial={{ y: 0, rotate: -5 }}
                                 animate={{ 
-                                  y: [-3, 3, -3],
+                                  y: [-2, 2, -2],
                                   rotate: [-5, 5, -5]
                                 }}
                                 transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                                className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter drop-shadow-[0_0_15px_rgba(255,215,0,0.6)]"
+                                className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]"
                               >
-                                 <span className="text-4xl select-none brightness-110 saturate-150">👑</span>
+                                 <span className="text-2xl select-none brightness-110 saturate-150">👑</span>
                               </motion.div>
                             )}
                             
