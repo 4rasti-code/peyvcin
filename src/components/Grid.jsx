@@ -46,7 +46,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       <span 
         className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         style={{ 
-          fontSize: 'clamp(1.2rem, 4.5vw, 2.5rem)',
+          fontSize: 'clamp(1rem, 4vw, 2.2rem)',
           lineHeight: 1
         }}
       >
@@ -181,8 +181,8 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
   const vwSize = `((92vw - ${(wordLength - 1) * 6}px) / ${wordLength})`;
   
   const tileSize = compact 
-    ? `clamp(24px, min(4.2vh, ${vwSize}), 38px)` 
-    : `clamp(32px, min(6vh, ${vwSize}), 62px)`;
+    ? `clamp(22px, min(3.8vh, ${vwSize}), 34px)` 
+    : `clamp(28px, min(5.5vh, ${vwSize}), 54px)`;
 
   return (
     <div className={`w-full flex-1 min-h-0 flex flex-col items-center justify-center py-1 relative overflow-visible`} dir="rtl">
@@ -191,8 +191,8 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
           .forced-tile {
             width: ${tileSize} !important;
             height: ${tileSize} !important;
-            min-width: ${compact ? '32px' : '42px'} !important;
-            min-height: ${compact ? '32px' : '42px'} !important;
+            min-width: ${compact ? '28px' : '36px'} !important;
+            min-height: ${compact ? '28px' : '36px'} !important;
             aspect-ratio: 1 / 1 !important;
             display: flex !important;
             align-items: center !important;

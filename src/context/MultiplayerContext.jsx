@@ -768,33 +768,21 @@ export const MultiplayerProvider = ({ children }) => {
       let selectedRiddles = [];
 
       try {
-        // Fetch a larger sample to ensure we find enough 5-letter words
-        const { data: randomSample, error: wordError } = await supabase
-          .from('words')
-          .select('word, definition')
-          .limit(100);
+        const { data: sequencedWords, error: wordError } = await supabase
+          .rpc('get_multiplayer_words_sequenced');
           
-        if (!wordError && randomSample?.length > 0) {
-          // Filter strictly for 5-letter words
-          const fiveLetterWords = randomSample.filter(e => e.word && e.word.length === 5);
-          
-          if (fiveLetterWords.length >= 10) {
-            const shuffled = fiveLetterWords.sort(() => 0.5 - Math.random());
-            selectedWords = shuffled.slice(0, 10).map(e => e.word);
-            selectedRiddles = shuffled.slice(0, 10).map(e => e.definition || 'No riddle');
-          } else {
-             console.warn('[Multiplayer] Not enough 5-letter words in DB, falling back to local.');
-             throw new Error('Insufficient DB words');
-          }
+        if (!wordError && sequencedWords?.length > 0) {
+          selectedWords = sequencedWords.map(e => e.word);
+          selectedRiddles = sequencedWords.map(e => e.hint || 'No riddle');
         } else {
-          throw new Error('DB Fetch Error or Empty');
+          throw new Error('DB Sequenced Fetch Error or Empty');
         }
       } catch (_) {
-        console.log('[Multiplayer] Using local fallback for 5-letter words.');
+        console.log('[Multiplayer] Using local fallback for sequenced words.');
         const localWords = getUnifiedWords();
-        // Filter local words for 5 letters
         const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
-        const fallback = [...fiveLetterLocal].sort(() => 0.5 - Math.random()).slice(0, 10);
+        // Fallback still does a slice but we can't easily sequence local without a counter
+        const fallback = [...fiveLetterLocal].sort((a,b) => a.word.localeCompare(b.word)).slice(0, 5);
         selectedWords = fallback.map(w => w.word);
         selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
       }

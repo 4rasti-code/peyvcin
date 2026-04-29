@@ -21,7 +21,7 @@ END $$;
 -- Ensure all mandatory columns exist with correct defaults
 ALTER TABLE public.profiles 
 ADD COLUMN IF NOT EXISTS fils INTEGER DEFAULT 1000,
-ADD COLUMN IF NOT EXISTS dirham INTEGER DEFAULT 50,
+ADD COLUMN IF NOT EXISTS derhem INTEGER DEFAULT 50,
 ADD COLUMN IF NOT EXISTS dinar INTEGER DEFAULT 5,
 ADD COLUMN IF NOT EXISTS xp INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS level INTEGER DEFAULT 1,
@@ -58,7 +58,7 @@ BEGIN
         id, 
         nickname, 
         fils, 
-        dirham, 
+        derhem, 
         dinar,
         magnets, 
         hints, 

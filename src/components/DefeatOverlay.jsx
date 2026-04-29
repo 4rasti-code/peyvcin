@@ -91,13 +91,6 @@ const DefeatOverlay = ({
                 بی ھێڤی نەبە، دێ جارەکا دی پیکۆلێ کەین و سەرکەڤین!
               </p>
 
-              {gameMode !== 'secret_word' && solvedWord && (
-                <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block">
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest block mb-1">پەیڤا دروست ئەڤە بوو</span>
-                  <span className="text-2xl font-black text-primary font-heading tracking-wider">{solvedWord}</span>
-                </div>
-              )}
-
               {/* Stats & Penalties Table */}
               <div className="w-full space-y-1.5 mt-2 bg-black/40 p-4 rounded-[2.5rem] border border-red-500/10 shadow-inner">
                 <div className="flex justify-between items-center text-sm font-black  group/row">

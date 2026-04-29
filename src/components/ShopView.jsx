@@ -236,23 +236,24 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
   return (
     <div 
       onClick={handleBackgroundClick}
-      className="flex-1 w-full bg-[#020617] px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x- relative bg-trigger-zone"
+      className="flex-1 w-full bg-[#020617] px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone"
     >
       <FloatingLetterBackground ref={bgRef} />
       
-      <InventoryBar 
-        magnetCount={magnetCount} 
-        hintCount={hintCount} 
-        skipCount={skipCount}
-        isShop={true}
-        className="mb-0" // Reduce margin due to floating indicators
-      />
-
-      {/* Floating Currency Jump Guard Indicators */}
-      <div className="flex items-center justify-center gap-10 -mt-2">
-         <CurrencyDecrementEffect value={fils} currency="fils" resetKey={activeTab} />
-         <CurrencyDecrementEffect value={derhem} currency="derhem" resetKey={activeTab} />
-         <CurrencyDecrementEffect value={dinar} currency="dinar" resetKey={activeTab} />
+      {/* Status Card: Inventory ONLY - Enhanced Visibility */}
+      <div className="relative z-20 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl overflow-hidden group">
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-50" />
+        
+        <div className="relative z-10 flex flex-col items-center">
+          {/* Inventory Section */}
+          <InventoryBar 
+            magnetCount={magnetCount} 
+            hintCount={hintCount} 
+            skipCount={skipCount}
+            isShop={true}
+            className="scale-110"
+          />
+        </div>
       </div>
 
       <div className="flex p-1 bg-slate-100/95 backdrop-blur-2xl rounded border-2 border-slate-200/50 shadow-[0_8px_30px_rgb(0,0,0,0.12)] relative">

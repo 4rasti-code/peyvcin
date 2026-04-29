@@ -4,21 +4,33 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
+import { toKuDigits } from '../utils/formatters';
 
   const CurrencyStat = ({ value, Icon: IconComponent, color, bg, currency = 'fils', resetKey }) => {
     const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
     return (
       <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
-        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-[12px] ${bg || 'bg-transparent'} transition-all duration-300`}>
-          <div className={`w-5 h-5 flex items-center justify-center ${color} drop-shadow-sm`}>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-all duration-300`}>
+          <div className={`w-4 h-4 flex items-center justify-center ${color} drop-shadow-sm`}>
             <IconComponent className="w-full h-full" />
           </div>
           <div className="flex flex-col items-center leading-none">
-            <span className="text-[17px] font-black font-heading text-white">{(value || 0).toLocaleString('ku-IQ')}</span>
-            <span className={`text-[8px] font-black uppercase mt-0.5 ${color} opacity-60`}>{currencyName}</span>
+            <span className="text-[15px] font-black font-heading text-white">{toKuDigits(value || 0)}</span>
+            <span className={`text-[7px] font-black uppercase mt-0.5 ${color} opacity-60`}>{currencyName}</span>
           </div>
         </div>
       </CurrencyDecrementEffect>
+    );
+  };
+
+  const InventoryStat = ({ value, icon, color, bg }) => {
+    return (
+      <div className={`flex items-center gap-1.5 px-2 py-1 rounded-[10px] ${bg || 'bg-white/5'} border border-white/5`}>
+        <span className={`material-symbols-outlined text-[18px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+          {icon}
+        </span>
+        <span className="text-[14px] font-black text-white">{toKuDigits(value || 0)}</span>
+      </div>
     );
   };
 
@@ -26,6 +38,9 @@ export default function TopAppBar({
   fils = 0, 
   derhem = 0,
   dinar = 0,
+  magnetCount = 0,
+  hintCount = 0,
+  skipCount = 0,
   level, 
   onOpenSettings, 
   currentView, 
@@ -47,7 +62,7 @@ export default function TopAppBar({
                         : category;
 
   const isPlaying = currentView === 'game';
-  const showStats = currentView === 'lobby' || currentView === 'store' || currentView === 'leaderboard' || currentView === 'stats';
+  const showStats = ['lobby', 'store', 'leaderboard', 'stats', 'dictionary'].includes(currentView);
   const isClassic = gameMode === 'classic';
 
   return (
@@ -125,7 +140,7 @@ export default function TopAppBar({
             ) : (
               currentView !== 'store' && (
                 <div className="flex items-center gap-1">
-                  {(currentView === 'stats' || currentView === 'lobby') && (
+                  {(currentView === 'stats' || currentView === 'lobby' || currentView === 'leaderboard') && (
                     <motion.button 
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -157,30 +172,44 @@ export default function TopAppBar({
                   )}
                 </div>
                 {/* Right Balance */}
-                <CurrencyStat key="lobby-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
+                <div className="flex items-center gap-2">
+                  
+                  <CurrencyStat key="lobby-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
+                </div>
               </>
             ) : (
               /* Informative Header for Non-Classic Modes */
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {displayCategory && (
                   <div className="flex flex-col items-end leading-tight ml-2">
                     <span className="text-[9px] font-black text-white/40 uppercase">بابەت</span>
                     <span className="text-[13px] font-bold text-primary font-noto-sans-arabic">{displayCategory}</span>
                   </div>
                 )}
-                {displayCategory && <div className="w-[1.5px] h-6 bg-white/15 mx-1.5 rounded-full" />}
+                {displayCategory && <div className="w-[1px] h-4 bg-white/10 mx-1" />}
+                
                 <CurrencyStat key="nonclassic-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
               </div>
             )
           ) : (
             showStats && (
-              <div className="flex items-center gap-2 sm:gap-4">
-                 {currentView === 'store' ? (
-                    <>
-                      <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
-                      <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
-                      <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
-                    </>
+              <div className="flex items-center gap-2 sm:gap-3">
+                 {currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard' ? (
+                    <div className="flex items-center gap-2">
+                      {/* Helpers Group */}
+                      <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
+                        <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" />
+                        <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" />
+                        <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" />
+                      </div>
+
+                      {/* Currencies Group */}
+                      <div className="flex items-center gap-1">
+                        <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
+                        <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
+                        <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
+                      </div>
+                    </div>
                  ) : (
                    <>
                      {currentView === 'lobby' && (
@@ -198,7 +227,7 @@ export default function TopAppBar({
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
-                            className={`w-16 h-16 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#10b981]' : 'text-[#10b981]/60'}`}
+                            className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#10b981]' : 'text-[#10b981]/60'}`}
                          >
                            <span className="material-symbols-outlined text-[54px] font-black" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
                            {notificationCount > 0 && (
@@ -207,7 +236,7 @@ export default function TopAppBar({
                                animate={{ scale: 1 }}
                                className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-[#0a0f1b] flex items-center justify-center shadow-lg pointer-events-none"
                              >
-                               <span className="text-[11px] font-black text-white leading-none">{notificationCount}</span>
+                               <span className="text-[11px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
                                <span className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-40" />
                              </motion.div>
                            )}
@@ -232,9 +261,9 @@ export default function TopAppBar({
                        <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
                      )}
                      
-                     <div className="hidden sm: items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
+                     <div className="hidden sm:flex items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
                         <div className="flex flex-col items-start leading-none pt-0.5">
-                           <span className="text-[17px] font-black font-heading text-white">{level || 1}</span>
+                           <span className="text-[17px] font-black font-heading text-white">{toKuDigits(level || 1)}</span>
                            <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-normal mt-0.5">ئاست</span>
                         </div>
                         <div className="w-9 h-9 rounded-[14px] bg-white/20 flex items-center justify-center text-white border border-white/30 shadow-inner" style={{ minWidth: '36px' }}>

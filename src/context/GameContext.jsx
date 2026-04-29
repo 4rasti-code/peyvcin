@@ -423,9 +423,10 @@ export const GameProvider = ({ children }) => {
     return () => clearInterval(heartbeat);
   }, [user, loadingAuth]);
 
-  const updateInventory = useCallback(async (updates, isAdditive = true) => {
+  const updateInventory = useCallback(async (updates, isAdditive = true, syncToDB = true) => {
     const calculateNext = (current, offset, additive) => additive ? (current + offset) : offset;
     const { user: currentUser, fils: currFils, derhem: currDerhem, dinar: currDinar, magnetCount: currMags, hintCount: currHints, skipCount: currSkips } = stateRef.current;
+    
     const nextValues = {
       fils: updates.fils !== undefined ? calculateNext(currFils, updates.fils, isAdditive) : undefined,
       derhem: updates.derhem !== undefined ? calculateNext(currDerhem, updates.derhem, isAdditive) : undefined,
@@ -434,6 +435,7 @@ export const GameProvider = ({ children }) => {
       hints: updates.hintCount !== undefined ? calculateNext(currHints, updates.hintCount, isAdditive) : undefined,
       skips: updates.skipCount !== undefined ? calculateNext(currSkips, updates.skipCount, isAdditive) : undefined
     };
+
     if (nextValues.fils !== undefined) setFils(nextValues.fils);
     if (nextValues.derhem !== undefined) setDerhem(nextValues.derhem);
     if (nextValues.dinar !== undefined) setDinar(nextValues.dinar);
@@ -447,7 +449,7 @@ export const GameProvider = ({ children }) => {
       localStorage.setItem(storageKey, (isAdditive ? (current + val) : val).toString());
     });
 
-    if (currentUser) {
+    if (currentUser && syncToDB) {
       const dbUpdates = { updated_at: new Date().toISOString() };
       Object.entries(nextValues).forEach(([dbKey, val]) => { if (val !== undefined) dbUpdates[dbKey] = val; });
       try { await supabase.from('profiles').update(dbUpdates).eq('id', currentUser.id); }
@@ -651,7 +653,38 @@ export const GameProvider = ({ children }) => {
     updateProfile,
     handleToggleBlock,
     syncProgressToDatabase,
-    getLevelData
+    getLevelData,
+    getFreshWord: async (mode, category) => {
+      const { user: currentUser } = stateRef.current;
+      
+      // If user is logged in, fetch a fresh word from Supabase
+      if (currentUser?.id) {
+        try {
+          const { data, error } = await supabase.rpc('get_random_fresh_word', {
+            p_user_id: currentUser.id,
+            p_mode_tag: mode === 'classic' ? 'classic' : (mode === 'hard_words' ? 'hard_words' : (mode === 'mamak' ? 'mamak' : mode)),
+            p_category: (category && category !== 'ھەموو') ? category : null
+          });
+
+          if (error) throw error;
+          if (data && data.length > 0) {
+            return {
+              word: data[0].word,
+              hint: data[0].hint,
+              category: data[0].category,
+              id: data[0].id
+            };
+          }
+        } catch (err) {
+          console.warn("[GameContext] Failed to fetch fresh word from DB, falling back to local:", err);
+        }
+      }
+
+      // Fallback for Guest or if DB fetch fails
+      const { level: currLevel, solvedWords: sWords } = stateRef.current;
+      const { getRandomWordFromCategory } = await import('../data/wordList');
+      return getRandomWordFromCategory(category, currLevel, sWords, mode);
+    }
   }), [
     user, level, winsTowardsSecret, currentXP, maxXP, minXPForLevel, fils, derhem, dinar,
     dailyStreak, rewardStreak, lastRewardClaimedAt,

@@ -5,7 +5,7 @@ dotenv.config({ path: '.env.local' });
 const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
 
 async function checkColumns() {
-  const columns = 'level, xp, last_notified_level, wins_towards_secret, shayi, dirham, dinar, magnets, hints, skips, daily_streak, reward_streak, last_reward_claimed_at, inventory, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
+  const columns = 'level, xp, last_notified_level, wins_towards_secret, shayi, derhem, dinar, magnets, hints, skips, daily_streak, reward_streak, last_reward_claimed_at, inventory, haptic_enabled, nickname, avatar_url, city, is_kurdistan, country_code, updated_at';
   const { data, error } = await supabase.from('profiles').select(columns).limit(1);
   if (error) {
     console.error('Error fetching profiles:', JSON.stringify(error, null, 2));

@@ -113,7 +113,7 @@ const VictoryOverlay = ({
 
               {solvedWord && (
                 <div className="bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block">
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا دۆزراوە</span>
+                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا ڕاست</span>
                   <span className="text-2xl font-black text-emerald-400 font-heading tracking-normal">{solvedWord}</span>
                 </div>
               )}

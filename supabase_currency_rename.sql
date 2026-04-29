@@ -36,7 +36,7 @@ BEGIN
         id, 
         nickname, 
         fils, 
-        dirham, 
+        derhem, 
         dinar,
         magnets, 
         hints, 

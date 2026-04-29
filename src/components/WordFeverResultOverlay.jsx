@@ -116,10 +116,10 @@ const WordFeverResultOverlay = ({
                 {isWin ? 'تە پەیڤا دروست دیت و سەرکەفتن ئینا!' : 'تە پەیڤا ڕاست نەدیت، دەستا نەداھێلە!'}
               </p>
 
-              {solvedWord && (
-                <div className={`bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block ${isWin ? 'ring-1 ring-sky-400/20' : ''}`}>
-                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا دۆزراوە</span>
-                  <span className={`text-2xl font-black font-heading tracking-normal ${isWin ? 'text-sky-400' : 'text-red-400'}`}>{solvedWord}</span>
+              {isWin && solvedWord && (
+                <div className={`bg-white/5 border border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block ring-1 ring-sky-400/20`}>
+                  <span className="text-white/40 text-[10px] font-bold uppercase tracking-normal block mb-1">پەیڤا ڕاست</span>
+                  <span className={`text-2xl font-black font-heading tracking-normal text-sky-400`}>{solvedWord}</span>
                 </div>
               )}
 

@@ -14,7 +14,7 @@ export default function InfoBar({
   level = 1,
   minXP = 0,
   maxXP = 100,
-  timeLeft = 60,
+  timeLeft = 30,
   showSuccessSplash = false
 }) {
   const isClassic = gameMode === 'classic';
@@ -22,7 +22,8 @@ export default function InfoBar({
   const isMamak = gameMode === 'mamak';
   const isHardWords = gameMode === 'hard_words';
   const isSecretWord = gameMode === 'secret_word';
-  const displayText = targetHint || category || '...';
+  const displayCategory = category === 'generalWordPool' ? 'گشتی' : (category || 'گشتی');
+  const displayText = (isClassic || isHardWords) ? displayCategory : (targetHint || displayCategory || '...');
   
   // XP Calculation: Relative Progress within the current level
   const range = maxXP - minXP;
@@ -41,7 +42,7 @@ export default function InfoBar({
 
   const timerStyle = getTimerStyles(timeLeft);
   const circumference = 2 * Math.PI * 22;
-  const offset = (timeLeft / 60) * circumference;
+  const offset = (timeLeft / 30) * circumference;
 
   // Minimalist View for Classic, Word Fever, OR Mamak Mode
   if (isClassic || isWordFever || isMamak || isHardWords || isSecretWord) {

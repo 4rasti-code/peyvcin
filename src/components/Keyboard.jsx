@@ -94,6 +94,8 @@ const Keyboard = memo(({
   fils = 0,
   gameMode = 'classic',
   magnetUsedInRound = false,
+  skipsUsedInRound = 0,
+  skipLimit = 1,
   hintTaps = 0,
   hintLimit = 0,
   hidePowerups = false
@@ -128,6 +130,8 @@ const Keyboard = memo(({
           hintTaps={hintTaps}
           hintLimit={hintLimit}
           magnetUsedInRound={magnetUsedInRound}
+          skipsUsedInRound={skipsUsedInRound}
+          skipLimit={skipLimit}
           className="mb-1"
         />
       )}
@@ -138,13 +142,13 @@ const Keyboard = memo(({
         <div key={rowIndex} className="flex gap-1 w-full justify-center">
           {rowIndex === 3 && (
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
-              className="flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
+              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
+              className="flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
             >
-              <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
+              <span className="material-symbols-outlined text-[20px]">backspace</span>
             </motion.button>
           )}
 
@@ -160,15 +164,16 @@ const Keyboard = memo(({
 
           {rowIndex === 3 && (
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
-              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
-              className="flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
+              onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
+              className="flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
             >
-              <span className="material-symbols-outlined text-[20px]">backspace</span>
+              <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
             </motion.button>
           )}
+
         </div>
       ))}
     </div>

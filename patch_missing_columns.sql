@@ -10,7 +10,7 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS reward_streak INTEGER DEFAU
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_reward_claimed_at TIMESTAMP WITH TIME ZONE DEFAULT NULL;
 
 -- 2. New Currencies
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dirham INTEGER DEFAULT 50;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS derhem INTEGER DEFAULT 50;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS dinar INTEGER DEFAULT 5;
 
 -- 3. Game Progression & Settings

@@ -181,6 +181,7 @@ export default function App() {
   const [targetWord, setTargetWord] = useState('');
   const [targetHint, setTargetHint] = useState('');
   const [category, setCategory] = useState('');
+  const [currentWordCategory, setCurrentWordCategory] = useState('');
 
   const [isShaking, setIsShaking] = useState(false);
   const [, setStartTime] = useState(0);
@@ -191,7 +192,7 @@ export default function App() {
   const [magnetDisabledKeys, setMagnetDisabledKeys] = useState([]);
 
   const [gameMode, setGameMode] = useState('classic'); // 'classic', 'word_fever', 'secret_word', 'mamak', 'hard_words'
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [, setIsDailyActive] = useState(false);
   const [isSuccessSplash, setIsSuccessSplash] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState([]);
@@ -236,6 +237,7 @@ export default function App() {
     updateProfile,
 
     syncProgressToDatabase,
+    getFreshWord,
 
     appSoundsEnabled,
     hapticEnabled,
@@ -323,13 +325,13 @@ export default function App() {
         tWord.length,
         gMode,
         {
-          solvedWords: nextSolved,
+          solvedWords: [tWord], // Send only newly solved word, server-side RPC handles appending
           winsTowardsSecret: nextWinsTowardsSecret,
           resetSecretProgress,
           filsBonus: breakdown.awardAmount,
-          magnetsUsed: magnetsUsedInRoundCount,
-          hintsUsed: hintsUsedInRound,
-          skipsUsed: skipsUsedInRound
+          magnetsUsed: 0, // Now deducted immediately in handleMagnet
+          hintsUsed: 0,   // Now deducted immediately in handleHint
+          skipsUsed: 0    // Now deducted immediately in handleSkip
         }
       );
       // Extra verification from server if needed (Optional: syncData.xpAdded can overwrite if different)
@@ -494,6 +496,8 @@ export default function App() {
     magnetCount,
     skipCount,
     isVictory,
+    isDefeat,
+    currentView,
     revealedIndices,
     currentGuess,
     magnetDisabledKeys,
@@ -517,6 +521,8 @@ export default function App() {
       magnetCount,
       skipCount,
       isVictory,
+      isDefeat,
+      currentView,
       revealedIndices,
       currentGuess,
       magnetDisabledKeys,
@@ -530,7 +536,9 @@ export default function App() {
       targetHint,
       hintTaps
     });
-  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps]);
+  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps]);
+
+
 
   // Wrapped handlers to manage UI feedback (shaking, messages)
   // IDENTITY STABLE: These never change, preventing Keyboard re-renders
@@ -571,7 +579,7 @@ export default function App() {
 
     updateInventory({
       hintCount: -1
-    });
+    }, true, true); // Sync to DB immediately to prevent refresh exploit
     setHintTaps(prev => prev + 1);
     setHintsUsedInRound(prev => prev + 1);
   }, [updateInventory]); // updateInventory is stable from GameContext
@@ -593,7 +601,7 @@ export default function App() {
     setMagnetsUsedInRoundCount(prev => prev + 1);
     updateInventory({
       magnetCount: -1
-    });
+    }, true, true); // Sync to DB immediately
   }, [updateInventory]); // updateInventory is stable from GameContext
 
   const handleSkip = useCallback(() => {
@@ -606,8 +614,64 @@ export default function App() {
     setSkipsUsedInRound(prev => prev + 1);
     updateInventory({
       skipCount: -1
-    });
+    }, true, true); // Sync to DB immediately
   }, [onEnter, updateInventory]); // onEnter and updateInventory are stable
+
+
+  // --- PHYSICAL KEYBOARD SUPPORT ---
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const { isVictory: isV, isDefeat: isD, currentView: cView } = gameRefs.current;
+      
+      // 1. Safety Check: Ignore if typing in a real input/textarea
+      if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return;
+      
+      // 2. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      // 3. State Check: Only allow if in 'game' view and not in result screen
+      if (cView !== 'game' || isV || isD) return;
+
+      let inputChar = e.key;
+
+      // 4. Special Keys Mapping
+      if (inputChar === 'Enter') {
+        e.preventDefault();
+        handleOnEnter();
+        return;
+      }
+      if (inputChar === 'Backspace') {
+        e.preventDefault();
+        onDelete();
+        return;
+      }
+
+      // 5. Strict Unicode Normalizer (Windows Central Kurdish Layout)
+      const normalizeMap = {
+        'ه': 'ھ', // Fixes 'h' key output
+        'ك': 'ک',
+        'ي': 'ی',
+        'ة': 'ە'
+      };
+      
+      // Optional: Preserve convenience mappings for Latin keyboards if needed
+      const latinMap = { 'h': 'ھ', 'H': 'ھ', 'r': 'ر', 'R': 'ڕ' };
+      
+      if (normalizeMap[inputChar]) inputChar = normalizeMap[inputChar];
+      else if (latinMap[inputChar]) inputChar = latinMap[inputChar];
+
+      // 6. Alphabet Validation & Trigger
+      const alphabet = 'ئابپت جچحخد ر ڕ ز ژ س ش ع غ ف ڤ ق ک گ ل ڵ م ن و ۆ ھ ە ی ێ'.replace(/\s/g, '');
+      if (alphabet.includes(inputChar)) {
+        onKey(inputChar);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleOnEnter, onKey, onDelete]);
+
+
 
 
   // TRIGGER LEVEL UP UI (Standardized)
@@ -784,22 +848,23 @@ export default function App() {
 
     setTargetWord(cleanWord);
     setTargetHint(wordObj.hint || '');
+    setCurrentWordCategory(wordObj.category || '');
     setRevealedIndices([]);
     setStartTime(Date.now());
     setHintTaps(0);
     setMagnetUsedInRound(false);
     setMagnetDisabledKeys([]);
 
-    if (gMode === 'word_fever') setTimeLeft(60);
+    if (gMode === 'word_fever') setTimeLeft(30);
     resetLocalBoard(cleanWord);
     if (hEnabled) triggerHaptic(25);
   }, [resetLocalBoard]);
 
-  const selectCategory = useCallback((cat, forcedMode = null) => {
-    const { level: currLevel, solvedWords: sWords, gameMode: gMode } = gameRefs.current;
-    const targetDifficultyLevel = currLevel;
+  const selectCategory = useCallback(async (cat, forcedMode = null) => {
+    const { gameMode: gMode } = gameRefs.current;
     const modeToUse = forcedMode || gMode;
-    const wordObj = getRandomWordFromCategory(cat, targetDifficultyLevel, sWords, modeToUse);
+    
+    const wordObj = await getFreshWord(modeToUse, cat);
 
     if (wordObj) {
       if (forcedMode) setGameMode(forcedMode);
@@ -807,7 +872,7 @@ export default function App() {
       setCategory(cat);
       setCurrentView('game');
     }
-  }, [resetBoard]);
+  }, [resetBoard, getFreshWord]);
 
   const handleEarlyExit = useCallback(() => {
     setIsVictory(false);
@@ -817,17 +882,16 @@ export default function App() {
     setIsDailyActive(false);
   }, [setIsVictory, setCurrentView, setCategory, setTargetWord, setIsDailyActive]);
 
-  const handleNextGame = useCallback(() => {
-    const { level: currLevel, solvedWords: sWords, gameMode: gMode, category: currCat } = gameRefs.current;
-    const targetDifficultyLevel = currLevel;
-    const wordObj = getRandomWordFromCategory(currCat, targetDifficultyLevel, sWords, gMode);
+  const handleNextGame = useCallback(async () => {
+    const { gameMode: gMode, category: currCat } = gameRefs.current;
+    const wordObj = await getFreshWord(gMode, currCat);
 
     if (wordObj) {
       resetBoard(wordObj);
     } else {
       setCurrentView('lobby');
     }
-  }, [resetBoard]);
+  }, [resetBoard, getFreshWord]);
 
   const handleForfeit = useCallback(() => {
     playPopSound();
@@ -1089,6 +1153,7 @@ export default function App() {
         {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && multiplayerState !== 'playing' && (
           <TopAppBar
             user={user} fils={fils} derhem={derhem} dinar={dinar}
+            magnetCount={magnetCount} hintCount={hintCount} skipCount={skipCount}
             level={level} dailyStreak={dailyStreak}
             currentView={currentView} onEarlyExit={handleEarlyExit}
             onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
@@ -1199,7 +1264,7 @@ export default function App() {
                 <div className={`w-full shrink-0 flex flex-col items-center my-1`}>
                   <InfoBar
                     targetHint={targetHint}
-                    category={category}
+                    category={currentWordCategory || category}
                     gameMode={gameMode}
                     guessesCount={guesses.length}
                     maxGuesses={gameMode === 'word_fever' ? 3 : 6}
@@ -1208,6 +1273,7 @@ export default function App() {
                     minXP={minXPForLevel}
                     maxXP={maxXP}
                     level={level}
+                    targetDifficultyLevel={level}
                     timeLeft={timeLeft}
                     showSuccessSplash={isSuccessSplash}
                   />
@@ -1253,7 +1319,10 @@ export default function App() {
                   hintTaps={hintTaps}
                   hintLimit={getMaxHintsForWord(targetWord.length)}
                   magnetUsedInRound={magnetUsedInRound}
+                  skipsUsedInRound={skipsUsedInRound}
+                  skipLimit={1}
                   keyboardSoundEnabled={appSoundsEnabled}
+
                   hapticEnabled={hapticEnabled}
                 />
               </div>
@@ -1416,9 +1485,9 @@ export default function App() {
               breakdown={defeatBreakdown}
               gameMode={gameMode}
               playStartSound={playStartGameSound}
-              onRetry={() => {
+              onRetry={async () => {
                 setIsDefeat(false);
-                const wordObj = getRandomWordFromCategory(category, level, solvedWords, gameMode);
+                const wordObj = await getFreshWord(gameMode, category);
                 if (wordObj) resetBoard(wordObj);
               }}
               onHome={handleGoHome}
