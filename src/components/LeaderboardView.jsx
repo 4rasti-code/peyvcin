@@ -238,9 +238,9 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                              '0 0 10px rgba(205,127,50,0.5)'
                               }}
                             >
-                               <div className="relative overflow-hidden rounded-full p-1">
+                               <div className="relative overflow-hidden">
                                  <span 
-                                   className="text-2xl select-none block"
+                                   className="text-2xl select-none block relative z-10"
                                    style={{
                                      filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
                                              rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
@@ -248,11 +248,11 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                    }}
                                  >👑</span>
                                  
-                                 {/* Mirror Shine Effect */}
+                                 {/* Mirror Shine Effect (Directly on Crown) */}
                                  <motion.div 
                                    animate={{ x: ['-150%', '150%'] }}
-                                   transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
-                                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
+                                   transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
+                                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -skew-x-20 mix-blend-overlay z-20 pointer-events-none"
                                  />
                                </div>
                             </motion.div>
