@@ -674,8 +674,8 @@ export default function ProfileView({
                         style={{
                            containerStyle: { background: '#000', padding: 0 },
                            cropAreaStyle: { 
-                              width: '100%', 
-                              height: '100%',
+                              width: '400px', 
+                              height: '400px',
                               border: '1px solid rgba(255,255,255,0.5)',
                               boxShadow: '0 0 0 9999px rgba(0,0,0,0.85)'
                            }
