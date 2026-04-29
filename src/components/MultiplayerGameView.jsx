@@ -124,53 +124,55 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
     }
   }, [currentRound, targetWord, resetLocalBoard, playStartSound]);
 
-  // --- PHYSICAL KEYBOARD SUPPORT FOR MULTIPLAYER ---
+  // --- PHYSICAL KEYBOARD SUPPORT FOR BATTLE MODE ---
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // 1. Safety Check: Ignore if typing in a real input/textarea or if game over
+      // 1. Safety Check: Ignore if typing in a real input/textarea
       if (['INPUT', 'TEXTAREA'].includes(e.target.tagName) || e.target.isContentEditable) return;
-      if (multiplayerState !== 'playing' || isRoundWinner) return;
       
-      // 2. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
+      // 2. State Check: Only allow if we are in the 'playing' state
+      if (multiplayerState !== 'playing') return;
+      
+      // 3. Modifier Check: Ignore if Ctrl, Alt, or Meta keys are pressed
       if (e.ctrlKey || e.altKey || e.metaKey) return;
 
-      let inputChar = e.key;
+      const inputKey = e.key;
 
-      // 3. Special Keys Mapping
-      if (inputChar === 'Enter') {
+      // 4. Special Keys Mapping
+      if (inputKey === 'Enter') {
         e.preventDefault();
         onEnter();
         return;
       }
-      if (inputChar === 'Backspace') {
+      if (inputKey === 'Backspace') {
         e.preventDefault();
         onDelete();
         return;
       }
 
-      // 4. Strict Unicode Normalizer (Windows Central Kurdish Layout)
+      // 5. Strict Unicode Normalizer (Matches App.jsx)
+      let char = inputKey;
       const normalizeMap = {
         'ه': 'ھ',
         'ك': 'ک',
         'ي': 'ی',
         'ة': 'ە'
       };
-      
       const latinMap = { 'h': 'ھ', 'H': 'ھ', 'r': 'ر', 'R': 'ڕ' };
       
-      if (normalizeMap[inputChar]) inputChar = normalizeMap[inputChar];
-      else if (latinMap[inputChar]) inputChar = latinMap[inputChar];
+      if (normalizeMap[char]) char = normalizeMap[char];
+      else if (latinMap[char]) char = latinMap[char];
 
-      // 5. Alphabet Validation & Trigger
+      // 6. Alphabet Validation
       const alphabet = 'ئابپت جچحخد ر ڕ ز ژ س ش ع غ ف ڤ ق ک گ ل ڵ م ن و ۆ ھ ە ی ێ'.replace(/\s/g, '');
-      if (alphabet.includes(inputChar)) {
-        onKey(inputChar);
+      if (alphabet.includes(char)) {
+        onKey(char);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onKey, onDelete, onEnter, multiplayerState, isRoundWinner]);
+  }, [onKey, onDelete, onEnter, multiplayerState]);
 
   // --- GUARDS & EARLY RETURNS (Declare AFTER all hooks) ---
   if (!activeMatch) {
