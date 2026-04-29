@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { triggerHaptic } from '../utils/haptics';
-import { useGame } from '../context/GameContext';
+import { useAudio } from '../context/AudioContext';
 
 export default function DictionaryView({ solvedWords, wordList, highlightWord, onBack }) {
-  const { playTabSound } = useGame();
+  const { playTabSound } = useAudio();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 

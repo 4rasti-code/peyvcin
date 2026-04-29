@@ -1,6 +1,7 @@
 import React from 'react';
 import ExperienceBar from './ExperienceBar';
 import { useGame } from '../context/GameContext';
+import { useUser } from '../context/AuthContext';
 import { toKuDigits } from '../utils/formatters';
 
 /**
@@ -8,7 +9,8 @@ import { toKuDigits } from '../utils/formatters';
  * Demonstrates how any Game Mode can now trigger global XP rewards.
  */
 export default function GameWrapper() {
-  const { addXP, loading } = useGame();
+  const { addXP } = useGame();
+  const { loading } = useUser();
 
   if (loading) {
     return (

@@ -12,8 +12,13 @@ import { toKuDigits } from '../utils/formatters';
 import ExperienceBar from './ExperienceBar';
 import Avatar from './Avatar';
 import { useGame } from '../context/GameContext';
+import { useAudio } from '../context/AudioContext';
 import FloatingLetterBackground from './FloatingLetterBackground';
 import { getLevelData } from '../utils/progression';
+import { compressImage, getCroppedImg } from '../utils/imageUtils';
+import Cropper from 'react-easy-crop';
+
+
 
 export default function ProfileView({
    user,
@@ -34,7 +39,7 @@ export default function ProfileView({
    maxXP,
    dailyStreak
 }) {
-   const { playTabSound, playSaveSound } = useGame();
+   const { playTabSound, playSaveSound } = useAudio();
    const [activeTab, setActiveTab] = useState('profile');
    const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
    const [isAvatarBoxOpen, setIsAvatarBoxOpen] = useState(false);
@@ -54,6 +59,12 @@ export default function ProfileView({
    const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
    const nicknameInputRef = useRef(null);
    const bgRef = useRef(null);
+   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+   const [imageToCrop, setImageToCrop] = useState(null);
+   const [crop, setCrop] = useState({ x: 0, y: 0 });
+   const [zoom, setZoom] = useState(1);
+   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+   const [croppedBlob, setCroppedBlob] = useState(null);
 
    const handleBackgroundClick = (e) => {
       // Pulse on background void clicks
@@ -124,12 +135,75 @@ export default function ProfileView({
    const handleImageUpload = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-      setPendingFile(file);
-      const preview = URL.createObjectURL(file);
-      setLocalPreviewUrl(preview);
-      setDraftAvatar(preview);
-      setIsAvatarBoxOpen(false);
-      triggerHaptic(10);
+      const reader = new FileReader();
+      reader.onload = () => {
+         setImageToCrop(reader.result);
+         setIsCropModalOpen(true);
+         setZoom(1);
+         setCrop({ x: 0, y: 0 });
+      };
+      reader.readAsDataURL(file);
+   };
+
+   const onCropComplete = (croppedArea, croppedAreaPixels) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+   };
+
+   const handleConfirmCrop = async () => {
+      if (!imageToCrop || !croppedAreaPixels) return;
+      try {
+         setIsUploading(true);
+         const blob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+         
+         // Generate unique filename
+         const fileName = `${user?.id || 'guest'}-${Date.now()}.jpg`;
+
+         // Upload directly to Supabase Storage
+         const { data, error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, blob, { 
+               contentType: 'image/jpeg',
+               upsert: true 
+            });
+
+         if (uploadError) throw uploadError;
+
+         // Get the public URL
+         const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+
+         // Close modal and show feedback immediately (Optimistic UI)
+         setIsCropModalOpen(false);
+         setDraftAvatar(publicUrl);
+         setSaveSuccess(true);
+         playSaveSound();
+         triggerHaptic([20, 10, 20]);
+
+         // Update the profile in the background (don't await)
+         onProfileSave({ 
+            nickname: draftNickname, 
+            avatar_url: publicUrl, 
+            countryCode: draftCountryCode, 
+            isInKurdistan: draftIsInKurdistan 
+         }).then(() => {
+            console.log("[ProfileView] Profile synced in background");
+         }).catch(err => {
+            console.error("[ProfileView] Background sync failed:", err);
+         });
+         
+         // Cleanup
+         setCroppedBlob(null);
+         if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+         setLocalPreviewUrl(null);
+         setTimeout(() => setSaveSuccess(false), 2000);
+
+      } catch (err) {
+         console.error("Crop/Save failed:", err);
+         alert(`خەلەتی د سەیڤکرنێ دا: ${err.message}`);
+      } finally {
+         setIsUploading(false);
+      }
    };
 
    const handleInvite = () => {
@@ -145,14 +219,16 @@ export default function ProfileView({
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
 
-         if (pendingFile) {
+         // Use cropped blob if available
+         const uploadSource = croppedBlob;
+
+         if (uploadSource) {
             try {
-               const fileExt = pendingFile.name.split('.').pop();
-               const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
+               const fileName = `${user?.id || 'guest'}-${Date.now()}.jpg`;
 
                const { data, error: uploadError } = await supabase.storage
                   .from('avatars')
-                  .upload(fileName, pendingFile);
+                  .upload(fileName, uploadSource, { contentType: 'image/jpeg' });
 
                if (!uploadError) {
                   const { data: { publicUrl } } = supabase.storage
@@ -165,12 +241,30 @@ export default function ProfileView({
             } catch (upErr) {
                console.error("Upload process crashed:", upErr);
             }
+         } else if (pendingFile) {
+             // Fallback for direct avatar selection if any
+             try {
+                const fileExt = pendingFile.name.split('.').pop();
+                const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
+ 
+                const { data, error: uploadError } = await supabase.storage
+                   .from('avatars')
+                   .upload(fileName, pendingFile);
+ 
+                if (!uploadError) {
+                   const { data: { publicUrl } } = supabase.storage
+                      .from('avatars')
+                      .getPublicUrl(fileName);
+                   finalAvatar = publicUrl;
+                }
+             } catch (err) {}
          }
 
          await onProfileSave({ nickname: draftNickname, avatar_url: finalAvatar, countryCode: draftCountryCode, isInKurdistan: draftIsInKurdistan });
          setSaveSuccess(true);
          setIsNicknameLocked(true);
          setPendingFile(null);
+         setCroppedBlob(null);
          if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
          setLocalPreviewUrl(null);
          setTimeout(() => setSaveSuccess(false), 2000);
@@ -276,12 +370,15 @@ export default function ProfileView({
                               exit={{ scale: 0, rotate: 90 }}
                               onClick={(e) => { e.stopPropagation(); handleSave(); }}
                               disabled={isUploading}
-                              className="w-12 h-12 bg-primary text-slate-950 rounded-2xl shadow-[0_0_30px_rgba(var(--primary-rgb),0.6)] flex items-center justify-center border-2 border-white/40 hover:scale-110 active:scale-95 transition-all absolute top-2"
+                              className="w-14 h-14 bg-primary text-slate-950 rounded-[20px] shadow-[0_15px_35px_rgba(var(--primary-rgb),0.5)] flex flex-col items-center justify-center border-t-2 border-white/40 hover:scale-110 active:scale-95 transition-all absolute -top-1"
                            >
                               {isUploading ? (
-                                 <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
+                                 <div className="w-6 h-6 border-3 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
                               ) : (
-                                 <span className="material-symbols-outlined text-2xl font-black">check_circle</span>
+                                 <>
+                                    <span className="material-symbols-outlined text-[26px] font-black leading-none">save</span>
+                                    <span className="text-[7px] font-black uppercase tracking-tighter -mt-0.5">پاراستن</span>
+                                 </>
                               )}
                            </motion.button>
                         ) : (
@@ -305,25 +402,7 @@ export default function ProfileView({
                      </AnimatePresence>
                   </div>
 
-                  <div className="relative flex flex-col items-center pt-5">
-                     <div className="flex flex-col items-center relative group/medal">
-                        <div className="relative w-14 h-15 flex items-center justify-center">
-                           <svg className="absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#medalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.2" />
-                              <defs>
-                                 <linearGradient id="medalGradient" x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                                    <stop stopColor="#FFD700" />
-                                    <stop offset="1" stopColor="#B8860B" />
-                                 </linearGradient>
-                              </defs>
-                           </svg>
-                           <div className="relative z-10 flex flex-col items-center justify-center -mt-2">
-                              <span className="text-[9px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
-                              <span className="text-2xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(safeLevel)}</span>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
+
                </div>
 
                <div className="absolute top-1 left-0 right-0 flex flex-col items-center z-20">
@@ -556,6 +635,117 @@ export default function ProfileView({
                )}
             </AnimatePresence>
          </div>
+         {isCropModalOpen && createPortal(
+            <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl overflow-hidden" dir="rtl">
+               <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+                  animate={{ opacity: 1, scale: 1, y: 0 }} 
+                  className="bg-[#0a0b14] rounded-[40px] w-full max-w-sm overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] relative border border-white/10"
+               >
+                  {/* Header */}
+                  <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                     <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                           <span className="material-symbols-outlined text-primary text-xl font-bold">crop</span>
+                        </div>
+                        <h3 className="text-white font-black font-rabar text-[15px] tracking-wide">کڕۆپکرنا وێنەی</h3>
+                     </div>
+                     <button 
+                        onClick={() => setIsCropModalOpen(false)} 
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                     >
+                        <span className="material-symbols-outlined text-xl">close</span>
+                     </button>
+                  </div>
+
+                  {/* Cropper Container */}
+                  <div className="relative aspect-square w-full bg-black overflow-hidden cursor-move touch-none">
+                     <Cropper
+                        image={imageToCrop}
+                        crop={crop}
+                        zoom={zoom}
+                        aspect={1}
+                        onCropChange={setCrop}
+                        onCropComplete={onCropComplete}
+                        onZoomChange={setZoom}
+                        showGrid={false}
+                        cropShape="round"
+                        restrictPosition={true}
+                        style={{
+                           containerStyle: { background: '#000' },
+                           cropAreaStyle: { 
+                              width: '100%', 
+                              height: '100%',
+                              border: '2px solid rgba(255,255,255,0.4)',
+                              boxShadow: '0 0 0 9999px rgba(0,0,0,0.85)'
+                           }
+                        }}
+                     />
+                  </div>
+
+                  {/* Controls */}
+                  <div className="p-8 space-y-6 relative z-10 bg-linear-to-b from-transparent to-black/60">
+                     <div className="space-y-4">
+                        <div className="flex items-center justify-between px-1">
+                           <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">زۆمکرنا وێنەی (Zoom)</span>
+                           <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-[12px] font-black tabular-nums border border-primary/30">
+                              {Math.round(zoom * 100)}%
+                           </span>
+                        </div>
+                        
+                        <div className="relative flex items-center h-8 group">
+                           <input 
+                              type="range" 
+                              min={1} 
+                              max={3} 
+                              step={0.01} 
+                              value={zoom} 
+                              onChange={(e) => setZoom(parseFloat(e.target.value))} 
+                              className="w-full h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer outline-none
+                                 [&::-webkit-slider-thumb]:appearance-none 
+                                 [&::-webkit-slider-thumb]:w-6 
+                                 [&::-webkit-slider-thumb]:h-6 
+                                 [&::-webkit-slider-thumb]:rounded-full 
+                                 [&::-webkit-slider-thumb]:bg-primary 
+                                 [&::-webkit-slider-thumb]:border-2 
+                                 [&::-webkit-slider-thumb]:border-white 
+                                 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]
+                                 [&::-webkit-slider-thumb]:transition-all
+                                 [&::-webkit-slider-thumb]:hover:scale-110
+                                 [&::-moz-range-thumb]:w-6 
+                                 [&::-moz-range-thumb]:h-6 
+                                 [&::-moz-range-thumb]:rounded-full 
+                                 [&::-moz-range-thumb]:bg-primary 
+                                 [&::-moz-range-thumb]:border-2 
+                                 [&::-moz-range-thumb]:border-white 
+                                 [&::-moz-range-thumb]:shadow-[0_0_10px_rgba(var(--primary-rgb),0.8)]" 
+                           />
+                        </div>
+                     </div>
+
+                     <div className="flex flex-col gap-3 pt-2">
+                        <button 
+                           onClick={handleConfirmCrop} 
+                           className="w-full h-14 rounded-2xl bg-primary text-slate-950 font-black text-sm shadow-[0_12px_30px_-5px_rgba(var(--primary-rgb),0.6)] hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 border-t-2 border-white/40"
+                        >
+                           <span className="material-symbols-outlined text-2xl">check_circle</span>
+                           پاراستن
+                        </button>
+                        <button 
+                           onClick={() => {
+                              setIsCropModalOpen(false);
+                              setImageToCrop(null);
+                           }} 
+                           className="w-full h-12 rounded-2xl text-white/40 font-bold text-xs hover:text-white hover:bg-white/5 transition-all active:scale-95"
+                        >
+                           پەشیمانبوون و گۆهۆڕین
+                        </button>
+                     </div>
+                  </div>
+               </motion.div>
+            </div>,
+            document.body
+         )}
       </div>
    );
 }

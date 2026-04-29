@@ -1,6 +1,5 @@
 import React, { useState, useCallback, memo } from 'react';
 import { STATUS } from '../data/constants';
-import { useMusic } from './MusicContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { playKeyClickSfx } from '../utils/audio';
@@ -87,12 +86,9 @@ const Keyboard = memo(({
   onHint,
   onMagnet,
   onSkip,
-  hintCost = 100,
   hintCount = 0,
   magnetCount = 0,
   skipCount = 0,
-  fils = 0,
-  gameMode = 'classic',
   magnetUsedInRound = false,
   skipsUsedInRound = 0,
   skipLimit = 1,
@@ -100,7 +96,7 @@ const Keyboard = memo(({
   hintLimit = 0,
   hidePowerups = false
 }) => {
-  const { playSound } = useMusic();
+  // const { playSound } = useMusic(); // Legacy dependency removed
 
   const handleKeyPress = useCallback((key, isSpecial = false) => {
     if (gameState !== 'playing') return;
@@ -136,7 +132,7 @@ const Keyboard = memo(({
         />
       )}
 
-      <div className="w-[40%] h-[1px] bg-white/5 mx-auto mb-3" />
+      <div className="w-[40%] h-px bg-white/5 mx-auto mb-3" />
 
       {ROWS.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1 w-full justify-center">

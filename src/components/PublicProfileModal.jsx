@@ -8,6 +8,7 @@ import { FilsIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
+import { useAudio } from '../context/AudioContext';
 
 const getRankInfo = (level) => {
   if (level >= 50) return { name: 'ئەفسانە', color: 'text-purple-400', border: 'border-purple-500' };
@@ -40,11 +41,19 @@ export default function PublicProfileModal({
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);
-  const { getLevelData, playBubblePopSound } = useGame();
+  const { getLevelData } = useGame();
+  const { playBubblePopSound } = useAudio();
 
   useEffect(() => {
     if (!profile?.id || profile.id === 'undefined' || typeof profile.id !== 'string') return;
     const loadProfile = async () => {
+      setLoading(true);
+      setInternalBlocked(false);
+      setShowBlockConfirm(false);
+      const currentUserId = currentUser?.id;
+      const isActuallyMe = currentUserId === profile.id;
+      setIsMe(isActuallyMe);
+
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -65,10 +74,7 @@ export default function PublicProfileModal({
       }
 
       // 3. Check Relationship if not same user
-      const currentUserId = currentUser?.id;
-      if (currentUserId === profile.id) {
-        setIsMe(true);
-      } else if (currentUserId) {
+      if (currentUserId && !isActuallyMe) {
         // More robust friendship check
         const { data: friendship } = await supabase
           .from('friendships')
@@ -544,7 +550,7 @@ export default function PublicProfileModal({
               </button>
             )}
 
-           {onToggleBlock && (
+           {onToggleBlock && !isMe && (
              <AnimatePresence mode="wait">
                {showBlockConfirm ? (
                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex items-center justify-center gap-3 mt-2 bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-xl">

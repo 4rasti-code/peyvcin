@@ -7,7 +7,7 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import DataDeletion from './DataDeletion';
 import FloatingLetterBackground from './FloatingLetterBackground';
-import { useGame } from '../context/GameContext';
+import { useAudio } from '../context/AudioContext';
 
 const COUNTRIES = [
   { name: 'کوردستان', code: 'KD', flag: '☀️' },
@@ -313,7 +313,7 @@ export default function AuthView({ onAuthSuccess }) {
     }
   };
 
-  const { playTabSound } = useGame();
+  const { playTabSound } = useAudio();
 
   const handleSocialLogin = async (provider) => {
     try {

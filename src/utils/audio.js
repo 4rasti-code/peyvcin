@@ -59,20 +59,15 @@ class SoundEngine {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
       this.initialized = true;
       
-      // 1. Setup global gain nodes for music
-      this.musicGain = this.context.createGain();
-      this.musicGain.gain.value = this.musicVolume;
-      this.musicGain.connect(this.context.destination);
+      // 1. Setup global gain nodes (Now only for SFX)
+      this.initialized = true;
 
-      // 2. Setup Streaming Music (HTML5 Audio)
+      // 2. Setup Streaming Music (HTML5 Audio) - Bypassing AudioContext for maximum stability
       if (!this.musicAudioElement) {
         this.musicAudioElement = new Audio(MUSIC_PATH);
         this.musicAudioElement.loop = true;
         this.musicAudioElement.crossOrigin = "anonymous";
-        
-        // Pipe HTML5 Audio into Web Audio API for gain control
-        this.musicMediaSource = this.context.createMediaElementSource(this.musicAudioElement);
-        this.musicMediaSource.connect(this.musicGain);
+        this.musicAudioElement.volume = this.musicVolume;
       }
 
       // 3. Pre-fetch ONLY short SFX (Fast Parallel Load)
@@ -113,17 +108,10 @@ class SoundEngine {
    * Start Looping Music (Streaming)
    */
   startMusic() {
-    if (!this.initialized || !this.musicAudioElement || this.isStoppedByPolicy) return;
-
-    // Only attempt to resume context natively if user has interacted, stopping the yellow console warning
-    if (navigator.userActivation && navigator.userActivation.hasBeenActive) {
-      if (this.context.state === 'suspended') {
-        this.context.resume().catch(() => {});
-      }
-    }
+    if (!this.musicAudioElement || this.isStoppedByPolicy) return;
 
     this.musicAudioElement.play().then(() => {
-      console.log("🎵 [AudioEngine] Music Streaming Started");
+      console.log("🎵 [AudioEngine] Music Streaming Started (Stable Mode)");
     }).catch(e => {
       // Silently catch the autoplay block. The global unlock listener will restart it later.
       if (e.name !== 'NotAllowedError') {
@@ -171,8 +159,9 @@ class SoundEngine {
    */
   setMusicVolume(volume) {
     this.musicVolume = volume;
-    if (this.musicGain) {
-      this.musicGain.gain.setTargetAtTime(volume, this.context.currentTime, 0.1);
+    if (this.musicAudioElement) {
+      // Direct volume control is more stable and bypasses CPU-heavy AudioContext processing
+      this.musicAudioElement.volume = volume;
     }
   }
 

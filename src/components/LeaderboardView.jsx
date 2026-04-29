@@ -7,18 +7,36 @@ import PublicProfileModal from './PublicProfileModal';
 import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
+import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
+import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP } from '../utils/progression';
 import FloatingLetterBackground from './FloatingLetterBackground';
 
-export default function LeaderboardView({ userId, userLevel, userXP, userFils, userNickname = "تو", userAvatar = 'default', isInKurdistan = true, countryCode = 'IQ', lastProfileUpdate, onOpenChat }) {
+export default function LeaderboardView({ onOpenChat }) {
   const { 
-    handleToggleBlock: toggleBlockInContext,
-    playTabSound,
-    loadingAuth
+    user, 
+    userNickname, 
+    userAvatar, 
+    countryCode, 
+    isInKurdistan, 
+    lastProfileUpdate,
+    handleToggleBlock: toggleBlockInContext, 
+    loadingAuth 
+  } = useUser();
+  
+  const {
+    currentXP: userXP,
+    level: userLevel,
+    fils: userFils,
+    useGameLoading
   } = useGame();
+
+  const userId = user?.id;
+  const { playTabSound } = useAudio();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [userRank, setUserRank] = useState('--');
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -52,6 +70,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
       return;
     }
     setLoading(true);
+    setError(null);
     
     try {
       let leaderData = [];
@@ -108,6 +127,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
       }
     } catch (err) {
       console.warn("Leaderboard fetch error:", err);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -115,19 +135,14 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
   useEffect(() => {
     fetchData();
-    const channel = supabase
-      .channel('leaderboard-realtime')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, () => fetchData())
-      .subscribe();
 
     const handleFocus = () => fetchData();
     window.addEventListener('focus', handleFocus);
 
     return () => {
-      supabase.removeChannel(channel);
       window.removeEventListener('focus', handleFocus);
     };
-  }, [userXP, lastProfileUpdate, view, userId]);
+  }, [view, userId]);
 
 
   return (
@@ -144,7 +159,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
         </div>
 
         {/* Top Tab Swapper - Synced Card Style */}
-        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-"
+        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden"
              style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
           {['global', 'friends'].map((tab) => {
             const isActive = view === tab;
@@ -211,7 +226,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                     whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
-                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow- transition-all cursor-pointer shadow-sm`}
+                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow-hidden transition-all cursor-pointer shadow-sm`}
                     style={{ 
                       backgroundColor: 'rgb(203, 213, 225)',
                       borderColor: 'rgba(255, 255, 255, 0.2)',
@@ -305,6 +320,11 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                   );
                 })}
             </motion.div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-48 gap-4">
+              <span className="material-symbols-outlined text-4xl text-red-500/50">cloud_off</span>
+              <span className="font-black text-slate-400 font-rabar">کێشەیەک د پەیوەندیێ دا هەیە</span>
+            </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-48 gap-4">
               <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>

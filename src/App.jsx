@@ -14,7 +14,7 @@ import CategoryModal from './components/CategoryModal';
 import BottomNav from './components/BottomNav';
 import LobbyView from './components/LobbyView';
 import DictionaryView from './components/DictionaryView';
-import { getRandomWordFromCategory, wordList } from './data/wordList';
+import { wordList } from './data/wordList';
 import { STATUS } from './data/constants';
 import { getLocalDateString } from './utils/formatters';
 
@@ -48,7 +48,9 @@ const lazyWithRetry = (componentImport) =>
 
 const MultiplayerGameView = lazyWithRetry(() => import('./components/MultiplayerGameView'));
 
-import { useGame } from './context/GameContext'; // Global Progression Context
+import { useGame } from './context/GameContext'; 
+import { useUser } from './context/AuthContext';
+import { useAudio } from './context/AudioContext';
 import VictoryOverlay from './components/VictoryOverlay';
 import CoinAnimation from './components/CoinAnimation';
 import MasteryModal from './components/MasteryModal';
@@ -158,20 +160,22 @@ export default function App() {
 
   // --- 1. DEEP LINKING & ROUTING ENGINE ---
   // Sync URL -> State (Initial Load & Back Button)
+  // Sync URL -> State (Handles Initial Load & Back/Forward Buttons)
   useEffect(() => {
     const path = location.pathname.replace('/', '') || 'lobby';
     if (path !== currentView) {
+      // Direct update is safe here as it's triggered by URL change, not state change
       setCurrentView(path);
     }
-  }, [location.pathname]);
+  }, [location.pathname]); 
 
-  // Sync State -> URL
+  // Sync State -> URL (Handles internal navigateTo calls)
   useEffect(() => {
     const path = location.pathname.replace('/', '') || 'lobby';
     if (path !== currentView) {
-      navigate('/' + currentView);
+      navigate('/' + currentView, { replace: true });
     }
-  }, [currentView, navigate, location.pathname]);
+  }, [currentView, navigate]);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
@@ -199,8 +203,6 @@ export default function App() {
   const [revealedIndices, setRevealedIndices] = useState([]);
   const [hintTaps, setHintTaps] = useState(0);
   const [skipsUsedInRound, setSkipsUsedInRound] = useState(0);
-  const [magnetsUsedInRoundCount, setMagnetsUsedInRoundCount] = useState(0);
-  const [hintsUsedInRound, setHintsUsedInRound] = useState(0);
 
   // Results & UI State
   const [victoryBreakdown, setVictoryBreakdown] = useState({
@@ -216,41 +218,39 @@ export default function App() {
   const [isWordFeverResultVisible, setIsWordFeverResultVisible] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const [wordFeverResultType, setWordFeverResultType] = useState('win');
-  const [isAppReady, setIsAppReady] = useState(false);
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [hintLimitToast, setHintLimitToast] = useState({ visible: false, message: '' });
   const [isLevelingUp, setIsLevelingUp] = useState(false);
 
   const {
-    level,
-    winsTowardsSecret, resetSecretWordProgress,
-    currentXP, maxXP, minXPForLevel, lastNotifiedLevel,
-    fils, derhem, dinar,
-    dailyStreak,
-    lastRewardClaimedAt,
-    magnetCount, hintCount, skipCount,
-
-    ownedAvatars, equippedAvatar, unlockedThemes, currentTheme,
-    solvedWords, playerStats,
+    user, setUser, hapticEnabled, loadingAuth, authProgress,
     userNickname, userAvatar, city, isInKurdistan, countryCode,
+    ownedAvatars, equippedAvatar, unlockedThemes, currentTheme,
+    updateProfile
+  } = useUser();
 
-    updateInventory,
-    updateProfile,
-
-    syncProgressToDatabase,
-    getFreshWord,
-
+  const {
     appSoundsEnabled,
-    hapticEnabled,
     appSfxVolume, updateSfxVolume,
     bgMusicVolume, updateMusicVolume,
     playPopSound, playNotifSound, playMessageSound,
     playStartGameSound, playRewardSound, playPurchaseSound, playBoosterSound, playBubblePopSound,
     playSettingsOpenSound, playSettingsCloseSound,
-    playTabSound, startBGM, stopBGM,
-    user, setUser,
+    playTabSound, startBGM, stopBGM
+  } = useAudio();
+
+  const {
+    currentXP, level, maxXP, minXPForLevel, lastNotifiedLevel,
+    fils, derhem, dinar,
+    dailyStreak, lastRewardClaimedAt,
+    magnetCount, hintCount, skipCount,
+    winsTowardsSecret, resetSecretWordProgress,
+    solvedWords, playerStats,
+    syncProgressToDatabase,
+    getFreshWord,
     userRank, refreshRank,
-    loading: isGameLoading
+    loading: isGameLoading,
+    updateInventory,
+    processPurchase
   } = useGame();
 
   const {
@@ -273,7 +273,7 @@ export default function App() {
     // Only redirect to lobby if we aren't already in another main view (to prevent infinite loops)
     const mainViews = ['store', 'social_hub', 'leaderboard', 'stats', 'dictionary', 'profile'];
     if (multiplayerState === 'game_over' && !mainViews.includes(currentView)) {
-      setCurrentView('lobby');
+      requestAnimationFrame(() => setCurrentView('lobby'));
     }
   }, [multiplayerState, currentView]);
 
@@ -309,14 +309,13 @@ export default function App() {
 
   // --- CORE GAME ENGINE (Unified) ---
   const handleGameCompletion = useCallback(async (finalGuesses, isWin, forcedMode = null, forcedTarget = null, precalcBreakdown = null, precalcPenalty = null) => {
-    const { targetWord: refTWord, solvedWords: sWords, gameMode: refGMode, winsTowardsSecret: wts, fils: currFils } = gameRefs.current;
+    const { targetWord: refTWord, gameMode: refGMode, winsTowardsSecret: wts, fils: currFils } = gameRefs.current;
 
     // Prioritize passed arguments over refs to avoid race conditions
     const tWord = forcedTarget || refTWord;
     const gMode = forcedMode || refGMode;
 
     if (isWin) {
-      const nextSolved = [...sWords, tWord];
       const breakdown = precalcBreakdown || calculateLevelRewards(tWord, finalGuesses, gMode);
 
       // Ensure local state is current (redundant safety)
@@ -594,8 +593,7 @@ export default function App() {
       hintCount: -1
     }, true, true); // Sync to DB immediately to prevent refresh exploit
     setHintTaps(prev => prev + 1);
-    setHintsUsedInRound(prev => prev + 1);
-  }, [updateInventory]); // updateInventory is stable from GameContext
+  }, [updateInventory, playBoosterSound, setCurrentGuess, showHintLimitToast]); // Added missing dependencies
 
   const handleMagnet = useCallback(() => {
     const { magnetCount: mCount, isVictory: isV, targetWord: tWord, magnetDisabledKeys: mDisabled } = gameRefs.current;
@@ -611,11 +609,10 @@ export default function App() {
 
     setMagnetDisabledKeys(prev => [...prev, ...toDisable]);
     setMagnetUsedInRound(true);
-    setMagnetsUsedInRoundCount(prev => prev + 1);
     updateInventory({
       magnetCount: -1
     }, true, true); // Sync to DB immediately
-  }, [updateInventory]); // updateInventory is stable from GameContext
+  }, [updateInventory, playBoosterSound]); // Added missing dependency
 
   const handleSkip = useCallback(() => {
     const { skipCount: sCount, isVictory: isV, targetWord: tWord } = gameRefs.current;
@@ -628,7 +625,7 @@ export default function App() {
     updateInventory({
       skipCount: -1
     }, true, true); // Sync to DB immediately
-  }, [onEnter, updateInventory]); // onEnter and updateInventory are stable
+  }, [onEnter, updateInventory, playBoosterSound]); // Added missing dependency
 
 
 
@@ -639,7 +636,7 @@ export default function App() {
   useEffect(() => {
     // Only trigger if authenticated, not on auth screen, and we haven't notified for this level yet
     if (user && currentView !== 'auth' && level > lastNotifiedLevel) {
-      setIsLevelingUp(true);
+      requestAnimationFrame(() => setIsLevelingUp(true));
       triggerHaptic([40, 60, 40, 60, 80]);
     }
   }, [level, user, currentView, lastNotifiedLevel]);
@@ -648,12 +645,12 @@ export default function App() {
   useEffect(() => {
     if (!isGameLoading) {
       if (!user) {
-        setCurrentView('auth');
+        requestAnimationFrame(() => setCurrentView('auth'));
       } else if (currentView === 'auth') {
-        setCurrentView('lobby');
+        requestAnimationFrame(() => setCurrentView('lobby'));
       }
     }
-  }, [user?.id, isGameLoading, currentView]);
+  }, [user, isGameLoading, currentView]);
 
   // REAL-TIME NOTIFICATIONS (Messages & Friend Requests)
   useEffect(() => {
@@ -707,8 +704,6 @@ export default function App() {
     };
   }, [user?.id]);
 
-  const [lastProfileUpdate, setLastProfileUpdate] = useState(() => Date.now());
-
   // Shared Logic (Haptic, Audio, Normalized, etc.) now handled in src/utils/gameStatus.js
 
 
@@ -736,8 +731,6 @@ export default function App() {
       });
 
       if (result?.success) {
-        setLastProfileUpdate(Date.now());
-
         // Safe call for refreshRank (ensuring it exists)
         try {
           if (typeof refreshRank === 'function') refreshRank();
@@ -768,9 +761,9 @@ export default function App() {
         playRewardSound();
       }
 
-      setCurrentView('lobby');
+      requestAnimationFrame(() => setCurrentView('lobby'));
     }
-  }, [MatchResultTrigger, LastMatchResult, setCurrentView]);
+  }, [MatchResultTrigger, LastMatchResult, setCurrentView, playRewardSound]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
@@ -789,8 +782,6 @@ export default function App() {
   // handleGameCompletion is now defined above 
   const ResetRoundBoosters = useCallback(() => {
     setHintTaps(0);
-    setHintsUsedInRound(0);
-    setMagnetsUsedInRoundCount(0);
     setSkipsUsedInRound(0);
     setRevealedIndices([]);
     setMagnetUsedInRound(false);
@@ -876,8 +867,10 @@ export default function App() {
         }, 1000);
       } else {
         // Time has expired
-        setWordFeverResultType('fail');
-        setIsWordFeverResultVisible(true);
+        requestAnimationFrame(() => {
+          setWordFeverResultType('fail');
+          setIsWordFeverResultVisible(true);
+        });
       }
     }
     return () => clearInterval(timer);
@@ -901,36 +894,8 @@ export default function App() {
       return () => clearTimeout(t);
     }
   }, [isWordFeverResultVisible, wordFeverResultType, gameMode, updateInventory]);
-  useEffect(() => {
-    const tid = setTimeout(() => setIsAppReady(true), 1000);
-
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setIsAuthChecked(true);
-      if (!session) setCurrentView('auth');
-    });
-
-    // Listen for auth changes (Sign In / Sign Out)
-    // Listen for auth changes solely for UI routing
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        setCurrentView('auth');
-        setIsSettingsOpen(false);
-      } else {
-        // If we found a session (e.g. after Google redirect), ensure we go to lobby
-        // But ONLY if we were on the auth screen to avoid disrupting state
-        if (currentView === 'auth') {
-          setCurrentView('lobby');
-        }
-      }
-    });
-
-    return () => {
-      clearTimeout(tid);
-      subscription.unsubscribe();
-    };
-  }, [currentView, setCurrentView, setUser]);
+  // Audio logic handled via AudioContext hooks
+  // Auth logic handled via AuthContext hooks
 
 
   const handleLogout = async () => {
@@ -1100,7 +1065,11 @@ export default function App() {
   }, [navigateTo]);
 
 
-  if (!isAppReady || !isAuthChecked) return <div className="h-[100dvh] flex items-center justify-center bg-slate-950"><KurdishSunLoader /></div>;
+  if (loadingAuth || isGameLoading) return (
+    <div className="h-[100dvh] flex items-center justify-center bg-slate-950">
+      <KurdishSunLoader progress={authProgress} />
+    </div>
+  );
 
   return (
     <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full items-center bg-[#000000] bg-[radial-gradient(circle_at_center,_#111827_0%,_#000000_100%)] font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
@@ -1275,8 +1244,6 @@ export default function App() {
                   hintCount={hintCount}
                   magnetCount={magnetCount}
                   skipCount={skipCount}
-                  fils={fils}
-                  gameMode={gameMode}
                   hintTaps={hintTaps}
                   hintLimit={getMaxHintsForWord(targetWord.length)}
                   magnetUsedInRound={magnetUsedInRound}
@@ -1309,15 +1276,6 @@ export default function App() {
             )}
             {currentView === 'leaderboard' && (
               <LeaderboardView
-                userId={user?.id}
-                userLevel={level}
-                userXP={currentXP}
-                userFils={fils}
-                userNickname={userNickname}
-                userAvatar={userAvatar}
-                isInKurdistan={isInKurdistan}
-                countryCode={countryCode}
-                lastProfileUpdate={lastProfileUpdate}
                 onOpenChat={handleOpenChat}
               />
             )}
@@ -1329,45 +1287,33 @@ export default function App() {
                 magnetCount={magnetCount}
                 hintCount={hintCount}
                 skipCount={skipCount}
-                onPurchase={(item) => {
-                  if (item.type === 'currency') {
-                    updateInventory({ fils: item.amount });
-                    playPurchaseSound();
-                  } else if (item.type === 'package') {
-                    updateInventory({
-                      fils: 1000,
-                      magnetCount: 3,
-                      skipCount: 2,
-                      hintCount: 1
-                    });
+                onPurchase={async (item) => {
+                  // Security Hardening: Use the atomic RPC-based processPurchase
+                  const result = await processPurchase(item);
+                  if (result.success) {
                     playPurchaseSound();
                   } else {
-                    // Standard item purchase logic
-                    const updates = {};
-                    const price = -item.price;
-                    if (item.currency === 'fils') updates.fils = price;
-                    else if (item.currency === 'derhem') updates.derhem = price;
-                    else if (item.currency === 'dinar') updates.dinar = price;
-
-                    if (item.id === 'attractor_field') updates.magnetCount = 1;
-                    if (item.id === 'hint_pack') updates.hintCount = 1;
-                    if (item.id === 'full_skip') updates.skipCount = 1;
-
-                    updateInventory(updates);
-                    playPurchaseSound();
+                    // Show error toast or similar? 
+                    // For now, the RPC failure is logged in GameContext
                   }
                 }}
                 onEquipTheme={(id) => updateProfile({ currentTheme: id })}
-                onPurchaseAvatar={(id, price, currency) => {
-                  updateInventory({ [currency]: -price });
-                  playPurchaseSound();
-                  updateProfile({ ownedAvatars: [...ownedAvatars, id] });
+                onPurchaseAvatar={async (id, price, currency) => {
+                  // Security Hardening: Treat avatar purchase as a standard item purchase
+                  const result = await processPurchase({ id, price, currency, type: 'avatar' });
+                  if (result.success) {
+                    playPurchaseSound();
+                    updateProfile({ ownedAvatars: [...ownedAvatars, id] });
+                  }
                 }}
                 onEquipAvatar={(id) => updateProfile({ avatar_url: id })}
-                onPurchaseTheme={(theme) => {
-                  updateInventory({ [theme.currency]: -theme.price });
-                  playPurchaseSound();
-                  updateProfile({ unlockedThemes: [...unlockedThemes, theme.id] });
+                onPurchaseTheme={async (theme) => {
+                   // Security Hardening: Treat theme purchase as a standard item purchase
+                   const result = await processPurchase({ ...theme, type: 'theme' });
+                   if (result.success) {
+                     playPurchaseSound();
+                     updateProfile({ unlockedThemes: [...unlockedThemes, theme.id] });
+                   }
                 }}
                 playPurchaseSound={playPurchaseSound}
                 ownedAvatars={ownedAvatars}
@@ -1467,10 +1413,6 @@ export default function App() {
           breakdown={LastMatchResult === 'victory' ? (MatchReward?.awards ? { awardAmount: MatchReward.awards.amount, awardType: MatchReward.awards.type, xpAdded: MatchReward.xpAdded } : { awardAmount: 1, awardType: 'derhem', xpAdded: 100 }) : { awardAmount: 0, xpAdded: 20 }}
           xp={LastMatchResult === 'victory' ? 100 : 20}
           onNext={() => {
-            ResetMatchResultTrigger();
-            handleGoHome();
-          }}
-          onExit={() => {
             ResetMatchResultTrigger();
             handleGoHome();
           }}

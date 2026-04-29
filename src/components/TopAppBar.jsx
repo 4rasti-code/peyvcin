@@ -159,88 +159,88 @@ export default function TopAppBar({
               <CurrencyStat key="ingame-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
             </div>
           ) : (
-            showStats && (
-              <div className="flex items-center gap-2 sm:gap-3">
-                 {currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard' ? (
-                    <div className="flex items-center gap-2">
-                      {/* Helpers Group */}
-                      <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
-                        <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" />
-                        <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" />
-                        <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" />
-                      </div>
+            <div className="flex items-center gap-2">
+              {/* Helpers Group (Lobby/Store/Leaderboard) */}
+              {(currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard') && (
+                <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
+                  <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" />
+                  <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" />
+                  <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" />
+                </div>
+              )}
 
-                      {/* Currencies Group */}
-                      <div className="flex items-center gap-1">
-                        <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
-                        <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
-                        <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
-                      </div>
-                    </div>
-                 ) : (
-                   <>
-                     {currentView === 'lobby' && (
-                       <div className="relative">
-                         <motion.button 
-                            animate={notificationCount > 0 ? {
-                              scale: [1, 1.1, 1],
-                              filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
-                            } : {}}
-                            transition={{ 
-                              repeat: Infinity, 
-                              duration: 2,
-                              ease: "easeInOut"
-                            }}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
-                            className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#10b981]' : 'text-[#10b981]/60'}`}
-                         >
-                           <span className="material-symbols-outlined text-[54px] font-black" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
-                           {notificationCount > 0 && (
-                             <motion.div 
-                               initial={{ scale: 0 }}
-                               animate={{ scale: 1 }}
-                               className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-[#0a0f1b] shadow-lg flex items-center justify-center shadow-lg pointer-events-none"
-                             >
-                               <span className="text-[11px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
-                               <span className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-40" />
-                             </motion.div>
-                           )}
-                         </motion.button>
-
-                         <AnimatePresence>
-                           {isNotifsOpen && (
-                             <NotificationsView 
-                               notifications={notifications}
-                               onClose={() => setIsNotifsOpen(false)}
-                               onAction={(item) => {
-                                 setIsNotifsOpen(false);
-                                 onNotificationAction(item);
-                               }}
-                             />
-                           )}
-                         </AnimatePresence>
-                       </div>
-                     )}
-                     
-                     {currentView !== 'lobby' && (
-                       <CurrencyStat value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
-                     )}
-                     
-                     <div className="hidden sm:flex items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
-                        <div className="flex flex-col items-start leading-none pt-0.5">
-                           <span className="text-[17px] font-black font-heading text-white">{toKuDigits(level || 1)}</span>
-                           <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-normal mt-0.5">ئاست</span>
-                        </div>
-                        <div className="w-9 h-9 rounded-[14px] bg-white/20 flex items-center justify-center text-white border border-white/30 shadow-inner" style={{ minWidth: '36px' }}>
-                           <span className="material-symbols-outlined text-xl font-bold">military_tech</span>
-                        </div>
-                     </div>
-                   </>
-                 )}
+              {/* Currencies Group */}
+              <div className="flex items-center gap-1">
+                {(currentView === 'store' || currentView === 'leaderboard') && (
+                  <>
+                    <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
+                    <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
+                  </>
+                )}
+                {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'stats' || currentView === 'dictionary') && (
+                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
+                )}
               </div>
-            )
+
+              {/* Notification Button (Lobby Only) */}
+              {currentView === 'lobby' && (
+                <div className="relative ml-2">
+                  <motion.button 
+                    animate={notificationCount > 0 ? {
+                      scale: [1, 1.1, 1],
+                      filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
+                    } : {}}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 2,
+                      ease: "easeInOut"
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
+                    className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-[#10b981]' : 'text-[#10b981]/60'}`}
+                  >
+                    <span className="material-symbols-outlined text-[48px] font-black" style={{ fontVariationSettings: "'FILL' 1" }}>notifications</span>
+                    {notificationCount > 0 && (
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-[#0a0f1b] shadow-lg flex items-center justify-center shadow-lg pointer-events-none"
+                      >
+                        <span className="text-[11px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
+                        <span className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-40" />
+                      </motion.div>
+                    )}
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {isNotifsOpen && (
+                      <NotificationsView 
+                        notifications={notifications}
+                        onClose={() => setIsNotifsOpen(false)}
+                        onAction={(item) => {
+                          setIsNotifsOpen(false);
+                          onNotificationAction(item);
+                        }}
+                      />
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+              
+              {/* Level Display (Stats/Dictionary) */}
+              {(currentView === 'stats' || currentView === 'dictionary') && (
+                <div className="hidden sm:flex items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
+                  <div className="flex flex-col items-start leading-none pt-0.5">
+                    <span className="text-[17px] font-black font-heading text-white">{toKuDigits(level || 1)}</span>
+                    <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-normal mt-0.5">ئاست</span>
+                  </div>
+                  <div className="w-9 h-9 rounded-[14px] bg-white/20 flex items-center justify-center text-white border border-white/30 shadow-inner" style={{ minWidth: '36px' }}>
+                    <span className="material-symbols-outlined text-xl font-bold">military_tech</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 

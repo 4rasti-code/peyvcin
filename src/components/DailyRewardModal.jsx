@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { useGame } from '../context/GameContext';
+import { useUser } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits, getLocalDateString, isYesterday } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
@@ -21,11 +23,15 @@ export default function DailyRewardModal({ isOpen, onClose }) {
   const {
     rewardStreak,
     lastRewardClaimedAt,
-    claimDailyReward,
-    playDailyOpenSfx,
-    playDailyClaimSfx,
-    hapticEnabled
+    claimDailyReward
   } = useGame();
+
+  const {
+    playDailyOpenSfx,
+    playDailyClaimSfx
+  } = useAudio();
+
+  const { hapticEnabled } = useUser();
 
   const [claiming, setClaiming] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);

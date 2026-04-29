@@ -5,19 +5,20 @@ import { supabase } from '../lib/supabase';
 import { getUnifiedWords } from '../data/wordList';
 import { triggerHaptic } from '../utils/haptics';
 import { useGame } from './GameContext';
+import { useUser } from './AuthContext';
+import { useAudio } from './AudioContext';
 
 const MultiplayerContext = createContext();
 
 export const MultiplayerProvider = ({ children }) => {
+  const { user, userNickname } = useUser();
   const { 
-    user, 
-    userNickname,
     startSearchingSound, 
     stopSearchingSound, 
     playStartGameSound,
-    playRewardSound,
-    syncProgressToDatabase
-  } = useGame();
+    playRewardSound 
+  } = useAudio();
+  const { syncProgressToDatabase } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle'); // 'idle', 'searching', 'waiting', 'playing', 'game_over'
   const [MatchmakingTime, setMatchmakingTime] = useState(0);
   const [activeMatch, setActiveMatch] = useState(null);

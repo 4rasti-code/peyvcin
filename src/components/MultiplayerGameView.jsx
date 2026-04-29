@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Grid from './Grid';
 import Keyboard from './Keyboard';
 import { useMultiplayer } from '../context/MultiplayerContext';
+import { useUser } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import { useGame } from '../context/GameContext';
 import useGameLogic from '../hooks/useGameLogic';
 import Avatar from './Avatar';
@@ -42,7 +44,9 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   
   const [isConfirmingExit, setIsConfirmingExit] = useState(false);
   
-  const { user, userNickname, userAvatar, level: userLevel, playPopSound, playVictorySound, playStartSound } = useGame();
+  const { user, userNickname, userAvatar } = useUser();
+  const { playPopSound, playVictorySound, playStartGameSound: playStartSound } = useAudio();
+  const { level: userLevel } = useGame();
   
   // 1. TOP-LEVEL DERIVED DATA (DECLARE BEFORE ANY RETURNS)
   const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);

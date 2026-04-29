@@ -3,36 +3,11 @@ import { motion, useSpring, useMotionValue, useTransform, animate, useMotionValu
 
 const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
   // Movement springs - Low stiffness, High damping for "liquid" feel
-  const springConfig = { damping: 35, stiffness: 12 };
+  const springConfig = { damping: 40, stiffness: 15 };
   const x = useSpring(0, springConfig);
   const y = useSpring(0, springConfig);
   const rotate = useSpring(0, springConfig);
-  const opacity = useSpring(0.12, springConfig); // Slightly more opacity for bigger letters
-
-  // Persistent drift animation (Organic Sway)
-  useEffect(() => {
-    const controlsX = animate(x, [0, 15, -15, 0], {
-      duration: 12 + Math.random() * 8,
-      repeat: Infinity,
-      ease: "easeInOut"
-    });
-    const controlsY = animate(y, [0, -25, 25, 0], {
-      duration: 15 + Math.random() * 10,
-      repeat: Infinity,
-      ease: "easeInOut"
-    });
-    const controlsRot = animate(rotate, [0, 8, -8, 0], {
-      duration: 10 + Math.random() * 5,
-      repeat: Infinity,
-      ease: "easeInOut"
-    });
-
-    return () => {
-      controlsX.stop();
-      controlsY.stop();
-      controlsRot.stop();
-    };
-  }, []);
+  const opacity = useSpring(0.08, springConfig);
 
   // Pulse (Fish Reaction) Logic via MotionValue Subscription
   useMotionValueEvent(pulseMV, "change", (latest) => {
@@ -47,12 +22,12 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     // If within interaction range
-    if (distance < 0.45) {
-      const force = (1 - distance / 0.45);
+    if (distance < 0.4) {
+      const force = (1 - distance / 0.4);
 
       // Calculate flee vector
-      const fleeX = (dx / distance) * force * 130;
-      const fleeY = (dy / distance) * force * 130;
+      const fleeX = (dx / distance) * force * 100;
+      const fleeY = (dy / distance) * force * 100;
 
       // Calculate rotation - "face" away from the click
       const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
@@ -61,28 +36,33 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
       x.set(fleeX);
       y.set(fleeY);
       rotate.set(targetAngle + 90);
-      opacity.set(0.35);
+      opacity.set(0.3);
 
       // Smoothly return
       setTimeout(() => {
         x.set(0);
         y.set(0);
         rotate.set(0);
-        opacity.set(0.12);
-      }, 1500 + Math.random() * 1000);
+        opacity.set(0.08);
+      }, 1200 + Math.random() * 800);
     }
   });
 
+  // Unique animation delay for organic feel
+  const delay = useMemo(() => `${Math.random() * -20}s`, []);
+  const duration = useMemo(() => `${15 + Math.random() * 10}s`, []);
+
   return (
     <motion.div
-      className="absolute text-white font-black text-[14px] select-none font-rabar pointer-events-none"
+      className="absolute text-white font-black text-[14px] select-none font-rabar pointer-events-none transition-opacity duration-700"
       style={{
         left: `${initialX}%`,
         top: `${initialY}%`,
         x,
         y,
         rotate,
-        opacity
+        opacity,
+        animation: `drift ${duration} ease-in-out ${delay} infinite alternate`
       }}
     >
       {char}
@@ -91,31 +71,37 @@ const FloatingLetter = memo(({ char, initialX, initialY, pulseMV }) => {
 });
 
 const FloatingLetterBackground = forwardRef((props, ref) => {
-  // Use MotionValue instead of state to avoid re-rendering 40+ letters on every pulse
   const pulseMV = useMotionValue(null);
-
   const chars = ['ئا', 'ب', 'پ', 'ت', 'ج', 'د', 'ڕ', 'ز', 'ڤ', 'ڵ', 'ۆ', 'ێ', 'گ', 'چ', 'ژ', 'هـ'];
 
-  // Memoize positions
+  // Reduce count to 20 for better performance on mobile/low-end devices
   const letters = useMemo(() => {
-    return [...Array(40)].map((_, i) => ({
+    return [...Array(20)].map((_, i) => ({
       id: i,
       char: chars[i % chars.length],
-      x: 2 + Math.random() * 96,
-      y: 2 + Math.random() * 96
+      x: 5 + Math.random() * 90,
+      y: 5 + Math.random() * 90
     }));
   }, []);
 
-  // Expose pulse method
   useImperativeHandle(ref, () => ({
     pulse: (px, py) => {
-      // Setting MotionValue does NOT trigger React re-render of this component
       pulseMV.set({ x: px, y: py, t: Date.now() });
     }
   }));
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 bg-[#020617]">
+      <style>
+        {`
+          @keyframes drift {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            33% { transform: translate(15px, -10px) rotate(4deg); }
+            66% { transform: translate(-10px, 15px) rotate(-4deg); }
+            100% { transform: translate(5px, 5px) rotate(2deg); }
+          }
+        `}
+      </style>
       <div className="absolute inset-0 bg-linear-to-b from-transparent via-blue-500/5 to-transparent pointer-none" />
 
       {letters.map((letter) => (

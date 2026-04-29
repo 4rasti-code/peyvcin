@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { useGame } from '../context/GameContext';
+import { useUser } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
 import PublicProfileModal from './PublicProfileModal';
@@ -208,7 +209,6 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
 
 
 export default function SocialHubView({
-  user,
   onBack,
   initialChatPartner = null,
   initialTab = null,
@@ -217,15 +217,18 @@ export default function SocialHubView({
   onKeyboardToggle
 }) {
   const { 
+    user, 
     userNickname, 
+    handleToggleBlock: toggleBlockInContext,
+    loadingAuth
+  } = useUser();
+  const {
     playNotifSound, 
     playMessageSound, 
     playMessageSentSound, 
     playTabSound, 
-    playBubblePopSound, 
-    handleToggleBlock: toggleBlockInContext,
-    loadingAuth
-  } = useGame();
+    playBubblePopSound
+  } = useAudio();
   const [activeTab, setActiveTab] = useState(initialTab || (initialChatPartner ? 'private' : 'global'));
   const [messages, setMessages] = useState([]);
   const [privateChats, setPrivateChats] = useState([]);

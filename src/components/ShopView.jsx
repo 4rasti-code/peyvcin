@@ -7,7 +7,8 @@ import PaymentGatewayModal from './PaymentGatewayModal';
 import { toKuDigits } from '../utils/formatters';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import InventoryBar from './InventoryBar';
-import { useGame } from '../context/GameContext';
+import { useUser } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import FloatingLetterBackground from './FloatingLetterBackground';
 
 const SHOP_ITEMS = {
@@ -172,7 +173,8 @@ const SpecialOfferCard = ({ item, onOpenGateway, playPurchaseSound }) => (
 );
 
 export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, skipCount, currentTheme, onPurchase, onPurchaseAvatar, onEquipAvatar, onEquipTheme, unlockedThemes = [], ownedAvatars = ['default'], equippedAvatar = 'default', playPurchaseSound }) {
-  const { playTabSound, refreshProfile, user, loadingAuth } = useGame();
+  const { playTabSound } = useAudio();
+  const { refreshProfile, user, loadingAuth } = useUser();
   const [activeTab, setActiveTab] = useState('powerups');
   const [gatewayOpen, setGatewayOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState(null);
