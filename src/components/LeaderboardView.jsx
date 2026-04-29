@@ -252,14 +252,23 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                                '0 0 10px rgba(205,127,50,0.5)'
                                 }}
                               >
-                                 <span 
-                                   className="text-2xl select-none"
-                                   style={{
-                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
-                                             rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
-                                             'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
-                                   }}
-                                 >👑</span>
+                                 <div className="relative overflow-hidden rounded-full">
+                                   <span 
+                                     className="text-2xl select-none block"
+                                     style={{
+                                       filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
+                                               rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
+                                               'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
+                                     }}
+                                   >👑</span>
+                                   
+                                   {/* Mirror Shine Effect */}
+                                   <motion.div 
+                                     animate={{ x: ['-150%', '150%'] }}
+                                     transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
+                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
+                                   />
+                                 </div>
                               </motion.div>
                             )}
                             {/* Clean Avatar (No Borders) */}
