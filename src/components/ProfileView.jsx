@@ -640,7 +640,7 @@ export default function ProfileView({
                <motion.div 
                   initial={{ opacity: 0, scale: 0.9, y: 20 }} 
                   animate={{ opacity: 1, scale: 1, y: 0 }} 
-                  className="bg-[#0a0b14] rounded-[40px] w-full max-w-sm overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] relative border border-white/10"
+                  className="bg-[#0a0b14] rounded-[40px] w-full max-w-2xl overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] relative border border-white/10"
                >
                   {/* Header */}
                   <div className="p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
@@ -674,8 +674,8 @@ export default function ProfileView({
                         style={{
                            containerStyle: { background: '#000', padding: 0 },
                            cropAreaStyle: { 
-                              width: '400px', 
-                              height: '400px',
+                              width: '600px', 
+                              height: '600px',
                               border: '1px solid rgba(255,255,255,0.5)',
                               boxShadow: '0 0 0 9999px rgba(0,0,0,0.85)'
                            }
