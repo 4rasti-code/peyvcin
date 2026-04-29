@@ -9,6 +9,29 @@ export const AuthProvider = ({ children }) => {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [loading, setLoading] = useState(true);
   const [authProgress, setAuthProgress] = useState(0);
+  const [visualProgress, setVisualProgress] = useState(0);
+
+  // Smooth Progress Logic: Gradually move visualProgress toward authProgress
+  useEffect(() => {
+    if (!loadingAuth) return;
+    
+    const interval = setInterval(() => {
+      setVisualProgress(prev => {
+        if (prev >= 100) return 100;
+        const diff = authProgress - prev;
+        if (diff > 0) {
+          // If we are far from the target, move faster.
+          return prev + Math.max(0.5, diff * 0.1);
+        } else {
+          // Slow passive creep if we haven't reached target yet
+          return prev + (prev < 90 ? 0.2 : 0.05);
+        }
+      });
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, [authProgress, loadingAuth]);
+
   const [userNickname, setUserNickname] = useState('یاریزان');
   const [userAvatar, setUserAvatar] = useState('default');
   const [city, setCity] = useState('');
@@ -144,15 +167,14 @@ export const AuthProvider = ({ children }) => {
         const { data: { session } } = await Promise.race([sessionFetch, sessionTimeout]);
         
         if (session?.user) {
-          setAuthProgress(40);
+          setAuthProgress(45);
           console.log("[AuthContext] Active session recovered:", session.user.id);
           setUser(session.user);
           // Sync in background to avoid blocking the UI
           if (!isProfileLoaded.current) {
-            setAuthProgress(70);
+            setAuthProgress(75);
             syncProfile(session.user.id); // No await
           }
-          setAuthProgress(100);
         } else {
           setAuthProgress(100);
           console.log("[AuthContext] No active session found, proceeding as guest.");
@@ -165,10 +187,20 @@ export const AuthProvider = ({ children }) => {
         if (loadingAuth) {
           setAuthProgress(100);
           console.log("[AuthContext] Auth system ready.");
-          setTimeout(() => {
-            setLoadingAuth(false);
-            setLoading(false);
-          }, 300);
+          // Wait for visual progress to catch up before hiding
+          const checkDone = setInterval(() => {
+             setVisualProgress(prev => {
+                if (prev >= 99) {
+                   clearInterval(checkDone);
+                   setTimeout(() => {
+                      setLoadingAuth(false);
+                      setLoading(false);
+                   }, 300);
+                   return 100;
+                }
+                return prev + 2;
+             });
+          }, 50);
         }
       }
     };
@@ -187,8 +219,6 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
       }
-      setLoadingAuth(false);
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -249,7 +279,7 @@ export const AuthProvider = ({ children }) => {
   }, [user]);
 
   const value = useMemo(() => ({
-    user, setUser, loadingAuth, loading, authProgress,
+    user, setUser, loadingAuth, loading, authProgress: visualProgress,
     userNickname, setUserNickname, userAvatar, setUserAvatar, city, setCity,
     isInKurdistan, setIsInKurdistan, countryCode, setCountryCode,
     profileData,

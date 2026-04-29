@@ -325,6 +325,7 @@ export const GameProvider = ({ children }) => {
     },
     refreshRank,
     getLevelData,
+    processPurchase,
     loading
   }), [
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
