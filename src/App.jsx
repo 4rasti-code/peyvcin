@@ -1,3 +1,4 @@
+// Deployment Trigger: Ensuring timer removal is live
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
