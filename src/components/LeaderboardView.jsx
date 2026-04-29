@@ -222,8 +222,42 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                       <div className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-[2px] bg-primary" />
 
                       {/* Sleek Metallic Rank Number (MINIMALIST) */}
-                      <div className="flex items-center justify-center w-10 shrink-0 z-10">
-                         <span className={`text-2xl font-black italic tracking-normal ${
+                      <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
+                         {rank <= 3 && (
+                            <motion.div 
+                              initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
+                              animate={{ 
+                                y: [-2, 2, -2],
+                                rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
+                              }}
+                              transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
+                              className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter`}
+                              style={{
+                                dropShadow: rank === 1 ? '0 0 10px rgba(255,215,0,0.5)' : 
+                                             rank === 2 ? '0 0 10px rgba(192,192,192,0.5)' : 
+                                             '0 0 10px rgba(205,127,50,0.5)'
+                              }}
+                            >
+                               <div className="relative overflow-hidden rounded-full p-1">
+                                 <span 
+                                   className="text-2xl select-none block"
+                                   style={{
+                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
+                                             rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
+                                             'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
+                                   }}
+                                 >👑</span>
+                                 
+                                 {/* Mirror Shine Effect */}
+                                 <motion.div 
+                                   animate={{ x: ['-150%', '150%'] }}
+                                   transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
+                                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
+                                 />
+                               </div>
+                            </motion.div>
+                         )}
+                         <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
                              rank === 1 ? 'text-[#92400e]' :
                              rank === 2 ? 'text-[#334155]' :
                              rank === 3 ? 'text-[#7c2d12]' :
@@ -235,42 +269,7 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
 
                       {/* Avatar Section */}
                       <div className="flex items-center gap-3 z-10 px-1">
-                         {/* Avatar Wrapper for Crown Positioning */}
                          <div className="relative">
-                            {rank <= 3 && (
-                              <motion.div 
-                                initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
-                                animate={{ 
-                                  y: [-2, 2, -2],
-                                  rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
-                                }}
-                                transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
-                                className={`absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter`}
-                                style={{
-                                  dropShadow: rank === 1 ? '0 0 10px rgba(255,215,0,0.5)' : 
-                                               rank === 2 ? '0 0 10px rgba(192,192,192,0.5)' : 
-                                               '0 0 10px rgba(205,127,50,0.5)'
-                                }}
-                              >
-                                 <div className="relative overflow-hidden rounded-full">
-                                   <span 
-                                     className="text-2xl select-none block"
-                                     style={{
-                                       filter: rank === 1 ? 'brightness(1.1) saturate(1.5)' :
-                                               rank === 2 ? 'grayscale(1) brightness(1.5) contrast(1.2)' :
-                                               'sepia(1) saturate(4) hue-rotate(-30deg) brightness(0.8)'
-                                     }}
-                                   >👑</span>
-                                   
-                                   {/* Mirror Shine Effect */}
-                                   <motion.div 
-                                     animate={{ x: ['-150%', '150%'] }}
-                                     transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1 }}
-                                     className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12"
-                                   />
-                                 </div>
-                              </motion.div>
-                            )}
                             {/* Clean Avatar (No Borders) */}
                             <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0 relative z-10">
                               <Avatar
