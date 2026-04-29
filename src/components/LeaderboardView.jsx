@@ -238,7 +238,8 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                              '0 0 10px rgba(205,127,50,0.5)'
                               }}
                             >
-                               <div className="relative overflow-hidden">
+                               <div className="relative group">
+                                 {/* Base Crown Emoji */}
                                  <span 
                                    className="text-2xl select-none block relative z-10"
                                    style={{
@@ -248,12 +249,24 @@ export default function LeaderboardView({ userId, userLevel, userXP, userFils, u
                                    }}
                                  >👑</span>
                                  
-                                 {/* Mirror Shine Effect (Directly on Crown) */}
+                                 {/* Animated Shine Mask Layer */}
                                  <motion.div 
-                                   animate={{ x: ['-150%', '150%'] }}
-                                   transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1.5 }}
-                                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent -skew-x-20 mix-blend-overlay z-20 pointer-events-none"
-                                 />
+                                   className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
+                                   style={{ clipPath: 'inset(0)' }}
+                                 >
+                                   <motion.span
+                                     animate={{ x: ['-100%', '200%'] }}
+                                     transition={{ repeat: Infinity, duration: 2.5, ease: "linear", repeatDelay: 1 }}
+                                     className="absolute inset-0 text-2xl select-none block text-transparent bg-gradient-to-r from-transparent via-white/80 to-transparent bg-[length:50%_100%] bg-no-repeat"
+                                     style={{ 
+                                       WebkitBackgroundClip: 'text',
+                                       backgroundClip: 'text',
+                                       filter: 'blur(1px)'
+                                     }}
+                                   >
+                                     👑
+                                   </motion.span>
+                                 </motion.div>
                                </div>
                             </motion.div>
                          )}
