@@ -239,32 +239,39 @@ export default function LeaderboardView({ onOpenChat }) {
                       {/* Sleek Metallic Rank Number (MINIMALIST) */}
                       <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
                          {rank <= 3 && (
-                            <motion.div 
-                              initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
-                              animate={{ 
-                                y: [-2, 2, -2],
-                                rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
-                              }}
-                              transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
-                              className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none filter`}
-                              style={{
-                                dropShadow: rank === 1 ? '0 0 10px rgba(255,215,0,0.5)' : 
-                                             rank === 2 ? '0 0 10px rgba(192,192,192,0.5)' : 
-                                             '0 0 10px rgba(205,127,50,0.5)'
-                              }}
-                            >
-                               <div className="relative group">
-                                 {/* Base Crown Emoji */}
-                                 <span 
-                                   className="text-2xl select-none block relative z-10"
-                                   style={{
-                                     filter: rank === 1 ? 'brightness(1.1) saturate(1.5) drop-shadow(0 2px 4px rgba(0,0,0,0.3))' :
-                                             rank === 2 ? 'grayscale(1) brightness(1.1) contrast(1.3) drop-shadow(0 2px 3px rgba(0,0,0,0.2))' :
-                                             'sepia(1) saturate(2.5) hue-rotate(-30deg) brightness(0.4) contrast(1.2) drop-shadow(0 0 5px rgba(139,69,19,0.4))'
-                                   }}
-                                 >👑</span>
-                               </div>
-                            </motion.div>
+                             <motion.div 
+                               initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
+                               animate={{ 
+                                 y: [-2, 2, -2],
+                                 rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
+                               }}
+                               transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
+                               className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                             >
+                                <div className="relative w-8 h-8 flex items-center justify-center">
+                                  {rank === 1 && (
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]">
+                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#FBBF24" />
+                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#FBBF24" />
+                                      <path d="M5 16H19V18H5V16Z" fill="#D97706" />
+                                    </svg>
+                                  )}
+                                  {rank === 2 && (
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(148,163,184,0.4)]">
+                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#94A3B8" />
+                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#94A3B8" />
+                                      <path d="M5 16H19V18H5V16Z" fill="#475569" />
+                                    </svg>
+                                  )}
+                                  {rank === 3 && (
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(180,83,9,0.4)]">
+                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#B45309" />
+                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#B45309" />
+                                      <path d="M5 16H19V18H5V16Z" fill="#78350F" />
+                                    </svg>
+                                  )}
+                                </div>
+                             </motion.div>
                          )}
                          <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
                              rank === 1 ? 'text-[#92400e]' :
