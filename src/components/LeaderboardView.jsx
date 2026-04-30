@@ -247,65 +247,54 @@ export default function LeaderboardView({ onOpenChat }) {
                                  rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                                }}
                                transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                               className={`absolute -top-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                               className={`absolute -top-11 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                              >
-                                <div className="relative w-12 h-12 flex items-center justify-center scale-110">
-                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
+                                <div className="relative w-14 h-14 flex items-center justify-center">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_12px_rgba(0,0,0,0.5)]">
                                     <defs>
-                                      <linearGradient id={`goldReflect-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                      <linearGradient id={`legendaryGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                         <stop offset="0%" stopColor="#FFF9C4" />
-                                        <stop offset="40%" stopColor="#FBC02D" />
-                                        <stop offset="60%" stopColor="#F9A825" />
-                                        <stop offset="100%" stopColor="#EF6C00" />
+                                        <stop offset="30%" stopColor="#FBC02D" />
+                                        <stop offset="70%" stopColor="#F9A825" />
+                                        <stop offset="100%" stopColor="#BF360C" />
                                       </linearGradient>
-                                      <linearGradient id={`silverReflect-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                      <linearGradient id={`legendarySilver-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                         <stop offset="0%" stopColor="#F8FAFC" />
-                                        <stop offset="40%" stopColor="#94A3B8" />
-                                        <stop offset="60%" stopColor="#64748B" />
-                                        <stop offset="100%" stopColor="#334155" />
+                                        <stop offset="30%" stopColor="#94A3B8" />
+                                        <stop offset="70%" stopColor="#64748B" />
+                                        <stop offset="100%" stopColor="#1E293B" />
                                       </linearGradient>
-                                      <linearGradient id={`bronzeReflect-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                      <linearGradient id={`legendaryBronze-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                         <stop offset="0%" stopColor="#FFEDD5" />
-                                        <stop offset="40%" stopColor="#B45309" />
-                                        <stop offset="60%" stopColor="#92400E" />
-                                        <stop offset="100%" stopColor="#78350F" />
+                                        <stop offset="30%" stopColor="#B45309" />
+                                        <stop offset="70%" stopColor="#92400E" />
+                                        <stop offset="100%" stopColor="#431407" />
                                       </linearGradient>
                                     </defs>
                                     
-                                    {/* Imperial Base */}
+                                    {/* Bold Iconic Crown Silhouette */}
                                     <path 
-                                      d="M20 75 Q50 82 80 75 L82 68 Q50 75 18 68 Z" 
-                                      fill={rank === 1 ? `url(#goldReflect-${player.id})` : rank === 2 ? `url(#silverReflect-${player.id})` : `url(#bronzeReflect-${player.id})`}
+                                      d="M10 80 L90 80 L100 40 L70 60 L50 15 L30 60 L0 40 Z" 
+                                      fill={rank === 1 ? `url(#legendaryGold-${player.id})` : rank === 2 ? `url(#legendarySilver-${player.id})` : `url(#legendaryBronze-${player.id})`}
+                                      stroke="rgba(0,0,0,0.2)"
+                                      strokeWidth="1"
                                     />
                                     
-                                    {/* Arches for 3D effect */}
+                                    {/* Central Sunburst Reflection */}
                                     <path 
-                                      d="M20 68 Q20 30 50 25 Q80 30 80 68" 
-                                      stroke={rank === 1 ? "#FBC02D" : rank === 2 ? "#94A3B8" : "#B45309"} 
-                                      strokeWidth="4" 
-                                      fill="none" 
-                                      opacity="0.3" 
+                                      d="M50 15 L50 80" 
+                                      stroke="white" 
+                                      strokeWidth="8" 
+                                      strokeOpacity="0.2" 
+                                      strokeLinecap="round" 
                                     />
                                     
-                                    {/* Main Pillars */}
-                                    <path 
-                                      d="M20 68 Q10 40 30 35 Q40 50 50 68 Q60 50 70 35 Q90 40 80 68" 
-                                      fill={rank === 1 ? `url(#goldReflect-${player.id})` : rank === 2 ? `url(#silverReflect-${player.id})` : `url(#bronzeReflect-${player.id})`}
-                                      stroke={rank === 1 ? "#B45309" : rank === 2 ? "#334155" : "#431407"}
-                                      strokeWidth="0.5"
-                                    />
+                                    {/* Bottom Base Detail */}
+                                    <rect x="10" y="72" width="80" height="8" rx="2" fill="rgba(0,0,0,0.15)" />
                                     
-                                    {/* Imperial Top Detail */}
-                                    <circle cx="50" cy="22" r="6" fill={rank === 1 ? "#FDE68A" : rank === 2 ? "#CBD5E1" : "#FDBA74"} />
-                                    <circle cx="50" cy="22" r="3" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                                    
-                                    <circle cx="30" cy="35" r="4" fill={rank === 1 ? "#FDE68A" : rank === 2 ? "#CBD5E1" : "#FDBA74"} />
-                                    <circle cx="70" cy="35" r="4" fill={rank === 1 ? "#FDE68A" : rank === 2 ? "#CBD5E1" : "#FDBA74"} />
-                                    
-                                    {/* Pearls along the base */}
-                                    {[25, 37.5, 50, 62.5, 75].map((x, i) => (
-                                      <circle key={i} cx={x} cy="71" r="2" fill="white" />
-                                    ))}
+                                    {/* Top Jewel / Ball */}
+                                    <circle cx="50" cy="15" r="7" fill={rank === 1 ? "#FFF176" : rank === 2 ? "#F1F5F9" : "#FFB74D"} />
+                                    <circle cx="50" cy="15" r="3" fill="white" fillOpacity="0.5" />
                                   </svg>
                                 </div>
                              </motion.div>
