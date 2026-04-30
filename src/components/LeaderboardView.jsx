@@ -246,28 +246,40 @@ export default function LeaderboardView({ onOpenChat }) {
                                  rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                                }}
                                transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
-                               className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                               className={`absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                              >
-                                <div className="relative w-8 h-8 flex items-center justify-center">
+                                <div className="relative w-10 h-10 flex items-center justify-center">
                                   {rank === 1 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]">
-                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#FBBF24" />
-                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#FBBF24" />
-                                      <path d="M5 16H19V18H5V16Z" fill="#D97706" />
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(251,191,36,0.7)]">
+                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#D97706" />
+                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#FBBF24" />
+                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#FBBF24" />
+                                      <circle cx="20" cy="30" r="4" fill="#FDE68A" />
+                                      <circle cx="50" cy="20" r="5" fill="#FDE68A" />
+                                      <circle cx="80" cy="30" r="4" fill="#FDE68A" />
+                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#EF4444" /> {/* Center Ruby */}
                                     </svg>
                                   )}
                                   {rank === 2 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(148,163,184,0.4)]">
-                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#94A3B8" />
-                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#94A3B8" />
-                                      <path d="M5 16H19V18H5V16Z" fill="#475569" />
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(148,163,184,0.5)]">
+                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#475569" />
+                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#94A3B8" />
+                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#94A3B8" />
+                                      <circle cx="20" cy="30" r="4" fill="#CBD5E1" />
+                                      <circle cx="50" cy="20" r="5" fill="#CBD5E1" />
+                                      <circle cx="80" cy="30" r="4" fill="#CBD5E1" />
+                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#3B82F6" /> {/* Center Sapphire */}
                                     </svg>
                                   )}
                                   {rank === 3 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_8px_rgba(180,83,9,0.4)]">
-                                      <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5Z" fill="#B45309" />
-                                      <path d="M12 21C13.6569 21 15 19.6569 15 18C15 16.3431 13.6569 15 12 15C10.3431 15 9 16.3431 9 18C9 19.6569 10.3431 21 12 21Z" fill="#B45309" />
-                                      <path d="M5 16H19V18H5V16Z" fill="#78350F" />
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(180,83,9,0.5)]">
+                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#78350F" />
+                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#B45309" />
+                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#B45309" />
+                                      <circle cx="20" cy="30" r="4" fill="#D97706" />
+                                      <circle cx="50" cy="20" r="5" fill="#D97706" />
+                                      <circle cx="80" cy="30" r="4" fill="#D97706" />
+                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#10B981" /> {/* Center Emerald */}
                                     </svg>
                                   )}
                                 </div>
