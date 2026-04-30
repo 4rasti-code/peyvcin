@@ -14,8 +14,12 @@ const InventoryBar = ({
   skipsUsedInRound = 0,
   skipLimit = 1,
   isShop = false,
-  className = ""
+  className = "",
+  isDark = true
 }) => {
+  const countColor = isDark ? 'text-white' : 'text-slate-900';
+  const sepColor = isDark ? 'bg-white/10' : 'bg-slate-300';
+
   return (
     <div className={`flex items-center justify-center ${className}`}>
       <div className="flex items-center gap-10 py-1 px-4">
@@ -37,12 +41,12 @@ const InventoryBar = ({
             
             <div className="flex flex-col leading-none">
               {isShop && (
-                <span className="text-[15px] font-black text-white">
+                <span className={`text-[15px] font-black ${countColor}`}>
                   {toKuDigits(hintCount || 0)}
                 </span>
               )}
               {!isShop && hintLimit > 0 && (
-                <span className={`text-[15px] font-black ${(hintTaps >= hintLimit || (hintCount || 0) <= 0) ? 'text-red-400/50' : 'text-white'}`}>
+                <span className={`text-[15px] font-black ${(hintTaps >= hintLimit || (hintCount || 0) <= 0) ? 'text-red-400/50' : countColor}`}>
                   {toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}
                 </span>
               )}
@@ -50,7 +54,7 @@ const InventoryBar = ({
           </button>
         </div>
 
-        <div className="w-[1px] h-4 bg-white/10" />
+        <div className={`w-[1px] h-4 ${sepColor}`} />
 
         {/* Magnet Item */}
         <div className="flex items-center gap-3">
@@ -69,12 +73,12 @@ const InventoryBar = ({
             
             <div className="flex flex-col leading-none">
               {isShop && (
-                <span className="text-[15px] font-black text-white">
+                <span className={`text-[15px] font-black ${countColor}`}>
                   {toKuDigits(magnetCount || 0)}
                 </span>
               )}
               {!isShop && (
-                <span className={`text-[15px] font-black ${(magnetUsedInRound || (magnetCount || 0) <= 0) ? 'text-red-400/50' : 'text-white'}`}>
+                <span className={`text-[15px] font-black ${(magnetUsedInRound || (magnetCount || 0) <= 0) ? 'text-red-400/50' : countColor}`}>
                   {toKuDigits((magnetUsedInRound || (magnetCount || 0) <= 0) ? 0 : 1)}
                 </span>
               )}
@@ -82,7 +86,7 @@ const InventoryBar = ({
           </button>
         </div>
 
-        <div className="w-[1px] h-4 bg-white/10" />
+        <div className={`w-[1px] h-4 ${sepColor}`} />
 
         {/* Skip Item */}
         <div className="flex items-center gap-3">
@@ -101,12 +105,12 @@ const InventoryBar = ({
             
             <div className="flex flex-col leading-none">
               {isShop && (
-                <span className="text-[15px] font-black text-white">
+                <span className={`text-[15px] font-black ${countColor}`}>
                   {toKuDigits(skipCount || 0)}
                 </span>
               )}
               {!isShop && skipLimit > 0 && (
-                <span className={`text-[15px] font-black ${(skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'text-red-400/50' : 'text-white'}`}>
+                <span className={`text-[15px] font-black ${(skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'text-red-400/50' : countColor}`}>
                   {toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}
                 </span>
               )}

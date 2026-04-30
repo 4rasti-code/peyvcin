@@ -56,13 +56,30 @@ const Avatar = memo(({
 
   return (
     <div className={`relative shrink-0 ${selectedSizeClass} group ${className}`}>
-      {/* LEVEL BADGE */}
+      {/* LEVEL SHIELD BADGE */}
       {level !== null && (
-        <div className="absolute -top-1 -left-1 z-[25] flex items-center justify-center">
-            <div className="bg-amber-500 text-white font-black rounded-full border-2 border-white shadow-lg flex items-center justify-center p-1.5 min-w-[24px] min-h-[24px] text-[10px] leading-none">
-              {level}
+        <div className="absolute -top-1 -left-2 z-[25] flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none">
+            <div className="relative filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+               <svg width="28" height="32" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path 
+                    d="M14 0L2 4.5V14C2 21.5 7.5 28.5 14 31C20.5 28.5 26 21.5 26 14V4.5L14 0Z" 
+                    fill="url(#shieldGoldGradient)" 
+                    stroke="white" 
+                    strokeWidth="1.5"
+                  />
+                  <defs>
+                     <linearGradient id="shieldGoldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#FDE68A" />
+                        <stop offset="50%" stopColor="#F59E0B" />
+                        <stop offset="100%" stopColor="#B45309" />
+                     </linearGradient>
+                  </defs>
+               </svg>
+               <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] pb-1.5 pr-0.5">
+                  {level}
+               </span>
             </div>
-            <div className="absolute inset-0 bg-amber-500 rounded-full blur-[4px] opacity-50 -z-10 animate-pulse" />
+            <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-[10px] -z-10 animate-pulse" />
         </div>
       )}
 

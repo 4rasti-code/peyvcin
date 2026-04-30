@@ -2,34 +2,53 @@ import React, { memo, useState, useEffect, useLayoutEffect } from 'react';
 import { STATUS } from '../data/constants';
 import { motion, useTransform } from 'framer-motion';
 
-const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0 }) => {
+const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint, isFocused, isSecretMode, isMobile, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true }) => {
   
-  let bgColor = 'bg-[#020617] border border-white/20 shadow-2xl';
-  let textColor = 'text-white';
+  // 🎨 COLORS BASED ON THEME (isDark)
+  let bgColor = isDark ? 'bg-white/5 border-2 border-white/10' : 'bg-slate-100 border-2 border-slate-300';
+  let textColor = isDark ? 'text-white' : 'text-slate-900';
   let extraClasses = '';
 
   const showStatus = (!isCurrent && status !== STATUS.NONE) || isRevealed;
-  
-  // SPECIAL: If we have a status but no char (Live Masked Mode), treat it as showStatus
   const isMaskedLive = isCurrent && hideLetters && status !== STATUS.NONE;
   const isFlipped = showStatus && !isMaskedLive;
 
-  if ((showStatus || isMaskedLive) && (status === STATUS.CORRECT || isRevealed)) {
-    bgColor = 'bg-[#10b981] border-none shadow-[0_8px_20px_rgba(16,185,129,0.4)]';
-    textColor = 'text-white';
-  } else if ((showStatus || isMaskedLive) && (status === STATUS.WRONG_POS)) {
-    bgColor = 'bg-[#f59e0b] border-none shadow-[0_8px_20px_rgba(245,158,11,0.4)]';
-    textColor = 'text-white';
-  } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
-    bgColor = 'bg-[#334155] border-none opacity-40 grayscale';
-    textColor = 'text-white/30';
-  } else if (isFocused) {
-    bgColor = 'bg-[#020617] ring-2 ring-inset ring-emerald-500';
-    extraClasses = 'z-20 border-transparent';
-    textColor = 'text-white';
-  } else if (char && isCurrent) {
-    bgColor = 'bg-[#020617] border border-white/30 z-10 shadow-2xl';
-    textColor = 'text-white';
+  if (isDark) {
+    // 🌙 DARK MODE COLORS
+    if ((showStatus || isMaskedLive) && (status === STATUS.CORRECT || isRevealed)) {
+      bgColor = 'bg-emerald-500 border-2 border-emerald-500 shadow-[0_8px_20px_rgba(16,185,129,0.3)]';
+      textColor = 'text-white';
+    } else if ((showStatus || isMaskedLive) && (status === STATUS.WRONG_POS)) {
+      bgColor = 'bg-amber-500 border-2 border-amber-500 shadow-[0_8px_20px_rgba(245,158,11,0.3)]';
+      textColor = 'text-white';
+    } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
+      bgColor = 'bg-white/10 border-2 border-white/5 opacity-40 grayscale';
+      textColor = 'text-white/30';
+    } else if (isFocused) {
+      bgColor = 'bg-white/10 border-2 border-white/30';
+      textColor = 'text-white';
+    } else if (char && isCurrent) {
+      bgColor = 'bg-white/20 border-2 border-white/40 shadow-sm';
+      textColor = 'text-white';
+    }
+  } else {
+    // ☀️ LIGHT MODE COLORS
+    if ((showStatus || isMaskedLive) && (status === STATUS.CORRECT || isRevealed)) {
+      bgColor = 'bg-emerald-500 border-2 border-emerald-500 shadow-md';
+      textColor = 'text-white';
+    } else if ((showStatus || isMaskedLive) && (status === STATUS.WRONG_POS)) {
+      bgColor = 'bg-amber-500 border-2 border-amber-500 shadow-md';
+      textColor = 'text-white';
+    } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
+      bgColor = 'bg-slate-300 border-2 border-slate-300';
+      textColor = 'text-slate-500';
+    } else if (isFocused) {
+      bgColor = 'bg-white border-2 border-slate-400';
+      textColor = 'text-slate-900';
+    } else if (char && isCurrent) {
+      bgColor = 'bg-white border-2 border-slate-500 shadow-sm';
+      textColor = 'text-slate-900';
+    }
   }
   
   if (isNewHint) extraClasses += ' animate-hint-glow';
@@ -41,7 +60,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
       initial={false}
       animate={isFlipped ? { rotateY: 360 } : {}}
       transition={{ duration: 0.6, delay: flipDelay / 1000 }}
-      className={`${bgColor} ${extraClasses} forced-tile rounded-none transition-[transform,background-color,border-color] duration-150 transform relative overflow-hidden items-center justify-center`}
+      className={`${bgColor} ${extraClasses} forced-tile rounded-none transition-all duration-300 transform relative overflow-hidden items-center justify-center`}
     >
       <span 
         className={`font-bold font-heading ${textColor} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
@@ -53,10 +72,10 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
         {char}
       </span>
 
-      {/* Optimized Motion Focus Ring (GPU Accelerated) */}
+      {/* Focused State Indicator (Neutral) */}
       {isFocusedMV && (
         <motion.div 
-          className="absolute inset-0 ring-2 ring-inset ring-emerald-500 z-30 pointer-events-none"
+          className={`absolute inset-0 border-2 ${isDark ? 'border-white/20' : 'border-slate-300'} z-30 pointer-events-none`}
           style={{ 
             opacity: useTransform(isFocusedMV, (val) => val === index ? 1 : 0)
           }}
@@ -65,7 +84,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
 
       {shouldHideText && (char || isMaskedLive) && (
          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-white/40 animate-pulse" />
+            <div className={`w-2.5 h-2.5 rounded-full ${isDark ? 'bg-white/40' : 'bg-slate-400'} animate-pulse`} />
          </div>
       )}
     </motion.div>
@@ -79,11 +98,12 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isNewHint,
          prev.isRevealed === next.isRevealed &&
          prev.isNewHint === next.isNewHint &&
          prev.isSecretMode === next.isSecretMode &&
+         prev.isDark === next.isDark &&
          prev.hideLetters === next.hideLetters;
 });
 
-const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null }) => {
-  const activeClass = isCurrent ? 'ring-2 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-primary/5' : '';
+const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, lastHintIndex, isMobile, isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null, isDark = true }) => {
+  const activeClass = '';
 
   // PRE-CALCULATE CONSTANTS for the row maps
   const guessArr = Array.isArray(guess) ? guess : (typeof guess === 'string' ? guess.split('') : []);
@@ -112,9 +132,6 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
         
         const isFocused = !isMV && isCurrent && i === actualFocusIndex;
         
-        // This is still not quite optimized for MotionValue because Tile is not a motion component that subscribes directly yet.
-        // But we are passing it down as requested.
-        
         if (forcedStatuses) {
           status = forcedStatuses[i] || STATUS.NONE;
         } else if (!isCurrent && guessArr.length > 0) {
@@ -137,6 +154,7 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
             isSecretMode={isSecretMode}
             hideLetters={hideLetters}
             flipDelay={isCurrent ? 0 : i * 60}
+            isDark={isDark}
           />
         );
       })}
@@ -151,13 +169,14 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
          prev.isShaking === next.isShaking &&
          prev.isSecretMode === next.isSecretMode &&
          prev.wordLength === next.wordLength &&
+         prev.isDark === next.isDark &&
          prev.forcedFocusIndex === next.forcedFocusIndex &&
          JSON.stringify(prev.forcedStatuses) === JSON.stringify(next.forcedStatuses) &&
          prev.revealedIndices?.length === next.revealedIndices?.length &&
          prev.lastHintIndex === next.lastHintIndex;
 });
 
-const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null }) => {
+const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], lastHintIndex = -1, maxRows = 6, isSecretMode = false, comboGlow = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null, isDark = true }) => {
   if (wordLength === 0) return null;
 
   const rows = [...guesses];
@@ -173,11 +192,6 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
   }, []);
 
   const finalGap = compact ? '4px' : (wordLength > 7 ? '4px' : (isMobile ? '6px' : '10px'));
-  
-  // DYNAMIC SCALING:
-  // 1. Height-based (vh) to fit between info and keyboard
-  // 2. Width-based (vw) to fit horizontal screen width (max 92vw available)
-  const vhSize = compact ? '4.5vh' : '6vh';
   const vwSize = `((92vw - ${(wordLength - 1) * 6}px) / ${wordLength})`;
   
   const tileSize = compact 
@@ -221,7 +235,6 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
             const isCurrent = activeRowIndex !== null ? i === activeRowIndex : i === guesses.length;
             if (i >= maxRows) return null;
 
-            // Map numeric statuses to STATUS constants if this is the live row
             let forcedStatuses = opponentStatuses[i] || null;
             if (isCurrent && opponentLiveStatuses && opponentLiveStatuses.length > 0) {
               forcedStatuses = opponentLiveStatuses.map(code => {
@@ -248,6 +261,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
                 forcedStatuses={forcedStatuses}
                 forcedFocusIndex={isCurrent ? opponentLiveCursor : null}
                 gap={finalGap}
+                isDark={isDark}
               />
             );
           })}
@@ -257,4 +271,3 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
 });
 
 export default Grid;
-

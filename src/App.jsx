@@ -26,6 +26,8 @@ import { AVATARS } from './data/avatars';
 import { forceResumeAudio } from './utils/audio';
 import { normalizeKurdishInput } from './utils/textUtils';
 
+import useThemeDetector from './hooks/useThemeDetector';
+
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
 const lazyWithRetry = (componentImport) =>
@@ -66,6 +68,7 @@ import TermsOfService from './components/TermsOfService';
 import ProfileView from './components/ProfileView';
 import KurdishSunLoader from './components/KurdishSunLoader';
 import DailyRewardModal from './components/DailyRewardModal';
+import HowToPlayModal from './components/HowToPlayModal';
 
 
 
@@ -179,6 +182,9 @@ export default function App() {
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
+  const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
+  const [howToPlayMode, setHowToPlayMode] = useState('classic');
+  const [isHowToPlayShowTabs, setIsHowToPlayShowTabs] = useState(true);
   const [activeChatPartner, setActiveChatPartner] = useState(null);
   const [initialSocialTab, setInitialSocialTab] = useState(null);
 
@@ -1066,6 +1072,15 @@ export default function App() {
   }, [navigateTo]);
 
 
+  const isSystemDark = useThemeDetector();
+
+  const handleOpenHowToPlay = (mode = 'classic', showTabs = true) => {
+    playBubblePopSound();
+    setHowToPlayMode(mode);
+    setIsHowToPlayShowTabs(showTabs);
+    setIsHowToPlayOpen(true);
+  };
+
   if (loadingAuth || isGameLoading) return (
     <div className="h-[100dvh] flex items-center justify-center bg-slate-950">
       <KurdishSunLoader progress={authProgress} />
@@ -1073,8 +1088,8 @@ export default function App() {
   );
 
   return (
-    <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full items-center bg-[#000000] bg-[radial-gradient(circle_at_center,_#111827_0%,_#000000_100%)] font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
-      <div className="flex-1 flex flex-col w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto bg-[#020617] text-white relative overflow-hidden shadow-2xl">
+    <div className={`flex flex-col h-[100dvh] max-h-[100dvh] w-full items-center ${(currentView === 'game' && !isSystemDark) ? 'bg-[#f5f5f4]' : 'bg-[#000000] bg-[radial-gradient(circle_at_center,_#111827_0%,_#000000_100%)]'} font-noto-sans-arabic ${currentTheme === 'zakho_nights' ? 'zakho-theme' : ''}`} dir="rtl">
+      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg xl:max-w-screen-xl mx-auto ${(currentView === 'game' && !isSystemDark) ? 'bg-[#f5f5f4] text-slate-900' : 'bg-[#020617] text-white'} relative overflow-hidden shadow-2xl transition-colors duration-500`}>
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
           <div className="panic-overlay" />
@@ -1106,9 +1121,15 @@ export default function App() {
               setIsDailyRewardOpen(true);
             }}
             isDailyAvailable={
-              !lastRewardClaimedAt ||
-              (lastRewardClaimedAt.includes('T') ? lastRewardClaimedAt.split('T')[0] : lastRewardClaimedAt) !== getLocalDateString()
+              (() => {
+                if (!lastRewardClaimedAt) return true;
+                const lastDate = new Date(lastRewardClaimedAt).toLocaleDateString('en-CA');
+                const todayDate = new Date().toLocaleDateString('en-CA');
+                return lastDate !== todayDate;
+              })()
             }
+            isDark={isSystemDark}
+            onOpenHowToPlay={(mode) => handleOpenHowToPlay(mode, false)}
           />
         )}
 
@@ -1125,7 +1146,7 @@ export default function App() {
 
           {(multiplayerState === 'playing' || multiplayerState === 'game_over') && (
             <Suspense fallback={<KurdishSunLoader />}>
-              <MultiplayerGameView opponent={opponent} />
+              <MultiplayerGameView opponent={opponent} isDark={isSystemDark} />
             </Suspense>
           )}
 
@@ -1184,6 +1205,7 @@ export default function App() {
                 stopBGM();
                 startMatchmaking();
               }}
+              onOpenHowToPlay={handleOpenHowToPlay}
             />
           )}
 
@@ -1207,6 +1229,7 @@ export default function App() {
                     targetDifficultyLevel={level}
                     timeLeft={timeLeft}
                     showSuccessSplash={isSuccessSplash}
+                    isDark={isSystemDark}
                   />
                 </div>
 
@@ -1224,6 +1247,7 @@ export default function App() {
                       maxRows={gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6)}
                       isSecretMode={gameMode === 'secret_word'}
                       isShaking={isShaking}
+                      isDark={isSystemDark}
                     />
 
                   </div>
@@ -1231,12 +1255,13 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className="shrink-0 w-full z-50 p-3 bg-[#020617]/80 backdrop-blur-md border-t border-white/5 pb-[max(env(safe-area-inset-bottom),16px)] m-0">
+              <div className={`shrink-0 w-full z-50 p-3 ${isSystemDark ? 'bg-[#020617]/80 backdrop-blur-md border-t border-white/5' : 'bg-[#f5f5f4] border-t border-slate-200'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 transition-colors duration-500`}>
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}
                   onEnter={handleOnEnter}
                   usedKeys={usedKeys}
+                  isDark={isSystemDark}
                   gameState={isVictory ? 'won' : isDefeat ? 'lost' : 'playing'}
                   magnetDisabledKeys={magnetDisabledKeys}
                   onHint={handleHint}
@@ -1508,6 +1533,14 @@ export default function App() {
         <DailyRewardModal
           isOpen={isDailyRewardOpen}
           onClose={() => setIsDailyRewardOpen(false)}
+        />
+
+        <HowToPlayModal 
+          isOpen={isHowToPlayOpen}
+          onClose={() => setIsHowToPlayOpen(false)}
+          initialMode={howToPlayMode}
+          isDark={isSystemDark}
+          showTabs={isHowToPlayShowTabs}
         />
 
         {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}

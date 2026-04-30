@@ -6,7 +6,7 @@ import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 import { toKuDigits } from '../utils/formatters';
 
-  const CurrencyStat = ({ value, Icon: IconComponent, color, bg, currency = 'fils', resetKey }) => {
+  const CurrencyStat = ({ value, Icon: IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
     const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
     return (
       <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
@@ -15,21 +15,21 @@ import { toKuDigits } from '../utils/formatters';
             <IconComponent className="w-full h-full" />
           </div>
           <div className="flex flex-col items-center leading-none">
-            <span className="text-[15px] font-black font-heading text-white">{toKuDigits(value || 0)}</span>
-            <span className={`text-[7px] font-black uppercase mt-0.5 ${color} opacity-60`}>{currencyName}</span>
+            <span className={`text-[15px] font-black font-heading ${isDark ? 'text-white' : 'text-slate-900'}`}>{toKuDigits(value || 0)}</span>
+            <span className={`text-[7px] font-black uppercase mt-0.5 ${isDark ? color : 'text-[#CD7F32]'} opacity-60`}>{currencyName}</span>
           </div>
         </div>
       </CurrencyDecrementEffect>
     );
   };
 
-  const InventoryStat = ({ value, icon, color, bg }) => {
+  const InventoryStat = ({ value, icon, color, bg, isDark = true }) => {
     return (
       <div className={`flex items-center gap-1.5 px-2 py-1 rounded-[10px] ${bg || 'bg-white/5'} border border-white/5`}>
         <span className={`material-symbols-outlined text-[18px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
           {icon}
         </span>
-        <span className="text-[14px] font-black text-white">{toKuDigits(value || 0)}</span>
+        <span className={`text-[14px] font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>{toKuDigits(value || 0)}</span>
       </div>
     );
   };
@@ -52,7 +52,9 @@ export default function TopAppBar({
   gameMode = 'classic',
   onPlaySound,
   onDailyRewardClick,
+  onOpenHowToPlay,
   isDailyAvailable = false,
+  isDark = true
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
 
@@ -62,7 +64,7 @@ export default function TopAppBar({
 
   return (
     <header 
-      className="relative top-0 w-full z-100 bg-[#0a0f1b] border-b border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible" 
+      className={`relative top-0 w-full z-100 ${isPlaying ? (isDark ? 'bg-[#020617]' : 'bg-[#f5f5f4]') : 'bg-[#0a0f1b]'} border-b ${isPlaying ? (isDark ? 'border-white/5' : 'border-slate-200') : 'border-white/5'} pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`} 
       dir="ltr"
     >
       <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full mx-auto relative gap-4">
@@ -70,17 +72,31 @@ export default function TopAppBar({
         {/* Left Section: Close (X) or Settings / Daily Reward */}
         <div className="flex items-center justify-start flex-1">
           {isPlaying ? (
-            <motion.button 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.15 }}
-              whileTap={{ scale: 0.85 }}
-              transition={{ type: "spring", stiffness: 400, damping: 15 }}
-              onClick={() => { triggerHaptic(10); onForfeit(); }}
-              className="w-12 h-12 flex items-center justify-center text-[#ef4444] transition-all"
-            >
-              <span className="material-symbols-outlined text-[32px] font-black">close</span>
-            </motion.button>
+            <div className="flex items-center gap-1">
+              <motion.button 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                onClick={() => { triggerHaptic(10); onForfeit(); }}
+                className="w-12 h-12 flex items-center justify-center text-[#ef4444] transition-all"
+              >
+                <span className="material-symbols-outlined text-[32px] font-black">close</span>
+              </motion.button>
+              
+              <motion.button 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.15 }}
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.1 }}
+                onClick={() => { triggerHaptic(10); onOpenHowToPlay(gameMode); }}
+                className={`w-12 h-12 flex items-center justify-center ${isDark ? 'text-white/40' : 'text-slate-400'} hover:text-primary transition-all`}
+              >
+                <span className="material-symbols-outlined text-[28px] font-black">help</span>
+              </motion.button>
+            </div>
           ) : (
             currentView === 'lobby' ? (
               <div className="flex items-center gap-1">
@@ -93,14 +109,14 @@ export default function TopAppBar({
                     x: 0,
                     rotate: isDailyAvailable ? [-2, 2, -2, 2, 0] : 0,
                   }}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileHover={isDailyAvailable ? { scale: 1.1 } : {}}
+                  whileTap={isDailyAvailable ? { scale: 0.9 } : {}}
                   transition={{
                     rotate: isDailyAvailable ? { repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 3 } : { duration: 0.2 },
                     type: "spring", stiffness: 400, damping: 17
                   }}
                   onClick={() => { triggerHaptic(15); onDailyRewardClick?.(); }}
-                  className="relative w-14 h-14 flex items-center justify-center group"
+                  className={`relative w-14 h-14 flex items-center justify-center group ${!isDailyAvailable ? 'cursor-default' : 'cursor-pointer'}`}
                 >
                   {/* Golden Aura Glow (Only when available) */}
                   {isDailyAvailable && (
@@ -120,9 +136,14 @@ export default function TopAppBar({
                   )}
                   
                   {/* Colorful Ring (Always visible but brighter when available) */}
-                  <div className={`absolute inset-1 rounded-md border-2 border-transparent bg-linear-to-tr from-amber-400 via-emerald-400 to-amber-500 [mask-image:linear-gradient(white,white)] [-webkit-mask-image:linear-gradient(white,white)] transition-all duration-500 ${isDailyAvailable ? 'opacity-80 group-hover:opacity-100' : 'opacity-10 pointer-events-none'}`} />
+                  <div className={`absolute inset-1 rounded-md border-2 border-transparent bg-linear-to-tr from-amber-400 via-emerald-400 to-amber-500 [mask-image:linear-gradient(white,white)] [-webkit-mask-image:linear-gradient(white,white)] transition-all duration-500 ${isDailyAvailable ? 'opacity-80 group-hover:opacity-100' : 'opacity-0 pointer-events-none'}`} />
 
-                  <div className={`relative z-10 w-11 h-11 rounded-md flex items-center justify-center transition-all duration-500 ${isDailyAvailable ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-400/50' : 'bg-emerald-500/5 text-emerald-500/30 border border-emerald-500/10'}`}>
+                  <div className={`relative z-10 w-11 h-11 rounded-md flex items-center justify-center transition-all duration-500 
+                    ${isDailyAvailable 
+                      ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] border border-emerald-400/50' 
+                      : 'bg-slate-800/50 text-slate-500 border border-slate-700/50 shadow-none grayscale'
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-3xl drop-shadow-md">redeem</span>
                   </div>
                   
@@ -156,16 +177,16 @@ export default function TopAppBar({
         <div className="flex items-center justify-end gap-3 flex-1 relative">
           {isPlaying ? (
             <div className="flex items-center gap-2">
-              <CurrencyStat key="ingame-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} />
+              <CurrencyStat key="ingame-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" resetKey={currentView} isDark={isDark} />
             </div>
           ) : (
             <div className="flex items-center gap-2">
               {/* Helpers Group (Lobby/Store/Leaderboard) */}
               {(currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard') && (
                 <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
-                  <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" />
-                  <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" />
-                  <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" />
+                  <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" isDark={isDark} />
+                  <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" isDark={isDark} />
+                  <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" isDark={isDark} />
                 </div>
               )}
 
@@ -173,12 +194,12 @@ export default function TopAppBar({
               <div className="flex items-center gap-1">
                 {(currentView === 'store' || currentView === 'leaderboard') && (
                   <>
-                    <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} />
-                    <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} />
+                    <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                    <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
                   </>
                 )}
                 {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'stats' || currentView === 'dictionary') && (
-                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} />
+                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
                 )}
               </div>
 
@@ -228,18 +249,6 @@ export default function TopAppBar({
                 </div>
               )}
               
-              {/* Level Display (Stats/Dictionary) */}
-              {(currentView === 'stats' || currentView === 'dictionary') && (
-                <div className="hidden sm:flex items-center bg-[#0ea5e9] rounded-[20px] border-2 border-white/20 p-2 pl-5 gap-3 shadow-xl h-13">
-                  <div className="flex flex-col items-start leading-none pt-0.5">
-                    <span className="text-[17px] font-black font-heading text-white">{toKuDigits(level || 1)}</span>
-                    <span className="text-[9px] font-black font-rabar text-white/40 uppercase tracking-normal mt-0.5">ئاست</span>
-                  </div>
-                  <div className="w-9 h-9 rounded-[14px] bg-white/20 flex items-center justify-center text-white border border-white/30 shadow-inner" style={{ minWidth: '36px' }}>
-                    <span className="material-symbols-outlined text-xl font-bold">military_tech</span>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>

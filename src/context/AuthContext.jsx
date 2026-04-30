@@ -53,7 +53,10 @@ export const AuthProvider = ({ children }) => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
     return saved !== null ? saved === 'true' : true;
   });
-  const [profileData, setProfileData] = useState(null);
+  const [profileData, setProfileData] = useState(() => {
+    const cached = localStorage.getItem('peyvchin_cached_profile');
+    return cached ? JSON.parse(cached) : null;
+  });
 
   const isProfileLoaded = useRef(false);
   const syncPromiseRef = useRef(null);
@@ -119,6 +122,10 @@ export const AuthProvider = ({ children }) => {
           setCurrentTheme(theme);
           localStorage.setItem('peyvchin_current_theme', theme);
 
+          // Update Cache
+          localStorage.setItem('peyvchin_cached_profile', JSON.stringify(data));
+          localStorage.setItem('peyvchin_cached_avatar', data.avatar_url || 'default');
+
           isProfileLoaded.current = true;
           setProfileData(data);
           if (onProfileLoaded) onProfileLoaded(data);
@@ -152,7 +159,7 @@ export const AuthProvider = ({ children }) => {
             setLoading(false);
           }, 300);
         }
-      }, 20000);
+      }, 5000); // Reduced to 5s for better UX
 
       try {
         setAuthProgress(15);
@@ -170,10 +177,19 @@ export const AuthProvider = ({ children }) => {
           setAuthProgress(45);
           console.log("[AuthContext] Active session recovered:", session.user.id);
           setUser(session.user);
-          // Sync in background to avoid blocking the UI
+          // If we have cached profile data, we can unlock the UI immediately
+          const cachedProfile = localStorage.getItem('peyvchin_cached_profile');
+          if (cachedProfile) {
+            console.log("[AuthContext] Instant unlock via cached profile.");
+            setAuthProgress(100);
+            setLoadingAuth(false);
+            setLoading(false);
+          }
+          
+          // Sync in background to ensure data is fresh
           if (!isProfileLoaded.current) {
             setAuthProgress(75);
-            syncProfile(session.user.id); // No await
+            syncProfile(session.user.id);
           }
         } else {
           setAuthProgress(100);

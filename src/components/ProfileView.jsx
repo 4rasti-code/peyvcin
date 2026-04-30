@@ -359,7 +359,7 @@ export default function ProfileView({
 
                <div className="absolute inset-0 opacity-15 bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] mix-blend-overlay"></div>
 
-               <div className="absolute top-0 left-0 right-0 h-16 z-50 px-6 flex justify-between items-center" dir="ltr">
+                <div className="absolute top-0 left-0 right-0 h-16 z-50 px-6 flex justify-between items-center" dir="ltr">
                   <div className="relative flex flex-col items-center pt-5 w-14 group/streak">
                      <AnimatePresence mode="popLayout">
                         {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess ? (
@@ -402,7 +402,24 @@ export default function ProfileView({
                      </AnimatePresence>
                   </div>
 
-
+                  {/* Level Shield on the Right Side */}
+                  <div className="relative flex flex-col items-center pt-5 w-14">
+                      <div className="relative flex flex-col items-center justify-center">
+                          <svg width="42" height="48" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-lg">
+                             <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#levelMedalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.2" />
+                             <defs>
+                                <linearGradient id="levelMedalGradient" x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                                   <stop stopColor="#FFD700" />
+                                   <stop offset="1" stopColor="#B8860B" />
+                                </linearGradient>
+                             </defs>
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center pt-1.5" dir="rtl">
+                             <span className="text-[7px] font-black text-slate-800/80 uppercase leading-none mb-0.5 tracking-tighter">ئاست</span>
+                             <span className="text-[13px] font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(level)}</span>
+                          </div>
+                      </div>
+                  </div>
                </div>
 
                <div className="absolute top-1 left-0 right-0 flex flex-col items-center z-20">

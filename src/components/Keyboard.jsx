@@ -18,26 +18,38 @@ const SPECIAL_KEYS = {
   DELETE: 'backspace'
 };
 
-const Key = memo(({ k, status, onKeyPress, isDisabled }) => {
+const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true }) => {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const getKeyStyle = () => {
-    if (isDisabled) return 'bg-[#334155]/20 text-white/10 cursor-not-allowed border-transparent';
-    if (status === STATUS.CORRECT) return 'bg-[#10b981] text-white border-transparent shadow-[0_0_15px_rgba(16,185,129,0.4)]';
-    if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[0_0_15px_rgba(245,158,11,0.4)]';
-    if (status === STATUS.INCORRECT) return 'bg-[#1e293b]/40 text-slate-600 border-white/5 opacity-50 backdrop-blur-sm grayscale';
-    return 'bg-white/5 text-white border-white/10 hover:bg-white/10 active:bg-white/15 backdrop-blur-md';
+    if (isDisabled) {
+      return isDark 
+        ? 'bg-[#334155]/20 text-white/10 border-transparent cursor-not-allowed' 
+        : 'bg-slate-300/30 text-slate-400/20 border-transparent cursor-not-allowed';
+    }
+    
+    if (isDark) {
+      // 🌙 DARK MODE KEY STYLES
+      if (status === STATUS.CORRECT) return 'bg-[#10b981] text-white border-transparent shadow-[0_0_15px_rgba(16,185,129,0.4)]';
+      if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[0_0_15px_rgba(245,158,11,0.4)]';
+      if (status === STATUS.INCORRECT) return 'bg-[#1e293b]/40 text-slate-600 border-white/5 opacity-50 backdrop-blur-sm grayscale';
+      return 'bg-white/5 text-white border-white/10 hover:bg-white/10 active:bg-white/15 backdrop-blur-md';
+    } else {
+      // ☀️ LIGHT MODE KEY STYLES
+      if (status === STATUS.CORRECT) return 'bg-emerald-500 text-white border-transparent shadow-md';
+      if (status === STATUS.WRONG_POS) return 'bg-amber-500 text-white border-transparent shadow-md';
+      if (status === STATUS.INCORRECT) return 'bg-slate-300 text-slate-500 border-slate-400/20 opacity-60 grayscale';
+      return 'bg-slate-200 text-slate-800 border-slate-300 hover:bg-slate-300 active:bg-slate-400/20';
+    }
   };
 
   const handlePointerDown = (e) => {
     e.preventDefault();
     if (isDisabled) return;
     
-    // Trigger the popup locally
     setIsPopupVisible(true);
     onKeyPress(k);
     
-    // Clear popup after short delay
     setTimeout(() => setIsPopupVisible(false), 150);
   };
 
@@ -59,10 +71,10 @@ const Key = memo(({ k, status, onKeyPress, isDisabled }) => {
             initial={{ opacity: 0, y: 10, scale: 0.8 }}
             animate={{ opacity: 1, y: -70, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.8 }}
-            className="absolute left-1/2 -translate-x-1/2 w-14 h-16 bg-[#1a202c] text-white shadow-2xl rounded-2xl flex items-center justify-center border-2 border-white/20 pointer-events-none z-50 backdrop-blur-xl"
+            className={`absolute left-1/2 -translate-x-1/2 w-14 h-16 ${isDark ? 'bg-[#1a202c] text-white border-white/20' : 'bg-white text-slate-900 border-slate-300'} shadow-2xl rounded-2xl flex items-center justify-center border-2 z-50 backdrop-blur-xl pointer-events-none`}
           >
             <span className="text-3xl font-light leading-none">{k}</span>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#1a202c] rotate-45 border-r border-b border-white/20"></div>
+            <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 ${isDark ? 'bg-[#1a202c] border-white/20' : 'bg-white border-slate-300'} rotate-45 border-r border-b`}></div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -71,6 +83,7 @@ const Key = memo(({ k, status, onKeyPress, isDisabled }) => {
 }, (prev, next) => {
   return prev.status === next.status && 
          prev.isDisabled === next.isDisabled &&
+         prev.isDark === next.isDark &&
          prev.onKeyPress === next.onKeyPress;
 });
 
@@ -94,7 +107,8 @@ const Keyboard = memo(({
   skipLimit = 1,
   hintTaps = 0,
   hintLimit = 0,
-  hidePowerups = false
+  hidePowerups = false,
+  isDark = true
 }) => {
   // const { playSound } = useMusic(); // Legacy dependency removed
 
@@ -129,10 +143,11 @@ const Keyboard = memo(({
           skipsUsedInRound={skipsUsedInRound}
           skipLimit={skipLimit}
           className="mb-1"
+          isDark={isDark}
         />
       )}
 
-      <div className="w-[40%] h-px bg-white/5 mx-auto mb-3" />
+      <div className={`w-[40%] h-px ${isDark ? 'bg-white/5' : 'bg-slate-200'} mx-auto mb-3`} />
 
       {ROWS.map((row, rowIndex) => (
         <div key={rowIndex} className="flex gap-1 w-full justify-center">
@@ -142,7 +157,7 @@ const Keyboard = memo(({
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onPointerDown={() => handleKeyPress(SPECIAL_KEYS.DELETE, true)}
-              className="flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md bg-red-500 text-white border border-red-500/20 flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg"
+              className={`flex-[1.2] h-[clamp(32px,4.5vh,48px)] rounded-md ${isDark ? 'bg-red-500 border-red-500/20 shadow-red-500/10' : 'bg-red-500 border-red-600/20 shadow-md'} text-white border flex items-center justify-center transition-all hover:bg-red-600 active:scale-95 shadow-lg`}
             >
               <span className="material-symbols-outlined text-[20px]">backspace</span>
             </motion.button>
@@ -155,6 +170,7 @@ const Keyboard = memo(({
                status={usedKeys[key]}
                isDisabled={(magnetDisabledKeys || []).includes(key)}
                onKeyPress={handleKeyPress}
+               isDark={isDark}
              />
           ))}
 
@@ -164,7 +180,7 @@ const Keyboard = memo(({
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onPointerDown={() => handleKeyPress(SPECIAL_KEYS.ENTER, true)}
-              className="flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md bg-green-500 text-white font-bold text-xs uppercase shadow-lg flex items-center justify-center transition-all hover:bg-green-600 active:scale-95"
+              className={`flex-[1.8] h-[clamp(32px,4.5vh,48px)] rounded-md ${isDark ? 'bg-green-500 border-green-500/20 shadow-green-500/10' : 'bg-green-500 border-green-600/20 shadow-md'} text-white font-bold text-xs uppercase flex items-center justify-center transition-all hover:bg-green-600 active:scale-95`}
             >
               <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
             </motion.button>

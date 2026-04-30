@@ -15,7 +15,8 @@ export default function InfoBar({
   minXP = 0,
   maxXP = 100,
   timeLeft = 30,
-  showSuccessSplash = false
+  showSuccessSplash = false,
+  isDark = true
 }) {
   const isClassic = gameMode === 'classic';
   const isWordFever = gameMode === 'word_fever';
@@ -25,6 +26,12 @@ export default function InfoBar({
   const displayCategory = category === 'generalWordPool' ? 'گشتی' : (category || 'گشتی');
   const displayText = (isClassic || isHardWords) ? displayCategory : (targetHint || displayCategory || '...');
   
+  // Theme-aware styles
+  const textMain = isDark ? 'text-white' : 'text-slate-800';
+  const textMuted = isDark ? 'text-white/40' : 'text-slate-500';
+  const bgSurface = isDark ? 'bg-black/40 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-md';
+  const dividerColor = isDark ? 'bg-white/10' : 'bg-slate-300';
+
   // XP Calculation: Relative Progress within the current level
   const range = maxXP - minXP;
   const relativeXP = Math.max(0, currentXP - minXP);
@@ -50,7 +57,7 @@ export default function InfoBar({
       <div className="w-full flex flex-col items-center justify-center py-0 px-4 sm:px-8 mt-2 animate-in fade-in duration-700 relative">
         
         <div className="w-full max-w-3xl flex items-center justify-center pt-2 pb-2 text-center relative z-10">
-          <p className="whitespace-nowrap text-[clamp(0.6rem,3.5vw,1.25rem)] font-light text-white leading-none font-noto-sans-arabic drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]">
+          <p className={`whitespace-nowrap text-[clamp(0.6rem,3.5vw,1.25rem)] font-light ${textMain} leading-none font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]' : ''}`}>
             {displayText}
           </p>
         </div>
@@ -154,7 +161,7 @@ export default function InfoBar({
         )}
         
         {/* Minimalist Divider (Classic Only) */}
-        {!isWordFever && <div className="w-[65%] h-[0.5px] bg-white/10 rounded-full" />}
+        {!isWordFever && <div className={`w-[65%] h-[0.5px] ${dividerColor} rounded-full`} />}
       </div>
     );
   }
@@ -162,13 +169,13 @@ export default function InfoBar({
   // Informative Full View for Other Modes
   return (
     <div className="w-full flex flex-col items-center gap-2 mb-4 px-4 animate-in slide-in-from-top-4 duration-500">
-      <div className="w-full max-w-lg h-14 bg-black/40 backdrop-blur-2xl border border-white/10 rounded-3xl grid grid-cols-3 items-center px-4 shadow-2xl relative overflow-visible">
-        <div className="flex items-center justify-center gap-1.5 bg-white/5 text-white px-3 h-9 rounded-2xl border border-white/5 shadow-sm">
+      <div className={`w-full max-w-lg h-14 backdrop-blur-2xl border rounded-3xl grid grid-cols-3 items-center px-4 relative overflow-visible ${bgSurface}`}>
+        <div className={`flex items-center justify-center gap-1.5 ${isDark ? 'bg-white/5 text-white' : 'bg-slate-100 text-slate-800'} px-3 h-9 rounded-2xl border ${isDark ? 'border-white/5' : 'border-slate-200'} shadow-sm`}>
           <span className="text-xs font-black mt-0.5">{(guessesCount)}/{(maxGuesses)}</span>
           <span className="material-symbols-outlined text-[16px]">rotate_right</span>
         </div>
         <div className="flex flex-col items-center justify-center overflow-">
-          <span className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-0.5">بابەت</span>
+          <span className={`text-[8px] font-black ${textMuted} uppercase tracking-widest mb-0.5`}>بابەت</span>
           <span className="text-[12px] font-black font-heading text-primary truncate max-w-full">
             {category || 'گشتی'}
           </span>
@@ -183,7 +190,7 @@ export default function InfoBar({
           </div>
         </CurrencyDecrementEffect>
       </div>
-      <div className="w-full max-w-40 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
+      <div className={`w-full max-w-40 h-1.5 ${isDark ? 'bg-white/5 border-white/5' : 'bg-slate-200 border-slate-300'} rounded-full overflow-hidden border relative`}>
         <div className="h-full bg-primary shadow-[0_0_15px_rgba(88,204,2,0.5)] transition-all duration-1000 ease-out" style={{ width: `${progressPercent}%` }} />
       </div>
     </div>

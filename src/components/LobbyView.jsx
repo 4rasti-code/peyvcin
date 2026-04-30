@@ -15,7 +15,8 @@ const LobbyView = React.memo(({
   dailyStreak,
   onViewChange,
   notificationCount = 0,
-  winsTowardsSecret = 0
+  winsTowardsSecret = 0,
+  onOpenHowToPlay
 }) => {
   const bgRef = useRef(null);
   
@@ -71,6 +72,22 @@ const LobbyView = React.memo(({
       <FloatingLetterBackground ref={bgRef} />
 
       <div className="relative z-10">
+        {/* Header with Help Button */}
+        <div className="flex justify-between items-center mb-6 px-1">
+          <div className="flex flex-col">
+            <h2 className="text-2xl font-black text-white font-heading">مۆدێن یاریێ</h2>
+            <p className="text-[11px] font-bold text-white/30 uppercase tracking-widest">Peyivcin Modes</p>
+          </div>
+          <motion.button
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { triggerHaptic(10); onOpenHowToPlay('classic'); }}
+            className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          >
+            <span className="material-symbols-outlined text-2xl">help</span>
+          </motion.button>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           
           {/* ONLINE MULTIPLAYER (NEW) */}

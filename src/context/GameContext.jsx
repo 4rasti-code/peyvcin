@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 import { useAudio } from './AudioContext';
 import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
+import { getLocalDateString } from '../utils/formatters';
 
 const GameContext = createContext();
 
@@ -190,6 +191,10 @@ export const GameProvider = ({ children }) => {
     if (!currentUser) return { success: false, error: "Must be logged in" };
 
     try {
+      // 1. Pre-sync to ensure local state is parity with DB before transaction
+      await syncProfile(currentUser.id);
+      
+      // 2. Execute atomic transaction
       const { data, error } = await supabase.rpc('process_purchase', {
         p_item_id: item.id,
         p_item_type: item.type || (item.price_usd ? 'currency' : 'powerup'),
@@ -199,6 +204,8 @@ export const GameProvider = ({ children }) => {
       });
 
       if (error) throw error;
+      
+      // 3. Post-sync to get new balances immediately
       await syncProfile(currentUser.id);
       return { success: true };
     } catch (err) {
@@ -280,24 +287,48 @@ export const GameProvider = ({ children }) => {
     if (currentUser) await supabase.from('profiles').update({ wins_towards_secret: 0 }).eq('id', currentUser.id);
   }, []);
 
+  const [isClaimingReward, setIsClaimingReward] = useState(false);
+
   const claimDailyReward = useCallback(async () => {
-    if (!user?.id) return { success: false, error: "Tkaye pêشî wەرە ژوور" };
+    if (!user || isClaimingReward) return { error: 'Action in progress or login required' };
+    
+    setIsClaimingReward(true);
+    console.log('[GameContext] Triggering secure RPC claim...');
+    
     try {
       const { data, error } = await supabase.rpc('claim_daily_reward');
+      
       if (error) {
-        if (error.message.includes('already claimed')) return { success: false, error: "Te xەلاتێ خۆ یێ ئەڤرۆ وەرگرتییە" };
-        throw error;
+        console.error('[GameContext] RPC Error:', error);
+        return { error: error.message };
       }
+
       if (data && data.success) {
-        await syncProfile(user.id);
-        return { success: true, streak: data.streak };
+        // Atomic local state sync
+        if (data.rewards) {
+          setFils(prev => prev + (data.rewards.fils || 0));
+          setDerhem(prev => prev + (data.rewards.derhem || 0));
+          setDinar(prev => prev + (data.rewards.dinar || 0));
+          setMagnetCount(prev => prev + (data.rewards.magnets || 0));
+          setHintCount(prev => prev + (data.rewards.hints || 0));
+          setSkipCount(prev => prev + (data.rewards.skips || 0));
+        }
+        
+        setRewardStreak(data.streak);
+        setLastRewardClaimedAt(new Date().toISOString());
+        
+        await syncProfile();
+        return { success: true, rewards: data.rewards, streak: data.streak };
       }
-      return { success: false, error: "Claim failed" };
+
+      return { success: false, error: data?.message || "Claim failed" };
     } catch (err) { 
-      console.error("Daily Reward Claim Failed:", err); 
-      return { success: false, error: "ئاریشەیەک د داتابەیسێ دا ھەبوو" }; 
+      console.error("[GameContext] Fatal Claim Error:", err); 
+      return { success: false, error: "ئاریشەیەک د سێرڤەری دا ھەبوو" }; 
+    } finally {
+      setIsClaimingReward(false);
     }
-  }, [user, syncProfile]);
+  }, [user, syncProfile, isClaimingReward]);
 
   const value = useMemo(() => ({
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,

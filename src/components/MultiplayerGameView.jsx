@@ -13,7 +13,7 @@ import RoundIntro from './RoundIntro';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 
-export default function MultiplayerGameView({ opponent: propOpponent }) {
+export default function MultiplayerGameView({ opponent: propOpponent, isDark = true }) {
   const { 
     activeMatch, 
     opponent: contextOpponent, 
@@ -150,7 +150,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full w-full bg-[#020617] overflow-hidden">
+    <div className={`flex flex-col flex-1 h-full w-full ${isDark ? 'bg-[#020617]' : 'bg-[#f5f5f4]'} overflow-hidden transition-colors duration-500`}>
       <style>
         {`
           .battlefield-container {
@@ -184,8 +184,8 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+52px)]" dir="rtl">
         
         {/* RIDDLE DISPLAY */}
-        <div className="w-full flex flex-col items-center justify-center py-3 px-4 animate-in fade-in duration-700 shrink-0 bg-white/5 border-b border-white/5">
-          <p className="text-lg sm:text-2xl font-light text-white leading-none font-noto-sans-arabic drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] riddle-text">
+        <div className={`w-full flex flex-col items-center justify-center py-3 px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-white border-b border-slate-200'}`}>
+          <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} leading-none font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text`}>
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
         </div>
@@ -205,23 +205,24 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               maxRows={3}
               targetWord={targetWord}
               compact={true}
+              isDark={isDark}
             />
           </div>
         </div>
 
         {/* CENTER VS BAR: THE SCORES & ROUND */}
         <div className="shrink-0 flex items-center justify-center gap-4 py-2 z-20 relative">
-           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent h-[1px] top-1/2 -translate-y-1/2 w-full" />
+           <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-${isDark ? 'white/5' : 'slate-200'} to-transparent h-[1px] top-1/2 -translate-y-1/2 w-full`} />
            
-           <div className="flex items-center gap-3 bg-[#020617] px-4 py-1 rounded-full border border-white/10 shadow-2xl relative z-10">
+           <div className={`flex items-center gap-3 ${isDark ? 'bg-[#020617] border-white/10' : 'bg-white border-slate-200 shadow-md'} px-4 py-1 rounded-full border relative z-10`}>
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-blue-400 leading-none">{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
+                 <span className={`text-[14px] font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} leading-none`}>{toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}</span>
               </div>
-              <div className="w-[1px] h-3 bg-white/10 mx-1" />
-              <div className="text-[10px] font-black text-white/40 uppercase tracking-tighter">گەڕ {toKuDigits(currentRound + 1)}</div>
-              <div className="w-[1px] h-3 bg-white/10 mx-1" />
+              <div className={`w-[1px] h-3 ${isDark ? 'bg-white/10' : 'bg-slate-200'} mx-1`} />
+              <div className={`text-[10px] font-black ${isDark ? 'text-white/40' : 'text-slate-500'} uppercase tracking-tighter`}>گەڕ {toKuDigits(currentRound + 1)}</div>
+              <div className={`w-[1px] h-3 ${isDark ? 'bg-white/10' : 'bg-slate-200'} mx-1`} />
               <div className="flex items-center gap-2">
-                 <span className="text-[14px] font-black text-red-400 leading-none">{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
+                 <span className={`text-[14px] font-black ${isDark ? 'text-red-400' : 'text-red-600'} leading-none`}>{toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}</span>
               </div>
            </div>
         </div>
@@ -240,6 +241,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
               activeRowIndex={opponentGuesses.length}
               opponentLiveStatuses={opponentLiveStatuses}
               opponentLiveCursor={opponentLiveCursor}
+              isDark={isDark}
             />
           </div>
           <div className="flex items-center gap-2 opacity-60 scale-90">
@@ -250,7 +252,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className="shrink-0 w-full z-50 p-2 bg-[#020617]/40 pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t border-white/5">
+      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-[#020617]/40' : 'bg-[#f5f5f4]'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t ${isDark ? 'border-white/5' : 'border-slate-200 shadow-lg'}`}>
         <Keyboard 
           onKey={onKey} 
           onDelete={onDelete} 
@@ -258,6 +260,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
           usedKeys={usedKeys}
           gameState={(multiplayerState === 'game_over' || isRoundWinner) ? 'won' : (guesses.length >= 3 ? 'lost' : 'playing')}
           hidePowerups={true}
+          isDark={isDark}
         />
       </div>
 
@@ -288,20 +291,20 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[600] bg-[#020617]/95 backdrop-blur-xl flex items-center justify-center p-6"
+            className={`fixed inset-0 z-[600] ${isDark ? 'bg-[#020617]/95' : 'bg-slate-900/40'} backdrop-blur-xl flex items-center justify-center p-6`}
           >
             <motion.div 
                initial={{ scale: 0.9, opacity: 0 }}
                animate={{ scale: 1, opacity: 1 }}
                exit={{ scale: 0.9, opacity: 0 }}
-               className="w-full max-w-sm bg-white/5 border border-white/10 rounded-[40px] p-10 text-center"
+               className={`w-full max-w-sm ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-2xl'} border rounded-[40px] p-10 text-center`}
             >
-              <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className={`w-20 h-20 ${isDark ? 'bg-red-500/20' : 'bg-red-50'} rounded-full flex items-center justify-center mx-auto mb-6`}>
                 <span className="material-symbols-outlined text-4xl text-red-500">logout</span>
               </div>
               
-              <h2 className="text-2xl font-black text-white mb-2 font-noto-sans-arabic">پشتراستی؟</h2>
-              <p className="text-white/40 mb-8 font-noto-sans-arabic">دێ دەست ژ یاریێ بەردەی و دەرکەڤی؟</p>
+              <h2 className={`text-2xl font-black ${isDark ? 'text-white' : 'text-slate-900'} mb-2 font-noto-sans-arabic`}>پشتراستی؟</h2>
+              <p className={`${isDark ? 'text-white/40' : 'text-slate-500'} mb-8 font-noto-sans-arabic`}>دێ دەست ژ یاریێ بەردەی و دەرکەڤی؟</p>
               
               <div className="flex flex-col gap-3">
                 <button 
@@ -315,7 +318,7 @@ export default function MultiplayerGameView({ opponent: propOpponent }) {
                 </button>
                 <button 
                   onClick={() => setIsConfirmingExit(false)}
-                  className="h-16 bg-white/5 text-white/60 rounded-2xl font-bold active:scale-95 transition-all"
+                  className={`h-16 ${isDark ? 'bg-white/5 text-white/60' : 'bg-slate-100 text-slate-600'} rounded-2xl font-bold active:scale-95 transition-all`}
                 >
                   نەخێر، مانەوە
                 </button>
