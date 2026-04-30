@@ -247,60 +247,44 @@ export default function LeaderboardView({ onOpenChat }) {
                             rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                           }}
                           transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                          className={`absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                          className={`absolute -top-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                         >
-                          <div className="relative w-10 h-10 flex items-center justify-center">
-                            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+                          <div className="relative w-12 h-12 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
                               <defs>
-                                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#FDE68A" />
-                                  <stop offset="50%" stopColor="#FBBF24" />
-                                  <stop offset="100%" stopColor="#D97706" />
+                                <linearGradient id={`chicGold-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#FFF9C4" />
+                                  <stop offset="50%" stopColor="#FBC02D" />
+                                  <stop offset="100%" stopColor="#EF6C00" />
                                 </linearGradient>
-                                <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <linearGradient id={`chicSilver-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
                                   <stop offset="0%" stopColor="#F1F5F9" />
                                   <stop offset="50%" stopColor="#94A3B8" />
-                                  <stop offset="100%" stopColor="#475569" />
+                                  <stop offset="100%" stopColor="#334155" />
                                 </linearGradient>
-                                <linearGradient id="bronzeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#FB923C" />
+                                <linearGradient id={`chicBronze-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#FFEDD5" />
                                   <stop offset="50%" stopColor="#B45309" />
                                   <stop offset="100%" stopColor="#78350F" />
                                 </linearGradient>
                               </defs>
-
-                              {/* Crown Base - Bolder */}
-                              <path
-                                d="M10 75 Q50 85 90 75 L90 62 Q50 72 10 62 Z"
-                                fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"}
-                                stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
-                                strokeWidth="0.5"
+                              
+                              {/* Chic Regal Crown Body */}
+                              <path 
+                                d="M15 75 Q50 82 85 75 L90 50 L70 62 L50 30 L30 62 L10 50 Z" 
+                                fill={rank === 1 ? `url(#chicGold-${player.id})` : rank === 2 ? `url(#chicSilver-${player.id})` : `url(#chicBronze-${player.id})`}
                               />
-
-                              {/* Pearls along the base */}
-                              <circle cx="20" cy="69" r="2.5" fill="white" />
-                              <circle cx="35" cy="71" r="2.5" fill="white" />
-                              <circle cx="50" cy="72" r="2.5" fill="white" />
-                              <circle cx="65" cy="71" r="2.5" fill="white" />
-                              <circle cx="80" cy="69" r="2.5" fill="white" />
-
-                              {/* Crown Points - Bolder */}
-                              <path
-                                d="M10 62 L0 35 L28 52 L50 15 L72 52 L100 35 L90 62"
-                                fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"}
-                                stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
-                                strokeWidth="0.5"
+                              
+                              {/* Top Jewel Details */}
+                              <circle cx="50" cy="30" r="4.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                              <circle cx="10" cy="50" r="3.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                              <circle cx="90" cy="50" r="3.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                              
+                              {/* 3D Highlight Shine */}
+                              <path 
+                                d="M50 35 L50 65" 
+                                stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" 
                               />
-
-                              {/* Large Beads/Gems on Points */}
-                              <circle cx="0" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="28" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                              <circle cx="50" cy="15" r="5.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="72" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                              <circle cx="100" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-
-                              {/* Highlight Detail */}
-                              <path d="M50 20 L50 40" stroke="white" strokeWidth="1.5" strokeOpacity="0.4" strokeLinecap="round" />
                             </svg>
                           </div>
                         </motion.div>
