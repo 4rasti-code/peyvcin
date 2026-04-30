@@ -226,11 +226,12 @@ export default function LeaderboardView({ onOpenChat }) {
                     whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                     whileTap={{ scale: 0.99 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
-                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative overflow-hidden transition-all cursor-pointer shadow-sm`}
+                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer shadow-sm`}
                     style={{ 
                       backgroundColor: 'rgb(203, 213, 225)',
                       borderColor: 'rgba(255, 255, 255, 0.2)',
-                      boxShadow: 'rgba(148, 163, 184, 0.4) 0px 10px 20px -5px'
+                      boxShadow: 'rgba(148, 163, 184, 0.4) 0px 10px 20px -5px',
+                      zIndex: isTop3 ? 50 : 1 // Ensure top 3 cards have higher z-index for floating crowns
                     }}
                   >
                       {/* Left Side Accent Bar (Primary Yellow - Sharp) */}
