@@ -275,15 +275,24 @@ export default function LeaderboardView({ onOpenChat }) {
                                 fill={rank === 1 ? `url(#chicGold-${player.id})` : rank === 2 ? `url(#chicSilver-${player.id})` : `url(#chicBronze-${player.id})`}
                               />
                               
-                              {/* Top Jewel Details */}
-                              <circle cx="50" cy="30" r="4.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
-                              <circle cx="10" cy="50" r="3.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
-                              <circle cx="90" cy="50" r="3.5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                              {/* Pearls along the base (Mercan) */}
+                              {[25, 37.5, 50, 62.5, 75].map((x, i) => (
+                                <circle key={i} cx={x} cy="73" r="2" fill="white" />
+                              ))}
+                              
+                              {/* Beads/Gems on Points (Mory) */}
+                              <circle cx="10" cy="50" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="50" cy="30" r="6" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="90" cy="50" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              
+                              {/* Secondary Beads */}
+                              <circle cx="30" cy="62" r="3" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              <circle cx="70" cy="62" r="3" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
                               
                               {/* 3D Highlight Shine */}
                               <path 
-                                d="M50 35 L50 65" 
-                                stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" 
+                                d="M50 35 L50 60" 
+                                stroke="white" strokeWidth="2" strokeOpacity="0.4" strokeLinecap="round" 
                               />
                             </svg>
                           </div>
