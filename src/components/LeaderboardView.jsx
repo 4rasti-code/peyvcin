@@ -269,38 +269,40 @@ export default function LeaderboardView({ onOpenChat }) {
                                       </linearGradient>
                                     </defs>
                                     
-                                    {/* Crown Base - Bolder */}
+                                    {/* Crown Base - Softened */}
                                     <path 
-                                      d="M10 75 Q50 85 90 75 L90 62 Q50 72 10 62 Z" 
+                                      d="M10 75 Q50 82 90 75 L90 65 Q50 72 10 65 Z" 
                                       fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"} 
                                       stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
                                       strokeWidth="0.5"
                                     />
                                     
                                     {/* Pearls along the base */}
-                                    <circle cx="20" cy="69" r="2.5" fill="white" />
-                                    <circle cx="35" cy="71" r="2.5" fill="white" />
-                                    <circle cx="50" cy="72" r="2.5" fill="white" />
-                                    <circle cx="65" cy="71" r="2.5" fill="white" />
-                                    <circle cx="80" cy="69" r="2.5" fill="white" />
+                                    <circle cx="20" cy="71" r="2.2" fill="white" />
+                                    <circle cx="35" cy="73" r="2.2" fill="white" />
+                                    <circle cx="50" cy="74" r="2.2" fill="white" />
+                                    <circle cx="65" cy="73" r="2.2" fill="white" />
+                                    <circle cx="80" cy="71" r="2.2" fill="white" />
                                     
-                                    {/* Crown Points - Bolder */}
+                                    {/* Crown Points - Rounded Arches */}
                                     <path 
-                                      d="M10 62 L0 35 L28 52 L50 15 L72 52 L100 35 L90 62" 
+                                      d="M10 65 Q5 45 15 40 Q25 45 35 55 Q50 25 65 55 Q75 45 85 40 Q95 45 90 65" 
                                       fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"} 
                                       stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
                                       strokeWidth="0.5"
                                     />
                                     
-                                    {/* Large Beads/Gems on Points */}
-                                    <circle cx="0" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                                    <circle cx="28" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                                    <circle cx="50" cy="15" r="5.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                                    <circle cx="72" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                                    <circle cx="100" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                                    {/* Large Beads/Gems on Rounded Points */}
+                                    <circle cx="15" cy="40" r="4" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                                    <circle cx="50" cy="25" r="5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                                    <circle cx="85" cy="40" r="4" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                                    
+                                    {/* Extra beads on secondary arches */}
+                                    <circle cx="35" cy="55" r="2.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                                    <circle cx="65" cy="55" r="2.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
                                     
                                     {/* Highlight Detail */}
-                                    <path d="M50 20 L50 40" stroke="white" strokeWidth="1.5" strokeOpacity="0.4" strokeLinecap="round" />
+                                    <path d="M50 30 L50 45" stroke="white" strokeWidth="1.2" strokeOpacity="0.3" strokeLinecap="round" />
                                   </svg>
                                 </div>
                              </motion.div>
