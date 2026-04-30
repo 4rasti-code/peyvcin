@@ -288,19 +288,48 @@ export default function LeaderboardView({ onOpenChat }) {
                                       stroke="#3E2723" strokeWidth="2"
                                     />
                                     
-                                    {/* Central Diamond Gem (Purple) */}
-                                    <path 
+                                    {/* Central Diamond Gem (Purple) with Shine Animation */}
+                                    <motion.path 
                                       d="M50 45 L58 55 L50 65 L42 55 Z" 
                                       fill={rank === 1 ? "#7E57C2" : rank === 2 ? "#3B82F6" : "#EF4444"} 
                                       stroke="#3E2723" strokeWidth="1.5"
+                                      animate={{ 
+                                        filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"],
+                                      }}
+                                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                                     />
                                     
-                                    {/* 5 Beads on Points (Teal) */}
-                                    <circle cx="5" cy="40" r="5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                                    <circle cx="25" cy="55" r="4" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                                    <circle cx="50" cy="20" r="6" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                                    <circle cx="75" cy="55" r="4" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                                    <circle cx="95" cy="40" r="5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    {/* Glowing Highlight for Diamond */}
+                                    <motion.path 
+                                      d="M50 48 L54 55 L50 62 L46 55 Z" 
+                                      fill="white" fillOpacity="0.4"
+                                      animate={{ opacity: [0.2, 0.6, 0.2] }}
+                                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                                    />
+                                    
+                                    {/* 5 Beads on Points (Teal) with Shine */}
+                                    {[
+                                      { cx: 5, cy: 40, r: 5 },
+                                      { cx: 25, cy: 55, r: 4 },
+                                      { cx: 50, cy: 20, r: 6 },
+                                      { cx: 75, cy: 55, r: 4 },
+                                      { cx: 95, cy: 40, r: 5 }
+                                    ].map((b, i) => (
+                                      <g key={i}>
+                                        <motion.circle 
+                                          cx={b.cx} cy={b.cy} r={b.r} 
+                                          fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5"
+                                          animate={{ filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"] }}
+                                          transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
+                                        />
+                                        <motion.circle 
+                                          cx={b.cx - b.r/3} cy={b.cy - b.r/3} r={b.r/4} 
+                                          fill="white" fillOpacity="0.6"
+                                          animate={{ opacity: [0.4, 0.9, 0.4] }}
+                                          transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
+                                        />
+                                      </g>
+                                    ))}
                                     
                                     {/* Small Decorative Beads on Body */}
                                     <circle cx="30" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
