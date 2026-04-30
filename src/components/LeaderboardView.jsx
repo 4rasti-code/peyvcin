@@ -269,29 +269,27 @@ export default function LeaderboardView({ onOpenChat }) {
                                 </linearGradient>
                               </defs>
                               
-                              {/* Chic Regal Crown Body */}
+                              {/* 5-Point Chic Regal Crown Body */}
                               <path 
-                                d="M15 75 Q50 82 85 75 L90 50 L70 62 L50 30 L30 62 L10 50 Z" 
+                                d="M10 75 Q50 82 90 75 L95 55 L80 65 L65 45 L50 65 L35 45 L20 65 L5 55 Z" 
                                 fill={rank === 1 ? `url(#chicGold-${player.id})` : rank === 2 ? `url(#chicSilver-${player.id})` : `url(#chicBronze-${player.id})`}
                               />
                               
                               {/* Pearls along the base (Mercan) */}
-                              {[25, 37.5, 50, 62.5, 75].map((x, i) => (
+                              {[20, 35, 50, 65, 80].map((x, i) => (
                                 <circle key={i} cx={x} cy="73" r="2" fill="white" />
                               ))}
                               
-                              {/* Beads/Gems on Points (Mory) */}
-                              <circle cx="10" cy="50" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="50" cy="30" r="6" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="90" cy="50" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              
-                              {/* Secondary Beads */}
-                              <circle cx="30" cy="62" r="3" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                              <circle cx="70" cy="62" r="3" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              {/* Beads/Gems on 5 Points (Mory) */}
+                              <circle cx="5" cy="55" r="3.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="35" cy="45" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              <circle cx="50" cy="30" r="5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="65" cy="45" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              <circle cx="95" cy="55" r="3.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
                               
                               {/* 3D Highlight Shine */}
                               <path 
-                                d="M50 35 L50 60" 
+                                d="M50 35 L50 65" 
                                 stroke="white" strokeWidth="2" strokeOpacity="0.4" strokeLinecap="round" 
                               />
                             </svg>
