@@ -243,44 +243,32 @@ export default function LeaderboardView({ onOpenChat }) {
                              <motion.div 
                                initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
                                animate={{ 
-                                 y: [-2, 2, -2],
-                                 rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
+                                 y: [-1, 1, -1],
+                                 rotate: rank === 1 ? [-3, 3, -3] : rank === 2 ? [3, -3, 3] : [-2, 2, -2]
                                }}
-                               transition={{ repeat: Infinity, duration: rank === 1 ? 3 : rank === 2 ? 3.5 : 4, ease: "easeInOut" }}
-                               className={`absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                               transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
+                               className={`absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                              >
-                                <div className="relative w-10 h-10 flex items-center justify-center">
+                                <div className="relative w-7 h-7 flex items-center justify-center">
                                   {rank === 1 && (
-                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(251,191,36,0.7)]">
-                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#D97706" />
-                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#FBBF24" />
-                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#FBBF24" />
-                                      <circle cx="20" cy="30" r="4" fill="#FDE68A" />
-                                      <circle cx="50" cy="20" r="5" fill="#FDE68A" />
-                                      <circle cx="80" cy="30" r="4" fill="#FDE68A" />
-                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#EF4444" /> {/* Center Ruby */}
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(251,191,36,0.5)]">
+                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#FBBF24" />
+                                      <circle cx="12" cy="18" r="1.5" fill="#D97706" />
+                                      <circle cx="12" cy="5" r="1" fill="#FDE68A" />
                                     </svg>
                                   )}
                                   {rank === 2 && (
-                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(148,163,184,0.5)]">
-                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#475569" />
-                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#94A3B8" />
-                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#94A3B8" />
-                                      <circle cx="20" cy="30" r="4" fill="#CBD5E1" />
-                                      <circle cx="50" cy="20" r="5" fill="#CBD5E1" />
-                                      <circle cx="80" cy="30" r="4" fill="#CBD5E1" />
-                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#3B82F6" /> {/* Center Sapphire */}
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(148,163,184,0.3)]">
+                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#94A3B8" />
+                                      <circle cx="12" cy="18" r="1.5" fill="#475569" />
+                                      <circle cx="12" cy="5" r="1" fill="#CBD5E1" />
                                     </svg>
                                   )}
                                   {rank === 3 && (
-                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_2px_10px_rgba(180,83,9,0.5)]">
-                                      <path d="M10 80 L90 80 L90 70 L10 70 Z" fill="#78350F" />
-                                      <path d="M15 75 L85 75 L85 70 L15 70 Z" fill="#B45309" />
-                                      <path d="M10 70 L20 30 L35 55 L50 20 L65 55 L80 30 L90 70 Z" fill="#B45309" />
-                                      <circle cx="20" cy="30" r="4" fill="#D97706" />
-                                      <circle cx="50" cy="20" r="5" fill="#D97706" />
-                                      <circle cx="80" cy="30" r="4" fill="#D97706" />
-                                      <rect x="45" y="55" width="10" height="10" rx="2" fill="#10B981" /> {/* Center Emerald */}
+                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(180,83,9,0.3)]">
+                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#B45309" />
+                                      <circle cx="12" cy="18" r="1.5" fill="#78350F" />
+                                      <circle cx="12" cy="5" r="1" fill="#D97706" />
                                     </svg>
                                   )}
                                 </div>
