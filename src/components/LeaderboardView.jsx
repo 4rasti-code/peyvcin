@@ -243,34 +243,52 @@ export default function LeaderboardView({ onOpenChat }) {
                              <motion.div 
                                initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
                                animate={{ 
-                                 y: [-1, 1, -1],
-                                 rotate: rank === 1 ? [-3, 3, -3] : rank === 2 ? [3, -3, 3] : [-2, 2, -2]
+                                 y: [-2, 2, -2],
+                                 rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                                }}
                                transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                               className={`absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                               className={`absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                              >
-                                <div className="relative w-7 h-7 flex items-center justify-center">
-                                  {rank === 1 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(251,191,36,0.5)]">
-                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#FBBF24" />
-                                      <circle cx="12" cy="18" r="1.5" fill="#D97706" />
-                                      <circle cx="12" cy="5" r="1" fill="#FDE68A" />
-                                    </svg>
-                                  )}
-                                  {rank === 2 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(148,163,184,0.3)]">
-                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#94A3B8" />
-                                      <circle cx="12" cy="18" r="1.5" fill="#475569" />
-                                      <circle cx="12" cy="5" r="1" fill="#CBD5E1" />
-                                    </svg>
-                                  )}
-                                  {rank === 3 && (
-                                    <svg viewBox="0 0 24 24" className="w-full h-full drop-shadow-[0_2px_6px_rgba(180,83,9,0.3)]">
-                                      <path d="M4 18h16l-1-7-4 3-3-8-3 8-4-3-1 7z" fill="#B45309" />
-                                      <circle cx="12" cy="18" r="1.5" fill="#78350F" />
-                                      <circle cx="12" cy="5" r="1" fill="#D97706" />
-                                    </svg>
-                                  )}
+                                <div className="relative w-10 h-10 flex items-center justify-center">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+                                    <defs>
+                                      <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#FDE68A" />
+                                        <stop offset="50%" stopColor="#FBBF24" />
+                                        <stop offset="100%" stopColor="#D97706" />
+                                      </linearGradient>
+                                      <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#F1F5F9" />
+                                        <stop offset="50%" stopColor="#94A3B8" />
+                                        <stop offset="100%" stopColor="#475569" />
+                                      </linearGradient>
+                                      <linearGradient id="bronzeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#FB923C" />
+                                        <stop offset="50%" stopColor="#B45309" />
+                                        <stop offset="100%" stopColor="#78350F" />
+                                      </linearGradient>
+                                    </defs>
+                                    
+                                    {/* Crown Base */}
+                                    <path 
+                                      d="M15 75 Q50 85 85 75 L85 65 Q50 75 15 65 Z" 
+                                      fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"} 
+                                    />
+                                    
+                                    {/* Crown Points */}
+                                    <path 
+                                      d="M15 65 L5 40 L30 55 L50 20 L70 55 L95 40 L85 65" 
+                                      fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"} 
+                                    />
+                                    
+                                    {/* Decorative Gems */}
+                                    <circle cx="5" cy="40" r="4" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                                    <circle cx="50" cy="20" r="5" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                                    <circle cx="95" cy="40" r="4" fill={rank === 1 ? "#FEF3C7" : rank === 2 ? "#E2E8F0" : "#FDBA74"} />
+                                    
+                                    {/* Highlight Detail */}
+                                    <path d="M50 25 L50 45" stroke="white" strokeWidth="1" strokeOpacity="0.3" strokeLinecap="round" />
+                                  </svg>
                                 </div>
                              </motion.div>
                          )}
