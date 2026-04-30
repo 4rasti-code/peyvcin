@@ -247,10 +247,10 @@ export default function LeaderboardView({ onOpenChat }) {
                                  rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
                                }}
                                transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                               className={`absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                               className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                              >
-                                <div className="relative w-12 h-12 flex items-center justify-center">
-                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.35)]">
+                                <div className="relative w-9 h-9 flex items-center justify-center">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_3px_6px_rgba(0,0,0,0.3)]">
                                     <defs>
                                       <linearGradient id={`refGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                         <stop offset="0%" stopColor="#FFD54F" />
