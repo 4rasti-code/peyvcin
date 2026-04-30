@@ -14,17 +14,17 @@ import { getLevelFromXP } from '../utils/progression';
 import FloatingLetterBackground from './FloatingLetterBackground';
 
 export default function LeaderboardView({ onOpenChat }) {
-  const { 
-    user, 
-    userNickname, 
-    userAvatar, 
-    countryCode, 
-    isInKurdistan, 
+  const {
+    user,
+    userNickname,
+    userAvatar,
+    countryCode,
+    isInKurdistan,
     lastProfileUpdate,
-    handleToggleBlock: toggleBlockInContext, 
-    loadingAuth 
+    handleToggleBlock: toggleBlockInContext,
+    loadingAuth
   } = useUser();
-  
+
   const {
     currentXP: userXP,
     level: userLevel,
@@ -71,10 +71,10 @@ export default function LeaderboardView({ onOpenChat }) {
     }
     setLoading(true);
     setError(null);
-    
+
     try {
       let leaderData = [];
-      
+
       if (view === 'friends') {
         // 1. Get all accepted friendships
         const { data: friendships, error: fError } = await supabase
@@ -82,9 +82,9 @@ export default function LeaderboardView({ onOpenChat }) {
           .select('*')
           .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
           .eq('status', 'accepted');
-          
+
         if (fError) throw fError;
-        
+
         // 2. Map to a list of IDs including current user
         const friendIds = [userId];
         friendships.forEach(f => {
@@ -92,14 +92,14 @@ export default function LeaderboardView({ onOpenChat }) {
           friendIds.push(f.friend_id);
         });
         const uniqueIds = [...new Set(friendIds)];
-        
+
         // 3. Fetch profiles for those IDs
         const { data, error: pError } = await supabase
           .from('profiles')
           .select('*')
           .in('id', uniqueIds)
           .order('xp', { ascending: false });
-          
+
         if (pError) throw pError;
         leaderData = data || [];
       } else {
@@ -109,11 +109,11 @@ export default function LeaderboardView({ onOpenChat }) {
           .select('*')
           .order('xp', { ascending: false })
           .limit(20);
-          
+
         if (leaderError) throw leaderError;
         leaderData = data || [];
       }
-      
+
       setLeaders(leaderData);
 
       // Rank calculation: Count users with more XP
@@ -146,7 +146,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
 
   return (
-    <div 
+    <div
       onClick={handleBackgroundClick}
       className="w-full max-w-full px-4 md:px-6 pb-56 h-full relative animate-in fade-in duration-700 bg-[#020617] overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone"
     >
@@ -160,16 +160,16 @@ export default function LeaderboardView({ onOpenChat }) {
 
         {/* Top Tab Swapper - Synced Card Style */}
         <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden"
-             style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
+          style={{ backgroundColor: 'rgb(203, 213, 225)', borderColor: 'rgba(255, 255, 255, 0.2)' }}>
           {['global', 'friends'].map((tab) => {
             const isActive = view === tab;
             return (
               <button
                 key={tab}
-                onClick={() => { 
-                    triggerHaptic(10); 
-                    playTabSound();
-                    setView(tab); 
+                onClick={() => {
+                  triggerHaptic(10);
+                  playTabSound();
+                  setView(tab);
                 }}
                 className={`flex-1 py-2.5 px-4 rounded-md font-black text-sm transition-all duration-300 relative z-10 ${isActive ? 'text-white' : 'text-slate-400 hover:text-slate-600'
                   }`}
@@ -191,7 +191,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
         <AnimatePresence mode="wait">
           {!loading ? (
-            <motion.div 
+            <motion.div
               key={view}
               variants={{
                 hidden: { opacity: 0 },
@@ -227,131 +227,136 @@ export default function LeaderboardView({ onOpenChat }) {
                     whileTap={{ scale: 0.99 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
                     className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer shadow-sm`}
-                    style={{ 
+                    style={{
                       backgroundColor: 'rgb(203, 213, 225)',
                       borderColor: 'rgba(255, 255, 255, 0.2)',
                       boxShadow: 'rgba(148, 163, 184, 0.4) 0px 10px 20px -5px',
                       zIndex: isTop3 ? 50 : 1 // Ensure top 3 cards have higher z-index for floating crowns
                     }}
                   >
-                      {/* Left Side Accent Bar (Primary Yellow - Sharp) */}
-                      <div className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-[2px] bg-primary" />
+                    {/* Left Side Accent Bar (Primary Yellow - Sharp) */}
+                    <div className="absolute left-0 top-3 bottom-3 w-1.5 rounded-r-[2px] bg-primary" />
 
-                      {/* Sleek Metallic Rank Number (MINIMALIST) */}
-                      <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
-                         {rank <= 3 && (
-                             <motion.div 
-                               initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
-                               animate={{ 
-                                 y: [-2, 2, -2],
-                                 rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
-                               }}
-                               transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                               className={`absolute -top-11 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
-                             >
-                                <div className="relative w-14 h-14 flex items-center justify-center">
-                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_12px_rgba(0,0,0,0.5)]">
-                                    <defs>
-                                      <linearGradient id={`legendaryGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="#FFF9C4" />
-                                        <stop offset="30%" stopColor="#FBC02D" />
-                                        <stop offset="70%" stopColor="#F9A825" />
-                                        <stop offset="100%" stopColor="#BF360C" />
-                                      </linearGradient>
-                                      <linearGradient id={`legendarySilver-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="#F8FAFC" />
-                                        <stop offset="30%" stopColor="#94A3B8" />
-                                        <stop offset="70%" stopColor="#64748B" />
-                                        <stop offset="100%" stopColor="#1E293B" />
-                                      </linearGradient>
-                                      <linearGradient id={`legendaryBronze-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="#FFEDD5" />
-                                        <stop offset="30%" stopColor="#B45309" />
-                                        <stop offset="70%" stopColor="#92400E" />
-                                        <stop offset="100%" stopColor="#431407" />
-                                      </linearGradient>
-                                    </defs>
-                                    
-                                    {/* Bold Iconic Crown Silhouette */}
-                                    <path 
-                                      d="M10 80 L90 80 L100 40 L70 60 L50 15 L30 60 L0 40 Z" 
-                                      fill={rank === 1 ? `url(#legendaryGold-${player.id})` : rank === 2 ? `url(#legendarySilver-${player.id})` : `url(#legendaryBronze-${player.id})`}
-                                      stroke="rgba(0,0,0,0.2)"
-                                      strokeWidth="1"
-                                    />
-                                    
-                                    {/* Central Sunburst Reflection */}
-                                    <path 
-                                      d="M50 15 L50 80" 
-                                      stroke="white" 
-                                      strokeWidth="8" 
-                                      strokeOpacity="0.2" 
-                                      strokeLinecap="round" 
-                                    />
-                                    
-                                    {/* Bottom Base Detail */}
-                                    <rect x="10" y="72" width="80" height="8" rx="2" fill="rgba(0,0,0,0.15)" />
-                                    
-                                    {/* Top Jewel / Ball */}
-                                    <circle cx="50" cy="15" r="7" fill={rank === 1 ? "#FFF176" : rank === 2 ? "#F1F5F9" : "#FFB74D"} />
-                                    <circle cx="50" cy="15" r="3" fill="white" fillOpacity="0.5" />
-                                  </svg>
-                                </div>
-                             </motion.div>
-                         )}
-                         <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
-                             rank === 1 ? 'text-[#92400e]' :
-                             rank === 2 ? 'text-[#334155]' :
-                             rank === 3 ? 'text-[#7c2d12]' :
-                             'text-[#0f172a]'
-                         }`}>
-                            {toKuDigits(rank)}
-                         </span>
-                      </div>
+                    {/* Sleek Metallic Rank Number (MINIMALIST) */}
+                    <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
+                      {rank <= 3 && (
+                        <motion.div
+                          initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
+                          animate={{
+                            y: [-2, 2, -2],
+                            rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
+                          }}
+                          transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
+                          className={`absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                        >
+                          <div className="relative w-10 h-10 flex items-center justify-center">
+                            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+                              <defs>
+                                <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#FDE68A" />
+                                  <stop offset="50%" stopColor="#FBBF24" />
+                                  <stop offset="100%" stopColor="#D97706" />
+                                </linearGradient>
+                                <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#F1F5F9" />
+                                  <stop offset="50%" stopColor="#94A3B8" />
+                                  <stop offset="100%" stopColor="#475569" />
+                                </linearGradient>
+                                <linearGradient id="bronzeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" stopColor="#FB923C" />
+                                  <stop offset="50%" stopColor="#B45309" />
+                                  <stop offset="100%" stopColor="#78350F" />
+                                </linearGradient>
+                              </defs>
 
-                      {/* Avatar Section */}
-                      <div className="flex items-center gap-3 z-10 px-1">
-                         <div className="relative">
-                            {/* Clean Avatar (No Borders) */}
-                            <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0 relative z-10">
-                              <Avatar
-                                src={effectiveAvatar}
-                                updatedAt={isMe ? lastProfileUpdate : player.updated_at}
-                                size="full"
-                                className="rounded-full object-cover w-full h-full"
-                                border={false}
+                              {/* Crown Base - Bolder */}
+                              <path
+                                d="M10 75 Q50 85 90 75 L90 62 Q50 72 10 62 Z"
+                                fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"}
+                                stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
+                                strokeWidth="0.5"
                               />
-                            </div>
-                         </div>
-                      </div>
 
-                      {/* Info and Name (CENTERED) */}
-                      <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
-                         <span className="font-black text-slate-800 text-sm tracking-normal uppercase truncate leading-none">{effectiveNickname}</span>
-                         <span className="text-orange-500 text-base shrink-0">🔥</span>
-                      </div>
+                              {/* Pearls along the base */}
+                              <circle cx="20" cy="69" r="2.5" fill="white" />
+                              <circle cx="35" cy="71" r="2.5" fill="white" />
+                              <circle cx="50" cy="72" r="2.5" fill="white" />
+                              <circle cx="65" cy="71" r="2.5" fill="white" />
+                              <circle cx="80" cy="69" r="2.5" fill="white" />
 
-                      {/* Shield (RIGHT SIDE) */}
-                      <div className="flex items-center shrink-0 pr-1">
-                         <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
-                            <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                               <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="4" strokeOpacity="0.2" />
-                               <defs>
-                                  <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                                     <stop stopColor="#FFD700" />
-                                     <stop offset="1" stopColor="#B8860B" />
-                                  </linearGradient>
-                               </defs>
+                              {/* Crown Points - Bolder */}
+                              <path
+                                d="M10 62 L0 35 L28 52 L50 15 L72 52 L100 35 L90 62"
+                                fill={rank === 1 ? "url(#goldGradient)" : rank === 2 ? "url(#silverGradient)" : "url(#bronzeGradient)"}
+                                stroke={rank === 1 ? "#B45309" : rank === 2 ? "#475569" : "#78350F"}
+                                strokeWidth="0.5"
+                              />
+
+                              {/* Large Beads/Gems on Points */}
+                              <circle cx="0" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="28" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              <circle cx="50" cy="15" r="5.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+                              <circle cx="72" cy="52" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
+                              <circle cx="100" cy="35" r="4.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
+
+                              {/* Highlight Detail */}
+                              <path d="M50 20 L50 40" stroke="white" strokeWidth="1.5" strokeOpacity="0.4" strokeLinecap="round" />
                             </svg>
-                             <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
-                                <span className="text-[7px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
-                                <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
-                             </div>
-                         </div>
+                          </div>
+                        </motion.div>
+                      )}
+                      <span className={`text-2xl font-black italic tracking-normal relative z-10 ${rank === 1 ? 'text-[#92400e]' :
+                          rank === 2 ? 'text-[#334155]' :
+                            rank === 3 ? 'text-[#7c2d12]' :
+                              'text-[#0f172a]'
+                        }`}>
+                        {toKuDigits(rank)}
+                      </span>
+                    </div>
+
+                    {/* Avatar Section */}
+                    <div className="flex items-center gap-3 z-10 px-1">
+                      <div className="relative">
+                        {/* Clean Avatar (No Borders) */}
+                        <div className="w-12 h-12 rounded-full overflow-hidden shadow-sm bg-slate-100 shrink-0 relative z-10">
+                          <Avatar
+                            src={effectiveAvatar}
+                            updatedAt={isMe ? lastProfileUpdate : player.updated_at}
+                            size="full"
+                            className="rounded-full object-cover w-full h-full"
+                            border={false}
+                          />
+                        </div>
                       </div>
-                    </motion.div>
-                  );
-                })}
+                    </div>
+
+                    {/* Info and Name (CENTERED) */}
+                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
+                      <span className="font-black text-slate-800 text-sm tracking-normal uppercase truncate leading-none">{effectiveNickname}</span>
+                      <span className="text-orange-500 text-base shrink-0">🔥</span>
+                    </div>
+
+                    {/* Shield (RIGHT SIDE) */}
+                    <div className="flex items-center shrink-0 pr-1">
+                      <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
+                        <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="4" strokeOpacity="0.2" />
+                          <defs>
+                            <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                              <stop stopColor="#FFD700" />
+                              <stop offset="1" stopColor="#B8860B" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
+                          <span className="text-[7px] font-black text-slate-950/40 uppercase leading-none mb-0.5">ئاست</span>
+                          <span className="text-xl font-black text-slate-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-48 gap-4">
