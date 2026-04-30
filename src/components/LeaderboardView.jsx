@@ -240,61 +240,79 @@ export default function LeaderboardView({ onOpenChat }) {
                     {/* Sleek Metallic Rank Number (MINIMALIST) */}
                     <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
                       {rank <= 3 && (
-                        <motion.div
-                          initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
-                          animate={{
-                            y: [-2, 2, -2],
-                            rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
-                          }}
-                          transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                          className={`absolute -top-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
-                        >
-                          <div className="relative w-12 h-12 flex items-center justify-center">
-                            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_4px_10px_rgba(0,0,0,0.4)]">
-                              <defs>
-                                <linearGradient id={`chicGold-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#FFF9C4" />
-                                  <stop offset="50%" stopColor="#FBC02D" />
-                                  <stop offset="100%" stopColor="#EF6C00" />
-                                </linearGradient>
-                                <linearGradient id={`chicSilver-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#F1F5F9" />
-                                  <stop offset="50%" stopColor="#94A3B8" />
-                                  <stop offset="100%" stopColor="#334155" />
-                                </linearGradient>
-                                <linearGradient id={`chicBronze-${player.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                                  <stop offset="0%" stopColor="#FFEDD5" />
-                                  <stop offset="50%" stopColor="#B45309" />
-                                  <stop offset="100%" stopColor="#78350F" />
-                                </linearGradient>
-                              </defs>
-                              
-                              {/* 5-Point Chic Regal Crown Body */}
-                              <path 
-                                d="M10 75 Q50 82 90 75 L95 55 L80 65 L65 45 L50 65 L35 45 L20 65 L5 55 Z" 
-                                fill={rank === 1 ? `url(#chicGold-${player.id})` : rank === 2 ? `url(#chicSilver-${player.id})` : `url(#chicBronze-${player.id})`}
-                              />
-                              
-                              {/* Pearls along the base (Mercan) */}
-                              {[20, 35, 50, 65, 80].map((x, i) => (
-                                <circle key={i} cx={x} cy="73" r="2" fill="white" />
-                              ))}
-                              
-                              {/* Beads/Gems on 5 Points (Mory) */}
-                              <circle cx="5" cy="55" r="3.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="35" cy="45" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                              <circle cx="50" cy="30" r="5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              <circle cx="65" cy="45" r="3.5" fill={rank === 1 ? "#FBBF24" : rank === 2 ? "#94A3B8" : "#B45309"} />
-                              <circle cx="95" cy="55" r="3.5" fill={rank === 1 ? "#EF4444" : rank === 2 ? "#3B82F6" : "#10B981"} />
-                              
-                              {/* 3D Highlight Shine */}
-                              <path 
-                                d="M50 35 L50 65" 
-                                stroke="white" strokeWidth="2" strokeOpacity="0.4" strokeLinecap="round" 
-                              />
-                            </svg>
-                          </div>
-                        </motion.div>
+                             <motion.div 
+                               initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
+                               animate={{ 
+                                 y: [-2, 2, -2],
+                                 rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
+                               }}
+                               transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
+                               className={`absolute -top-12 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
+                             >
+                                <div className="relative w-16 h-16 flex items-center justify-center">
+                                  <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]">
+                                    <defs>
+                                      <linearGradient id={`refGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#FFD54F" />
+                                        <stop offset="50%" stopColor="#FFC107" />
+                                        <stop offset="100%" stopColor="#FFA000" />
+                                      </linearGradient>
+                                      <linearGradient id={`refSilver-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#F8FAFC" />
+                                        <stop offset="50%" stopColor="#CBD5E1" />
+                                        <stop offset="100%" stopColor="#94A3B8" />
+                                      </linearGradient>
+                                      <linearGradient id={`refBronze-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stopColor="#FFCC80" />
+                                        <stop offset="50%" stopColor="#FB8C00" />
+                                        <stop offset="100%" stopColor="#E65100" />
+                                      </linearGradient>
+                                    </defs>
+                                    
+                                    {/* Dual-Band Base */}
+                                    <path 
+                                      d="M15 85 Q50 90 85 85 L85 75 Q50 80 15 75 Z" 
+                                      fill={rank === 1 ? "#FF8F00" : rank === 2 ? "#475569" : "#BF360C"} 
+                                      stroke="#3E2723" strokeWidth="2"
+                                    />
+                                    <path 
+                                      d="M15 75 Q50 80 85 75 L85 68 Q50 73 15 68 Z" 
+                                      fill={rank === 1 ? `url(#refGold-${player.id})` : rank === 2 ? `url(#refSilver-${player.id})` : `url(#refBronze-${player.id})`}
+                                      stroke="#3E2723" strokeWidth="2"
+                                    />
+                                    
+                                    {/* 5-Point Crown Body (matching reference shape) */}
+                                    <path 
+                                      d="M15 68 Q50 73 85 68 L95 40 L75 55 L50 20 L25 55 L5 40 Z" 
+                                      fill={rank === 1 ? `url(#refGold-${player.id})` : rank === 2 ? `url(#refSilver-${player.id})` : `url(#refBronze-${player.id})`}
+                                      stroke="#3E2723" strokeWidth="2"
+                                    />
+                                    
+                                    {/* Central Diamond Gem (Purple) */}
+                                    <path 
+                                      d="M50 45 L58 55 L50 65 L42 55 Z" 
+                                      fill={rank === 1 ? "#7E57C2" : rank === 2 ? "#3B82F6" : "#EF4444"} 
+                                      stroke="#3E2723" strokeWidth="1.5"
+                                    />
+                                    
+                                    {/* 5 Beads on Points (Teal) */}
+                                    <circle cx="5" cy="40" r="5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    <circle cx="25" cy="55" r="4" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    <circle cx="50" cy="20" r="6" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    <circle cx="75" cy="55" r="4" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    <circle cx="95" cy="40" r="5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                                    
+                                    {/* Small Decorative Beads on Body */}
+                                    <circle cx="30" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+                                    <circle cx="40" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+                                    <circle cx="60" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+                                    <circle cx="70" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+                                    
+                                    {/* Highlight Reflections */}
+                                    <path d="M50 25 L50 40" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" />
+                                  </svg>
+                                </div>
+                             </motion.div>
                       )}
                       <span className={`text-2xl font-black italic tracking-normal relative z-10 ${rank === 1 ? 'text-[#92400e]' :
                           rank === 2 ? 'text-[#334155]' :
