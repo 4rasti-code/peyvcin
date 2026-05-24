@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
+import process from 'process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,8 +10,8 @@ const __dirname = path.dirname(__filename);
 // Load .env from the project root
 const envPath = path.join(__dirname, '../.env');
 const envData = fs.readFileSync(envPath, 'utf8');
-const supabaseUrl = envData.match(/VITE_SUPABASE_URL=(.*)/)?.[1]?.trim()?.replace(/['\"\r]/g, '');
-const supabaseAnonKey = envData.match(/VITE_SUPABASE_ANON_KEY=(.*)/)?.[1]?.trim()?.replace(/['\"\r]/g, '');
+const supabaseUrl = envData.match(/VITE_SUPABASE_URL=(.*)/)?.[1]?.trim()?.replace(/['"\r]/g, '');
+const supabaseAnonKey = envData.match(/VITE_SUPABASE_ANON_KEY=(.*)/)?.[1]?.trim()?.replace(/['"\r]/g, '');
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.error("Supabase credentials not found in .env");

@@ -328,8 +328,8 @@ export default function App() {
   const [isHowToPlayShowTabs, setIsHowToPlayShowTabs] = useState(true);
   const [activeChatPartner, setActiveChatPartner] = useState(null);
   const [initialSocialTab, setInitialSocialTab] = useState(null);
-  const [isRecoveringPassword, setIsRecoveringPassword] = useState(false);
-  const [isVerifyingSignup, setIsVerifyingSignup] = useState(false);
+  const [_isRecoveringPassword, setIsRecoveringPassword] = useState(false);
+  const [_isVerifyingSignup, setIsVerifyingSignup] = useState(false);
   const isRecoveringRef = useRef(false);
   const isVerifyingRef = useRef(false);
 
