@@ -309,4 +309,10 @@ export const timeWords = [
     "hint": "پشکەک ژ چار پشکێن سالێ.",
     "category": "دەم"
   }
+,
+  {
+    "word": "ئەڤرۆ",
+    "hint": "ڕۆژا نۆکە کو ئەم تێداینە",
+    "category": "دەم"
+  }
 ];
