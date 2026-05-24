@@ -258,11 +258,10 @@ export default function App() {
       const isOSDark = mediaQuery.matches;
 
       const setMetaTheme = (color) => {
-        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
-        const meta = document.createElement('meta');
-        meta.name = 'theme-color';
-        meta.content = color;
-        document.head.appendChild(meta);
+        const metas = document.querySelectorAll('meta[name="theme-color"]');
+        metas.forEach(meta => {
+          meta.setAttribute('content', color);
+        });
       };
 
       if (isDarkTheme || (currentTheme === 'default' && isOSDark)) {
