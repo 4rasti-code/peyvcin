@@ -266,9 +266,9 @@ export default function App() {
 
       if (isDarkTheme || (currentTheme === 'default' && isOSDark)) {
         document.documentElement.classList.add('dark');
-        setMetaTheme('#020617');
-        document.documentElement.style.backgroundColor = '#020617';
-        document.body.style.backgroundColor = '#020617';
+        setMetaTheme('#000000');
+        document.documentElement.style.backgroundColor = '#000000';
+        document.body.style.backgroundColor = '#000000';
       } else {
         document.documentElement.classList.remove('dark');
         setMetaTheme('#f8fafc');
