@@ -20,16 +20,22 @@
     html,
     body {
       background-color: #f8fafc !important;
-      /* light: bg-slate-50 */
       background: #f8fafc !important;
       margin: 0;
       padding: 0;
     }
 
+    @media (prefers-color-scheme: dark) {
+      html,
+      body {
+        background-color: #020617 !important;
+        background: #020617 !important;
+      }
+    }
+
     html.dark,
     html.dark body {
       background-color: #020617 !important;
-      /* dark: bg-mono-950 */
       background: #020617 !important;
     }
   </style>
