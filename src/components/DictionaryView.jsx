@@ -29,7 +29,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
   // Filter discovered (solved) words based on search and category
   const discoveredWords = useMemo(() => {
     const cleanedSearch = normalizeKurdishInput(searchTerm);
-    
+
     // 1. Get metadata for all solved words
     const myWords = (solvedWords || [])
       .map(sw => {
@@ -38,11 +38,11 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
           const wNorm = normalizeKurdishInput(w.word).toLowerCase().trim();
           return wNorm === swNorm;
         });
-        
+
         // Use empty string or skip if no category (should not happen now)
         let finalCategory = wordData?.category || '';
-        
-        return wordData 
+
+        return wordData
           ? { ...wordData, category: finalCategory }
           : { word: sw, hint: 'پەیڤەکا نوی یا هاتییە دیتن', category: '' };
       })
@@ -71,7 +71,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
 
   const categories = useMemo(() => {
     const catCounts = {};
-    
+
     // 1. Map solved words to their categories using a normalized comparison
     const solvedWithMeta = (solvedWords || []).map(sw => {
       const swNorm = normalizeKurdishInput(sw).toLowerCase().trim();
@@ -82,10 +82,10 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
     solvedWithMeta.forEach(w => {
       catCounts[w.category] = (catCounts[w.category] || 0) + 1;
     });
-    
+
     // 3. Sort categories: Most discovered first
     const sortedCats = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]);
-    
+
     return [
       { id: 'All', label: 'ھەمی', count: solvedWithMeta.length },
       ...sortedCats.map(cat => ({
@@ -118,7 +118,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
     <div className="min-h-screen bg-mono-white dark:bg-black flex flex-col items-center safe-top safe-bottom overflow-x-hidden transition-colors duration-500" dir="rtl">
       {/* Premium Minimal Header */}
       <div className="w-full max-w-lg flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-100 dark:border-mono-800/30">
-        <button 
+        <button
           onClick={() => { triggerHaptic(10); onBack(); }}
           className="w-10 h-10 rounded-[4px] bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
         >
@@ -126,9 +126,9 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
         </button>
         <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase">فەرهەنگ</h2>
         <div className="w-10 flex justify-end">
-           <div className="px-2 py-1 rounded bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10">
-              <span className="text-[10px] font-black text-mono-600 dark:text-white/70 tabular-nums">{toKuDigits(solvedWords.length)}</span>
-           </div>
+          <div className="px-2 py-1 rounded bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10">
+            <span className="text-[10px] font-black text-mono-600 dark:text-white/70 tabular-nums">{toKuDigits(solvedWords.length)}</span>
+          </div>
         </div>
       </div>
 
@@ -148,7 +148,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
         </div>
 
         {/* Categories with Drag-to-Scroll Support */}
-        <div 
+        <div
           className="flex gap-2 overflow-x-auto no-scrollbar py-1 mb-8 cursor-grab active:cursor-grabbing select-none"
           onMouseDown={(e) => {
             const el = e.currentTarget;
@@ -177,11 +177,10 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
               <button
                 key={cat.id}
                 onClick={() => { triggerHaptic(5); playTabSound(); setActiveCategory(cat.id); }}
-                className={`whitespace-nowrap px-4 py-2 rounded-[4px] font-black transition-all border uppercase flex items-center gap-2 ${
-                  isActive
-                    ? 'bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 border-mono-900 dark:border-mono-100'
-                    : 'bg-mono-white dark:bg-mono-900/20 text-mono-400 dark:text-mono-500 border-mono-200 dark:border-mono-800/60 hover:border-mono-400 dark:hover:border-mono-600'
-                }`}
+                className={`whitespace-nowrap px-4 py-2 rounded-[4px] font-black transition-all border uppercase flex items-center gap-2 ${isActive
+                  ? 'bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 border-mono-900 dark:border-mono-100'
+                  : 'bg-mono-white dark:bg-mono-900/20 text-mono-400 dark:text-mono-500 border-mono-200 dark:border-mono-800/60 hover:border-mono-400 dark:hover:border-mono-600'
+                  }`}
               >
                 <span className="text-[10px] tracking-wider">{cat.label}</span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${isActive ? 'bg-mono-50/20 dark:bg-black/20' : 'bg-mono-100 dark:bg-white/5'} tabular-nums`}>

@@ -245,7 +245,11 @@ export default function useGameLogic({
     }
 
     // DICTIONARY CHECK
-    if (dictionary && !dictionary.has(normalizeKurdishInput(guessString))) {
+    const normalizedGuess = normalizeKurdishInput(guessString);
+    const normalizedTarget = normalizeKurdishInput(target);
+    const isWin = normalizedGuess === normalizedTarget;
+
+    if (!isWin && dictionary && !dictionary.has(normalizedGuess)) {
       triggerHaptic([50, 30, 50]);
       setShakeTrigger(prev => prev + 1);
       if (onInvalidWord) onInvalidWord('not_in_dictionary');
@@ -255,7 +259,6 @@ export default function useGameLogic({
     isSubmittingRef.current = true;
 
     const colors = guessString.split('').map((_, i) => getLetterStatus(guessString, i, target));
-    const isWin = normalizeKurdishInput(guessString) === normalizeKurdishInput(target);
     const currentGuesses = guessesRef.current;
 
     // Update Guesses

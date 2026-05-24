@@ -521,18 +521,41 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
     const handleSocialLogin = async (provider) => {
         try {
+            setLoading(true);
+            setError(null);
+            console.log(`[AuthView] Starting OAuth with ${provider}...`);
+            
             playTabSound();
             triggerHaptic(10);
-            const { error } = await supabase.auth.signInWithOAuth({
+            
+            // Explicitly define the redirect URL to current location
+            const redirectTo = window.location.origin + window.location.pathname;
+            console.log(`[AuthView] Redirect URL:`, redirectTo);
+
+            const options = {
+                redirectTo: redirectTo,
+                skipBrowserRedirect: false
+            };
+
+            if (provider === 'google') {
+                options.queryParams = {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                };
+            }
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
                 provider,
-                options: {
-                    redirectTo: window.location.origin
-                }
+                options
             });
+
             if (error) throw error;
+            console.log(`[AuthView] OAuth request sent successfully:`, data);
+            
         } catch (err) {
+            console.error(`[AuthView] OAuth Error:`, err.message);
             playAlertSfx();
-            setError(err.message);
+            setError(`خەلەتییەک هەبوو د چوونا ژوورێ دا: ${err.message}`);
             setLoading(false);
         }
     };

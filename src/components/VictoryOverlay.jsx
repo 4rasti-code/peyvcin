@@ -69,12 +69,23 @@ const VictoryOverlay = ({
       playSuccessSfx();
 
       const colors = [isDark ? '#34d399' : '#059669', '#facc15', '#3b82f6', '#ffffff'];
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 },
-        colors: colors
-      });
+      
+      // Delay slightly to sync with modal entrance animation
+      setTimeout(() => {
+        const fireBurst = (x, y, count) => {
+          confetti({
+            particleCount: count,
+            spread: 60,
+            origin: { x, y },
+            colors: colors,
+            zIndex: 2000
+          });
+        };
+        
+        // Single Burst: Center
+        fireBurst(0.5, 0.6, 120);
+
+      }, 300);
     }
 
     if (isVisible) {

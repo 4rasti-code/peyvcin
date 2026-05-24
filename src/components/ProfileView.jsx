@@ -43,6 +43,7 @@ export default function ProfileView({ onProfileSave }) {
    const [draftCountryCode, setDraftCountryCode] = useState(countryCode);
    const [draftIsInKurdistan, setDraftIsInKurdistan] = useState(isInKurdistan);
    const [saveSuccess, setSaveSuccess] = useState(false);
+   const [saveError, setSaveError] = useState(null);
 
    const [isNicknameLocked, setIsNicknameLocked] = useState(true);
    const [pendingFile, setPendingFile] = useState(null);
@@ -211,7 +212,7 @@ export default function ProfileView({ onProfileSave }) {
 
       } catch (err) {
          console.error("Crop/Save failed:", err);
-         alert(`شاشی د سەیڤکرنێ دا: ${err.message}`);
+         setSaveError(err.message || 'شاشیەک ڕوویدا د سەیڤکرنا وێنەی دا');
       } finally {
          setIsUploading(false);
       }
@@ -226,6 +227,7 @@ export default function ProfileView({ onProfileSave }) {
    const handleSave = async () => {
       try {
          setIsUploading(true);
+         setSaveError(null);
          playSaveSound();
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
@@ -276,10 +278,13 @@ export default function ProfileView({ onProfileSave }) {
          setIsNicknameLocked(true);
          setPendingFile(null);
          setCroppedBlob(null);
-         if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
          setLocalPreviewUrl(null);
          setTimeout(() => setSaveSuccess(false), 2000);
-      } catch (err) { alert(`شاشی: ${err.message}`); } finally { setIsUploading(false); }
+      } catch (err) { 
+         setSaveError(err.message || 'شاشیەک ڕوویدا');
+      } finally { 
+         setIsUploading(false); 
+      }
    };
 
 
@@ -555,12 +560,15 @@ export default function ProfileView({ onProfileSave }) {
                            name="profile-nickname"
                            aria-label="Your nickname"
                            value={draftNickname}
-                           onChange={(e) => setDraftNickname(e.target.value)}
+                           onChange={(e) => {
+                              setDraftNickname(e.target.value);
+                              if (saveError) setSaveError(null);
+                           }}
                            readOnly={isNicknameLocked || isHardLocked}
                            maxLength={20}
                            className={`w-full h-12 border rounded-md px-4 font-bold font-rabar transition-all pr-12 text-right noise-grain text-[15px] ${isNicknameLocked || isHardLocked
                               ? 'bg-mono-100 dark:bg-mono-900/50 text-mono-500 dark:text-mono-400 border-mono-200 dark:border-mono-800 cursor-not-allowed'
-                              : 'bg-mono-white dark:bg-mono-900 text-mono-900 dark:text-mono-50 border-mono-300 dark:border-mono-700 shadow-sm ring-2 ring-primary/20'
+                              : saveError ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-100 border-rose-500 shadow-sm ring-2 ring-rose-500/20' : 'bg-mono-white dark:bg-mono-900 text-mono-900 dark:text-mono-50 border-mono-300 dark:border-mono-700 shadow-sm ring-2 ring-primary/20'
                               }`}
                         />
                         <button
@@ -609,10 +617,16 @@ export default function ProfileView({ onProfileSave }) {
                   {!isNicknameLocked && !isHardLocked && (
                      <div className="w-full text-right px-1 mt-1">
                         <AnimatePresence>
-                           {draftNickname.length > 0 && draftNickname.length < 8 && (
+                           {saveError && (
+                              <Motion.div initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="flex items-center justify-end gap-1.5 text-rose-600 dark:text-rose-400 mt-1 mb-1">
+                                 <span className="text-[12px] font-black">{saveError}</span>
+                                 <span className="material-symbols-outlined text-[16px]">error</span>
+                              </Motion.div>
+                           )}
+                           {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
                               <Motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-rose-600 dark:text-rose-400 text-[11px] font-black">نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت</Motion.p>
                            )}
-                           {draftNickname.length > 15 && (
+                           {draftNickname.length > 15 && !saveError && (
                               <Motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-rose-600 dark:text-rose-400 text-[11px] font-black">نابیت ناڤێ تە ژ ١٥ پیتان زێدەتر بیت</Motion.p>
                            )}
                         </AnimatePresence>

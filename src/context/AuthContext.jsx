@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
     if (!loadingAuth) return;
-    
+
     const interval = setInterval(() => {
       setVisualProgress(prev => {
         if (prev >= 100) return 100;
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         return next > 100 ? 100 : next;
       });
     }, 50);
-    
+
     return () => clearInterval(interval);
   }, [authProgress, loadingAuth]);
 
@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
     return saved !== null ? saved === 'true' : true;
   });
-  
+
   // 3.3 VOICE SETTINGS: Persistent global states
   const [micEnabled, setMicEnabled] = useState(true);
   const [micVolume, setMicVolume] = useState(100);
@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   const syncProfile = useCallback(async (userId, onProfileLoaded, force = false) => {
     const activeUserId = userId || authStateRef.current.user?.id;
     if (!activeUserId || activeUserId === 'undefined' || typeof activeUserId !== 'string' || activeUserId.length < 5) return;
-    
+
     // 1. LOBBYING GUARD: Prevent rapid fire calls
     const now = Date.now();
     if (!force && now - lastSyncTimeRef.current < 2000) {
@@ -90,12 +90,12 @@ export const AuthProvider = ({ children }) => {
     try {
       isSyncingRef.current = true;
       lastSyncTimeRef.current = now;
-      
+
       // Lock immediately
       isProfileLoaded.current = true;
 
       console.log("[AuthContext] Fetching profile for:", activeUserId);
-      
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -103,43 +103,63 @@ export const AuthProvider = ({ children }) => {
         .single();
 
       if (error) {
-        if (error.code === 'PGRST116') {
+        // PostgREST returns 406 (Not Acceptable) when .single() finds 0 rows with the specific Accept header
+        if (error.code === 'PGRST116' || error.status === 406) {
           console.warn("[AuthContext] No profile found. Attempting client-side self-heal for:", activeUserId);
-          
-          // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
-          // This happens if the DB trigger fails during signup.
-          const { data: newData, error: insertError } = await supabase
-            .from('profiles')
-            .insert([{
-              id: activeUserId,
-              nickname: authStateRef.current.user?.user_metadata?.nickname || 'یاریکەر',
-              avatar_url: 'default',
-              fils: 100,
-              derhem: 10,
-              dinar: 5,
-              magnets: 3,
-              hints: 3,
-              skips: 3,
-              inventory: { owned_avatars: ["default"], unlocked_themes: ["default"], solved_words: [] },
-              haptic_enabled: true,
-              mic_enabled: false,
-              speaker_enabled: true,
-              voice_volume: 1.0,
-              mic_volume: 1.0
-            }])
-            .select()
-            .single();
 
-          if (insertError) {
-            console.error("[AuthContext] Self-heal failed:", insertError.message);
-            throw insertError;
+          let nickname = authStateRef.current.user?.user_metadata?.nickname ||
+            authStateRef.current.user?.user_metadata?.username ||
+            authStateRef.current.user?.user_metadata?.full_name ||
+            'یاریکەر';
+
+          // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
+          // We wrap this in a loop to handle nickname conflicts client-side too
+          let success = false;
+          let attempts = 0;
+          let lastError = null;
+
+          while (!success && attempts < 3) {
+            const currentNickname = attempts === 0 ? nickname : `${nickname}_${activeUserId.substring(0, 4)}`;
+
+            const { data: newData, error: insertError } = await supabase
+              .from('profiles')
+              .insert([{
+                id: activeUserId,
+                nickname: currentNickname,
+                onboarded: false, // Force false for social signups
+                avatar_url: 'default',
+                fils: 100,
+                derhem: 10,
+                dinar: 5,
+                magnets: 3,
+                hints: 3,
+                skips: 3,
+                inventory: { owned_avatars: ["default"], unlocked_themes: ["default"], solved_words: [] },
+                haptic_enabled: true,
+                mic_enabled: false,
+                speaker_enabled: true,
+                voice_volume: 1.0,
+                mic_volume: 1.0
+              }])
+              .select()
+              .single();
+
+            if (!insertError) {
+              console.log("[AuthContext] Self-heal successful with nickname:", currentNickname);
+              return handleProfileData(newData, onProfileLoaded);
+            }
+
+            lastError = insertError;
+            if (insertError.code === '23505') { // Unique constraint violation
+              attempts++;
+              nickname = `${nickname}_${Math.floor(Math.random() * 1000)}`;
+            } else {
+              break; // Other error, don't retry
+            }
           }
-          
-          if (newData) {
-            console.log("[AuthContext] Self-heal successful!");
-            // Use the newly created data and continue as normal
-            return handleProfileData(newData, onProfileLoaded);
-          }
+
+          console.error("[AuthContext] Self-heal failed:", lastError?.message);
+          throw lastError;
         }
         throw error;
       }
@@ -163,7 +183,7 @@ export const AuthProvider = ({ children }) => {
     setCity(prev => prev !== data.city ? (data.city || '') : prev);
     setIsInKurdistan(prev => prev !== data.is_kurdistan ? (data.is_kurdistan ?? true) : prev);
     setCountryCode(prev => prev !== data.country_code ? (data.country_code || 'IQ') : prev);
-    
+
     if (data.last_nickname_update) {
       setLastNicknameUpdate(data.last_nickname_update);
     }
@@ -172,7 +192,7 @@ export const AuthProvider = ({ children }) => {
       const next = Array.isArray(data.owned_avatars) ? data.owned_avatars : ['default'];
       return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
     });
-    
+
     const haptic = data.haptic_enabled ?? true;
     setHapticEnabled(prev => {
       if (prev !== haptic) {
@@ -188,13 +208,13 @@ export const AuthProvider = ({ children }) => {
     setVoiceVolume(data.voice_volume ?? 100);
 
     localStorage.setItem('peyvchin_cached_profile', JSON.stringify(data));
-    
+
     setProfileData(prev => {
-       if (!prev && !data) return null;
-       if (prev && data && prev.xp === data.xp && prev.fils === data.fils && prev.updated_at === data.updated_at) {
-         return prev;
-       }
-       return data;
+      if (!prev && !data) return null;
+      if (prev && data && prev.xp === data.xp && prev.fils === data.fils && prev.updated_at === data.updated_at) {
+        return prev;
+      }
+      return data;
     });
 
     if (onProfileLoaded) onProfileLoaded(data);
@@ -220,61 +240,73 @@ export const AuthProvider = ({ children }) => {
 
       try {
         setAuthProgress(15);
-        
+
         // OPTIMIZATION: Check for cached profile BEFORE session if possible
-        // This allows us to show the UI even faster if we have a valid cache
         const cachedProfile = localStorage.getItem('peyvchin_cached_profile');
         if (cachedProfile) {
-          console.log("[AuthContext] Found cached profile, pre-loading...");
           const data = safeJSONParse(cachedProfile, null, 'peyvchin_cached_profile');
           if (data) {
             setProfileData(data);
             setUserNickname(data.nickname || 'یاریزان');
             setUserAvatar(data.avatar_url || 'default');
           }
-          // Don't unlock fully yet, we still need to verify session
         }
 
         console.log("[AuthContext] Checking session...");
         setAuthProgress(30);
-        
+
+        // Immediate check for OAuth redirect tokens, PKCE codes, or recovery tokens in the URL
+        const hasToken = (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'))) ||
+          (window.location.search && (window.location.search.includes('code=') || window.location.search.includes('error=')));
+
+        if (hasToken) {
+          console.log("[AuthContext] Auth token/code detected in URL, adding delay for Supabase processing...");
+          setAuthProgress(50);
+          // Small delay to let Supabase process the URL before we call getSession
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         // Fast session check
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         if (session?.user) {
-          setAuthProgress(60);
+          setAuthProgress(80);
           console.log("[AuthContext] Active session recovered:", session.user.id);
           setUser(session.user);
-          
+
           if (cachedProfile) {
-            console.log("[AuthContext] Instant unlock via cached profile.");
             setAuthProgress(100);
             setLoadingAuth(false);
             setLoading(false);
           }
-          
+
           // Sync in background
-          syncProfile(session.user.id);
+          await syncProfile(session.user.id);
+        } else if (hasToken) {
+          // If we have a token/code but getSession failed, wait a bit longer for onAuthStateChange
+          console.log("[AuthContext] Token exists but session null, waiting for AuthChange event...");
+          await new Promise(resolve => setTimeout(resolve, 1500));
         } else {
           setAuthProgress(100);
-          console.log("[AuthContext] No active session found, proceeding as guest.");
+          console.log("[AuthContext] No active session found.");
         }
       } catch (err) {
         console.log("[AuthContext] [Notice] Auth check deferred:", err.message);
       } finally {
         clearTimeout(safetyTimeout);
-        // Force completion if not already done
         setAuthProgress(100);
         setTimeout(() => {
           setLoadingAuth(false);
           setLoading(false);
-        }, 100);
+        }, 200);
       }
     };
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`[AuthContext] 🔔 Auth Event: ${event}`, session?.user ? `User: ${session.user.id}` : "No Session");
+
       const newUser = session?.user || null;
       setUser(prev => {
         if (!prev && !newUser) return null;
@@ -284,9 +316,11 @@ export const AuthProvider = ({ children }) => {
 
       if (newUser) {
         if (!isProfileLoaded.current) {
+          console.log("[AuthContext] User detected via event, syncing profile...");
           syncProfile(newUser.id);
         }
       } else {
+        console.log("[AuthContext] Session cleared via event.");
         isProfileLoaded.current = false;
         setProfileData(null);
       }
@@ -314,7 +348,7 @@ export const AuthProvider = ({ children }) => {
         (payload) => {
           console.log("🔄 [AuthContext] Profile Sync Update:", payload.new);
           setProfileData(payload.new);
-          
+
           // Update derived identity states if they changed
           if (payload.new.nickname) setUserNickname(payload.new.nickname);
           if (payload.new.avatar_url) setUserAvatar(payload.new.avatar_url);
@@ -328,6 +362,35 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user?.id]);
 
+  const completeOnboarding = useCallback(async (nickname) => {
+    if (!user?.id) return { success: false, error: "Must be logged in" };
+    try {
+      const { error } = await supabase.rpc('complete_onboarding', { p_nickname: nickname });
+      if (error) throw error;
+
+      // Update local state immediately
+      setUserNickname(nickname);
+      setProfileData(prev => {
+        const next = { ...prev, nickname, onboarded: true };
+        localStorage.setItem('peyvchin_cached_profile', JSON.stringify(next));
+        return next;
+      });
+
+      // Also update auth metadata
+      await supabase.auth.updateUser({
+        data: {
+          nickname: nickname,
+          name: nickname,
+        }
+      });
+
+      return { success: true };
+    } catch (err) {
+      console.error("Onboarding failed:", err);
+      return { success: false, error: err.message };
+    }
+  }, [user?.id]);
+
   const updateProfile = useCallback(async (profileData) => {
     const { user: currentUser, userNickname, userAvatar, countryCode, isInKurdistan } = authStateRef.current;
     if (!currentUser?.id) return { success: false, error: "Must be logged in" };
@@ -337,6 +400,7 @@ export const AuthProvider = ({ children }) => {
     if (profileData.city !== undefined) setCity(profileData.city);
     if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
     if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
+    if (profileData.onboarded !== undefined) setProfileData(prev => ({ ...prev, onboarded: profileData.onboarded }));
 
     if (profileData.haptic_enabled !== undefined) {
       setHapticEnabled(profileData.haptic_enabled);
@@ -376,6 +440,7 @@ export const AuthProvider = ({ children }) => {
       if (profileData.speaker_enabled !== undefined) directUpdates.speaker_enabled = profileData.speaker_enabled;
       if (profileData.voice_volume !== undefined) directUpdates.voice_volume = profileData.voice_volume;
       if (profileData.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData.haptic_enabled;
+      if (profileData.onboarded !== undefined) directUpdates.onboarded = profileData.onboarded;
 
       if (Object.keys(directUpdates).length > 0) {
         const { error: updateError } = await supabase
@@ -387,9 +452,9 @@ export const AuthProvider = ({ children }) => {
 
       setLastProfileUpdate(Date.now());
       return { success: true };
-    } catch (err) { 
+    } catch (err) {
       console.error("Profile update failed:", err);
-      return { success: false, error: err.message }; 
+      return { success: false, error: err.message };
     }
   }, []);
 
@@ -419,12 +484,12 @@ export const AuthProvider = ({ children }) => {
     ownedAvatars, setOwnedAvatars, hapticEnabled, setHapticEnabled,
     micEnabled, setMicEnabled, micVolume, setMicVolume, speakerEnabled, setSpeakerEnabled, voiceVolume, setVoiceVolume,
     lastProfileUpdate, setLastProfileUpdate,
-    syncProfile, refreshProfile: syncProfile, updateProfile, handleToggleBlock, checkBlockStatus,
+    syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
-    user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan, 
-    countryCode, ownedAvatars, hapticEnabled, micEnabled, micVolume, speakerEnabled, voiceVolume, syncProfile, 
-    updateProfile, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate
+    user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
+    countryCode, ownedAvatars, hapticEnabled, micEnabled, micVolume, speakerEnabled, voiceVolume, syncProfile,
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

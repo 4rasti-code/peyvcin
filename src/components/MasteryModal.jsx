@@ -7,12 +7,20 @@ const MasteryModal = ({ isOpen, onClose, targetWord, stats, gameMode, isDark }) 
   useEffect(() => {
     if (isOpen) {
       const colors = [isDark ? '#34d399' : '#059669', '#facc15', '#3b82f6', '#ffffff'];
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 },
-        colors: colors
-      });
+      
+      setTimeout(() => {
+        const fireBurst = (x, y, count) => {
+          confetti({
+            particleCount: count,
+            spread: 60,
+            origin: { x, y },
+            colors: colors,
+            zIndex: 6000
+          });
+        };
+        
+        fireBurst(0.5, 0.6, 120);
+      }, 300);
       // Mastery Triple-Pulse (Extra strong)
       triggerHaptic([50, 70, 50, 70, 100]);
     }

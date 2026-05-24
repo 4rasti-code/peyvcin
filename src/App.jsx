@@ -58,6 +58,7 @@ const SocialHubView = lazyWithRetry(() => import('./components/SocialHubView'));
 const ShopView = lazyWithRetry(() => import('./components/ShopView'));
 const ProfileView = lazyWithRetry(() => import('./components/ProfileView'));
 const AuthView = lazyWithRetry(() => import('./components/AuthView'));
+const OnboardingView = lazyWithRetry(() => import('./components/OnboardingView'));
 const DictionaryView = lazyWithRetry(() => import('./components/DictionaryView'));
 const SettingsModal = lazyWithRetry(() => import('./components/SettingsModal'));
 const HowToPlayModal = lazyWithRetry(() => import('./components/HowToPlayModal'));
@@ -686,10 +687,10 @@ export default function App() {
     triggerHaptic([50, 100, 50]); setTimeout(() => setHintLimitToast(prev => ({ ...prev, visible: false })), 3000);
   }, []);
 
-  const gameRefs = useRef({ targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps });
+  const gameRefs = useRef({ targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys });
   useEffect(() => {
-    Object.assign(gameRefs.current, { targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps });
-  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps]);
+    Object.assign(gameRefs.current, { targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys });
+  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys]);
 
   const handleOnEnter = useCallback(async () => {
     await onEnter();
@@ -711,18 +712,33 @@ export default function App() {
   }, [triggerHint, updateInventory, playBoosterSound, showHintLimitToast, getMaxHintsForWord]);
 
   const handleMagnet = useCallback(() => {
-    const { magnetCount: mCount, isVictory: isV, targetWord: tWord, magnetDisabledKeys: mDisabled } = gameRefs.current;
+    const { magnetCount: mCount, isVictory: isV, targetWord: tWord, magnetDisabledKeys: mDisabled, usedKeys: uKeys } = gameRefs.current;
 
     if (mCount <= 0 || isV) return;
-    triggerHaptic(30);
-    playBoosterSound();
 
     const alphabet = 'ئابپت جچحخد ڕزژسشعغفقکگ لڵمنوۆھەیێ'.replace(/\s/g, '').split('');
     const targetSet = new Set(tWord.split(''));
-    const incorrect = alphabet.filter(char => !targetSet.has(char) && !mDisabled.includes(char));
+    // Safely check if char is in usedKeys (absent/present/correct)
+    const incorrect = alphabet.filter(char => {
+      const isTarget = targetSet.has(char);
+      const isDisabled = mDisabled && mDisabled.includes(char);
+      const isUsed = uKeys && uKeys[char];
+      return !isTarget && !isDisabled && !isUsed;
+    });
+
+    if (incorrect.length === 0) {
+      triggerHaptic([50, 100, 50]);
+      setHintLimitToast({ visible: true, message: 'چ پیتێن شاش یێن دی نەماینە' });
+      setTimeout(() => setHintLimitToast(prev => ({ ...prev, visible: false })), 3000);
+      return;
+    }
+
+    triggerHaptic(30);
+    playBoosterSound();
+
     const toDisable = incorrect.sort(() => 0.5 - Math.random()).slice(0, 3);
 
-    setMagnetDisabledKeys(prev => [...prev, ...toDisable]);
+    setMagnetDisabledKeys(prev => [...(prev || []), ...toDisable]);
     setMagnetsUsedInRound(prev => prev + 1);
     updateInventory({
       magnetCount: -1
@@ -760,19 +776,26 @@ export default function App() {
   // MANDATORY AUTHENTICATION ENFORCEMENT & HEARTBEAT (Online Status)
   useEffect(() => {
     if (!isGameLoading && !loadingAuth) {
+      console.log(`[App] Auth Guard Check - User: ${user ? 'YES' : 'NO'}, View: ${currentView}`);
+      
       if (!user) {
-        requestAnimationFrame(() => setCurrentView('auth'));
-      } else if (currentView === 'auth') {
-        // Guard: Prevent redirecting to lobby if user is in the middle of password recovery or signup verification
-        // Using Ref here for instant detection during the signup/recovery race conditions
-        if (isRecoveringRef.current || isVerifyingRef.current) {
-          console.log("[App] Redirect blocked: Verification/Recovery in progress");
-          return;
+        if (currentView !== 'auth') {
+          console.log("[App] No user found, forcing AuthView...");
+          requestAnimationFrame(() => setCurrentView('auth'));
         }
-        requestAnimationFrame(() => setCurrentView('lobby'));
+      } else {
+        if (currentView === 'auth') {
+          // Guard: Prevent redirecting to lobby if user is in the middle of password recovery or signup verification
+          if (isRecoveringRef.current || isVerifyingRef.current) {
+            console.log("[App] Redirect blocked: Verification/Recovery in progress");
+            return;
+          }
+          console.log("[App] User detected on AuthView, redirecting to Lobby...");
+          requestAnimationFrame(() => setCurrentView('lobby'));
+        }
       }
     }
-  }, [user, isGameLoading, loadingAuth, currentView, isRecoveringPassword, isVerifyingSignup]);
+  }, [user, isGameLoading, loadingAuth, currentView]);
 
   // REAL-TIME NOTIFICATIONS (Messages & Friend Requests)
   useEffect(() => {
@@ -841,8 +864,7 @@ export default function App() {
   const handleProfileSave = async (profileData) => {
     if (!user || !user.id) {
       console.error("Save attempted without user session");
-      alert('هێڤییە پێشێ وەرە ژوور (Login)');
-      return;
+      throw new Error('هێڤییە پێشێ وەرە ژوور (Login)');
     }
 
     try {
@@ -862,14 +884,17 @@ export default function App() {
         const errCode = result.error?.code;
         const errMsg = result.error?.message || 'Update failed';
         if (errCode === '23505') {
-          alert('ئەڤ ناڤە یێ ھاتییە بکارهینان، تاقی بکە ناڤەکێ دی بنڤیسی');
+          throw new Error('ئەڤ ناڤە یێ ھاتییە بکارهینان، تاقی بکە ناڤەکێ دی بنڤیسی');
         } else {
-          alert(`شاشی: ${errMsg}`);
+          throw new Error(errMsg);
         }
       }
     } catch (err) {
       console.error("Critical handleProfileSave error:", err);
-      alert("ئاریشەیەک د گەھشتنا داتابەیسێ دا ھەبوو");
+      if (err.message === 'ئەڤ ناڤە یێ ھاتییە بکارهینان، تاقی بکە ناڤەکێ دی بنڤیسی' || err.message === 'هێڤییە پێشێ وەرە ژوور (Login)') {
+        throw err;
+      }
+      throw new Error(err.message || "ئاریشەیەک د گەھشتنا داتابەیسێ دا ھەبوو");
     }
   };
 
@@ -1570,6 +1595,11 @@ export default function App() {
                 dailyStreak={dailyStreak}
                 onViewChange={navigateTo}
               />
+            )}
+            
+            {/* SOCIAL ONBOARDING OVERLAY */}
+            {user && profileData && (profileData.onboarded === false || profileData.onboarded === null) && (
+              <OnboardingView />
             )}
           </Suspense>
 

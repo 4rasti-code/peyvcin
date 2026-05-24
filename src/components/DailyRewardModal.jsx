@@ -96,12 +96,20 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
         playDailyClaimSfx();
         
         if (result.streak === 7) {
-          confetti({
-            particleCount: 200,
-            spread: 90,
-            origin: { y: 0.6 },
-            colors: ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff']
-          });
+          setTimeout(() => {
+            const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
+            const fireBurst = (x, y, count) => {
+              confetti({
+                particleCount: count,
+                spread: 60,
+                origin: { x, y },
+                colors: colors,
+                zIndex: 2000
+              });
+            };
+            
+            fireBurst(0.5, 0.6, 120);
+          }, 300);
         }
         
         setTimeout(() => {

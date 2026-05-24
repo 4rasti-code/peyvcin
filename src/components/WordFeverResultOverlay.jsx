@@ -55,12 +55,21 @@ const WordFeverResultOverlay = ({
     if (isVisible && isWin && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       const colors = ['#0ea5e9', '#22d3ee', '#3b82f6', '#ffffff'];
-      confetti({
-        particleCount: 150,
-        spread: 100,
-        origin: { y: 0.6 },
-        colors: colors
-      });
+      
+      setTimeout(() => {
+        const fireBurst = (x, y, count) => {
+          confetti({
+            particleCount: count,
+            spread: 60,
+            origin: { x, y },
+            colors: colors,
+            zIndex: 2000
+          });
+        };
+        
+        fireBurst(0.5, 0.6, 120);
+      }, 300);
+      
       triggerHaptic([30, 50, 30, 50, 60]);
       playSuccessSfx();
     } else if (isVisible && !isWin && !hasTriggeredRef.current) {

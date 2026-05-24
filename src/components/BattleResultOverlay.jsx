@@ -72,12 +72,20 @@ const BattleResultOverlay = ({
         playSuccessSfx();
         playRewardSfx();
         const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
-        confetti({
-          particleCount: 150,
-          spread: 100,
-          origin: { y: 0.6 },
-          colors: colors
-        });
+        
+        setTimeout(() => {
+          const fireBurst = (x, y, count) => {
+            confetti({
+              particleCount: count,
+              spread: 60,
+              origin: { x, y },
+              colors: colors,
+              zIndex: 3000
+            });
+          };
+          
+          fireBurst(0.5, 0.6, 120);
+        }, 300);
       }
     }
   }, [isVisible, result, isDark, isVictory]);
