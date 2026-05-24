@@ -257,10 +257,20 @@ export default function App() {
       const isDarkTheme = currentTheme === 'zakho_nights' || currentTheme === 'dark';
       const isOSDark = mediaQuery.matches;
 
+      const setMetaTheme = (color) => {
+        document.querySelectorAll('meta[name="theme-color"]').forEach(el => el.remove());
+        const meta = document.createElement('meta');
+        meta.name = 'theme-color';
+        meta.content = color;
+        document.head.appendChild(meta);
+      };
+
       if (isDarkTheme || (currentTheme === 'default' && isOSDark)) {
         document.documentElement.classList.add('dark');
+        setMetaTheme('#020617');
       } else {
         document.documentElement.classList.remove('dark');
+        setMetaTheme('#f8fafc');
       }
     };
 
