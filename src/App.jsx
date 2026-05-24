@@ -268,9 +268,13 @@ export default function App() {
       if (isDarkTheme || (currentTheme === 'default' && isOSDark)) {
         document.documentElement.classList.add('dark');
         setMetaTheme('#020617');
+        document.documentElement.style.backgroundColor = '#020617';
+        document.body.style.backgroundColor = '#020617';
       } else {
         document.documentElement.classList.remove('dark');
         setMetaTheme('#f8fafc');
+        document.documentElement.style.backgroundColor = '#f8fafc';
+        document.body.style.backgroundColor = '#f8fafc';
       }
     };
 
