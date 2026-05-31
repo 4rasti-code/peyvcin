@@ -23,7 +23,7 @@ export default function InfoBar({
   const isHardWords = gameMode === 'hard_words';
   const isSecretWord = gameMode === 'secret_word';
   const displayCategory = category === 'generalWordPool' ? '...' : (category || '...');
-  const displayText = isMamak ? (targetHint || '...') : (displayCategory || '...');
+  const displayText = (isMamak || isWordFever) ? (targetHint || '...') : (displayCategory || '...');
   
   // Theme-aware styles
   const textMain = isDark ? 'text-white' : 'text-slate-800';
@@ -52,6 +52,12 @@ export default function InfoBar({
 
   // Minimalist View for Classic, Word Fever, OR Mamak Mode
   if (isClassic || isWordFever || isMamak || isHardWords || isSecretWord) {
+    
+    // Hide entirely for Classic and Hard Words modes as requested
+    if (isClassic || isHardWords) {
+      return null;
+    }
+
     return (
       <div className="w-full flex flex-col items-center justify-center py-0 px-4 sm:px-8 mt-2 animate-in fade-in duration-700 relative">
         

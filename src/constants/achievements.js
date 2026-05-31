@@ -27,14 +27,7 @@ export const ACHIEVEMENTS_CONFIG = [
     statKey: 'total_words_found',
     thresholds: [500, 2500, 5000, 10000]
   },
-  {
-    id: 'night_phantom',
-    name: 'سیبەرا شەڤێ',
-    description: 'سەرکەفتن د مۆدێ پەیڤا نهێنی دا',
-    icon: 'visibility_off',
-    statKey: 'secret_wins',
-    thresholds: [50, 150, 300, 500]
-  },
+
   {
     id: 'culture_guardian',
     name: 'پارێزەرێ کەلتووری',

@@ -100,8 +100,7 @@ export const calculateDefeatPenalty = (word, allGuesses, mode = 'classic') => {
     'word_fever': 1.0,
     'mamak': 0.2,
     'hard_words': 1.0,
-    'battle': 2.0,
-    'secret_word': 1.5
+    'battle': 2.0
   };
 
   const mult = multipliers[mode] || 0.5;

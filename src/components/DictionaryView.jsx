@@ -39,14 +39,15 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
           return wNorm === swNorm;
         });
 
-        // Use empty string or skip if no category (should not happen now)
-        let finalCategory = wordData?.category || '';
+        // If word is not found in the main dictionary, assign it to 'گشتی' (General)
+        let finalCategory = wordData?.category || 'گشتی';
 
         return wordData
           ? { ...wordData, category: finalCategory }
-          : { word: sw, hint: 'پەیڤەکا نوی یا هاتییە دیتن', category: '' };
-      })
-      .filter(w => w.category !== ''); // Only show categorized words
+          : { word: sw, hint: 'پەیڤەکا نوی یا هاتییە دیتن', category: 'گشتی' };
+      });
+      // Removed the filter(w => w.category !== '') so all words appear
+
 
 
     // 2. Remove duplicates
@@ -55,7 +56,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
     );
 
     // 3. Apply Category and Search Filter
-    return uniqueSolved
+    const filteredList = uniqueSolved
       .filter(item => {
         if (activeCategory === 'All') return true;
         return item.category === activeCategory;
@@ -67,6 +68,9 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
         const cleanedHint = normalizeKurdish(item.hint);
         return cleanedWord.includes(searchNorm) || cleanedHint.includes(searchNorm);
       });
+      
+    // Reverse so the most recently found words appear at the top
+    return filteredList.reverse();
   }, [allWordsWithCategories, solvedWords, activeCategory, searchTerm]);
 
   const categories = useMemo(() => {
@@ -75,8 +79,9 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
     // 1. Map solved words to their categories using a normalized comparison
     const solvedWithMeta = (solvedWords || []).map(sw => {
       const swNorm = normalizeKurdishInput(sw).toLowerCase().trim();
-      return allWordsWithCategories.find(w => normalizeKurdishInput(w.word).toLowerCase().trim() === swNorm);
-    }).filter(w => w && w.category);
+      const found = allWordsWithCategories.find(w => normalizeKurdishInput(w.word).toLowerCase().trim() === swNorm);
+      return found ? found : { word: sw, category: 'گشتی' };
+    });
 
     // 2. Count occurrences per category
     solvedWithMeta.forEach(w => {

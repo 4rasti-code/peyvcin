@@ -11,7 +11,7 @@ export const GameProvider = ({ children }) => {
   const { user, loadingAuth, syncProfile, profileData } = useUser();
 
   const [lastNotifiedLevel, setLastNotifiedLevel] = useState(1);
-  const [winsTowardsSecret, setWinsTowardsSecret] = useState(0);
+
   
   // INITIALIZATION: Priority to localStorage to prevent "Zero-Reset" on re-renders
   const [currentXP, setCurrentXP] = useState(() => {
@@ -60,7 +60,6 @@ export const GameProvider = ({ children }) => {
     const defaultStats = {
       classic: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
       mamak: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
-      secret_word: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
       word_fever: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
       hard_words: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
       battle: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } }
@@ -76,7 +75,7 @@ export const GameProvider = ({ children }) => {
   const gameStateRef = useRef({ 
     user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
     currentXP, level, inventory,
-    dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret,
+    dailyStreak, rewardStreak, lastRewardClaimedAt,
     playerStats, solvedWords
   });
 
@@ -84,13 +83,13 @@ export const GameProvider = ({ children }) => {
     gameStateRef.current = { 
       user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
       currentXP, level, inventory,
-      dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret,
+      dailyStreak, rewardStreak, lastRewardClaimedAt,
       playerStats, solvedWords
     };
   }, [
     user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
     currentXP, level, inventory,
-    dailyStreak, rewardStreak, lastRewardClaimedAt, winsTowardsSecret,
+    dailyStreak, rewardStreak, lastRewardClaimedAt,
     playerStats, solvedWords
   ]);
 
@@ -162,12 +161,25 @@ export const GameProvider = ({ children }) => {
         console.log("[GameContext] Applying profile progression sync...");
         lastAppliedProfileRef.current = profileSignature;
         
-        // Safety: Only overwrite local XP if the remote XP is higher OR if local XP is 0
+        // Safety: If local XP is greater than remote XP, force a sync to prevent data loss.
+        // Otherwise, only apply the remote XP if it's higher than the local XP.
         const remoteXP = Number(profileData.xp || 0);
-        
-        // Batch updates: React 18+ will batch these automatically, 
-        // but the checks prevent redundant state triggers.
-        setCurrentXP(prev => (prev === 0 || remoteXP > prev) ? remoteXP : prev);
+        setCurrentXP(prev => {
+          if (prev > remoteXP) {
+            console.log(`[GameContext] Local XP (${prev}) > Remote XP (${remoteXP}). Triggering force sync.`);
+            supabase.rpc('merge_profile_progress', {
+              p_xp: prev,
+              p_fils: getInitial('peyvchin_fils', 500),
+              p_derhem: getInitial('peyvchin_derhem', 10),
+              p_dinar: getInitial('peyvchin_dinar', 5)
+            }).then(({error}) => {
+               if(error) console.error("Force sync failed:", error);
+               else console.log("Force sync successful.");
+            });
+            return prev;
+          }
+          return (prev === 0 || remoteXP > prev) ? remoteXP : prev;
+        });
         
         const serverNotifiedLevel = profileData.last_notified_level;
         const currentLevelFromXP = getLevelFromXP(remoteXP);
@@ -195,14 +207,6 @@ export const GameProvider = ({ children }) => {
         setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
         setLastRewardClaimedAt(prev => prev !== profileData.last_reward_claimed_at ? profileData.last_reward_claimed_at : prev);
         
-        const localWins = Number(localStorage.getItem('peyvchin_wins_towards_secret') || 0);
-        const dbWins = profileData.wins_towards_secret || 0;
-        setWinsTowardsSecret(prev => {
-          const next = Math.max(prev, dbWins, localWins);
-          if (next !== prev) localStorage.setItem('peyvchin_wins_towards_secret', next.toString());
-          return next;
-        });
-
         // --- CONSOLIDATED SOLVED WORDS SYNC (MERGE STRATEGY) ---
         const remoteWords = Array.isArray(profileData.solved_words) ? profileData.solved_words : [];
         const inventoryWords = (profileData.inventory && Array.isArray(profileData.inventory.solved_words)) 
@@ -526,7 +530,6 @@ export const GameProvider = ({ children }) => {
         p_is_win: additionalData.isWin !== undefined ? additionalData.isWin : true,
         p_attempts: additionalData.attempts || 0,
         p_is_flawless: (additionalData.hintsUsed === 0 && additionalData.magnetsUsed === 0),
-        p_is_secret_win: mode === 'secret_word',
         p_is_riddle_no_skip: (mode === 'mamak' && additionalData.hintsUsed === 0),
         p_is_pvp_flawless: additionalData.isPvPFlawless || false
       });
@@ -615,26 +618,6 @@ export const GameProvider = ({ children }) => {
   }, [refreshRank, syncProfile, profileData?.games_played, profileData?.games_won, profileData?.fastest_solve_ms, profileData?.fever_highscore, profileData?.flawless_wins, profileData?.last_active_date, profileData?.longest_word_length, profileData?.mode_play_counts, profileData?.pvp_wins, profileData?.total_active_days, profileData?.total_words_found, profileData?.current_streak, profileData?.max_streak]);
 
   const addXP = useCallback((amount) => { if (amount) setCurrentXP(prev => prev + amount); }, []);
-
-  const incrementSecretWordProgress = useCallback(async () => {
-    
-    setWinsTowardsSecret(prev => {
-      const nextValue = Math.min(3, prev + 1);
-      localStorage.setItem('peyvchin_wins_towards_secret', nextValue.toString());
-      
-      // Note: Direct DB update is currently blocked by a server-side trigger bug
-      // (record 'new' has no field 'owned_avatars'). 
-      // Progress is persisted locally to ensure the mode unlocks correctly.
-      
-      return nextValue;
-    });
-  }, []);
-
-  const resetSecretWordProgress = useCallback(async () => {
-    setWinsTowardsSecret(0);
-    localStorage.setItem('peyvchin_wins_towards_secret', '0');
-    // Note: DB reset is blocked by server-side trigger issue
-  }, []);
 
   const applyPenalty = useCallback(async (xpAmount = 20, filsAmount = 50) => {
     const { user: currentUser, currentXP: currXP } = gameStateRef.current;
@@ -726,7 +709,7 @@ export const GameProvider = ({ children }) => {
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
-    solvedWords, playerStats, winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
+    solvedWords, playerStats,
     userRank: _userRank, updateInventory, setCurrentXP, setLastNotifiedLevel, lastNotifiedLevel, setNotifiedLevelDB,
     syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, getLevelData, progressPercent,
     getFreshWord: async (mode, category) => {
@@ -780,7 +763,6 @@ export const GameProvider = ({ children }) => {
       const dummyStats = [
         { mode: 'classic', score: 40, best: 50, xp: 200 },
         { mode: 'mamak', score: 30, best: 45, xp: 150 },
-        { mode: 'secret_word', score: 1, best: 1, xp: 100 },
         { mode: 'word_fever', score: 5, best: 8, xp: 300 },
         { mode: 'hard_words', score: 20, best: 35, xp: 120 },
         { mode: 'battle', score: 100, best: 100, xp: 500 }
@@ -804,8 +786,7 @@ export const GameProvider = ({ children }) => {
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount, solvedWords, playerStats,
-    winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress, _userRank,
-    updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
+    _userRank, updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
     syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB
   ]);
 

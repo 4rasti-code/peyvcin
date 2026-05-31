@@ -12,15 +12,14 @@ export const getTotalXPForLevel = (level) => {
   return (level - 1) * 100;
 };
 
-// 🏆 HARDCORE XP REWARDS (Nerfed for maximum challenge)
+// 🏆 REBALANCED XP REWARDS
 export const XP_REWARDS = {
-  classic: 10,
-  battle: 30,       // Multiplayer Win
-  battle_draw: 5,   // Multiplayer Draw
-  mamak: 15,        // Riddles Mode
-  hard_words: 20,
-  word_fever: 40,
-  secret_word: 100
+  classic: 50,
+  battle: 100,       // Multiplayer Win
+  battle_draw: 10,   // Multiplayer Draw
+  mamak: 100,        // Riddles Mode
+  hard_words: 100,
+  word_fever: 100
 };
 
 /**
@@ -83,10 +82,10 @@ export const getLevelFromXP = (totalXP) => {
  */
 export const getLevelData = (totalXP) => {
   const level = getLevelFromXP(totalXP);
-  
+
   // Calculate boundaries for the current level
   let currentLevelBaseXP = 0;
-  
+
   // Sum up all previous levels
   for (let l = 1; l < level; l++) {
     if (l <= 10) currentLevelBaseXP += 500;
@@ -119,7 +118,7 @@ export const getLevelData = (totalXP) => {
 
 export const getRewardForMode = (mode) => {
   const xp = XP_REWARDS[mode] || 10;
-  
+
   // Monetary rewards stay proportional to mode difficulty
   const monetary = {
     classic: { type: 'fils', amount: 50 },
@@ -127,8 +126,7 @@ export const getRewardForMode = (mode) => {
     battle_draw: { type: 'fils', amount: 20 },
     mamak: { type: 'fils', amount: 75 },
     hard_words: { type: 'fils', amount: 100 },
-    word_fever: { type: 'fils', amount: 150 },
-    secret_word: { type: 'derhem', amount: 5 }
+    word_fever: { type: 'fils', amount: 150 }
   };
 
   const reward = monetary[mode] || { type: 'fils', amount: 50 };
@@ -142,12 +140,12 @@ export const getRewardForMode = (mode) => {
 export const getLevelTier = (lvl) => {
   // Legendary Diamond Tier for 100+
   if (lvl > 100) {
-    return { 
+    return {
       name: 'Diamond',
-      stop1: '#b4fbff', 
-      stop2: '#d1a4ff', 
+      stop1: '#b4fbff',
+      stop2: '#d1a4ff',
       shadow: 'rgba(180, 251, 255, 0.6)',
-      isLegendary: true 
+      isLegendary: true
     };
   }
 

@@ -53,7 +53,7 @@ export default function ResultStats({ profileData, playerStats, gameMode, curren
   const distribution = modeData.guess_distribution || modeData || {};
 
   // Fill in missing values based on mode
-  const maxAttempts = (gameMode === 'word_fever' || gameMode === 'battle') ? 3 : (gameMode === 'secret_word' ? 1 : 6);
+  const maxAttempts = (gameMode === 'word_fever' || gameMode === 'battle') ? 3 : 6;
   const fullDist = {};
   for (let i = 1; i <= maxAttempts; i++) {
     fullDist[i.toString()] = distribution[i.toString()] || 0;

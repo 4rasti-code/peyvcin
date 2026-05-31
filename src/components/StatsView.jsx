@@ -8,8 +8,7 @@ const modeConfigs = [
   { id: 'mamak', name: 'مامک', icon: 'quiz', color: 'bg-emerald-500', textColor: 'text-emerald-500', maxAttempts: 6 },
   { id: 'hard_words', name: 'پەیڤێن دژوار', icon: 'psychology', color: 'bg-rose-500', textColor: 'text-rose-500', maxAttempts: 6 },
   { id: 'word_fever', name: 'تایا پەیڤان', icon: 'timer', color: 'bg-sky-500', textColor: 'text-sky-500', maxAttempts: 3 },
-  { id: 'battle', name: 'هەڤڕکی سەرهێل', icon: 'swords', color: 'bg-orange-500', textColor: 'text-orange-500', maxAttempts: 3 },
-  { id: 'secret_word', name: 'پەیڤا نەهێنی', icon: 'lock', color: 'bg-mono-400', textColor: 'text-mono-400', maxAttempts: 1 }
+  { id: 'battle', name: 'هەڤڕکی سەرهێل', icon: 'swords', color: 'bg-orange-500', textColor: 'text-orange-500', maxAttempts: 3 }
 ];
 
 const ChartSection = ({ title, dist, maxValue, color, textColor, icon }) => (
@@ -117,7 +116,9 @@ export default function StatsView({
         >
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
-        <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase">ئامار</h2>
+        <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase">
+          {profileData?.nickname ? `ئامارێن ${profileData.nickname}` : 'ئامار'}
+        </h2>
         <div className="w-10" />
       </div>
 

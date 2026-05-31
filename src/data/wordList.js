@@ -128,7 +128,6 @@ export const getRandomWordFromCategory = (category, level, solvedWords = [], mod
     if (mode === 'hard_words') return len >= 6;
     if (mode === 'word_fever') return len === 5;
     if (mode === 'battle') return len === 5;
-    if (mode === 'secret_word') return len >= 2;
     if (mode === 'mamak') return len >= 2 && len <= 15;
     return true;
   });

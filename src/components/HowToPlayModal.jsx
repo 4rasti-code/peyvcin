@@ -8,8 +8,7 @@ const gameModes = [
   { id: 'multiplayer', title: 'هەڤڕکی' },
   { id: 'mamak', title: 'مامک' },
   { id: 'word_fever', title: 'تایا پەیڤان' },
-  { id: 'hard_words', title: 'پەیڤێن دژوار' },
-  { id: 'secret_word', title: 'پەیڤا نهێنی' }
+  { id: 'hard_words', title: 'پەیڤێن دژوار' }
 ];
 
 export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic', isDark = true, showTabs = true }) {
@@ -432,38 +431,6 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
     </div>
   );
 
-  const renderSecretWordTutorial = () => (
-    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="space-y-4">
-        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>ئارمانجا یاریێ:</p>
-        <ul className="space-y-2">
-          <li className="flex gap-2 text-sm leading-relaxed">
-            <span className={isDark ? 'text-white/40' : 'text-slate-400'}>•</span>
-            <span className={isDark ? 'text-white/70' : 'text-slate-700'}>ئارمانجا یاریێ ئەوە تو پەیڤا نهێنی ب تەنێ د {toKuDigits(1)} بزاڤ دا ببینی.</span>
-          </li>
-          <li className="flex gap-2 text-sm leading-relaxed">
-            <span className={isDark ? 'text-white/40' : 'text-slate-400'}>•</span>
-            <span className={isDark ? 'text-white/70' : 'text-slate-700'}>ئەڤ پەیڤە تایبەتە و پشتی هەر {toKuDigits(3)} سەرکەفتنێن کلاسیک دێ بۆ تە ڤەبیت.</span>
-          </li>
-        </ul>
-      </div>
-
-      <div className="space-y-3">
-        <div className="space-y-2">
-          <div className="flex gap-2">
-            {['؟', '؟', '؟', '؟', '؟'].map((letter, i) => (
-              <div
-                key={i}
-                className={`w-9 h-9 flex items-center justify-center rounded-none font-black text-base border-2 bg-primary/20 border-primary/30 text-primary`}
-              >
-                {letter}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 
   const renderGenericTemplate = (modeId) => {
     const mode = gameModes.find(m => m.id === modeId);
@@ -557,7 +524,6 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
                 activeTab === 'mamak' ? renderMamakTutorial() :
                   activeTab === 'word_fever' ? renderWordFeverTutorial() :
                     activeTab === 'hard_words' ? renderHardWordsTutorial() :
-                      activeTab === 'secret_word' ? renderSecretWordTutorial() :
                         renderGenericTemplate(activeTab)}
           </div>
 

@@ -5,7 +5,7 @@ import React from 'react';
  * Renders a high-quality SVG flag for Kurdistan or any ISO country.
  */
 export default function FlagBadge({ countryCode = 'IQ', isInKurdistan = false, size = 'md' }) {
-  const dimClass = `flag-${size}`;
+  const dimClass = size === 'full' ? 'w-full h-full' : `flag-${size}`;
 
   // Universal Globe Icon (Public)
   if (!isInKurdistan && countryCode === 'GLOBE') {
@@ -20,7 +20,7 @@ export default function FlagBadge({ countryCode = 'IQ', isInKurdistan = false, s
   if (isInKurdistan || countryCode === 'KD') {
     return (
       <div className={`${dimClass} premium-flag-token`}>
-        <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
+        <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
           <path fill="#ed2024" d="M0 0h512v113.8H0z"/>
           <path fill="#fff" d="M0 113.8h512v113.4H0z"/>
           <path fill="#278e3c" d="M0 227.2h512v113.8H0z"/>

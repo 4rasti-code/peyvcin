@@ -561,7 +561,8 @@ export default function ProfileView({ onProfileSave }) {
                            aria-label="Your nickname"
                            value={draftNickname}
                            onChange={(e) => {
-                              setDraftNickname(e.target.value);
+                              const noSpaceVal = e.target.value.replace(/\s/g, '');
+                              setDraftNickname(noSpaceVal);
                               if (saveError) setSaveError(null);
                            }}
                            readOnly={isNicknameLocked || isHardLocked}

@@ -26,6 +26,7 @@ const SFX_PATHS = {
   WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
   MESSAGE_SENT: '/sending_message.mp3',
   RIGHT_LETTER: '/rightletter.mp3',
+  DEFEAT: '/defeat.mp3',
 };
 
 const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
@@ -220,6 +221,7 @@ class SoundEngine {
     if (key === 'SWORD_SLASH') baseVolume *= 0.5;
     if (key === 'WHOOSH') baseVolume *= 1.0;
     if (key === 'RIGHT_LETTER') baseVolume *= 0.8; // Increased from 0.5 for better audibility
+    if (key === 'DEFEAT') baseVolume *= 1.0;
     
     gainNode.gain.value = baseVolume * this.masterVolume;
 
@@ -417,6 +419,10 @@ export const playSuccessSfx = (enabled = true) => {
   engine.play('VICTORY');
 };
 export const playVictorySfx = playSuccessSfx;
+export const playDefeatSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('DEFEAT');
+};
 export const playCoinSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('EARNING');

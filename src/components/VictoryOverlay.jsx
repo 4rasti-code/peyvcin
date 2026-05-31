@@ -236,15 +236,13 @@ const VictoryOverlay = ({
 
             {/* Action Buttons */}
             <div className="w-full flex flex-col gap-2 mt-2">
-              {gameMode !== 'secret_word' && (
-                <button
-                  onClick={() => { triggerHaptic(10); playStartSound?.(); onNext(); }}
-                  className="w-full h-9 bg-primary text-white rounded font-black text-base active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  <span className="material-symbols-outlined text-lg">arrow_left</span>
-                  بەردەوام بە
-                </button>
-              )}
+              <button
+                onClick={() => { triggerHaptic(10); playStartSound?.(); onNext(); }}
+                className="w-full h-9 bg-primary text-white rounded font-black text-base active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <span className="material-symbols-outlined text-lg">arrow_left</span>
+                بەردەوام بە
+              </button>
 
               <div className="grid grid-cols-2 gap-2">
                 <button

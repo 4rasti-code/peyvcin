@@ -8,14 +8,12 @@ const LobbyView = React.memo(({
   onStartClassic,
   onStartMamak,
   onStartHardWords,
-  onStartSecretWord,
   onStartWordFever,
   onStartMultiplayer, // Handle matchmaking
   _onDailyRewardClick,
   _dailyStreak,
   onViewChange,
   _notificationCount = 0,
-  winsTowardsSecret = 0,
   onOpenHowToPlay
 }) => {
   const bgRef = useRef(null);
@@ -58,8 +56,6 @@ const LobbyView = React.memo(({
     whileTap: { scale: 0.98 },
     transition: { type: "spring", stiffness: 400, damping: 17 }
   };
-
-  const isSecretUnlocked = winsTowardsSecret >= 3;
 
   return (
     <Motion.div
@@ -138,7 +134,7 @@ const LobbyView = React.memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(15); onStartMultiplayer(); }}
               {...bentoMotionProps}
-              className="w-full relative h-28 rounded-[6px] overflow-hidden bg-linear-to-r from-emerald-500 to-teal-600 border-none"
+              className="w-full relative h-28 rounded-[6px] overflow-hidden bg-linear-to-r from-emerald-500 to-teal-600 shadow-[0_5px_0_#0f766e] border-none mb-1"
             >
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
@@ -159,7 +155,7 @@ const LobbyView = React.memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartClassic(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#ffcc00] border-none"
+              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -179,7 +175,7 @@ const LobbyView = React.memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartMamak(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#22c55e] border-none"
+              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -194,14 +190,15 @@ const LobbyView = React.memo(({
           </div>
 
           {/* HARD MODE */}
-          <div className="col-span-1 relative group">
+          <div className="col-span-1 md:col-span-2 relative group">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartHardWords(); }}
               {...bentoMotionProps}
-              className="w-full relative h-36 rounded-[6px] overflow-hidden bg-[#ef4444] border-none"
+              className="w-full relative h-36 md:h-24 rounded-[6px] overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none mb-1"
             >
-              <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 text-center">
+              {/* Mobile View */}
+              <div className="relative z-10 flex md:hidden flex-col items-center justify-center h-full gap-3 text-center">
                 <div className="flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
                 </div>
@@ -210,18 +207,30 @@ const LobbyView = React.memo(({
                   <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 mt-1 leading-none">بۆ شارەزایان</span>
                 </div>
               </div>
+
+              {/* Desktop View */}
+              <div className="relative z-10 hidden md:flex items-center justify-between px-8 h-full">
+                <div className="flex flex-col items-start text-right">
+                  <h3 className="text-xl font-black font-heading text-white">پەیڤێن دژوار</h3>
+                  <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 leading-none">بۆ شارەزایان</span>
+                </div>
+                <div className="flex items-center justify-center">
+                  <span className="material-symbols-outlined text-4xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>psychology</span>
+                </div>
+              </div>
             </Motion.button>
           </div>
 
           {/* WORD FEVER MODE */}
-          <div className="col-span-1 relative group">
+          <div className="col-span-1 md:col-span-2 relative group">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartWordFever(); }}
               {...bentoMotionProps}
-              className="w-full relative h-36 rounded-[6px] overflow-hidden bg-[#0ea5e9] border-none"
+              className="w-full relative h-36 md:h-24 rounded-[6px] overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none mb-1"
             >
-              <div className="relative z-10 flex flex-col items-center justify-center h-full gap-3 text-center">
+              {/* Mobile View */}
+              <div className="relative z-10 flex md:hidden flex-col items-center justify-center h-full gap-3 text-center">
                 <div className="flex items-center justify-center">
                   <span className="material-symbols-outlined text-3xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
                 </div>
@@ -230,52 +239,20 @@ const LobbyView = React.memo(({
                   <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 mt-1 leading-none">بەرھەڤ بە</span>
                 </div>
               </div>
-            </Motion.button>
-          </div>
 
-          {/* SECRET MODE */}
-          <div className="col-span-2 relative group">
-            <Motion.button
-              variants={itemVariants}
-              disabled={!isSecretUnlocked}
-              onClick={() => { triggerHaptic(10); if (isSecretUnlocked) onStartSecretWord(); }}
-              {...(isSecretUnlocked ? bentoMotionProps : {})}
-              className={`w-full relative h-24 rounded-[6px] overflow-hidden transition-all duration-500 border-none ${isSecretUnlocked
-                  ? 'bg-linear-to-br from-[#2e1065] to-[#4c1d95] border-2 border-yellow-400/50'
-                  : 'bg-mono-200 dark:bg-mono-900 border border-mono-300 dark:border-white/10'
-                }`}
-            >
-              <div className="relative z-10 flex items-center justify-between px-8 h-full">
+              {/* Desktop View */}
+              <div className="relative z-10 hidden md:flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
-                  <h3 className={`text-xl font-black font-heading ${isSecretUnlocked ? 'text-white' : 'text-mono-600 dark:text-mono-300'}`}>پەیڤا نھێنی</h3>
-                  <div className={`flex items-center gap-1 mt-1 px-2.5 py-1 rounded-[4px] border transition-colors ${isSecretUnlocked ? 'bg-black/40 border-white/20' : 'bg-mono-200/50 dark:bg-black/40 border-mono-300 dark:border-white/10'}`}>
-                    {[1, 2, 3].map((dot) => (
-                      <span
-                        key={dot}
-                        className={`material-symbols-outlined text-[10px] transition-all duration-500 ${dot <= winsTowardsSecret
-                            ? 'text-emerald-500 font-black'
-                            : 'text-mono-400 dark:text-mono-800'
-                          }`}
-                      >
-                        {dot <= winsTowardsSecret ? 'check' : 'circle'}
-                      </span>
-                    ))}
-                    {!isSecretUnlocked && (
-                      <span className="text-[8px] font-bold text-mono-500 dark:text-mono-400 mr-2 uppercase tracking-widest">
-                        {winsTowardsSecret}/٣
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-xl font-black font-heading text-white">تایا پەیڤان</h3>
+                  <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 leading-none">بەرھەڤ بە</span>
                 </div>
                 <div className="flex items-center justify-center">
-                  <span className={`material-symbols-outlined text-4xl transition-all ${isSecretUnlocked ? 'text-yellow-400 scale-110' : 'text-mono-500 dark:text-mono-400'
-                    }`} style={{ fontVariationSettings: isSecretUnlocked ? "'FILL' 1" : "''" }}>
-                    {isSecretUnlocked ? 'vpn_key' : 'lock'}
-                  </span>
+                  <span className="material-symbols-outlined text-4xl text-white" style={{ fontVariationSettings: "'FILL' 1" }}>timer</span>
                 </div>
               </div>
             </Motion.button>
           </div>
+
         </div>
       </div>
     </Motion.div>

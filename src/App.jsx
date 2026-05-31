@@ -192,7 +192,6 @@ export default function App() {
     fils, derhem, dinar,
     dailyStreak, lastRewardClaimedAt,
     magnetCount, hintCount, skipCount,
-    winsTowardsSecret, incrementSecretWordProgress, resetSecretWordProgress,
     solvedWords, playerStats,
     syncProgressToDatabase,
     processPurchase,
@@ -362,7 +361,7 @@ export default function App() {
   const [magnetsUsedInRound, setMagnetsUsedInRound] = useState(0);
   const [skipsUsedInRound, setSkipsUsedInRound] = useState(0);
 
-  const [gameMode, setGameMode] = useState('classic'); // 'classic', 'word_fever', 'secret_word', 'mamak', 'hard_words'
+  const [gameMode, setGameMode] = useState('classic'); // 'classic', 'word_fever', 'mamak', 'hard_words'
   const [timeLeft, setTimeLeft] = useState(30);
   const [, setIsDailyActive] = useState(false);
   const [isSuccessSplash, setIsSuccessSplash] = useState(false);
@@ -492,7 +491,7 @@ export default function App() {
       const solveTimeMs = Date.now() - startTime;
       setCurrentSolveTime(solveTimeMs);
 
-      const maxRows = gMode === 'secret_word' ? 1 : (gMode === 'word_fever' ? 3 : 6);
+      const maxRows = (gMode === 'word_fever' ? 3 : 6);
 
       if (gMode === 'word_fever') {
         score = feverStreak + 1; // Current word count in the streak
@@ -503,12 +502,7 @@ export default function App() {
         score = Math.max(10, (maxRows - finalGuesses.length + 1) * 10);
       }
 
-      // Synced database call
-      if (gMode === 'classic') {
-        incrementSecretWordProgress();
-      } else if (gMode === 'secret_word') {
-        resetSecretWordProgress();
-      }
+
 
       const syncData = await syncProgressToDatabase(
         tWord.length,
@@ -546,7 +540,7 @@ export default function App() {
         });
       }
     }
-  }, [syncProgressToDatabase, updateInventory, incrementSecretWordProgress, resetSecretWordProgress, feverStreak, magnetsUsedInRound, hintTaps, skipsUsedInRound, startTime]); // Stable dependencies
+  }, [syncProgressToDatabase, updateInventory, feverStreak, magnetsUsedInRound, hintTaps, skipsUsedInRound, startTime]); // Stable dependencies
 
   const onWinHandler = useCallback((finalGuesses, winWord, winMode) => {
     const { hapticEnabled: hEnabled } = gameRefs.current;
@@ -598,9 +592,8 @@ export default function App() {
       setIsWordFeverResultVisible(true);
     } else {
       handleGameCompletion(finalGuesses, false, lossMode, lossWord, null, penalty);
-      if (lossMode === 'secret_word' || lossMode === 'classic') resetSecretWordProgress();
     }
-  }, [handleGameCompletion, resetSecretWordProgress, submitFailure]);
+  }, [handleGameCompletion, submitFailure]);
 
   // --- SAFETY: PHANTOM HANDLER GUARD ---
   // Some legacy components or keyboard listeners may attempt to call this function.
@@ -625,7 +618,7 @@ export default function App() {
     isShaking
   } = useGameLogic({
     targetWord,
-    maxRows: gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6),
+    maxRows: (gameMode === 'word_fever' ? 3 : 6),
     gameMode,
     revealedIndices,
     isLevelingUp,
@@ -700,10 +693,10 @@ export default function App() {
     triggerHaptic([50, 100, 50]); setTimeout(() => setHintLimitToast(prev => ({ ...prev, visible: false })), 3000);
   }, []);
 
-  const gameRefs = useRef({ targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys });
+  const gameRefs = useRef({ targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, fils, targetHint, hintTaps, usedKeys });
   useEffect(() => {
-    Object.assign(gameRefs.current, { targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys });
-  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, winsTowardsSecret, fils, targetHint, hintTaps, usedKeys]);
+    Object.assign(gameRefs.current, { targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, fils, targetHint, hintTaps, usedKeys });
+  }, [targetWord, category, hintCount, magnetCount, skipCount, isVictory, isDefeat, currentView, revealedIndices, currentGuess, magnetDisabledKeys, gameMode, hapticEnabled, solvedWords, level, lastSolvedWord, fils, targetHint, hintTaps, usedKeys]);
 
   const handleOnEnter = useCallback(async () => {
     await onEnter();
@@ -1408,15 +1401,6 @@ export default function App() {
                 setIsDailyActive(false);
                 selectCategory('ھەموو', 'word_fever');
               }}
-              onStartSecretWord={() => {
-                playTabSound();
-                stopBGM();
-                triggerHaptic(10);
-                setIsDailyActive(false);
-                selectCategory('ھەموو', 'secret_word');
-                resetSecretWordProgress();
-              }}
-
               onDailyRewardClick={() => {
                 playBubblePopSound();
                 setIsDailyRewardOpen(true);
@@ -1428,7 +1412,6 @@ export default function App() {
                 setIsDailyActive(false);
                 selectCategory('مامک', 'mamak');
               }}
-              winsTowardsSecret={winsTowardsSecret}
               dailyStreak={dailyStreak}
               onViewChange={setCurrentView}
               notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
@@ -1479,8 +1462,7 @@ export default function App() {
                       hintIndices={hintIndices}
                       lastHintIndex={-1}
                       targetWord={targetWord}
-                      maxRows={gameMode === 'secret_word' ? 1 : (gameMode === 'word_fever' ? 3 : 6)}
-                      isSecretMode={gameMode === 'secret_word'}
+                      maxRows={gameMode === 'word_fever' ? 3 : 6}
                       isShaking={isShaking}
                       isDark={isSystemDark}
                     />

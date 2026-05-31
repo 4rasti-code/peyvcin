@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 import Avatar from './Avatar';
+import FlagBadge from './FlagBadge';
 import { motion as Motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import PublicProfileModal from './PublicProfileModal';
 import { FilsIcon } from './CurrencyIcon';
@@ -10,7 +11,7 @@ import { toKuDigits } from '../utils/formatters';
 import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
-import { getLevelFromXP, getLevelTier } from '../utils/progression';
+import { getLevelFromXP, getLevelTier, getLevelData } from '../utils/progression';
 
 
 export default function LeaderboardView({ onOpenChat }) {
@@ -18,8 +19,8 @@ export default function LeaderboardView({ onOpenChat }) {
     user,
     userNickname,
     userAvatar,
-    _countryCode,
-    _isInKurdistan,
+    countryCode,
+    isInKurdistan,
     lastProfileUpdate,
     handleToggleBlock: toggleBlockInContext,
     loadingAuth
@@ -40,6 +41,12 @@ export default function LeaderboardView({ onOpenChat }) {
   const [_userRank, setUserRank] = useState('--');
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+
+  // Pagination states
+  const pageRef = useRef(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 20;
 
   const bgRef = useRef(null);
 
@@ -63,14 +70,21 @@ export default function LeaderboardView({ onOpenChat }) {
     }
   };
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (isLoadMore = false) => {
     // 1. HARDENED GUARD: Reject invalid, undefined, or loading states
     if (loadingAuth || !userId || userId === 'undefined' || userId.length < 5) {
-      setLoading(false);
+      if (!isLoadMore) setLoading(false);
       return;
     }
-    setLoading(true);
-    setError(null);
+    
+    const currentPage = isLoadMore ? pageRef.current + 1 : 0;
+
+    if (!isLoadMore) {
+      setLoading(true);
+      setError(null);
+    } else {
+      setLoadingMore(true);
+    }
 
     try {
       let leaderData = [];
@@ -102,22 +116,38 @@ export default function LeaderboardView({ onOpenChat }) {
 
         if (pError) throw pError;
         leaderData = data || [];
+        // Apply local pagination for friends since we fetched them all
+        const startIdx = currentPage * ITEMS_PER_PAGE;
+        const paginatedFriends = leaderData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+        leaderData = paginatedFriends;
       } else {
         // GLOBAL VIEW - Order strictly by XP (Ground Truth)
         const { data, error: leaderError } = await supabase
           .from('profiles')
           .select('*')
           .order('xp', { ascending: false })
-          .limit(20);
+          .range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1);
 
         if (leaderError) throw leaderError;
         leaderData = data || [];
       }
 
-      setLeaders(leaderData);
+      if (isLoadMore) {
+        setLeaders(prev => {
+          // Prevent duplicates by checking IDs
+          const existingIds = new Set(prev.map(p => p.id));
+          const newItems = leaderData.filter(p => !existingIds.has(p.id));
+          return [...prev, ...newItems];
+        });
+      } else {
+        setLeaders(leaderData);
+      }
 
-      // Rank calculation: Count users with more XP
-      if (typeof userXP === 'number' && !isNaN(userXP)) {
+      pageRef.current = currentPage;
+      setHasMore(leaderData.length === ITEMS_PER_PAGE);
+
+      // Rank calculation: Count users with more XP (only calculate on initial load)
+      if (!isLoadMore && typeof userXP === 'number' && !isNaN(userXP)) {
         const { count, error: rankError } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true })
@@ -129,14 +159,16 @@ export default function LeaderboardView({ onOpenChat }) {
       console.warn("Leaderboard fetch error:", err);
       setError(true);
     } finally {
-      setLoading(false);
+      if (!isLoadMore) setLoading(false);
+      setLoadingMore(false);
     }
   }, [loadingAuth, userId, view, userXP]);
 
   useEffect(() => {
-    fetchData();
+    // When view changes, reset to page 0
+    fetchData(false);
 
-    const handleFocus = () => fetchData();
+    const handleFocus = () => fetchData(false);
     window.addEventListener('focus', handleFocus);
 
     return () => {
@@ -148,18 +180,18 @@ export default function LeaderboardView({ onOpenChat }) {
   return (
     <div
       onClick={handleBackgroundClick}
-      className="w-full max-w-full px-4 md:px-6 pb-56 h-full relative animate-in fade-in duration-700 bg-mono-50 dark:bg-mono-900 overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone transition-colors"
+      className="w-full max-w-full px-4 md:px-6 pb-56 h-full relative animate-in fade-in duration-700 bg-mono-50 dark:bg-black overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone transition-colors"
     >
 
 
       <div className="relative z-10">
         <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center">
           <span className="material-symbols-outlined text-4xl text-primary mb-2.5 drop-shadow-lg">leaderboard</span>
-          <h2 className="text-5xl font-black font-rabar  italic uppercase text-mono-900 dark:text-mono-300 transition-colors duration-500">رێزبەندی</h2>
+          <h2 className="text-5xl font-black font-rabar  italic uppercase text-mono-900 dark:text-mono-50 transition-colors duration-500">رێزبەندی</h2>
         </div>
 
         {/* Top Tab Swapper - Synced Card Style */}
-        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-black border-mono-200 dark:border-mono-800 duration-300">
+        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-mono-900 border-mono-200 dark:border-mono-800 duration-300">
           {['global', 'friends'].map((tab) => {
             const isActive = view === tab;
             return (
@@ -214,6 +246,9 @@ export default function LeaderboardView({ onOpenChat }) {
                 const effectiveAvatar = isMe ? userAvatar : (player.avatar_url || 'default');
                 const effectiveNickname = isMe ? userNickname : player.nickname;
                 const effectiveXP = isMe ? userXP : player.xp;
+                const progressDecimal = getLevelData(effectiveXP).progressPercent / 100;
+                const effectiveCountryCode = isMe ? countryCode : player.country_code;
+                const effectiveIsInKurdistan = isMe ? isInKurdistan : player.is_kurdistan;
 
                 return (
                   <Motion.div
@@ -223,11 +258,23 @@ export default function LeaderboardView({ onOpenChat }) {
                       visible: { opacity: 1, y: 0, scale: 1 },
                       exit: { opacity: 0, scale: 0.98 }
                     }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-                    whileTap={{ scale: 0.99 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    whileHover={
+                      isTop3
+                        ? { scale: 1.02 }
+                        : { scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }
+                    }
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
-                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer shadow-sm bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 duration-300`}
+                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer duration-300 ${
+                      rank === 1
+                        ? 'bg-[#a855f7] border-transparent text-white shadow-sm'
+                        : rank === 2
+                        ? 'bg-[#ffcc00] border-transparent text-amber-950 shadow-sm'
+                        : rank === 3
+                        ? 'bg-[#0ea5e9] border-transparent text-white shadow-sm'
+                        : 'bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 text-mono-900 dark:text-mono-50'
+                    }`}
                     style={{
                       zIndex: isTop3 ? 50 : 1 // Ensure top 3 cards have higher z-index for floating crowns
                     }}
@@ -339,11 +386,15 @@ export default function LeaderboardView({ onOpenChat }) {
                           </div>
                         </Motion.div>
                       )}
-                      <span className={`text-2xl font-black italic tracking-normal relative z-10 ${rank === 1 ? 'text-[#92400e]' :
-                        rank === 2 ? 'text-mono-500 dark:text-mono-300' :
-                          rank === 3 ? 'text-[#7c2d12]' :
-                            'text-mono-900 dark:text-mono-50'
-                        }`}>
+                      <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
+                        rank === 1
+                          ? 'text-white'
+                          : rank === 2
+                          ? 'text-amber-950'
+                          : rank === 3
+                          ? 'text-white'
+                          : 'text-mono-900 dark:text-mono-50'
+                      }`}>
                         {toKuDigits(rank)}
                       </span>
                     </div>
@@ -353,20 +404,37 @@ export default function LeaderboardView({ onOpenChat }) {
                       <div className="relative w-12 h-12 flex items-center justify-center">
                         {/* XP Progress Ring */}
                         <div className="absolute inset-[-4px] z-0">
-                          <svg className="w-full h-full -rotate-90 overflow-visible" viewBox="0 0 100 100">
-                             <circle cx="50" cy="50" r="44" fill="none" className="stroke-mono-200/20 dark:stroke-white/5" strokeWidth="4" />
+                          <svg className={`w-full h-full -rotate-90 overflow-visible ${
+                            isTop3 ? 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]' : ''
+                          }`} viewBox="0 0 100 100">
+                             <circle
+                               cx="50"
+                               cy="50"
+                               r="44"
+                               fill="none"
+                               className={
+                                 rank === 1
+                                   ? 'stroke-white/25'
+                                   : rank === 2
+                                   ? 'stroke-amber-950/20'
+                                   : rank === 3
+                                   ? 'stroke-white/25'
+                                   : 'stroke-mono-200/20 dark:stroke-white/5'
+                               }
+                               strokeWidth={isTop3 ? "6" : "4"}
+                             />
                              <Motion.circle
                                 cx="50"
                                 cy="50"
                                 r="44"
                                 fill="none"
                                 stroke={getLevelTier(getLevelFromXP(effectiveXP)).stop1}
-                                strokeWidth="8"
+                                strokeWidth={isTop3 ? "10" : "8"}
                                 strokeLinecap="butt"
                                 strokeDasharray="276.46"
                                 initial={{ strokeDashoffset: 276.46 }}
                                 animate={{ 
-                                   strokeDashoffset: 276.46 - (276.46 * (player.xp_progress || 0.7)), // Fallback progress for visual
+                                   strokeDashoffset: 276.46 - (276.46 * progressDecimal),
                                    filter: getLevelTier(getLevelFromXP(effectiveXP)).isLegendary ? `drop-shadow(0 0 5px ${getLevelTier(getLevelFromXP(effectiveXP)).stop1})` : "none"
                                 }}
                                 transition={{ duration: 1.5, ease: "circOut" }}
@@ -384,19 +452,42 @@ export default function LeaderboardView({ onOpenChat }) {
                             border={false}
                           />
                         </div>
+
+                        {/* Minimal Overlapping Flag Badge */}
+                        {(effectiveCountryCode || effectiveIsInKurdistan) && (
+                          <div className={`absolute -bottom-1.5 -right-1.5 z-20 w-[18px] h-[18px] rounded-full overflow-hidden border-[1.5px] shadow-sm bg-white dark:bg-mono-900 flex items-center justify-center scale-90 ${
+                            rank === 1
+                              ? 'border-[#a855f7]'
+                              : rank === 2
+                              ? 'border-[#ffcc00]'
+                              : rank === 3
+                              ? 'border-[#0ea5e9]'
+                              : 'border-white dark:border-mono-800'
+                          }`}>
+                            <FlagBadge countryCode={effectiveCountryCode} isInKurdistan={effectiveIsInKurdistan} size="full" />
+                          </div>
+                        )}
                       </div>
                     </div>
 
                     {/* Info and Name (CENTERED) */}
                     <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
-                      <span className="font-black text-mono-900 dark:text-mono-50 text-sm tracking-normal uppercase truncate leading-none">{effectiveNickname}</span>
+                      <span className={`font-black text-sm tracking-normal uppercase truncate leading-none ${
+                        rank === 1
+                          ? 'text-white'
+                          : rank === 2
+                          ? 'text-amber-950'
+                          : rank === 3
+                          ? 'text-white'
+                          : 'text-mono-900 dark:text-mono-50'
+                      }`}>{effectiveNickname}</span>
                     </div>
 
                     {/* Shield (RIGHT SIDE) */}
                     <div className="flex items-center shrink-0 pr-1">
                       <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
-                        <svg className="absolute inset-0 w-full h-full drop-shadow-md" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="4" strokeOpacity="0.2" />
+                        <svg className="absolute inset-0 w-full h-full drop-shadow-[0_2.5px_6px_rgba(0,0,0,0.3)]" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="5" strokeOpacity={isTop3 ? 0.75 : 0.35} />
                           <defs>
                             <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
                               <stop stopColor="#FFD700" />
@@ -405,14 +496,37 @@ export default function LeaderboardView({ onOpenChat }) {
                           </defs>
                         </svg>
                         <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
-                          <span className="text-[7px] font-black text-mono-900/40 dark:text-mono-950/40 uppercase leading-none mb-0.5">ئاست</span>
-                          <span className="text-xl font-black text-mono-900 dark:text-mono-50 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                          <span className="text-[7.5px] font-black text-amber-950/60 uppercase leading-none mb-0.5">ئاست</span>
+                          <span className="text-xl font-black text-amber-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
                         </div>
                       </div>
                     </div>
                   </Motion.div>
                 );
               })}
+              
+              {/* Load More Button */}
+              {hasMore && leaders.length > 0 && (
+                <div className="pt-4 pb-8 flex justify-center">
+                  <button
+                    onClick={() => { triggerHaptic(10); fetchData(true); }}
+                    disabled={loadingMore}
+                    className="flex items-center gap-2 bg-mono-100 dark:bg-mono-800 hover:bg-mono-200 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-300 px-6 py-2.5 rounded-full font-black text-sm tracking-wide transition-all active:scale-95 border border-mono-200 dark:border-mono-700 shadow-sm disabled:opacity-50 disabled:active:scale-100"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                        <span>دئینیت...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-[18px]">expand_more</span>
+                        <span>زێدەتر نیشان بدە</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </Motion.div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-48 gap-4">

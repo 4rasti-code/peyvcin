@@ -182,6 +182,10 @@ BEGIN
     RAISE EXCEPTION 'Nickname must be between 3 and 20 characters.';
   END IF;
 
+  IF p_nickname ~ '\s' THEN
+    RAISE EXCEPTION 'Nickname cannot contain spaces.';
+  END IF;
+
   UPDATE profiles
   SET
     nickname = p_nickname,

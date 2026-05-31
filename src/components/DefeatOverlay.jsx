@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { FilsIcon } from './CurrencyIcon';
-import { playBackSfx } from '../utils/audio';
+import { playBackSfx, playDefeatSfx } from '../utils/audio';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
 
@@ -54,6 +54,7 @@ const DefeatOverlay = ({
     if (isVisible && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       triggerHaptic(200);
+      playDefeatSfx();
       
       const timer = setTimeout(() => {
         onHome();
@@ -171,15 +172,13 @@ const DefeatOverlay = ({
 
             {/* Action Buttons */}
             <div className="w-full flex flex-col gap-2 mt-2">
-              {gameMode !== 'secret_word' && (
-                <button 
-                  onClick={() => { triggerHaptic(10); playStartSound?.(); onRetry(); }}
-                  className="w-full h-9 bg-red-500 text-white rounded font-black text-base active:scale-95 transition-all flex items-center justify-center gap-3"
-                >
-                  <span className="material-symbols-outlined text-lg">restart_alt</span>
-                  بەردەوام بە
-                </button>
-              )}
+              <button 
+                onClick={() => { triggerHaptic(10); playStartSound?.(); onRetry(); }}
+                className="w-full h-9 bg-red-500 text-white rounded font-black text-base active:scale-95 transition-all flex items-center justify-center gap-3"
+              >
+                <span className="material-symbols-outlined text-lg">restart_alt</span>
+                بەردەوام بە
+              </button>
 
               <div className="grid grid-cols-2 gap-2">
                 <button 
