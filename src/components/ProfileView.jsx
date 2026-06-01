@@ -373,8 +373,8 @@ export default function ProfileView({ onProfileSave }) {
                            <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#levelMedalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.3" />
                            <defs>
                               <linearGradient id="levelMedalGradient" x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                                 <stop stopColor="#FFD700" />
-                                 <stop offset="1" stopColor="#B8860B" />
+                                 <stop stopColor={tier.stop1} />
+                                 <stop offset="1" stopColor={tier.stop2} />
                               </linearGradient>
                            </defs>
                         </svg>

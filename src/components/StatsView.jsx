@@ -1,5 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion as Motion } from 'framer-motion';
+import { useUser } from '../context/AuthContext';
+import { useAudio } from '../context/AudioContext';
 import { toKuDigits } from '../utils/formatters';
 import { triggerHaptic } from '../utils/haptics';
 
@@ -44,13 +46,17 @@ export default function StatsView({
   onViewChange
 }) {
 
+  const { user } = useUser();
+  const { playSettingsCloseSound } = useAudio();
+  const [profile] = useState(profileData);
+
   // Core Stats
   const stats = {
-    played: profileData?.games_played || 0,
-    won: profileData?.games_won || 0,
-    currentStreak: profileData?.current_streak || 0,
-    maxStreak: profileData?.max_streak || 0,
-    rawDistribution: playerStats || profileData?.guess_distribution || {}
+    played: profile?.games_played || 0,
+    won: profile?.games_won || 0,
+    currentStreak: profile?.current_streak || 0,
+    maxStreak: profile?.max_streak || 0,
+    rawDistribution: playerStats || profile?.guess_distribution || {}
   };
 
   // Advanced Stats
@@ -111,7 +117,7 @@ export default function StatsView({
       {/* Header */}
       <div className="w-full max-w-lg flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-100 dark:border-mono-800/30">
         <button 
-          onClick={() => { triggerHaptic(10); onViewChange('lobby'); }}
+          onClick={() => { triggerHaptic(10); playSettingsCloseSound(); onViewChange('lobby'); }}
           className="w-10 h-10 rounded-[4px] bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
         >
           <span className="material-symbols-outlined">arrow_forward</span>

@@ -5,9 +5,11 @@ import confetti from 'canvas-confetti';
 import { triggerHaptic } from '../utils/haptics';
 import { useUser } from '../context/AuthContext';
 import { toKuDigits } from '../utils/formatters';
+import { useAudio } from '../context/AudioContext';
 
 export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark }) {
   const { user } = useUser();
+  const { appSoundsEnabled } = useAudio();
   const [displayLevel, setDisplayLevel] = useState(Math.max(1, newLevel - 1));
 
   // Fail-safe: close if session is lost
@@ -19,6 +21,16 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
 
   useEffect(() => {
     if (isVisible) {
+      if (appSoundsEnabled) {
+        try {
+          const audio = new Audio('/universfield-level-up.mp3');
+          audio.volume = 0.8;
+          audio.play().catch(() => {});
+        } catch (e) {
+          console.warn("Could not play level up audio:", e);
+        }
+      }
+
       // High-saturation celebration
       const colors = [isDark ? '#34d399' : '#059669', '#facc15', '#3b82f6', '#ffffff'];
       
@@ -160,7 +172,19 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
             </Motion.div>
 
             <button
-              onClick={() => { triggerHaptic(10); onClose(); }}
+              onClick={() => { 
+                triggerHaptic(10); 
+                if (appSoundsEnabled) {
+                  try {
+                    const audio = new Audio('/coin-drop-229314.wav');
+                    audio.volume = 1.0;
+                    audio.play().catch(() => {});
+                  } catch (e) {
+                    console.warn("Could not play coin sound", e);
+                  }
+                }
+                onClose(); 
+              }}
               className="w-full relative group flex items-center justify-center gap-3 bg-linear-to-r from-emerald-500 to-green-600 hover:from-emerald-400 hover:to-green-500 active:scale-95 transition-all p-5 rounded-[22px] shadow-xl border-b-4 border-green-800/40 z-10 overflow-hidden"
             >
               <div className="absolute inset-0 bg-white/20 -translate-x-full group-hover:translate-x-full transition-transform duration-700 skew-x-12" />

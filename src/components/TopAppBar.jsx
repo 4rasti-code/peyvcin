@@ -85,13 +85,14 @@ export default function TopAppBar({
               <Motion.button
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                whileHover={{ scale: 1.15 }}
-                whileTap={{ scale: 0.85 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 onClick={() => { triggerHaptic(10); onOpenHowToPlay(gameMode); }}
-                className={`w-12 h-12 flex items-center justify-center ${isDark ? 'text-white/40' : 'text-slate-400'} hover:text-primary transition-all`}
+                className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-[6px] flex items-center justify-center gap-2 group transition-all border-none mb-1"
               >
-                <span className="material-symbols-outlined text-[28px] font-black">help</span>
+                <span className="material-symbols-outlined text-white text-[20px] group-hover:scale-110 transition-transform">help</span>
+                <span className="text-[13px] font-black font-rabar text-white uppercase mt-0.5 hidden xs:block">فێرکاری</span>
               </Motion.button>
             </div>
           ) : (

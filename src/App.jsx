@@ -1635,7 +1635,7 @@ export default function App() {
           <>
             {/* Single Player Victory */}
             <VictoryOverlay
-              isVisible={(isVictory && showResultOverlay && currentView === 'game' && gameMode !== 'word_fever') || (isWordFeverResultVisible && wordFeverResultType === 'win' && gameMode === 'word_fever')}
+              isVisible={(isVictory && showResultOverlay && currentView === 'game' && gameMode !== 'word_fever') || (isWordFeverResultVisible && showResultOverlay && wordFeverResultType === 'win' && gameMode === 'word_fever')}
               breakdown={victoryBreakdown}
               solvedWord={lastSolvedWord}
               guesses={guesses}
@@ -1657,7 +1657,7 @@ export default function App() {
 
             {/* Single Player Defeat */}
             <DefeatOverlay
-              isVisible={(isDefeat && showResultOverlay && currentView === 'game' && gameMode !== 'word_fever') || (isWordFeverResultVisible && wordFeverResultType === 'fail' && gameMode === 'word_fever')}
+              isVisible={(isDefeat && showResultOverlay && currentView === 'game' && gameMode !== 'word_fever') || (isWordFeverResultVisible && showResultOverlay && wordFeverResultType === 'fail' && gameMode === 'word_fever')}
               solvedWord={lastSolvedWord}
               guesses={guesses}
               breakdown={defeatBreakdown}

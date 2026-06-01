@@ -134,7 +134,8 @@ export const GameProvider = ({ children }) => {
     try {
       lastRefreshTime.current = now;
       lastXPRef.current = val;
-      let query = supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', val);
+      // Performance Fix: Changed 'exact' to 'estimated' to prevent slow table scans
+      let query = supabase.from('profiles').select('id', { count: 'estimated', head: true }).gt('xp', val);
       if (signal) query = query.abortSignal(signal);
       const { count, error } = await query;
       if (!error && count !== null) setUserRank(count + 1);
@@ -235,7 +236,10 @@ export const GameProvider = ({ children }) => {
         // If we needed to set state for the profile object, it would happen here based on the instructions
         // Assuming the logic intended is to ensure the UI uses the recalculated level
         
-        refreshRank(remoteXP, true, controller.signal);
+        // Performance Fix: Defer rank calculation so it doesn't block the initial app render
+        setTimeout(() => {
+          refreshRank(remoteXP, true, controller.signal);
+        }, 100);
       }
       
       setLoading(false);

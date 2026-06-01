@@ -18,29 +18,38 @@ import { mamakWords } from './mamakList.js';
 import { fruitWords } from './fruitList.js';
 import { vegetablesWords } from './vegetablesList.js';
 import { timeWords } from './timeList.js';
+import { generalWords } from './generalWordsList.js';
+import { colorsWords } from './colorsList.js';
+
+// --- Category Name to List Mapping ---
+export const catMap = {
+  "کار (چاوگ)": verbsWords,
+  "وەسف (هەڤالناڤ)": adjectivesWords,
+  "ناڤێ مرۆڤان": humanNames,
+  "باژێڕ": cityWords,
+  "گیانەوەر": animalsWords,
+  "کەلوپەل": householdWords,
+  "جلوبەرگ": clothingWords,
+  "ئەندامێ لەشی": bodyPartsWords,
+  "پیشە": jobsWords,
+  "خوارن": foodWords,
+  "سرۆشت": natureWords,
+  "هەست": feelingsWords,
+  "خێزان": familyWords,
+  "وەلات": countryWords,
+  "وەرزش": sportsWords,
+  "جهـ": placesWords,
+  "میوە": fruitWords,
+  "زەرزەوات": vegetablesWords,
+  "ڕەنگ": colorsWords,
+  "دەم": timeWords
+};
 
 // --- Master Pool (Excluding Riddles/Mamak) ---
-export const allWordsMaster = [
-  ...verbsWords,
-  ...adjectivesWords,
-  ...humanNames,
-  ...cityWords,
-  ...animalsWords,
-  ...householdWords,
-  ...clothingWords,
-  ...bodyPartsWords,
-  ...timeWords,
-  ...jobsWords,
-  ...foodWords,
-  ...natureWords,
-  ...feelingsWords,
-  ...familyWords,
-  ...countryWords,
-  ...sportsWords,
-  ...placesWords,
-  ...fruitWords,
-  ...vegetablesWords
-];
+// Dynamically inject the "category" property into every word
+export const allWordsMaster = Object.entries(catMap).flatMap(([catName, wordList]) => 
+  wordList.map(w => ({ ...w, category: catName }))
+);
 
 // --- Specialized Export for Logic ---
 export const officialWordList = {
@@ -63,15 +72,16 @@ export const officialWordList = {
   places: placesWords,
   fruit: fruitWords,
   vegetables: vegetablesWords,
-  mamak: mamakWords
+  mamak: mamakWords,
+  "پەیڤێن گشتی": generalWords
 };
 
 // --- Category Whitelist ---
 export const OFFICIAL_CATEGORIES = [
-  "دەم", "خێزان", "هەستێن دەروونی", "هەست", "پێشە", "ناڤێ مرۆڤان",
+  "دەم", "خێزان", "هەستێن دەروونی", "هەست", "پیشە", "ناڤێ مرۆڤان",
   "وەسف (هەڤالناڤ)", "کار (چاوگ)", "کەلوپەل", "گیانەوەر", "میوە",
   "زەرزەوات", "ڕەنگ", "وەلات", "باژێڕ", "ئەندامێ لەشی", "جلوبەرگ",
-  "سرۆشت", "خوارن", "وەرزش", "جهـ", "مامک"
+  "سرۆشت", "خوارن", "وەرزش", "جهـ", "مامک", "پەیڤێن گشتی"
 ];
 
 export const categories = OFFICIAL_CATEGORIES;
@@ -94,29 +104,11 @@ export const getRandomWordFromCategory = (category, level, solvedWords = [], mod
   if (mode === 'mamak') {
     pool = mamakWords;
   } else if (category && category !== 'ھەموو' && category !== 'generalWordPool') {
-    // Find the list by category name (localized)
-    const catMap = {
-      "کار (چاوگ)": verbsWords,
-      "وەسف (هەڤالناڤ)": adjectivesWords,
-      "ناڤێ مرۆڤان": humanNames,
-      "باژێڕ": cityWords,
-      "گیانەوەر": animalsWords,
-      "کەلوپەل": householdWords,
-      "جلوبەرگ": clothingWords,
-      "ئەندامێ لەشی": bodyPartsWords,
-      "پیشە": jobsWords,
-      "خوارن": foodWords,
-      "سرۆشت": natureWords,
-      "هەست": feelingsWords,
-      "خێزان": familyWords,
-      "وەلات": countryWords,
-      "وەرزش": sportsWords,
-      "جهـ": placesWords,
-      "میوە": fruitWords,
-      "زەرزەوات": vegetablesWords,
-      "دەم": timeWords
-    };
-    pool = catMap[category] || allWordsMaster;
+    // Filter the master pool which now correctly contains the category property
+    pool = allWordsMaster.filter(w => w.category === category);
+    if (pool.length === 0) {
+      pool = allWordsMaster;
+    }
   } else {
     pool = allWordsMaster;
   }

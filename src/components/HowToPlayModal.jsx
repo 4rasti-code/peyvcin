@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { toKuDigits } from '../utils/formatters';
 import { useAudio } from '../context/AudioContext';
@@ -14,6 +14,32 @@ const gameModes = [
 export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic', isDark = true, showTabs = true }) {
   const [activeTab, setActiveTab] = useState(initialMode);
   const { playTabSound } = useAudio();
+  const scrollRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -500,7 +526,14 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
           {/* Scrollable Tabs - Conditional */}
           {showTabs && (
             <div className="space-y-3">
-              <div className="flex overflow-x-auto no-scrollbar gap-2 py-2 px-4 scroll-smooth">
+              <div 
+                ref={scrollRef}
+                onMouseDown={handleMouseDown}
+                onMouseLeave={handleMouseLeave}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
+                className={`flex overflow-x-auto no-scrollbar gap-2 py-2 px-4 scroll-smooth ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+              >
                 {gameModes.map(mode => (
                   <button
                     key={mode.id}

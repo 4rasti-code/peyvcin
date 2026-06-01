@@ -38,7 +38,6 @@ export default function LeaderboardView({ onOpenChat }) {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [_userRank, setUserRank] = useState('--');
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
@@ -146,15 +145,7 @@ export default function LeaderboardView({ onOpenChat }) {
       pageRef.current = currentPage;
       setHasMore(leaderData.length === ITEMS_PER_PAGE);
 
-      // Rank calculation: Count users with more XP (only calculate on initial load)
-      if (!isLoadMore && typeof userXP === 'number' && !isNaN(userXP)) {
-        const { count, error: rankError } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true })
-          .gt('xp', userXP);
-
-        if (!rankError) setUserRank(count + 1);
-      }
+      // Rank is now calculated asynchronously by GameContext and exposed globally
     } catch (err) {
       console.warn("Leaderboard fetch error:", err);
       setError(true);
@@ -162,7 +153,7 @@ export default function LeaderboardView({ onOpenChat }) {
       if (!isLoadMore) setLoading(false);
       setLoadingMore(false);
     }
-  }, [loadingAuth, userId, view, userXP]);
+  }, [loadingAuth, userId, view]);
 
   useEffect(() => {
     // When view changes, reset to page 0
@@ -489,10 +480,10 @@ export default function LeaderboardView({ onOpenChat }) {
                         <svg className="absolute inset-0 w-full h-full drop-shadow-[0_2.5px_6px_rgba(0,0,0,0.3)]" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="5" strokeOpacity={isTop3 ? 0.75 : 0.35} />
                           <defs>
-                            <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                              <stop stopColor="#FFD700" />
-                              <stop offset="1" stopColor="#B8860B" />
-                            </linearGradient>
+                              <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                                <stop stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop1} />
+                                <stop offset="1" stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop2} />
+                              </linearGradient>
                           </defs>
                         </svg>
                         <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">

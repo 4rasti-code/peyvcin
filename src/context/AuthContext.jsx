@@ -236,7 +236,7 @@ export const AuthProvider = ({ children }) => {
           setLoadingAuth(false);
           setLoading(false);
         }
-      }, 4000); // Reduced to 4s for even faster fallback
+      }, 2000); // Reduced to 2s for even faster fallback
 
       try {
         setAuthProgress(15);
