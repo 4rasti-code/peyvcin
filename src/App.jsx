@@ -406,6 +406,12 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 2500);
   }, []);
 
+  const [pushNotification, setPushNotification] = useState(null);
+  const showPush = useCallback((data) => {
+    setPushNotification(data);
+    setTimeout(() => setPushNotification(null), 4000);
+  }, []);
+
 
   // Expose initialization helper to console for the user
   useEffect(() => {
@@ -817,7 +823,17 @@ export default function App() {
           table: 'messages',
           filter: `receiver_id=eq.${user.id}`
         },
-        () => {
+        async (payload) => {
+          let senderName = 'کەسەک';
+          let avatarUrl = null;
+          try {
+            const { data } = await supabase.from('profiles').select('username, avatar_url').eq('id', payload.new.sender_id).single();
+            if (data) {
+              senderName = data.username;
+              avatarUrl = data.avatar_url;
+            }
+          } catch (_e) { console.warn(_e); }
+
           setSocialNotifications(prev => ({
             ...prev,
             unreadMessages: prev.unreadMessages + 1
@@ -825,16 +841,33 @@ export default function App() {
           setNotificationsList(prev => [{
             id: Date.now(),
             type: 'message',
-            title: 'نامەیەکا نوی',
-            message: 'تە نامەیەکا تایبەت وەرگرت',
+            title: senderName,
+            message: 'نامەیەک بۆ تە هنارت',
             created_at: new Date().toISOString()
           }, ...prev]);
+
+          showPush({
+            title: senderName,
+            message: 'نامەیەک بۆ تە هنارت',
+            avatar: avatarUrl,
+            type: 'message'
+          });
         }
       )
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` },
-        () => {
+        async (payload) => {
+          let senderName = 'کەسەک';
+          let avatarUrl = null;
+          try {
+            const { data } = await supabase.from('profiles').select('username, avatar_url').eq('id', payload.new.user_id).single();
+            if (data) {
+              senderName = data.username;
+              avatarUrl = data.avatar_url;
+            }
+          } catch (_e) { console.warn(_e); }
+
           setSocialNotifications(prev => ({
             ...prev,
             pendingRequests: prev.pendingRequests + 1
@@ -842,10 +875,17 @@ export default function App() {
           setNotificationsList(prev => [{
             id: Date.now(),
             type: 'friend_request',
-            title: 'داخوازییا ھەڤالینیێ',
-            message: 'کەسەکی داخوازیا ھەڤالینیێ بۆ تە ھنارتییە',
+            title: senderName,
+            message: 'داخوازیا هەڤالینیێ بۆ تە هنارت',
             created_at: new Date().toISOString()
           }, ...prev]);
+          
+          showPush({
+            title: senderName,
+            message: 'داخوازیا هەڤالینیێ بۆ تە هنارت',
+            avatar: avatarUrl,
+            type: 'friend_request'
+          });
         }
       )
       .subscribe();
@@ -853,7 +893,7 @@ export default function App() {
     return () => {
       supabase.removeChannel(socialChannel);
     };
-  }, [user?.id]);
+  }, [user?.id, showPush]);
 
 
   // Shared Logic (Haptic, Audio, Normalized, etc.) now handled in src/utils/gameStatus.js
@@ -1597,6 +1637,40 @@ export default function App() {
               <OnboardingView />
             )}
           </Suspense>
+
+          {/* Premium Push Notification System (Like Instagram) */}
+          <AnimatePresence>
+            {pushNotification && (
+              <Motion.div
+                initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                onClick={() => {
+                  setPushNotification(null);
+                  triggerHaptic(10);
+                  setCurrentView('social_hub'); 
+                }}
+                className="fixed top-[env(safe-area-inset-top,16px)] left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] z-9999 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-[16px] shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-mono-800 dark:bg-mono-200 shrink-0">
+                  <img src={pushNotification.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${pushNotification.title}`} alt="avatar" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col items-start text-right">
+                  <h4 className={`text-[15px] font-black ${isSystemDark ? 'text-mono-900' : 'text-mono-50'} truncate w-full leading-tight font-heading`}>
+                    {pushNotification.title}
+                  </h4>
+                  <p className={`text-[12px] font-medium ${isSystemDark ? 'text-mono-600' : 'text-mono-300'} truncate w-full mt-0.5`}>
+                    {pushNotification.message}
+                  </p>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 ml-1">
+                  <span className="material-symbols-outlined text-[18px]">
+                    {pushNotification.type === 'message' ? 'chat' : 'person_add'}
+                  </span>
+                </div>
+              </Motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Premium Toast Notification System */}
           <AnimatePresence>

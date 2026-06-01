@@ -69,7 +69,7 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
         clearTimeout(timer);
       };
     }
-  }, [isVisible, isDark, newLevel]);
+  }, [isVisible, isDark, newLevel, appSoundsEnabled]);
 
   if (!isVisible) return null;
 

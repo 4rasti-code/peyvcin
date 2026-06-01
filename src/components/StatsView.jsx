@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { motion as Motion } from 'framer-motion';
-import { useUser } from '../context/AuthContext';
 import { useAudio } from '../context/AudioContext';
 import { toKuDigits } from '../utils/formatters';
 import { triggerHaptic } from '../utils/haptics';
@@ -46,7 +45,6 @@ export default function StatsView({
   onViewChange
 }) {
 
-  const { user } = useUser();
   const { playSettingsCloseSound } = useAudio();
   const [profile] = useState(profileData);
 
