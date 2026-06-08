@@ -19,6 +19,7 @@ export const GameProvider = ({ children }) => {
     return saved ? Number(saved) : 0;
   });
 
+  const [lastStreakAt, setLastStreakAt] = useState(null);
   const [dailyStreak, setDailyStreak] = useState(() => {
     const saved = localStorage.getItem('peyvchin_daily_streak');
     return saved ? Number(saved) : 0;
@@ -75,7 +76,7 @@ export const GameProvider = ({ children }) => {
   const gameStateRef = useRef({ 
     user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
     currentXP, level, inventory,
-    dailyStreak, rewardStreak, lastRewardClaimedAt,
+    dailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt,
     playerStats, solvedWords
   });
 
@@ -205,6 +206,7 @@ export const GameProvider = ({ children }) => {
         setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
         setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
         setDailyStreak(prev => prev !== (profileData.daily_streak || 0) ? (profileData.daily_streak || 0) : prev);
+        setLastStreakAt(prev => prev !== profileData.last_streak_at ? profileData.last_streak_at : prev);
         setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
         setLastRewardClaimedAt(prev => prev !== profileData.last_reward_claimed_at ? profileData.last_reward_claimed_at : prev);
         
@@ -711,7 +713,7 @@ export const GameProvider = ({ children }) => {
 
   const value = useMemo(() => ({
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
-    dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
+    dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
     solvedWords, playerStats,
     userRank: _userRank, updateInventory, setCurrentXP, setLastNotifiedLevel, lastNotifiedLevel, setNotifiedLevelDB,

@@ -26,12 +26,22 @@ export default function ProfileView({ onProfileSave }) {
    } = useUser();
 
    const {
-      currentXP, level, dailyStreak,
+      currentXP, level, dailyStreak, lastStreakAt,
       userRank, progressPercent, solvedWords
    } = useGame();
 
    const { playSaveSound } = useAudio();
    const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
+   const today = new Date();
+   today.setHours(0, 0, 0, 0);
+   let isStreakAtRisk = false;
+   if (lastStreakAt) {
+      const streakDate = new Date(lastStreakAt);
+      streakDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.floor((today - streakDate) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 1) isStreakAtRisk = true;
+   }
+
 
    const [isUploading, setIsUploading] = useState(false);
    const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
@@ -350,7 +360,7 @@ export default function ProfileView({ onProfileSave }) {
                                     ease: "easeInOut"
                                  }}
                               >
-                                 🔥
+                                 {isStreakAtRisk ? '⏳' : '🔥'}
                                  <Motion.div
                                     className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 rounded-full blur-lg z-[-1]"
                                     animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
@@ -359,7 +369,7 @@ export default function ProfileView({ onProfileSave }) {
                               </Motion.div>
                               <div className="flex flex-col items-center z-10 w-full mt-1">
                                  <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
-                                 <span className="text-lg font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)}</span>
+                                 <span className="text-lg font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)} ڕۆژ</span>
                               </div>
                            </Motion.div>
                         )}

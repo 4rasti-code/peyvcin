@@ -789,7 +789,7 @@ export default function App() {
   useEffect(() => {
     if (!isGameLoading && !loadingAuth) {
       console.log(`[App] Auth Guard Check - User: ${user ? 'YES' : 'NO'}, View: ${currentView}`);
-      
+
       if (!user) {
         if (currentView !== 'auth') {
           console.log("[App] No user found, forcing AuthView...");
@@ -879,7 +879,7 @@ export default function App() {
             message: 'داخوازیا هەڤالینیێ بۆ تە هنارت',
             created_at: new Date().toISOString()
           }, ...prev]);
-          
+
           showPush({
             title: senderName,
             message: 'داخوازیا هەڤالینیێ بۆ تە هنارت',
@@ -1631,7 +1631,7 @@ export default function App() {
                 onViewChange={navigateTo}
               />
             )}
-            
+
             {/* SOCIAL ONBOARDING OVERLAY */}
             {user && profileData && (profileData.onboarded === false || profileData.onboarded === null) && (
               <OnboardingView />
@@ -1648,7 +1648,7 @@ export default function App() {
                 onClick={() => {
                   setPushNotification(null);
                   triggerHaptic(10);
-                  setCurrentView('social_hub'); 
+                  setCurrentView('social_hub');
                 }}
                 className="fixed top-[env(safe-area-inset-top,16px)] left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] z-9999 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-[16px] shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
               >
