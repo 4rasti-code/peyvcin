@@ -484,11 +484,13 @@ export default function PublicProfileModal({
                     return (
                       <div 
                         key={m.id} 
-                        className={`flex flex-col items-center justify-center p-2 rounded-md border transition-all duration-300 shadow-sm ${isUnlocked ? `bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 ${m.glow}` : 'bg-mono-50 dark:bg-black/20 border-mono-100 dark:border-white/5 opacity-50 grayscale'}`}
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 shadow-sm ${isUnlocked ? `bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 ${m.glow}` : 'bg-mono-50 dark:bg-black/20 border-mono-100 dark:border-white/5 opacity-50 grayscale'}`}
                       >
-                        <span className={`material-symbols-outlined text-2xl mb-1 ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.icon}</span>
-                        <span className={`text-[10px] font-black uppercase mb-0.5 font-rabar text-center leading-tight ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.name}</span>
-                        <span className="text-[8px] font-bold text-mono-500 dark:text-white/40 text-center leading-tight">{m.tooltip}</span>
+                        <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center mb-2 shadow-sm border ${isUnlocked ? 'bg-mono-50 dark:bg-white/10 border-mono-200 dark:border-white/20' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/5'}`}>
+                          <span className={`material-symbols-outlined text-[22px] ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.icon}</span>
+                        </div>
+                        <span className={`text-[10px] font-black uppercase mb-1 font-rabar text-center leading-tight ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.name}</span>
+                        <span className="text-[8px] font-bold text-mono-500 dark:text-white/40 text-center leading-tight px-1">{m.tooltip}</span>
                       </div>
                     );
                   })}
