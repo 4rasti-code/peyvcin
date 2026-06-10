@@ -222,19 +222,38 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <clipPath id="kurdistan-map-clip">
-      <path d="M 8 32 L 15 30 L 22 35 L 28 28 L 35 25 L 42 10 L 48 15 L 55 20 L 62 25 L 68 38 L 78 45 L 88 52 L 95 65 L 90 82 L 80 92 L 72 88 L 65 75 L 58 60 L 52 52 L 48 55 L 42 62 L 32 65 L 22 68 L 12 60 L 8 45 Z" />
+    {/* Circular Emblem Clip */}
+    <clipPath id="kurdistan-emblem-clip">
+      <circle cx="50" cy="50" r="45" />
     </clipPath>
-    <g clipPath="url(#kurdistan-map-clip)">
-      <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
-      <rect x="0" y="33.3" width="100" height="33.3" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
-      <rect x="0" y="66.6" width="100" height="33.4" fill={disabled ? "#4B5563" : "#10B981"} />
-      <circle cx="50" cy="50" r="10" fill={disabled ? "#374151" : "#EAB308"} />
+    
+    <g clipPath="url(#kurdistan-emblem-clip)">
+      {/* Red Sky */}
+      <rect x="0" y="0" width="100" height="35" fill={disabled ? "#6B7280" : "#EF4444"} />
+      
+      {/* White Dawn */}
+      <rect x="0" y="35" width="100" height="65" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+      
+      {/* The 21-ray Golden Sun */}
+      <circle cx="50" cy="40" r="10" fill={disabled ? "#374151" : "#EAB308"} />
       {[...Array(21)].map((_, i) => (
-        <path key={i} d="M50 40L49 32H51L50 40Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 50)`} />
+        <path key={i} d="M50 30L48.5 22H51.5L50 30Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 40)`} />
       ))}
+
+      {/* Green Mountains */}
+      <path d="M -10 100 L 25 60 L 60 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
+      <path d="M 40 100 L 75 65 L 110 100 Z" fill={disabled ? "#4B5563" : "#059669"} />
+      <path d="M 15 100 L 50 50 L 85 100 Z" fill={disabled ? "#374151" : "#047857"} />
+
+      {/* Snow Caps */}
+      <path d="M 25 60 L 32 68 L 25 72 L 18 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
+      <path d="M 75 65 L 82 73 L 75 75 L 68 73 Z" fill={disabled ? "#D1D5DB" : "#F3F4F6"} opacity="0.9" />
+      <path d="M 50 50 L 58 62 L 50 65 L 42 62 Z" fill={disabled ? "#D1D5DB" : "#F9FAFB"} opacity="0.9" />
     </g>
-    <path d="M 8 32 L 15 30 L 22 35 L 28 28 L 35 25 L 42 10 L 48 15 L 55 20 L 62 25 L 68 38 L 78 45 L 88 52 L 95 65 L 90 82 L 80 92 L 72 88 L 65 75 L 58 60 L 52 52 L 48 55 L 42 62 L 32 65 L 22 68 L 12 60 L 8 45 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
+
+    {/* Elegant Golden Border */}
+    <circle cx="50" cy="50" r="45" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="6" />
+    <circle cx="50" cy="50" r="41" stroke={disabled ? "#6B7280" : "#F59E0B"} strokeWidth="2" opacity="0.5" />
   </svg>
 );
 
