@@ -223,7 +223,7 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <clipPath id="kurdistan-map-clip">
-      <path d="M 10 45 L 25 42 L 35 30 L 45 12 L 65 8 L 85 18 L 88 35 L 92 55 L 95 80 L 85 90 L 75 75 L 65 70 L 55 65 L 45 60 L 30 60 L 20 55 Z" />
+      <path d="M 8 32 L 15 30 L 22 35 L 28 28 L 35 25 L 42 10 L 48 15 L 55 20 L 62 25 L 68 38 L 78 45 L 88 52 L 95 65 L 90 82 L 80 92 L 72 88 L 65 75 L 58 60 L 52 52 L 48 55 L 42 62 L 32 65 L 22 68 L 12 60 L 8 45 Z" />
     </clipPath>
     <g clipPath="url(#kurdistan-map-clip)">
       <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
@@ -234,7 +234,7 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
         <path key={i} d="M50 40L49 32H51L50 40Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 50)`} />
       ))}
     </g>
-    <path d="M 10 45 L 25 42 L 35 30 L 45 12 L 65 8 L 85 18 L 88 35 L 92 55 L 95 80 L 85 90 L 75 75 L 65 70 L 55 65 L 45 60 L 30 60 L 20 55 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
+    <path d="M 8 32 L 15 30 L 22 35 L 28 28 L 35 25 L 42 10 L 48 15 L 55 20 L 62 25 L 68 38 L 78 45 L 88 52 L 95 65 L 90 82 L 80 92 L 72 88 L 65 75 L 58 60 L 52 52 L 48 55 L 42 62 L 32 65 L 22 68 L 12 60 L 8 45 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
   </svg>
 );
 
