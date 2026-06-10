@@ -201,12 +201,43 @@ export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false
   </svg>
 );
 
-export const BoxingGloveIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M25 40C25 20 40 10 60 15C80 20 85 40 80 60C75 80 50 85 40 85C30 85 25 70 25 60Z" fill={disabled ? "#6B7280" : "#EF4444"} />
-    <path d="M25 50C15 55 10 70 20 80C30 90 45 80 40 70" fill={disabled ? "#4B5563" : "#DC2626"} />
-    <rect x="50" y="70" width="35" height="20" rx="4" transform="rotate(-15 50 70)" fill={disabled ? "#374151" : "#991B1B"} />
-    <path d="M35 30C45 20 60 25 70 30" stroke={disabled ? "#9CA3AF" : "#FCA5A5"} strokeWidth="4" strokeLinecap="round" />
+    {/* Base Fire Glow */}
+    <circle cx="50" cy="75" r="25" fill={disabled ? "#4B5563" : "#EF4444"} opacity="0.3" filter="blur(4px)" />
+
+    {/* Thick Wooden Handle */}
+    <rect x="42" y="30" width="16" height="55" rx="3" fill={disabled ? "#374151" : "#92400E"} />
+    {/* Handle Leather Grip */}
+    <rect x="41" y="50" width="18" height="25" rx="2" fill={disabled ? "#4B5563" : "#78350F"} />
+    <path d="M 41 55 H 59 M 41 62 H 59 M 41 69 H 59" stroke={disabled ? "#374151" : "#451A03"} strokeWidth="2" />
+
+    {/* Massive Iron Hammer Head */}
+    <rect x="18" y="10" width="64" height="26" rx="4" fill={disabled ? "#6B7280" : "#475569"} />
+    {/* Beveled Edges (Highlight & Shadow) */}
+    <rect x="20" y="12" width="60" height="4" fill={disabled ? "#9CA3AF" : "#94A3B8"} opacity="0.6" />
+    <rect x="20" y="30" width="60" height="4" fill={disabled ? "#374151" : "#1E293B"} opacity="0.6" />
+    
+    {/* Iron Striking Faces (Left & Right blocks) */}
+    <rect x="12" y="12" width="10" height="22" rx="2" fill={disabled ? "#4B5563" : "#334155"} />
+    <rect x="78" y="12" width="10" height="22" rx="2" fill={disabled ? "#4B5563" : "#334155"} />
+
+    {/* Center Iron Band */}
+    <rect x="38" y="8" width="24" height="30" rx="3" fill={disabled ? "#9CA3AF" : "#64748B"} />
+    <circle cx="50" cy="23" r="5" fill={disabled ? "#4B5563" : "#0F172A"} />
+
+    {/* Stylized Flames Overlapping the Base */}
+    {/* Outer Red Flame */}
+    <path d="M 50 95 C 20 95 15 75 25 60 C 35 80 40 70 45 55 C 50 35 60 50 60 65 C 65 50 75 45 80 60 C 90 75 80 95 50 95 Z" fill={disabled ? "#4B5563" : "#EF4444"} />
+    {/* Middle Orange Flame */}
+    <path d="M 50 95 C 30 95 25 80 32 70 C 40 85 45 75 50 65 C 55 50 60 60 60 70 C 65 60 70 55 75 70 C 80 80 70 95 50 95 Z" fill={disabled ? "#6B7280" : "#F97316"} />
+    {/* Inner Yellow Flame */}
+    <path d="M 50 95 C 38 95 35 85 40 78 C 45 88 48 82 50 75 C 52 65 55 72 55 80 C 58 75 62 72 65 80 C 68 85 62 95 50 95 Z" fill={disabled ? "#9CA3AF" : "#FBBF24"} />
+    
+    {/* Sparks/Embers */}
+    <circle cx="30" cy="45" r="2" fill={disabled ? "#9CA3AF" : "#FBBF24"} />
+    <circle cx="70" cy="35" r="2.5" fill={disabled ? "#9CA3AF" : "#F97316"} />
+    <circle cx="45" cy="48" r="1.5" fill={disabled ? "#9CA3AF" : "#FCD34D"} />
   </svg>
 );
 
