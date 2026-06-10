@@ -223,18 +223,18 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <clipPath id="kurdistan-map-clip">
-      <path d="M 15 35 Q 25 20 40 15 Q 60 10 75 20 Q 85 35 85 55 Q 85 70 80 85 Q 70 80 65 75 Q 50 65 55 60 Q 40 65 25 60 Q 10 55 10 45 Q 10 35 15 35 Z" />
+      <path d="M 10 45 L 25 42 L 35 30 L 45 12 L 65 8 L 85 18 L 88 35 L 92 55 L 95 80 L 85 90 L 75 75 L 65 70 L 55 65 L 45 60 L 30 60 L 20 55 Z" />
     </clipPath>
     <g clipPath="url(#kurdistan-map-clip)">
       <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
       <rect x="0" y="33.3" width="100" height="33.3" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
       <rect x="0" y="66.6" width="100" height="33.4" fill={disabled ? "#4B5563" : "#10B981"} />
-      <circle cx="47" cy="50" r="8" fill={disabled ? "#374151" : "#EAB308"} />
+      <circle cx="50" cy="50" r="10" fill={disabled ? "#374151" : "#EAB308"} />
       {[...Array(21)].map((_, i) => (
-        <path key={i} d="M47 40L46 32H48L47 40Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 47 50)`} />
+        <path key={i} d="M50 40L49 32H51L50 40Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 50)`} />
       ))}
     </g>
-    <path d="M 15 35 Q 25 20 40 15 Q 60 10 75 20 Q 85 35 85 55 Q 85 70 80 85 Q 70 80 65 75 Q 50 65 55 60 Q 40 65 25 60 Q 10 55 10 45 Q 10 35 15 35 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
+    <path d="M 10 45 L 25 42 L 35 30 L 45 12 L 65 8 L 85 18 L 88 35 L 92 55 L 95 80 L 85 90 L 75 75 L 65 70 L 55 65 L 45 60 L 30 60 L 20 55 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
   </svg>
 );
 
