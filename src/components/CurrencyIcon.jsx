@@ -246,47 +246,21 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
 
 export const TeacherCandlePenIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft Golden Aura */}
-    <circle cx="50" cy="25" r="25" fill={disabled ? "#4B5563" : "#FBBF24"} opacity="0.15" />
-    <circle cx="50" cy="90" r="15" fill={disabled ? "#4B5563" : "#FBBF24"} opacity="0.1" />
+    {/* Giant Flame (Simple and Bold) */}
+    <path d="M 50 5 C 30 25 35 45 50 45 C 65 45 70 25 50 5 Z" fill={disabled ? "#6B7280" : "#F59E0B"} />
+    <path d="M 50 18 C 40 30 43 40 50 40 C 57 40 60 30 50 18 Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
 
-    {/* The Flame */}
-    <path d="M 50 5 C 38 20 42 32 50 35 C 58 32 62 20 50 5 Z" fill={disabled ? "#6B7280" : "#F59E0B"} />
-    <path d="M 50 15 C 44 24 46 30 50 32 C 54 30 56 24 50 15 Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+    {/* Thick Simple Pencil/Candle Body */}
+    <path d="M 36 45 L 64 45 L 64 75 L 36 75 Z" fill={disabled ? "#6B7280" : "#374151"} />
+    <path d="M 36 45 L 50 45 L 50 75 L 36 75 Z" fill={disabled ? "#4B5563" : "#1F2937"} />
 
-    {/* Connection Wick */}
-    <line x1="50" y1="33" x2="50" y2="40" stroke={disabled ? "#374151" : "#1F2937"} strokeWidth="2" strokeLinecap="round" />
+    {/* Thick Wood Tip */}
+    <path d="M 36 75 L 50 95 L 64 75 Z" fill={disabled ? "#9CA3AF" : "#FDE68A"} />
+    <path d="M 36 75 L 50 75 L 50 95 Z" fill={disabled ? "#6B7280" : "#FCD34D"} />
 
-    {/* The Pen/Candle Body (Dark sleek charcoal) */}
-    {/* Left Face */}
-    <path d="M 38 40 L 38 72 L 50 92 L 50 40 Z" fill={disabled ? "#4B5563" : "#1F2937"} />
-    {/* Right Face */}
-    <path d="M 50 40 L 50 92 L 62 72 L 62 40 Z" fill={disabled ? "#6B7280" : "#374151"} />
-
-    {/* Pen Wood Cut (Exposed wood near the tip) */}
-    <path d="M 38 72 L 50 92 L 62 72 Z" fill={disabled ? "#4B5563" : "#FDE68A"} />
-    {/* Right side wood shading */}
-    <path d="M 50 72 L 50 92 L 62 72 Z" fill={disabled ? "#6B7280" : "#FCD34D"} />
-
-    {/* Graphite/Ink Tip */}
-    <path d="M 46 85.3 L 50 92 L 54 85.3 Z" fill={disabled ? "#1F2937" : "#111827"} />
-
-    {/* Elegant Golden Accent Band */}
-    <path d="M 37.5 55 L 50 58 L 62.5 55 L 62.5 58 L 50 61 L 37.5 58 Z" fill={disabled ? "#9CA3AF" : "#FBBF24"} />
-
-    {/* Melted Wax on Top */}
-    <path d="M 37 40 L 63 40 C 63 45, 57 46, 50 44 C 43 46, 37 45, 37 40 Z" fill={disabled ? "#9CA3AF" : "#F3F4F6"} />
-    {/* Wax Drips */}
-    <path d="M 41 40 L 41 52 C 41 54 44 54 44 52 L 44 40 Z" fill={disabled ? "#9CA3AF" : "#F3F4F6"} />
-    <path d="M 56 40 L 56 48 C 56 49.5 58.5 49.5 58.5 48 L 58.5 40 Z" fill={disabled ? "#9CA3AF" : "#E5E7EB"} />
-
-    {/* Glowing Ink Swoosh Underneath */}
-    <path d="M 25 85 Q 50 105 75 80" fill="none" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="2.5" strokeLinecap="round" />
-    
-    {/* Small magical ink sparkles */}
-    <circle cx="70" cy="72" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
-    <circle cx="80" cy="88" r="2" fill={disabled ? "#9CA3AF" : "#FBBF24"} />
-    <circle cx="20" cy="92" r="1.5" fill={disabled ? "#9CA3AF" : "#FCD34D"} />
+    {/* Black Graphite Core */}
+    <path d="M 45 88 L 50 95 L 55 88 Z" fill={disabled ? "#374151" : "#111827"} />
+    <path d="M 45 88 L 50 88 L 50 95 Z" fill={disabled ? "#1F2937" : "#000000"} />
   </svg>
 );
 
