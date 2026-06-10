@@ -27,7 +27,7 @@ export default function PublicProfileModal({
   const [playerStats, setPlayerStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullStats, setShowFullStats] = useState(false);
-  const [isTop10, setIsTop10] = useState(false);
+
   const [activeTooltip, setActiveTooltip] = useState(null);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
@@ -66,16 +66,6 @@ export default function PublicProfileModal({
       
       if (statsData) setPlayerStats(statsData.guess_distribution);
 
-      // Check Top 10 Globally
-      const { data: topPlayers } = await supabase
-        .from('profiles')
-        .select('id')
-        .order('xp', { ascending: false })
-        .limit(10);
-
-      if (topPlayers) {
-        setIsTop10(topPlayers.some(p => p.id === profile.id));
-      }
 
       // 3. Check Relationship if not same user
       if (currentUserId && !isActuallyMe) {
@@ -284,7 +274,7 @@ export default function PublicProfileModal({
   // Medals Configuration
   const medals = [
     { id: 'nobera', name: 'نۆبەرە', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', icon: 'military_tech', tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
-    { id: 'palawan', name: 'پاڵەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', icon: 'sports_mma', tooltip: '١٠٠ یارییان ببە دا ببیە پاڵەوان!' },
+    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', icon: 'sports_mma', tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
     { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', icon: 'school', tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
     { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', icon: 'beenhere', tooltip: '١٠٠٠ پەیڤێن دیتین' },
     { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', icon: 'public', tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
