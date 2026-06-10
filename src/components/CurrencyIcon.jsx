@@ -193,33 +193,14 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const WoodenShieldGrowthIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Dark Wood Border */}
-    <path d="M 15 20 L 85 20 L 85 50 C 85 85 50 98 50 98 C 50 98 15 85 15 50 Z" fill={disabled ? "#4B5563" : "#78350F"} />
+    {/* Simple Dark Brown Shield Border */}
+    <path d="M 15 15 L 85 15 C 85 55 65 90 50 98 C 35 90 15 55 15 15 Z" fill={disabled ? "#4B5563" : "#78350F"} />
     
-    {/* Main Wood Body */}
-    <path d="M 23 28 L 77 28 L 77 50 C 77 78 50 89 50 89 C 50 89 23 78 23 50 Z" fill={disabled ? "#6B7280" : "#B45309"} />
+    {/* Warm Brown Wood Core (No extra lines or planks to reduce clutter) */}
+    <path d="M 23 23 L 77 23 C 77 55 62 82 50 90 C 38 82 23 55 23 23 Z" fill={disabled ? "#6B7280" : "#B45309"} />
 
-    {/* Vertical Wood Planks */}
-    <path d="M 41 28 V 83 M 59 28 V 83" stroke={disabled ? "#4B5563" : "#92400E"} strokeWidth="3" />
-
-    {/* Metal Border Accents */}
-    <path d="M 15 20 L 85 20" stroke="#9CA3AF" strokeWidth="4" strokeLinecap="round" />
-    <circle cx="25" cy="20" r="3" fill="#D1D5DB" />
-    <circle cx="75" cy="20" r="3" fill="#D1D5DB" />
-    <circle cx="50" cy="20" r="3" fill="#D1D5DB" />
-
-    {/* Giant Sprout */}
-    <g filter={disabled ? "none" : "drop-shadow(0px 2px 3px rgba(34, 197, 94, 0.8))"}>
-      {/* Stem */}
-      <path d="M 50 78 V 40" fill="none" stroke={disabled ? "#D1D5DB" : "#4ADE80"} strokeWidth="6" strokeLinecap="round" />
-      {/* Left Leaf */}
-      <path d="M 47 55 C 15 55 15 25 47 25 C 38 35 38 45 47 55 Z" fill={disabled ? "#F3F4F6" : "#4ADE80"} />
-      {/* Right Leaf */}
-      <path d="M 53 45 C 85 45 85 15 53 15 C 62 25 62 35 53 45 Z" fill={disabled ? "#E5E7EB" : "#22C55E"} />
-    </g>
-
-    {/* Magical Star Sparkle */}
-    <path d="M 35 25 L 37 19 L 43 17 L 37 15 L 35 9 L 33 15 L 27 17 L 33 19 Z" fill={disabled ? "#D1D5DB" : "#FEF08A"} />
+    {/* Mathematically Perfect, Giant Yellow Star in the Center */}
+    <path d="M 50 18 L 57 38 L 79 39 L 61 52 L 68 72 L 50 60 L 32 72 L 39 52 L 21 39 L 43 38 Z" fill={disabled ? "#D1D5DB" : "#FEF08A"} stroke={disabled ? "#9CA3AF" : "#F59E0B"} strokeWidth="2.5" strokeLinejoin="round" />
   </svg>
 );
 
