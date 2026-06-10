@@ -193,88 +193,44 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const WoodenShieldGrowthIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Simple Dark Brown Shield Border */}
-    <path d="M 15 15 L 85 15 C 85 55 65 90 50 98 C 35 90 15 55 15 15 Z" fill={disabled ? "#4B5563" : "#78350F"} />
+    {/* Solid Flat Brown Shield */}
+    <path d="M 15 15 L 85 15 L 85 55 C 85 85 50 95 50 95 C 50 95 15 85 15 55 Z" fill={disabled ? "#6B7280" : "#A16207"} />
     
-    {/* Warm Brown Wood Core (No extra lines or planks to reduce clutter) */}
-    <path d="M 23 23 L 77 23 C 77 55 62 82 50 90 C 38 82 23 55 23 23 Z" fill={disabled ? "#6B7280" : "#B45309"} />
-
-    {/* Mathematically Perfect, Giant Yellow Star in the Center */}
-    <path d="M 50 18 L 57 38 L 79 39 L 61 52 L 68 72 L 50 60 L 32 72 L 39 52 L 21 39 L 43 38 Z" fill={disabled ? "#D1D5DB" : "#FEF08A"} stroke={disabled ? "#9CA3AF" : "#F59E0B"} strokeWidth="2.5" strokeLinejoin="round" />
+    {/* Solid Flat Yellow Star */}
+    <path d="M 50 25 L 56 40 L 75 40 L 60 52 L 66 70 L 50 60 L 34 70 L 40 52 L 25 40 L 44 40 Z" fill={disabled ? "#D1D5DB" : "#FDE047"} />
   </svg>
 );
 
 export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Solid Flat Red Flame */}
+    <path d="M 50 90 C 10 80 20 20 50 10 C 80 20 90 80 50 90 Z" fill={disabled ? "#9CA3AF" : "#EF4444"} />
     
-    {/* Majestic Burst of Fire Background */}
-    {/* Red outer flame (3 massive spikes) */}
-    <path d="M 50 90 L 10 20 Q 30 50 50 5 Q 70 50 90 20 Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+    {/* Solid Flat Brown Handle */}
+    <rect x="42" y="45" width="16" height="50" fill={disabled ? "#6B7280" : "#78350F"} rx="2" />
     
-    {/* Orange inner flame */}
-    <path d="M 50 80 L 25 35 Q 40 55 50 20 Q 60 55 75 35 Z" fill={disabled ? "#9CA3AF" : "#F97316"} />
-    
-    {/* Yellow hot core */}
-    <path d="M 50 70 L 35 45 Q 45 60 50 30 Q 55 60 65 45 Z" fill={disabled ? "#D1D5DB" : "#FEF08A"} />
-
-    {/* Massive Bold Hammer (Foreground) */}
-    {/* Dark Iron Handle Base */}
-    <rect x="40" y="40" width="20" height="55" fill={disabled ? "#4B5563" : "#451A03"} rx="4" />
-    
-    {/* Wood Handle Core */}
-    <rect x="44" y="40" width="12" height="55" fill={disabled ? "#6B7280" : "#92400E"} rx="2" />
-
-    {/* Hammer Head (Giant block of iron) */}
-    {/* Dark outline/shadow */}
-    <rect x="15" y="30" width="70" height="32" fill={disabled ? "#D1D5DB" : "#334155"} rx="6" />
-    
-    {/* Main iron color */}
-    <rect x="15" y="30" width="70" height="28" fill={disabled ? "#D1D5DB" : "#64748B"} rx="6" />
-    
-    {/* Iron Highlight for 3D depth */}
-    <rect x="19" y="33" width="62" height="8" fill={disabled ? "#F3F4F6" : "#94A3B8"} rx="4" />
+    {/* Solid Flat Grey Hammer Head */}
+    <rect x="15" y="30" width="70" height="25" fill={disabled ? "#D1D5DB" : "#64748B"} rx="4" />
   </svg>
 );
 
 export const TeacherBookIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    
-    {/* Glowing Sun/Light Rising from Book (Drawn behind the book) */}
-    <circle cx="50" cy="45" r="22" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
-    
-    {/* Light Rays */}
-    <g stroke={disabled ? "#D1D5DB" : "#FDE047"} strokeWidth="4" strokeLinecap="round">
-      <line x1="50" y1="18" x2="50" y2="6" />
-      <line x1="32" y1="27" x2="23" y2="18" />
-      <line x1="68" y1="27" x2="77" y2="18" />
-      <line x1="25" y1="38" x2="12" y2="34" />
-      <line x1="75" y1="38" x2="88" y2="34" />
+    {/* Flat Yellow Light Rays */}
+    <g stroke={disabled ? "#9CA3AF" : "#FDE047"} strokeWidth="10" strokeLinecap="round">
+      <line x1="50" y1="40" x2="50" y2="15" />
+      <line x1="30" y1="35" x2="18" y2="20" />
+      <line x1="70" y1="35" x2="82" y2="20" />
     </g>
 
-    {/* Book Cover (Dark Blue) */}
-    <path d="M 10 35 L 50 50 L 90 35 L 90 85 L 50 100 L 10 85 Z" fill={disabled ? "#4B5563" : "#1E3A8A"} stroke={disabled ? "#374151" : "#1E3A8A"} strokeWidth="2" strokeLinejoin="round" />
+    {/* Flat Blue Book Cover */}
+    <path d="M 10 45 L 50 60 L 90 45 L 90 85 L 50 100 L 10 85 Z" fill={disabled ? "#6B7280" : "#3B82F6"} />
     
-    {/* Left Page (White) */}
-    <path d="M 14 38 L 48 51 V 95 L 14 82 Z" fill={disabled ? "#D1D5DB" : "#F8FAFC"} />
+    {/* Flat White Pages */}
+    <path d="M 16 45 L 50 58 L 84 45 L 84 82 L 50 95 L 16 82 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
     
-    {/* Right Page (Slightly darker for shadow/depth) */}
-    <path d="M 86 38 L 52 51 V 95 L 86 82 Z" fill={disabled ? "#9CA3AF" : "#E2E8F0"} />
-
-    {/* Text Lines on Left Page */}
-    <g stroke={disabled ? "#6B7280" : "#94A3B8"} strokeWidth="3" strokeLinecap="round">
-      <line x1="22" y1="49" x2="40" y2="56" />
-      <line x1="22" y1="59" x2="40" y2="66" />
-      <line x1="22" y1="69" x2="40" y2="76" />
-      <line x1="22" y1="79" x2="33" y2="83" />
-    </g>
-    
-    {/* Text Lines on Right Page */}
-    <g stroke={disabled ? "#6B7280" : "#94A3B8"} strokeWidth="3" strokeLinecap="round">
-      <line x1="78" y1="49" x2="60" y2="56" />
-      <line x1="78" y1="59" x2="60" y2="66" />
-      <line x1="78" y1="69" x2="60" y2="76" />
-      <line x1="78" y1="79" x2="67" y2="83" />
-    </g>
+    {/* Center Spine Line */}
+    <line x1="50" y1="58" x2="50" y2="95" stroke={disabled ? "#9CA3AF" : "#94A3B8"} strokeWidth="4" />
   </svg>
 );
 
