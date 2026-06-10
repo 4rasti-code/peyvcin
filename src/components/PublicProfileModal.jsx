@@ -285,7 +285,7 @@ export default function PublicProfileModal({
   const medals = [
     { id: 'nobera', name: 'نۆبەرە', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', icon: 'military_tech', tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
     { id: 'palawan', name: 'پاڵەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', icon: 'sports_mma', tooltip: '١٠٠ یارییان ببە دا ببیە پاڵەوان!' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.level || 1) >= 20, color: 'text-yellow-400', glow: '', icon: 'school', tooltip: 'ئاستێ ٢٠ ب دەستڤە بینە' },
+    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', icon: 'school', tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
     { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 100, color: 'text-emerald-500', glow: '', icon: 'beenhere', tooltip: '١٠٠ پەیڤێن کوردی تەواو بکە' },
     { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => isTop10 && (d.xp || 0) >= 1000, color: 'text-purple-400', glow: '', icon: 'public', tooltip: 'د ناڤ ١٠ باشترینێن جیھانێ دا بە' },
   ];
