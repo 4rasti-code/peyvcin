@@ -135,11 +135,27 @@ export const GameProvider = ({ children }) => {
     try {
       lastRefreshTime.current = now;
       lastXPRef.current = val;
-      // Performance Fix: Changed 'exact' to 'estimated' to prevent slow table scans
+      
+      // 1. Get count of players with strictly more XP
       let query = supabase.from('profiles').select('id', { count: 'estimated', head: true }).gt('xp', val);
       if (signal) query = query.abortSignal(signal);
       const { count, error } = await query;
-      if (!error && count !== null) setUserRank(count + 1);
+      
+      let finalRank = (count || 0) + 1;
+
+      // 2. Tie-breaker: Count players with identical XP who registered/updated earlier
+      const currentUserId = gameStateRef.current.user?.id;
+      if (currentUserId && !error) {
+         const { data: myProfile } = await supabase.from('profiles').select('updated_at').eq('id', currentUserId).single();
+         if (myProfile?.updated_at) {
+            const { count: tieCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
+               .eq('xp', val)
+               .lt('updated_at', myProfile.updated_at);
+            finalRank += (tieCount || 0);
+         }
+      }
+
+      if (!error) setUserRank(finalRank);
     } catch (err) { 
       const isAbort = err.name === 'AbortError' || 
                       err.message?.includes('AbortError') || 
@@ -793,7 +809,7 @@ export const GameProvider = ({ children }) => {
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount, solvedWords, playerStats,
     _userRank, updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
-    syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB
+    syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB, lastStreakAt
   ]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

@@ -111,7 +111,8 @@ export default function LeaderboardView({ onOpenChat }) {
           .from('profiles')
           .select('*')
           .in('id', uniqueIds)
-          .order('xp', { ascending: false });
+          .order('xp', { ascending: false })
+          .order('updated_at', { ascending: true });
 
         if (pError) throw pError;
         leaderData = data || [];
@@ -125,6 +126,7 @@ export default function LeaderboardView({ onOpenChat }) {
           .from('profiles')
           .select('*')
           .order('xp', { ascending: false })
+          .order('updated_at', { ascending: true })
           .range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1);
 
         if (leaderError) throw leaderError;
@@ -214,7 +216,17 @@ export default function LeaderboardView({ onOpenChat }) {
         </div>
 
         <AnimatePresence mode="wait">
-          {!loading ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-48 gap-4">
+              <div className="w-10 h-10 border-2 border-mono-200 dark:border-primary border-t-transparent rounded-full animate-spin"></div>
+              <span className="font-black text-mono-400 dark:text-mono-700 uppercase text-[10px] tracking-widest">LOADING...</span>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-48 gap-4">
+              <span className="material-symbols-outlined text-4xl text-red-500/50">cloud_off</span>
+              <span className="font-black text-mono-400 font-rabar">کێشەیەک د پەیوەندیێ دا هەیە</span>
+            </div>
+          ) : (
             <Motion.div
               key={view}
               variants={{
@@ -231,7 +243,12 @@ export default function LeaderboardView({ onOpenChat }) {
               className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto pb-40"
             >
               {leaders.map((player, index) => {
-                const rank = index + 1;
+                // Sequential Ranking based on the list index (matches exact spot)
+                // Since pagination uses ITEMS_PER_PAGE, we calculate absolute rank
+                let rank = (pageRef.current * ITEMS_PER_PAGE) + index + 1;
+                // Note: The map renders all leaders concatenated, so `index` is already absolute!
+                rank = index + 1;
+                
                 const isTop3 = rank <= 3;
                 const isMe = userId && (player.id === userId);
                 const effectiveAvatar = isMe ? userAvatar : (player.avatar_url || 'default');
@@ -519,16 +536,6 @@ export default function LeaderboardView({ onOpenChat }) {
                 </div>
               )}
             </Motion.div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-48 gap-4">
-              <span className="material-symbols-outlined text-4xl text-red-500/50">cloud_off</span>
-              <span className="font-black text-mono-400 font-rabar">کێشەیەک د پەیوەندیێ دا هەیە</span>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-48 gap-4">
-              <div className="w-10 h-10 border-2 border-mono-200 dark:border-primary border-t-transparent rounded-full animate-spin"></div>
-              <span className="font-black text-mono-400 dark:text-mono-700 uppercase text-[10px] tracking-widest">LOADING...</span>
-            </div>
           )}
         </AnimatePresence>
       </div>

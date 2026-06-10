@@ -331,31 +331,31 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   <h3 className="text-4xl font-black mb-2 bg-linear-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">پیرۆزە!</h3>
                   <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
                   
-                  <div className="mb-10 relative">
+                  <div className="mb-10 relative flex justify-center items-center w-full">
                     <Motion.div
                       initial={{ rotate: -180, scale: 0 }}
                       animate={{ rotate: 0, scale: 1 }}
                       transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                      className="relative z-10"
+                      className="relative z-10 flex justify-center"
                     >
                       <Motion.div
                         animate={{ y: [0, -10, 0] }}
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       >
                         {claimedDayInfo?.isGrand ? (
-                          <DinarIcon size={120} className="filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
+                          <DinarIcon size={120} className="block mx-auto overflow-visible filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
                         ) : claimedDayInfo?.type === 'fils' ? (
-                          <FilsIcon size={110} className="filter drop-shadow-[0_0_25px_rgba(250,204,21,0.5)]" />
+                          <FilsIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(250,204,21,0.5)]" />
                         ) : claimedDayInfo?.type === 'derhem' ? (
-                          <DerhemIcon size={110} className="filter drop-shadow-[0_0_25px_rgba(203,213,225,0.4)]" />
+                          <DerhemIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(203,213,225,0.4)]" />
                         ) : claimedDayInfo?.icon === 'lightbulb' ? (
-                          <HintIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
+                          <HintIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
-                          <MagnetIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(239,68,68,0.5)]" />
+                          <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(239,68,68,0.5)]" />
                         ) : claimedDayInfo?.icon === 'fast_forward' ? (
-                          <SkipIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]" />
+                          <SkipIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]" />
                         ) : (
-                          <span className="material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
                             {claimedDayInfo?.icon || 'redeem'}
                           </span>
                         )}
