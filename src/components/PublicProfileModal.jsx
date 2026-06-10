@@ -321,6 +321,7 @@ export default function PublicProfileModal({
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
         className="relative w-full max-w-sm bg-mono-white/95 dark:bg-black/95 backdrop-blur-md border border-mono-200 dark:border-white/10 rounded-md overflow-hidden flex-col items-center p-4 sm:p-5 text-center max-h-[90vh] overflow-y-auto transition-colors duration-500 shadow-2xl"
         dir="rtl"
+        onClick={() => setActiveTooltip(null)}
       >
         {/* Close Button */}
         <button
@@ -493,10 +494,10 @@ export default function PublicProfileModal({
                     return (
                       <div key={m.id} className="relative">
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             triggerHaptic(10);
                             setActiveTooltip(activeTooltip === m.id ? null : m.id);
-                            if (activeTooltip !== m.id) setTimeout(() => setActiveTooltip(null), 3000);
                           }}
                           className={`w-9 h-9 rounded-md border flex flex-col items-center justify-center transition-all duration-500 overflow- relative shadow-sm
                              ${isUnlocked ? `bg-mono-100 dark:bg-white/10 border-mono-300 dark:border-white/20 ${m.glow}` : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/5 grayscale opacity-20 hover:opacity-40'}`}
