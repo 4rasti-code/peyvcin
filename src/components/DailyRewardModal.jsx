@@ -331,7 +331,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   <h3 className="text-4xl font-black mb-2 bg-linear-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">پیرۆزە!</h3>
                   <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
                   
-                  <div className="mb-10 relative flex justify-center items-center w-full">
+                  <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                     <Motion.div
                       initial={{ rotate: -180, scale: 0 }}
                       animate={{ rotate: 0, scale: 1 }}
