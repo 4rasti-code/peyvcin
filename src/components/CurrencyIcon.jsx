@@ -244,23 +244,41 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
   </svg>
 );
 
-export const TeacherCandlePenIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+export const TeacherBookIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Giant Flame (Simple and Bold) */}
-    <path d="M 50 5 C 30 25 35 45 50 45 C 65 45 70 25 50 5 Z" fill={disabled ? "#6B7280" : "#F59E0B"} />
-    <path d="M 50 18 C 40 30 43 40 50 40 C 57 40 60 30 50 18 Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+    {/* Glowing Cone of Light */}
+    <path d="M 50 70 L 15 25 Q 50 10 85 25 Z" fill={disabled ? "#4B5563" : "#FEF08A"} opacity="0.3" />
 
-    {/* Thick Simple Pencil/Candle Body */}
-    <path d="M 36 45 L 64 45 L 64 75 L 36 75 Z" fill={disabled ? "#6B7280" : "#374151"} />
-    <path d="M 36 45 L 50 45 L 50 75 L 36 75 Z" fill={disabled ? "#4B5563" : "#1F2937"} />
+    {/* Brilliant Light Beams */}
+    <g stroke={disabled ? "#9CA3AF" : "#FBBF24"} strokeWidth="3" strokeLinecap="round">
+      <line x1="50" y1="65" x2="50" y2="15" strokeWidth="4" />
+      <line x1="40" y1="63" x2="28" y2="25" />
+      <line x1="60" y1="63" x2="72" y2="25" />
+      <line x1="30" y1="60" x2="12" y2="40" />
+      <line x1="70" y1="60" x2="88" y2="40" />
+    </g>
 
-    {/* Thick Wood Tip */}
-    <path d="M 36 75 L 50 95 L 64 75 Z" fill={disabled ? "#9CA3AF" : "#FDE68A"} />
-    <path d="M 36 75 L 50 75 L 50 95 Z" fill={disabled ? "#6B7280" : "#FCD34D"} />
+    {/* Magical Sparkles in the light */}
+    <circle cx="50" cy="10" r="3" fill={disabled ? "#D1D5DB" : "#FEF08A"} />
+    <circle cx="28" cy="18" r="2" fill={disabled ? "#D1D5DB" : "#FDE047"} />
+    <circle cx="72" cy="18" r="2" fill={disabled ? "#D1D5DB" : "#FDE047"} />
+    <circle cx="15" cy="50" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
+    <circle cx="85" cy="50" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
 
-    {/* Black Graphite Core */}
-    <path d="M 45 88 L 50 95 L 55 88 Z" fill={disabled ? "#374151" : "#111827"} />
-    <path d="M 45 88 L 50 88 L 50 95 Z" fill={disabled ? "#1F2937" : "#000000"} />
+    {/* Minimalist Open Book */}
+    {/* Book Cover (Solid deep blue for wisdom) */}
+    <path d="M 15 65 Q 35 85 50 80 Q 65 85 85 65 L 85 82 Q 65 102 50 97 Q 35 102 15 82 Z" fill={disabled ? "#6B7280" : "#4338CA"} />
+    
+    {/* Book Pages (White) */}
+    <path d="M 18 63 Q 35 81 50 77 Q 65 81 82 63 L 82 76 Q 65 94 50 90 Q 35 94 18 76 Z" fill={disabled ? "#D1D5DB" : "#F3F4F6"} />
+    
+    {/* Left Page Edge Highlight */}
+    <path d="M 18 63 Q 35 81 50 77" fill="none" stroke={disabled ? "#9CA3AF" : "#FFFFFF"} strokeWidth="2" />
+    {/* Right Page Edge Highlight */}
+    <path d="M 50 77 Q 65 81 82 63" fill="none" stroke={disabled ? "#9CA3AF" : "#FFFFFF"} strokeWidth="2" />
+    
+    {/* Center Spine Line */}
+    <line x1="50" y1="77" x2="50" y2="90" stroke={disabled ? "#9CA3AF" : "#D1D5DB"} strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
