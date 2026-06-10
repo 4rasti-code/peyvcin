@@ -4,7 +4,7 @@ import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
 import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
-import { FilsIcon, Level10Icon, KawaHammerIcon, GraduationCapIcon, KurdishShieldIcon, GlobeIcon } from './CurrencyIcon';
+import { FilsIcon, Level10Icon, KawaHammerIcon, TeacherCandlePenIcon, KurdishShieldIcon, GlobeIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
@@ -275,7 +275,7 @@ export default function PublicProfileModal({
   const medals = [
     { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
     { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: KawaHammerIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
+    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: TeacherCandlePenIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
     { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
     { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
   ];
