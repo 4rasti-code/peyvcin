@@ -190,3 +190,71 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
   </svg>
 );
 
+// Achievement SVGs
+export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M30 10L40 40L60 40L70 10Z" fill={disabled ? "#6B7280" : "#EAB308"} />
+    <path d="M40 10L45 40L55 40L60 10Z" fill={disabled ? "#4B5563" : "#CA8A04"} />
+    <circle cx="50" cy="65" r="25" fill={disabled ? "#4B5563" : "#FBBF24"} />
+    <circle cx="50" cy="65" r="20" fill={disabled ? "#374151" : "#F59E0B"} />
+    <path d="M50 48L54 58H65L56 65L59 76L50 69L41 76L44 65L35 58H46L50 48Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+  </svg>
+);
+
+export const BoxingGloveIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M25 40C25 20 40 10 60 15C80 20 85 40 80 60C75 80 50 85 40 85C30 85 25 70 25 60Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+    <path d="M25 50C15 55 10 70 20 80C30 90 45 80 40 70" fill={disabled ? "#4B5563" : "#DC2626"} />
+    <rect x="50" y="70" width="35" height="20" rx="4" transform="rotate(-15 50 70)" fill={disabled ? "#374151" : "#991B1B"} />
+    <path d="M35 30C45 20 60 25 70 30" stroke={disabled ? "#9CA3AF" : "#FCA5A5"} strokeWidth="4" strokeLinecap="round" />
+  </svg>
+);
+
+export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M50 20L90 40L50 60L10 40L50 20Z" fill={disabled ? "#4B5563" : "#1E3A8A"} />
+    <path d="M25 48V70C25 80 75 80 75 70V48Z" fill={disabled ? "#374151" : "#1E40AF"} />
+    <path d="M50 40L80 55V75" stroke={disabled ? "#9CA3AF" : "#FBBF24"} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="80" cy="80" r="5" fill={disabled ? "#6B7280" : "#F59E0B"} />
+    <path d="M75 80L72 95H88L85 80Z" fill={disabled ? "#6B7280" : "#F59E0B"} />
+  </svg>
+);
+
+export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <clipPath id="shield-clip">
+      <path d="M15 20C40 10 60 10 85 20V50C85 75 50 95 50 95C50 95 15 75 15 50V20Z" />
+    </clipPath>
+    <g clipPath="url(#shield-clip)">
+      <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
+      <rect x="0" y="33.3" width="100" height="33.3" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+      <rect x="0" y="66.6" width="100" height="33.4" fill={disabled ? "#4B5563" : "#10B981"} />
+      <circle cx="50" cy="50" r="12" fill={disabled ? "#374151" : "#EAB308"} />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(0 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(30 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(60 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(90 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(120 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(150 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(180 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(210 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(240 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(270 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(300 50 50)" />
+      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(330 50 50)" />
+    </g>
+    <path d="M15 20C40 10 60 10 85 20V50C85 75 50 95 50 95C50 95 15 75 15 50V20Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="6" strokeLinejoin="round" />
+  </svg>
+);
+
+export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <circle cx="50" cy="50" r="40" fill={disabled ? "#4B5563" : "#3B82F6"} />
+    <path d="M30 25C40 20 50 30 45 45C40 60 25 50 20 40C15 30 20 30 30 25Z" fill={disabled ? "#6B7280" : "#10B981"} />
+    <path d="M60 40C75 35 85 50 80 70C75 90 55 80 50 65C45 50 45 45 60 40Z" fill={disabled ? "#6B7280" : "#10B981"} />
+    <circle cx="50" cy="50" r="40" stroke={disabled ? "#374151" : "#2563EB"} strokeWidth="4" />
+    <path d="M50 10C30 30 30 70 50 90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
+    <path d="M50 10C70 30 70 70 50 90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
+    <path d="M10 50H90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
+  </svg>
+);

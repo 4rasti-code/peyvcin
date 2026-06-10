@@ -4,7 +4,7 @@ import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
 import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
-import { FilsIcon } from './CurrencyIcon';
+import { FilsIcon, Level10Icon, BoxingGloveIcon, GraduationCapIcon, KurdishShieldIcon, GlobeIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
@@ -273,11 +273,11 @@ export default function PublicProfileModal({
 
   // Medals Configuration
   const medals = [
-    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', icon: 'military_tech', tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
-    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', icon: 'sports_mma', tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', icon: 'school', tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
-    { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', icon: 'beenhere', tooltip: '١٠٠٠ پەیڤێن دیتین' },
-    { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', icon: 'public', tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
+    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
+    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: BoxingGloveIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
+    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
+    { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
+    { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
   ];
 
   const effectiveIsBlocked = internalBlocked || isBlocked;
@@ -487,12 +487,7 @@ export default function PublicProfileModal({
                         className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 shadow-sm ${isUnlocked ? `bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 ${m.glow}` : 'bg-mono-50 dark:bg-black/20 border-mono-100 dark:border-white/5 opacity-50 grayscale'}`}
                       >
                         <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center mb-2 shadow-sm border ${isUnlocked ? 'bg-mono-50 dark:bg-white/10 border-mono-200 dark:border-white/20' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/5'}`}>
-                          <span 
-                            className={`material-symbols-outlined text-[26px] drop-shadow-md transition-all ${isUnlocked ? m.color : 'text-slate-500'}`}
-                            style={{ fontVariationSettings: "'FILL' 1, 'wght' 400" }}
-                          >
-                            {m.icon}
-                          </span>
+                          <m.IconComponent className={`w-8 h-8 drop-shadow-md transition-all ${isUnlocked ? m.color : 'text-slate-500 opacity-50'}`} disabled={!isUnlocked} />
                         </div>
                         <span className={`text-[10px] font-black uppercase mb-1 font-rabar text-center leading-tight ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.name}</span>
                         <span className="text-[8px] font-bold text-mono-500 dark:text-white/40 text-center leading-tight px-1">{m.tooltip}</span>
