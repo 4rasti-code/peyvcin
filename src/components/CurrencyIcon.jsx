@@ -246,39 +246,43 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
 
 export const TeacherBookIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Glowing Cone of Light */}
-    <path d="M 50 70 L 15 25 Q 50 10 85 25 Z" fill={disabled ? "#4B5563" : "#FEF08A"} opacity="0.3" />
-
-    {/* Brilliant Light Beams */}
-    <g stroke={disabled ? "#9CA3AF" : "#FBBF24"} strokeWidth="3" strokeLinecap="round">
-      <line x1="50" y1="65" x2="50" y2="15" strokeWidth="4" />
-      <line x1="40" y1="63" x2="28" y2="25" />
-      <line x1="60" y1="63" x2="72" y2="25" />
-      <line x1="30" y1="60" x2="12" y2="40" />
-      <line x1="70" y1="60" x2="88" y2="40" />
+    
+    {/* Glowing Sun/Light Rising from Book (Drawn behind the book) */}
+    <circle cx="50" cy="45" r="22" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+    
+    {/* Light Rays */}
+    <g stroke={disabled ? "#D1D5DB" : "#FDE047"} strokeWidth="4" strokeLinecap="round">
+      <line x1="50" y1="18" x2="50" y2="6" />
+      <line x1="32" y1="27" x2="23" y2="18" />
+      <line x1="68" y1="27" x2="77" y2="18" />
+      <line x1="25" y1="38" x2="12" y2="34" />
+      <line x1="75" y1="38" x2="88" y2="34" />
     </g>
 
-    {/* Magical Sparkles in the light */}
-    <circle cx="50" cy="10" r="3" fill={disabled ? "#D1D5DB" : "#FEF08A"} />
-    <circle cx="28" cy="18" r="2" fill={disabled ? "#D1D5DB" : "#FDE047"} />
-    <circle cx="72" cy="18" r="2" fill={disabled ? "#D1D5DB" : "#FDE047"} />
-    <circle cx="15" cy="50" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
-    <circle cx="85" cy="50" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
+    {/* Book Cover (Dark Blue) */}
+    <path d="M 10 35 L 50 50 L 90 35 L 90 85 L 50 100 L 10 85 Z" fill={disabled ? "#4B5563" : "#1E3A8A"} stroke={disabled ? "#374151" : "#1E3A8A"} strokeWidth="2" strokeLinejoin="round" />
+    
+    {/* Left Page (White) */}
+    <path d="M 14 38 L 48 51 V 95 L 14 82 Z" fill={disabled ? "#D1D5DB" : "#F8FAFC"} />
+    
+    {/* Right Page (Slightly darker for shadow/depth) */}
+    <path d="M 86 38 L 52 51 V 95 L 86 82 Z" fill={disabled ? "#9CA3AF" : "#E2E8F0"} />
 
-    {/* Minimalist Open Book */}
-    {/* Book Cover (Solid deep blue for wisdom) */}
-    <path d="M 15 65 Q 35 85 50 80 Q 65 85 85 65 L 85 82 Q 65 102 50 97 Q 35 102 15 82 Z" fill={disabled ? "#6B7280" : "#4338CA"} />
+    {/* Text Lines on Left Page */}
+    <g stroke={disabled ? "#6B7280" : "#94A3B8"} strokeWidth="3" strokeLinecap="round">
+      <line x1="22" y1="49" x2="40" y2="56" />
+      <line x1="22" y1="59" x2="40" y2="66" />
+      <line x1="22" y1="69" x2="40" y2="76" />
+      <line x1="22" y1="79" x2="33" y2="83" />
+    </g>
     
-    {/* Book Pages (White) */}
-    <path d="M 18 63 Q 35 81 50 77 Q 65 81 82 63 L 82 76 Q 65 94 50 90 Q 35 94 18 76 Z" fill={disabled ? "#D1D5DB" : "#F3F4F6"} />
-    
-    {/* Left Page Edge Highlight */}
-    <path d="M 18 63 Q 35 81 50 77" fill="none" stroke={disabled ? "#9CA3AF" : "#FFFFFF"} strokeWidth="2" />
-    {/* Right Page Edge Highlight */}
-    <path d="M 50 77 Q 65 81 82 63" fill="none" stroke={disabled ? "#9CA3AF" : "#FFFFFF"} strokeWidth="2" />
-    
-    {/* Center Spine Line */}
-    <line x1="50" y1="77" x2="50" y2="90" stroke={disabled ? "#9CA3AF" : "#D1D5DB"} strokeWidth="2" strokeLinecap="round" />
+    {/* Text Lines on Right Page */}
+    <g stroke={disabled ? "#6B7280" : "#94A3B8"} strokeWidth="3" strokeLinecap="round">
+      <line x1="78" y1="49" x2="60" y2="56" />
+      <line x1="78" y1="59" x2="60" y2="66" />
+      <line x1="78" y1="69" x2="60" y2="76" />
+      <line x1="78" y1="79" x2="67" y2="83" />
+    </g>
   </svg>
 );
 
