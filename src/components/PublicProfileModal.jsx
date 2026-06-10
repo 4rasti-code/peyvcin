@@ -480,7 +480,7 @@ export default function PublicProfileModal({
                 <span className="text-[8px] font-black text-white/30 uppercase block text-center mb-2">دەستکەڤت و مەدالیا</span>
                 <div className="grid grid-cols-2 gap-2">
                   {medals.map((m) => {
-                    const isUnlocked = m.condition(displayData);
+                    const isUnlocked = true; // m.condition(displayData); // Temporarily true for owner to preview
                     return (
                       <div 
                         key={m.id} 
