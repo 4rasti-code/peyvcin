@@ -228,27 +228,29 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
     </clipPath>
     
     <g clipPath="url(#kurdistan-emblem-clip)">
-      {/* Red Sky */}
-      <rect x="0" y="0" width="100" height="35" fill={disabled ? "#6B7280" : "#EF4444"} />
+      {/* Red Band */}
+      <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
       
-      {/* White Dawn */}
-      <rect x="0" y="35" width="100" height="65" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+      {/* White Band */}
+      <rect x="0" y="33.3" width="100" height="33.4" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
       
-      {/* The 21-ray Golden Sun */}
-      <circle cx="50" cy="40" r="10" fill={disabled ? "#374151" : "#EAB308"} />
+      {/* Green Band (Mountains Base) */}
+      <rect x="0" y="66.7" width="100" height="33.3" fill={disabled ? "#4B5563" : "#059669"} />
+      
+      {/* Mountain silhouettes overlapping the green/white border */}
+      <path d="M -10 100 L 20 60 L 50 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
+      <path d="M 50 100 L 80 60 L 110 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
+      <path d="M 20 100 L 50 68 L 80 100 Z" fill={disabled ? "#374151" : "#047857"} />
+
+      {/* Snow Caps for the mountains */}
+      <path d="M 20 60 L 26 68 L 20 70 L 14 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
+      <path d="M 80 60 L 86 68 L 80 70 L 74 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
+
+      {/* The 21-ray Golden Sun (Centered perfectly at 50, 50 in the white band) */}
+      <circle cx="50" cy="50" r="10" fill={disabled ? "#374151" : "#EAB308"} />
       {[...Array(21)].map((_, i) => (
-        <path key={i} d="M50 30L48.5 22H51.5L50 30Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 40)`} />
+        <path key={i} d="M48.5 40H51.5L50 34Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 50)`} />
       ))}
-
-      {/* Green Mountains */}
-      <path d="M -10 100 L 25 60 L 60 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
-      <path d="M 40 100 L 75 65 L 110 100 Z" fill={disabled ? "#4B5563" : "#059669"} />
-      <path d="M 15 100 L 50 50 L 85 100 Z" fill={disabled ? "#374151" : "#047857"} />
-
-      {/* Snow Caps */}
-      <path d="M 25 60 L 32 68 L 25 72 L 18 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
-      <path d="M 75 65 L 82 73 L 75 75 L 68 73 Z" fill={disabled ? "#D1D5DB" : "#F3F4F6"} opacity="0.9" />
-      <path d="M 50 50 L 58 62 L 50 65 L 42 62 Z" fill={disabled ? "#D1D5DB" : "#F9FAFB"} opacity="0.9" />
     </g>
 
     {/* Elegant Golden Border */}
