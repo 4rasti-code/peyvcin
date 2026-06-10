@@ -193,51 +193,33 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const WoodenShieldGrowthIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft Green Aura */}
-    <circle cx="50" cy="50" r="42" fill={disabled ? "#4B5563" : "#22C55E"} opacity="0.15" />
-
-    {/* Wooden Shield Base */}
-    <path d="M 20 20 L 80 20 C 80 50 65 80 50 95 C 35 80 20 50 20 20 Z" fill={disabled ? "#6B7280" : "#92400E"} />
+    {/* Dark Wood Border */}
+    <path d="M 15 20 L 85 20 L 85 50 C 85 85 50 98 50 98 C 50 98 15 85 15 50 Z" fill={disabled ? "#4B5563" : "#78350F"} />
     
-    {/* Wooden Planks (Vertical stripes) */}
-    <g stroke={disabled ? "#4B5563" : "#78350F"} strokeWidth="2.5" opacity="0.7">
-      <line x1="32" y1="20" x2="32" y2="78" />
-      <line x1="44" y1="20" x2="44" y2="88" />
-      <line x1="56" y1="20" x2="56" y2="88" />
-      <line x1="68" y1="20" x2="68" y2="78" />
-    </g>
+    {/* Main Wood Body */}
+    <path d="M 23 28 L 77 28 L 77 50 C 77 78 50 89 50 89 C 50 89 23 78 23 50 Z" fill={disabled ? "#6B7280" : "#B45309"} />
 
-    {/* Light Wood Highlights / Shield Rim */}
-    <path d="M 20 20 L 80 20 C 80 50 65 80 50 95 C 35 80 20 50 20 20 Z" fill="none" stroke={disabled ? "#9CA3AF" : "#B45309"} strokeWidth="5" strokeLinejoin="round" />
-    <path d="M 24 24 L 76 24 C 76 50 63 77 50 90 C 37 77 24 50 24 24 Z" fill="none" stroke={disabled ? "#D1D5DB" : "#D97706"} strokeWidth="2" opacity="0.6" />
+    {/* Vertical Wood Planks */}
+    <path d="M 41 28 V 83 M 59 28 V 83" stroke={disabled ? "#4B5563" : "#92400E"} strokeWidth="3" />
 
-    {/* Ground base (a tiny patch of dirt/grass) */}
-    <path d="M 35 75 Q 50 80 65 75" fill="none" stroke={disabled ? "#4B5563" : "#064E3B"} strokeWidth="3" strokeLinecap="round" />
-    
-    {/* The Green Sapling */}
-    <g filter={disabled ? "none" : "drop-shadow(0px 0px 4px rgba(34, 197, 94, 0.5))"}>
+    {/* Metal Border Accents */}
+    <path d="M 15 20 L 85 20" stroke="#9CA3AF" strokeWidth="4" strokeLinecap="round" />
+    <circle cx="25" cy="20" r="3" fill="#D1D5DB" />
+    <circle cx="75" cy="20" r="3" fill="#D1D5DB" />
+    <circle cx="50" cy="20" r="3" fill="#D1D5DB" />
+
+    {/* Giant Sprout */}
+    <g filter={disabled ? "none" : "drop-shadow(0px 2px 3px rgba(34, 197, 94, 0.8))"}>
       {/* Stem */}
-      <path d="M 50 75 Q 48 55 50 45" fill="none" stroke={disabled ? "#9CA3AF" : "#16A34A"} strokeWidth="3.5" strokeLinecap="round" />
-      
+      <path d="M 50 78 V 40" fill="none" stroke={disabled ? "#D1D5DB" : "#4ADE80"} strokeWidth="6" strokeLinecap="round" />
       {/* Left Leaf */}
-      <path d="M 49 65 C 35 65 35 50 45 45 C 47 48 50 55 49 65 Z" fill={disabled ? "#D1D5DB" : "#4ADE80"} />
-      
+      <path d="M 47 55 C 15 55 15 25 47 25 C 38 35 38 45 47 55 Z" fill={disabled ? "#F3F4F6" : "#4ADE80"} />
       {/* Right Leaf */}
-      <path d="M 51 55 C 65 55 65 40 55 35 C 53 38 50 45 51 55 Z" fill={disabled ? "#D1D5DB" : "#22C55E"} />
-      
-      {/* Top Leaf */}
-      <path d="M 50 46 C 45 30 55 25 60 25 C 60 30 55 40 50 46 Z" fill={disabled ? "#F3F4F6" : "#4ADE80"} />
+      <path d="M 53 45 C 85 45 85 15 53 15 C 62 25 62 35 53 45 Z" fill={disabled ? "#E5E7EB" : "#22C55E"} />
     </g>
 
-    {/* Glowing Yellow Star */}
-    <g filter={disabled ? "none" : "drop-shadow(0px 0px 3px rgba(253, 224, 71, 0.8))"}>
-      <path d="M 35 35 L 37 28 L 44 26 L 37 24 L 35 17 L 33 24 L 26 26 L 33 28 Z" fill={disabled ? "#9CA3AF" : "#FDE047"} />
-      <circle cx="35" cy="26" r="2.5" fill={disabled ? "#F3F4F6" : "#FEF08A"} />
-    </g>
-    
-    {/* Magical Sparkles */}
-    <circle cx="65" cy="55" r="1.5" fill={disabled ? "#9CA3AF" : "#FDE047"} />
-    <circle cx="45" cy="82" r="1.5" fill={disabled ? "#D1D5DB" : "#86EFAC"} />
+    {/* Magical Star Sparkle */}
+    <path d="M 35 25 L 37 19 L 43 17 L 37 15 L 35 9 L 33 15 L 27 17 L 33 19 Z" fill={disabled ? "#D1D5DB" : "#FEF08A"} />
   </svg>
 );
 
