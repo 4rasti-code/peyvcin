@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
@@ -10,7 +10,7 @@ const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils
   const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
   return (
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
-      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-all duration-300`}>
+      <div id={`topbar-${currency}`} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-all duration-300`}>
         <div className={`w-4 h-4 flex items-center justify-center ${color}`}>
           <_IconComponent className="w-full h-full" />
         </div>
@@ -23,12 +23,16 @@ const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils
   );
 };
 
-const InventoryStat = ({ value, icon, color, bg, isDark = true }) => {
+const InventoryStat = ({ value, icon, Icon, color, bg, isDark = true, type }) => {
   return (
-    <div className={`flex items-center gap-1.5 px-2 py-1 rounded-[10px] ${bg || 'bg-white/5'} border border-white/5`}>
-      <span className={`material-symbols-outlined text-[18px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
-        {icon}
-      </span>
+    <div id={`topbar-${type}`} className={`flex items-center gap-1.5 px-2 py-1 rounded-[10px] ${bg || 'bg-white/5'} border border-white/5`}>
+      {Icon ? (
+        <Icon className="w-5 h-5 drop-shadow-md" disabled={(value || 0) <= 0} />
+      ) : (
+        <span className={`material-symbols-outlined text-[18px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+          {icon}
+        </span>
+      )}
       <span className={`text-[14px] font-black ${isDark ? 'text-white' : 'text-mono-900'}`}>{toKuDigits(value || 0)}</span>
     </div>
   );
@@ -160,7 +164,10 @@ export default function TopAppBar({
                  disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
                  className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
                >
-                 <span className={`material-symbols-outlined text-[24px] ${skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0 ? 'text-mono-400' : 'text-blue-400'}`} style={{ fontVariationSettings: "'FILL' 1" }}>fast_forward</span>
+                 <SkipIcon 
+                   disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
+                   className={`w-6 h-6 transition-all ${skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
+                 />
                  <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}</span>
                </button>
 
@@ -172,7 +179,10 @@ export default function TopAppBar({
                  disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
                  className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
                >
-                 <span className={`material-symbols-outlined text-[24px] ${magnetUsedInRound || (magnetCount || 0) <= 0 ? 'text-mono-400' : 'text-purple-400'}`} style={{ fontVariationSettings: "'FILL' 1" }}>auto_fix_high</span>
+                 <MagnetIcon 
+                   disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
+                   className={`w-6 h-6 transition-all ${magnetUsedInRound || (magnetCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
+                 />
                  <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits((magnetUsedInRound || (magnetCount || 0) <= 0) ? 0 : 1)}</span>
                </button>
 
@@ -184,7 +194,10 @@ export default function TopAppBar({
                  disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
                  className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
                >
-                 <span className={`material-symbols-outlined text-[24px] ${hintTaps >= hintLimit || (hintCount || 0) <= 0 ? 'text-mono-400' : 'text-amber-500'}`} style={{ fontVariationSettings: "'FILL' 1" }}>lightbulb</span>
+                 <HintIcon 
+                   disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
+                   className={`w-6 h-6 transition-all ${hintTaps >= hintLimit || (hintCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
+                 />
                  <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}</span>
                </button>
             </div>
@@ -238,15 +251,15 @@ export default function TopAppBar({
               {/* Helpers Group (Lobby/Store/Leaderboard) */}
               {(currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard') && (
                 <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
-                  <InventoryStat value={hintCount} icon="lightbulb" color="text-amber-500" bg="bg-transparent" isDark={isDark} />
-                  <InventoryStat value={magnetCount} icon="auto_fix_high" color="text-purple-400" bg="bg-transparent" isDark={isDark} />
-                  <InventoryStat value={skipCount} icon="fast_forward" color="text-blue-400" bg="bg-transparent" isDark={isDark} />
+                  <InventoryStat value={hintCount} Icon={HintIcon} bg="bg-transparent" isDark={isDark} type="hint" />
+                  <InventoryStat value={magnetCount} Icon={MagnetIcon} bg="bg-transparent" isDark={isDark} type="magnet" />
+                  <InventoryStat value={skipCount} Icon={SkipIcon} bg="bg-transparent" isDark={isDark} type="skip" />
                 </div>
               )}
 
               {/* Currencies Group */}
               <div className="flex items-center gap-1">
-                {(currentView === 'store' || currentView === 'leaderboard') && (
+                {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
                   <>
                     <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
                     <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />

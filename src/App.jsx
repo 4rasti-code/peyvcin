@@ -796,6 +796,16 @@ export default function App() {
           requestAnimationFrame(() => setCurrentView('auth'));
         }
       } else {
+        // STRICT ENTRY GUARD: Prevent unverified users from accessing the app via backdoor routes (like Password Recovery)
+        if (user.app_metadata?.provider === 'email' && !user.email_confirmed_at) {
+          console.warn("[App] Unverified user detected. Forcing sign out...");
+          supabase.auth.signOut();
+          if (currentView !== 'auth') {
+            requestAnimationFrame(() => setCurrentView('auth'));
+          }
+          return;
+        }
+
         if (currentView === 'auth') {
           // Guard: Prevent redirecting to lobby if user is in the middle of password recovery or signup verification
           if (isRecoveringRef.current || isVerifyingRef.current) {

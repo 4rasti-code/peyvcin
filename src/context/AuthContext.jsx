@@ -107,9 +107,17 @@ export const AuthProvider = ({ children }) => {
         if (error.code === 'PGRST116' || error.status === 406) {
           console.warn("[AuthContext] No profile found. Attempting client-side self-heal for:", activeUserId);
 
-          let nickname = authStateRef.current.user?.user_metadata?.nickname ||
-            authStateRef.current.user?.user_metadata?.username ||
-            authStateRef.current.user?.user_metadata?.full_name ||
+          let currentUser = authStateRef.current.user;
+          if (!currentUser) {
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (sessionData?.session?.user) {
+              currentUser = sessionData.session.user;
+            }
+          }
+
+          let nickname = currentUser?.user_metadata?.nickname ||
+            currentUser?.user_metadata?.username ||
+            currentUser?.user_metadata?.full_name ||
             'یاریکەر';
 
           // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
@@ -392,7 +400,19 @@ export const AuthProvider = ({ children }) => {
   }, [user?.id]);
 
   const updateProfile = useCallback(async (profileData) => {
-    const { user: currentUser, userNickname, userAvatar, countryCode, isInKurdistan } = authStateRef.current;
+    let currentUser = authStateRef.current.user;
+    let currentCountryCode = authStateRef.current.countryCode;
+    let currentIsInKurdistan = authStateRef.current.isInKurdistan;
+    let currentNickname = authStateRef.current.userNickname;
+    let currentAvatar = authStateRef.current.userAvatar;
+
+    if (!currentUser?.id) {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session?.user) {
+        currentUser = data.session.user;
+      }
+    }
+
     if (!currentUser?.id) return { success: false, error: "Must be logged in" };
 
     if (profileData.nickname !== undefined) setUserNickname(profileData.nickname);
@@ -415,10 +435,10 @@ export const AuthProvider = ({ children }) => {
     try {
       // 1. Update Identity via RPC
       const { error: rpcError } = await supabase.rpc('update_profile_identity', {
-        p_nickname: profileData.nickname || userNickname,
-        p_avatar_url: profileData.avatar_url || userAvatar,
-        p_country_code: profileData.country_code || countryCode,
-        p_is_in_kurdistan: profileData.is_kurdistan ?? isInKurdistan
+        p_nickname: profileData.nickname || currentNickname || 'یاریزان',
+        p_avatar_url: profileData.avatar_url || currentAvatar || 'default',
+        p_country_code: profileData.country_code || currentCountryCode || 'IQ',
+        p_is_in_kurdistan: profileData.is_kurdistan ?? currentIsInKurdistan ?? true
       });
       if (rpcError) throw rpcError;
 
@@ -426,9 +446,9 @@ export const AuthProvider = ({ children }) => {
       if (profileData.nickname !== undefined || profileData.avatar_url !== undefined) {
         await supabase.auth.updateUser({
           data: {
-            nickname: profileData.nickname || userNickname,
-            name: profileData.nickname || userNickname,
-            avatar_url: profileData.avatar_url || userAvatar,
+            nickname: profileData.nickname || currentNickname || 'یاریزان',
+            name: profileData.nickname || currentNickname || 'یاریزان',
+            avatar_url: profileData.avatar_url || currentAvatar || 'default',
           }
         });
       }

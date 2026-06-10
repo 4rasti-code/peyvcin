@@ -47,7 +47,7 @@ export const catMap = {
 
 // --- Master Pool (Excluding Riddles/Mamak) ---
 // Dynamically inject the "category" property into every word
-export const allWordsMaster = Object.entries(catMap).flatMap(([catName, wordList]) => 
+export const allWordsMaster = Object.entries(catMap).flatMap(([catName, wordList]) =>
   wordList.map(w => ({ ...w, category: catName }))
 );
 

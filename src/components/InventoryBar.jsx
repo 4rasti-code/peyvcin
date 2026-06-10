@@ -1,5 +1,6 @@
 import React from 'react';
 import { toKuDigits } from '../utils/formatters';
+import { HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 
 const InventoryBar = ({ 
   magnetCount, 
@@ -18,7 +19,6 @@ const InventoryBar = ({
 }) => {
   const countColor = "text-mono-950 dark:text-mono-100";
   const sepColor = "bg-mono-200 dark:bg-white/10";
-  const disabledIconColor = "text-mono-300 dark:text-mono-700";
 
   return (
     <div className={`flex items-center justify-center h-[52px] ${className}`}>
@@ -34,13 +34,10 @@ const InventoryBar = ({
             name="btn-hint"
             aria-label="Use Hint"
           >
-            <span 
-              className={`material-symbols-outlined text-[24px] 
-                ${(!isShop && (hintTaps >= hintLimit || (hintCount || 0) <= 0)) ? disabledIconColor : "text-amber-500"}`} 
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              lightbulb
-            </span>
+            <HintIcon 
+              disabled={isShop ? (hintCount || 0) <= 0 : (hintTaps >= hintLimit || (hintCount || 0) <= 0)}
+              className={`w-6 h-6 transition-all ${isShop ? ((hintCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md') : ((hintTaps >= hintLimit || (hintCount || 0) <= 0) ? 'opacity-50' : 'drop-shadow-md')}`} 
+            />
             
             <div className="flex flex-col leading-none">
               {isShop && (
@@ -57,7 +54,7 @@ const InventoryBar = ({
           </button>
         </div>
 
-        <div className={`w-[1px] h-4 ${sepColor}`} />
+        <div className={`w-px h-4 ${sepColor}`} />
 
         {/* Magnet Item */}
         <div className="flex items-center gap-3">
@@ -69,13 +66,10 @@ const InventoryBar = ({
             name="btn-magnet"
             aria-label="Use Magnet"
           >
-            <span 
-              className={`material-symbols-outlined text-[24px] 
-                ${(!isShop && (magnetUsedInRound || (magnetCount || 0) <= 0)) ? disabledIconColor : "text-purple-400"}`} 
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              auto_fix_high
-            </span>
+            <MagnetIcon 
+              disabled={isShop ? (magnetCount || 0) <= 0 : (magnetUsedInRound || (magnetCount || 0) <= 0)}
+              className={`w-6 h-6 transition-all ${isShop ? ((magnetCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md') : ((magnetUsedInRound || (magnetCount || 0) <= 0) ? 'opacity-50' : 'drop-shadow-md')}`} 
+            />
             
             <div className="flex flex-col leading-none">
               {isShop && (
@@ -92,7 +86,7 @@ const InventoryBar = ({
           </button>
         </div>
 
-        <div className={`w-[1px] h-4 ${sepColor}`} />
+        <div className={`w-px h-4 ${sepColor}`} />
 
         {/* Skip Item */}
         <div className="flex items-center gap-3">
@@ -104,13 +98,10 @@ const InventoryBar = ({
             name="btn-skip"
             aria-label="Use Skip"
           >
-            <span 
-              className={`material-symbols-outlined text-[24px] 
-                ${(!isShop && (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)) ? disabledIconColor : "text-blue-400"}`} 
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              fast_forward
-            </span>
+            <SkipIcon 
+              disabled={isShop ? (skipCount || 0) <= 0 : (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
+              className={`w-6 h-6 transition-all ${isShop ? ((skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md') : ((skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'opacity-50' : 'drop-shadow-md')}`} 
+            />
             
             <div className="flex flex-col leading-none">
               {isShop && (

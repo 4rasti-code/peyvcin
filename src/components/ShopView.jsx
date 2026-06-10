@@ -2,8 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { THEMES } from '../data/themes';
-import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
-import PaymentGatewayModal from './PaymentGatewayModal';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import { toKuDigits } from '../utils/formatters';
 import InventoryBar from './InventoryBar';
 import { useUser } from '../context/AuthContext';
@@ -19,8 +18,7 @@ const SHOP_ITEMS = {
   SPECIALS: [
     { id: 'fils_pack_small', name: '٥٠٠ فلس', description: 'بڕەکا کێم ژ دراوی بۆ یاریێ', icon: 'payments', price_usd: 0.99, price_iqd: 1500, amount: 500, color: 'from-blue-400 to-indigo-500', glow: 'shadow-blue-500/30', type: 'currency' },
     { id: 'fils_pack_medium', name: '٢٥٠٠ فلس', description: 'پاکێجا ناڤین و ب مفاتر', icon: 'savings', price_usd: 2.99, price_iqd: 4500, amount: 2500, color: 'from-emerald-400 to-teal-600', glow: 'shadow-emerald-500/30', type: 'currency' },
-    { id: 'fils_pack_large', name: '٧٥٠٠ فلس', description: 'مەزنترین بڕا دراوی بۆ یاریزانێن زیرەک', icon: 'account_balance_wallet', price_usd: 6.99, price_iqd: 10000, amount: 7500, color: 'from-amber-400 to-orange-600', glow: 'shadow-amber-500/40', type: 'currency' },
-    { id: 'premium_bundle', name: 'پاکێجا زێڕین (Premium)', description: '١٠٠٠ فلس + ٣ موگناتیس + ٢ دەربازبوون + ١ ھاریکاری', icon: 'auto_awesome', price_usd: 4.99, price_iqd: 7500, color: 'from-yellow-400 to-orange-600', glow: 'shadow-yellow-500/50', type: 'package' }
+    { id: 'fils_pack_large', name: '٧٥٠٠ فلس', description: 'مەزنترین بڕا دراوی بۆ یاریزانێن زیرەک', icon: 'account_balance_wallet', price_usd: 6.99, price_iqd: 10000, amount: 7500, color: 'from-amber-400 to-orange-600', glow: 'shadow-amber-500/40', type: 'currency' }
   ],
   AVATARS: [
     { id: 'peshmerga', name: 'پێشمەرگە', description: 'رێبەرێ چەلەنگ و پارێزەر', image: '/src/assets/characters/peshmerga_guide.png', price: 500, currency: 'derhem', color: 'from-green-600 to-emerald-800' },
@@ -57,7 +55,15 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
       className={`group relative w-full px-5 py-4 ${dynamicClass} rounded-md border-b-4 flex items-center gap-4 overflow-visible transition-all shadow-md active:border-b-0 active:translate-y-[2px]`}
     >
       <div className="w-[48px] h-[48px] rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 transition-transform group-hover:scale-110 duration-300 border border-white/30">
-        <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
+        {item.id === 'hint_pack' ? (
+          <HintIcon className="w-8 h-8 drop-shadow-md" />
+        ) : item.id === 'attractor_field' ? (
+          <MagnetIcon className="w-8 h-8 drop-shadow-md" />
+        ) : item.id === 'full_skip' ? (
+          <SkipIcon className="w-8 h-8 drop-shadow-md" />
+        ) : (
+          <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
+        )}
       </div>
       
       <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
@@ -79,46 +85,11 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   );
 };
 
-const SpecialOfferCard = ({ item, onOpenGateway, playPurchaseSound }) => (
-  <Motion.button
-    layout
-    whileHover={{ scale: 1.01 }}
-    whileTap={{ scale: 0.98 }}
-    onClick={() => { triggerHaptic(10); playPurchaseSound?.(); onOpenGateway(item); }}
-    className="group relative w-full p-6 sm:p-7 rounded-md bg-linear-to-br from-amber-400 via-amber-500 to-orange-600 border border-amber-300 shadow-lg flex flex-col gap-4 overflow-hidden mb-6"
-  >
-    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-1000 skew-x-12" />
-    
-    <div className="flex items-center justify-between w-full relative z-10">
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-md bg-white/20 flex items-center justify-center text-white border border-white/40 shadow-inner group-hover:scale-105 transition-transform duration-500">
-           <span className="material-symbols-outlined text-[40px] drop-shadow-md">auto_awesome</span>
-        </div>
-        
-        <div className="text-right">
-          <h3 className="text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-sm">پاکێجا زێڕین</h3>
-          <p className="text-[11px] font-bold text-white/80  uppercase mt-0.5">پێشنیارا تایبەت</p>
-        </div>
-      </div>
 
-      <div className="flex flex-col items-center justify-center bg-white/20 px-4 py-2 rounded-md border border-white/30 shadow-md">
-         <span className="text-xl sm:text-2xl font-black text-white leading-none">${toKuDigits(item.price_usd || 0)}</span>
-         <span className="text-[10px] font-bold text-white/70 mt-1">{toKuDigits(item.price_iqd || 0)} دینار</span>
-      </div>
-    </div>
-
-    <div className="flex items-center bg-white/10 p-3.5 rounded-md border border-white/20 relative z-10 w-full text-right">
-       <span className="text-[12px] font-bold text-white leading-relaxed block w-full">{item.description}</span>
-    </div>
-  </Motion.button>
-);
-
-export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hintCount, skipCount, onPurchase, onPurchaseAvatar, onEquipAvatar, ownedAvatars = ['default'], equippedAvatar = 'default', playPurchaseSound }) {
+export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hintCount, skipCount, onPurchase, onPurchaseAvatar, onEquipAvatar, ownedAvatars = ['default'], equippedAvatar = 'default' }) {
   const { playTabSound } = useAudio();
   const { user: _user, loadingAuth } = useUser();
   const [activeTab, setActiveTab] = useState('powerups');
-  const [gatewayOpen, setGatewayOpen] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState(null);
   const bgRef = useRef(null);
 
   const handleBackgroundClick = (e) => {
@@ -127,17 +98,6 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
       const x = (e.clientX - rect.left) / rect.width;
       const y = (e.clientY - rect.top) / rect.height;
       bgRef.current?.pulse(x, y);
-    }
-  };
-
-  const openGateway = (offer) => {
-    setSelectedOffer({ ...offer, usd: offer.price_usd, iqd: offer.price_iqd });
-    setGatewayOpen(true);
-  };
-
-  const handleGatewayComplete = () => {
-    if (selectedOffer) {
-       onPurchase(selectedOffer);
     }
   };
 
@@ -221,7 +181,6 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
                   <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => executePurchase({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
                 ))}
               </div>
-              <SpecialOfferCard item={SHOP_ITEMS.SPECIALS.find(s => s.id === 'premium_bundle')} onOpenGateway={openGateway} playPurchaseSound={playPurchaseSound} />
             </Motion.div>
           )}
           {activeTab === 'avatars' && (
@@ -282,14 +241,7 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
           فلس، درهەم، و دینار دراڤێن خەیالی یێن ناڤ یاریێ نە و چ بهایەکێ ڕاستەقینە یان مادی نینە. ئەڤ یارییە چ پەیوەندی ب قومارێ و گۆڕینا دراڤی ب پارێ ڕاستەقینە ڤە نینە.
         </p>
       </div>
-    </div>
-
-      <PaymentGatewayModal 
-        isOpen={gatewayOpen} 
-        onClose={() => setGatewayOpen(false)} 
-        item={selectedOffer}
-        onComplete={handleGatewayComplete}
-      />
+      </div>
     </div>
   );
 }

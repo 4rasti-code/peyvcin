@@ -6,7 +6,8 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
-import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
+import CoinAnimation from './CoinAnimation';
 
 const REWARDS_CONFIG = [
   { day: 1, label: '٢٠٠ فلس', type: 'fils', reward: { fils: 200 }, color: '#CD7F32' },
@@ -20,18 +21,18 @@ const REWARDS_CONFIG = [
 
 // COLOR MAP FOR DAYS
 const DAY_COLORS = {
-  1: "border-cyan-500/50 text-cyan-500 dark:text-cyan-400 bg-cyan-500/15",
-  2: "border-blue-500/50 text-blue-500 dark:text-blue-400 bg-blue-500/15",
-  3: "border-amber-500/50 text-amber-500 dark:text-amber-400 bg-amber-500/15",
-  4: "border-rose-500/50 text-rose-500 dark:text-rose-400 bg-rose-500/15",
-  5: "border-emerald-500/50 text-emerald-500 dark:text-emerald-400 bg-emerald-500/15",
-  6: "border-violet-500/50 text-violet-500 dark:text-violet-400 bg-violet-500/15",
-  7: "border-orange-500/60 text-orange-500 dark:text-orange-400 bg-orange-500/20",
+  1: "bg-violet-500 text-white shadow-[0_4px_0_#6d28d9] border-none",
+  2: "bg-amber-500 text-white shadow-[0_4px_0_#b45309] border-none",
+  3: "bg-rose-500 text-white shadow-[0_4px_0_#be123c] border-none",
+  4: "bg-emerald-500 text-white shadow-[0_4px_0_#047857] border-none",
+  5: "bg-cyan-500 text-white shadow-[0_4px_0_#0e7490] border-none",
+  6: "bg-fuchsia-500 text-white shadow-[0_4px_0_#a21caf] border-none",
+  7: "bg-yellow-500 text-white shadow-[0_5px_0_#ca8a04] border-none",
 };
 
 const DAY_STYLES = {
-  available: "bg-black dark:bg-white border-black dark:border-white text-white dark:text-black shadow-2xl z-10 cursor-pointer",
-  claimed: "bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 opacity-90",
+  available: "ring-2 ring-white dark:ring-black outline outline-4 outline-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)] z-20 cursor-pointer scale-105 brightness-110",
+  claimed: "opacity-60 translate-y-[4px] !shadow-none border-none",
 };
 
 export default function DailyRewardModal({ isOpen, onClose, isDark }) {
@@ -45,6 +46,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   const { playDailyOpenSfx, playDailyClaimSfx } = useAudio();
   const [claiming, setClaiming] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [boxState, setBoxState] = useState('unopened'); // 'unopened', 'opening', 'opened'
+  const [animatingReward, setAnimatingReward] = useState(false);
   const [claimedDayInfo, setClaimedDayInfo] = useState(null);
   const [serverReportedClaimed, setServerReportedClaimed] = useState(false);
 
@@ -91,31 +94,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
       const result = await claimDailyReward();
       if (result && result.success) {
         setClaimedDayInfo(REWARDS_CONFIG.find(r => r.day === result.streak));
+        setBoxState('unopened');
         setShowSuccess(true);
-        if (hapticEnabled) triggerHaptic([30, 60, 30]);
-        playDailyClaimSfx();
-        
-        if (result.streak === 7) {
-          setTimeout(() => {
-            const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
-            const fireBurst = (x, y, count) => {
-              confetti({
-                particleCount: count,
-                spread: 60,
-                origin: { x, y },
-                colors: colors,
-                zIndex: 2000
-              });
-            };
-            
-            fireBurst(0.5, 0.6, 120);
-          }, 300);
-        }
-        
-        setTimeout(() => {
-          onClose();
-          setShowSuccess(false);
-        }, 3500);
       } else {
         const errorMsg = result?.error || "خەلات ناهێتە وەرگرتن، دبیت تو یێ ل هیڤیا دەمێ نوو بی.";
         if (errorMsg.toLowerCase().includes('already claimed') || errorMsg.includes('claimed today') || errorMsg.includes('بەری نوکە')) {
@@ -177,15 +157,16 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         relative p-3 rounded-md border flex flex-col items-center justify-center gap-1.5 transition-all
                         ${isDay7 ? 'col-span-3 h-28 flex-row justify-between px-8 overflow-hidden' : 'aspect-square'}
                         
-                        ${isClaimed ? DAY_STYLES.claimed : (isNext ? DAY_STYLES.available : `border-transparent ${DAY_COLORS[item.day]}`)}
-                        ${isFuture && !isClaimed ? 'opacity-80' : ''}
+                        ${DAY_COLORS[item.day]}
+                        ${isClaimed ? DAY_STYLES.claimed : (isNext ? DAY_STYLES.available : 'opacity-90 hover:opacity-100')}
+                        ${isFuture && !isClaimed && !isNext ? 'opacity-70' : ''}
                       `}
                     >
                       <div className={`flex flex-col ${isDay7 ? 'items-start' : 'items-center'}`}>
                         <span className={`font-black text-[10px] uppercase tracking-normal ${isNext && !isClaimed ? '' : 'opacity-80'}`}>
                           ڕۆژا {toKuDigits(item.day)}
                         </span>
-                        {isDay7 && (
+                        {isDay7 && !isFuture && (
                           <span className={`font-black text-2xl italic mt-1`}>
                             {item.label}
                           </span>
@@ -194,28 +175,34 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
 
                       <div className={`relative flex items-center justify-center ${isDay7 ? 'w-24' : 'flex-1'}`}>
                         {/* ICON LOGIC */}
-                        {isDay7 ? (
+                        {isFuture && !isClaimed ? (
+                          <div className="flex flex-col items-center justify-center opacity-40">
+                            <span className={`material-symbols-outlined ${isDay7 ? 'text-[70px]' : 'text-4xl'}!`}>
+                              lock
+                            </span>
+                          </div>
+                        ) : isDay7 ? (
                           <DinarIcon size={isDay7 && isNext ? 85 : 70} />
                         ) : isNext && !isClaimed ? (
                           <span className="material-symbols-outlined text-4xl!">redeem</span>
-                        ) : (!isFuture || isClaimed) ? (
+                        ) : (
                           <>
                             {item.type === 'fils' ? (
                               <FilsIcon size={36} />
                             ) : item.type === 'derhem' ? (
                               <DerhemIcon size={36} />
+                            ) : item.icon === 'lightbulb' ? (
+                              <HintIcon size={40} />
+                            ) : item.icon === 'auto_fix_high' ? (
+                              <MagnetIcon size={40} />
+                            ) : item.icon === 'fast_forward' ? (
+                              <SkipIcon size={40} />
                             ) : (
                               <span className="material-symbols-outlined text-4xl!">
                                 {item.icon || 'redeem'}
                               </span>
                             )}
                           </>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center opacity-40">
-                            <span className="material-symbols-outlined text-4xl!">
-                              lock
-                            </span>
-                          </div>
                         )}
 
                         {isClaimed && (
@@ -278,28 +265,141 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
             <Motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-center bg-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-10 flex flex-col items-center relative overflow-hidden"
+              className="text-center bg-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-10 flex flex-col items-center relative overflow-hidden min-w-[320px] min-h-[350px] justify-center"
             >
-              <h3 className="text-4xl font-black text-mono-900 dark:text-white mb-2">پیرۆزە!</h3>
-              <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
-              
-              <div className="mb-10">
-                {claimedDayInfo?.isGrand ? (
-                  <DinarIcon size={100} />
-                ) : (
-                  <span className="material-symbols-outlined text-[80px]! text-black dark:text-white">redeem</span>
-                )}
-                <div className="mt-4 px-6 py-2 bg-black dark:bg-white text-white dark:text-black rounded-md font-black text-xl">
-                  + {claimedDayInfo?.label}
-                </div>
-              </div>
+              {boxState === 'unopened' && (
+                <Motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col items-center w-full"
+                >
+                  <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2">دیاریەک بۆ تە!</h3>
+                  <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 animate-pulse">کلیک ل سەر دیاریێ بکە بۆ ڤەکرنێ</p>
+                  
+                  <Motion.button
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                    onClick={() => {
+                       setBoxState('opening');
+                       if (hapticEnabled) triggerHaptic([20, 30, 20, 50, 60, 80]);
+                       setTimeout(() => {
+                         setBoxState('opened');
+                         playDailyClaimSfx();
+                         if (hapticEnabled) triggerHaptic([60, 100, 60]);
+                         const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
+                         confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
+                       }, 1300);
+                    }}
+                    className="mb-6 hover:scale-110 transition-transform cursor-pointer relative group"
+                  >
+                    <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full group-hover:bg-primary/40 transition-all duration-500" />
+                    <span className="relative z-10 material-symbols-outlined text-[120px]! text-primary drop-shadow-[0_10px_20px_rgba(var(--color-primary),0.5)]">
+                      featured_seasonal_and_gifts
+                    </span>
+                  </Motion.button>
+                </Motion.div>
+              )}
 
-              <button
-                onClick={() => { setShowSuccess(false); onClose(); }}
-                className="w-full h-14 bg-black dark:bg-white text-white dark:text-black rounded-md font-black text-lg shadow-xl active:scale-95 transition-all"
-              >
-                بەردەوام بە
-              </button>
+              {boxState === 'opening' && (
+                <div className="flex flex-col items-center w-full">
+                  <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2 opacity-50">ڤەکرن...</h3>
+                  <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 opacity-0">کلیک</p>
+                  
+                  <Motion.div
+                    animate={{ 
+                      x: [-10, 10, -15, 15, -8, 8, -5, 5, 0], 
+                      scale: [1, 1.05, 1.1, 1.15, 1.25, 1.3],
+                      rotate: [-5, 5, -5, 5, -2, 2, 0]
+                    }}
+                    transition={{ duration: 1.3, ease: "easeInOut" }}
+                    className="mb-6"
+                  >
+                    <span className="material-symbols-outlined text-[120px]! text-primary blur-[1px]">
+                      featured_seasonal_and_gifts
+                    </span>
+                  </Motion.div>
+                </div>
+              )}
+
+              {boxState === 'opened' && (
+                <Motion.div 
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: [0.5, 1.15, 1], opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                  className="flex flex-col items-center w-full"
+                >
+                  <h3 className="text-4xl font-black mb-2 bg-linear-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">پیرۆزە!</h3>
+                  <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
+                  
+                  <div className="mb-10 relative">
+                    <Motion.div
+                      initial={{ rotate: -180, scale: 0 }}
+                      animate={{ rotate: 0, scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                      className="relative z-10"
+                    >
+                      <Motion.div
+                        animate={{ y: [0, -10, 0] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        {claimedDayInfo?.isGrand ? (
+                          <DinarIcon size={120} className="filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
+                        ) : claimedDayInfo?.type === 'fils' ? (
+                          <FilsIcon size={110} className="filter drop-shadow-[0_0_25px_rgba(250,204,21,0.5)]" />
+                        ) : claimedDayInfo?.type === 'derhem' ? (
+                          <DerhemIcon size={110} className="filter drop-shadow-[0_0_25px_rgba(203,213,225,0.4)]" />
+                        ) : claimedDayInfo?.icon === 'lightbulb' ? (
+                          <HintIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
+                        ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
+                          <MagnetIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(239,68,68,0.5)]" />
+                        ) : claimedDayInfo?.icon === 'fast_forward' ? (
+                          <SkipIcon size={120} animate={true} className="filter drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]" />
+                        ) : (
+                          <span className="material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                            {claimedDayInfo?.icon || 'redeem'}
+                          </span>
+                        )}
+                      </Motion.div>
+                    </Motion.div>
+                    
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+
+                    <Motion.div 
+                      initial={{ scale: 0, y: 20 }}
+                      animate={{ scale: 1, y: 0 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
+                      className="mt-6 px-8 py-3 bg-linear-to-r from-mono-900 to-black dark:from-white dark:to-mono-100 text-white dark:text-black rounded-xl font-black text-2xl relative z-10 shadow-2xl border border-white/10 dark:border-mono-900/10"
+                    >
+                      + {claimedDayInfo?.label}
+                    </Motion.div>
+
+                    <CoinAnimation 
+                      trigger={animatingReward} 
+                      isDaily={true} 
+                      type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
+                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1} 
+                    />
+                  </div>
+
+                  <Motion.button
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    onClick={() => { 
+                      if (animatingReward) return;
+                      setAnimatingReward(true);
+                      setTimeout(() => {
+                        setShowSuccess(false); 
+                        setAnimatingReward(false);
+                        onClose(); 
+                      }, 2200);
+                    }}
+                    className={`w-full h-14 bg-primary text-white rounded-md font-black text-lg shadow-xl transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
+                  >
+                    بەردەوام بە
+                  </Motion.button>
+                </Motion.div>
+              )}
             </Motion.div>
           </Motion.div>
         )}

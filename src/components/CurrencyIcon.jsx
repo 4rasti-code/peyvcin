@@ -116,3 +116,77 @@ export const DinarIcon = ({ className = "w-5 h-5", size = 24 }) => (
     ))}
   </svg>
 );
+
+// High-Fidelity PowerUp Icons
+
+export const HintIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .bulb-glass { animation: turnOn 1.5s ease-out forwards; animation-delay: 0.2s; fill: #4B5563; }
+          @keyframes turnOn {
+            0%, 30% { fill: #4B5563; }
+            100% { fill: #FBBF24; filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.4)); }
+          }
+        `}
+      </style>
+    )}
+    <path className={animate ? "bulb-glass" : ""} d="M50 15C33.4 15 20 28.4 20 45C20 58.3 28.6 69.5 40 73V80C40 82.8 42.2 85 45 85H55C57.8 85 60 82.8 60 80V73C71.4 69.5 80 58.3 80 45C80 28.4 66.6 15 50 15Z" fill={disabled ? "#6B7280" : "#FBBF24"} />
+    <path d="M42 87H58V94H42V87Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+  </svg>
+);
+
+export const MagnetIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .zap-flash { animation: zapPulse 2s infinite; opacity: 0; }
+          .zap-flash-2 { animation-delay: 0.3s; }
+          @keyframes zapPulse {
+            0%, 85% { opacity: 0; transform: scale(0.8) translate(5px, 5px); }
+            88% { opacity: 1; transform: scale(1.1) translate(0, 0); }
+            92% { opacity: 0; transform: scale(0.9) translate(2px, 2px); }
+            95% { opacity: 1; transform: scale(1) translate(0, 0); }
+            100% { opacity: 0; }
+          }
+        `}
+      </style>
+    )}
+    <path d="M30 45C30 33.9543 38.9543 25 50 25C61.0457 25 70 33.9543 70 45V75H85V45C85 25.67 69.33 10 50 10C30.67 10 15 25.67 15 45V75H30V45Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+    <path d="M15 78H30V90H15V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+    <path d="M70 78H85V90H70V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+    {animate && (
+      <>
+        <path className="zap-flash" d="M42 84L48 78L45 92L52 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path className="zap-flash zap-flash-2" d="M58 84L52 78L55 92L48 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    )}
+  </svg>
+);
+
+export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .skip-pulse { animation: skipAnim 2s infinite ease-in-out; }
+          .skip-pulse-2 { animation-delay: 0.2s; }
+          @keyframes skipAnim {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(6px); opacity: 0.5; }
+          }
+        `}
+      </style>
+    )}
+    <circle cx="50" cy="50" r="45" fill={disabled ? "#6B7280" : "#3B82F6"} />
+    <g className={animate ? "skip-pulse" : ""}>
+      <path d="M28 30V70L52 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+    </g>
+    <g className={animate ? "skip-pulse skip-pulse-2" : ""}>
+      <path d="M56 30V70L80 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+    </g>
+  </svg>
+);
+
