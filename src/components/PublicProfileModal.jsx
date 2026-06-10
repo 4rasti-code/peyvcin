@@ -273,7 +273,7 @@ export default function PublicProfileModal({
 
   // Medals Configuration
   const medals = [
-    { id: 'nobera', name: 'نۆبەرە', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', icon: 'military_tech', tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
+    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', icon: 'military_tech', tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
     { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', icon: 'sports_mma', tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
     { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', icon: 'school', tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
     { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', icon: 'beenhere', tooltip: '١٠٠٠ پەیڤێن دیتین' },
