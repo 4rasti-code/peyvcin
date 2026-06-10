@@ -205,6 +205,201 @@ export const BoxingGloveIcon = ({ className = "w-6 h-6", size = 24, disabled = f
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <path d="M25 40C25 20 40 10 60 15C80 20 85 40 80 60C75 80 50 85 40 85C30 85 25 70 25 60Z" fill={disabled ? "#6B7280" : "#EF4444"} />
     <path d="M25 50C15 55 10 70 20 80C30 90 45 80 40 70" fill={disabled ? "#4B5563" : "#DC2626"} />
+const HammeredBase = ({ fill, stroke, opacity = 1 }) => (
+  <path 
+    d="M50 4.5C28 3.5 6 12 5 35C4 58 13 88 40 95C67 102 96 87 95 60C94 33 82 5.5 50 4.5Z" 
+    fill={fill} 
+    stroke={stroke} 
+    strokeWidth="3"
+    fillOpacity={opacity}
+  />
+);
+
+export const FilsIcon = ({ className = "w-5 h-5", size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <HammeredBase fill="#5D3A1A" stroke="#3E2711" />
+    {/* Beaded Inner Border */}
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#CD7F32" strokeWidth="1" strokeDasharray="3 4" opacity="0.4"/>
+    {/* Marwanid Double-Headed Eagle (Artuqid style "Y" silhouette) */}
+    <path 
+      d="M50 42L42 22L30 30M50 42L58 22L70 30M50 42V82M35 55L45 50M65 55L55 50M40 75L50 68L60 75" 
+      stroke="#CD7F32" 
+      strokeWidth="6" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    />
+    <path 
+      d="M48 85H52M38 45Q50 35 62 45M45 42L55 42" 
+      stroke="#CD7F32" 
+      strokeWidth="3" 
+      strokeLinecap="round"
+    />
+    {/* Surface Imperfections */}
+    <circle cx="25" cy="35" r="1.5" fill="#3E2711" opacity="0.3"/>
+    <circle cx="75" cy="65" r="2" fill="#3E2711" opacity="0.2"/>
+  </svg>
+);
+
+export const DerhemIcon = ({ className = "w-5 h-5", size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <HammeredBase fill="#A0A0A0" stroke="#2D2D2D" />
+    {/* Beaded Inner Rim (Hand-punched look) */}
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#2D2D2D" strokeWidth="1.5" strokeDasharray="2 4" opacity="0.4"/>
+    
+    {/* Literal Kufic Script Scribbles (represented by horizontal 'toothy' paths) */}
+    <g transform="translate(10, 0)">
+      <path 
+        d="M25 38H65M27 35V41M35 35V42M48 35V41M58 35V42" 
+        stroke="#2D2D2D" 
+        strokeWidth="3" 
+        strokeLinecap="round" 
+        opacity="0.8"
+      />
+      <path 
+        d="M22 50H68M25 47V53M38 47V54M52 47V53M62 47V54" 
+        stroke="#2D2D2D" 
+        strokeWidth="3" 
+        strokeLinecap="round" 
+        opacity="0.8"
+      />
+      <path 
+        d="M28 62H62M32 59V65M45 59V66M55 59V65" 
+        stroke="#2D2D2D" 
+        strokeWidth="3" 
+        strokeLinecap="round" 
+        opacity="0.8"
+      />
+    </g>
+
+    {/* Surface Highlighting to simulate minted metal */}
+    <path 
+      d="M25 38H65" 
+      stroke="#E8E8E8" 
+      strokeWidth="1" 
+      transform="translate(11, -1)" 
+      opacity="0.6"
+    />
+    
+    {/* Rim Script Scribbles (Circular arrangement) */}
+    {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
+      <path 
+        key={a} 
+        d="M50 12Q55 10 60 12" 
+        stroke="#2D2D2D" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        transform={`rotate(${a} 50 50)`} 
+        opacity="0.5" 
+      />
+    ))}
+  </svg>
+);
+
+export const DinarIcon = ({ className = "w-5 h-5", size = 24 }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <HammeredBase fill="#B8860B" stroke="#846506" />
+    {/* Concentric Ayyubid Rings */}
+    <circle cx="50" cy="50" r="42" stroke="#FFD700" strokeWidth="2" opacity="0.8"/>
+    <circle cx="50" cy="50" r="30" stroke="#FFD700" strokeWidth="3" opacity="0.9"/>
+    <circle cx="50" cy="50" r="12" stroke="#FFD700" strokeWidth="4"/>
+    {/* Calligraphic Symbols/Scribbles */}
+    <path d="M42 50H58M50 42V58" stroke="#FFD700" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M22 50Q25 25 50 25Q75 25 78 50M22 50Q25 75 50 75Q75 75 78 50" stroke="#FFD700" strokeWidth="1" strokeDasharray="2 4" opacity="0.5"/>
+    {/* Rim lettering markers */}
+    {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
+      <rect key={a} x="48" y="8" width="4" height="2" fill="#FFD700" transform={`rotate(${a} 50 50)`} opacity="0.7"/>
+    ))}
+  </svg>
+);
+
+// High-Fidelity PowerUp Icons
+
+export const HintIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .bulb-glass { animation: turnOn 1.5s ease-out forwards; animation-delay: 0.2s; fill: #4B5563; }
+          @keyframes turnOn {
+            0%, 30% { fill: #4B5563; }
+            100% { fill: #FBBF24; filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.4)); }
+          }
+        `}
+      </style>
+    )}
+    <path className={animate ? "bulb-glass" : ""} d="M50 15C33.4 15 20 28.4 20 45C20 58.3 28.6 69.5 40 73V80C40 82.8 42.2 85 45 85H55C57.8 85 60 82.8 60 80V73C71.4 69.5 80 58.3 80 45C80 28.4 66.6 15 50 15Z" fill={disabled ? "#6B7280" : "#FBBF24"} />
+    <path d="M42 87H58V94H42V87Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+  </svg>
+);
+
+export const MagnetIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .zap-flash { animation: zapPulse 2s infinite; opacity: 0; }
+          .zap-flash-2 { animation-delay: 0.3s; }
+          @keyframes zapPulse {
+            0%, 85% { opacity: 0; transform: scale(0.8) translate(5px, 5px); }
+            88% { opacity: 1; transform: scale(1.1) translate(0, 0); }
+            92% { opacity: 0; transform: scale(0.9) translate(2px, 2px); }
+            95% { opacity: 1; transform: scale(1) translate(0, 0); }
+            100% { opacity: 0; }
+          }
+        `}
+      </style>
+    )}
+    <path d="M30 45C30 33.9543 38.9543 25 50 25C61.0457 25 70 33.9543 70 45V75H85V45C85 25.67 69.33 10 50 10C30.67 10 15 25.67 15 45V75H30V45Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+    <path d="M15 78H30V90H15V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+    <path d="M70 78H85V90H70V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
+    {animate && (
+      <>
+        <path className="zap-flash" d="M42 84L48 78L45 92L52 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        <path className="zap-flash zap-flash-2" d="M58 84L52 78L55 92L48 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    )}
+  </svg>
+);
+
+export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {animate && (
+      <style>
+        {`
+          .skip-pulse { animation: skipAnim 2s infinite ease-in-out; }
+          .skip-pulse-2 { animation-delay: 0.2s; }
+          @keyframes skipAnim {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(6px); opacity: 0.5; }
+          }
+        `}
+      </style>
+    )}
+    <circle cx="50" cy="50" r="45" fill={disabled ? "#6B7280" : "#3B82F6"} />
+    <g className={animate ? "skip-pulse" : ""}>
+      <path d="M28 30V70L52 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+    </g>
+    <g className={animate ? "skip-pulse skip-pulse-2" : ""}>
+      <path d="M56 30V70L80 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
+    </g>
+  </svg>
+);
+
+// Achievement SVGs
+export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M30 10L40 40L60 40L70 10Z" fill={disabled ? "#6B7280" : "#EAB308"} />
+    <path d="M40 10L45 40L55 40L60 10Z" fill={disabled ? "#4B5563" : "#CA8A04"} />
+    <circle cx="50" cy="65" r="25" fill={disabled ? "#4B5563" : "#FBBF24"} />
+    <circle cx="50" cy="65" r="20" fill={disabled ? "#374151" : "#F59E0B"} />
+    <path d="M50 48L54 58H65L56 65L59 76L50 69L41 76L44 65L35 58H46L50 48Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+  </svg>
+);
+
+export const BoxingGloveIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M25 40C25 20 40 10 60 15C80 20 85 40 80 60C75 80 50 85 40 85C30 85 25 70 25 60Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+    <path d="M25 50C15 55 10 70 20 80C30 90 45 80 40 70" fill={disabled ? "#4B5563" : "#DC2626"} />
     <rect x="50" y="70" width="35" height="20" rx="4" transform="rotate(-15 50 70)" fill={disabled ? "#374151" : "#991B1B"} />
     <path d="M35 30C45 20 60 25 70 30" stroke={disabled ? "#9CA3AF" : "#FCA5A5"} strokeWidth="4" strokeLinecap="round" />
   </svg>
@@ -222,28 +417,19 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <clipPath id="shield-clip">
-      <path d="M15 20C40 10 60 10 85 20V50C85 75 50 95 50 95C50 95 15 75 15 50V20Z" />
+    <clipPath id="kurdistan-map-clip">
+      <path d="M 15 35 Q 25 20 40 15 Q 60 10 75 20 Q 85 35 85 55 Q 85 70 80 85 Q 70 80 65 75 Q 50 65 55 60 Q 40 65 25 60 Q 10 55 10 45 Q 10 35 15 35 Z" />
     </clipPath>
-    <g clipPath="url(#shield-clip)">
+    <g clipPath="url(#kurdistan-map-clip)">
       <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
       <rect x="0" y="33.3" width="100" height="33.3" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
       <rect x="0" y="66.6" width="100" height="33.4" fill={disabled ? "#4B5563" : "#10B981"} />
-      <circle cx="50" cy="50" r="12" fill={disabled ? "#374151" : "#EAB308"} />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(0 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(30 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(60 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(90 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(120 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(150 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(180 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(210 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(240 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(270 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(300 50 50)" />
-      <path d="M50 38L48 30H52L50 38Z" fill={disabled ? "#374151" : "#EAB308"} transform="rotate(330 50 50)" />
+      <circle cx="47" cy="50" r="8" fill={disabled ? "#374151" : "#EAB308"} />
+      {[...Array(21)].map((_, i) => (
+        <path key={i} d="M47 40L46 32H48L47 40Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 47 50)`} />
+      ))}
     </g>
-    <path d="M15 20C40 10 60 10 85 20V50C85 75 50 95 50 95C50 95 15 75 15 50V20Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="6" strokeLinejoin="round" />
+    <path d="M 15 35 Q 25 20 40 15 Q 60 10 75 20 Q 85 35 85 55 Q 85 70 80 85 Q 70 80 65 75 Q 50 65 55 60 Q 40 65 25 60 Q 10 55 10 45 Q 10 35 15 35 Z" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="4" strokeLinejoin="round" />
   </svg>
 );
 
