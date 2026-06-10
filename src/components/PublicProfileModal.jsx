@@ -478,37 +478,17 @@ export default function PublicProfileModal({
 
               <div className="pt-2 pb-1 border-t border-white/5 mt-1">
                 <span className="text-[8px] font-black text-white/30 uppercase block text-center mb-2">دەستکەڤت و مەدالیا</span>
-                <div className="flex justify-center gap-1.5 flex-wrap relative">
+                <div className="grid grid-cols-2 gap-2">
                   {medals.map((m) => {
                     const isUnlocked = m.condition(displayData);
                     return (
-                      <div key={m.id} className="relative">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            triggerHaptic(10);
-                            setActiveTooltip(activeTooltip === m.id ? null : m.id);
-                          }}
-                          className={`w-9 h-9 rounded-md border flex flex-col items-center justify-center transition-all duration-500 overflow- relative shadow-sm
-                             ${isUnlocked ? `bg-mono-100 dark:bg-white/10 border-mono-300 dark:border-white/20 ${m.glow}` : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/5 grayscale opacity-20 hover:opacity-40'}`}
-                        >
-                          <span className={`material-symbols-outlined text-[16px] ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.icon}</span>
-                        </button>
-                        <AnimatePresence>
-                          {activeTooltip === m.id && (
-                            <Motion.div
-                              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: 5, scale: 0.9 }}
-                              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-40 p-2 bg-mono-white dark:bg-slate-800 border border-mono-200 dark:border-white/10 rounded-md z-20 pointer-events-none text-center shadow-xl"
-                            >
-                              <p className="text-[10px] font-bold text-mono-900 dark:text-white font-rabar leading-tight">
-                                <span className={`block uppercase mb-1 ${m.color}`}>{m.name}</span>
-                                {m.tooltip}
-                              </p>
-                            </Motion.div>
-                          )}
-                        </AnimatePresence>
+                      <div 
+                        key={m.id} 
+                        className={`flex flex-col items-center justify-center p-2 rounded-md border transition-all duration-300 shadow-sm ${isUnlocked ? `bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 ${m.glow}` : 'bg-mono-50 dark:bg-black/20 border-mono-100 dark:border-white/5 opacity-50 grayscale'}`}
+                      >
+                        <span className={`material-symbols-outlined text-2xl mb-1 ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.icon}</span>
+                        <span className={`text-[10px] font-black uppercase mb-0.5 font-rabar text-center leading-tight ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.name}</span>
+                        <span className="text-[8px] font-bold text-mono-500 dark:text-white/40 text-center leading-tight">{m.tooltip}</span>
                       </div>
                     );
                   })}
