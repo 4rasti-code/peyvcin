@@ -210,10 +210,10 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
       {/* Red Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#EF4444"} />
       {/* White Hammer */}
-      <rect x="42" y="45" width="16" height="30" rx="2" fill="#FFFFFF" />
-      <rect x="25" y="25" width="50" height="20" rx="4" fill="#FFFFFF" />
+      <rect x="42" y="50" width="16" height="28" rx="2" fill="#FFFFFF" />
+      <rect x="25" y="30" width="50" height="20" rx="4" fill="#FFFFFF" />
       {/* Action Sparks */}
-      <path d="M 30 15 L 35 20 M 50 10 L 50 18 M 70 15 L 65 20" />
+      <path d="M 32 22 L 38 28 M 50 18 L 50 26 M 68 22 L 62 28" />
     </g>
   </svg>
 );
