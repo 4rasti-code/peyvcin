@@ -1341,7 +1341,7 @@ export default function App() {
         )}
 
         {/* 1. STATE-BASED NAVIGATION HEADER */}
-        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && multiplayerState !== 'playing' && (
+        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && multiplayerState !== 'playing' && (
           <TopAppBar
             user={user} fils={fils} derhem={derhem} dinar={dinar}
             magnetCount={magnetCount} hintCount={hintCount} skipCount={skipCount}
@@ -1397,7 +1397,7 @@ export default function App() {
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-        <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+        <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
               onAuthSuccess={async (u, nicknameHint) => {
@@ -1622,6 +1622,7 @@ export default function App() {
             )}
             {currentView === 'profile' && (
               <ProfileView
+                onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
                 user={user}
                 userNickname={userNickname}
                 onProfileSave={handleProfileSave}

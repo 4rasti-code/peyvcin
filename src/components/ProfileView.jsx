@@ -26,7 +26,7 @@ import {
   ExpertDiamondIcon 
 } from './CurrencyIcon';
 
-export default function ProfileView({ onProfileSave }) {
+export default function ProfileView({ onProfileSave, onOpenSettings }) {
    const {
       user, userNickname, userAvatar,
       isInKurdistan, countryCode, lastNicknameUpdate, profileData
@@ -326,80 +326,32 @@ export default function ProfileView({ onProfileSave }) {
 
          </div>
 
-         <div className="px-5 mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone">
-            <div className="relative w-full aspect-[1.4/1] max-w-[340px] rounded-md overflow-hidden border border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300 shadow-xl">
+         <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
+            <div className="relative w-full aspect-[1.15/1] sm:aspect-3/2 overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300 shadow-xl">
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-20 z-60 px-6 flex justify-between items-center" dir="ltr">
-                  {/* Left: Save/Streak */}
-                  <div className="relative pt-6 w-14">
-                     <AnimatePresence mode="popLayout">
-                        {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess ? (
-                           <Motion.button
-                              key="save-btn"
-                              initial={{ scale: 0, rotate: -90 }}
-                              animate={{ scale: 1, rotate: 0 }}
-                              exit={{ scale: 0, rotate: 90 }}
-                              onClick={(e) => { e.stopPropagation(); handleSave(); }}
-                              disabled={isUploading}
-                              className="w-14 h-14 bg-green-600 text-white rounded-md flex flex-col items-center justify-center border-b-2 border-white/40 hover:scale-110 active:scale-95 transition-all shadow-lg absolute -top-2"
-                           >
-                              {isUploading ? (
-                                 <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
-                              ) : (
-                                 <>
-                                    <span className="material-symbols-outlined text-[24px] font-black leading-none">save</span>
-                                    <span className="text-[7px] font-black uppercase -mt-0.5">پاشەکەفت</span>
-                                 </>
-                              )}
-                           </Motion.button>
-                        ) : (
-                           <Motion.div
-                              key="streak-badge"
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              className="flex flex-col items-center justify-center relative w-12 h-14"
-                           >
-                              <Motion.div
-                                 className="relative text-xl leading-none cursor-pointer"
-                                 animate={{
-                                    filter: [
-                                       "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))",
-                                       "drop-shadow(0 0 20px rgba(255, 159, 28, 0.8))",
-                                       "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))"
-                                    ]
-                                 }}
-                                 transition={{
-                                    repeat: Infinity,
-                                    duration: 2.5,
-                                    ease: "easeInOut"
-                                 }}
-                              >
-                                 {isStreakAtRisk ? '⏳' : '🔥'}
-                                 <Motion.div
-                                    className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 rounded-full blur-lg z-[-1]"
-                                    animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-                                    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-                                 />
-                              </Motion.div>
-                              <div className="flex flex-col items-center z-10 w-full mt-1">
-                                 <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
-                                 <div className="flex items-baseline gap-0.5">
-                                    <span className="text-lg font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)}</span>
-                                    <span className="text-[10px] font-bold text-mono-600 dark:text-mono-400">ڕۆژ</span>
-                                 </div>
-                              </div>
-                           </Motion.div>
-                        )}
-                     </AnimatePresence>
+               <div className="absolute top-0 left-0 right-0 h-[62%] z-60 px-6 pt-12 flex justify-between items-start pointer-events-none" dir="ltr">
+                  {/* Left: Settings Icon */}
+                  <div className="relative pointer-events-auto mt-[-6px]">
+                     <Motion.button
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        onClick={(e) => { e.stopPropagation(); triggerHaptic(10); onOpenSettings?.(); }}
+                        className="w-12 h-12 flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all -ml-2"
+                     >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '36px', height: '36px' }}>
+                           <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+                        </svg>
+                     </Motion.button>
                   </div>
 
                   {/* Right: Level Shield (Restored Original Style) */}
-                  <div className="relative pt-6 w-20 flex flex-col items-end">
+                  <div className="relative w-20 flex flex-col items-end pointer-events-auto">
                      <div className="relative flex flex-col items-center justify-center">
                         <svg width="48" height="55" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
                            <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#levelMedalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.3" />
@@ -418,18 +370,10 @@ export default function ProfileView({ onProfileSave }) {
                   </div>
                </div>
 
-               {/* Highest Medal Badge - Under Streaks, Left Corner */}
-               <div 
-                  className="absolute left-7 top-[58%] w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110 cursor-pointer"
-                  onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setIsMedalsExpanded(prev => !prev); }}
-               >
-                  <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
-               </div>
-
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
-               <div className="absolute inset-0 flex items-start justify-center z-30 pointer-events-none pt-4">
+               <div className="absolute top-0 left-0 right-0 h-[62%] flex items-center justify-center z-30 pointer-events-none">
                   <Motion.div
-                     className="relative pointer-events-auto cursor-pointer group/avatar p-2"
+                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8"
                      whileHover={{ scale: 1.05 }}
                      whileTap={{ scale: 0.95 }}
                      onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
@@ -516,7 +460,7 @@ export default function ProfileView({ onProfileSave }) {
                      </div>
 
                      <div className="relative p-0.5 bg-mono-white dark:bg-black rounded-full shadow-2xl border-[0.5px] border-mono-200 dark:border-mono-800 z-10">
-                        <Avatar src={draftAvatar} size="xl" className="w-26 h-26 rounded-full border border-mono-100 dark:border-mono-800 object-cover" updatedAt={user?.updated_at} />
+                        <Avatar src={draftAvatar} size="xl" className="w-32 h-32 rounded-full border border-mono-100 dark:border-mono-800 object-cover" updatedAt={user?.updated_at} />
                         <div
                            className="absolute bottom-0 right-0 w-9 h-9 text-slate-950 rounded-full border-2 border-white flex items-center justify-center shadow-xl z-50 transition-transform active:scale-90"
                            style={{ backgroundColor: tier.stop1 }}
@@ -528,56 +472,123 @@ export default function ProfileView({ onProfileSave }) {
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className="absolute bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 p-3 pt-1 shadow-[0_-10px_20px_rgba(0,0,0,0.1)]" dir="rtl">
-                  <div className="flex flex-col items-center mb-2">
-                     <h3
-                        className="text-xl font-black font-rabar leading-tight truncate w-full text-center px-4 transition-all duration-500"
-                        style={{
-                           color: tier.stop1
-                        }}
+               <div className="absolute top-[62%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-[18px] pt-2 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] flex flex-col justify-end" dir="rtl">
+                  <div className="flex flex-row items-center justify-between w-full mb-[14px] px-2" dir="ltr">
+                     {/* Left: Medal Badge */}
+                     <div 
+                        className="w-12 h-12 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer shrink-0"
+                        onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setIsMedalsExpanded(prev => !prev); }}
                      >
-                        {draftNickname || 'یاریکەر'}
-                     </h3>
+                        <bestMedal.IconComponent className={`w-10 h-10 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
+                     </div>
+
+                     {/* Center: Name */}
+                     <div className="flex-1 flex flex-col items-center px-2 min-w-0">
+                        <h3
+                           className="text-[22px] font-black font-rabar leading-tight truncate w-full text-center transition-all duration-500"
+                           style={{ color: tier.stop1 }}
+                        >
+                           {draftNickname || 'یاریکەر'}
+                        </h3>
+                     </div>
+
+                     {/* Right: Streak / Save */}
+                     <div className="w-12 h-12 flex items-center justify-center shrink-0">
+                        <AnimatePresence mode="popLayout">
+                           {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess ? (
+                              <Motion.button
+                                 key="save-btn"
+                                 initial={{ scale: 0, rotate: -90 }}
+                                 animate={{ scale: 1, rotate: 0 }}
+                                 exit={{ scale: 0, rotate: 90 }}
+                                 onClick={(e) => { e.stopPropagation(); handleSave(); }}
+                                 disabled={isUploading}
+                                 className="w-12 h-12 bg-green-600 text-white rounded-md flex flex-col items-center justify-center border-b-2 border-white/40 hover:scale-110 active:scale-95 transition-all shadow-lg absolute"
+                              >
+                                 {isUploading ? (
+                                    <div className="w-5 h-5 border-2 border-slate-950/30 border-t-slate-950 rounded-full animate-spin"></div>
+                                 ) : (
+                                    <>
+                                       <span className="material-symbols-outlined text-[20px] font-black leading-none">save</span>
+                                       <span className="text-[7px] font-black uppercase -mt-0.5">پاشەکەفت</span>
+                                    </>
+                                 )}
+                              </Motion.button>
+                           ) : (
+                              <Motion.div
+                                 key="streak-badge"
+                                 initial={{ opacity: 0, scale: 0.8 }}
+                                 animate={{ opacity: 1, scale: 1 }}
+                                 className="flex flex-col items-center justify-center relative w-12 h-12 hover:scale-110 transition-transform cursor-pointer"
+                              >
+                                 <Motion.div
+                                    className="relative text-xl leading-none"
+                                    animate={{
+                                       filter: [
+                                          "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))",
+                                          "drop-shadow(0 0 20px rgba(255, 159, 28, 0.8))",
+                                          "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))"
+                                       ]
+                                    }}
+                                    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                                 >
+                                    {isStreakAtRisk ? '⏳' : '🔥'}
+                                    <Motion.div
+                                       className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 rounded-full blur-lg z-[-1]"
+                                       animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                                       transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                                    />
+                                 </Motion.div>
+                                 <div className="flex flex-col items-center z-10 w-full mt-0.5">
+                                    <span className="text-[7px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
+                                    <div className="flex items-baseline gap-0.5">
+                                       <span className="text-sm font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)}</span>
+                                       <span className="text-[8px] font-bold text-mono-600 dark:text-mono-400">ڕۆژ</span>
+                                    </div>
+                                 </div>
+                              </Motion.div>
+                           )}
+                        </AnimatePresence>
+                     </div>
                   </div>
 
                   {/* Unified 3-Column Stats Grid */}
-                  <div className="grid grid-cols-3 gap-1.5" dir="ltr">
+                  <div className="grid grid-cols-3 gap-4 px-4" dir="ltr">
 
                      <div
-                        className="flex flex-col items-center justify-center py-1.5 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
                         style={{
                            backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.12)`,
                            borderColor: `${tier.stop1}30`
                         }}
                      >
-                        <span className="text-[9px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">XP سەرجەمێ</span>
-                        <span className="text-[12px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
+                        <span className="text-[10px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">XP سەرجەمێ</span>
+                        <span className="text-[13px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
                            {isLoading ? <div className="w-6 h-2 bg-mono-100 dark:bg-mono-800 animate-pulse rounded"></div> : toKuDigits(currentXP || 0)}
                         </span>
                      </div>
 
                      <div
-                        className="flex flex-col items-center justify-center py-1.5 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
                         style={{
                            backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.22)`,
                            borderColor: `${tier.stop1}40`
                         }}
                      >
-                        <span className="text-[9px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">ڕێزبەندی</span>
-                        <span className="text-[12px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
+                        <span className="text-[10px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">ڕێزبەندی</span>
+                        <span className="text-[13px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
                            {isLoading ? '...' : `#${toKuDigits(userRank || 0)}`}
                         </span>
                      </div>
 
                      <div
-                        className={`flex flex-col items-center justify-center py-1.5 rounded-md border border-white/10 shadow-sm transition-all duration-500 backdrop-blur-md ${isLoading ? 'animate-pulse opacity-50' : ''}`}
+                        className={`flex flex-col items-center justify-center py-2 rounded-md border border-white/10 shadow-sm transition-all duration-500 backdrop-blur-md ${isLoading ? 'animate-pulse opacity-50' : ''}`}
                         style={{
-                           backgroundColor: tier.stop1,
-                           boxShadow: `0 4px 12px ${tier.stop1}40`
+                           backgroundColor: tier.stop1
                         }}
                      >
-                        <span className="text-[9px] font-black uppercase mb-0.5 text-mono-950/80">پەیڤێن دیتی</span>
-                        <span className="text-[12px] font-black text-mono-950 leading-none tabular-nums">
+                        <span className="text-[10px] font-black uppercase mb-0.5 text-mono-950/80">پەیڤێن دیتی</span>
+                        <span className="text-[13px] font-black text-mono-950 leading-none tabular-nums">
                            {isLoading ? '...' : toKuDigits(solvedWords?.length || 0)}
                         </span>
                      </div>

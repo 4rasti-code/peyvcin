@@ -144,9 +144,9 @@ export default function TopAppBar({
                       whileTap={{ scale: 0.9 }}
                       transition={{ type: "spring", stiffness: 400, damping: 17 }}
                       onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-                      className="w-12 h-12 flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all"
+                      className={`flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all ${currentView === 'profile' ? 'w-[60px] h-[60px] mt-[12px]' : 'w-12 h-12'}`}
                     >
-                      <span className="material-symbols-outlined text-[32px] font-black">settings</span>
+                      <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
                     </Motion.button>
                   )}
                 </div>
