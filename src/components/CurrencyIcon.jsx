@@ -193,94 +193,65 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const WoodenShieldGrowthIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Solid Flat Brown Shield */}
-    <path d="M 15 15 L 85 15 L 85 55 C 85 85 50 95 50 95 C 50 95 15 85 15 55 Z" fill={disabled ? "#6B7280" : "#A16207"} />
-    
-    {/* Solid Flat Yellow Star */}
-    <path d="M 50 25 L 56 40 L 75 40 L 60 52 L 66 70 L 50 60 L 34 70 L 40 52 L 25 40 L 44 40 Z" fill={disabled ? "#D1D5DB" : "#FDE047"} />
+    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Shield Outline */}
+      <path d="M 50 15 L 20 25 V 50 C 20 75 50 90 50 90 C 50 90 80 75 80 50 V 25 Z" />
+      {/* Star Inside */}
+      <path d="M 50 32 L 55 45 H 68 L 57 53 L 61 66 L 50 58 L 39 66 L 43 53 L 32 45 H 45 Z" />
+    </g>
   </svg>
 );
 
 export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Solid Flat Red Flame */}
-    <path d="M 50 90 C 10 80 20 20 50 10 C 80 20 90 80 50 90 Z" fill={disabled ? "#9CA3AF" : "#EF4444"} />
-    
-    {/* Solid Flat Brown Handle */}
-    <rect x="42" y="45" width="16" height="50" fill={disabled ? "#6B7280" : "#78350F"} rx="2" />
-    
-    {/* Solid Flat Grey Hammer Head */}
-    <rect x="15" y="30" width="70" height="25" fill={disabled ? "#D1D5DB" : "#64748B"} rx="4" />
+    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Fire Outlines */}
+      <path d="M 20 70 C 5 55 15 25 35 20" />
+      <path d="M 80 70 C 95 55 85 25 65 20" />
+      
+      {/* Hammer Handle */}
+      <rect x="42" y="44" width="16" height="46" rx="4" />
+      
+      {/* Hammer Head (Filled for contrast like Streamline filled-icons) */}
+      <rect x="15" y="20" width="70" height="24" rx="6" fill="currentColor" />
+    </g>
   </svg>
 );
 
 export const TeacherBookIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Flat Yellow Light Rays */}
-    <g stroke={disabled ? "#9CA3AF" : "#FDE047"} strokeWidth="10" strokeLinecap="round">
-      <line x1="50" y1="40" x2="50" y2="15" />
-      <line x1="30" y1="35" x2="18" y2="20" />
-      <line x1="70" y1="35" x2="82" y2="20" />
+    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Light Rays */}
+      <line x1="50" y1="35" x2="50" y2="10" />
+      <line x1="32" y1="32" x2="18" y2="18" />
+      <line x1="68" y1="32" x2="82" y2="18" />
+      
+      {/* Open Book Outline */}
+      <path d="M 50 90 V 60" /> {/* Spine line */}
+      <path d="M 15 50 L 50 60 L 85 50 V 80 L 50 90 L 15 80 Z" />
     </g>
-
-    {/* Flat Blue Book Cover */}
-    <path d="M 10 45 L 50 60 L 90 45 L 90 85 L 50 100 L 10 85 Z" fill={disabled ? "#6B7280" : "#3B82F6"} />
-    
-    {/* Flat White Pages */}
-    <path d="M 16 45 L 50 58 L 84 45 L 84 82 L 50 95 L 16 82 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
-    
-    {/* Center Spine Line */}
-    <line x1="50" y1="58" x2="50" y2="95" stroke={disabled ? "#9CA3AF" : "#94A3B8"} strokeWidth="4" />
   </svg>
 );
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Circular Emblem Clip */}
-    <clipPath id="kurdistan-emblem-clip">
-      <circle cx="50" cy="50" r="45" />
-    </clipPath>
-    
-    <g clipPath="url(#kurdistan-emblem-clip)">
-      {/* Red Band */}
-      <rect x="0" y="0" width="100" height="33.3" fill={disabled ? "#6B7280" : "#EF4444"} />
-      
-      {/* White Band */}
-      <rect x="0" y="33.3" width="100" height="33.4" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
-      
-      {/* Green Band (Mountains Base) */}
-      <rect x="0" y="66.7" width="100" height="33.3" fill={disabled ? "#4B5563" : "#059669"} />
-      
-      {/* Mountain silhouettes overlapping the green/white border */}
-      <path d="M -10 100 L 20 60 L 50 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
-      <path d="M 50 100 L 80 60 L 110 100 Z" fill={disabled ? "#4B5563" : "#10B981"} />
-      <path d="M 20 100 L 50 68 L 80 100 Z" fill={disabled ? "#374151" : "#047857"} />
-
-      {/* Snow Caps for the mountains */}
-      <path d="M 20 60 L 26 68 L 20 70 L 14 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
-      <path d="M 80 60 L 86 68 L 80 70 L 74 68 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} opacity="0.9" />
-
-      {/* The 21-ray Golden Sun (Centered perfectly at 50, 50 in the white band) */}
-      <circle cx="50" cy="50" r="10" fill={disabled ? "#374151" : "#EAB308"} />
-      {[...Array(21)].map((_, i) => (
-        <path key={i} d="M48.5 40H51.5L50 34Z" fill={disabled ? "#374151" : "#EAB308"} transform={`rotate(${i * (360 / 21)} 50 50)`} />
-      ))}
+    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Abstract Map Outline */}
+      <path d="M 26 38 C 30 30 45 25 55 22 C 65 19 75 25 80 35 C 85 45 88 55 85 65 C 82 75 75 82 65 85 C 55 88 45 85 35 80 C 25 75 20 65 18 55 C 16 45 22 46 26 38 Z" />
+      {/* Sun/Heart in center */}
+      <circle cx="52" cy="53" r="8" />
     </g>
-
-    {/* Elegant Golden Border */}
-    <circle cx="50" cy="50" r="45" stroke={disabled ? "#4B5563" : "#FBBF24"} strokeWidth="6" />
-    <circle cx="50" cy="50" r="41" stroke={disabled ? "#6B7280" : "#F59E0B"} strokeWidth="2" opacity="0.5" />
   </svg>
 );
 
 export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="50" cy="50" r="40" fill={disabled ? "#4B5563" : "#3B82F6"} />
-    <path d="M30 25C40 20 50 30 45 45C40 60 25 50 20 40C15 30 20 30 30 25Z" fill={disabled ? "#6B7280" : "#10B981"} />
-    <path d="M60 40C75 35 85 50 80 70C75 90 55 80 50 65C45 50 45 45 60 40Z" fill={disabled ? "#6B7280" : "#10B981"} />
-    <circle cx="50" cy="50" r="40" stroke={disabled ? "#374151" : "#2563EB"} strokeWidth="4" />
-    <path d="M50 10C30 30 30 70 50 90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
-    <path d="M50 10C70 30 70 70 50 90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
-    <path d="M10 50H90" stroke={disabled ? "#374151" : "#60A5FA"} strokeWidth="2" strokeDasharray="4 4" />
+    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+      {/* Globe Outer Circle */}
+      <circle cx="50" cy="50" r="40" />
+      {/* Latitude / Longitude lines */}
+      <ellipse cx="50" cy="50" rx="16" ry="40" />
+      <line x1="10" y1="50" x2="90" y2="50" />
+    </g>
   </svg>
 );
