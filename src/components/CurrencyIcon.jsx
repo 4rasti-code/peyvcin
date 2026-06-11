@@ -197,7 +197,7 @@ export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false
       {/* Amber Circle Badge */}
       <circle cx="50" cy="50" r="42" className={disabled ? "fill-gray-500" : "fill-amber-500 dark:fill-amber-400"} />
       {/* White Shield */}
-      <path d="M 50 25 L 30 30 V 50 C 30 65 50 75 50 75 C 50 75 70 65 70 50 V 30 Z" className="fill-white dark:fill-black" />
+      <path d="M 50 25 L 30 30 V 50 C 30 65 50 75 50 75 C 50 75 70 65 70 50 V 30 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
       {/* Small Amber Star */}
       <path d="M 50 38 L 52 44 H 58 L 53 48 L 55 54 L 50 50 L 45 54 L 47 48 L 42 44 H 48 Z" className={disabled ? "fill-gray-400" : "fill-amber-500 dark:fill-amber-400"} />
     </g>
@@ -210,8 +210,8 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
       {/* Red Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-red-500 dark:fill-red-400"} />
       {/* White Hammer */}
-      <rect x="42" y="50" width="16" height="28" rx="2" className="fill-white dark:fill-black" />
-      <rect x="25" y="30" width="50" height="20" rx="4" className="fill-white dark:fill-black" />
+      <rect x="42" y="50" width="16" height="28" rx="2" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
+      <rect x="25" y="30" width="50" height="20" rx="4" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
       {/* Action Sparks */}
       <path d="M 32 22 L 38 28 M 50 18 L 50 26 M 68 22 L 62 28" />
     </g>
@@ -224,7 +224,7 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
       {/* Yellow Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-yellow-400 dark:fill-yellow-300"} />
       {/* White Open Book */}
-      <path d="M 25 45 L 50 55 L 75 45 V 65 L 50 75 L 25 65 Z" className="fill-white dark:fill-black" />
+      <path d="M 25 45 L 50 55 L 75 45 V 65 L 50 75 L 25 65 Z" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
       <path d="M 50 75 V 55" />
       {/* Light Rays */}
       <line x1="50" y1="40" x2="50" y2="25" />
@@ -272,7 +272,7 @@ export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }
       {/* Purple Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-purple-500 dark:fill-purple-400"} />
       {/* White Globe */}
-      <circle cx="50" cy="50" r="22" className="fill-white dark:fill-black" />
+      <circle cx="50" cy="50" r="22" fill={disabled ? "#D1D5DB" : "#FFFFFF"} />
       <ellipse cx="50" cy="50" rx="8" ry="22" fill="none" />
       <line x1="28" y1="50" x2="72" y2="50" />
     </g>
