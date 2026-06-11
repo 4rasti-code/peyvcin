@@ -236,13 +236,31 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <defs>
+      <clipPath id="kurdistan-flag-clip">
+        <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" />
+      </clipPath>
+    </defs>
+    
     <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
-      {/* Green Shield Badge */}
-      <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" fill={disabled ? "#6B7280" : "#10B981"} />
-      {/* White Sun */}
-      <circle cx="50" cy="50" r="14" fill="#FFFFFF" />
+      {/* Flag Background */}
+      <g clipPath="url(#kurdistan-flag-clip)">
+        <rect x="0" y="0" width="100" height="40" fill={disabled ? "#6B7280" : "#EF4444"} /> {/* Red */}
+        <rect x="0" y="40" width="100" height="20" fill={disabled ? "#D1D5DB" : "#FFFFFF"} /> {/* White */}
+        <rect x="0" y="60" width="100" height="40" fill={disabled ? "#4B5563" : "#10B981"} /> {/* Green */}
+        
+        {/* Stripe separators for sticker style */}
+        <line x1="0" y1="40" x2="100" y2="40" />
+        <line x1="0" y1="60" x2="100" y2="60" />
+      </g>
+      
+      {/* Outer Shield Border */}
+      <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" fill="none" />
+      
+      {/* Yellow Sun */}
+      <circle cx="50" cy="50" r="10" fill={disabled ? "#9CA3AF" : "#FACC15"} />
       {[...Array(8)].map((_, i) => (
-        <line key={i} x1="50" y1="36" x2="50" y2="26" transform={`rotate(${i * 45} 50 50)`} />
+        <line key={i} x1="50" y1="40" x2="50" y2="32" transform={`rotate(${i * 45} 50 50)`} />
       ))}
     </g>
   </svg>
