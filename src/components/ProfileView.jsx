@@ -17,12 +17,19 @@ import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP, getLevelTier } from '../utils/progression';
 import { getCroppedImg } from '../utils/imageUtils';
 import Cropper from 'react-easy-crop';
-
+import { 
+  Level10Icon, 
+  KawaHammerIcon, 
+  GraduationCapIcon, 
+  KurdishShieldIcon, 
+  GlobeIcon, 
+  ExpertDiamondIcon 
+} from './CurrencyIcon';
 
 export default function ProfileView({ onProfileSave }) {
    const {
       user, userNickname, userAvatar,
-      isInKurdistan, countryCode, lastNicknameUpdate
+      isInKurdistan, countryCode, lastNicknameUpdate, profileData
    } = useUser();
 
    const {
@@ -43,6 +50,7 @@ export default function ProfileView({ onProfileSave }) {
    }
 
 
+   const [isMedalsExpanded, setIsMedalsExpanded] = useState(false);
    const [isUploading, setIsUploading] = useState(false);
    const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
    const fileInputRef = useRef(null);
@@ -151,6 +159,17 @@ export default function ProfileView({ onProfileSave }) {
 
    const tier = getLevelTier(safeLevel);
 
+   const displayData = { ...(profileData || {}), ...(profileData?.statistics || {}) };
+   const medals = [
+      { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
+      { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: KawaHammerIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
+      { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-cyan-400', glow: '', IconComponent: ExpertDiamondIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
+      { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
+      { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
+      { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
+   ];
+   const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
+   const isBestUnlocked = bestMedal.condition(displayData);
 
    const isLoading = !user || userNickname === 'یاریزان';
 
@@ -369,7 +388,10 @@ export default function ProfileView({ onProfileSave }) {
                               </Motion.div>
                               <div className="flex flex-col items-center z-10 w-full mt-1">
                                  <span className="text-[8px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
-                                 <span className="text-lg font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)} ڕۆژ</span>
+                                 <div className="flex items-baseline gap-0.5">
+                                    <span className="text-lg font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)}</span>
+                                    <span className="text-[10px] font-bold text-mono-600 dark:text-mono-400">ڕۆژ</span>
+                                 </div>
                               </div>
                            </Motion.div>
                         )}
@@ -394,6 +416,14 @@ export default function ProfileView({ onProfileSave }) {
                         </div>
                      </div>
                   </div>
+               </div>
+
+               {/* Highest Medal Badge - Under Streaks, Left Corner */}
+               <div 
+                  className="absolute left-7 top-[58%] w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110 cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setIsMedalsExpanded(prev => !prev); }}
+               >
+                  <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
                </div>
 
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
@@ -559,6 +589,55 @@ export default function ProfileView({ onProfileSave }) {
 
          <div className="flex-1 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),80px)] scrollbar-hide relative z-10 bg-trigger-zone">
             <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pt-2 w-full">
+               
+               {/* Medals Section */}
+               <AnimatePresence>
+                  {isMedalsExpanded && (
+                     <Motion.div 
+                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-mono-50 dark:bg-mono-900/50 p-4 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain mt-2 relative overflow-hidden mb-2"
+                     >
+                        <div 
+                           className="w-full flex items-center justify-between mb-4 cursor-pointer"
+                           onClick={() => { triggerHaptic(10); setIsMedalsExpanded(false); }}
+                        >
+                           <div className="flex-1"></div>
+                           <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center flex-1 whitespace-nowrap">دەستکەڤتێن تە</span>
+                           <div className="flex-1 flex justify-start">
+                              <span className="material-symbols-outlined text-mono-400 dark:text-mono-500 transition-transform duration-300 rotate-180">
+                                 expand_more
+                              </span>
+                           </div>
+                        </div>
+
+                        <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
+                           {medals.map((m) => {
+                              const isUnlocked = m.condition(displayData);
+                              return (
+                                 <div
+                                    key={m.id}
+                                    className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
+                                 >
+                                    <div className="h-10 mb-2 flex items-center justify-center relative">
+                                       <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
+                                    </div>
+                                    <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
+                                       {m.name}
+                                    </span>
+                                    <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight px-1">
+                                       {m.tooltip}
+                                    </span>
+                                 </div>
+                              );
+                           })}
+                        </div>
+                     </Motion.div>
+                  )}
+               </AnimatePresence>
+
                <div className="space-y-2 flex flex-col items-end">
                   <label htmlFor="profile-nickname" className="text-sm font-medium text-mono-600 dark:text-mono-400 px-1  text-right block w-full mt-1">ناسناڤێ تە</label>
                   <div className="flex items-center gap-2 w-full">
@@ -701,39 +780,14 @@ export default function ProfileView({ onProfileSave }) {
                   )}
                </div>
 
-               <div className="space-y-4">
-                  <span className="text-sm font-medium text-mono-600 dark:text-mono-400 px-1 uppercase  text-right block w-full">ھەلبژارتنا ئاڤاتاری</span>
-                  <div className="bg-mono-white dark:bg-mono-900 border border-mono-300 dark:border-mono-700 rounded-md p-4 shadow-sm noise-grain transition-colors duration-300">
-                     <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-4 max-h-60 overflow-y-auto pr-1 scrollbar-hide py-2 justify-items-center">
-                        {AVATARS.map((avatar) => (
-                           <button
-                              key={avatar.id}
-                              onClick={() => { triggerHaptic(10); setDraftAvatar(avatar.id); }}
-                              className={`w-12 h-12 flex items-center justify-center rounded-full transition-all relative ${draftAvatar === avatar.id
-                                 ? 'bg-primary ring-4 ring-primary/20 scale-110 z-10'
-                                 : 'bg-mono-50 dark:bg-mono-800 border border-mono-200 dark:border-mono-700'
-                                 }`}
-                           >
-                              <Avatar src={avatar.id} size="sm" border={false} />
-                              {draftAvatar === avatar.id && (
-                                 <div className="absolute -bottom-1 -right-1 bg-green-500 text-white w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-mono-900 z-20">
-                                    <span className="material-symbols-outlined text-[12px] font-bold">check</span>
-                                 </div>
-                              )}
-                           </button>
-                        ))}
-                     </div>
-                  </div>
-                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-               </div>
+               <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
 
                {/* Invite Friends Section */}
                <div className="bg-mono-50 dark:bg-mono-900/50 p-6 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center text-center noise-grain transition-colors duration-300 mt-8 mb-4">
                   <div className="w-12 h-12 rounded-md bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 border border-green-200 dark:border-green-800/30">
                      <span className="material-symbols-outlined text-2xl text-green-600 dark:text-green-400 font-bold">person_add</span>
                   </div>
-                  <h4 className="text-base font-bold font-rabar text-mono-900 dark:text-mono-50 mb-1">ھەڤالێن خوە داخواز بکە</h4>
-                  <p className="text-mono-500 dark:text-mono-400 text-[10px] font-bold font-rabar mb-5 leading-relaxed max-w-[200px]">بۆ ھەڤالێ خوە بھنێرە و پێکڤە یاریێ بکەن بۆ بدەستڤەھینانا خەلاتان</p>
+                  <h4 className="text-base font-bold font-rabar text-mono-900 dark:text-mono-50 mb-5">ھەڤالێن خوە داخواز بکە</h4>
                   <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="w-full bg-green-600 text-white py-2.5 rounded-md font-black font-rabar text-xs hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-green-900/20">
                      کۆپی کرنا لینکی
                   </button>

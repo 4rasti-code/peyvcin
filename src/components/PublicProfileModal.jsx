@@ -4,7 +4,7 @@ import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
 import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
-import { FilsIcon, WoodenShieldGrowthIcon, KawaHammerIcon, TeacherBookIcon, KurdishShieldIcon, GlobeIcon } from './CurrencyIcon';
+import { FilsIcon, Level10Icon, KawaHammerIcon, GraduationCapIcon, KurdishShieldIcon, GlobeIcon, ExpertDiamondIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
@@ -27,8 +27,9 @@ export default function PublicProfileModal({
   const [playerStats, setPlayerStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullStats, setShowFullStats] = useState(false);
+  const [isMedalsExpanded, setIsMedalsExpanded] = useState(true);
 
-  const [activeTooltip, setActiveTooltip] = useState(null);
+
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const [showCoinAnim, setShowCoinAnim] = useState(false);
@@ -50,32 +51,29 @@ export default function PublicProfileModal({
       const isActuallyMe = currentUserId === profile.id;
       setIsMe(isActuallyMe);
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', profile.id)
-        .single();
+      const queries = [
+        supabase.from('profiles').select('*').eq('id', profile.id).single(),
+        supabase.from('player_stats').select('guess_distribution').eq('user_id', profile.id).maybeSingle()
+      ];
 
+      if (currentUserId && !isActuallyMe) {
+        queries.push(
+          supabase.from('friendships').select('status, user_id, friend_id').or(`and(user_id.eq.${currentUserId},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUserId})`).maybeSingle(),
+          supabase.from('blocks').select('id').eq('blocker_id', currentUserId).eq('blocked_id', profile.id).maybeSingle()
+        );
+      }
+
+      const results = await Promise.all(queries);
+
+      const { data } = results[0];
       if (data) setFullData(data);
 
-      const { data: statsData } = await supabase
-        .from('player_stats')
-        .select('guess_distribution')
-        .eq('user_id', profile.id)
-        .maybeSingle();
-      
+      const { data: statsData } = results[1];
       if (statsData) setPlayerStats(statsData.guess_distribution);
-
 
       // 3. Check Relationship if not same user
       if (currentUserId && !isActuallyMe) {
-        // More robust friendship check
-        const { data: friendship } = await supabase
-          .from('friendships')
-          .select('status, user_id, friend_id')
-          .or(`and(user_id.eq.${currentUserId},friend_id.eq.${profile.id}),and(user_id.eq.${profile.id},friend_id.eq.${currentUserId})`)
-          .maybeSingle();
-
+        const { data: friendship } = results[2];
         if (friendship) {
           if (friendship.status === 'accepted') {
             setRelStatus('friend');
@@ -87,24 +85,13 @@ export default function PublicProfileModal({
           setRelStatus('none');
         }
 
-        // 4. Check Block Status - Hardened against 403 errors
-        try {
-          const { data: block, error: blockError } = await supabase
-            .from('blocks')
-            .select('id')
-            .eq('blocker_id', currentUserId)
-            .eq('blocked_id', profile.id)
-            .maybeSingle();
-
-          if (blockError) {
-            console.warn("Block table access restricted (RLS):", blockError.message);
-            setInternalBlocked(false);
-          } else {
-            setInternalBlocked(!!block);
-          }
-        } catch (e) {
-          console.warn("Social permissions check failed:", e);
+        // 4. Check Block Status
+        const blockResult = results[3];
+        if (blockResult.error) {
+          console.warn("Block table access restricted (RLS):", blockResult.error.message);
           setInternalBlocked(false);
+        } else {
+          setInternalBlocked(!!blockResult.data);
         }
       }
 
@@ -273,22 +260,26 @@ export default function PublicProfileModal({
 
   // Medals Configuration
   const medals = [
-    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-600 dark:text-amber-500', glow: '', IconComponent: WoodenShieldGrowthIcon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
+    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
     { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: KawaHammerIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: TeacherBookIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
+    { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-cyan-400', glow: '', IconComponent: ExpertDiamondIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
+    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
     { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
     { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
   ];
+
+  const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
+  const isBestUnlocked = bestMedal.condition(displayData);
 
   const effectiveIsBlocked = internalBlocked || isBlocked;
 
   if (showFullStats) {
     return (
       <div className="fixed inset-0 z-100 bg-mono-white dark:bg-black overflow-y-auto">
-        <StatsView 
-          profileData={displayData} 
-          playerStats={playerStats} 
-          onViewChange={() => setShowFullStats(false)} 
+        <StatsView
+          profileData={displayData}
+          playerStats={playerStats}
+          onViewChange={() => setShowFullStats(false)}
         />
       </div>
     );
@@ -311,12 +302,11 @@ export default function PublicProfileModal({
         exit={{ scale: 0.9, opacity: 0, y: 30 }}
         className="relative w-full max-w-sm bg-mono-white/95 dark:bg-black/95 backdrop-blur-md border border-mono-200 dark:border-white/10 rounded-md overflow-hidden flex-col items-center p-4 sm:p-5 text-center max-h-[90vh] overflow-y-auto transition-colors duration-500 shadow-2xl"
         dir="rtl"
-        onClick={() => setActiveTooltip(null)}
       >
         {/* Close Button */}
         <button
           onClick={() => { playBubblePopSound(); onClose(); }}
-          className="absolute top-4 left-4 w-8 h-8 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-400 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-all z-10"
+          className="absolute top-4 left-4 w-8 h-8 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-400 dark:hover:text-white transition-all z-10"
         >
           <span className="material-symbols-outlined text-[18px]">close</span>
         </button>
@@ -384,6 +374,13 @@ export default function PublicProfileModal({
                   />
                 </div>
 
+                {/* Highest Medal Badge - On Avatar Circle */}
+                <div 
+                  className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110"
+                >
+                  <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
+                </div>
+
                 {/* Online Indicator on Avatar Edge */}
                 {isOnline && (
                   <div className="absolute bottom-2 right-2 w-7 h-7 bg-emerald-500 border-4 border-mono-white dark:border-black rounded-full z-20" />
@@ -436,6 +433,35 @@ export default function PublicProfileModal({
               )}
             </div>
           )}
+
+          {/* Social Action Icons Row */}
+          {!isMe && (
+            <div className="flex items-center justify-center gap-3 mt-4 pt-1">
+              {/* Friend Action */}
+              {relStatus === 'friend' && !effectiveIsBlocked && (
+                <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="لابرنا ھەڤالینیێ">
+                  <span className="material-symbols-outlined text-[20px]">how_to_reg</span>
+                </button>
+              )}
+              {relStatus === 'none' && !effectiveIsBlocked && (
+                <button onClick={handleSendFriendRequest} className="w-10 h-10 rounded-full bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 flex items-center justify-center hover:opacity-90 transition-all shadow-md" title="ببە ھەڤاڵ">
+                  <span className="material-symbols-outlined text-[20px]">person_add</span>
+                </button>
+              )}
+              {relStatus === 'pending_sent' && !effectiveIsBlocked && (
+                <button onClick={handleDeclineFriendRequest} className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="پەشێمان بوون">
+                  <span className="material-symbols-outlined text-[20px]">hourglass_top</span>
+                </button>
+              )}
+
+              {/* Block Action */}
+              {onToggleBlock && (
+                <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`} title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
+                  <span className="material-symbols-outlined text-[20px]">{effectiveIsBlocked ? 'block' : 'person_off'}</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Stats Grid */}
@@ -476,114 +502,107 @@ export default function PublicProfileModal({
                 </button>
               </div>
 
-              <div className="pt-2 pb-1 border-t border-white/5 mt-1">
-                <span className="text-[8px] font-black text-white/30 uppercase block text-center mb-2">دەستکەڤت و مەدالیا</span>
-                <div className="grid grid-cols-2 gap-2">
-                  {medals.map((m) => {
-                    const isUnlocked = true; // m.condition(displayData); // Temporarily true for owner to preview
-                    return (
-                      <div 
-                        key={m.id} 
-                        className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-300 shadow-sm ${isUnlocked ? `bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 ${m.glow}` : 'bg-mono-50 dark:bg-black/20 border-mono-100 dark:border-white/5 opacity-50 grayscale'}`}
+              {!effectiveIsBlocked && (
+                <div className="w-full mt-2 pt-2 border-t border-mono-200 dark:border-white/5">
+                  <AnimatePresence>
+                    {isMedalsExpanded && (
+                      <Motion.div 
+                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-mono-50 dark:bg-mono-900/50 p-4 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain relative overflow-hidden mb-2"
                       >
-                        <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center mb-2 shadow-sm border ${isUnlocked ? 'bg-mono-50 dark:bg-white/10 border-mono-200 dark:border-white/20' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/5'}`}>
-                          <m.IconComponent className={`w-8 h-8 drop-shadow-md transition-all ${isUnlocked ? m.color : 'text-slate-500 opacity-50'}`} disabled={!isUnlocked} />
+                        <div 
+                          className="w-full flex items-center justify-center mb-4"
+                        >
+                          <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center whitespace-nowrap">دەستکەڤتێن {displayData.nickname || 'یاریزان'}</span>
                         </div>
-                        <span className={`text-[10px] font-black uppercase mb-1 font-rabar text-center leading-tight ${isUnlocked ? m.color : 'text-slate-500'}`}>{m.name}</span>
-                        <span className="text-[8px] font-bold text-mono-500 dark:text-white/40 text-center leading-tight px-1">{m.tooltip}</span>
-                      </div>
-                    );
-                  })}
+
+                        <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
+                          {medals.map((m) => {
+                            const isUnlocked = m.condition(displayData);
+                            return (
+                              <div
+                                key={m.id}
+                                className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
+                              >
+                                <div className="h-10 mb-2 flex items-center justify-center relative">
+                                  <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
+                                </div>
+                                <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
+                                  {m.name}
+                                </span>
+                                <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight">
+                                  {m.tooltip}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </Motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              </div>
+              )}
             </Motion.div>
           );
         })()}
 
-        <div className="w-full space-y-2 mt-auto flex flex-col pt-3 border-t border-mono-200 dark:border-white/5">
-           {isMe ? (
-              <div className="w-full py-3 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold text-sm text-center shadow-sm">ئەڤە پڕۆفایلا تەیا تایبەتە</div>
-            ) : effectiveIsBlocked ? (
-              <div className="w-full py-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm text-center flex items-center justify-center gap-2">
-                 <span className="material-symbols-outlined text-lg">block</span>
-                 ئەڤ یاریزانە ھاتیە بلۆککرن
-              </div>
-            ) : relStatus === 'friend' ? (
-              <div className="w-full flex flex-col gap-3">
-                <button 
+        {/* Bottom Section (Conditional) */}
+        {(() => {
+          const hasConfirm = showUnfriendConfirm || showBlockConfirm;
+          const showBottom = isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
+          
+          if (!showBottom) return null;
+
+          return (
+            <div className="w-full space-y-2 mt-auto flex flex-col pt-3 border-t border-mono-200 dark:border-white/5">
+              {isMe ? (
+                <div className="w-full py-3 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold text-sm text-center shadow-sm">ئەڤە پڕۆفایلا تەیا تایبەتە</div>
+              ) : showBlockConfirm ? (
+                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-3 px-4 rounded-md">
+                  <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی ژ بلۆککرنا ڤی کەسی؟</span>
+                  <div className="flex gap-2 w-full">
+                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-red-600 hover:bg-red-500 py-2 rounded-md text-xs font-black">بەڵێ، بلۆک</button>
+                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold">نەخێر</button>
+                  </div>
+                </Motion.div>
+              ) : showUnfriendConfirm ? (
+                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-3 px-4 rounded-md">
+                  <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی ژ لابرنا ڤی ھەڤاڵی؟</span>
+                  <div className="flex gap-2 w-full">
+                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-red-600 hover:bg-red-500 py-2 rounded-md text-xs font-black transition-colors">بەڵێ</button>
+                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold transition-colors">نەخێر</button>
+                  </div>
+                </Motion.div>
+              ) : effectiveIsBlocked ? (
+                <div className="w-full py-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm text-center flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined text-lg">block</span>
+                  ئەڤ یاریزانە ھاتیە بلۆککرن
+                </div>
+              ) : relStatus === 'pending_received' ? (
+                <div className="flex gap-2 w-full">
+                  <button onClick={handleAcceptFriendRequest} className="flex-2 py-2.5 rounded-md bg-emerald-500 text-slate-950 font-black text-sm hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm w-full">
+                    <span className="material-symbols-outlined text-base">check_circle</span>
+                    وەربگرە
+                  </button>
+                  <button onClick={handleDeclineFriendRequest} className="flex-1 py-2.5 rounded-md bg-red-500/10 border border-red-500/30 text-red-500 font-black text-sm hover:bg-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 w-1/3">
+                    <span className="material-symbols-outlined text-lg">close</span>
+                  </button>
+                </div>
+              ) : relStatus === 'friend' ? (
+                <button
                   onClick={() => { triggerHaptic(20); onOpenChat(displayData || profile); }}
                   className="w-full py-2.5 rounded-md bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 font-black text-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar border border-white/10 shadow-sm"
                 >
-                   <span>نامەیێ بھنێرە</span>
-                   <span className="material-symbols-outlined text-lg">chat</span>
+                  <span>نامەیێ بھنێرە</span>
+                  <span className="material-symbols-outlined text-lg">chat</span>
                 </button>
-
-                <AnimatePresence mode="wait">
-                  {showUnfriendConfirm ? (
-                    <Motion.div 
-                      initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
-                      className="flex items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-2.5 px-4 rounded-md"
-                    >
-                      <span className="text-xs font-bold text-red-600 dark:text-red-200">تو پشتڕاستی؟</span>
-                      <button onClick={handleUnfriend} className="text-white bg-red-600 hover:bg-red-500 px-4 py-1.5 rounded-md text-xs font-black transition-colors">بەڵێ</button>
-                      <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 px-4 py-1.5 rounded-md text-xs font-bold transition-colors">نەخێر</button>
-                    </Motion.div>
-                  ) : (
-                    <button 
-                      onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }}
-                      className="text-xs font-black text-red-500/50 hover:text-red-500 transition-colors uppercase tracking-widest flex items-center justify-center gap-1"
-                    >
-                      <span className="material-symbols-outlined text-[14px]">person_remove</span>
-                      لابرنا ھەڤالینیێ
-                    </button>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : relStatus === 'pending_sent' ? (
-              <div className="w-full flex flex-col gap-2">
-                <div className="w-full py-2.5 rounded-md bg-mono-100 dark:bg-slate-800/50 border border-mono-200 dark:border-white/5 text-mono-400 dark:text-slate-400 font-bold text-xs text-center flex items-center justify-center gap-2 opacity-70">
-                  <span className="material-symbols-outlined text-base">hourglass_top</span>
-                  چاڤەڕێبە
-                </div>
-                <button onClick={handleDeclineFriendRequest} className="text-[10px] font-black text-red-500 hover:text-red-400 transition-colors uppercase">پەشێمان بوون</button>
-              </div>
-            ) : relStatus === 'pending_received' ? (
-              <div className="flex gap-2 w-full">
-                <button onClick={handleAcceptFriendRequest} className="flex-2 py-2.5 rounded-md bg-emerald-500 text-slate-950 font-black text-sm hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm">
-                  <span className="material-symbols-outlined text-base">check_circle</span>
-                  وەربگرە
-                </button>
-                <button onClick={handleDeclineFriendRequest} className="flex-1 py-2.5 rounded-md bg-red-500/10 border border-red-500/30 text-red-500 font-black text-sm hover:bg-red-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-lg">close</span>
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={handleSendFriendRequest} 
-                className="w-full py-2.5 rounded-md bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 font-black text-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar border border-white/10 shadow-sm"
-              >
-                 <span>ببە ھەڤاڵ</span>
-                 <span className="material-symbols-outlined text-lg">add</span>
-              </button>
-            )}
-
-           {onToggleBlock && !isMe && (
-             <AnimatePresence mode="wait">
-               {showBlockConfirm ? (
-                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="flex items-center justify-center gap-3 mt-2 bg-red-500/10 border border-red-500/20 py-2 px-3 rounded-md shadow-inner">
-                   <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی؟</span>
-                   <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="text-white bg-red-600 hover:bg-red-500 px-3 py-1 rounded-md text-xs font-black">بەڵێ، بلۆک</button>
-                   <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="text-mono-500 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 px-3 py-1 rounded-md text-xs font-bold">نەخێر</button>
-                 </Motion.div>
-               ) : (
-                 <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`text-sm font-bold mt-2 hover:opacity-100 transition-opacity flex items-center gap-1 justify-center ${effectiveIsBlocked ? 'text-mono-400 opacity-60' : 'text-red-500/40 opacity-100 hover:text-red-500'}`}>
-                   <span className="material-symbols-outlined text-[16px]">{effectiveIsBlocked ? 'undo' : 'person_off'}</span>
-                   {effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}
-                 </button>
-               )}
-             </AnimatePresence>
-           )}
-        </div>
+              ) : null}
+            </div>
+          );
+        })()}
       </Motion.div>
       <CoinAnimation trigger={showCoinAnim} amount={rewardAmount} />
     </div>
