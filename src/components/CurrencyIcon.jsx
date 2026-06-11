@@ -193,25 +193,25 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <g className={disabled ? "stroke-gray-500" : "stroke-black dark:stroke-white"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Amber Circle Badge */}
-      <circle cx="50" cy="50" r="42" fill={disabled ? "#6B7280" : "#F59E0B"} />
+      <circle cx="50" cy="50" r="42" className={disabled ? "fill-gray-500" : "fill-amber-500 dark:fill-amber-400"} />
       {/* White Shield */}
-      <path d="M 50 25 L 30 30 V 50 C 30 65 50 75 50 75 C 50 75 70 65 70 50 V 30 Z" fill="#FFFFFF" />
+      <path d="M 50 25 L 30 30 V 50 C 30 65 50 75 50 75 C 50 75 70 65 70 50 V 30 Z" className="fill-white dark:fill-black" />
       {/* Small Amber Star */}
-      <path d="M 50 38 L 52 44 H 58 L 53 48 L 55 54 L 50 50 L 45 54 L 47 48 L 42 44 H 48 Z" fill={disabled ? "#9CA3AF" : "#F59E0B"} />
+      <path d="M 50 38 L 52 44 H 58 L 53 48 L 55 54 L 50 50 L 45 54 L 47 48 L 42 44 H 48 Z" className={disabled ? "fill-gray-400" : "fill-amber-500 dark:fill-amber-400"} />
     </g>
   </svg>
 );
 
 export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <g className={disabled ? "stroke-gray-500" : "stroke-black dark:stroke-white"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Red Hexagon Badge */}
-      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-red-500 dark:fill-red-400"} />
       {/* White Hammer */}
-      <rect x="42" y="50" width="16" height="28" rx="2" fill="#FFFFFF" />
-      <rect x="25" y="30" width="50" height="20" rx="4" fill="#FFFFFF" />
+      <rect x="42" y="50" width="16" height="28" rx="2" className="fill-white dark:fill-black" />
+      <rect x="25" y="30" width="50" height="20" rx="4" className="fill-white dark:fill-black" />
       {/* Action Sparks */}
       <path d="M 32 22 L 38 28 M 50 18 L 50 26 M 68 22 L 62 28" />
     </g>
@@ -220,11 +220,11 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
 
 export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <g className={disabled ? "stroke-gray-500" : "stroke-black dark:stroke-white"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Yellow Hexagon Badge */}
-      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#FACC15"} />
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-yellow-400 dark:fill-yellow-300"} />
       {/* White Open Book */}
-      <path d="M 25 45 L 50 55 L 75 45 V 65 L 50 75 L 25 65 Z" fill="#FFFFFF" />
+      <path d="M 25 45 L 50 55 L 75 45 V 65 L 50 75 L 25 65 Z" className="fill-white dark:fill-black" />
       <path d="M 50 75 V 55" />
       {/* Light Rays */}
       <line x1="50" y1="40" x2="50" y2="25" />
@@ -242,12 +242,12 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
       </clipPath>
     </defs>
     
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <g className={disabled ? "stroke-gray-500" : "stroke-black dark:stroke-white"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Flag Background */}
       <g clipPath="url(#kurdistan-flag-clip)">
-        <rect x="0" y="0" width="100" height="40" fill={disabled ? "#6B7280" : "#EF4444"} /> {/* Red */}
-        <rect x="0" y="40" width="100" height="20" fill={disabled ? "#D1D5DB" : "#FFFFFF"} /> {/* White */}
-        <rect x="0" y="60" width="100" height="40" fill={disabled ? "#4B5563" : "#10B981"} /> {/* Green */}
+        <rect x="0" y="0" width="100" height="40" className={disabled ? "fill-gray-500" : "fill-red-500"} /> {/* Red */}
+        <rect x="0" y="40" width="100" height="20" className={disabled ? "fill-gray-400" : "fill-white"} /> {/* White */}
+        <rect x="0" y="60" width="100" height="40" className={disabled ? "fill-gray-600" : "fill-emerald-500"} /> {/* Green */}
         
         {/* Stripe separators for sticker style */}
         <line x1="0" y1="40" x2="100" y2="40" />
@@ -258,7 +258,7 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
       <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" fill="none" />
       
       {/* Yellow Sun */}
-      <circle cx="50" cy="50" r="10" fill={disabled ? "#9CA3AF" : "#FACC15"} />
+      <circle cx="50" cy="50" r="10" className={disabled ? "fill-gray-400" : "fill-yellow-400"} />
       {[...Array(8)].map((_, i) => (
         <line key={i} x1="50" y1="40" x2="50" y2="32" transform={`rotate(${i * 45} 50 50)`} />
       ))}
@@ -268,11 +268,11 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <g className={disabled ? "stroke-gray-500" : "stroke-black dark:stroke-white"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Purple Hexagon Badge */}
-      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#A855F7"} />
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" className={disabled ? "fill-gray-500" : "fill-purple-500 dark:fill-purple-400"} />
       {/* White Globe */}
-      <circle cx="50" cy="50" r="22" fill="#FFFFFF" />
+      <circle cx="50" cy="50" r="22" className="fill-white dark:fill-black" />
       <ellipse cx="50" cy="50" rx="8" ry="22" fill="none" />
       <line x1="28" y1="50" x2="72" y2="50" />
     </g>
