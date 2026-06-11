@@ -783,13 +783,15 @@ export default function ProfileView({ onProfileSave }) {
                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
 
                {/* Invite Friends Section */}
-               <div className="bg-mono-50 dark:bg-mono-900/50 p-6 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center text-center noise-grain transition-colors duration-300 mt-8 mb-4">
-                  <div className="w-12 h-12 rounded-md bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 border border-green-200 dark:border-green-800/30">
-                     <span className="material-symbols-outlined text-2xl text-green-600 dark:text-green-400 font-bold">person_add</span>
+               <div className="bg-mono-50 dark:bg-mono-900/50 p-3.5 rounded-md border border-mono-200 dark:border-mono-800 flex items-center justify-between noise-grain transition-colors duration-300 mt-4 mb-4 gap-3">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 shrink-0 rounded-md bg-green-100 dark:bg-green-900/30 flex items-center justify-center border border-green-200 dark:border-green-800/30">
+                        <span className="material-symbols-outlined text-xl text-green-600 dark:text-green-400 font-bold">person_add</span>
+                     </div>
+                     <h4 className="text-[13px] font-bold font-rabar text-mono-900 dark:text-mono-50">ھەڤالێن خوە داخواز بکە</h4>
                   </div>
-                  <h4 className="text-base font-bold font-rabar text-mono-900 dark:text-mono-50 mb-5">ھەڤالێن خوە داخواز بکە</h4>
-                  <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="w-full bg-green-600 text-white py-2.5 rounded-md font-black font-rabar text-xs hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-green-900/20">
-                     کۆپی کرنا لینکی
+                  <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="px-4 py-2.5 bg-green-600 text-white rounded-md font-black font-rabar text-[11px] hover:brightness-110 active:scale-95 transition-all shadow-md shadow-green-900/10 shrink-0 whitespace-nowrap">
+                     کۆپی لینک
                   </button>
                </div>
             </Motion.div>

@@ -27,7 +27,7 @@ export default function PublicProfileModal({
   const [playerStats, setPlayerStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullStats, setShowFullStats] = useState(false);
-  const [isMedalsExpanded, setIsMedalsExpanded] = useState(true);
+  const [isMedalsExpanded] = useState(true);
 
 
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
