@@ -193,7 +193,7 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 // Achievement SVGs
 export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Amber Circle Badge */}
       <circle cx="50" cy="50" r="42" fill={disabled ? "#6B7280" : "#F59E0B"} />
       {/* White Shield */}
@@ -206,7 +206,7 @@ export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false
 
 export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Red Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#EF4444"} />
       {/* White Hammer */}
@@ -220,7 +220,7 @@ export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = fa
 
 export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Yellow Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#FACC15"} />
       {/* White Open Book */}
@@ -236,7 +236,7 @@ export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Green Shield Badge */}
       <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" fill={disabled ? "#6B7280" : "#10B981"} />
       {/* White Sun */}
@@ -250,7 +250,7 @@ export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled =
 
 export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
       {/* Purple Hexagon Badge */}
       <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#A855F7"} />
       {/* White Globe */}
