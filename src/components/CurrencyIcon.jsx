@@ -11,10 +11,10 @@ import React from 'react';
 
 // Shared "Hammered" coin base with irregular hand-struck edges
 const HammeredBase = ({ fill, stroke, opacity = 1 }) => (
-  <path 
-    d="M50 4.5C28 3.5 6 12 5 35C4 58 13 88 40 95C67 102 96 87 95 60C94 33 82 5.5 50 4.5Z" 
-    fill={fill} 
-    stroke={stroke} 
+  <path
+    d="M50 4.5C28 3.5 6 12 5 35C4 58 13 88 40 95C67 102 96 87 95 60C94 33 82 5.5 50 4.5Z"
+    fill={fill}
+    stroke={stroke}
     strokeWidth="3"
     fillOpacity={opacity}
   />
@@ -24,24 +24,24 @@ export const FilsIcon = ({ className = "w-5 h-5", size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <HammeredBase fill="#5D3A1A" stroke="#3E2711" />
     {/* Beaded Inner Border */}
-    <circle cx="50" cy="50" r="38" fill="none" stroke="#CD7F32" strokeWidth="1" strokeDasharray="3 4" opacity="0.4"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#CD7F32" strokeWidth="1" strokeDasharray="3 4" opacity="0.4" />
     {/* Marwanid Double-Headed Eagle (Artuqid style "Y" silhouette) */}
-    <path 
-      d="M50 42L42 22L30 30M50 42L58 22L70 30M50 42V82M35 55L45 50M65 55L55 50M40 75L50 68L60 75" 
-      stroke="#CD7F32" 
-      strokeWidth="6" 
-      strokeLinecap="round" 
+    <path
+      d="M50 42L42 22L30 30M50 42L58 22L70 30M50 42V82M35 55L45 50M65 55L55 50M40 75L50 68L60 75"
+      stroke="#CD7F32"
+      strokeWidth="6"
+      strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <path 
-      d="M48 85H52M38 45Q50 35 62 45M45 42L55 42" 
-      stroke="#CD7F32" 
-      strokeWidth="3" 
+    <path
+      d="M48 85H52M38 45Q50 35 62 45M45 42L55 42"
+      stroke="#CD7F32"
+      strokeWidth="3"
       strokeLinecap="round"
     />
     {/* Surface Imperfections */}
-    <circle cx="25" cy="35" r="1.5" fill="#3E2711" opacity="0.3"/>
-    <circle cx="75" cy="65" r="2" fill="#3E2711" opacity="0.2"/>
+    <circle cx="25" cy="35" r="1.5" fill="#3E2711" opacity="0.3" />
+    <circle cx="75" cy="65" r="2" fill="#3E2711" opacity="0.2" />
   </svg>
 );
 
@@ -49,52 +49,52 @@ export const DerhemIcon = ({ className = "w-5 h-5", size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <HammeredBase fill="#A0A0A0" stroke="#2D2D2D" />
     {/* Beaded Inner Rim (Hand-punched look) */}
-    <circle cx="50" cy="50" r="38" fill="none" stroke="#2D2D2D" strokeWidth="1.5" strokeDasharray="2 4" opacity="0.4"/>
-    
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#2D2D2D" strokeWidth="1.5" strokeDasharray="2 4" opacity="0.4" />
+
     {/* Literal Kufic Script Scribbles (represented by horizontal 'toothy' paths) */}
     <g transform="translate(10, 0)">
-      <path 
-        d="M25 38H65M27 35V41M35 35V42M48 35V41M58 35V42" 
-        stroke="#2D2D2D" 
-        strokeWidth="3" 
-        strokeLinecap="round" 
+      <path
+        d="M25 38H65M27 35V41M35 35V42M48 35V41M58 35V42"
+        stroke="#2D2D2D"
+        strokeWidth="3"
+        strokeLinecap="round"
         opacity="0.8"
       />
-      <path 
-        d="M22 50H68M25 47V53M38 47V54M52 47V53M62 47V54" 
-        stroke="#2D2D2D" 
-        strokeWidth="3" 
-        strokeLinecap="round" 
+      <path
+        d="M22 50H68M25 47V53M38 47V54M52 47V53M62 47V54"
+        stroke="#2D2D2D"
+        strokeWidth="3"
+        strokeLinecap="round"
         opacity="0.8"
       />
-      <path 
-        d="M28 62H62M32 59V65M45 59V66M55 59V65" 
-        stroke="#2D2D2D" 
-        strokeWidth="3" 
-        strokeLinecap="round" 
+      <path
+        d="M28 62H62M32 59V65M45 59V66M55 59V65"
+        stroke="#2D2D2D"
+        strokeWidth="3"
+        strokeLinecap="round"
         opacity="0.8"
       />
     </g>
 
     {/* Surface Highlighting to simulate minted metal */}
-    <path 
-      d="M25 38H65" 
-      stroke="#E8E8E8" 
-      strokeWidth="1" 
-      transform="translate(11, -1)" 
+    <path
+      d="M25 38H65"
+      stroke="#E8E8E8"
+      strokeWidth="1"
+      transform="translate(11, -1)"
       opacity="0.6"
     />
-    
+
     {/* Rim Script Scribbles (Circular arrangement) */}
     {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
-      <path 
-        key={a} 
-        d="M50 12Q55 10 60 12" 
-        stroke="#2D2D2D" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        transform={`rotate(${a} 50 50)`} 
-        opacity="0.5" 
+      <path
+        key={a}
+        d="M50 12Q55 10 60 12"
+        stroke="#2D2D2D"
+        strokeWidth="2"
+        strokeLinecap="round"
+        transform={`rotate(${a} 50 50)`}
+        opacity="0.5"
       />
     ))}
   </svg>
@@ -104,15 +104,15 @@ export const DinarIcon = ({ className = "w-5 h-5", size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <HammeredBase fill="#B8860B" stroke="#846506" />
     {/* Concentric Ayyubid Rings */}
-    <circle cx="50" cy="50" r="42" stroke="#FFD700" strokeWidth="2" opacity="0.8"/>
-    <circle cx="50" cy="50" r="30" stroke="#FFD700" strokeWidth="3" opacity="0.9"/>
-    <circle cx="50" cy="50" r="12" stroke="#FFD700" strokeWidth="4"/>
+    <circle cx="50" cy="50" r="42" stroke="#FFD700" strokeWidth="2" opacity="0.8" />
+    <circle cx="50" cy="50" r="30" stroke="#FFD700" strokeWidth="3" opacity="0.9" />
+    <circle cx="50" cy="50" r="12" stroke="#FFD700" strokeWidth="4" />
     {/* Calligraphic Symbols/Scribbles */}
-    <path d="M42 50H58M50 42V58" stroke="#FFD700" strokeWidth="2" strokeLinecap="round"/>
-    <path d="M22 50Q25 25 50 25Q75 25 78 50M22 50Q25 75 50 75Q75 75 78 50" stroke="#FFD700" strokeWidth="1" strokeDasharray="2 4" opacity="0.5"/>
+    <path d="M42 50H58M50 42V58" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" />
+    <path d="M22 50Q25 25 50 25Q75 25 78 50M22 50Q25 75 50 75Q75 75 78 50" stroke="#FFD700" strokeWidth="1" strokeDasharray="2 4" opacity="0.5" />
     {/* Rim lettering markers */}
     {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
-      <rect key={a} x="48" y="8" width="4" height="2" fill="#FFD700" transform={`rotate(${a} 50 50)`} opacity="0.7"/>
+      <rect key={a} x="48" y="8" width="4" height="2" fill="#FFD700" transform={`rotate(${a} 50 50)`} opacity="0.7" />
     ))}
   </svg>
 );
@@ -191,67 +191,72 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 );
 
 // Achievement SVGs
-export const WoodenShieldGrowthIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
-      {/* Shield Outline */}
-      <path d="M 50 15 L 20 25 V 50 C 20 75 50 90 50 90 C 50 90 80 75 80 50 V 25 Z" />
-      {/* Star Inside */}
-      <path d="M 50 32 L 55 45 H 68 L 57 53 L 61 66 L 50 58 L 39 66 L 43 53 L 32 45 H 45 Z" />
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+      {/* Amber Circle Badge */}
+      <circle cx="50" cy="50" r="42" fill={disabled ? "#6B7280" : "#F59E0B"} />
+      {/* White Shield */}
+      <path d="M 50 25 L 30 30 V 50 C 30 65 50 75 50 75 C 50 75 70 65 70 50 V 30 Z" fill="#FFFFFF" />
+      {/* Small Amber Star */}
+      <path d="M 50 38 L 52 44 H 58 L 53 48 L 55 54 L 50 50 L 45 54 L 47 48 L 42 44 H 48 Z" fill={disabled ? "#9CA3AF" : "#F59E0B"} />
     </g>
   </svg>
 );
 
 export const KawaHammerIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
-      {/* Fire Outlines */}
-      <path d="M 20 70 C 5 55 15 25 35 20" />
-      <path d="M 80 70 C 95 55 85 25 65 20" />
-      
-      {/* Hammer Handle */}
-      <rect x="42" y="44" width="16" height="46" rx="4" />
-      
-      {/* Hammer Head (Filled for contrast like Streamline filled-icons) */}
-      <rect x="15" y="20" width="70" height="24" rx="6" fill="currentColor" />
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+      {/* Red Hexagon Badge */}
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#EF4444"} />
+      {/* White Hammer */}
+      <rect x="42" y="45" width="16" height="30" rx="2" fill="#FFFFFF" />
+      <rect x="25" y="25" width="50" height="20" rx="4" fill="#FFFFFF" />
+      {/* Action Sparks */}
+      <path d="M 30 15 L 35 20 M 50 10 L 50 18 M 70 15 L 65 20" />
     </g>
   </svg>
 );
 
-export const TeacherBookIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+export const GraduationCapIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+      {/* Yellow Hexagon Badge */}
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#FACC15"} />
+      {/* White Open Book */}
+      <path d="M 25 45 L 50 55 L 75 45 V 65 L 50 75 L 25 65 Z" fill="#FFFFFF" />
+      <path d="M 50 75 V 55" />
       {/* Light Rays */}
-      <line x1="50" y1="35" x2="50" y2="10" />
-      <line x1="32" y1="32" x2="18" y2="18" />
-      <line x1="68" y1="32" x2="82" y2="18" />
-      
-      {/* Open Book Outline */}
-      <path d="M 50 90 V 60" /> {/* Spine line */}
-      <path d="M 15 50 L 50 60 L 85 50 V 80 L 50 90 L 15 80 Z" />
+      <line x1="50" y1="40" x2="50" y2="25" />
+      <line x1="35" y1="35" x2="25" y2="25" />
+      <line x1="65" y1="35" x2="75" y2="25" />
     </g>
   </svg>
 );
 
 export const KurdishShieldIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
-      {/* Abstract Map Outline */}
-      <path d="M 26 38 C 30 30 45 25 55 22 C 65 19 75 25 80 35 C 85 45 88 55 85 65 C 82 75 75 82 65 85 C 55 88 45 85 35 80 C 25 75 20 65 18 55 C 16 45 22 46 26 38 Z" />
-      {/* Sun/Heart in center */}
-      <circle cx="52" cy="53" r="8" />
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+      {/* Green Shield Badge */}
+      <path d="M 50 15 L 15 25 V 55 C 15 80 50 95 50 95 C 50 95 85 80 85 55 V 25 Z" fill={disabled ? "#6B7280" : "#10B981"} />
+      {/* White Sun */}
+      <circle cx="50" cy="50" r="14" fill="#FFFFFF" />
+      {[...Array(8)].map((_, i) => (
+        <line key={i} x1="50" y1="36" x2="50" y2="26" transform={`rotate(${i * 45} 50 50)`} />
+      ))}
     </g>
   </svg>
 );
 
 export const GlobeIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <g stroke={disabled ? "#9CA3AF" : "currentColor"} strokeWidth="8" strokeLinecap="round" strokeLinejoin="round">
-      {/* Globe Outer Circle */}
-      <circle cx="50" cy="50" r="40" />
-      {/* Latitude / Longitude lines */}
-      <ellipse cx="50" cy="50" rx="16" ry="40" />
-      <line x1="10" y1="50" x2="90" y2="50" />
+    <g stroke={disabled ? "#4B5563" : "#000000"} strokeWidth="5" strokeLinejoin="round" strokeLinecap="round">
+      {/* Purple Hexagon Badge */}
+      <path d="M 50 10 L 85 30 V 70 L 50 90 L 15 70 V 30 Z" fill={disabled ? "#6B7280" : "#A855F7"} />
+      {/* White Globe */}
+      <circle cx="50" cy="50" r="22" fill="#FFFFFF" />
+      <ellipse cx="50" cy="50" rx="8" ry="22" fill="none" />
+      <line x1="28" y1="50" x2="72" y2="50" />
     </g>
   </svg>
 );
