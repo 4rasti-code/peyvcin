@@ -59,6 +59,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Bypass Service Worker for cross-origin requests (like Supabase storage)
+  if (url.origin !== self.origin) {
+    return;
+  }
+
   // For other assets, use Cache-First
   event.respondWith(
     caches.match(event.request).then((response) => {
