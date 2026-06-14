@@ -197,7 +197,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     setOwnedAvatars(prev => {
-      const next = Array.isArray(data.owned_avatars) ? data.owned_avatars : ['default'];
+      const next = Array.isArray(data.inventory?.owned_avatars) ? data.inventory.owned_avatars : ['default'];
       return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
     });
 
@@ -440,7 +440,9 @@ export const AuthProvider = ({ children }) => {
         p_country_code: profileData.country_code || currentCountryCode || 'IQ',
         p_is_in_kurdistan: profileData.is_kurdistan ?? currentIsInKurdistan ?? true
       });
-      if (rpcError) throw rpcError;
+      if (rpcError) {
+         console.warn("[AuthContext] RPC update_profile_identity failed, relying on fallback direct updates:", rpcError);
+      }
 
       // Sync metadata to auth.users so it shows up in the Supabase Auth Dashboard
       if (profileData.nickname !== undefined || profileData.avatar_url !== undefined) {
@@ -461,6 +463,10 @@ export const AuthProvider = ({ children }) => {
       if (profileData.voice_volume !== undefined) directUpdates.voice_volume = profileData.voice_volume;
       if (profileData.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData.haptic_enabled;
       if (profileData.onboarded !== undefined) directUpdates.onboarded = profileData.onboarded;
+      
+      // Fallback: Also update avatar_url and nickname directly in case the RPC fails or is missing
+      if (profileData.avatar_url !== undefined) directUpdates.avatar_url = profileData.avatar_url;
+      if (profileData.nickname !== undefined) directUpdates.nickname = profileData.nickname;
 
       if (Object.keys(directUpdates).length > 0) {
         const { error: updateError } = await supabase
@@ -468,6 +474,16 @@ export const AuthProvider = ({ children }) => {
           .update(directUpdates)
           .eq('id', currentUser.id);
         if (updateError) throw updateError;
+      }
+
+      // 3. Update Inventory if ownedAvatars was changed (e.g. from purchasing)
+      if (profileData.ownedAvatars !== undefined) {
+        setOwnedAvatars(profileData.ownedAvatars);
+        const { data: currentProfile } = await supabase.from('profiles').select('inventory').eq('id', currentUser.id).single();
+        const currentInv = currentProfile?.inventory || {};
+        await supabase.from('profiles').update({
+          inventory: { ...currentInv, owned_avatars: profileData.ownedAvatars }
+        }).eq('id', currentUser.id);
       }
 
       setLastProfileUpdate(Date.now());

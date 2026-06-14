@@ -525,10 +525,6 @@ export const GameProvider = ({ children }) => {
     if (newSolved.length > 0) {
       setSolvedWords(nextSolvedWords);
       localStorage.setItem('peyvchin_solved_words', JSON.stringify(nextSolvedWords));
-      
-      // Update inventory stats optimistically if provided
-      if (additionalData.filsBonus) setFils(prev => prev + additionalData.filsBonus);
-      if (xpToAdd) setCurrentXP(prev => prev + xpToAdd);
     }
 
     if (!currentUser) {
@@ -641,7 +637,7 @@ export const GameProvider = ({ children }) => {
 
   const addXP = useCallback((amount) => { if (amount) setCurrentXP(prev => prev + amount); }, []);
 
-  const applyPenalty = useCallback(async (xpAmount = 20, filsAmount = 50) => {
+  const applyPenalty = useCallback(async (xpAmount = 20, currencyAmount = 50, currencyType = 'fils') => {
     const { user: currentUser, currentXP: currXP } = gameStateRef.current;
     if (!currentUser) return;
 
@@ -650,14 +646,28 @@ export const GameProvider = ({ children }) => {
     
     // Optimistic Update
     setCurrentXP(newXP);
-    setFils(prev => Math.max(0, Number(prev) - filsAmount));
+    
+    let p_fils = 0, p_derhem = 0, p_dinar = 0;
+    if (currencyType === 'fils') {
+      setFils(prev => Math.max(0, Number(prev) - currencyAmount));
+      p_fils = -currencyAmount;
+    } else if (currencyType === 'derhem') {
+      setDerhem(prev => Math.max(0, Number(prev) - currencyAmount));
+      p_derhem = -currencyAmount;
+    } else if (currencyType === 'dinar') {
+      setDinar(prev => Math.max(0, Number(prev) - currencyAmount));
+      p_dinar = -currencyAmount;
+    } else {
+      setFils(prev => Math.max(0, Number(prev) - currencyAmount));
+      p_fils = -currencyAmount;
+    }
 
     try {
       await supabase.rpc('sync_profile_progression', {
         p_xp_to_add: -xpAmount,
-        p_fils_to_add: -filsAmount,
-        p_derhem_to_add: 0,
-        p_dinar_to_add: 0,
+        p_fils_to_add: p_fils,
+        p_derhem_to_add: p_derhem,
+        p_dinar_to_add: p_dinar,
         p_level: newLevel,
         p_solved_words: gameStateRef.current.solvedWords,
         p_mode: 'penalty',
@@ -728,21 +738,35 @@ export const GameProvider = ({ children }) => {
   }, [user]);
 
   const value = useMemo(() => ({
-    level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
+level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount,
     solvedWords, playerStats,
     userRank: _userRank, updateInventory, setCurrentXP, setLastNotifiedLevel, lastNotifiedLevel, setNotifiedLevelDB,
     syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, getLevelData, progressPercent,
+    // ==========================================
+    // Fetch Word Logic
+    // ==========================================
     getFreshWord: async (mode, category) => {
-      const { user: currentUser } = gameStateRef.current;
-      
+      const { user: currentUser, level: currLevel, solvedWords: sWords } = gameStateRef.current;
+      const { getRandomWordFromCategory } = await import('../data/wordList');
+      const { mamakWords } = await import('../data/mamakList');
+
+      // ALWAYS use local data for mamak to ensure it ONLY uses the user's specific words
+      if (mode === 'mamak') {
+        const result = getRandomWordFromCategory('مامک', currLevel, sWords, mode);
+        if (result) {
+          localStorage.setItem('peyvchin_last_category', result.category);
+          return result;
+        }
+      }
+
       // Get the last used category from state or local storage
       const lastCategory = localStorage.getItem('peyvchin_last_category');
 
       if (currentUser?.id) {
         try {
-          const isAll = !category || category === 'ھەموو' || category === 'generalWordPool';
+          const isAll = !category || category === 'گشتی' || category === 'generalWordPool' || category === 'ھەموو';
           const rpcName = isAll ? 'get_balanced_random_word' : 'get_random_fresh_word';
           
           const rpcParams = {
@@ -757,11 +781,27 @@ export const GameProvider = ({ children }) => {
             rpcParams.p_category = category;
           }
 
-          const { data, error } = await supabase.rpc(rpcName, rpcParams);
-          if (error) throw error;
+          let { data, error } = await supabase.rpc(rpcName, rpcParams);
           
-          if (data && data.length > 0) {
-            const nextWord = data[0];
+          let finalData = data;
+          
+          // STRICTLY prevent riddles ("مامک") from leaking into ANY non-mamak modes/categories
+          const isMamakRiddle = (w) => w.category === 'مامک' || mamakWords.some(m => m.word === w.word || m.hint === w.hint);
+          
+          if (finalData && finalData.length > 0 && isMamakRiddle(finalData[0])) {
+             for (let i = 0; i < 5; i++) {
+               const retry = await supabase.rpc(rpcName, rpcParams);
+               if (retry.data && retry.data.length > 0 && !isMamakRiddle(retry.data[0])) {
+                  finalData = retry.data;
+                  break;
+               }
+             }
+          }
+
+          if (error) throw error;
+
+          if (finalData && finalData.length > 0) {
+            const nextWord = finalData[0];
             // Save the new category for the next round
             localStorage.setItem('peyvchin_last_category', nextWord.category);
             return { word: nextWord.word, hint: nextWord.hint, category: nextWord.category, id: nextWord.id };
@@ -769,14 +809,15 @@ export const GameProvider = ({ children }) => {
         } catch (err) { console.warn("[GameContext] Failed to fetch fresh word from DB, falling back to local:", err); }
       }
       
-      const { level: currLevel, solvedWords: sWords } = gameStateRef.current;
-      const { getRandomWordFromCategory } = await import('../data/wordList');
-      const result = await getRandomWordFromCategory(category, currLevel, sWords, mode);
+      const result = getRandomWordFromCategory(category, currLevel, sWords, mode);
       
       if (result) {
         localStorage.setItem('peyvchin_last_category', result.category);
+        return result;
       }
-      return result;
+
+      console.warn("[GameContext] Local fallback failed to find word, using default safe word");
+      return { word: 'سڵاو', hint: 'پەیڤەکا سادە', category: 'گشتی', id: 'default' };
     },
     initializeStatsInDB: async () => {
       const { user: currentUser } = gameStateRef.current;

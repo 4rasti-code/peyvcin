@@ -519,6 +519,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
     const { playTabSound } = useAudio();
 
+    /* Social Login - Hidden for now as requested
     const handleSocialLogin = async (provider) => {
         try {
             setLoading(true);
@@ -559,6 +560,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
             setLoading(false);
         }
     };
+    */
 
     const handleGuestLogin = async () => {
         try {
@@ -810,13 +812,14 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         className="w-full h-10 sm:h-9 bg-[#0095f6] hover:bg-[#1877f2] active:scale-[0.98] text-white rounded-md font-bold font-rabar text-sm sm:text-xs transition-all flex items-center justify-center gap-2 mt-1 shadow-sm "
                                     >
                                         {loading ? (
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-md animate-spin"></div>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         ) : (
                                             <span>{isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}</span>
                                         )}
                                     </button>
                                 </form>
 
+                                {/* Social Login Buttons - Hidden for now as requested
                                 <div className="mt-2">
                                     <div className="flex items-center gap-4 mb-1 text-on-surface/30">
                                         <div className="flex-1 h-px bg-current opacity-20"></div>
@@ -857,6 +860,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                          </button>
                                      </div>
                                 </div>
+                                */}
 
                                 <div className="mt-3 flex flex-col items-center">
                                     <button
@@ -925,7 +929,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-white rounded-md font-bold font-rabar text-sm transition-all flex items-center justify-center gap-2 mt-2 shadow-sm "
                                     >
                                         {loading ? (
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-md animate-spin"></div>
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                                         ) : (
                                             <span>پشتڕاستکرن</span>
                                         )}
@@ -984,7 +988,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         )}
                                     </AnimatePresence>
                                     <button type="submit" disabled={loading} className="w-full h-11 bg-[#0095f6] hover:bg-[#1877f2] text-white rounded-md font-bold font-rabar text-sm transition-all flex items-center justify-center gap-2 mt-2">
-                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-md animate-spin" /> : <span>کۆدی بهنێرە</span>}
+                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span>کۆدی بهنێرە</span>}
                                     </button>
                                     <button type="button" onClick={() => {
                                         setRecoveryStep(0);
@@ -1020,7 +1024,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         )}
                                     </AnimatePresence>
                                     <button type="submit" disabled={loading} className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold font-rabar text-sm transition-all flex items-center justify-center gap-2 mt-2">
-                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-md animate-spin" /> : <span>پشتڕاستکرن</span>}
+                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span>پشتڕاستکرن</span>}
                                     </button>
                                     <button type="button" onClick={() => {
                                         setRecoveryStep(0);
@@ -1065,7 +1069,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         )}
                                     </AnimatePresence>
                                     <button type="submit" disabled={loading} className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold font-rabar text-sm transition-all flex items-center justify-center gap-2 mt-2">
-                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-md animate-spin" /> : <span>نووکرن</span>}
+                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span>نووکرن</span>}
                                     </button>
                                     <button type="button" onClick={() => {
                                         setRecoveryStep(0);

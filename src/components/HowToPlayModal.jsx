@@ -495,20 +495,16 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-1000 flex items-center justify-center p-4">
+      <div 
+        className={`fixed inset-0 z-1000 flex flex-col transition-colors duration-500 overflow-hidden ${isDark ? 'bg-black' : 'bg-white'}`}
+        onClick={onClose}
+      >
         <Motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="absolute inset-0 bg-mono-black/90"
-        />
-
-        <Motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className={`relative w-full max-w-[340px] ${isDark ? 'bg-black' : 'bg-white'} overflow-hidden flex flex-col max-h-[90vh] border ${isDark ? 'border-white/10' : 'border-slate-200'} rounded-[2rem]`}
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 40 }}
+          className="w-full px-4 sm:px-12 md:px-24 lg:px-48 mx-auto flex flex-col h-full relative font-rabar transition-colors duration-500"
+          onClick={e => e.stopPropagation()}
         >
           {/* Header */}
           <div className="px-4 pt-4 pb-2 flex flex-col items-center">

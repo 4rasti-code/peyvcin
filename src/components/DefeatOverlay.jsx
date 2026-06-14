@@ -141,6 +141,20 @@ const DefeatOverlay = ({
                     <FilsIcon size={16} />
                   </div>
                 </div>
+                {breakdown?.xp > 0 && (
+                  <>
+                    <div className="h-px bg-mono-200 dark:bg-white/5 my-1" />
+                    <div className="flex justify-between items-center text-sm font-black">
+                      <span className="text-mono-900 dark:text-white">سزایێ ئەزموونێ</span>
+                      <div className="flex items-center gap-1.5 text-red-500">
+                        <div className="flex flex-col items-end leading-none">
+                          <AnimatedNumber value={breakdown.xp} prefix="-" />
+                          <span className="text-[8px] font-black uppercase opacity-70">XP</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Word Fever Streak Banner */}

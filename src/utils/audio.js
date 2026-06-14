@@ -26,6 +26,7 @@ const SFX_PATHS = {
   WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
   MESSAGE_SENT: '/sending_message.mp3',
   RIGHT_LETTER: '/rightletter.mp3',
+  WRONG_PLACE: '/right-letter-wrong-place_GwCJf57j.mp3',
   DEFEAT: '/defeat.mp3',
 };
 
@@ -221,6 +222,7 @@ class SoundEngine {
     if (key === 'SWORD_SLASH') baseVolume *= 0.5;
     if (key === 'WHOOSH') baseVolume *= 1.0;
     if (key === 'RIGHT_LETTER') baseVolume *= 0.8; // Increased from 0.5 for better audibility
+    if (key === 'WRONG_PLACE') baseVolume *= 0.9;
     if (key === 'DEFEAT') baseVolume *= 1.0;
     
     gainNode.gain.value = baseVolume * this.masterVolume;
@@ -470,4 +472,12 @@ export const forceResumeAudio = () => engine.forceResume();
 export const playRightLetterSfx = (enabled = true, volume = 1.0) => {
   if (!enabled) return;
   engine.play('RIGHT_LETTER', { volume, pitchRandomization: 10 });
+};
+
+/**
+ * Play sound for correct letter in wrong position (Yellow)
+ */
+export const playWrongPlaceSfx = (enabled = true, volume = 1.0) => {
+  if (!enabled) return;
+  engine.play('WRONG_PLACE', { volume, pitchRandomization: 10 });
 };

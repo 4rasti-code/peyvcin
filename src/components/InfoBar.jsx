@@ -47,7 +47,7 @@ export default function InfoBar({
   };
 
   const timerStyle = getTimerStyles(timeLeft);
-  const circumference = 2 * Math.PI * 22;
+  const circumference = 2 * Math.PI * 30;
   const offset = (timeLeft / 30) * circumference;
 
   // Minimalist View for Classic, Word Fever, OR Mamak Mode
@@ -121,7 +121,7 @@ export default function InfoBar({
                   <circle
                     cx="50%"
                     cy="50%"
-                    r="22"
+                    r="30"
                     className="fill-none stroke-[10px]"
                     style={{ stroke: `${timerStyle.color}33` }} // 20% opacity of current theme color
                   />
@@ -131,7 +131,7 @@ export default function InfoBar({
                     key={displayText} 
                     cx="50%"
                     cy="50%"
-                    r="22"
+                    r="30"
                     fill="none"
                     stroke={timeLeft <= 10 ? '#ef4444' : "url(#purpleGradient)"}
                     strokeWidth="10"

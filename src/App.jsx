@@ -22,7 +22,9 @@ import KurdishSunLoader from './components/KurdishSunLoader';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatus';
+import { getRewardForMode } from './utils/progression';
 import useGameLogic from './hooks/useGameLogic';
+import { FilsIcon, DerhemIcon, DinarIcon } from './components/CurrencyIcon';
 import { AVATARS } from './data/avatars';
 import { safeJSONParse } from './utils/safeParse';
 
@@ -60,6 +62,7 @@ const ProfileView = lazyWithRetry(() => import('./components/ProfileView'));
 const AuthView = lazyWithRetry(() => import('./components/AuthView'));
 const OnboardingView = lazyWithRetry(() => import('./components/OnboardingView'));
 const DictionaryView = lazyWithRetry(() => import('./components/DictionaryView'));
+const AchievementToastManager = lazyWithRetry(() => import('./components/AchievementToastManager'));
 const SettingsModal = lazyWithRetry(() => import('./components/SettingsModal'));
 const HowToPlayModal = lazyWithRetry(() => import('./components/HowToPlayModal'));
 const DailyRewardModal = lazyWithRetry(() => import('./components/DailyRewardModal'));
@@ -171,8 +174,8 @@ export default function App() {
   // 0. CORE CONTEXT HOOKS: Must be at the top to avoid ReferenceErrors
   const {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
-    userNickname, userAvatar, city, isInKurdistan, countryCode,
-    ownedAvatars, equippedAvatar, unlockedThemes: _unlockedThemes, currentTheme,
+    userNickname, userAvatar, userAvatar: equippedAvatar, city, isInKurdistan, countryCode,
+    ownedAvatars, unlockedThemes: _unlockedThemes, currentTheme,
     updateProfile, profileData,
     micEnabled, micVolume, speakerEnabled, voiceVolume
   } = useUser();
@@ -200,6 +203,7 @@ export default function App() {
     setNotifiedLevelDB,
     claimDailyReward: _claimDailyReward,
     updateInventory,
+    applyPenalty,
     initializeStatsInDB,
     loading: isGameLoading,
     resetBoard: _resetContextBoard
@@ -377,7 +381,7 @@ export default function App() {
   });
   const [victoryCustomText, setVictoryCustomText] = useState(null);
   const [lastSolvedWord, setLastSolvedWord] = useState('');
-  const [_isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
+  const [isForfeitConfirmOpen, setIsForfeitConfirmOpen] = useState(false);
   const [isWordFeverResultVisible, setIsWordFeverResultVisible] = useState(false);
   const [showResultOverlay, setShowResultOverlay] = useState(false);
   const [defeatBreakdown, setDefeatBreakdown] = useState({ base: 0, mistakes: 0, total: 0 });
@@ -1077,18 +1081,30 @@ export default function App() {
     }
   }, [resetBoard, getFreshWord, setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setTimeLeft, handleGoHome]);
 
-  const _handleForfeit = useCallback(() => {
+  const handleForfeitClick = useCallback(() => {
     playPopSound();
     setIsForfeitConfirmOpen(true);
   }, [playPopSound]);
 
+  // Auto-close forfeit modal if game ends or view changes
+  useEffect(() => {
+    if (currentView !== 'game' || isWordFeverResultVisible || showResultOverlay) {
+      setIsForfeitConfirmOpen(false);
+    }
+  }, [currentView, isWordFeverResultVisible, showResultOverlay]);
+
   const executeForfeitConfirmed = useCallback(() => {
+    const penalty = getRewardForMode(gameMode);
+    
+    // Deduct penalty and sync to DB
+    applyPenalty(penalty.xp, penalty.amount, penalty.type);
+    
     setIsForfeitConfirmOpen(false);
     setCurrentView('lobby');
     setCategory('');
     setTargetWord('');
     setRevealedIndices([]);
-  }, []);
+  }, [gameMode, applyPenalty]);
 
   // --- WORD FEVER MODE TIMER ENGINE ---
   useEffect(() => {
@@ -1104,32 +1120,46 @@ export default function App() {
           setLastSolvedWord(targetWord);
           setFeverStreak(0);
           setIsDefeat(true); // Lock the board
+          
+          // Apply Timeout Penalty
+          const timeoutFils = 50;
+          const timeoutXP = 25;
+          
+          setDefeatBreakdown({
+            base: timeoutFils,
+            mistakes: 0,
+            total: timeoutFils,
+            xp: timeoutXP
+          });
+          
           setWordFeverResultType('fail');
           setIsWordFeverResultVisible(true);
+          
+          applyPenalty(timeoutXP, timeoutFils, 'fils');
         });
       }
     }
     return () => clearInterval(timer);
-  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible]);
+  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible, applyPenalty]);
 
-  // Word Fever Reward & Penalty Effect
+  // --- WORD FEVER LAST 10 SECONDS TENSION AUDIO ---
   useEffect(() => {
-    if (gameMode === 'word_fever' && isWordFeverResultVisible) {
-      const t = setTimeout(() => {
-        if (wordFeverResultType === 'win') {
-          // Note: handleVictorySync in onEnter already handles the database sync and local state XP increment
-          // So we don't need addXP(50) here anymore to avoid double-dipping, 
-          // but we might want the extra 50 Fils.
-          updateInventory({ fils: 50 });
-        } else if (wordFeverResultType === 'fail') {
-
-          // Penalty for losing in Word Fever
-          updateInventory({ fils: -50 });
+    if (currentView === 'game' && gameMode === 'word_fever') {
+      if (timeLeft <= 10 && timeLeft >= 0) {
+        const audio = new Audio('/heartbeat.mp3');
+        audio.volume = 1.0;
+        audio.play().catch(e => console.warn("Failed to play heartbeat:", e));
+        
+        // Add a slight haptic feedback for mobile users to increase tension
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+        } else if (navigator.vibrate) {
+          navigator.vibrate(30);
         }
-      }, 50);
-      return () => clearTimeout(t);
+      }
     }
-  }, [isWordFeverResultVisible, wordFeverResultType, gameMode, updateInventory]);
+  }, [timeLeft, currentView, gameMode]);
+
   // Audio logic handled via AudioContext hooks
   // Auth logic handled via AuthContext hooks
 
@@ -1354,7 +1384,7 @@ export default function App() {
               playBubblePopSound();
               setCurrentView('social_hub');
             }}
-            onForfeit={executeForfeitConfirmed}
+            onForfeit={handleForfeitClick}
             category={category}
             equippedAvatar={equippedAvatar}
             gameMode={gameMode}
@@ -1400,11 +1430,8 @@ export default function App() {
         <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
-              onAuthSuccess={async (u, nicknameHint) => {
+              onAuthSuccess={async (u) => {
                 setUser(u);
-                if (nicknameHint) {
-                  await updateProfile({ nickname: nicknameHint });
-                }
                 setIsRecoveringPassword(false);
                 setIsVerifyingSignup(false);
                 // Small delay to allow state sync before navigating to lobby
@@ -1623,6 +1650,7 @@ export default function App() {
             {currentView === 'profile' && (
               <ProfileView
                 onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
+                onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
                 user={user}
                 userNickname={userNickname}
                 onProfileSave={handleProfileSave}
@@ -1639,7 +1667,6 @@ export default function App() {
                 playerStats={playerStats}
                 userRank={userRank}
                 dailyStreak={dailyStreak}
-                onViewChange={navigateTo}
               />
             )}
 
@@ -1712,6 +1739,7 @@ export default function App() {
               setCurrentView={navigateTo}
               onSettingsToggle={() => { setIsSettingsOpen(true); }}
               onTabClickSound={playBubblePopSound}
+              notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
             />
           )}
 
@@ -1797,6 +1825,7 @@ export default function App() {
         />
 
         <Suspense fallback={null}>
+          <AchievementToastManager />
           <SettingsModal
             isOpen={isSettingsOpen}
             onClose={() => { playSettingsCloseSound(); setIsSettingsOpen(false); }}
@@ -1964,6 +1993,63 @@ export default function App() {
                   </Motion.span>
                 ))}
               </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* FORFEIT WARNING MODAL */}
+        <AnimatePresence>
+          {isForfeitConfirmOpen && (
+            <Motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-200 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+              onClick={() => setIsForfeitConfirmOpen(false)}
+            >
+              <Motion.div
+                initial={{ scale: 0.95, y: 10, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 10, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="w-full max-w-[320px] bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-5 shadow-2xl flex flex-col gap-4 text-center font-rabar overflow-hidden relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Background glow effect */}
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 bg-red-500/20 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col items-center gap-3">
+                  <h2 className="text-base font-bold text-mono-900 dark:text-white mt-2">ئەرێ دێ دەرکەڤی؟</h2>
+                  
+                  <div className="flex items-center justify-center gap-3 py-2 px-4 bg-mono-50 dark:bg-black/40 rounded-md border border-mono-100 dark:border-white/5 w-full">
+                    <span className="flex items-center gap-1.5 text-base font-bold text-red-500" dir="ltr">
+                      -{getRewardForMode(gameMode).amount}
+                      {getRewardForMode(gameMode).type === 'fils' && <FilsIcon size={18} />}
+                      {getRewardForMode(gameMode).type === 'derhem' && <DerhemIcon size={18} />}
+                      {getRewardForMode(gameMode).type === 'dinar' && <DinarIcon size={18} />}
+                    </span>
+                    <span className="text-mono-300 dark:text-mono-700">|</span>
+                    <span className="flex items-center gap-1 text-base font-bold text-red-500" dir="ltr">
+                      -{getRewardForMode(gameMode).xp} <span className="text-xs">XP</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 w-full mt-1 relative z-10">
+                  <button
+                    onClick={() => setIsForfeitConfirmOpen(false)}
+                    className="flex-1 py-2.5 rounded-md font-bold text-sm text-mono-600 dark:text-mono-300 bg-mono-100 hover:bg-mono-200 dark:bg-mono-800 dark:hover:bg-mono-700 transition-all active:scale-95"
+                  >
+                    نەخێر
+                  </button>
+                  <button
+                    onClick={() => { triggerHaptic(20); executeForfeitConfirmed(); }}
+                    className="flex-1 py-2.5 rounded-md font-bold text-sm text-white bg-red-500 hover:bg-red-600 transition-all active:scale-95 shadow-sm"
+                  >
+                    بەلێ
+                  </button>
+                </div>
+              </Motion.div>
             </Motion.div>
           )}
         </AnimatePresence>

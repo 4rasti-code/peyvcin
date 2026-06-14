@@ -1,6 +1,9 @@
 import React from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
+import AccountSettings from './AccountSettings';
+import HelpCenterModal from './HelpCenterModal';
+import { useUser } from '../context/AuthContext';
 
 function SettingsModal({
    isOpen,
@@ -19,29 +22,37 @@ function SettingsModal({
    onLogout,
    onPlaySound
 }) {
-   if (!isOpen) return null;
+   const { user } = useUser();
+   const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
+
+   const handleInvite = () => {
+      const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
+      navigator.clipboard.writeText(shareLink);
+      alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+   };
 
    return (
-      <AnimatePresence>
-         {isOpen && (
-            <Motion.div
+      <>
+         <AnimatePresence>
+            {isOpen && (
+               <Motion.div
+                  key="settings-modal-overlay"
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
-               className="fixed inset-0 z-100 flex items-center justify-center px-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-md p-4 transition-colors duration-500"
+               className="fixed inset-0 z-100 flex flex-col bg-mono-white dark:bg-black transition-colors duration-500 overflow-hidden"
                onClick={onClose}
             >
                <Motion.div
-                  initial={{ scale: 0.98, opacity: 0, y: 10 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0.98, opacity: 0, y: 10 }}
-                  className="w-full max-w-[340px] rounded-lg overflow-hidden relative font-rabar bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 transition-colors duration-500 shadow-[0_15px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_15px_40px_rgba(0,0,0,0.3)]"
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 40 }}
+                  className="w-full px-4 sm:px-12 md:px-24 lg:px-48 mx-auto flex flex-col h-full relative font-rabar transition-colors duration-500"
                   onClick={e => e.stopPropagation()}
                   dir="rtl"
                >
                   {/* Compact Header */}
-                  <div className="p-6 pb-2 flex items-center justify-between">
-                     <h2 className="text-xl font-black text-mono-900 dark:text-white">ڕێکخستن</h2>
+                  <div className="p-6 pt-12 sm:pt-8 pb-4 flex items-center justify-end shrink-0">
                      <button
                         onClick={onClose}
                         className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/5 flex items-center justify-center text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white transition-all active:scale-90 border border-mono-100 dark:border-white/10"
@@ -50,50 +61,48 @@ function SettingsModal({
                      </button>
                   </div>
 
-                   <div className="p-6 pt-2 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                      {/* 1. SOUND EFFECTS SECTION */}
-                      <div className="p-4 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 space-y-4">
-                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2.5">
-                               <div className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/10 flex items-center justify-center border border-mono-100 dark:border-white/5">
-                                  <span className="material-symbols-outlined text-base text-mono-600 dark:text-mono-400">
-                                     {appSfxVolume > 0 ? 'volume_up' : 'volume_off'}
-                                  </span>
-                               </div>
-                               <span className="text-[14px] font-black text-mono-800 dark:text-mono-200">کارتێکەرێن دەنگی</span>
+                   <div className="p-6 pt-2 pb-12 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
+                      <AccountSettings updateProfile={updateProfile} />
+                      
+                      <h2 className="text-xl font-black text-mono-900 dark:text-white text-center w-full py-2">ڕێکخستن</h2>
+                      
+                      {/* 1. AUDIO & HAPTICS */}
+                      <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
+                         
+                         {/* SFX Toggle */}
+                         <div className="flex items-center justify-between py-3 group">
+                            <div className="flex items-center gap-3">
+                               <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
+                                  {appSfxVolume > 0 ? 'volume_up' : 'volume_off'}
+                               </span>
+                               <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">کارتێکەرێن دەنگی</span>
                             </div>
-                            <span className="text-[10px] font-black text-mono-400 tabular-nums bg-mono-50 dark:bg-white/5 px-2 py-0.5 rounded-md border border-mono-100 dark:border-white/5">
-                               {appSfxVolume}%
-                            </span>
+                            <button
+                               onClick={() => { triggerHaptic(10); onAppSfxVolumeChange(appSfxVolume > 0 ? 0 : 100); }}
+                               className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${appSfxVolume > 0 ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
+                            >
+                               <Motion.div
+                                  layout
+                                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                  className={`w-3 h-3 rounded-sm ${appSfxVolume > 0 ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
+                               />
+                            </button>
                          </div>
-                         <div className="px-1">
-                            <input
-                               type="range"
-                               min="0"
-                               max="100"
-                               value={appSfxVolume}
-                               onChange={(e) => onAppSfxVolumeChange(parseInt(e.target.value))}
-                               className="w-full h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
-                            />
-                         </div>
-                      </div>
 
-                      {/* 2. APP TOGGLES GROUP */}
-                      <div className="p-4 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 grid gap-2.5">
                          {/* Music Toggle */}
-                         <div className="flex items-center justify-between p-3 rounded-md border border-mono-100 dark:border-white/5 bg-mono-50/30 dark:bg-white/5 hover:bg-mono-50 dark:hover:bg-white/10 transition-colors group">
+                         <div className="flex items-center justify-between py-3 group">
                             <div className="flex items-center gap-3">
                                <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
                                   {bgMusicVolume > 0 ? 'music_note' : 'music_off'}
                                </span>
-                               <span className="text-[13px] font-black text-mono-800 dark:text-mono-200">مۆزیکا پاشبنەمایی</span>
+                               <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">مۆزیکا پاشبنەمایی</span>
                             </div>
                             <button
                                onClick={() => { triggerHaptic(10); onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 10); }}
-                               className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 relative ${bgMusicVolume > 0 ? 'bg-green-600/20' : 'bg-red-600/20'}`}
+                               className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${bgMusicVolume > 0 ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
                             >
                                <Motion.div
-                                  animate={{ x: bgMusicVolume > 0 ? -20 : 0 }}
+                                  layout
                                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                   className={`w-3 h-3 rounded-sm ${bgMusicVolume > 0 ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
                                />
@@ -101,74 +110,67 @@ function SettingsModal({
                          </div>
 
                          {/* Haptic Toggle */}
-                         <div className="flex items-center justify-between p-3 rounded-md border border-mono-100 dark:border-white/5 bg-mono-50/30 dark:bg-white/5 hover:bg-mono-50 dark:hover:bg-white/10 transition-colors group">
+                         <div className="flex items-center justify-between py-3 group">
                             <div className="flex items-center gap-3">
                                <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">vibration</span>
-                               <span className="text-[13px] font-black text-mono-800 dark:text-mono-200">لەرزین</span>
+                               <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">لەرزین</span>
                             </div>
                             <button
                                onClick={() => { triggerHaptic(10); onHapticToggle(); }}
-                               className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 relative ${hapticEnabled ? 'bg-green-600/20' : 'bg-red-600/20'}`}
+                               className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${hapticEnabled ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
                             >
                                <Motion.div
-                                  animate={{ x: hapticEnabled ? -20 : 0 }}
+                                  layout
                                   transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                   className={`w-3 h-3 rounded-sm ${hapticEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
                                />
                             </button>
                          </div>
-                      </div>
 
-                      {/* 3. VOICE CHAT SECTION */}
-                      <div className="p-4 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 space-y-4">
-                         <h3 className="text-[10px] font-black uppercase tracking-widest text-mono-400">دەنگێ ڕاستەوخۆ (Live Voice)</h3>
-                         
-                         <div className="grid gap-2.5">
-                            {/* Mic Toggle */}
-                            <div className="flex items-center justify-between p-3 rounded-md border border-mono-100 dark:border-white/5 bg-mono-50/30 dark:bg-white/5 hover:bg-mono-50 dark:hover:bg-white/10 transition-colors group">
+                         {/* Mic Section */}
+                         <div className="flex flex-col py-3 space-y-4">
+                            <div className="flex items-center justify-between group">
                                <div className="flex items-center gap-3">
                                   <span className={`material-symbols-outlined text-lg transition-colors ${micEnabled ? 'text-mono-900 dark:text-white' : 'text-mono-400'}`}>
                                      {micEnabled ? 'mic' : 'mic_off'}
                                   </span>
-                                  <span className="text-[13px] font-black text-mono-800 dark:text-mono-200">دەنگکێش</span>
+                                  <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">دەنگکێش</span>
                                </div>
                                <button
                                   onClick={() => { triggerHaptic(10); updateProfile({ mic_enabled: !micEnabled }); }}
-                                  className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 relative ${micEnabled ? 'bg-green-600/20' : 'bg-red-600/20'}`}
+                                  className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${micEnabled ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
                                >
                                   <Motion.div
-                                     animate={{ x: micEnabled ? -20 : 0 }}
+                                     layout
                                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                      className={`w-3 h-3 rounded-sm ${micEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
                                   />
                                </button>
                             </div>
-
-                            {/* Mic Volume Slider */}
                             {micEnabled && (
-                               <div className="px-1 py-2 space-y-3">
-                                  <div className="flex items-center justify-between">
-                                     <span className="text-[11px] font-black text-mono-500">قەبارێ مایکرۆفۆنی</span>
-                                     <span className="text-[10px] font-black text-mono-400">{micVolume}%</span>
-                                  </div>
+                               <div className="px-1 flex items-center gap-3 w-full pb-1">
                                   <input
                                      type="range"
+                                     dir="ltr"
                                      min="0"
                                      max="100"
                                      value={micVolume}
                                      onChange={(e) => updateProfile({ mic_volume: parseInt(e.target.value) })}
-                                     className="w-full h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
+                                     className="flex-1 h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
                                   />
+                                  <span className="text-[10px] font-bold text-mono-400 shrink-0 min-w-[28px] text-center" dir="ltr">{micVolume}%</span>
                                </div>
                             )}
+                         </div>
 
-                            {/* Speaker Toggle */}
-                            <div className="flex items-center justify-between p-3 rounded-md border border-mono-100 dark:border-white/5 bg-mono-50/30 dark:bg-white/5 hover:bg-mono-50 dark:hover:bg-white/10 transition-colors group">
+                         {/* Speaker Section */}
+                         <div className="flex flex-col py-3 space-y-4">
+                            <div className="flex items-center justify-between group">
                                <div className="flex items-center gap-3">
                                   <span className={`material-symbols-outlined text-lg transition-colors ${speakerEnabled ? 'text-mono-900 dark:text-white' : 'text-mono-400'}`}>
                                      {speakerEnabled ? 'volume_up' : 'volume_off'}
                                   </span>
-                                  <span className="text-[13px] font-black text-mono-800 dark:text-mono-200">بلندگۆ</span>
+                                  <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">بلندگۆ</span>
                                </div>
                                <button
                                   onClick={() => { triggerHaptic(10); updateProfile({ speaker_enabled: !speakerEnabled }); }}
@@ -181,26 +183,52 @@ function SettingsModal({
                                   />
                                </button>
                             </div>
-
-                            {/* Voice Volume Slider */}
                             {speakerEnabled && (
-                               <div className="px-1 py-2 space-y-3">
-                                  <div className="flex items-center justify-between">
-                                     <span className="text-[11px] font-black text-mono-500">قەبارێ دەنگی</span>
-                                     <span className="text-[10px] font-black text-mono-400">{voiceVolume}%</span>
-                                  </div>
+                               <div className="px-1 flex items-center gap-3 w-full pb-1">
                                   <input
                                      type="range"
                                      min="0"
                                      max="100"
                                      value={voiceVolume}
                                      onChange={(e) => updateProfile({ voice_volume: parseInt(e.target.value) })}
-                                     className="w-full h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
+                                     className="flex-1 h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
                                   />
+                                  <span className="text-[10px] font-bold text-mono-400 shrink-0 min-w-[28px] text-center" dir="ltr">{voiceVolume}%</span>
                                </div>
                             )}
                          </div>
                       </div>
+
+                     {/* HELP & FEEDBACK SECTION */}
+                     <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
+                        <button onClick={() => { triggerHaptic(10); setIsHelpCenterOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                           <div className="flex items-center gap-3">
+                              <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">help</span>
+                              <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">سەنتەرێ هاریکاریێ</span>
+                           </div>
+                           <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+                        </button>
+                        <button onClick={() => { triggerHaptic(10); window.location.href = 'mailto:support@peyivcin.com'; }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                           <div className="flex items-center gap-3">
+                              <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">feedback</span>
+                              <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">فیدباک</span>
+                           </div>
+                           <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+                        </button>
+                     </div>
+
+                     {/* 5. INVITE FRIENDS SECTION */}
+                     <div className="p-3.5 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-2.5">
+                           <div className="w-8 h-8 rounded-md bg-green-100/50 dark:bg-green-900/30 flex items-center justify-center border border-green-200/50 dark:border-green-800/30">
+                              <span className="material-symbols-outlined text-[18px] text-green-600 dark:text-green-400 font-bold">person_add</span>
+                           </div>
+                           <h4 className="text-[12px] font-bold font-rabar text-mono-900 dark:text-mono-50">ھەڤالێن خوە داخواز بکە</h4>
+                        </div>
+                        <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="px-3 py-2 bg-green-600 text-white rounded-md font-black font-rabar text-[10px] hover:brightness-110 active:scale-95 transition-all shadow-sm shrink-0">
+                           کۆپی لینک
+                        </button>
+                     </div>
 
                      {/* Compact Logout Button */}
                      <button
@@ -217,8 +245,19 @@ function SettingsModal({
                   </div>
                </Motion.div>
             </Motion.div>
-         )}
-      </AnimatePresence>
+            )}
+         </AnimatePresence>
+           
+         <AnimatePresence>
+            {isHelpCenterOpen && (
+               <HelpCenterModal 
+                  key="help-center-modal"
+                  onClose={() => setIsHelpCenterOpen(false)} 
+                  triggerHaptic={triggerHaptic} 
+               />
+            )}
+         </AnimatePresence>
+      </>
    );
 }
 

@@ -17,19 +17,11 @@ import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP, getLevelTier } from '../utils/progression';
 import { getCroppedImg } from '../utils/imageUtils';
 import Cropper from 'react-easy-crop';
-import { 
-  Level10Icon, 
-  KawaHammerIcon, 
-  GraduationCapIcon, 
-  KurdishShieldIcon, 
-  GlobeIcon, 
-  ExpertDiamondIcon 
-} from './CurrencyIcon';
+import { MEDALS } from '../constants/medals';
 
-export default function ProfileView({ onProfileSave, onOpenSettings }) {
+export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange }) {
    const {
-      user, userNickname, userAvatar,
-      isInKurdistan, countryCode, lastNicknameUpdate, profileData
+      user, userNickname, userAvatar, profileData
    } = useUser();
 
    const {
@@ -38,7 +30,11 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
    } = useGame();
 
    const { playSaveSound } = useAudio();
-   const [isFlagBoxOpen, setIsFlagBoxOpen] = useState(false);
+   const [draftAvatar, setDraftAvatar] = useState(userAvatar);
+   const [saveSuccess, setSaveSuccess] = useState(false);
+   const [isUploading, setIsUploading] = useState(false);
+   const fileInputRef = useRef(null);
+
    const today = new Date();
    today.setHours(0, 0, 0, 0);
    let isStreakAtRisk = false;
@@ -49,24 +45,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
       if (diffDays >= 1) isStreakAtRisk = true;
    }
 
-
-   const [isMedalsExpanded, setIsMedalsExpanded] = useState(false);
-   const [isUploading, setIsUploading] = useState(false);
-   const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
-   const fileInputRef = useRef(null);
-   const flagDropdownRef = useRef(null);
-   const flagButtonRef = useRef(null);
-   const [draftNickname, setDraftNickname] = useState(userNickname);
-   const [draftAvatar, setDraftAvatar] = useState(userAvatar);
-   const [draftCountryCode, setDraftCountryCode] = useState(countryCode);
-   const [draftIsInKurdistan, setDraftIsInKurdistan] = useState(isInKurdistan);
-   const [saveSuccess, setSaveSuccess] = useState(false);
-   const [saveError, setSaveError] = useState(null);
-
-   const [isNicknameLocked, setIsNicknameLocked] = useState(true);
    const [pendingFile, setPendingFile] = useState(null);
    const [localPreviewUrl, setLocalPreviewUrl] = useState(null);
-   const nicknameInputRef = useRef(null);
    const bgRef = useRef(null);
    const [isCropModalOpen, setIsCropModalOpen] = useState(false);
    const [imageToCrop, setImageToCrop] = useState(null);
@@ -74,7 +54,6 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
    const [zoom, setZoom] = useState(1);
    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
    const [croppedBlob, setCroppedBlob] = useState(null);
-   const [showLockToast, setShowLockToast] = useState(false);
 
    const handleBackgroundClick = (e) => {
       // Pulse on background void clicks
@@ -87,65 +66,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
       }
    };
 
-   // Calculate 14-day lock
-   const [daysRemaining, setDaysRemaining] = useState(0);
-   const [isHardLocked, setIsHardLocked] = useState(false);
-
    useEffect(() => {
-      if (lastNicknameUpdate) {
-         const lastUpdate = new Date(lastNicknameUpdate);
-         const now = new Date();
-         const diffTime = Math.abs(now - lastUpdate);
-         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-         
-         if (diffDays < 14) {
-            setIsHardLocked(true);
-            setDaysRemaining(14 - diffDays);
-            setIsNicknameLocked(true); // force lock UI
-         } else {
-            setIsHardLocked(false);
-            setDaysRemaining(0);
-         }
-      } else {
-         setIsHardLocked(false);
-         setDaysRemaining(0);
-      }
-   }, [lastNicknameUpdate]);
-
-   useEffect(() => {
-      setDraftNickname(userNickname);
       setDraftAvatar(userAvatar);
-      setDraftCountryCode(countryCode);
-      setDraftIsInKurdistan(isInKurdistan);
-   }, [userNickname, userAvatar, countryCode, isInKurdistan]);
-
-   useEffect(() => {
-      if (isFlagBoxOpen && flagButtonRef.current) {
-         const rect = flagButtonRef.current.getBoundingClientRect();
-         setDropdownCoords({
-            top: rect.bottom + window.scrollY,
-            left: rect.left + window.scrollX,
-            width: rect.width
-         });
-      }
-   }, [isFlagBoxOpen]);
-
-   useEffect(() => {
-      function handleClickOutside(event) {
-         if (flagDropdownRef.current && !flagDropdownRef.current.contains(event.target) &&
-            flagButtonRef.current && !flagButtonRef.current.contains(event.target)) {
-            setIsFlagBoxOpen(false);
-         }
-      }
-      if (isFlagBoxOpen) {
-         document.addEventListener('mousedown', handleClickOutside);
-         window.addEventListener('scroll', () => setIsFlagBoxOpen(false), { once: true });
-         window.addEventListener('resize', () => setIsFlagBoxOpen(false), { once: true });
-      }
-      return () => {
-         document.removeEventListener('mousedown', handleClickOutside);
-      };
-   }, [isFlagBoxOpen]);
+   }, [userAvatar]);
 
    if (!user || user === null) {
       return <div className="flex flex-col items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
@@ -154,20 +77,12 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
    const safeLevel = getLevelFromXP(currentXP || 0);
    const effectiveProgress = (progressPercent || 0) / 100;
 
-   const selectedCountry = COUNTRIES.find(c => c.code === (draftCountryCode || countryCode));
-   const selectedCountryName = draftIsInKurdistan ? 'کوردستان' : (selectedCountry ? selectedCountry.name : 'ھەلبژێرە');
+   // Country and Nickname are handled in SettingsModal
 
    const tier = getLevelTier(safeLevel);
 
-   const displayData = { ...(profileData || {}), ...(profileData?.statistics || {}) };
-   const medals = [
-      { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
-      { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: KawaHammerIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-      { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-cyan-400', glow: '', IconComponent: ExpertDiamondIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
-      { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
-      { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
-      { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
-   ];
+   const displayData = { ...(profileData || {}), ...(profileData?.statistics || {}), level: safeLevel };
+   const medals = MEDALS;
    const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
    const isBestUnlocked = bestMedal.condition(displayData);
 
@@ -223,10 +138,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
 
          // Update the profile in the background (don't await)
          onProfileSave({
-            nickname: draftNickname,
-            avatar_url: publicUrl,
-            countryCode: draftCountryCode,
-            isInKurdistan: draftIsInKurdistan
+            avatar_url: publicUrl
          }).then(() => {
             console.log("[ProfileView] Profile synced in background");
          }).catch(err => {
@@ -241,22 +153,17 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
 
       } catch (err) {
          console.error("Crop/Save failed:", err);
-         setSaveError(err.message || 'شاشیەک ڕوویدا د سەیڤکرنا وێنەی دا');
+         alert(err.message || 'شاشیەک ڕوویدا د سەیڤکرنا وێنەی دا');
       } finally {
          setIsUploading(false);
       }
    };
 
-   const handleInvite = () => {
-      const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
-      navigator.clipboard.writeText(shareLink);
-      alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
-   };
+
 
    const handleSave = async () => {
       try {
          setIsUploading(true);
-         setSaveError(null);
          playSaveSound();
          triggerHaptic([20, 10, 20]);
          let finalAvatar = draftAvatar;
@@ -264,13 +171,15 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
          // Use cropped blob if available
          const uploadSource = croppedBlob;
 
-         if (uploadSource) {
+         if (uploadSource || pendingFile) {
             try {
-               const fileName = `${user?.id || 'guest'}-${Date.now()}.jpg`;
+               const fileExt = pendingFile ? pendingFile.name.split('.').pop() : 'jpg';
+               const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
+               const uploadData = uploadSource || pendingFile;
 
                const { error: uploadError } = await supabase.storage
                   .from('avatars')
-                  .upload(fileName, uploadSource, { contentType: 'image/jpeg' });
+                  .upload(fileName, uploadData, { contentType: uploadSource ? 'image/jpeg' : undefined });
 
                if (!uploadError) {
                   const { data: { publicUrl } } = supabase.storage
@@ -279,38 +188,26 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                   finalAvatar = publicUrl;
                } else {
                   console.error("Upload error details:", uploadError);
+                  alert("نەتوانرا وێنە باربکرێت! ڕەنگە سەتڵا (avatars) ل Supabase نەیێ دروستکری یان ڕێگەپێدان نینە.");
+                  setIsUploading(false);
+                  return; // Stop saving!
                }
             } catch (upErr) {
                console.error("Upload process crashed:", upErr);
+               alert("هەڵەیەک ڕوویدا لە بارکردنی وێنەکە");
+               setIsUploading(false);
+               return; // Stop saving!
             }
-         } else if (pendingFile) {
-            // Fallback for direct avatar selection if any
-            try {
-               const fileExt = pendingFile.name.split('.').pop();
-               const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
-
-               const { error: uploadError } = await supabase.storage
-                  .from('avatars')
-                  .upload(fileName, pendingFile);
-
-               if (!uploadError) {
-                  const { data: { publicUrl } } = supabase.storage
-                     .from('avatars')
-                     .getPublicUrl(fileName);
-                  finalAvatar = publicUrl;
-               }
-            } catch (_err) { /* ignore upload errors for fallback */ }
          }
 
-         await onProfileSave({ nickname: draftNickname, avatar_url: finalAvatar, countryCode: draftCountryCode, isInKurdistan: draftIsInKurdistan });
+         await onProfileSave({ avatar_url: finalAvatar });
          setSaveSuccess(true);
-         setIsNicknameLocked(true);
          setPendingFile(null);
          setCroppedBlob(null);
          setLocalPreviewUrl(null);
          setTimeout(() => setSaveSuccess(false), 2000);
       } catch (err) { 
-         setSaveError(err.message || 'شاشیەک ڕوویدا');
+         alert(err.message || 'شاشیەک ڕوویدا');
       } finally { 
          setIsUploading(false); 
       }
@@ -327,14 +224,14 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className="relative w-full aspect-[1.15/1] sm:aspect-3/2 overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300 shadow-xl">
+            <div className="relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-[380px] overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300">
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-[62%] z-60 px-6 pt-12 flex justify-between items-start pointer-events-none" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] z-60 px-6 pt-12 sm:pt-6 flex justify-between items-start pointer-events-none" dir="ltr">
                   {/* Left: Settings Icon */}
                   <div className="relative pointer-events-auto mt-[-6px]">
                      <Motion.button
@@ -353,7 +250,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                   {/* Right: Level Shield (Restored Original Style) */}
                   <div className="relative w-20 flex flex-col items-end pointer-events-auto">
                      <div className="relative flex flex-col items-center justify-center">
-                        <svg width="48" height="55" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-2xl">
+                        <svg width="48" height="55" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
                            <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill="url(#levelMedalGradient)" stroke="white" strokeWidth="4" strokeOpacity="0.3" />
                            <defs>
                               <linearGradient id="levelMedalGradient" x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
@@ -371,9 +268,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                </div>
 
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
-               <div className="absolute top-0 left-0 right-0 h-[62%] flex items-center justify-center z-30 pointer-events-none">
+               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] flex items-center justify-center z-30 pointer-events-none">
                   <Motion.div
-                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8"
+                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8 sm:mt-4"
                      whileHover={{ scale: 1.05 }}
                      whileTap={{ scale: 0.95 }}
                      onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
@@ -459,10 +356,10 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                         </svg>
                      </div>
 
-                     <div className="relative p-0.5 bg-mono-white dark:bg-black rounded-full shadow-2xl border-[0.5px] border-mono-200 dark:border-mono-800 z-10">
+                     <div className="relative p-0.5 bg-mono-white dark:bg-black rounded-full border-[0.5px] border-mono-200 dark:border-mono-800 z-10">
                         <Avatar src={draftAvatar} size="xl" className="w-32 h-32 rounded-full border border-mono-100 dark:border-mono-800 object-cover" updatedAt={user?.updated_at} />
                         <div
-                           className="absolute bottom-0 right-0 w-9 h-9 text-slate-950 rounded-full border-2 border-white flex items-center justify-center shadow-xl z-50 transition-transform active:scale-90"
+                           className="absolute bottom-0 right-0 w-9 h-9 text-slate-950 rounded-full border-2 border-white flex items-center justify-center z-50 transition-transform active:scale-90"
                            style={{ backgroundColor: tier.stop1 }}
                         >
                            <span className="material-symbols-outlined text-[20px] font-black leading-none">edit</span>
@@ -472,12 +369,11 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className="absolute top-[62%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-[18px] pt-2 shadow-[0_-10px_20px_rgba(0,0,0,0.1)] flex flex-col justify-end" dir="rtl">
+               <div className="absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-[18px] sm:pb-3 pt-2 flex flex-col justify-end shadow-sm" dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-[14px] px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div 
-                        className="w-12 h-12 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer shrink-0"
-                        onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setIsMedalsExpanded(prev => !prev); }}
+                        className="w-12 h-12 flex items-center justify-center shrink-0"
                      >
                         <bestMedal.IconComponent className={`w-10 h-10 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
                      </div>
@@ -488,14 +384,14 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                            className="text-[22px] font-black font-rabar leading-tight truncate w-full text-center transition-all duration-500"
                            style={{ color: tier.stop1 }}
                         >
-                           {draftNickname || 'یاریکەر'}
+                           {userNickname || 'یاریکەر'}
                         </h3>
                      </div>
 
                      {/* Right: Streak / Save */}
                      <div className="w-12 h-12 flex items-center justify-center shrink-0">
                         <AnimatePresence mode="popLayout">
-                           {(draftAvatar !== userAvatar || pendingFile || draftNickname !== userNickname || draftCountryCode !== countryCode) && !saveSuccess ? (
+                           {(draftAvatar !== userAvatar || pendingFile) && !saveSuccess ? (
                               <Motion.button
                                  key="save-btn"
                                  initial={{ scale: 0, rotate: -90 }}
@@ -597,214 +493,83 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
             </div>
          </div>
 
-
-         <div className="flex-1 overflow-y-auto px-4 pb-[max(env(safe-area-inset-bottom),80px)] scrollbar-hide relative z-10 bg-trigger-zone">
-            <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 pt-2 w-full">
+         <div className="flex-1 px-4 pb-[max(env(safe-area-inset-bottom),80px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 bg-trigger-zone flex flex-col justify-start pt-2">
+            <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center">
                
+               {/* Quick Actions (Stats, Achievements, Dictionary) */}
+               <div className="flex flex-row items-center justify-center gap-8 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10">
+                 
+                 {/* Stats */}
+                 <Motion.button
+                   whileHover={{ scale: 1.05, y: -2 }}
+                   whileTap={{ scale: 0.95 }}
+                   onClick={() => { triggerHaptic(15); onViewChange('stats'); }}
+                   className="flex flex-col items-center justify-center transition-all group"
+                 >
+                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-[#8b5cf6] transition-colors mb-2">
+                     bar_chart
+                   </span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">ئامار</span>
+                 </Motion.button>
+
+                 {/* Achievements */}
+                 <Motion.button
+                   whileHover={{ scale: 1.05, y: -2 }}
+                   whileTap={{ scale: 0.95 }}
+                   onClick={() => { triggerHaptic(15); onViewChange('achievements'); }}
+                   className="flex flex-col items-center justify-center transition-all group"
+                 >
+                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-yellow-500 transition-colors mb-2">
+                     emoji_events
+                   </span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">دەستکەفت</span>
+                 </Motion.button>
+
+                 {/* Dictionary */}
+                 <Motion.button
+                   whileHover={{ scale: 1.05, y: -2 }}
+                   whileTap={{ scale: 0.95 }}
+                   onClick={() => { triggerHaptic(15); onViewChange('dictionary'); }}
+                   className="flex flex-col items-center justify-center transition-all group"
+                 >
+                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-cyan-500 transition-colors mb-2">
+                     menu_book
+                   </span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">فەرهەنگ</span>
+                 </Motion.button>
+
+               </div>
+
                {/* Medals Section */}
-               <AnimatePresence>
-                  {isMedalsExpanded && (
-                     <Motion.div 
-                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-mono-50 dark:bg-mono-900/50 p-4 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain mt-2 relative overflow-hidden mb-2"
-                     >
-                        <div 
-                           className="w-full flex items-center justify-between mb-4 cursor-pointer"
-                           onClick={() => { triggerHaptic(10); setIsMedalsExpanded(false); }}
-                        >
-                           <div className="flex-1"></div>
-                           <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center flex-1 whitespace-nowrap">دەستکەڤتێن تە</span>
-                           <div className="flex-1 flex justify-start">
-                              <span className="material-symbols-outlined text-mono-400 dark:text-mono-500 transition-transform duration-300 rotate-180">
-                                 expand_more
+               <div className="bg-mono-50 dark:bg-mono-900/50 p-4 pb-8 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain mt-2 relative overflow-hidden mb-2">
+                  <div className="w-full flex items-center justify-center mb-4">
+                     <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center whitespace-nowrap">دەستکەفتێن تە</span>
+                  </div>
+
+                  <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
+                     {medals.map((m) => {
+                        const isUnlocked = m.condition(displayData);
+                        return (
+                           <div
+                              key={m.id}
+                              className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
+                           >
+                              <div className="h-10 mb-2 flex items-center justify-center relative">
+                                 <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
+                              </div>
+                              <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
+                                 {m.name}
+                              </span>
+                              <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight px-1">
+                                 {m.tooltip}
                               </span>
                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
-                           {medals.map((m) => {
-                              const isUnlocked = m.condition(displayData);
-                              return (
-                                 <div
-                                    key={m.id}
-                                    className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
-                                 >
-                                    <div className="h-10 mb-2 flex items-center justify-center relative">
-                                       <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
-                                    </div>
-                                    <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
-                                       {m.name}
-                                    </span>
-                                    <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight px-1">
-                                       {m.tooltip}
-                                    </span>
-                                 </div>
-                              );
-                           })}
-                        </div>
-                     </Motion.div>
-                  )}
-               </AnimatePresence>
-
-               <div className="space-y-2 flex flex-col items-end">
-                  <label htmlFor="profile-nickname" className="text-sm font-medium text-mono-600 dark:text-mono-400 px-1  text-right block w-full mt-1">ناسناڤێ تە</label>
-                  <div className="flex items-center gap-2 w-full">
-                     <div className="relative w-full">
-                        <input
-                           ref={nicknameInputRef}
-                           type="text"
-                           id="profile-nickname"
-                           name="profile-nickname"
-                           aria-label="Your nickname"
-                           value={draftNickname}
-                           onChange={(e) => {
-                              const noSpaceVal = e.target.value.replace(/\s/g, '');
-                              setDraftNickname(noSpaceVal);
-                              if (saveError) setSaveError(null);
-                           }}
-                           readOnly={isNicknameLocked || isHardLocked}
-                           maxLength={20}
-                           className={`w-full h-12 border rounded-md px-4 font-bold font-rabar transition-all pr-12 text-right noise-grain text-[15px] ${isNicknameLocked || isHardLocked
-                              ? 'bg-mono-100 dark:bg-mono-900/50 text-mono-500 dark:text-mono-400 border-mono-200 dark:border-mono-800 cursor-not-allowed'
-                              : saveError ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-900 dark:text-rose-100 border-rose-500 shadow-sm ring-2 ring-rose-500/20' : 'bg-mono-white dark:bg-mono-900 text-mono-900 dark:text-mono-50 border-mono-300 dark:border-mono-700 shadow-sm ring-2 ring-primary/20'
-                              }`}
-                        />
-                        <button
-                           onClick={() => { 
-                              triggerHaptic(10); 
-                              if (isHardLocked) {
-                                 setShowLockToast(true);
-                                 setTimeout(() => setShowLockToast(false), 3000);
-                                 return;
-                              }
-                              setIsNicknameLocked(false); 
-                              setTimeout(() => nicknameInputRef.current?.focus(), 50); 
-                           }}
-                           className={`absolute left-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-[20px] transition-colors ${isNicknameLocked || isHardLocked ? 'text-mono-400 dark:text-mono-500 hover:text-primary' : 'text-primary'} ${isHardLocked ? 'opacity-50 cursor-not-allowed hover:text-mono-400!' : ''}`}
-                        >
-                           {isHardLocked ? 'lock' : (isNicknameLocked ? 'edit' : 'edit_square')}
-                        </button>
-                        <AnimatePresence>
-                           {showLockToast && (
-                              <Motion.div 
-                                 initial={{ opacity: 0, scale: 0.9 }}
-                                 animate={{ opacity: 1, scale: 1 }}
-                                 exit={{ opacity: 0, scale: 0.9 }}
-                                 className="fixed inset-0 z-1000 flex items-center justify-center p-6 pointer-events-none"
-                              >
-                                 <div className="bg-amber-500 text-slate-950 px-6 py-4 rounded-xl font-black font-rabar text-[15px] shadow-2xl whitespace-nowrap flex items-center gap-3 border-2 border-white/30 backdrop-blur-sm pointer-events-auto">
-                                    <span className="material-symbols-outlined text-2xl">lock</span>
-                                    تو نەشێی ناسناڤێ خوە بگوهۆڕی هەتا {toKuDigits(daysRemaining)} ڕۆژێن دی
-                                 </div>
-                              </Motion.div>
-                           )}
-                        </AnimatePresence>
-                     </div>
-                     {(draftNickname !== userNickname) && draftNickname.trim() && !saveSuccess && (
-                        <Motion.button
-                           initial={{ scale: 0.8, opacity: 0 }}
-                           animate={{ scale: 1, opacity: 1 }}
-                           onClick={handleSave}
-                           disabled={draftNickname.length < 8 || draftNickname.length > 15}
-                           className={`h-12 px-5 rounded-md font-black text-xs whitespace-nowrap transition-all ${draftNickname.length < 8 || draftNickname.length > 15 ? 'bg-mono-200 dark:bg-mono-800 text-mono-400 dark:text-mono-600 cursor-not-allowed' : 'bg-green-600 text-white shadow-lg shadow-green-900/20'}`}
-                        >
-                           پاراستن
-                        </Motion.button>
-                     )}
+                        );
+                     })}
                   </div>
-                  {!isNicknameLocked && !isHardLocked && (
-                     <div className="w-full text-right px-1 mt-1">
-                        <AnimatePresence>
-                           {saveError && (
-                              <Motion.div initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="flex items-center justify-end gap-1.5 text-rose-600 dark:text-rose-400 mt-1 mb-1">
-                                 <span className="text-[12px] font-black">{saveError}</span>
-                                 <span className="material-symbols-outlined text-[16px]">error</span>
-                              </Motion.div>
-                           )}
-                           {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
-                              <Motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-rose-600 dark:text-rose-400 text-[11px] font-black">نابیت ناسناڤێ تە ژ ٨ پیتان کێمتر بیت</Motion.p>
-                           )}
-                           {draftNickname.length > 15 && !saveError && (
-                              <Motion.p initial={{ opacity: 0, scaleY: 0, transformOrigin: 'top' }} animate={{ opacity: 1, scaleY: 1 }} exit={{ opacity: 0, scaleY: 0 }} className="text-rose-600 dark:text-rose-400 text-[11px] font-black">نابیت ناڤێ تە ژ ١٥ پیتان زێدەتر بیت</Motion.p>
-                           )}
-                        </AnimatePresence>
-                     </div>
-                  )}
-               </div>
-
-               <div className="space-y-2 flex flex-col items-end">
-                  <span className="text-sm font-medium text-mono-600 dark:text-mono-400 px-1  text-right block w-full mt-1">ئیمەیڵێ تە (Gmail)</span>
-                  <div className="w-full h-12 bg-mono-white dark:bg-mono-900 border border-mono-300 dark:border-mono-700 rounded-md px-4 flex items-center justify-end font-bold text-mono-500 dark:text-mono-400 text-[14px] noise-grain overflow-hidden mb-1 shadow-sm transition-colors duration-300">
-                     <span className="truncate">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
-                     <span className="material-symbols-outlined text-[20px] mr-3 text-mono-400 dark:text-mono-500">mail</span>
-                  </div>
-               </div>
-
-               <div className="space-y-2 flex flex-col items-end">
-                  <span className="text-sm font-medium text-mono-600 dark:text-mono-400 px-1  text-right block w-full">وەڵات</span>
-                  <div className="flex items-center gap-2 w-full">
-                     <div className="relative w-full">
-                        <button
-                           id="country-selector"
-                           ref={flagButtonRef}
-                           onClick={() => { triggerHaptic(10); setIsFlagBoxOpen(!isFlagBoxOpen); }}
-                           className={`flex items-center px-4 h-12 rounded-md border transition-all w-full justify-between flex-row-reverse ${isFlagBoxOpen
-                              ? 'bg-primary border-primary shadow-lg shadow-primary/20'
-                              : 'bg-mono-white dark:bg-mono-900 border-mono-300 dark:border-mono-700 shadow-sm hover:bg-mono-50 dark:hover:bg-mono-800'
-                              }`}
-                        >
-                           <span className={`material-symbols-outlined text-[20px] transition-transform ${isFlagBoxOpen ? 'rotate-180 text-black' : 'text-mono-400 dark:text-mono-500'}`}>expand_more</span>
-                           <div className="flex items-center gap-3">
-                              <FlagBadge countryCode={draftCountryCode} isInKurdistan={draftIsInKurdistan} size="xs" />
-                              <span className={`text-[13px] font-black font-rabar tracking-normal transition-colors ${isFlagBoxOpen ? 'text-black' : 'text-mono-900 dark:text-mono-50'}`}>{selectedCountryName}</span>
-                           </div>
-                        </button>
-                     </div>
-                     {(draftCountryCode !== countryCode || draftIsInKurdistan !== isInKurdistan) && !saveSuccess && (
-                        <Motion.button initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} onClick={handleSave} className="h-12 px-5 bg-green-600 text-white rounded-md font-black text-xs whitespace-nowrap shadow-lg shadow-green-900/20">پاراستن</Motion.button>
-                     )}
-                  </div>
-
-                  {isFlagBoxOpen && createPortal(
-                     <AnimatePresence mode="wait">
-                        <Motion.div ref={flagDropdownRef} initial={{ opacity: 0, y: 8, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.95 }} style={{ position: 'absolute', top: dropdownCoords.top + 6, left: dropdownCoords.left, width: dropdownCoords.width }} className="bg-mono-white dark:bg-mono-900 rounded-xl border border-mono-200 dark:border-mono-800 z-9999 shadow-2xl overflow-hidden noise-grain">
-                           <div className="p-2 max-h-60 overflow-y-auto no-scrollbar">
-                              <button onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); setIsFlagBoxOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-mono-100 dark:hover:bg-mono-800 w-full transition-colors">
-                                 <FlagBadge isInKurdistan={true} size="xs" />
-                                 <span className="flex-1 text-left text-[13px] font-bold font-rabar text-mono-900 dark:text-mono-100">کوردستان</span>
-                                 {draftIsInKurdistan && <span className="material-symbols-outlined text-[18px] text-primary">check_circle</span>}
-                              </button>
-                              {COUNTRIES.map((country) => (
-                                 <button key={country.code} onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); setIsFlagBoxOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-mono-100 dark:hover:bg-mono-800 w-full transition-colors">
-                                    <FlagBadge countryCode={country.code} size="xs" />
-                                    <span className="flex-1 text-left text-[13px] font-bold font-rabar text-mono-900 dark:text-mono-100">{country.name}</span>
-                                    {!draftIsInKurdistan && draftCountryCode === country.code && <span className="material-symbols-outlined text-[18px] text-primary">check_circle</span>}
-                                 </button>
-                              ))}
-                           </div>
-                        </Motion.div>
-                     </AnimatePresence>,
-                     document.body
-                  )}
                </div>
 
                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-
-               {/* Invite Friends Section */}
-               <div className="bg-mono-50 dark:bg-mono-900/50 p-3.5 rounded-md border border-mono-200 dark:border-mono-800 flex items-center justify-between noise-grain transition-colors duration-300 mt-4 mb-4 gap-3">
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 shrink-0 rounded-md bg-green-100 dark:bg-green-900/30 flex items-center justify-center border border-green-200 dark:border-green-800/30">
-                        <span className="material-symbols-outlined text-xl text-green-600 dark:text-green-400 font-bold">person_add</span>
-                     </div>
-                     <h4 className="text-[13px] font-bold font-rabar text-mono-900 dark:text-mono-50">ھەڤالێن خوە داخواز بکە</h4>
-                  </div>
-                  <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="px-4 py-2.5 bg-green-600 text-white rounded-md font-black font-rabar text-[11px] hover:brightness-110 active:scale-95 transition-all shadow-md shadow-green-900/10 shrink-0 whitespace-nowrap">
-                     کۆپی لینک
-                  </button>
-               </div>
             </Motion.div>
          </div>
          {isCropModalOpen && createPortal(
@@ -812,26 +577,26 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                <Motion.div
                   initial={{ opacity: 0, scale: 0.9, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="bg-mono-white dark:bg-black rounded-md w-full max-w-2xl overflow-hidden relative border border-mono-200 dark:border-mono-800 transition-colors duration-300 shadow-2xl"
+                  className="bg-mono-white dark:bg-black rounded-md w-full max-w-2xl overflow-hidden relative border border-mono-200 dark:border-mono-800 transition-colors duration-300 shadow-2xl flex flex-col max-h-[90vh]"
                >
                   {/* Header */}
-                  <div className="p-5 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50">
+                  <div className="p-5 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 relative z-10 shadow-sm">
                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/30">
+                        <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/30 shadow-inner">
                            <span className="material-symbols-outlined text-primary text-xl font-bold">crop</span>
                         </div>
-                        <h3 className="text-white font-black font-rabar text-[15px]">کڕۆپکرنا وێنەی</h3>
+                        <h3 className="text-mono-900 dark:text-white font-black font-rabar text-[16px]">بڕینا وێنەی</h3>
                      </div>
                      <button
                         onClick={() => setIsCropModalOpen(false)}
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100 hover:bg-mono-100 dark:hover:bg-mono-800 transition-all"
+                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all border border-transparent hover:border-mono-300 dark:hover:border-mono-700 active:scale-95"
                      >
                         <span className="material-symbols-outlined text-xl">close</span>
                      </button>
                   </div>
 
                   {/* Cropper Container */}
-                  <div className="relative aspect-square w-full bg-black overflow-hidden cursor-move touch-none">
+                  <div className="relative w-full flex-1 min-h-[300px] h-[50vh] bg-black overflow-hidden cursor-move touch-none">
                      <Cropper
                         image={imageToCrop}
                         crop={crop}
@@ -846,9 +611,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                         style={{
                            containerStyle: { background: '#000', padding: 0 },
                            cropAreaStyle: {
-                              width: '600px',
-                              height: '600px',
-                              border: '1px solid rgba(255,255,255,0.5)'
+                              border: '2px solid rgba(255,255,255,0.5)'
                            }
                         }}
                      />
@@ -858,7 +621,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                   <div className="p-8 space-y-6 relative z-10 bg-mono-50 dark:bg-mono-900">
                      <div className="space-y-4">
                         <div className="flex items-center justify-between px-1">
-                           <span className="text-[10px] font-black text-white/40 uppercase ]">زۆمکرنا وێنەی (Zoom)</span>
+                           <span className="text-[10px] font-black text-white/40 uppercase ]">نێزیکرن و دویرکرنا وێنەی</span>
                            <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-[12px] font-black tabular-nums border border-primary/30">
                               {zoom.toFixed(1)}x
                            </span>
@@ -898,9 +661,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                      <div className="flex flex-col gap-3 pt-2">
                         <button
                            onClick={handleConfirmCrop}
-                           className="w-full h-14 rounded-2xl bg-green-600 text-white font-black text-sm hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 border-t-2 border-white/40"
+                           className="w-full h-14 rounded-md bg-linear-to-b from-green-500 to-green-600 border-b-4 border-green-700 text-white font-black text-sm active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
-                           <span className="material-symbols-outlined text-2xl">check_circle</span>
+                           <span className="material-symbols-outlined text-xl">check_circle</span>
                            پاراستن
                         </button>
                         <button
@@ -908,9 +671,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings }) {
                               setIsCropModalOpen(false);
                               setImageToCrop(null);
                            }}
-                           className="w-full h-12 rounded-2xl bg-red-600/10 text-red-500 font-bold text-xs hover:bg-red-600/20 transition-all active:scale-95 border border-red-600/20"
+                           className="w-full h-12 rounded-md bg-white/5 dark:bg-black/20 text-red-500 font-bold text-xs hover:bg-white/10 dark:hover:bg-white/5 active:scale-95 transition-all border-2 border-red-500/20 hover:border-red-500/40"
                         >
-                           پەشیمانبوون و گۆهۆڕین
+                           هەلوەشاندن
                         </button>
                      </div>
                   </div>

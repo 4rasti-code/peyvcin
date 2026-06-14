@@ -69,7 +69,6 @@ export default function TopAppBar({
   isDark = true
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
-  const [isForfeitMenuOpen, setIsForfeitMenuOpen] = useState(false);
 
   const isPlaying = currentView === 'game';
   const _showStats = ['lobby', 'store', 'leaderboard', 'stats', 'dictionary'].includes(currentView);
@@ -215,35 +214,11 @@ export default function TopAppBar({
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.85 }}
                   transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  onClick={() => { triggerHaptic(10); setIsForfeitMenuOpen(!isForfeitMenuOpen); }}
-                  className={`w-12 h-12 flex items-center justify-center transition-all ${isForfeitMenuOpen ? 'text-white bg-red-500 rounded-full' : 'text-[#ef4444]'}`}
+                  onClick={() => { triggerHaptic(10); onForfeit(); }}
+                  className="w-12 h-12 flex items-center justify-center transition-all text-[#ef4444]"
                 >
-                  <span className="material-symbols-outlined text-[32px] font-black">{isForfeitMenuOpen ? 'close' : 'close'}</span>
+                  <span className="material-symbols-outlined text-[32px] font-black">close</span>
                 </Motion.button>
-
-                <AnimatePresence>
-                  {isForfeitMenuOpen && (
-                    <Motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.9 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.9 }}
-                      className="absolute right-0 mt-2 w-[72px] bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-1.5 flex flex-col gap-0.5 z-50 overflow-hidden transition-colors duration-300"
-                    >
-                      <button
-                        onClick={() => { triggerHaptic(15); setIsForfeitMenuOpen(false); onForfeit(); }}
-                        className="flex items-center justify-center px-2 py-1.5 hover:bg-red-500/10 text-red-600 dark:text-red-400 rounded-sm transition-all"
-                      >
-                        <span className="text-sm font-medium">بەڵێ</span>
-                      </button>
-                      <button
-                        onClick={() => { triggerHaptic(5); setIsForfeitMenuOpen(false); }}
-                        className="flex items-center justify-center px-2 py-1.5 hover:bg-mono-100 dark:hover:bg-mono-800 text-mono-700 dark:text-mono-300 rounded-sm transition-all"
-                      >
-                        <span className="text-sm font-medium">نەخێر</span>
-                      </button>
-                    </Motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </div>
           ) : (

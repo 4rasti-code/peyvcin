@@ -102,10 +102,11 @@ export default function PublicProfileModal({
 
   if (!profile) return null;
 
-  const displayData = fullData || profile;
-
+  const baseData = fullData || profile;
+  
   // Exponential Progress Logic (Standardized)
-  const levelData = getLevelData(displayData.xp || 0);
+  const levelData = getLevelData(baseData.xp || 0);
+  const displayData = { ...baseData, level: levelData.level };
   const safeLevel = levelData.level;
   const progressRatio = levelData.progressPercent;
   const nextLevelXP = Math.round(levelData.nextLevelBase);

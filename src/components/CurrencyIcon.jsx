@@ -191,7 +191,7 @@ export const SkipIcon = ({ className = "w-5 h-5", size = 24, animate = false, di
 );
 
 // Achievement SVGs
-export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false, isShining = false }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     {/* Outer Shield Shadow/Bevel */}
     <path d="M 15 18 L 85 18 C 85 58 65 93 50 100 C 35 93 15 58 15 18 Z" fill={disabled ? "#374151" : "#451A03"} />
@@ -203,20 +203,23 @@ export const Level10Icon = ({ className = "w-6 h-6", size = 24, disabled = false
     {/* Inner Shield Main */}
     <path d="M 23 21 L 77 21 C 77 53 62 80 50 88 C 38 80 23 53 23 21 Z" fill={disabled ? "#6B7280" : "#B45309"} />
 
-    {/* 3D Star Outline/Drop Shadow */}
-    <path d="M 50 28 L 57 48 L 79 49 L 61 62 L 68 82 L 50 70 L 32 82 L 39 62 L 21 49 L 43 48 Z" fill="none" stroke={disabled ? "#4B5563" : "#D97706"} strokeWidth="6" strokeLinejoin="round" />
-
-    {/* 3D Star Bright Base */}
-    <path d="M 50 28 L 57 48 L 79 49 L 61 62 L 68 82 L 50 70 L 32 82 L 39 62 L 21 49 L 43 48 Z" fill={disabled ? "#9CA3AF" : "#FDE047"} />
-
-    {/* 3D Star Dark Facets (Origami Fold Effect) */}
-    <g fill={disabled ? "#6B7280" : "#F59E0B"}>
-      <path d="M 50 55 L 50 28 L 57 48 Z" /> {/* Top Right */}
-      <path d="M 50 55 L 79 49 L 61 62 Z" /> {/* Right Bottom */}
-      <path d="M 50 55 L 61 62 L 68 82 Z" /> {/* Bottom Right Right */}
-      <path d="M 50 55 L 50 70 L 32 82 Z" /> {/* Bottom Left Right */}
-      <path d="M 50 55 L 39 62 L 21 49 Z" /> {/* Left Bottom */}
-    </g>
+      {/* 3D Star Group */}
+      <g className={isShining ? "origin-[50px_55px] animate-pulse drop-shadow-[0_0_15px_rgba(253,224,71,0.9)]" : ""}>
+        {/* 3D Star Outline/Drop Shadow */}
+        <path d="M 50 28 L 57 48 L 79 49 L 61 62 L 68 82 L 50 70 L 32 82 L 39 62 L 21 49 L 43 48 Z" fill="none" stroke={disabled ? "#4B5563" : "#D97706"} strokeWidth="6" strokeLinejoin="round" />
+    
+        {/* 3D Star Bright Base */}
+        <path d="M 50 28 L 57 48 L 79 49 L 61 62 L 68 82 L 50 70 L 32 82 L 39 62 L 21 49 L 43 48 Z" fill={disabled ? "#9CA3AF" : "#FDE047"} />
+    
+        {/* 3D Star Dark Facets (Origami Fold Effect) */}
+        <g fill={disabled ? "#6B7280" : "#F59E0B"}>
+          <path d="M 50 55 L 50 28 L 57 48 Z" /> {/* Top Right */}
+          <path d="M 50 55 L 79 49 L 61 62 Z" /> {/* Right Bottom */}
+          <path d="M 50 55 L 61 62 L 68 82 Z" /> {/* Bottom Right Right */}
+          <path d="M 50 55 L 50 70 L 32 82 Z" /> {/* Bottom Left Right */}
+          <path d="M 50 55 L 39 62 L 21 49 Z" /> {/* Left Bottom */}
+        </g>
+      </g>
   </svg>
 );
 

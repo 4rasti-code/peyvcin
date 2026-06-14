@@ -37,6 +37,7 @@ export default function LeaderboardView({ onOpenChat }) {
   const { playTabSound } = useAudio();
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
@@ -44,7 +45,9 @@ export default function LeaderboardView({ onOpenChat }) {
   // Pagination states
   const pageRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(1);
+  const [totalPlayersCount, setTotalPlayersCount] = useState(0);
+  const [trueRank, setTrueRank] = useState(null);
   const ITEMS_PER_PAGE = 20;
 
   const bgRef = useRef(null);
@@ -169,6 +172,52 @@ export default function LeaderboardView({ onOpenChat }) {
     };
   }, [view, userId, fetchData]);
 
+  // Track Global Online Presence & Total Players
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStats = async () => {
+      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+      if (isMounted && count !== null) setTotalPlayersCount(count);
+    };
+    fetchStats();
+
+    const presenceChannel = supabase.channel('global:app_presence');
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      if (isMounted) {
+        // Object.keys(state).length gives the number of unique clients 
+        // (assuming one client per user_id, or at least number of active tabs)
+        setOnlineCount(Math.max(1, Object.keys(state).length));
+      }
+    }).subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(presenceChannel);
+    };
+  }, []);
+
+  // Compute absolute true rank for sticky bar
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTrueRank = async () => {
+      // 1. Try to find in current page first for instant update
+      const index = leaders.findIndex(l => l.id === userId);
+      if (index !== -1) {
+         if (isMounted) setTrueRank(index + 1);
+         return;
+      }
+      // 2. Fetch from DB
+      if (userXP !== undefined) {
+         const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', userXP);
+         if (isMounted && count !== null) setTrueRank(count + 1);
+      }
+    };
+    if (userId) fetchTrueRank();
+    
+    return () => { isMounted = false; };
+  }, [leaders, userId, userXP]);
+
 
   return (
     <div
@@ -178,13 +227,52 @@ export default function LeaderboardView({ onOpenChat }) {
 
 
       <div className="relative z-10">
-        <div className="flex flex-col items-center mb-10 max-w-md mx-auto text-center">
-          <span className="material-symbols-outlined text-4xl text-primary mb-2.5 drop-shadow-lg">leaderboard</span>
-          <h2 className="text-5xl font-black font-rabar  italic uppercase text-mono-900 dark:text-mono-50 transition-colors duration-500">رێزبەندی</h2>
+        <div className="flex flex-col items-center mb-8 max-w-md mx-auto text-center relative mt-2">
+          <Motion.div 
+            animate={{ y: [-2, 2, -2] }} 
+            transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+            className="z-30 relative -mb-3 drop-shadow-sm"
+          >
+             <svg viewBox="0 0 100 100" className="w-12 h-12">
+               <defs>
+                 <linearGradient id={`refGold-title`} x1="0%" y1="0%" x2="0%" y2="100%">
+                   <stop offset="0%" stopColor="#FFD54F" />
+                   <stop offset="50%" stopColor="#FFC107" />
+                   <stop offset="100%" stopColor="#FFA000" />
+                 </linearGradient>
+               </defs>
+
+               <path d="M15 85 Q50 90 85 85 L85 75 Q50 80 15 75 Z" fill="#FF8F00" stroke="#3E2723" strokeWidth="2" />
+               <path d="M15 75 Q50 80 85 75 L85 68 Q50 73 15 68 Z" fill={`url(#refGold-title)`} stroke="#3E2723" strokeWidth="2" />
+               <path d="M15 68 Q50 73 85 68 L95 40 L75 55 L50 20 L25 55 L5 40 Z" fill={`url(#refGold-title)`} stroke="#3E2723" strokeWidth="2" />
+
+               <Motion.path d="M50 45 L58 55 L50 65 L42 55 Z" fill="#7E57C2" stroke="#3E2723" strokeWidth="1.5" />
+               <Motion.path d="M50 48 L54 55 L50 62 L46 55 Z" fill="white" fillOpacity="0.4" />
+
+               {[
+                 { cx: 5, cy: 40, r: 5 }, { cx: 25, cy: 55, r: 4 }, { cx: 50, cy: 20, r: 6 }, { cx: 75, cy: 55, r: 4 }, { cx: 95, cy: 40, r: 5 }
+               ].map((b, i) => (
+                 <g key={i}>
+                   <circle cx={b.cx} cy={b.cy} r={b.r} fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                   <circle cx={b.cx - b.r / 3} cy={b.cy - b.r / 3} r={b.r / 4} fill="white" fillOpacity="0.6" />
+                 </g>
+               ))}
+
+               <circle cx="30" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+               <circle cx="40" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+               <circle cx="60" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+               <circle cx="70" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
+               <path d="M50 25 L50 40" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" />
+             </svg>
+          </Motion.div>
+          
+          <div className="relative z-20 flex flex-col items-center">
+             <h2 className="text-[24px] font-black font-rabar uppercase text-mono-900 dark:text-mono-50 tracking-widest drop-shadow-sm mb-6">رێزبەندی</h2>
+          </div>
         </div>
 
         {/* Top Tab Swapper - Synced Card Style */}
-        <div className="flex p-1 rounded-md border mb-10 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-mono-900 border-mono-200 dark:border-mono-800 duration-300">
+        <div className="flex p-1 rounded-md border mb-3 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-mono-900 border-mono-200 dark:border-mono-800 duration-300">
           {['global', 'friends'].map((tab) => {
             const isActive = view === tab;
             return (
@@ -213,6 +301,26 @@ export default function LeaderboardView({ onOpenChat }) {
               </button>
             );
           })}
+        </div>
+
+        {/* Live Stats - Background-less */}
+        <div className="flex items-center justify-center gap-4 px-4 pb-8 relative z-30 w-full max-w-xs mx-auto">
+          <div className="flex items-center gap-1.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+            </span>
+            <span className="text-[11.5px] font-bold text-mono-500 dark:text-mono-400 font-rabar pt-0.5">ئۆنڵاین:</span>
+            <span className="text-[13px] font-black text-mono-900 dark:text-white tabular-nums drop-shadow-sm">{toKuDigits(onlineCount)}</span>
+          </div>
+          
+          <div className="w-px h-3 bg-mono-300 dark:bg-mono-700"></div>
+          
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[14px] text-mono-400 dark:text-mono-500">group</span>
+            <span className="text-[11.5px] font-bold text-mono-500 dark:text-mono-400 font-rabar pt-0.5">هەمی:</span>
+            <span className="text-[13px] font-black text-mono-900 dark:text-white tabular-nums drop-shadow-sm">{totalPlayersCount > 0 ? toKuDigits(totalPlayersCount) : '-'}</span>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">
@@ -539,6 +647,41 @@ export default function LeaderboardView({ onOpenChat }) {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Sticky Bottom "Me" Bar */}
+      {userId && trueRank && !loading && !error && view === 'global' && (
+        <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 md:px-6 pointer-events-none drop-shadow-xl" dir="rtl">
+          <Motion.div 
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25, delay: 0.3 }}
+            className="max-w-md mx-auto w-full pointer-events-auto"
+          >
+            <div 
+              className="rounded-md p-2 px-4 flex items-center justify-between shadow-[0_4px_10px_rgba(0,0,0,0.15)] relative overflow-hidden group hover:scale-[1.02] active:scale-[0.98] transition-transform border-b-4 border-black/15"
+              style={{
+                 background: `linear-gradient(135deg, ${getLevelTier(getLevelFromXP(userXP)).stop1}, ${getLevelTier(getLevelFromXP(userXP)).stop2})`
+              }}
+            >
+               {/* Shine effect */}
+               <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none"></div>
+               
+               <div className="flex items-center gap-3">
+                 <div className="w-9 h-9 rounded-full overflow-hidden bg-white/20 border border-white/40 shadow-sm shrink-0 flex items-center justify-center">
+                    <Avatar src={userAvatar} size="full" border={false} className="object-cover w-full h-full" />
+                 </div>
+                 <div className="flex flex-col items-start leading-none justify-center">
+                    <span className="font-black text-white text-[14px] drop-shadow-sm">ئاستێ {toKuDigits(getLevelFromXP(userXP))}</span>
+                 </div>
+               </div>
+               
+               <div className="flex items-center gap-2">
+                 <span className="text-[26px] font-black text-white italic tabular-nums leading-none drop-shadow-sm">#{toKuDigits(trueRank)}</span>
+               </div>
+            </div>
+          </Motion.div>
+        </div>
+      )}
 
       <PublicProfileModal
         profile={selectedPlayer}

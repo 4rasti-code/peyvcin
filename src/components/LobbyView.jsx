@@ -1,11 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, memo } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
 
 
-const LobbyView = React.memo(({
+const LobbyView = memo(({
   onStartClassic,
   onStartMamak,
   onStartHardWords,
@@ -13,7 +13,6 @@ const LobbyView = React.memo(({
   onStartMultiplayer, // Handle matchmaking
   _onDailyRewardClick,
   _dailyStreak,
-  onViewChange,
   _notificationCount = 0,
   onOpenHowToPlay
 }) => {
@@ -71,64 +70,24 @@ const LobbyView = React.memo(({
 
       <div className="relative z-10">
         {/* Header (Simplified) */}
-        <div className="flex flex-col mb-8 px-1">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2">
-              {/* Stats Button */}
-              <Motion.button
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { triggerHaptic(15); playSettingsOpenSound(); onViewChange('stats'); }}
-                className="w-10 h-10 flex items-center justify-center group transition-all mb-1"
-              >
-                <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[28px] group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                  bar_chart
-                </span>
-              </Motion.button>
-
-              {/* Achievement/Trophy Button */}
-              <Motion.button
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { triggerHaptic(15); playSettingsOpenSound(); onViewChange('achievements'); }}
-                className="w-10 h-10 flex items-center justify-center group transition-all mb-1"
-              >
-                <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[28px] group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                  emoji_events
-                </span>
-              </Motion.button>
-
-              {/* Dictionary Button */}
-              <Motion.button
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { triggerHaptic(15); playSettingsOpenSound(); onViewChange('dictionary'); }}
-                className="w-10 h-10 flex items-center justify-center group transition-all mb-1"
-              >
-                <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[28px] group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                  menu_book
-                </span>
-              </Motion.button>
-
-              <div className="w-px h-6 bg-mono-200 dark:bg-white/10 mx-1 mb-1" />
-
-              {/* Help Button */}
-              <Motion.button
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { triggerHaptic(10); playSettingsOpenSound(); onOpenHowToPlay?.(); }}
-                className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-[6px] flex items-center justify-center gap-2 group transition-all ml-1 border-none mb-1"
-              >
-                <span className="material-symbols-outlined text-white text-[20px] group-hover:scale-110 transition-transform">
-                  help
-                </span>
-                <span className="text-[13px] font-black font-rabar text-white uppercase mt-0.5">
-                  فێرکاری
-                </span>
-              </Motion.button>
+          <div className="flex flex-col mb-4 px-1 gap-2 mt-4 relative z-10 w-full justify-start">
+            <div className="flex items-center justify-start w-full">
+              <div className="flex items-center gap-2">
+                {/* Help Button */}
+                <Motion.button
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { triggerHaptic(10); playSettingsOpenSound(); onOpenHowToPlay?.(); }}
+                  className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-[6px] flex items-center justify-center gap-2 group transition-all border-none mb-1"
+                >
+                  <span className="material-symbols-outlined text-white text-[20px] group-hover:scale-110 transition-transform">
+                    help
+                  </span>
+                  <span className="text-[13px] font-black font-rabar text-white uppercase mt-0.5">فێرکاری</span>
+                </Motion.button>
+              </div>
             </div>
           </div>
-        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
 

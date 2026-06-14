@@ -58,7 +58,7 @@ const Avatar = memo(({
     <div className={`relative shrink-0 ${selectedSizeClass} group ${className}`}>
       {/* LEVEL SHIELD BADGE */}
       {level !== null && (
-        <div className="absolute -top-1 -left-2 z-[25] flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none">
+        <div className="absolute -top-1 -left-2 z-25 flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none">
             <div className="relative filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
                <svg width="28" height="32" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path 
