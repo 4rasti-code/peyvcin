@@ -604,9 +604,9 @@ export default function SocialHubView({
       
       // Update UI optimistically
       if (activeTab === 'global') {
-        setGlobalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
+        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
       } else if (selectedChat) {
-        setPrivateMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
+        setChatMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
       }
     } catch (e) {
       console.error("Error deleting message:", e);
