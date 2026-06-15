@@ -92,7 +92,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.05 } }}
               onClick={() => { onReact(emoji); onClose(); }}
-              className="w-10 h-10 flex items-center justify-center text-xl hover:bg-mono-100 dark:hover:bg-white/5 rounded-full transition-colors"
+              className="w-10 h-10 flex items-center justify-center text-xl hover:bg-mono-100 dark:hover:bg-white/5 rounded-md transition-colors"
             >
               {emoji}
             </Motion.button>
