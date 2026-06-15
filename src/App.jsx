@@ -243,6 +243,17 @@ export default function App() {
     return () => { isMounted = false; };
   }, []);
 
+  // --- ONESIGNAL IDENTITY SYNC ---
+  useEffect(() => {
+    if (window.location.hostname === 'localhost') return;
+    
+    if (user?.id) {
+      OneSignal.login(user.id).catch(err => console.warn("🔔 [OneSignal] Login Error:", err));
+    } else {
+      OneSignal.logout().catch(err => console.warn("🔔 [OneSignal] Logout Error:", err));
+    }
+  }, [user?.id]);
+
   // 1. INITIALIZE VIEW FROM URL
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname.replace('/', '');
@@ -838,12 +849,20 @@ export default function App() {
           filter: `receiver_id=eq.${user.id}`
         },
         async (payload) => {
+          // If the user is currently viewing this exact chat, do not show toast
+          const currentActiveChatId = window.activeChatId || localStorage.getItem('activeChatId');
+          const currentActiveTab = window.activeChatTab || localStorage.getItem('activeChatTab');
+          
+          if (currentActiveTab === 'private' && currentActiveChatId && String(currentActiveChatId) === String(payload.new.user_id)) {
+            return;
+          }
+          
           let senderName = 'کەسەک';
           let avatarUrl = null;
           try {
-            const { data } = await supabase.from('profiles').select('username, avatar_url').eq('id', payload.new.sender_id).single();
+            const { data } = await supabase.from('profiles').select('nickname, avatar_url').eq('id', payload.new.user_id).single();
             if (data) {
-              senderName = data.username;
+              senderName = data.nickname || senderName;
               avatarUrl = data.avatar_url;
             }
           } catch (_e) { console.warn(_e); }
@@ -875,9 +894,9 @@ export default function App() {
           let senderName = 'کەسەک';
           let avatarUrl = null;
           try {
-            const { data } = await supabase.from('profiles').select('username, avatar_url').eq('id', payload.new.user_id).single();
+            const { data } = await supabase.from('profiles').select('nickname, avatar_url').eq('id', payload.new.user_id).single();
             if (data) {
-              senderName = data.username;
+              senderName = data.nickname || senderName;
               avatarUrl = data.avatar_url;
             }
           } catch (_e) { console.warn(_e); }
@@ -900,6 +919,30 @@ export default function App() {
             avatar: avatarUrl,
             type: 'friend_request'
           });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'friendships', filter: `user_id=eq.${user.id}` },
+        async (payload) => {
+          if (payload.new.status === 'accepted') {
+            let friendName = 'هەڤالەک';
+            let avatarUrl = null;
+            try {
+              const { data } = await supabase.from('profiles').select('nickname, avatar_url').eq('id', payload.new.friend_id).single();
+              if (data) {
+                friendName = data.nickname || friendName;
+                avatarUrl = data.avatar_url;
+              }
+            } catch (_e) { console.warn(_e); }
+
+            showPush({
+              title: friendName,
+              message: 'داخوازا هەڤالینیێ وەرگرت',
+              avatar: avatarUrl,
+              type: 'friend_accepted'
+            });
+          }
         }
       )
       .subscribe();
@@ -1282,26 +1325,10 @@ export default function App() {
   }, [navigate]);
 
   const handleNotificationAction = async (item) => {
-    // Optimistically remove from list so it disappears instantly as requested
-    setNotificationsList(prev => prev.filter(n => n.id !== item.id));
-
-    // Persist to DB if it's a message
-    if (item.type === 'message' && item.dbId) {
-      try {
-        await supabase
-          .from('messages')
-          .update({ is_read: true })
-          .eq('id', item.dbId);
-
-        // Refresh counts
-        setSocialNotifications(prev => ({
-          ...prev,
-          unreadMessages: Math.max(0, prev.unreadMessages - 1)
-        }));
-      } catch (e) {
-        console.warn("Failed to mark message as read:", e);
-      }
-    }
+    // The user requested that notifications should NOT disappear until the message is actually opened
+    // or the friend request is explicitly accepted/rejected.
+    // We just navigate to the appropriate tab. The DB listener will naturally clear the notification
+    // when the chat is opened (onSeen triggers) or the request is accepted.
 
     if (item.type === 'message') {
       setActiveChatPartner({ id: item.sender_id, nickname: item.user_nickname, avatar_url: item.user_avatar });
@@ -1569,6 +1596,7 @@ export default function App() {
                   magnetUsedInRound={magnetsUsedInRound > 0}
                   skipsUsedInRound={skipsUsedInRound}
                   skipLimit={1}
+                  hideSkip={gameMode === 'mamak'}
                   keyboardSoundEnabled={appSoundsEnabled}
                   hapticEnabled={hapticEnabled}
                 />

@@ -10,6 +10,7 @@ import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
 import { getLevelTier } from '../utils/progression';
 import { useAudio } from '../context/AudioContext';
+import { useUser } from '../context/AuthContext';
 import StatsView from './StatsView';
 
 export default function PublicProfileModal({
@@ -35,6 +36,7 @@ export default function PublicProfileModal({
   const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
   const [claiming, setClaiming] = useState(false);
+  const { onlineUsers } = useUser();
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);
@@ -112,7 +114,7 @@ export default function PublicProfileModal({
   const nextLevelXP = Math.round(levelData.nextLevelBase);
 
   // Online Status Logic: Consider online if active in the last 3 minutes
-  const isOnline = isMe || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
+  const isOnline = isMe || onlineUsers?.has(displayData.id) || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
 
   // Mastery Logic
   const getMastery = (d) => {

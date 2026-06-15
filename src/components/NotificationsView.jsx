@@ -3,6 +3,20 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { AVATARS } from '../data/avatars';
 
+import Avatar from './Avatar';
+
+const ChatBadgeIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" />
+  </svg>
+);
+
+const FriendBadgeIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M15 12C17.21 12 19 10.21 19 8C19 5.79 17.21 4 15 4C12.79 4 11 5.79 11 8C11 10.21 12.79 12 15 12ZM6 10V7H4V10H1V12H4V15H6V12H9V10H6ZM15 14C12.33 14 7 15.34 7 18V20H23V18C23 15.34 17.67 14 15 14Z" />
+  </svg>
+);
+
 export default function NotificationsView({ 
   notifications = [], 
   onClose, 
@@ -25,7 +39,6 @@ export default function NotificationsView({
   });
 
   const renderItem = (item) => {
-    const avatar = AVATARS.find(a => a.id === item.user_avatar)?.symbol || '👤';
     const timeAgo = formatTimeAgo(item.created_at);
     
     return (
@@ -34,16 +47,14 @@ export default function NotificationsView({
         initial={{ x: 10, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         onClick={(e) => { e.stopPropagation(); triggerHaptic(10); onAction(item); }}
-        className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-mono-100 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-mono-200 dark:hover:border-white/5 bg-mono-50 dark:bg-white/[0.02] mb-1.5"
+        className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-mono-100 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-mono-200 dark:hover:border-white/5 bg-mono-50 dark:bg-white/2 mb-1.5"
       >
-        <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-slate-800 flex items-center justify-center text-xl border border-mono-300 dark:border-white/10 shrink-0 relative">
-          {avatar}
-          <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center shadow-lg border-2 border-mono-white dark:border-slate-900 ${
-            item.type === 'message' ? 'bg-blue-500' : 'bg-green-500'
+        <div className="w-10 h-10 shrink-0 relative flex items-center justify-center">
+          <Avatar src={item.user_avatar} size="sm" />
+          <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-mono-white dark:border-black ${
+            item.type === 'message' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'
           }`}>
-            <span className="material-symbols-outlined text-[10px] text-white">
-              {item.type === 'message' ? 'chat' : 'person_add'}
-            </span>
+            {item.type === 'message' ? <ChatBadgeIcon /> : <FriendBadgeIcon />}
           </div>
         </div>
         

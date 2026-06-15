@@ -90,6 +90,7 @@ const Keyboard = memo(({
    magnetUsedInRound = false,
    skipsUsedInRound = 0,
    skipLimit = 1,
+   hideSkip = false,
    hintTaps = 0,
    hintLimit = 0,
    hidePowerups = false,
@@ -127,6 +128,7 @@ const Keyboard = memo(({
                   magnetUsedInRound={magnetUsedInRound}
                   skipsUsedInRound={skipsUsedInRound}
                   skipLimit={skipLimit}
+                  hideSkip={hideSkip}
                   className="mb-1"
                   isDark={isDark}
                />

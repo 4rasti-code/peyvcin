@@ -62,22 +62,22 @@ function useLongPress(onLongPress, onClick, ms = 500) {
 function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onClose }) {
   return (
     <div className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4">
-      <Motion.div 
+      <Motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
         className="absolute inset-0 bg-black/80"
       />
-      
-      <Motion.div 
+
+      <Motion.div
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 20 }}
         className="relative z-10 w-full max-w-[280px]"
-        style={{ 
+        style={{
           position: 'fixed',
-          top: Math.min(y, window.innerHeight - 300), 
+          top: Math.min(y, window.innerHeight - 300),
           left: Math.max(20, Math.min(x - 140, window.innerWidth - 300)),
           transformOrigin: isMe ? 'bottom right' : 'bottom left'
         }}
@@ -85,7 +85,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         {/* Reactions Header */}
         <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md mb-2 p-2 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shadow-2xl">
           {['❤️', '😂', '👍', '🔥', '😮', '🙏'].map((emoji, idx) => (
-            <Motion.button 
+            <Motion.button
               key={emoji}
               whileHover={{ scale: 1.3, y: -5 }}
               whileTap={{ scale: 0.9 }}
@@ -101,17 +101,17 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
 
         {/* Action List */}
         <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md p-1.5 flex flex-col gap-1 shadow-2xl">
-          <button 
+          <button
             onClick={() => { onReply(m); onClose(); }}
             className="flex items-center justify-between w-full p-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
           >
             <span className="font-bold text-sm">بەرسڤدان</span>
             <span className="material-symbols-outlined text-[20px] text-mono-500">reply</span>
           </button>
-          
+
           <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
 
-          <button 
+          <button
             onClick={() => { onCopy(m.content || m.text); onClose(); }}
             className="flex items-center justify-between w-full p-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
           >
@@ -122,7 +122,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
           {isMe && (
             <>
               <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
-              <button 
+              <button
                 onClick={() => { onDelete(m); onClose(); }}
                 className="flex items-center justify-between w-full p-3 hover:bg-red-50 dark:hover:bg-red-500/10 active:bg-red-100 dark:active:bg-red-500/20 text-red-500 transition-all rounded-md"
               >
@@ -155,7 +155,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
     if (isDeleted) return;
     triggerHaptic(20);
     const rect = e.target.closest('.message-bubble')?.getBoundingClientRect();
-    onLongPress(m, rect?.left + rect?.width/2, rect?.top);
+    onLongPress(m, rect?.left + rect?.width / 2, rect?.top);
   });
 
   return (
@@ -166,7 +166,14 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
       className={`flex flex-col ${isMe ? 'items-start' : 'items-end'} group max-w-full`}
     >
       {showNickname && (
-        <div className="flex items-center gap-2 mb-1 px-1">
+        <div className="flex items-center gap-1.5 mb-1 px-1">
+          {m.user_avatar && m.user_avatar !== 'default' ? (
+            <Avatar src={m.user_avatar} size="xs" border={false} className="w-[18px]! h-[18px]! text-[10px]! shadow-sm" />
+          ) : (
+            <div className="w-[18px] h-[18px] rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-[9px] font-black text-primary uppercase shrink-0 shadow-sm border border-primary/20">
+              {(m.user_nickname || 'ی')[0]}
+            </div>
+          )}
           <span className="text-[9px] font-black text-mono-500 uppercase">{m.user_nickname || 'یاریکەر'}</span>
         </div>
       )}
@@ -182,14 +189,13 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
         <div className="relative group/bubble flex flex-col items-end">
           <div
             {...bind}
-            className={`message-bubble px-3 py-1.5 rounded-lg text-sm font-rabar break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${
-              isMe 
-                ? 'bg-mono-900 text-mono-50 dark:bg-mono-700 dark:text-mono-50 rounded-tr-none' 
-                : 'bg-mono-200 text-mono-900 dark:bg-mono-800 dark:text-mono-50 rounded-tl-none border border-mono-300 dark:border-white/5'
-            } ${isDeleted ? 'opacity-60 italic font-normal' : 'font-medium'}`}
+            className={`message-bubble px-3 py-1.5 rounded-md text-[13px] font-rabar font-light break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
+                ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
+                : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
+              } ${isDeleted ? 'opacity-60 italic' : ''}`}
           >
             {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (m.content || m.text)}
-            
+
             <div className="flex items-center justify-end gap-1 mt-1">
               <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
@@ -237,17 +243,19 @@ export default function SocialHubView({
   onViewFriends: _onViewFriends,
   onKeyboardToggle
 }) {
-  const { 
-    user, 
-    userNickname, 
+  const {
+    user,
+    userNickname,
+    userAvatar,
     handleToggleBlock: toggleBlockInContext,
-    loadingAuth
+    loadingAuth,
+    onlineUsers
   } = useUser();
   const {
-    playNotifSound, 
-    playMessageSound: _playMessageSound, 
-    playMessageSentSound, 
-    playTabSound, 
+    playNotifSound,
+    playMessageSound: _playMessageSound,
+    playMessageSentSound,
+    playTabSound,
     playBubblePopSound
   } = useAudio();
   const [activeTab, setActiveTab] = useState(initialTab || (initialChatPartner ? 'private' : 'global'));
@@ -271,24 +279,70 @@ export default function SocialHubView({
   const typingChannelRef = useRef(null);
   const searchTimeoutRef = useRef(null);
   const isSearchingRef = useRef(false);
-  const scrollRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
+  
+  const activeTabRef = useRef(activeTab);
+  const selectedChatRef = useRef(selectedChat);
+  
+  useEffect(() => { 
+    activeTabRef.current = activeTab; 
+    window.activeChatTab = activeTab;
+    localStorage.setItem('activeChatTab', activeTab);
+  }, [activeTab]);
+  
+  useEffect(() => { 
+    selectedChatRef.current = selectedChat; 
+    window.activeChatId = selectedChat?.id || null;
+    if (selectedChat?.id) {
+      localStorage.setItem('activeChatId', selectedChat.id);
+    } else {
+      localStorage.removeItem('activeChatId');
+    }
+    return () => { 
+      window.activeChatId = null; 
+      localStorage.removeItem('activeChatId');
+    };
+  }, [selectedChat]);
 
   const fetchGlobalMessages = useCallback(async (signal = null) => {
     if (loading && messages.length > 0) return;
     try {
       let query = supabase
         .from('messages')
-        .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions')
+        .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url)')
         .is('receiver_id', null)
-        .order('created_at', { ascending: true })
-        .limit(500);
-      
+        .order('created_at', { ascending: false }) // Fetch descending so we get latest 50
+        .limit(50);
+
       if (signal) query = query.abortSignal(signal);
-      
+
       const { data, error } = await query;
-      if (error) throw error;
-      setMessages(data || []);
+      
+      if (error) {
+        if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
+        // Fallback if join syntax fails
+        query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(50);
+        if (signal) query = query.abortSignal(signal);
+        const fallbackRes = await query;
+        if (fallbackRes.error) throw fallbackRes.error;
+        const userIds = [...new Set(fallbackRes.data.map(m => m.user_id))];
+        const { data: profiles } = await supabase.from('profiles').select('id, avatar_url').in('id', userIds);
+        const avatarMap = {};
+        if (profiles) profiles.forEach(p => avatarMap[p.id] = p.avatar_url);
+        fallbackRes.data.forEach(m => m.user_avatar = avatarMap[m.user_id] || 'default');
+        setMessages(fallbackRes.data.reverse()); // Reverse to show ascending in UI
+        return;
+      }
+
+      if (data) {
+        data.forEach(m => {
+          m.user_avatar = m.sender?.avatar_url || 'default';
+        });
+        setMessages(data.reverse()); // Reverse to show ascending in UI
+      } else {
+        setMessages([]);
+      }
     } catch (err) {
       if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
       console.warn("Global fetch error:", err);
@@ -302,41 +356,58 @@ export default function SocialHubView({
     try {
       let fQuery = supabase
         .from('friendships')
-        .select('*')
+        .select(`
+          *,
+          user_data:profiles!user_id(id, nickname, avatar_url, updated_at),
+          friend_data:profiles!friend_id(id, nickname, avatar_url, updated_at)
+        `)
         .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`);
-      
+
       if (signal) fQuery = fQuery.abortSignal(signal);
-      
+
       const { data: friendships, error: fError } = await fQuery;
-      if (fError) throw fError;
-
-      const profileIds = new Set();
-      friendships.forEach(f => { profileIds.add(f.user_id); profileIds.add(f.friend_id); });
       
-      let pQuery = supabase
-        .from('profiles')
-        .select('id, nickname, avatar_url, updated_at')
-        .in('id', Array.from(profileIds));
-
-      if (signal) pQuery = pQuery.abortSignal(signal);
+      let finalFriendships = friendships;
       
-      const { data: profiles, error: pError } = await pQuery;
-      if (pError) throw pError;
+      if (fError) {
+        if (fError.name === 'AbortError' || fError.message?.includes('aborted')) throw fError;
+        // Fallback for missing join relations
+        console.warn("Using friends fallback", fError);
+        let fbQuery = supabase.from('friendships').select('*').or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`);
+        if (signal) fbQuery = fbQuery.abortSignal(signal);
+        const fallbackRes = await fbQuery;
+        if (fallbackRes.error) throw fallbackRes.error;
+        
+        const profileIds = new Set();
+        fallbackRes.data.forEach(f => { profileIds.add(f.user_id); profileIds.add(f.friend_id); });
+        const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', Array.from(profileIds));
+        const profileMap = (profiles || []).reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
+        
+        finalFriendships = fallbackRes.data.map(f => ({
+          ...f,
+          user_data: profileMap[f.user_id],
+          friend_data: profileMap[f.friend_id]
+        }));
+      }
 
-      const profileMap = profiles.reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
-      const uniqueRelationships = new Map();
-      friendships.forEach(f => {
-        const otherId = f.user_id === user?.id ? f.friend_id : f.user_id;
-        const profile = profileMap[otherId];
-        if (!profile) return;
-        const existing = uniqueRelationships.get(otherId);
-        if (!existing || f.status === 'accepted' || (f.status === 'pending' && f.friend_id === user?.id && existing.status !== 'accepted')) {
-          uniqueRelationships.set(otherId, { ...f, friendData: profile });
-        }
-      });
       const requests = [];
       const accepted = [];
       const sentPendingList = new Set();
+      const uniqueRelationships = new Map();
+      
+      finalFriendships.forEach(f => {
+        const isUserMe = f.user_id === user?.id;
+        const otherId = isUserMe ? f.friend_id : f.user_id;
+        const profileData = isUserMe ? f.friend_data : f.user_data;
+        
+        if (!profileData) return;
+        
+        const existing = uniqueRelationships.get(otherId);
+        if (!existing || f.status === 'accepted' || (f.status === 'pending' && f.friend_id === user?.id && existing.status !== 'accepted')) {
+          uniqueRelationships.set(otherId, { ...f, friendData: profileData });
+        }
+      });
+
       uniqueRelationships.forEach(rel => {
         if (rel.status === 'pending') {
           if (rel.friend_id === user?.id) requests.push({ ...rel, sender: rel.friendData });
@@ -345,6 +416,7 @@ export default function SocialHubView({
           accepted.push({ ...rel, friend: rel.friendData });
         }
       });
+      
       setPendingRequests(requests);
       setFriends(accepted);
       setPendingSentIds(sentPendingList);
@@ -359,35 +431,52 @@ export default function SocialHubView({
   const fetchPrivateConversations = useCallback(async (signal = null) => {
     if (loadingAuth || !user?.id || user.id === 'undefined') return;
     try {
-      let query = supabase
-        .from('messages')
-        .select('*')
-        .or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`)
-        .not('receiver_id', 'is', null)
-        .order('created_at', { ascending: false });
-      
+      let query = supabase.rpc('get_user_conversations', { current_user_id: user.id });
       if (signal) query = query.abortSignal(signal);
-      
+
       const { data, error } = await query;
-      if (error) throw error;
-      const unread = data.filter(m => m.receiver_id === user?.id && !m.is_read).length;
-      setUnreadMessageCount(unread);
-      const convosMap = new Map();
-      data.forEach(m => {
-        const partnerId = m.user_id == user?.id ? m.receiver_id : m.user_id;
-        if (!convosMap.has(partnerId)) {
-          convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId });
-        }
+      
+      if (error) {
+        if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
+        console.warn("WhatsApp RPC failed, falling back to basic fetch:", error);
+        const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
+        const { data: fallbackData, error: fErr } = await (signal ? fallbackQuery.abortSignal(signal) : fallbackQuery);
+        if (fErr) throw fErr;
+        let unread = fallbackData.filter(m => m.receiver_id === user?.id && !m.is_read).length;
+        setUnreadMessageCount(unread);
+        const convosMap = new Map();
+        fallbackData.forEach(m => {
+          const partnerId = m.user_id == user?.id ? m.receiver_id : m.user_id;
+          if (!convosMap.has(partnerId)) {
+            convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId, unreadCount: 0 });
+          }
+          if (m.receiver_id === user?.id && !m.is_read) {
+            convosMap.get(partnerId).unreadCount++;
+          }
+        });
+        const partnerIds = Array.from(convosMap.keys());
+        if (partnerIds.length === 0) { setPrivateChats([]); return; }
+        const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', partnerIds);
+        const enriched = (profiles || []).map(p => ({ ...p, ...convosMap.get(p.id) })).sort((a, b) => new Date(b.time) - new Date(a.time));
+        setPrivateChats(enriched);
+        return;
+      }
+      
+      let unread = 0;
+      const formatted = (data || []).map(row => {
+        unread += Number(row.unread_count);
+        return {
+          id: row.partner_id,
+          nickname: row.nickname,
+          avatar_url: row.avatar_url,
+          lastMsg: row.last_message,
+          time: row.last_message_time,
+          unreadCount: Number(row.unread_count)
+        };
       });
-      const partnerIds = Array.from(convosMap.keys());
-      if (partnerIds.length === 0) { setPrivateChats([]); return; }
       
-      let pQuery = supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', partnerIds);
-      if (signal) pQuery = pQuery.abortSignal(signal);
-      
-      const { data: profiles } = await pQuery;
-      const enriched = (profiles || []).map(p => ({ ...p, ...convosMap.get(p.id) })).sort((a, b) => new Date(b.time) - new Date(a.time));
-      setPrivateChats(enriched);
+      setUnreadMessageCount(unread);
+      setPrivateChats(formatted);
     } catch (err) {
       if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
       console.warn("Private convo fetch failed:", err);
@@ -416,45 +505,54 @@ export default function SocialHubView({
     const globalSub = supabase.channel('public:messages:global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
       if (payload.new.user_id !== user?.id) {
         playNotifSound();
-        if (activeTab !== 'global') setNewGlobalCount(prev => prev + 1);
+        if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
       }
       fetchGlobalMessages();
     }).subscribe();
+    
     const socialSub = supabase.channel('public:friendships').on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => fetchFriendsData()).subscribe();
+    
     const privateMsgSub = supabase.channel('private:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
       const isPrivate = payload.new.receiver_id !== null;
       const involvesMe = payload.new.user_id === user?.id || payload.new.receiver_id === user?.id;
       if (isPrivate && involvesMe) {
         if (payload.eventType === 'INSERT' && payload.new.user_id !== user?.id) {
-          playNotifSound();
+          const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === payload.new.user_id;
+          if (!isCurrentlyViewingChat) {
+            playNotifSound();
+          }
         }
         fetchPrivateConversations();
-        if (selectedChat && (payload.new.user_id === selectedChat.id || payload.new.receiver_id === selectedChat.id)) fetchPrivateChatHistory(selectedChat.id);
+        if (selectedChatRef.current && (payload.new.user_id === selectedChatRef.current.id || payload.new.receiver_id === selectedChatRef.current.id)) {
+          fetchPrivateChatHistory(selectedChatRef.current.id);
+        }
       }
     }).subscribe();
+    
     const typingChannel = supabase.channel(`typing-${user?.id}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
-      if (selectedChat && payload.sender_id === selectedChat.id) setPartnerIsTyping(true);
+      if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(true);
     }).on('broadcast', { event: 'stop' }, ({ payload }) => {
-      if (selectedChat && payload.sender_id === selectedChat.id) setPartnerIsTyping(false);
+      if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(false);
     }).subscribe();
+    
     typingChannelRef.current = typingChannel;
+    
     return () => {
       supabase.removeChannel(globalSub);
       supabase.removeChannel(socialSub);
       supabase.removeChannel(privateMsgSub);
       supabase.removeChannel(typingChannel);
     };
-  }, [user?.id, selectedChat, activeTab, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations, fetchPrivateChatHistory, playNotifSound]);
+  }, [user?.id, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations, fetchPrivateChatHistory, playNotifSound]);
 
   useEffect(() => {
     const controller = new AbortController();
     fetchGlobalMessages(controller.signal);
     fetchFriendsData(controller.signal);
     fetchPrivateConversations(controller.signal);
-    const statusInterval = setInterval(() => fetchFriendsData(controller.signal), 60000);
+    // Removed the 60s setInterval polling, relying strictly on realtime!
     return () => {
       controller.abort();
-      clearInterval(statusInterval);
     };
   }, [user?.id, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations]);
 
@@ -473,9 +571,11 @@ export default function SocialHubView({
 
   useEffect(() => {
     if (activeTab === 'global' || selectedChat) {
-      // Immediate scroll for new messages, smooth for tab switches
-      const behavior = (messages.length > 0 || chatMessages.length > 0) ? 'auto' : 'smooth';
-      scrollRef.current?.scrollIntoView({ behavior, block: 'end' });
+      if (messagesContainerRef.current) {
+        // Immediate scroll for new messages, smooth for tab switches
+        const behavior = (messages.length > 0 || chatMessages.length > 0) ? 'auto' : 'smooth';
+        messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior });
+      }
     }
   }, [messages.length, chatMessages.length, activeTab, selectedChat]);
 
@@ -487,10 +587,10 @@ export default function SocialHubView({
     setSearchQuery(query);
     if (query.length < 2) { setSearchResults([]); return; }
     if (loadingAuth || !user?.id || user.id === 'undefined' || isSearchingRef.current) return;
-    
+
     // 1. Debounce Logic: Wait 500ms before firing request
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    
+
     searchTimeoutRef.current = setTimeout(async () => {
       setSearching(true);
       isSearchingRef.current = true;
@@ -500,10 +600,10 @@ export default function SocialHubView({
         const { data, error } = await queryBuilder.limit(10);
         if (error) throw error;
         setSearchResults(data || []);
-      } catch (err) { 
-        console.error("Search error:", err); 
-      } finally { 
-        setSearching(false); 
+      } catch (err) {
+        console.error("Search error:", err);
+      } finally {
+        setSearching(false);
         isSearchingRef.current = false;
         searchTimeoutRef.current = null;
       }
@@ -563,7 +663,7 @@ export default function SocialHubView({
 
   const handleInputChange = (val) => {
     setNewMessage(val);
-    
+
     // Typing status logic
     if (selectedChat && activeTab === 'private') {
       if (val.length > 0) {
@@ -571,10 +671,10 @@ export default function SocialHubView({
         if (!typingTimeoutRef.current) {
           sendTypingStatus(true);
         }
-        
+
         // Clear existing timeout
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-        
+
         // Set new timeout to stop typing after 2 seconds
         typingTimeoutRef.current = setTimeout(() => {
           sendTypingStatus(false);
@@ -599,9 +699,9 @@ export default function SocialHubView({
         .update({ content: 'ئەڤ نامەیە هاتە ژێبرن' })
         .eq('id', msg.id)
         .eq('user_id', user.id);
-        
+
       if (error) throw error;
-      
+
       // Update UI optimistically
       if (activeTab === 'global') {
         setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
@@ -633,6 +733,7 @@ export default function SocialHubView({
           content: msgContent,
           user_id: currentUserId,
           user_nickname: userNickname || 'یاریزان',
+          user_avatar: userAvatar,
           reply_to_id: replyingTo?.id,
           reply_to_text: replyingTo?.content || replyingTo?.text
         };
@@ -702,7 +803,7 @@ export default function SocialHubView({
     if (!user?.id) return;
     triggerHaptic(10);
     const table = 'messages';
-    
+
     // Optimistic UI update
     const updateLocalState = (prev) => prev.map(m => {
       if (m.id === msgId) {
@@ -711,7 +812,7 @@ export default function SocialHubView({
         const idx = users.indexOf(user?.id);
         if (idx > -1) users.splice(idx, 1);
         else users.push(user?.id);
-        
+
         if (users.length === 0) delete reactions[emoji];
         else reactions[emoji] = users;
         return { ...m, reactions };
@@ -741,13 +842,13 @@ export default function SocialHubView({
       let reactions = msg?.reactions || {};
       const users = reactions[emoji] || [];
       const userIndex = users.indexOf(user?.id);
-      
+
       if (userIndex > -1) users.splice(userIndex, 1);
       else users.push(user?.id);
-      
+
       if (users.length === 0) delete reactions[emoji];
       else reactions[emoji] = users;
-      
+
       await supabase.from(table).update({ reactions }).eq('id', msgId);
     } catch (err) {
       console.error("Database sync failed for reaction:", err);
@@ -786,11 +887,11 @@ export default function SocialHubView({
           ].map(tab => (
             <button
               key={tab.id}
-              onClick={() => { 
-                triggerHaptic(10); 
+              onClick={() => {
+                triggerHaptic(10);
                 playTabSound();
-                setActiveTab(tab.id); 
-                setSelectedChat(null); 
+                setActiveTab(tab.id);
+                setSelectedChat(null);
               }}
               className={`flex-1 py-2.5 rounded-sm flex items-center justify-center gap-2 transition-all relative z-10 ${activeTab === tab.id ? 'text-mono-50 font-black dark:text-mono-50' : 'text-mono-600 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'}`}
             >
@@ -828,16 +929,17 @@ export default function SocialHubView({
         {activeTab === 'global' && (
           <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-black/50 transition-colors duration-500">
             {/* Delicate Texture Overlay */}
-            <div 
+            <div
               className="absolute inset-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none grayscale"
-              style={{ 
+              style={{
                 backgroundImage: "url('/chat_wallpaper.png')",
                 backgroundRepeat: 'repeat',
                 backgroundSize: '450px'
               }}
             />
-            
-            <div 
+
+            <div
+              ref={messagesContainerRef}
               className="relative z-10 flex-1 h-full overflow-y-auto p-4 space-y-4 no-scrollbar"
             >
               <AnimatePresence initial={false}>
@@ -852,7 +954,6 @@ export default function SocialHubView({
                   />
                 ))}
               </AnimatePresence>
-              <div ref={scrollRef} className="h-4" />
             </div>
           </div>
         )}
@@ -881,16 +982,16 @@ export default function SocialHubView({
                 {searchResults.map(res => {
                   const isFriend = friends.some(f => f.friend?.id === res.id);
                   const isPending = pendingRequests.some(r => r.sender?.id === res.id || r.friend_id === res.id);
-                  
+
                   return (
                     <div key={res.id} className="flex items-center gap-3 p-2 hover:bg-mono-100 dark:hover:bg-white/5 rounded-md transition-all group cursor-pointer">
                       <div className="flex items-center gap-3 flex-1" onClick={() => { triggerHaptic(10); setSelectedPlayer(res); }}>
-                        <Avatar src={res.avatar_url} lastActive={res.updated_at} showStatus={true} size="sm" />
+                        <Avatar src={res.avatar_url} lastActive={res.updated_at} isOnline={onlineUsers?.has(res.id)} showStatus={true} size="sm" />
                         <div className="flex-1 text-right">
                           <div className="font-black text-sm group-hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{res.nickname}</div>
                         </div>
                       </div>
-                      
+
                       {isFriend ? (
                         <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-md font-black text-[10px] flex items-center gap-1">
                           <span className="material-symbols-outlined text-[14px]">check</span>
@@ -902,8 +1003,8 @@ export default function SocialHubView({
                           چاڤەڕێبە
                         </div>
                       ) : (
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleAddFriend(res.id); }} 
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleAddFriend(res.id); }}
                           className="px-3 py-1.5 bg-emerald-500 text-white rounded-md font-black text-[10px] flex items-center gap-1 hover:bg-emerald-600 active:scale-95 transition-all"
                         >
                           <span className="material-symbols-outlined text-[14px]">add</span>
@@ -921,7 +1022,7 @@ export default function SocialHubView({
                 <h3 className="text-[10px] font-black uppercase text-mono-500  px-2">داخوازێن ھەڤالینیێ</h3>
                 {pendingRequests.map(req => (
                   <div key={req.id} className="flex items-center gap-3 p-3 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm transition-colors duration-300">
-                    <Avatar src={req.sender?.avatar_url} lastActive={req.sender?.updated_at} showStatus={true} size="sm" />
+                    <Avatar src={req.sender?.avatar_url} lastActive={req.sender?.updated_at} isOnline={onlineUsers?.has(req.sender?.id)} showStatus={true} size="sm" />
                     <div className="flex-1 text-right">
                       <div className="font-black text-sm text-mono-900 dark:text-mono-100">{req.sender?.nickname}</div>
                     </div>
@@ -937,25 +1038,25 @@ export default function SocialHubView({
                 .sort((a, b) => {
                   const activeA = new Date(a.friend?.updated_at || 0);
                   const activeB = new Date(b.friend?.updated_at || 0);
-                  const isOnlineA = (new Date() - activeA) < 3 * 60 * 1000;
-                  const isOnlineB = (new Date() - activeB) < 3 * 60 * 1000;
+                  const isOnlineA = onlineUsers?.has(a.friend?.id);
+                  const isOnlineB = onlineUsers?.has(b.friend?.id);
                   if (isOnlineA && !isOnlineB) return -1;
                   if (!isOnlineA && isOnlineB) return 1;
                   return activeB - activeA; // Secondary sort by last active
                 })
                 .map(f => (
-                <div key={f.id} className="flex items-center gap-3 p-2 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 group hover:border-primary/30 transition-all shadow-sm">
-                  <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(f.friend); }}>
-                    <Avatar src={f.friend?.avatar_url} lastActive={f.friend?.updated_at} showStatus={true} size="sm" />
-                    <div className="flex-1 text-right">
-                      <div className="font-black text-sm text-mono-900 dark:text-mono-100 group-hover:text-primary transition-colors">{f.friend?.nickname}</div>
+                  <div key={f.id} className="flex items-center gap-3 p-2 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 group hover:border-primary/30 transition-all shadow-sm">
+                    <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(f.friend); }}>
+                      <Avatar src={f.friend?.avatar_url} lastActive={f.friend?.updated_at} isOnline={onlineUsers?.has(f.friend?.id)} showStatus={true} size="sm" />
+                      <div className="flex-1 text-right">
+                        <div className="font-black text-sm text-mono-900 dark:text-mono-100 group-hover:text-primary transition-colors">{f.friend?.nickname}</div>
+                      </div>
                     </div>
+                    <button onClick={() => { triggerHaptic(10); playBubblePopSound(); setActiveTab('private'); setSelectedChat(f.friend); }} className="w-10 h-10 flex items-center justify-center rounded-md bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-300 hover:bg-primary hover:text-white transition-all">
+                      <span className="material-symbols-outlined text-[20px] font-bold">chat</span>
+                    </button>
                   </div>
-                  <button onClick={() => { triggerHaptic(10); playBubblePopSound(); setActiveTab('private'); setSelectedChat(f.friend); }} className="w-10 h-10 flex items-center justify-center rounded-md bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-300 hover:bg-primary hover:text-white transition-all">
-                    <span className="material-symbols-outlined text-[20px] font-bold">chat</span>
-                  </button>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
@@ -968,26 +1069,27 @@ export default function SocialHubView({
                 <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center gap-3 z-10 shadow-sm transition-colors duration-300">
                   <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
                   <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
-                    <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} showStatus={true} size="sm" />
+                    <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
                     <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{selectedChat.nickname}</span>
                   </div>
                 </div>
                 <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-mono-900 transition-colors duration-500">
                   {/* Delicate Texture Overlay */}
-                  <div 
+                  <div
                     className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] pointer-events-none grayscale invert dark:invert-0"
-                    style={{ 
+                    style={{
                       backgroundImage: "url('/chat_wallpaper.png')",
                       backgroundRepeat: 'repeat',
                       backgroundSize: '450px'
                     }}
                   />
-                  
-                  <div 
+
+                  <div
+                    ref={messagesContainerRef}
                     className="relative z-10 flex-1 h-full overflow-y-auto p-4 space-y-4 no-scrollbar"
                   >
                     {chatMessages.map((m, idx) => (
-                      <MessageItem 
+                      <MessageItem
                         key={m.id || idx}
                         m={m}
                         isMe={m.user_id === user?.id}
@@ -1003,7 +1105,7 @@ export default function SocialHubView({
                         onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: true })}
                       />
                     ))}
-                    
+
                     {partnerIsTyping && (
                       <Motion.div
                         initial={{ opacity: 0, scale: 0.8, x: -10 }}
@@ -1011,7 +1113,7 @@ export default function SocialHubView({
                         className="flex items-center gap-2 mb-4"
                       >
                         <div className="bg-mono-100/80 dark:bg-mono-800/80 px-4 py-2 rounded-md border border-mono-200 dark:border-mono-700 flex items-center gap-2 shadow-sm">
-                           <div className="flex gap-1">
+                          <div className="flex gap-1">
                             <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                             <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
                             <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
@@ -1020,8 +1122,6 @@ export default function SocialHubView({
                         </div>
                       </Motion.div>
                     )}
-                    
-                    <div ref={scrollRef} className="h-4" />
                   </div>
                 </div>
               </div>
@@ -1052,13 +1152,13 @@ export default function SocialHubView({
                       <div className="flex flex-1 items-center justify-start gap-3 min-w-0">
                         {/* Avatar */}
                         <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
-                          <Avatar 
-                            src={chat.avatar_url} 
-                            lastActive={chat.updated_at} 
-                            showStatus={true} 
-                            size="md" 
+                          <Avatar
+                            src={chat.avatar_url}
+                            lastActive={chat.updated_at}
+                            showStatus={true}
+                            size="md"
                             border={false}
-                            className="transition-all" 
+                            className="transition-all"
                           />
                         </div>
 
@@ -1097,12 +1197,12 @@ export default function SocialHubView({
       {/* Public Profile Modal */}
       <AnimatePresence>
         {selectedPlayer && (
-          <PublicProfileModal 
-            profile={selectedPlayer} 
+          <PublicProfileModal
+            profile={selectedPlayer}
             currentUser={user}
             isFriend={friends.some(f => f.friend?.id === selectedPlayer.id)}
             isPending={pendingRequests.some(r => r.sender?.id === selectedPlayer.id || r.friend_id === selectedPlayer.id)}
-            onClose={() => setSelectedPlayer(null)} 
+            onClose={() => setSelectedPlayer(null)}
             onToggleBlock={handleToggleBlock}
             onOpenChat={(player) => {
               setSelectedPlayer(null);
@@ -1116,7 +1216,7 @@ export default function SocialHubView({
           />
         )}
         {activeContextMenu && (
-          <MessageContextMenu 
+          <MessageContextMenu
             m={activeContextMenu.message}
             x={activeContextMenu.x}
             y={activeContextMenu.y}
@@ -1141,7 +1241,7 @@ export default function SocialHubView({
       {/* Copy Success Toast */}
       <AnimatePresence>
         {showCopySuccess && (
-          <Motion.div 
+          <Motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
@@ -1212,15 +1312,15 @@ export default function SocialHubView({
           </div>
           {/* Minimalist iOS-Style Home Indicator */}
           <div className="flex flex-col items-center pb-2 pt-1 transition-all">
-            <button 
+            <button
               onClick={() => {
                 triggerHaptic(10);
                 onBack?.();
               }}
               className="px-8 py-2 focus:outline-none active:scale-95 transition-transform"
             >
-              <Motion.div 
-                animate={{ 
+              <Motion.div
+                animate={{
                   width: [40, 50, 40],
                   opacity: [0.3, 0.5, 0.3]
                 }}

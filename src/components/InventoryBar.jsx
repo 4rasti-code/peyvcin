@@ -15,6 +15,7 @@ const InventoryBar = ({
   skipsUsedInRound = 0,
   skipLimit = 1,
   isShop = false,
+  hideSkip = false,
   className = ""
 }) => {
   const countColor = "text-mono-950 dark:text-mono-100";
@@ -86,37 +87,41 @@ const InventoryBar = ({
           </button>
         </div>
 
-        <div className={`w-px h-4 ${sepColor}`} />
+        {!hideSkip && (
+          <>
+            <div className={`w-px h-4 ${sepColor}`} />
 
-        {/* Skip Item */}
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={onSkip}
-            disabled={!isShop && (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
-            className="flex items-center gap-2 group transition-all active:scale-90"
-            id="btn-skip"
-            name="btn-skip"
-            aria-label="Use Skip"
-          >
-            <SkipIcon 
-              disabled={isShop ? (skipCount || 0) <= 0 : (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
-              className={`w-6 h-6 transition-all ${isShop ? ((skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md') : ((skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'opacity-50' : 'drop-shadow-md')}`} 
-            />
-            
-            <div className="flex flex-col leading-none">
-              {isShop && (
-                <span className={`text-[15px] font-black ${countColor}`}>
-                  {toKuDigits(skipCount || 0)}
-                </span>
-              )}
-              {!isShop && skipLimit > 0 && (
-                <span className={`text-[15px] font-black ${(skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'text-red-400/50' : countColor}`}>
-                  {toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}
-                </span>
-              )}
+            {/* Skip Item */}
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={onSkip}
+                disabled={!isShop && (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
+                className="flex items-center gap-2 group transition-all active:scale-90"
+                id="btn-skip"
+                name="btn-skip"
+                aria-label="Use Skip"
+              >
+                <SkipIcon 
+                  disabled={isShop ? (skipCount || 0) <= 0 : (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
+                  className={`w-6 h-6 transition-all ${isShop ? ((skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md') : ((skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'opacity-50' : 'drop-shadow-md')}`} 
+                />
+                
+                <div className="flex flex-col leading-none">
+                  {isShop && (
+                    <span className={`text-[15px] font-black ${countColor}`}>
+                      {toKuDigits(skipCount || 0)}
+                    </span>
+                  )}
+                  {!isShop && skipLimit > 0 && (
+                    <span className={`text-[15px] font-black ${(skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0) ? 'text-red-400/50' : countColor}`}>
+                      {toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}
+                    </span>
+                  )}
+                </div>
+              </button>
             </div>
-          </button>
-        </div>
+          </>
+        )}
 
       </div>
     </div>

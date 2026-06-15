@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [authProgress, setAuthProgress] = useState(0);
   const [visualProgress, setVisualProgress] = useState(0);
   const [onlineCount, setOnlineCount] = useState(1);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
@@ -396,7 +397,14 @@ export const AuthProvider = ({ children }) => {
     presenceChannel.on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
       if (isMounted) {
-        setOnlineCount(Math.max(1, Object.keys(state).length));
+        const users = new Set();
+        Object.values(state).forEach(presences => {
+          presences.forEach(p => {
+            if (p.user_id) users.add(p.user_id);
+          });
+        });
+        setOnlineUsers(users);
+        setOnlineCount(Math.max(1, users.size));
       }
     }).subscribe(async (status) => {
       if (status === 'SUBSCRIBED' && isMounted) {
@@ -562,13 +570,13 @@ export const AuthProvider = ({ children }) => {
     ownedAvatars, setOwnedAvatars, hapticEnabled, setHapticEnabled,
     micEnabled, setMicEnabled, micVolume, setMicVolume, speakerEnabled, setSpeakerEnabled, voiceVolume, setVoiceVolume,
     lastProfileUpdate, setLastProfileUpdate,
-    onlineCount,
+    onlineCount, onlineUsers,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, micEnabled, micVolume, speakerEnabled, voiceVolume, syncProfile,
-    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

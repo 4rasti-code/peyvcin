@@ -11,6 +11,7 @@ const Avatar = memo(({
   symbol, 
   updatedAt, 
   lastActive, // Timestamp to check online status
+  isOnline: explicitIsOnline, // Explicit override for real-time presence
   showStatus = false,
   className = "", 
   size = "md", // 'sm', 'md', 'lg', 'xl', '2xl'
@@ -20,8 +21,11 @@ const Avatar = memo(({
   const isRemote = typeof src === 'string' && src.startsWith('http');
   const avatarData = AVATARS.find(a => a.id === src);
   
-  // Calculate online status (if provided & within 3 minutes)
-  const isOnline = showStatus && lastActive && (new Date() - new Date(lastActive)) < 3 * 60 * 1000;
+  // Calculate online status: Prefer explicit boolean, fallback to 3-minute logic
+  const isOnline = showStatus && (
+    explicitIsOnline === true || 
+    (explicitIsOnline !== false && lastActive && (new Date() - new Date(lastActive)) < 3 * 60 * 1000)
+  );
   
   // Asset vs. Storage Logic: ONLY apply versioning if it's a remote URL
   let displaySrc = avatarData?.img || (isRemote ? src : null);
