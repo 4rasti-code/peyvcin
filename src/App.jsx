@@ -1589,7 +1589,10 @@ export default function App() {
                 }}
                 onViewMessages={handleViewMessages}
                 onViewFriends={handleViewFriends}
-                onKeyboardToggle={setIsKeyboardOpen}
+                onKeyboardToggle={(isOpen) => {
+                  if (isOpen && !window.matchMedia('(pointer: coarse)').matches) return;
+                  setIsKeyboardOpen(isOpen);
+                }}
               />
             )}
             {currentView === 'leaderboard' && (
