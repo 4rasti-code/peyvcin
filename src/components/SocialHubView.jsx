@@ -1141,6 +1141,7 @@ export default function SocialHubView({
           <div className="p-3 pb-6 flex gap-2 items-center">
             <button
               onClick={handleSendMessage}
+              onPointerDown={(e) => e.preventDefault()}
               disabled={!newMessage.trim()}
               className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${newMessage.trim() ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
               title="ھنارتن"
