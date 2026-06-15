@@ -67,7 +67,11 @@ self.addEventListener('fetch', (event) => {
   // For other assets, use Cache-First
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).catch((err) => {
+        console.warn('Service Worker fetch failed for:', event.request.url, err);
+        // Fallback response to avoid Uncaught in promise
+        return new Response('', { status: 404, statusText: 'Not Found' });
+      });
     })
   );
 });
