@@ -143,7 +143,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
     triggerOnce: true
   });
 
-  const isDeleted = m.content === '🚫 ئەڤ نامەیە هاتە ژێبرن';
+  const isDeleted = m.content === 'ئەڤ نامەیە هاتە ژێبرن' || m.content === '🚫 ئەڤ نامەیە هاتە ژێبرن';
 
   useEffect(() => {
     if (inView && !isMe && !m.is_read && onSeen) {
@@ -182,11 +182,11 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
         <div className="relative group/bubble flex flex-col items-end">
           <div
             {...bind}
-            className={`message-bubble px-4 py-2.5 rounded-lg text-sm font-bold font-rabar break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${
+            className={`message-bubble px-4 py-2.5 rounded-lg text-sm font-rabar break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${
               isMe 
                 ? 'bg-mono-900 text-mono-50 dark:bg-mono-700 dark:text-mono-50 rounded-tr-none' 
                 : 'bg-mono-200 text-mono-900 dark:bg-mono-800 dark:text-mono-50 rounded-tl-none border border-mono-300 dark:border-white/5'
-            } ${isDeleted ? 'opacity-60 italic' : ''}`}
+            } ${isDeleted ? 'opacity-60 italic font-normal' : 'font-bold'}`}
           >
             {m.content || m.text}
             
@@ -596,7 +596,7 @@ export default function SocialHubView({
     try {
       const { error } = await supabase
         .from('messages')
-        .update({ content: '🚫 ئەڤ نامەیە هاتە ژێبرن' })
+        .update({ content: 'ئەڤ نامەیە هاتە ژێبرن' })
         .eq('id', msg.id)
         .eq('user_id', user.id);
         
@@ -604,9 +604,9 @@ export default function SocialHubView({
       
       // Update UI optimistically
       if (activeTab === 'global') {
-        setGlobalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: '🚫 ئەڤ نامەیە هاتە ژێبرن' } : m));
+        setGlobalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
       } else if (selectedChat) {
-        setPrivateMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: '🚫 ئەڤ نامەیە هاتە ژێبرن' } : m));
+        setPrivateMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: 'ئەڤ نامەیە هاتە ژێبرن' } : m));
       }
     } catch (e) {
       console.error("Error deleting message:", e);
