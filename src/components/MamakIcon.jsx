@@ -85,7 +85,7 @@ export default function MamakIcon({ className = "w-16 h-16" }) {
             <path d="M27,70 C40,73 60,73 73,70" fill="none" stroke="#1e3a8a" strokeWidth="2" />
 
             {/* Center Diamond (Gul) with Question Mark */}
-            <g style={{ transformOrigin: '50px 57px', animation: 'question-pulse 3s infinite' }}>
+            <g style={{ transformOrigin: '50px 57px' }}>
               <polygon points="50,46 62,57 50,68 38,57" fill="#fde047" />
               <polygon points="50,49 58,57 50,65 42,57" fill="#1e3a8a" />
               <text x="50" y="58" fill="#ffffff" fontSize="16" fontWeight="900" fontFamily="sans-serif" textAnchor="middle" alignmentBaseline="middle">?</text>
