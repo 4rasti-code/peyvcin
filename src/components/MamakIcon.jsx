@@ -30,13 +30,7 @@ export default function MamakIcon({ className = "w-16 h-16" }) {
         `}
       </style>
 
-      <div 
-        className="absolute inset-0 z-10 flex items-center justify-center"
-        style={{ 
-          willChange: 'transform'
-        }}
-      >
-        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.3)] overflow-visible" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.3)] overflow-visible absolute inset-0 z-10" xmlns="http://www.w3.org/2000/svg">
           
           <g style={{ transformOrigin: '50px 70px' }}>
             
@@ -99,7 +93,6 @@ export default function MamakIcon({ className = "w-16 h-16" }) {
 
           </g>
         </svg>
-      </div>
     </div>
   );
 }

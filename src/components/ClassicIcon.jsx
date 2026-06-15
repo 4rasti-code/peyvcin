@@ -42,15 +42,7 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
         `}
       </style>
 
-      <div 
-        className="absolute inset-0 z-10 flex items-center justify-center"
-        style={{ 
-          willChange: 'transform',
-          backfaceVisibility: 'hidden',
-          WebkitTransform: 'translateZ(0)'
-        }}
-      >
-        <svg viewBox="0 0 180 50" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.25)] overflow-visible" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 180 50" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.25)] overflow-visible absolute inset-0 z-10" xmlns="http://www.w3.org/2000/svg">
           
           {/* Wordle Tiles */}
           {TILES.map((t, i) => (
@@ -102,7 +94,6 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
           ))}
           
         </svg>
-      </div>
     </div>
   );
 }

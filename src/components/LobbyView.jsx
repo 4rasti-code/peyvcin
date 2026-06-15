@@ -133,7 +133,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out">
-                    <ClassicIcon className="w-32 h-10 drop-shadow-md" />
+                    <ClassicIcon className="w-32 h-10" />
                   </div>
                 </div>
               </div>
@@ -155,7 +155,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
-                    <MamakIcon className="w-16 h-16 drop-shadow-md" />
+                    <MamakIcon className="w-16 h-16" />
                   </div>
                 </div>
               </div>
@@ -177,7 +177,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
-                    <CubeIcon className="w-16 h-16 drop-shadow-md" />
+                    <CubeIcon className="w-16 h-16" />
                   </div>
                 </div>
               </div>

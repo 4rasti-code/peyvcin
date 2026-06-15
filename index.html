@@ -25,6 +25,7 @@
     }
 
     @media (prefers-color-scheme: dark) {
+
       html,
       body {
         background-color: #000000 !important;
@@ -66,7 +67,9 @@
     }
 
     @keyframes splash-spin {
-      100% { transform: rotate(360deg); }
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     .splash-sun-core {
@@ -90,8 +93,15 @@
     }
 
     @keyframes splash-pulse-ray {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     .splash-text {
@@ -104,26 +114,37 @@
     }
 
     @keyframes splash-pulse-text {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.5;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
   </style>
 
-  <meta name="description" content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
-  <meta name="keywords" content="peyvok, peyvok game, پەیڤۆک, یارییا پەیڤۆک, kurdish word game, peyvcin, kurdish game" />
+  <meta name="description"
+    content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
+  <meta name="keywords"
+    content="peyvok, peyvok game, پەیڤۆک, یارییا پەیڤۆک, kurdish word game, peyvcin, kurdish game" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.peyvokgame.com/" />
   <meta property="og:title" content="Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game" />
-  <meta property="og:description" content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
+  <meta property="og:description"
+    content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
   <meta property="og:image" content="https://www.peyvokgame.com/Peyvok-logo-02.png" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://www.peyvokgame.com/" />
   <meta property="twitter:title" content="Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game" />
-  <meta property="twitter:description" content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
+  <meta property="twitter:description"
+    content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
   <meta property="twitter:image" content="https://www.peyvokgame.com/Peyvok-logo-02.png" />
 
   <link rel="manifest" href="/manifest.json" />
@@ -134,7 +155,7 @@
 
 <body
   class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
-  
+
   <div id="root">
     <!-- NATIVE INSTANT SPLASH SCREEN (Replaced by React on load) -->
     <div id="splash-screen">
@@ -142,10 +163,10 @@
         <div class="splash-sun-core"></div>
         <script>
           const sun = document.getElementById('splash-sun');
-          for(let i=0; i<21; i++) {
+          for (let i = 0; i < 21; i++) {
             const ray = document.createElement('div');
             ray.className = 'splash-sun-ray';
-            ray.style.transform = `rotate(${i * (360/21)}deg)`;
+            ray.style.transform = `rotate(${i * (360 / 21)}deg)`;
             ray.style.animationDelay = `${i * 0.1}s`;
             sun.appendChild(ray);
           }
@@ -154,7 +175,7 @@
       <div class="splash-text" dir="rtl">چاڤەڕێبە...</div>
     </div>
   </div>
-  
+
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
