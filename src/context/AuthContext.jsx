@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authProgress, setAuthProgress] = useState(0);
   const [visualProgress, setVisualProgress] = useState(0);
+  const [onlineCount, setOnlineCount] = useState(1);
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
@@ -370,6 +371,47 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user?.id]);
 
+  // NEW: Global App Presence Tracking
+  useEffect(() => {
+    if (!user?.id) return;
+    
+    // Heartbeat to update `updated_at` in profiles table so friends see us as online
+    const pingPresence = async () => {
+      try {
+        await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
+      } catch (e) {
+        console.error("Presence ping failed:", e);
+      }
+    };
+    
+    // Initial ping
+    pingPresence();
+    
+    // Ping every 2 minutes
+    const heartbeatInterval = setInterval(pingPresence, 2 * 60 * 1000);
+
+    let isMounted = true;
+    const presenceChannel = supabase.channel('global:app_presence');
+    
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      if (isMounted) {
+        setOnlineCount(Math.max(1, Object.keys(state).length));
+      }
+    }).subscribe(async (status) => {
+      if (status === 'SUBSCRIBED' && isMounted) {
+        await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+      }
+    });
+
+    return () => {
+      clearInterval(heartbeatInterval);
+      isMounted = false;
+      presenceChannel.untrack();
+      supabase.removeChannel(presenceChannel);
+    };
+  }, [user?.id]);
+
   const completeOnboarding = useCallback(async (nickname) => {
     if (!user?.id) return { success: false, error: "Must be logged in" };
     try {
@@ -520,12 +562,13 @@ export const AuthProvider = ({ children }) => {
     ownedAvatars, setOwnedAvatars, hapticEnabled, setHapticEnabled,
     micEnabled, setMicEnabled, micVolume, setMicVolume, speakerEnabled, setSpeakerEnabled, voiceVolume, setVoiceVolume,
     lastProfileUpdate, setLastProfileUpdate,
+    onlineCount,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, micEnabled, micVolume, speakerEnabled, voiceVolume, syncProfile,
-    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -4,6 +4,14 @@ import { useUser } from '../context/AuthContext';
 import { MEDALS } from '../constants/medals';
 import { triggerHaptic } from '../utils/haptics';
 import { getLevelFromXP } from '../utils/progression';
+import { 
+  playNoberaSfx, 
+  playPalawanSfx, 
+  playExpertSfx, 
+  playMamostaSfx, 
+  playShanaziKurdistanSfx, 
+  playShanaziJihaniSfx 
+} from '../utils/audio';
 
 export default function AchievementToastManager() {
   const { profileData } = useUser();
@@ -64,34 +72,22 @@ export default function AchievementToastManager() {
   useEffect(() => {
     if (currentToast) {
       if (currentToast.id === 'nobera') {
-        const audio = new Audio('/wood_shield.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playNoberaSfx();
         triggerHaptic(50);
       } else if (currentToast.id === 'palawan') {
-        const audio = new Audio('/kawas_hammar.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playPalawanSfx();
         triggerHaptic(50);
       } else if (currentToast.id === 'expert') {
-        const audio = new Audio('/Sharaza.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playExpertSfx();
         triggerHaptic(30);
       } else if (currentToast.id === 'mamosta') {
-        const audio = new Audio('/mamosta.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playMamostaSfx();
         triggerHaptic(30);
       } else if (currentToast.id === 'shanazi_kurdistan') {
-        const audio = new Audio('/Sanazya_Kurdistane.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playShanaziKurdistanSfx();
         triggerHaptic(40);
       } else if (currentToast.id === 'shanazi_jihani') {
-        const audio = new Audio('/Shanazya_cihane.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play medal sound:", e));
+        playShanaziJihaniSfx();
         triggerHaptic(40);
       } else {
         triggerHaptic(20);

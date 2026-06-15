@@ -106,9 +106,7 @@ const Avatar = memo(({
             </span>
           </div>
 
-          {showStatus && isOnline && (
-            <div className="absolute inset-0 border-2 border-emerald-500/50 pointer-events-none animate-pulse z-10" />
-          )}
+
         </div>
       </div>
       

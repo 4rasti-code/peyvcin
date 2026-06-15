@@ -25,9 +25,17 @@ const SFX_PATHS = {
   SWORD_SLASH: '/gargamel10-sword-slashing-game-sound-effect-2-379229.mp3',
   WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
   MESSAGE_SENT: '/sending_message.mp3',
+  MESSAGE_RECEIVED: '/messag.mp3',
   RIGHT_LETTER: '/rightletter.mp3',
   WRONG_PLACE: '/right-letter-wrong-place_GwCJf57j.mp3',
   DEFEAT: '/defeat.mp3',
+  NOBERA: '/wood_shield.mp3',
+  PALAWAN: '/kawas_hammar.mp3',
+  EXPERT: '/Sharaza.mp3',
+  MAMOSTA: '/mamosta.mp3',
+  SHANAZI_KURDISTAN: '/Sanazya_Kurdistane.mp3',
+  SHANAZI_JIHANI: '/Shanazya_cihane.mp3',
+  HEARTBEAT: '/heartbeat.mp3',
 };
 
 const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
@@ -222,8 +230,16 @@ class SoundEngine {
     if (key === 'SWORD_SLASH') baseVolume *= 0.5;
     if (key === 'WHOOSH') baseVolume *= 1.0;
     if (key === 'RIGHT_LETTER') baseVolume *= 0.8; // Increased from 0.5 for better audibility
-    if (key === 'WRONG_PLACE') baseVolume *= 0.9;
+    if (key === 'WRONG_PLACE') baseVolume *= 2.5; // Boosted heavily because the audio file is quiet
     if (key === 'DEFEAT') baseVolume *= 1.0;
+    if (key === 'NOBERA') baseVolume *= 1.0;
+    if (key === 'PALAWAN') baseVolume *= 1.0;
+    if (key === 'EXPERT') baseVolume *= 1.0;
+    if (key === 'MAMOSTA') baseVolume *= 1.0;
+    if (key === 'SHANAZI_KURDISTAN') baseVolume *= 1.0;
+    if (key === 'SHANAZI_JIHANI') baseVolume *= 1.0;
+    if (key === 'HEARTBEAT') baseVolume *= 1.0;
+    if (key === 'MESSAGE_RECEIVED') baseVolume *= 0.9;
     
     gainNode.gain.value = baseVolume * this.masterVolume;
 
@@ -410,7 +426,10 @@ export const playTabSfx = (enabled = true) => {
 };
 
 export const playNotifSfx = playNotificationSfx;
-export const playMessageSfx = playNotificationSfx;
+export const playMessageSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('MESSAGE_RECEIVED');
+};
 export const playMessageSentSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('MESSAGE_SENT');
@@ -480,4 +499,40 @@ export const playRightLetterSfx = (enabled = true, volume = 1.0) => {
 export const playWrongPlaceSfx = (enabled = true, volume = 1.0) => {
   if (!enabled) return;
   engine.play('WRONG_PLACE', { volume, pitchRandomization: 10 });
+};
+
+// --- NEW MEDAL AND ALERT SOUNDS ---
+export const playNoberaSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('NOBERA');
+};
+
+export const playPalawanSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('PALAWAN');
+};
+
+export const playExpertSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('EXPERT');
+};
+
+export const playMamostaSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('MAMOSTA');
+};
+
+export const playShanaziKurdistanSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('SHANAZI_KURDISTAN');
+};
+
+export const playShanaziJihaniSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('SHANAZI_JIHANI');
+};
+
+export const playHeartbeatSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('HEARTBEAT');
 };

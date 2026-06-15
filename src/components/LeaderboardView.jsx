@@ -23,7 +23,8 @@ export default function LeaderboardView({ onOpenChat }) {
     isInKurdistan,
     lastProfileUpdate,
     handleToggleBlock: toggleBlockInContext,
-    loadingAuth
+    loadingAuth,
+    onlineCount
   } = useUser();
 
   const {
@@ -45,7 +46,6 @@ export default function LeaderboardView({ onOpenChat }) {
   // Pagination states
   const pageRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
-  const [onlineCount, setOnlineCount] = useState(1);
   const [totalPlayersCount, setTotalPlayersCount] = useState(0);
   const [trueRank, setTrueRank] = useState(null);
   const ITEMS_PER_PAGE = 20;
@@ -172,7 +172,7 @@ export default function LeaderboardView({ onOpenChat }) {
     };
   }, [view, userId, fetchData]);
 
-  // Track Global Online Presence & Total Players
+  // Track Total Players
   useEffect(() => {
     let isMounted = true;
     const fetchStats = async () => {
@@ -181,19 +181,8 @@ export default function LeaderboardView({ onOpenChat }) {
     };
     fetchStats();
 
-    const presenceChannel = supabase.channel('global:app_presence');
-    presenceChannel.on('presence', { event: 'sync' }, () => {
-      const state = presenceChannel.presenceState();
-      if (isMounted) {
-        // Object.keys(state).length gives the number of unique clients 
-        // (assuming one client per user_id, or at least number of active tabs)
-        setOnlineCount(Math.max(1, Object.keys(state).length));
-      }
-    }).subscribe();
-
     return () => {
       isMounted = false;
-      supabase.removeChannel(presenceChannel);
     };
   }, []);
 
@@ -650,7 +639,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
       {/* Sticky Bottom "Me" Bar */}
       {userId && trueRank && !loading && !error && view === 'global' && (
-        <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 md:px-6 pointer-events-none drop-shadow-xl" dir="rtl">
+        <div className="fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-0 right-0 z-40 px-4 md:px-6 pointer-events-none drop-shadow-xl" dir="rtl">
           <Motion.div 
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

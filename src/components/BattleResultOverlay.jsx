@@ -57,38 +57,28 @@ const BattleResultOverlay = ({
     };
   }, []);
 
-  const lastResultRef = useRef(null);
   useEffect(() => {
-    if (result !== lastResultRef.current) {
-      hasTriggeredRef.current = false;
-      lastResultRef.current = result;
-    }
-
-    if (isVisible && result && !hasTriggeredRef.current) {
+    if (isVisible && result === 'victory' && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       triggerHaptic(200);
-
-      if (isVictory) {
-        playSuccessSfx();
-        playRewardSfx();
-        const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
-        
-        setTimeout(() => {
-          const fireBurst = (x, y, count) => {
-            confetti({
-              particleCount: count,
-              spread: 60,
-              origin: { x, y },
-              colors: colors,
-              zIndex: 3000
-            });
-          };
-          
-          fireBurst(0.5, 0.6, 120);
-        }, 300);
-      }
+      playSuccessSfx();
+      playRewardSfx();
+      
+      const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
+      setTimeout(() => {
+        confetti({
+          particleCount: 120,
+          spread: 60,
+          origin: { x: 0.5, y: 0.6 },
+          colors: colors,
+          zIndex: 3000
+        });
+      }, 300);
+    } else if (!isVisible) {
+      // Reset when closed so it can trigger next time
+      hasTriggeredRef.current = false;
     }
-  }, [isVisible, result, isDark, isVictory]);
+  }, [isVisible, result, isDark]);
 
   const myScore = isPlayer1 ? scores.p1 : scores.p2;
   const oppScore = isPlayer1 ? scores.p2 : scores.p1;

@@ -20,7 +20,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isHinted, 
           playRightLetterSound(0.7); // Customizable volume
         }, (flipDelay + 250)); // 250ms is roughly half of the 500ms flip duration
         return () => clearTimeout(timer);
-      } else if (status === STATUS.PRESENT) {
+      } else if (status === STATUS.WRONG_POS) {
         const timer = setTimeout(() => {
           playWrongPlaceSound(0.7); // Customizable volume
         }, (flipDelay + 250));

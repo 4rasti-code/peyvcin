@@ -37,6 +37,76 @@
       background-color: #000000 !important;
       background: #000000 !important;
     }
+
+    /* INITIAL SPLASH SCREEN CSS - Runs instantly before React */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #000000;
+      z-index: 99999;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    html:not(.dark) #splash-screen {
+      background-color: #f8fafc;
+    }
+
+    .splash-sun-container {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: splash-spin 20s linear infinite;
+    }
+
+    @keyframes splash-spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .splash-sun-core {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      background-color: #FFD700;
+      border-radius: 50%;
+      z-index: 2;
+    }
+
+    .splash-sun-ray {
+      position: absolute;
+      width: 8px;
+      height: 15px;
+      background-color: #FFD700;
+      top: 0;
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      transform-origin: 50% 40px;
+      animation: splash-pulse-ray 2s ease-in-out infinite;
+    }
+
+    @keyframes splash-pulse-ray {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    .splash-text {
+      margin-top: 40px;
+      font-size: 14px;
+      font-weight: 900;
+      color: #eab308;
+      letter-spacing: 1px;
+      animation: splash-pulse-text 1.5s ease-in-out infinite;
+    }
+
+    @keyframes splash-pulse-text {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
   </style>
 
   <meta name="description" content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
@@ -64,7 +134,27 @@
 
 <body
   class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
-  <div id="root"></div>
+  
+  <div id="root">
+    <!-- NATIVE INSTANT SPLASH SCREEN (Replaced by React on load) -->
+    <div id="splash-screen">
+      <div class="splash-sun-container" id="splash-sun">
+        <div class="splash-sun-core"></div>
+        <script>
+          const sun = document.getElementById('splash-sun');
+          for(let i=0; i<21; i++) {
+            const ray = document.createElement('div');
+            ray.className = 'splash-sun-ray';
+            ray.style.transform = `rotate(${i * (360/21)}deg)`;
+            ray.style.animationDelay = `${i * 0.1}s`;
+            sun.appendChild(ray);
+          }
+        </script>
+      </div>
+      <div class="splash-text" dir="rtl">چاڤەڕێبە...</div>
+    </div>
+  </div>
+  
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
