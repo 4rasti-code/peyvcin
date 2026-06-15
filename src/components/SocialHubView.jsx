@@ -188,7 +188,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
                 : 'bg-mono-200 text-mono-900 dark:bg-mono-800 dark:text-mono-50 rounded-tl-none border border-mono-300 dark:border-white/5'
             } ${isDeleted ? 'opacity-60 italic font-normal' : 'font-bold'}`}
           >
-            {m.content || m.text}
+            {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (m.content || m.text)}
             
             <div className="flex items-center justify-end gap-1 mt-1">
               <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
