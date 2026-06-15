@@ -59,7 +59,7 @@ function useLongPress(onLongPress, onClick, ms = 500) {
   };
 }
 
-function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onClose }) {
+function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onClose }) {
   return (
     <div className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4">
       <Motion.div 
@@ -100,10 +100,10 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onClose }
         </div>
 
         {/* Action List */}
-        <div className="bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-2xl p-1 flex flex-col divide-y divide-mono-100 dark:divide-white/5 shadow-xl">
+        <div className="bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-2xl p-1 flex flex-col divide-y divide-mono-100 dark:divide-white/5 shadow-xl overflow-hidden">
           <button 
             onClick={() => { onReply(m); onClose(); }}
-            className="flex items-center justify-between w-full p-3.5 hover:bg-mono-100 dark:hover:bg-white/5 text-mono-900 dark:text-mono-200 transition-colors first:rounded-t-xl"
+            className="flex items-center justify-between w-full p-3.5 hover:bg-mono-100 dark:hover:bg-white/5 text-mono-900 dark:text-mono-200 transition-colors"
           >
             <span className="font-bold text-sm">بەرسڤدان</span>
             <span className="material-symbols-outlined text-[20px] text-mono-500">reply</span>
@@ -111,11 +111,21 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onClose }
           
           <button 
             onClick={() => { onCopy(m.content || m.text); onClose(); }}
-            className="flex items-center justify-between w-full p-3.5 hover:bg-mono-100 dark:hover:bg-white/5 text-mono-900 dark:text-mono-200 transition-colors last:rounded-b-xl"
+            className={`flex items-center justify-between w-full p-3.5 hover:bg-mono-100 dark:hover:bg-white/5 text-mono-900 dark:text-mono-200 transition-colors`}
           >
             <span className="font-bold text-sm">ژبەرتنکرن</span>
             <span className="material-symbols-outlined text-[20px] text-mono-500">content_copy</span>
           </button>
+
+          {isMe && (
+            <button 
+              onClick={() => { onDelete(m); onClose(); }}
+              className="flex items-center justify-between w-full p-3.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500 transition-colors"
+            >
+              <span className="font-bold text-sm">ژێبرن</span>
+              <span className="material-symbols-outlined text-[20px]">delete</span>
+            </button>
+          )}
         </div>
       </Motion.div>
     </div>
@@ -128,6 +138,8 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
     triggerOnce: true
   });
 
+  const isDeleted = m.content === '🚫 ئەڤ نامەیە هاتە ژێبرن';
+
   useEffect(() => {
     if (inView && !isMe && !m.is_read && onSeen) {
       onSeen(m.id);
@@ -135,6 +147,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
   }, [inView, isMe, m.id, m.is_read, onSeen]);
 
   const bind = useLongPress((e) => {
+    if (isDeleted) return;
     triggerHaptic(20);
     const rect = e.target.closest('.message-bubble')?.getBoundingClientRect();
     onLongPress(m, rect?.left + rect?.width/2, rect?.top);
@@ -154,7 +167,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
       )}
 
       {/* Quoted Message (Reply) */}
-      {m.reply_to_text && (
+      {m.reply_to_text && !isDeleted && (
         <div className={`mb-1 max-w-[70%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic line-clamp-1 truncate ${isMe ? 'mr-2' : 'ml-2'}`}>
           {m.reply_to_text}
         </div>
@@ -168,7 +181,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
               isMe 
                 ? 'bg-mono-900 text-mono-50 dark:bg-mono-700 dark:text-mono-50 rounded-tr-none' 
                 : 'bg-mono-200 text-mono-900 dark:bg-mono-800 dark:text-mono-50 rounded-tl-none border border-mono-300 dark:border-white/5'
-            }`}
+            } ${isDeleted ? 'opacity-60 italic' : ''}`}
           >
             {m.content || m.text}
             
@@ -176,7 +189,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
               <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
-              {isMe && (
+              {isMe && !isDeleted && (
                 <div className="flex items-center">
                   {m.is_read ? (
                     <span className="material-symbols-outlined text-[14px] text-primary font-bold" style={{ fontSize: '14px' }}>done_all</span>
@@ -191,7 +204,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
           </div>
 
           {/* Reactions Display - Transparent */}
-          {m.reactions && Object.keys(m.reactions).length > 0 && (
+          {m.reactions && Object.keys(m.reactions).length > 0 && !isDeleted && (
             <div className={`flex flex-wrap gap-2 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
               {Object.entries(m.reactions).map(([emoji, users]) => (
                 <div
@@ -570,6 +583,28 @@ export default function SocialHubView({
           sendTypingStatus(false);
         }
       }
+    }
+  };
+
+  const handleDeleteMessage = async (msg) => {
+    if (!user?.id || msg.user_id !== user.id) return;
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ content: '🚫 ئەڤ نامەیە هاتە ژێبرن' })
+        .eq('id', msg.id)
+        .eq('user_id', user.id);
+        
+      if (error) throw error;
+      
+      // Update UI optimistically
+      if (activeTab === 'global') {
+        setGlobalMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: '🚫 ئەڤ نامەیە هاتە ژێبرن' } : m));
+      } else if (selectedChat) {
+        setPrivateMessages(prev => prev.map(m => m.id === msg.id ? { ...m, content: '🚫 ئەڤ نامەیە هاتە ژێبرن' } : m));
+      }
+    } catch (e) {
+      console.error("Error deleting message:", e);
     }
   };
 
@@ -1093,6 +1128,7 @@ export default function SocialHubView({
               setShowCopySuccess(true);
               setTimeout(() => setShowCopySuccess(false), 2000);
             }}
+            onDelete={(msg) => handleDeleteMessage(msg)}
           />
         )}
       </AnimatePresence>
