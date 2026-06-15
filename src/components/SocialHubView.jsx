@@ -115,7 +115,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
             onClick={() => { onCopy(m.content || m.text); onClose(); }}
             className="flex items-center justify-between w-full p-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
           >
-            <span className="font-bold text-sm">ژبەرتنکرن</span>
+            <span className="font-bold text-sm">ژبەرکرن</span>
             <span className="material-symbols-outlined text-[20px] text-mono-500">content_copy</span>
           </button>
 
@@ -1148,7 +1148,7 @@ export default function SocialHubView({
             className="fixed bottom-32 left-1/2 -translate-x-1/2 z-200 bg-emerald-500 text-white px-4 py-2 rounded-full text-xs font-black flex items-center gap-2"
           >
             <span className="material-symbols-outlined text-sm">check_circle</span>
-            ھاتە ژبەرتنکرن
+            ھاتە ژبەرکرن
           </Motion.div>
         )}
       </AnimatePresence>
