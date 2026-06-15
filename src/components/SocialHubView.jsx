@@ -83,7 +83,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         }}
       >
         {/* Reactions Header */}
-        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-2xl mb-2 p-2 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shadow-2xl">
+        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-lg mb-2 p-2 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shadow-2xl">
           {['❤️', '😂', '👍', '🔥', '😮', '🙏'].map((emoji, idx) => (
             <Motion.button 
               key={emoji}
@@ -100,7 +100,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         </div>
 
         {/* Action List */}
-        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-2xl p-2 flex flex-col gap-1 shadow-2xl">
+        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-lg p-2 flex flex-col gap-1 shadow-2xl">
           <button 
             onClick={() => { onReply(m); onClose(); }}
             className="flex items-center justify-between w-full p-3.5 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
