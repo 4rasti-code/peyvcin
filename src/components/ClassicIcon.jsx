@@ -51,8 +51,7 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
               style={{ 
                 '--base-rot': t.rot, 
                 animation: `wordle-jump 5s infinite ${t.delay} ease-in-out`,
-                transformOrigin: `${t.x + 13}px ${t.y + 14}px`,
-                willChange: 'transform'
+                transformOrigin: `${t.x + 13}px ${t.y + 14}px`
               }}
             >
               {/* Shadow / 3D Base */}

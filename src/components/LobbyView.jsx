@@ -111,7 +111,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out">
-                    <ClashingSwords className="w-12 h-12 drop-shadow-md text-white/90 group-hover:text-white" />
+                    <ClashingSwords className="w-14 h-14 drop-shadow-md text-white/90 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3" />
                   </div>
                 </div>
               </div>
@@ -199,7 +199,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-12">
-                    <TimerIcon className="w-14 h-14" />
+                    <TimerIcon className="w-[52px] h-[52px]" />
                   </div>
                 </div>
               </div>

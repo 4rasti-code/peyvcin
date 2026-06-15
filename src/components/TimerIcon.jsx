@@ -71,7 +71,7 @@ export default function TimerIcon({ className = "w-14 h-14" }) {
           </defs>
 
           {/* ROTATING 3D GROUP */}
-          <g style={{ transformOrigin: '50px 60px', animation: 'hourglass-flip 4s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55)' }}>
+          <g style={{ transformOrigin: '50px 60px', animation: 'hourglass-flip 5s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55)' }}>
             
             {/* WOODEN PILLARS (3D Cylinders) */}
             <rect x="20" y="15" width="8" height="90" rx="4" fill="url(#pillar-grad)" />
@@ -83,14 +83,14 @@ export default function TimerIcon({ className = "w-14 h-14" }) {
 
             {/* 3D SAND VOLUME */}
             <g clipPath="url(#top-glass)">
-              <rect x="20" y="15" width="60" height="45" fill="url(#sand-grad)" style={{ animation: 'top-sand 4s infinite linear' }} />
+              <rect x="20" y="15" width="60" height="45" fill="url(#sand-grad)" style={{ animation: 'top-sand 5s infinite linear' }} />
             </g>
             <g clipPath="url(#bottom-glass)">
-              <rect x="20" y="60" width="60" height="45" fill="url(#sand-grad)" style={{ animation: 'bottom-sand 4s infinite linear' }} />
+              <rect x="20" y="60" width="60" height="45" fill="url(#sand-grad)" style={{ animation: 'bottom-sand 5s infinite linear' }} />
             </g>
 
             {/* SAND STREAM */}
-            <rect x="49" y="60" width="2" height="45" fill="#fcd34d" style={{ animation: 'stream 4s infinite' }} />
+            <rect x="49" y="60" width="2" height="45" fill="#fcd34d" style={{ animation: 'stream 5s infinite' }} />
 
             {/* GLASS BODY (Reflective Glow & Borders) */}
             <path 

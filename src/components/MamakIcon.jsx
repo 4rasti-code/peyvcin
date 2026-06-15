@@ -54,9 +54,8 @@ export default function MamakIcon({ className = "w-16 h-16" }) {
                   '--tx': `${l.tx}px`, 
                   '--ty': `${l.ty}px`, 
                   '--trot': `${l.rot}deg`,
-                  animation: `letter-fly 3.6s infinite ${l.delay} ease-out`,
-                  textShadow: '0px 1px 2px rgba(0,0,0,0.5)',
-                  willChange: 'transform, opacity'
+                  animation: `letter-fly 5s infinite ${l.delay} ease-out`,
+                  textShadow: '0px 1px 2px rgba(0,0,0,0.5)'
                 }}
               >
                 {l.char}

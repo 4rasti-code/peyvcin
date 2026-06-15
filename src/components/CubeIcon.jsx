@@ -27,22 +27,22 @@ const r = '#6b7280'; // Grey
 
 // SVG Top corresponds to CSS Top
 const topColors = [y, r, g, g, y, r, r, g, y];
-const topLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'د', 'ژ', 'و'];
+const topLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'ی', 'ا', 'ر'];
 
 // SVG Left corresponds to CSS Left
 const leftColors = [r, g, y, y, r, g, g, y, r];
-const leftLetters = ['ش', 'ا', 'ر', 'ە', 'ز', 'ا', 'ی', 'ا', 'ن'];
+const leftLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'ب', 'ا', 'ش'];
 
 // SVG Right corresponds to CSS Front
 const frontColors = [g, y, r, r, g, y, y, r, g];
-const frontLetters = ['ه', 'ز', 'ر', 'ب', 'ک', 'ە', 'ت', 'م', 'ن'];
+const frontLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'ه', 'ز', 'ر'];
 
 // New faces for the back/right (invisible until spun)
 const backColors = [y, g, r, r, y, g, g, r, y];
-const backLetters = ['ز', 'ی', 'ر', 'ە', 'ک', 'ی', 'ب', 'ک', 'ە'];
+const backLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'ز', 'ی', 'ر'];
 
 const rightColors = [r, y, g, g, r, y, y, g, r];
-const rightLetters = ['د', 'ە', 'س', 'ت', 'خ', 'ۆ', 'ش', 'ی', 'ن'];
+const rightLetters = ['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک', 'د', 'ە', 'س'];
 
 const renderGrid = (colors, letters, isSlice, sliceIndex) => {
   if (isSlice) {
@@ -59,6 +59,7 @@ const Slice = ({ yOffset, sliceIndex, animationName }) => (
     className="absolute top-0 left-0 w-full h-full" 
     style={{ 
       transformStyle: 'preserve-3d', 
+      '--y-offset': `${yOffset}px`,
       transform: `translateY(${yOffset}px)`,
       animation: animationName,
       willChange: 'transform'
@@ -100,19 +101,12 @@ export default function CubeIcon({ className = "w-16 h-16" }) {
             0%, 100% { opacity: 0.3; transform: scale(0.8) rotate(0deg); }
             50% { opacity: 1; transform: scale(1.2) rotate(45deg); }
           }
-          @keyframes slice-0-spin {
-            0%, 20% { transform: translateY(-20px) rotateY(0deg); }
-            25%, 45% { transform: translateY(-20px) rotateY(-90deg); }
-            50%, 70% { transform: translateY(-20px) rotateY(-180deg); }
-            75%, 95% { transform: translateY(-20px) rotateY(-270deg); }
-            100% { transform: translateY(-20px) rotateY(-360deg); }
-          }
-          @keyframes slice-2-spin {
-            0%, 20% { transform: translateY(20px) rotateY(0deg); }
-            25%, 45% { transform: translateY(20px) rotateY(90deg); }
-            50%, 70% { transform: translateY(20px) rotateY(180deg); }
-            75%, 95% { transform: translateY(20px) rotateY(270deg); }
-            100% { transform: translateY(20px) rotateY(360deg); }
+          @keyframes slice-spin {
+            0%, 20% { transform: translateY(var(--y-offset)) rotateY(0deg); }
+            25%, 45% { transform: translateY(var(--y-offset)) rotateY(-90deg); }
+            50%, 70% { transform: translateY(var(--y-offset)) rotateY(-180deg); }
+            75%, 95% { transform: translateY(var(--y-offset)) rotateY(-270deg); }
+            100% { transform: translateY(var(--y-offset)) rotateY(-360deg); }
           }
         `}
       </style>
@@ -135,9 +129,9 @@ export default function CubeIcon({ className = "w-16 h-16" }) {
           }}
         >
           {/* Slices */}
-          <Slice yOffset={-20} sliceIndex={0} animationName="slice-0-spin 12s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55)" />
-          <Slice yOffset={0} sliceIndex={1} animationName="none" />
-          <Slice yOffset={20} sliceIndex={2} animationName="slice-2-spin 12s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55) 1.5s" />
+          <Slice yOffset={-20} sliceIndex={0} animationName="slice-spin 20s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55) 0s" />
+          <Slice yOffset={0} sliceIndex={1} animationName="slice-spin 20s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.3s" />
+          <Slice yOffset={20} sliceIndex={2} animationName="slice-spin 20s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.6s" />
         </div>
       </div>
     </div>
