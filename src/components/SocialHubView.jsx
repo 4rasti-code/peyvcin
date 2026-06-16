@@ -806,7 +806,9 @@ export default function SocialHubView({
         setReplyingTo(null); // Clear reply state
 
         const { error } = await supabase.from('messages').insert([{
-          ...payload,
+          content: payload.content,
+          user_id: payload.user_id,
+          user_nickname: payload.user_nickname,
           reply_to_id: payload.reply_to_id,
           reply_to_text: payload.reply_to_text
         }]);
