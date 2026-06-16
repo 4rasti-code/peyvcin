@@ -273,22 +273,45 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
           {/* Reactions Display - Transparent */}
           {m.reactions && Object.keys(m.reactions).length > 0 && !isDeleted && (
             <div className={`flex flex-wrap gap-2 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-              {Object.entries(m.reactions).map(([emoji, users]) => (
-                <div
-                  key={emoji}
-                  className={`group relative flex items-center gap-1 text-[11px] font-black transition-all cursor-help ${users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId) ? 'text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'text-mono-500/80 hover:text-mono-700 dark:hover:text-mono-300'}`}
-                >
-                  <span className="text-[13px] leading-none drop-shadow-sm">{emoji}</span>
-                  <span className="text-[10px] tabular-nums mt-0.5">{users.length}</span>
-                  
-                  {/* Custom Tooltip */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10">
-                    {users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ')}
-                    {/* Tooltip arrow */}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-mono-900 dark:border-t-mono-100"></div>
+              {Object.entries(m.reactions).map(([emoji, users]) => {
+                let pressTimer;
+                return (
+                  <div
+                    key={emoji}
+                    className={`group relative flex items-center gap-1 text-[11px] font-black transition-all cursor-help select-none ${users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId) ? 'text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'text-mono-500/80 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                    onTouchStart={(e) => {
+                      pressTimer = setTimeout(() => {
+                        const userNames = users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ');
+                        alert(`کەسانی ڕیئاکشن بە (${emoji}):\n\n${userNames}`);
+                        pressTimer = null;
+                      }, 500);
+                    }}
+                    onTouchEnd={(e) => {
+                      if (pressTimer) {
+                        clearTimeout(pressTimer);
+                        handleReaction(m.id, emoji);
+                        e.preventDefault();
+                      }
+                    }}
+                    onTouchMove={() => {
+                      if (pressTimer) clearTimeout(pressTimer);
+                    }}
+                    onClick={() => {
+                      // Fallback for desktop clicks
+                      handleReaction(m.id, emoji);
+                    }}
+                  >
+                    <span className="text-[13px] leading-none drop-shadow-sm pointer-events-none">{emoji}</span>
+                    <span className="text-[10px] tabular-nums mt-0.5 pointer-events-none">{users.length}</span>
+                    
+                    {/* Custom Tooltip for Desktop Hover */}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10 hidden md:block">
+                      {users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ')}
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-mono-900 dark:border-t-mono-100"></div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
