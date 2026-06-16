@@ -59,27 +59,33 @@ function useLongPress(onLongPress, onClick, ms = 500) {
   };
 }
 
-function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onClose }) {
+function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose }) {
   return (
-    <div className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4"
+      onContextMenu={(e) => e.preventDefault()}
+    >
       <Motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-black/80"
+        className="absolute inset-0 bg-transparent"
       />
 
       <Motion.div
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 20 }}
-        className="relative z-10 w-full max-w-[280px]"
+        className="relative z-10 w-full max-w-[220px]"
         style={{
           position: 'fixed',
-          top: Math.min(y, window.innerHeight - 300),
-          left: Math.max(20, Math.min(x - 140, window.innerWidth - 300)),
-          transformOrigin: isMe ? 'bottom right' : 'bottom left'
+          top: Math.max(10, Math.min(y - 20, window.innerHeight - 220)),
+          ...(isMe 
+            ? { right: Math.max(10, window.innerWidth - x - 40) }
+            : { left: Math.max(10, x - 40) }
+          ),
+          transformOrigin: isMe ? 'top right' : 'top left'
         }}
       >
         {/* Reactions Header */}
@@ -92,7 +98,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.05 } }}
               onClick={() => { onReact(emoji); onClose(); }}
-              className="w-10 h-10 flex items-center justify-center text-xl transition-colors cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center text-[18px] transition-colors cursor-pointer"
             >
               {emoji}
             </Motion.button>
@@ -103,20 +109,20 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md p-1.5 flex flex-col gap-1 shadow-2xl">
           <button
             onClick={() => { onReply(m); onClose(); }}
-            className="flex items-center justify-between w-full p-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
+            className="flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
           >
-            <span className="font-bold text-sm">بەرسڤدان</span>
-            <span className="material-symbols-outlined text-[20px] text-mono-500">reply</span>
+            <span className="font-bold text-[13px]">بەرسڤدان</span>
+            <span className="material-symbols-outlined text-[18px] text-mono-500">reply</span>
           </button>
 
           <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
 
           <button
             onClick={() => { onCopy(m.content || m.text); onClose(); }}
-            className="flex items-center justify-between w-full p-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
+            className="flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
           >
-            <span className="font-bold text-sm">ژبەرکرن</span>
-            <span className="material-symbols-outlined text-[20px] text-mono-500">content_copy</span>
+            <span className="font-bold text-[13px]">ژبەرکرن</span>
+            <span className="material-symbols-outlined text-[18px] text-mono-500">content_copy</span>
           </button>
 
           {isMe && (
@@ -124,10 +130,23 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
               <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
               <button
                 onClick={() => { onDelete(m); onClose(); }}
-                className="flex items-center justify-between w-full p-3 hover:bg-red-50 dark:hover:bg-red-500/10 active:bg-red-100 dark:active:bg-red-500/20 text-red-500 transition-all rounded-md"
+                className="flex items-center justify-between w-full py-2 px-3 hover:bg-red-50 dark:hover:bg-red-500/10 active:bg-red-100 dark:active:bg-red-500/20 text-red-500 transition-all rounded-md"
               >
-                <span className="font-bold text-sm">ژێبرن</span>
-                <span className="material-symbols-outlined text-[20px]">delete</span>
+                <span className="font-bold text-[13px]">ژێبرن</span>
+                <span className="material-symbols-outlined text-[18px]">delete</span>
+              </button>
+            </>
+          )}
+
+          {!isMe && onReport && (
+            <>
+              <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+              <button
+                onClick={() => { onReport(m); onClose(); }}
+                className="flex items-center justify-between w-full py-2 px-3 hover:bg-orange-50 dark:hover:bg-orange-500/10 active:bg-orange-100 dark:active:bg-orange-500/20 text-orange-500 transition-all rounded-md"
+              >
+                <span className="font-bold text-[13px]">ڕاپۆرتکردن</span>
+                <span className="material-symbols-outlined text-[18px]">flag</span>
               </button>
             </>
           )}
@@ -189,13 +208,27 @@ const GameResultRenderer = ({ text }) => {
   );
 };
 
-function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname = false }) {
+function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
   });
 
   const isDeleted = m.content === 'ئەڤ نامەیە هاتە ژێبرن' || m.content === '🚫 ئەڤ نامەیە هاتە ژێبرن';
+
+  const msgContent = m.content || m.text || '';
+  const isMentioned = !isMe && currentUserNickname && msgContent.includes(`@${currentUserNickname}`);
+
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@\S+)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('@')) {
+        return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
+      }
+      return part;
+    });
+  };
 
   useEffect(() => {
     if (inView && !isMe && !m.is_read && onSeen) {
@@ -237,19 +270,37 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
         </div>
       )}
 
-      <div className={`relative max-w-[85%] flex items-center gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`group/msg relative max-w-[85%] flex items-center gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`} onContextMenu={(e) => e.preventDefault()}>
         <div className="relative group/bubble flex flex-col items-end">
           <div
             {...bind}
-            className={`message-bubble px-3 py-1.5 rounded-md text-[13px] font-rabar font-light break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
+            onContextMenu={(e) => {
+              if (isDeleted) return;
+              e.preventDefault();
+              onLongPress(m, e.clientX, e.clientY);
+            }}
+            className={`message-bubble px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
                 ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
                 : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
-              } ${isDeleted ? 'opacity-60 italic' : ''}`}
+              } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
+            {/* Chevron Button inside bubble (WhatsApp Web Style) */}
+            {!isDeleted && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLongPress(m, e.clientX, e.clientY);
+                }}
+                className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
+              >
+                <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+              </button>
+            )}
+
               {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
                 ((m.content || m.text).includes('ئەنجام') && ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')))
                   ? <GameResultRenderer text={m.content || m.text} />
-                  : (m.content || m.text)
+                  : renderFormattedText(m.content || m.text)
               )}
 
             <div className="flex items-center justify-end gap-1 mt-1">
@@ -272,33 +323,17 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
 
           {/* Reactions Display - Transparent */}
           {m.reactions && Object.keys(m.reactions).length > 0 && !isDeleted && (
-            <div className={`flex flex-wrap gap-2 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
+            <div className={`flex flex-wrap gap-2 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
               {Object.entries(m.reactions).map(([emoji, users]) => {
-                let pressTimer;
                 return (
                   <div
                     key={emoji}
                     className={`group relative flex items-center gap-1 text-[11px] font-black transition-all cursor-help select-none ${users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId) ? 'text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'text-mono-500/80 hover:text-mono-700 dark:hover:text-mono-300'}`}
-                    onTouchStart={(e) => {
-                      pressTimer = setTimeout(() => {
-                        const userNames = users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ');
-                        alert(`کەسانی ڕیئاکشن بە (${emoji}):\n\n${userNames}`);
-                        pressTimer = null;
-                      }, 500);
-                    }}
-                    onTouchEnd={(e) => {
-                      if (pressTimer) {
-                        clearTimeout(pressTimer);
-                        handleReaction(m.id, emoji);
-                        e.preventDefault();
-                      }
-                    }}
-                    onTouchMove={() => {
-                      if (pressTimer) clearTimeout(pressTimer);
-                    }}
-                    onClick={() => {
-                      // Fallback for desktop clicks
-                      handleReaction(m.id, emoji);
+                    onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onReactionLongPress?.(m, emoji, e.clientX, e.clientY);
                     }}
                   >
                     <span className="text-[13px] leading-none drop-shadow-sm pointer-events-none">{emoji}</span>
@@ -357,6 +392,8 @@ export default function SocialHubView({
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [partnerIsTyping, setPartnerIsTyping] = useState(false);
   const [activeContextMenu, setActiveContextMenu] = useState(null);
+  const [activeReactionModal, setActiveReactionModal] = useState(null); // { message, activeTab }
+  const [reactionUsers, setReactionUsers] = useState({}); // { id: nickname }
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [pendingSentIds, setPendingSentIds] = useState(new Set());
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
@@ -371,6 +408,44 @@ export default function SocialHubView({
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
   
+  // Fetch real names for old string IDs or missing names in reactions
+  useEffect(() => {
+    if (!activeReactionModal?.message?.reactions) return;
+    
+    const fetchMissingNames = async () => {
+      const missingIds = [];
+      Object.values(activeReactionModal.message.reactions).forEach(users => {
+        users.forEach(u => {
+          const id = typeof u === 'string' ? u : u.id;
+          // Check for undefined strictly to avoid re-fetching nulls
+          if (id && reactionUsers[id] === undefined) {
+            missingIds.push(id);
+          }
+        });
+      });
+      
+      if (missingIds.length > 0) {
+        const { data } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', missingIds);
+        
+        setReactionUsers(prev => {
+          const newMap = { ...prev };
+          // Mark all requested IDs as null first to prevent infinite fetch loop if not found
+          missingIds.forEach(id => {
+            if (newMap[id] === undefined) newMap[id] = null;
+          });
+          
+          if (data) {
+            data.forEach(p => {
+              newMap[p.id] = { nickname: p.nickname || null, avatar_url: p.avatar_url || null };
+            });
+          }
+          return newMap;
+        });
+      }
+    };
+    fetchMissingNames();
+  }, [activeReactionModal?.message?.reactions, reactionUsers]);
+
   useEffect(() => { 
     activeTabRef.current = activeTab; 
     window.activeChatTab = activeTab;
@@ -799,6 +874,26 @@ export default function SocialHubView({
     }
   };
 
+  const handleReport = async (msg) => {
+    // Optimistically hide the message
+    const updateLocalState = (prev) => prev.filter(m => m.id !== msg.id);
+    if (activeContextMenu?.isPrivate) {
+      setChatMessages(prev => updateLocalState(prev));
+    } else {
+      setMessages(prev => updateLocalState(prev));
+    }
+    
+    // Insert into reported_messages table
+    try {
+      await supabase.from('reported_messages').insert([{
+        message_id: msg.id,
+        reporter_id: user?.id
+      }]);
+    } catch (err) {
+      console.error("Failed to report message:", err);
+    }
+  };
+
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !user?.id) return;
 
@@ -890,7 +985,7 @@ export default function SocialHubView({
   const handleReact = async (msgId, emoji, isPrivate = false) => {
     if (!user?.id) return;
     triggerHaptic(10);
-    const table = 'messages';
+    const table = isPrivate ? 'private_messages' : 'messages';
 
     // Optimistic UI update
     const updateLocalState = (prev) => prev.map(m => {
@@ -899,7 +994,7 @@ export default function SocialHubView({
         const users = [...(reactions[emoji] || [])];
         const idx = users.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
         if (idx > -1) users.splice(idx, 1);
-        else users.push({ id: user?.id, name: user?.nickname || 'یاریکەر' });
+        else users.push({ id: user?.id, name: userNickname || 'یاریکەر' });
 
         if (users.length === 0) delete reactions[emoji];
         else reactions[emoji] = users;
@@ -1037,8 +1132,11 @@ export default function SocialHubView({
                     m={m}
                     isMe={m.user_id === user?.id}
                     currentUserId={user?.id}
+                    currentUserNickname={userNickname}
                     showNickname={true}
                     onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: false })}
+                    onReact={handleReact}
+                    onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
                   />
                 ))}
               </AnimatePresence>
@@ -1158,7 +1256,19 @@ export default function SocialHubView({
                   <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
                   <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
                     <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
-                    <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{selectedChat.nickname}</span>
+                    <div className="flex flex-col items-start">
+                      <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{selectedChat.nickname}</span>
+                      <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
+                        {onlineUsers?.has(selectedChat.id) ? 'ئۆنلاینە' : (() => {
+                          if (!selectedChat.updated_at) return 'ئۆفلاین';
+                          const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
+                          if (diff < 60) return 'کۆتا بینین چەند چرکەیەک پێش ئێستا';
+                          if (diff < 3600) return `کۆتا بینین ${Math.floor(diff / 60)} خولەک پێش ئێستا`;
+                          if (diff < 86400) return `کۆتا بینین ${Math.floor(diff / 3600)} کاتژمێر پێش ئێستا`;
+                          return `کۆتا بینین ${Math.floor(diff / 86400)} ڕۆژ پێش ئێستا`;
+                        })()}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-mono-900 transition-colors duration-500">
@@ -1182,6 +1292,7 @@ export default function SocialHubView({
                         m={m}
                         isMe={m.user_id === user?.id}
                         currentUserId={user?.id}
+                        currentUserNickname={userNickname}
                         onSeen={async (id) => {
                           if (m.user_id !== user?.id && !m.is_read) {
                             await supabase
@@ -1191,6 +1302,8 @@ export default function SocialHubView({
                           }
                         }}
                         onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: true })}
+                        onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
+                        onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
                       />
                     ))}
 
@@ -1310,6 +1423,7 @@ export default function SocialHubView({
             y={activeContextMenu.y}
             isMe={activeContextMenu.message.user_id === user?.id}
             onClose={() => setActiveContextMenu(null)}
+            onReport={handleReport}
             onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
             onReply={(msg) => {
               triggerHaptic(10);
@@ -1420,6 +1534,142 @@ export default function SocialHubView({
           </div>
         </div>
       )}
+
+      {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
+      <AnimatePresence>
+        {activeReactionModal && activeReactionModal.message && activeReactionModal.message.reactions && (
+          <div className="fixed inset-0 z-150 flex flex-col items-center justify-center p-4">
+            <Motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveReactionModal(null)}
+              className="absolute inset-0 bg-transparent"
+            />
+            <Motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 10 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative z-10 w-full max-w-[260px] bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+              style={activeReactionModal.x && activeReactionModal.y ? {
+                position: 'fixed',
+                top: Math.max(20, Math.min(activeReactionModal.y, window.innerHeight - 300)),
+                left: Math.max(20, Math.min(activeReactionModal.x - 130, window.innerWidth - 280)),
+                transformOrigin: activeReactionModal.message.user_id === user?.id ? 'bottom right' : 'bottom left'
+              } : {}}
+            >
+              <div className="flex flex-col p-3 pb-2 border-b border-mono-200 dark:border-mono-800 shrink-0">
+                <h3 className="font-sans font-bold text-[13px] text-mono-600 dark:text-mono-300 mb-2 text-right w-full" dir="rtl">
+                  {toKuDigits(Object.values(activeReactionModal.message.reactions).flat().length)} کارڤەدان
+                </h3>
+                
+                {/* Tabs for Emojis */}
+                <div className="flex items-center justify-start gap-1 overflow-x-auto no-scrollbar shrink-0" dir="rtl">
+                  {Object.entries(activeReactionModal.message.reactions).map(([emoji, users]) => (
+                    <button
+                      key={emoji}
+                      onClick={() => setActiveReactionModal(prev => ({ ...prev, activeTab: emoji }))}
+                      className={`flex items-center justify-center gap-1.5 min-w-[48px] px-2 h-7 rounded-full font-bold text-[12px] whitespace-nowrap transition-colors border ${activeReactionModal.activeTab === emoji ? 'border-mono-300 dark:border-mono-600 bg-mono-100 dark:bg-mono-800 text-mono-900 dark:text-white' : 'border-transparent text-mono-500 hover:bg-mono-100 dark:hover:bg-mono-800'}`}
+                    >
+                      <span className="mt-0.5">{emoji}</span>
+                      <span className="text-[11px] tabular-nums mt-0.5">{toKuDigits(users.length)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Users List */}
+              <div className="p-2 overflow-y-auto no-scrollbar flex-1 max-h-[200px]" dir="rtl">
+                {Object.entries(activeReactionModal.message.reactions)
+                  .filter(([emoji]) => activeReactionModal.activeTab === 'all' || activeReactionModal.activeTab === emoji)
+                  .flatMap(([emoji, users]) => users.map(u => ({ emoji, user: u })))
+                  .map(({ emoji, user: u }, idx) => {
+                    const id = typeof u === 'string' ? u : u.id;
+                    const reactionData = reactionUsers[id];
+                    const uName = typeof u !== 'string' ? u.name : null;
+                    const name = reactionData?.nickname || (uName !== 'یاریکەر' ? uName : null) || 'یاریکەر';
+                    const avatarUrl = reactionData?.avatar_url;
+                    
+                    const isMeReaction = id === user?.id;
+                    
+                    return (
+                      <div 
+                        key={idx} 
+                        className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-mono-50 dark:hover:bg-mono-800/50 transition-colors ${isMeReaction ? 'cursor-pointer' : ''}`}
+                        onClick={isMeReaction ? (e) => {
+                          e.stopPropagation();
+                          handleReact(activeReactionModal.message.id, emoji, activeReactionModal.isPrivate);
+                          
+                          // Optimistically update the modal's local state so the reaction disappears
+                          setActiveReactionModal(prev => {
+                            if (!prev) return prev;
+                            
+                            const newReactions = { ...prev.message.reactions };
+                            const usersArray = [...(newReactions[emoji] || [])];
+                            
+                            const userIdx = usersArray.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
+                            if (userIdx > -1) {
+                              usersArray.splice(userIdx, 1);
+                            }
+                            
+                            if (usersArray.length === 0) {
+                              delete newReactions[emoji];
+                            } else {
+                              newReactions[emoji] = usersArray;
+                            }
+                            
+                            if (Object.keys(newReactions).length === 0) {
+                              return null; // Close if no reactions left globally
+                            }
+                            
+                            let newTab = prev.activeTab;
+                            if (!newReactions[emoji] && prev.activeTab === emoji) {
+                              newTab = 'all';
+                            }
+                            
+                            return {
+                              ...prev,
+                              activeTab: newTab,
+                              message: {
+                                ...prev.message,
+                                reactions: newReactions
+                              }
+                            };
+                          });
+                        } : undefined}
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-[#f0f2f5] dark:bg-mono-800 flex items-center justify-center text-mono-500 dark:text-mono-400 font-black text-xs uppercase shrink-0 shadow-sm border border-black/5 dark:border-white/5 overflow-hidden">
+                            {avatarUrl && avatarUrl !== 'default' ? (
+                              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                            ) : (
+                              name.charAt(0)
+                            )}
+                          </div>
+                          <div className="flex flex-col items-start">
+                            <span className="font-sans font-medium text-mono-900 dark:text-mono-100 text-[12px]">
+                              {isMeReaction ? 'تو' : name}
+                            </span>
+                            {isMeReaction && (
+                              <span className="text-[10px] text-mono-500 dark:text-mono-400 mt-0.5">
+                                ژێببە
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="w-6 h-6 flex items-center justify-center text-[15px]">
+                          {emoji}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </Motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
     </div>
   );
 }
