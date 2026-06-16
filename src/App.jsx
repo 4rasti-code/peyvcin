@@ -705,6 +705,22 @@ export default function App() {
     setCurrentView('lobby');
   }, [setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setIsDailyActive, setCategory, setTargetWord, cancelMatch, setCurrentView]);
 
+  const handleShareToGlobal = useCallback(async (text) => {
+    if (!user) return false;
+    try {
+      const { error } = await supabase.from('messages').insert({
+        user_id: user.id,
+        user_nickname: userNickname || 'یاریزان',
+        content: text
+      });
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error("Failed to share to global chat:", err);
+      return false;
+    }
+  }, [user, userNickname]);
+
   const getMaxHintsForWord = useCallback((length) => {
     if (length <= 2) return 0; if (length <= 5) return 1; if (length <= 8) return 2; if (length <= 10) return 3; if (length <= 13) return 4; return 5;
   }, []);
@@ -1797,6 +1813,7 @@ export default function App() {
               gameMode={gameMode}
               solveTimeMs={currentSolveTime}
               streak={feverStreak}
+              onShareToGlobal={handleShareToGlobal}
             />
 
             {/* Single Player Defeat */}
@@ -1819,6 +1836,7 @@ export default function App() {
               profileData={profileData}
               playerStats={playerStats}
               streak={feverStreak}
+              onShareToGlobal={handleShareToGlobal}
             />
           </>
         )}
@@ -1852,7 +1870,11 @@ export default function App() {
           }}
           playStartSound={playStartGameSound}
           isDark={isSystemDark}
-          shareGrid={colorsToEmojiGrid(activeMatch?.player1_id === user?.id ? activeMatch?.p1_colors : activeMatch?.p2_colors)}
+          shareGrid={colorsToEmojiGrid(
+            activeMatch?.player1_id === user?.id ? activeMatch?.p1_colors : activeMatch?.p2_colors,
+            activeMatch?.player1_id === user?.id ? activeMatch?.p1_guesses : activeMatch?.p2_guesses
+          )}
+          onShareToGlobal={handleShareToGlobal}
         />
 
         <Suspense fallback={null}>

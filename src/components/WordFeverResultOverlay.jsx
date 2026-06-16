@@ -45,9 +45,11 @@ const WordFeverResultOverlay = ({
   onRepeat,   // Resets timer to 60s + retry board
   onHome,      // Returns to lobby
   playStartSound,
-  guesses = []
+  guesses = [],
+  onShareToGlobal
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
+  const [globalShareStatus, setGlobalShareStatus] = useState(null);
   const isWin = type === 'win';
   const hasTriggeredRef = React.useRef(false);
 
@@ -254,6 +256,28 @@ const WordFeverResultOverlay = ({
                 </span>
                 {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'هاتە ناردن!' : 'بەلاڤ بکە'}
               </button>
+
+              {onShareToGlobal && (
+                <button
+                  onClick={async () => {
+                    triggerHaptic(10);
+                    const grid = generateWordleGrid(guesses, solvedWord);
+                    const text = `تەماشەی ئەنجامێن من بکەن!\n\n${grid}`;
+                    const success = await onShareToGlobal(text);
+                    if (success) {
+                      setGlobalShareStatus('success');
+                      setTimeout(() => setGlobalShareStatus(null), 2000);
+                    }
+                  }}
+                  disabled={globalShareStatus === 'success'}
+                  className="w-full h-9 bg-blue-600/20 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors mt-0.5 disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-base">
+                    {globalShareStatus === 'success' ? 'check_circle' : 'forum'}
+                  </span>
+                  {globalShareStatus === 'success' ? 'هاتەهنارتن بۆ چاتی' : 'هنارتن بۆ چاتێ گشتی'}
+                </button>
+              )}
             </div>
           </Motion.div>
         </Motion.div>

@@ -45,9 +45,11 @@ const DefeatOverlay = ({
   solvedWord = "",
   profileData,
   playerStats,
-  streak = 0
+  streak = 0,
+  onShareToGlobal
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
+  const [globalShareStatus, setGlobalShareStatus] = useState(null);
   const hasTriggeredRef = React.useRef(false);
   
   useEffect(() => {
@@ -206,7 +208,7 @@ const DefeatOverlay = ({
                 <button
                   onClick={async () => {
                     triggerHaptic(10);
-                    const grid = generateWordleGrid(guesses, solvedWord);
+                    const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
                     const result = await shareGameResult({
                       title: 'من نەشیا ڤێ پەیڤێ بدۆزم د پەیڤۆک دا! 💔',
                       grid: grid
@@ -228,6 +230,28 @@ const DefeatOverlay = ({
                   {shareStatus === 'copied' ? 'کۆپی!' : shareStatus === 'success' ? 'نارد!' : 'بەلاڤ بکە'}
                 </button>
               </div>
+
+              {onShareToGlobal && (
+                <button
+                  onClick={async () => {
+                    triggerHaptic(10);
+                    const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
+                    const text = `تەماشەی ئەنجامێن من بکەن!\n\n${grid}`;
+                    const success = await onShareToGlobal(text);
+                    if (success) {
+                      setGlobalShareStatus('success');
+                      setTimeout(() => setGlobalShareStatus(null), 2000);
+                    }
+                  }}
+                  disabled={globalShareStatus === 'success'}
+                  className="w-full h-9 bg-blue-600/20 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2 mt-0.5 disabled:opacity-50"
+                >
+                  <span className="material-symbols-outlined text-base">
+                    {globalShareStatus === 'success' ? 'check_circle' : 'forum'}
+                  </span>
+                  {globalShareStatus === 'success' ? 'هاتەهنارتن بۆ چاتی' : 'هنارتن بۆ چاتێ گشتی'}
+                </button>
+              )}
             </div>
           </Motion.div>
         </Motion.div>

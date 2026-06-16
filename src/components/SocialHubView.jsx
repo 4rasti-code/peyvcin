@@ -137,6 +137,58 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
   );
 }
 
+
+const GameResultRenderer = ({ text }) => {
+  const lines = text.trim().split('\n');
+  const title = lines[0]; // e.g., "تەماشەی ئەنجامێن من بکەن!"
+  const gridLines = lines.slice(1).filter(l => l.trim().length > 0);
+
+  return (
+    <div className="flex flex-col gap-2 my-1 cursor-default" onClick={e => e.stopPropagation()}>
+      <div className="text-sm font-black text-center text-primary dark:text-sky-400 mb-1">{title}</div>
+      <div className="flex flex-col gap-[3px] items-center">
+        {gridLines.map((line, rIdx) => {
+          const blocks = line.split(' ').filter(b => b.trim().length > 0);
+          return (
+            <div key={rIdx} className="flex gap-[3px] justify-center">
+              {blocks.map((block, cIdx) => {
+                const hasCorrect = block.includes('🟩');
+                const hasWrongPos = block.includes('🟨');
+                const hasAbsent = block.includes('⬛') || block.includes('⬜');
+
+                const letter = block.replace(/[🟩🟨⬛⬜]/gu, '').trim();
+                const isEmpty = letter === '';
+
+                let bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
+                let textColor = "text-black dark:text-white";
+
+                if (isEmpty) {
+                  bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
+                } else if (hasCorrect) {
+                  bgColor = "bg-[#6aaa64] dark:bg-[#538d4e] border-[#6aaa64] dark:border-[#538d4e]";
+                  textColor = "text-white";
+                } else if (hasWrongPos) {
+                  bgColor = "bg-[#c9b458] dark:bg-[#b59f3b] border-[#c9b458] dark:border-[#b59f3b]";
+                  textColor = "text-white";
+                } else if (hasAbsent) {
+                  bgColor = "bg-[#D4D4D4] dark:bg-[#262626] border-[#A3A3A3] dark:border-[#4b4b4b]";
+                  textColor = "text-mono-900 dark:text-white";
+                }
+
+                return (
+                  <div key={cIdx} className={`w-[22px] h-[22px] rounded-[3px] flex items-center justify-center font-bold text-[10px] ${bgColor} ${textColor} border-[1.5px] uppercase leading-none`}>
+                    {letter}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname = false }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -194,7 +246,11 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
                 : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               } ${isDeleted ? 'opacity-60 italic' : ''}`}
           >
-            {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (m.content || m.text)}
+              {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
+                ((m.content || m.text).includes('ئەنجام') && ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')))
+                  ? <GameResultRenderer text={m.content || m.text} />
+                  : (m.content || m.text)
+              )}
 
             <div className="flex items-center justify-end gap-1 mt-1">
               <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
@@ -220,10 +276,17 @@ function MessageItem({ m, isMe, onSeen, onLongPress, currentUserId, showNickname
               {Object.entries(m.reactions).map(([emoji, users]) => (
                 <div
                   key={emoji}
-                  className={`flex items-center gap-1 text-[11px] font-black transition-all ${users.includes(currentUserId) ? 'text-primary' : 'text-mono-500/80'}`}
+                  className={`group relative flex items-center gap-1 text-[11px] font-black transition-all cursor-help ${users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId) ? 'text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'text-mono-500/80 hover:text-mono-700 dark:hover:text-mono-300'}`}
                 >
-                  <span>{emoji}</span>
-                  <span className={users.includes(currentUserId) ? 'opacity-100' : 'opacity-60'}>{users.length}</span>
+                  <span className="text-[13px] leading-none drop-shadow-sm">{emoji}</span>
+                  <span className="text-[10px] tabular-nums mt-0.5">{users.length}</span>
+                  
+                  {/* Custom Tooltip */}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10">
+                    {users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ')}
+                    {/* Tooltip arrow */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-mono-900 dark:border-t-mono-100"></div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -809,9 +872,9 @@ export default function SocialHubView({
       if (m.id === msgId) {
         const reactions = { ...(m.reactions || {}) };
         const users = [...(reactions[emoji] || [])];
-        const idx = users.indexOf(user?.id);
+        const idx = users.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
         if (idx > -1) users.splice(idx, 1);
-        else users.push(user?.id);
+        else users.push({ id: user?.id, name: user?.nickname || 'یاریکەر' });
 
         if (users.length === 0) delete reactions[emoji];
         else reactions[emoji] = users;
@@ -841,10 +904,10 @@ export default function SocialHubView({
 
       let reactions = msg?.reactions || {};
       const users = reactions[emoji] || [];
-      const userIndex = users.indexOf(user?.id);
+      const userIndex = users.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
 
       if (userIndex > -1) users.splice(userIndex, 1);
-      else users.push(user?.id);
+      else users.push({ id: user?.id, name: user?.nickname || 'یاریکەر' });
 
       if (users.length === 0) delete reactions[emoji];
       else reactions[emoji] = users;
