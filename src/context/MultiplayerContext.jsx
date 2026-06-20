@@ -916,7 +916,7 @@ export const MultiplayerProvider = ({ children }) => {
 
 
   // --- PRIVATE MATCH SYSTEM ---
-  const createPrivateMatch = useCallback(async () => {
+  const createPrivateMatch = useCallback(async (targetUserId = null) => {
     if (!user?.id) return null;
     
     // Cleanup any old private waiting rooms for this user
@@ -950,6 +950,7 @@ export const MultiplayerProvider = ({ children }) => {
       .from('online_matches')
       .insert({
         player1_id: user.id,
+        player2_id: targetUserId,
         status: 'private_waiting', // Isolates from random matchmaking
         words: selectedWords,
         riddles: selectedRiddles,

@@ -82,7 +82,7 @@ const LobbyView = memo(({
     
     try {
       const { supabase } = await import('../lib/supabase');
-      const newRoomId = await createPrivateMatch();
+      const newRoomId = await createPrivateMatch(targetUserId);
       if (!newRoomId) {
         alert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
         setSentInvites(prev => {
@@ -93,24 +93,7 @@ const LobbyView = memo(({
         return;
       }
 
-      console.log(`[LobbyView] Attempting to send invite to channel: user_invites_${targetUserId}`);
-      const channel = supabase.channel(`user_invites_${targetUserId}`, { config: { broadcast: { ack: true } } });
-      channel.subscribe(async (status) => {
-        console.log(`[LobbyView] Channel subscribe status:`, status);
-        if (status === 'SUBSCRIBED') {
-          console.log(`[LobbyView] Sending broadcast event match_invite...`);
-          const resp = await channel.send({
-            type: 'broadcast',
-            event: 'match_invite',
-            payload: { 
-              roomId: newRoomId, 
-              hostName: userNickname || 'هەڤالەکێ تە'
-            }
-          });
-          console.log(`[LobbyView] Broadcast sent! Response:`, resp);
-          setTimeout(() => supabase.removeChannel(channel), 1000);
-        }
-      });
+      console.log(`[LobbyView] Invite sent via DB match creation for user ${targetUserId}`);
     } catch (err) {
       console.error("Invite error", err);
       setSentInvites(prev => {
