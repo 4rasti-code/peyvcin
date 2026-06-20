@@ -208,7 +208,7 @@ function SettingsModal({
                            </div>
                            <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
                         </button>
-                        <button onClick={() => { triggerHaptic(10); window.location.href = 'mailto:support@peyivcin.com'; }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                        <button onClick={() => { triggerHaptic(10); window.location.href = 'mailto:support@peyvok.com'; }} className="flex items-center justify-between py-3 w-full group transition-colors">
                            <div className="flex items-center gap-3">
                               <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">feedback</span>
                               <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">فیدباک</span>
@@ -240,7 +240,7 @@ function SettingsModal({
                      </button>
 
                      <div className="pt-2 flex flex-col items-center gap-1 opacity-20">
-                        <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvçîn v2.0</p>
+                        <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.0</p>
                      </div>
                   </div>
                </Motion.div>

@@ -202,7 +202,7 @@ const HelpCenterModal = ({ onClose, triggerHaptic }) => {
                         
                         <div className="pt-3 pb-1">
                            <button 
-                              onClick={() => { if (triggerHaptic) triggerHaptic(10); window.location.href = 'mailto:support@peyivcin.com'; }}
+                              onClick={() => { if (triggerHaptic) triggerHaptic(10); window.location.href = 'mailto:support@peyvok.com'; }}
                               className="w-full flex items-center justify-between p-4 rounded-lg bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 dark:border-blue-400/20 hover:brightness-110 active:scale-[0.98] transition-all group"
                            >
                               <div className="flex items-center gap-3">
