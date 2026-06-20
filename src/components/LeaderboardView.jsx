@@ -43,6 +43,9 @@ export default function LeaderboardView({ onOpenChat }) {
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
+  // Caching for instant load
+  const cacheRef = useRef({ global: null, friends: null });
+
   // Pagination states
   const pageRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
@@ -51,6 +54,7 @@ export default function LeaderboardView({ onOpenChat }) {
   const ITEMS_PER_PAGE = 20;
 
   const bgRef = useRef(null);
+  const fetchTimeoutRef = useRef(null);
 
   const handleBackgroundClick = (e) => {
     // Only trigger if clicking the direct container to avoid item capture
@@ -79,16 +83,24 @@ export default function LeaderboardView({ onOpenChat }) {
       return;
     }
     
-    const currentPage = isLoadMore ? pageRef.current + 1 : 0;
+    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
 
-    if (!isLoadMore) {
-      setLoading(true);
-      setError(null);
-    } else {
-      setLoadingMore(true);
-    }
+    return new Promise((resolve) => {
+      fetchTimeoutRef.current = setTimeout(async () => {
+        const currentPage = isLoadMore ? pageRef.current + 1 : 0;
 
-    try {
+        if (!isLoadMore) {
+          if (!cacheRef.current[view]) {
+            setLoading(true);
+          } else {
+            setLeaders(cacheRef.current[view]);
+          }
+          setError(null);
+        } else {
+          setLoadingMore(true);
+        }
+
+        try {
       let leaderData = [];
 
       if (view === 'friends') {
@@ -141,23 +153,29 @@ export default function LeaderboardView({ onOpenChat }) {
           // Prevent duplicates by checking IDs
           const existingIds = new Set(prev.map(p => p.id));
           const newItems = leaderData.filter(p => !existingIds.has(p.id));
-          return [...prev, ...newItems];
+          const next = [...prev, ...newItems];
+          cacheRef.current[view] = next;
+          return next;
         });
       } else {
         setLeaders(leaderData);
+        cacheRef.current[view] = leaderData;
       }
 
       pageRef.current = currentPage;
       setHasMore(leaderData.length === ITEMS_PER_PAGE);
 
-      // Rank is now calculated asynchronously by GameContext and exposed globally
-    } catch (err) {
-      console.warn("Leaderboard fetch error:", err);
-      setError(true);
-    } finally {
-      if (!isLoadMore) setLoading(false);
-      setLoadingMore(false);
-    }
+          // Rank is now calculated asynchronously by GameContext and exposed globally
+        } catch (err) {
+          console.warn("Leaderboard fetch error:", err);
+          setError(true);
+        } finally {
+          if (!isLoadMore) setLoading(false);
+          setLoadingMore(false);
+          resolve();
+        }
+      }, 300);
+    });
   }, [loadingAuth, userId, view]);
 
   useEffect(() => {
@@ -171,6 +189,34 @@ export default function LeaderboardView({ onOpenChat }) {
       window.removeEventListener('focus', handleFocus);
     };
   }, [view, userId, fetchData]);
+
+  // Real-time XP updates
+  useEffect(() => {
+    const profilesSub = supabase.channel('public:profiles:leaderboard')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        const updatedProfile = payload.new;
+        if (!updatedProfile || typeof updatedProfile.xp === 'undefined') return;
+        
+        setLeaders(prev => {
+           const idx = prev.findIndex(p => p.id === updatedProfile.id);
+           if (idx === -1) return prev; // Not currently loaded in the list
+           
+           let next = [...prev];
+           // Only update if xp or other relevant stats changed
+           if (next[idx].xp === updatedProfile.xp) return prev;
+           
+           next[idx] = { ...next[idx], ...updatedProfile };
+           next.sort((a, b) => b.xp - a.xp); // Re-sort descending by XP
+           
+           cacheRef.current[view] = next; // Sync cache
+           return next;
+        });
+      }).subscribe();
+      
+    return () => {
+      supabase.removeChannel(profilesSub);
+    };
+  }, [view]);
 
   // Track Total Players
   useEffect(() => {
@@ -205,7 +251,8 @@ export default function LeaderboardView({ onOpenChat }) {
     if (userId) fetchTrueRank();
     
     return () => { isMounted = false; };
-  }, [leaders, userId, userXP]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, userXP]);
 
 
   return (
@@ -357,6 +404,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
                 return (
                   <Motion.div
+                    layout
                     key={player.id}
                     variants={{
                       hidden: { opacity: 0, y: 15, scale: 0.98 },
@@ -378,6 +426,8 @@ export default function LeaderboardView({ onOpenChat }) {
                         ? 'bg-[#ffcc00] border-transparent text-amber-950 shadow-sm'
                         : rank === 3
                         ? 'bg-[#0ea5e9] border-transparent text-white shadow-sm'
+                        : isMe
+                        ? 'bg-primary/10 dark:bg-primary/20 border-primary ring-1 ring-primary/50 shadow-[0_0_12px_rgba(var(--primary),0.4)] text-mono-900 dark:text-mono-50 z-20'
                         : 'bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 text-mono-900 dark:text-mono-50'
                     }`}
                     style={{

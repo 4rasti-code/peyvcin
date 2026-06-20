@@ -6,7 +6,7 @@ import Avatar from './Avatar';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playRewardSfx } from '../utils/audio';
 import { toKuDigits } from '../utils/formatters';
-import { shareGameResult } from '../utils/share';
+import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
@@ -44,7 +44,8 @@ const BattleResultOverlay = ({
   playerStats = null,
   onNext,
   isDark,
-  shareGrid = "",
+  guesses = [],
+  solvedWord = "",
   onShareToGlobal
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
@@ -223,6 +224,7 @@ const BattleResultOverlay = ({
               <button
                 onClick={async () => {
                   triggerHaptic(10);
+                  const shareGrid = generateWordleGrid(guesses, solvedWord, 6);
                   const result = await shareGameResult({
                     title: isVictory ? `من سەرکەفتن ئینا ل سەر ${opponent?.nickname || 'ھەڤڕکەکێ'}! 🏆` : `یەکسانبووم دگەل ${opponent?.nickname || 'ھەڤڕکەکێ'}! 🤝`,
                     grid: shareGrid
@@ -248,7 +250,16 @@ const BattleResultOverlay = ({
                 <button
                   onClick={async () => {
                     triggerHaptic(10);
-                    const text = `تەماشەی ئەنجامێن من بکەن!\n\n${shareGrid}`;
+                    const battleData = {
+                      myAvatar: user?.avatar_url || 'default',
+                      myName: user?.nickname || 'من',
+                      myScore: myScore,
+                      oppAvatar: opponent?.avatar_url || 'default',
+                      oppName: opponent?.nickname || 'ھەڤڕک',
+                      oppScore: oppScore,
+                      result: isVictory ? 'victory' : isDefeat ? 'defeat' : 'draw'
+                    };
+                    const text = `[BATTLE_RESULT] ${JSON.stringify(battleData)}`;
                     const success = await onShareToGlobal(text);
                     if (success) {
                       setGlobalShareStatus('success');

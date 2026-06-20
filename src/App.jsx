@@ -83,10 +83,7 @@ import { supabase } from './lib/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import DataDeletion from './components/DataDeletion';
 import TermsOfService from './components/TermsOfService';
-import { colorsToEmojiGrid } from './utils/share';
-
-
-
+import GlobalInviteToast from './components/GlobalInviteToast';
 
 const PEYVOK_VERSION = '2.0.0';
 
@@ -470,6 +467,7 @@ export default function App() {
 
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
+  const [hasUnreadGlobalMessage, setHasUnreadGlobalMessage] = useState(false);
 
 
 
@@ -967,6 +965,59 @@ export default function App() {
       supabase.removeChannel(socialChannel);
     };
   }, [user?.id, showPush]);
+
+  // --- GLOBAL CHAT NOTIFICATION DOT LOGIC ---
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const checkGlobalMessages = async () => {
+      try {
+        const { data } = await supabase
+          .from('messages')
+          .select('created_at, user_id')
+          .is('receiver_id', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (data && data.user_id !== user.id) {
+          const lastOpened = localStorage.getItem('lastOpenedGlobalChatTime');
+          if (!lastOpened || new Date(data.created_at) > new Date(lastOpened)) {
+            setHasUnreadGlobalMessage(true);
+          }
+        }
+      } catch (e) { console.warn(e); }
+    };
+
+    checkGlobalMessages();
+
+    const globalSub = supabase
+      .channel('public:messages:global:badge')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' },
+        (payload) => {
+          if (payload.new.user_id !== user.id) {
+            const activeTab = window.activeChatTab || localStorage.getItem('activeChatTab');
+            const view = window.location.pathname.replace('/', '') || 'lobby';
+            if (view === 'social_hub' && activeTab === 'global') {
+              localStorage.setItem('lastOpenedGlobalChatTime', new Date().toISOString());
+            } else {
+              setHasUnreadGlobalMessage(true);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    const handleGlobalChatOpened = () => setHasUnreadGlobalMessage(false);
+    window.addEventListener('globalChatOpened', handleGlobalChatOpened);
+
+    return () => {
+      supabase.removeChannel(globalSub);
+      window.removeEventListener('globalChatOpened', handleGlobalChatOpened);
+    };
+  }, [user?.id]);
 
 
   // Shared Logic (Haptic, Audio, Normalized, etc.) now handled in src/utils/gameStatus.js
@@ -1621,100 +1672,105 @@ export default function App() {
           )}
 
           <Suspense fallback={<KurdishSunLoader />}>
-            {currentView === 'social_hub' && (
-              <SocialHubView
-                user={user}
-                initialChatPartner={activeChatPartner}
-                initialTab={initialSocialTab}
-                onBack={() => {
-                  setActiveChatPartner(null);
-                  setInitialSocialTab(null);
-                  setCurrentView('lobby');
-                }}
-                onViewMessages={handleViewMessages}
-                onViewFriends={handleViewFriends}
-                onKeyboardToggle={(isOpen) => {
-                  if (isOpen && !window.matchMedia('(pointer: coarse)').matches) return;
-                  setIsKeyboardOpen(isOpen);
-                }}
-              />
-            )}
-            {currentView === 'leaderboard' && (
-              <LeaderboardView
-                onOpenChat={handleOpenChat}
-              />
-            )}
-            {currentView === 'store' && (
-              <ShopView
-                fils={fils}
-                derhem={derhem}
-                dinar={dinar}
-                magnetCount={magnetCount}
-                hintCount={hintCount}
-                skipCount={skipCount}
-                onPurchase={async (item) => {
-                  // Security Hardening: Use the atomic RPC-based processPurchase
-                  await processPurchase(item);
-                }}
-                onPurchaseAvatar={async (id, price, currency) => {
-                  // Security Hardening: Treat avatar purchase as a standard item purchase
-                  const result = await processPurchase({ id, price, currency, type: 'avatar' });
-                  if (result.success) {
-                    updateProfile({ ownedAvatars: [...ownedAvatars, id] });
-                  }
-                }}
-                onEquipAvatar={(id) => updateProfile({ avatar_url: id })}
-                playPurchaseSound={playPurchaseSound}
-                ownedAvatars={ownedAvatars}
-                equippedAvatar={equippedAvatar}
-              />
-            )}
-            {currentView === 'stats' && (
-              <StatsView
-                profileData={profileData}
-                playerStats={playerStats}
-                rank={userRank}
-                userNickname={userNickname}
-                userAvatar={userAvatar}
-                level={level}
-                currentXP={currentXP}
-                onViewChange={navigateTo}
-              />
-            )}
-            {currentView === 'achievements' && (
-              <AchievementsView
-                profileData={profileData}
-                onViewChange={navigateTo}
-              />
-            )}
-            {currentView === 'dictionary' && (
-              <DictionaryView
-                solvedWords={solvedWords}
-                allWordsWithCategories={allWordsWithCategories}
-                onBack={() => navigateTo('lobby')}
-              />
-            )}
-            {currentView === 'profile' && (
-              <ProfileView
-                onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
-                onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
-                user={user}
-                userNickname={userNickname}
-                onProfileSave={handleProfileSave}
-                userAvatar={userAvatar}
-                userCity={city}
-                isInKurdistan={isInKurdistan}
-                countryCode={countryCode}
-                level={level}
-                currentXP={currentXP}
-                maxXP={maxXP}
-                fils={fils}
-                derhem={derhem}
-                dinar={dinar}
-                playerStats={playerStats}
-                userRank={userRank}
-                dailyStreak={dailyStreak}
-              />
+            {user?.id && (
+              <>
+                <div className={currentView === 'social_hub' ? 'contents' : 'hidden'}>
+                  <SocialHubView
+                    isVisible={currentView === 'social_hub'}
+                    user={user}
+                    initialChatPartner={activeChatPartner}
+                    initialTab={initialSocialTab}
+                    onBack={() => {
+                      setActiveChatPartner(null);
+                      setInitialSocialTab(null);
+                      setCurrentView('lobby');
+                    }}
+                    onViewMessages={handleViewMessages}
+                    onViewFriends={handleViewFriends}
+                    onKeyboardToggle={(isOpen) => {
+                      if (isOpen && !window.matchMedia('(pointer: coarse)').matches) return;
+                      setIsKeyboardOpen(isOpen);
+                    }}
+                  />
+                </div>
+                <div className={currentView === 'leaderboard' ? 'contents' : 'hidden'}>
+                  <LeaderboardView
+                    onOpenChat={handleOpenChat}
+                  />
+                </div>
+                <div className={currentView === 'store' ? 'contents' : 'hidden'}>
+                  <ShopView
+                    fils={fils}
+                    derhem={derhem}
+                    dinar={dinar}
+                    magnetCount={magnetCount}
+                    hintCount={hintCount}
+                    skipCount={skipCount}
+                    onPurchase={async (item) => {
+                      // Security Hardening: Use the atomic RPC-based processPurchase
+                      await processPurchase(item);
+                    }}
+                    onPurchaseAvatar={async (id, price, currency) => {
+                      // Security Hardening: Treat avatar purchase as a standard item purchase
+                      const result = await processPurchase({ id, price, currency, type: 'avatar' });
+                      if (result.success) {
+                        updateProfile({ ownedAvatars: [...ownedAvatars, id] });
+                      }
+                    }}
+                    onEquipAvatar={(id) => updateProfile({ avatar_url: id })}
+                    playPurchaseSound={playPurchaseSound}
+                    ownedAvatars={ownedAvatars}
+                    equippedAvatar={equippedAvatar}
+                  />
+                </div>
+                <div className={currentView === 'stats' ? 'contents' : 'hidden'}>
+                  <StatsView
+                    profileData={profileData}
+                    playerStats={playerStats}
+                    rank={userRank}
+                    userNickname={userNickname}
+                    userAvatar={userAvatar}
+                    level={level}
+                    currentXP={currentXP}
+                    onViewChange={navigateTo}
+                  />
+                </div>
+                <div className={currentView === 'achievements' ? 'contents' : 'hidden'}>
+                  <AchievementsView
+                    profileData={profileData}
+                    onViewChange={navigateTo}
+                  />
+                </div>
+                <div className={currentView === 'dictionary' ? 'contents' : 'hidden'}>
+                  <DictionaryView
+                    solvedWords={solvedWords}
+                    allWordsWithCategories={allWordsWithCategories}
+                    onBack={() => navigateTo('lobby')}
+                  />
+                </div>
+                <div className={currentView === 'profile' ? 'contents' : 'hidden'}>
+                  <ProfileView
+                    onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
+                    onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
+                    user={user}
+                    userNickname={userNickname}
+                    onProfileSave={handleProfileSave}
+                    userAvatar={userAvatar}
+                    userCity={city}
+                    isInKurdistan={isInKurdistan}
+                    countryCode={countryCode}
+                    level={level}
+                    currentXP={currentXP}
+                    maxXP={maxXP}
+                    fils={fils}
+                    derhem={derhem}
+                    dinar={dinar}
+                    playerStats={playerStats}
+                    userRank={userRank}
+                    dailyStreak={dailyStreak}
+                  />
+                </div>
+              </>
             )}
 
             {/* SOCIAL ONBOARDING OVERLAY */}
@@ -1787,6 +1843,7 @@ export default function App() {
               onSettingsToggle={() => { setIsSettingsOpen(true); }}
               onTabClickSound={playBubblePopSound}
               notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+              hasGlobalNewMessage={hasUnreadGlobalMessage}
             />
           )}
 
@@ -1870,10 +1927,8 @@ export default function App() {
           }}
           playStartSound={playStartGameSound}
           isDark={isSystemDark}
-          shareGrid={colorsToEmojiGrid(
-            activeMatch?.player1_id === user?.id ? activeMatch?.p1_colors : activeMatch?.p2_colors,
-            activeMatch?.player1_id === user?.id ? activeMatch?.p1_guesses : activeMatch?.p2_guesses
-          )}
+          guesses={guesses}
+          solvedWord={lastSolvedWord || targetWord}
           onShareToGlobal={handleShareToGlobal}
         />
 
@@ -1928,7 +1983,8 @@ export default function App() {
           />
         </Suspense>
 
-
+        {/* GLOBAL INVITE TOAST */}
+        <GlobalInviteToast />
 
         {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
         <AnimatePresence>

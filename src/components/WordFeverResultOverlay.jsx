@@ -262,7 +262,7 @@ const WordFeverResultOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord);
-                    const text = `تەماشەی ئەنجامێن من بکەن!\n\n${grid}`;
+                    const text = `تایا پەیڤان\n\n${grid}`;
                     const success = await onShareToGlobal(text);
                     if (success) {
                       setGlobalShareStatus('success');

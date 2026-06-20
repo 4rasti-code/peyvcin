@@ -157,6 +157,69 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
 }
 
 
+const BattleResultRenderer = ({ text }) => {
+  let data = null;
+  let hasError = false;
+  try {
+    const jsonStr = text.replace('[BATTLE_RESULT]', '').trim();
+    data = JSON.parse(jsonStr);
+  } catch(_e) {
+    hasError = true;
+  }
+
+  if (hasError || !data) {
+    return <div className="text-[10px] text-red-500 italic p-2 bg-red-500/10 rounded">هەڵە د خاندنا ئەنجامان دا</div>;
+  }
+  
+  return (
+    <div className="flex flex-col items-center gap-2 my-1 cursor-default w-full min-w-[180px] max-w-[220px] bg-mono-100/50 dark:bg-white/5 rounded-xl p-3 border border-mono-200/50 dark:border-white/10" onClick={e => e.stopPropagation()}>
+      <div className="text-[11px] font-black text-center text-primary dark:text-sky-400 mb-1">ئەنجامێ هەڤڕکیێ ⚔️</div>
+      
+      <div className="flex items-center justify-between w-full gap-2">
+        {/* P1 */}
+        <div className="flex flex-col items-center gap-1 flex-1 overflow-hidden">
+          <div className={`p-[2px] rounded-full ${data.result === 'victory' ? 'ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-[#1A1A1A]' : ''}`}>
+            {data.myAvatar && data.myAvatar !== 'default' ? (
+              <img src={data.myAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-black text-primary uppercase shadow-sm">
+                {(data.myName || 'ی')[0]}
+              </div>
+            )}
+          </div>
+          <span className="text-[9px] font-black uppercase truncate w-full text-center text-mono-900 dark:text-white">{data.myName}</span>
+          <span className="text-sm font-black text-primary leading-none">{toKuDigits(data.myScore)}</span>
+        </div>
+
+        <span className="text-[9px] font-black text-mono-400/50 italic px-1">VS</span>
+
+        {/* P2 */}
+        <div className="flex flex-col items-center gap-1 flex-1 overflow-hidden">
+          <div className={`p-[2px] rounded-full ${data.result === 'defeat' ? 'ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-[#1A1A1A]' : ''}`}>
+            {data.oppAvatar && data.oppAvatar !== 'default' ? (
+              <img src={data.oppAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-xs font-black text-red-500 uppercase shadow-sm">
+                {(data.oppName || 'ی')[0]}
+              </div>
+            )}
+          </div>
+          <span className="text-[9px] font-black uppercase truncate w-full text-center text-mono-900 dark:text-white">{data.oppName}</span>
+          <span className="text-sm font-black text-red-500 leading-none">{toKuDigits(data.oppScore)}</span>
+        </div>
+      </div>
+
+      <div className={`text-[10px] font-black px-2.5 py-1 rounded-md mt-1 w-full text-center ${
+        data.result === 'victory' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 
+        data.result === 'defeat' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 
+        'bg-mono-500/10 text-mono-600 dark:text-mono-400'
+      }`}>
+        {data.result === 'victory' ? 'سەرکەفتی 🏆' : data.result === 'defeat' ? 'سەرنەکەفتی 💔' : 'یەکسانبوون 🤝'}
+      </div>
+    </div>
+  );
+};
+
 const GameResultRenderer = ({ text }) => {
   const lines = text.trim().split('\n');
   const title = lines[0]; // e.g., "تەماشەی ئەنجامێن من بکەن!"
@@ -208,7 +271,7 @@ const GameResultRenderer = ({ text }) => {
   );
 };
 
-function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false }) {
+function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {} }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -298,9 +361,14 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             )}
 
               {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
-                ((m.content || m.text).includes('ئەنجام') && ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')))
-                  ? <GameResultRenderer text={m.content || m.text} />
-                  : renderFormattedText(m.content || m.text)
+                (m.content || m.text).startsWith('[BATTLE_RESULT]') 
+                  ? <BattleResultRenderer text={m.content || m.text} />
+                  : (
+                    ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')) &&
+                    (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.content || m.text))
+                  )
+                    ? <GameResultRenderer text={m.content || m.text} />
+                    : renderFormattedText(m.content || m.text)
               )}
 
             <div className="flex items-center justify-end gap-1 mt-1">
@@ -341,7 +409,11 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     
                     {/* Custom Tooltip for Desktop Hover */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10 hidden md:block">
-                      {users.map(u => typeof u === 'string' ? 'یاریکەر' : u.name).join('، ')}
+                      {users.map(u => {
+                        const id = typeof u === 'string' ? u : u.id;
+                        const uName = typeof u !== 'string' ? u.name : null;
+                        return reactionUsers[id]?.nickname || (uName !== 'یاریکەر' ? uName : null) || 'یاریکەر';
+                      }).join('، ')}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-mono-900 dark:border-t-mono-100"></div>
                     </div>
                   </div>
@@ -362,7 +434,8 @@ export default function SocialHubView({
   initialTab = null,
   onViewMessages: _onViewMessages,
   onViewFriends: _onViewFriends,
-  onKeyboardToggle
+  onKeyboardToggle,
+  isVisible = true
 }) {
   const {
     user,
@@ -407,49 +480,74 @@ export default function SocialHubView({
   
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
+  const fetchedReactionIdsRef = useRef(new Set());
   
-  // Fetch real names for old string IDs or missing names in reactions
+  const [connectionError, setConnectionError] = useState(false);
+  const globalFetchTimeoutRef = useRef(null);
+  const friendsFetchTimeoutRef = useRef(null);
+  const privateFetchTimeoutRef = useRef(null);
+  
+  // Fetch real names and avatars for missing users (senders and reactions)
   useEffect(() => {
-    if (!activeReactionModal?.message?.reactions) return;
+    let hasMissing = false;
+    const missingIds = new Set();
     
-    const fetchMissingNames = async () => {
-      const missingIds = [];
-      Object.values(activeReactionModal.message.reactions).forEach(users => {
-        users.forEach(u => {
-          const id = typeof u === 'string' ? u : u.id;
-          // Check for undefined strictly to avoid re-fetching nulls
-          if (id && reactionUsers[id] === undefined) {
-            missingIds.push(id);
-          }
-        });
-      });
-      
-      if (missingIds.length > 0) {
-        const { data } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', missingIds);
-        
-        setReactionUsers(prev => {
-          const newMap = { ...prev };
-          // Mark all requested IDs as null first to prevent infinite fetch loop if not found
-          missingIds.forEach(id => {
-            if (newMap[id] === undefined) newMap[id] = null;
+    const checkMessageUsers = (msg) => {
+      if (msg?.user_id && !fetchedReactionIdsRef.current.has(msg.user_id)) {
+        missingIds.add(msg.user_id);
+        hasMissing = true;
+      }
+      if (msg?.reactions) {
+        Object.values(msg.reactions).forEach(users => {
+          users.forEach(u => {
+            const id = typeof u === 'string' ? u : u.id;
+            if (id && !fetchedReactionIdsRef.current.has(id)) {
+              missingIds.add(id);
+              hasMissing = true;
+            }
           });
-          
-          if (data) {
-            data.forEach(p => {
-              newMap[p.id] = { nickname: p.nickname || null, avatar_url: p.avatar_url || null };
-            });
-          }
-          return newMap;
         });
       }
     };
-    fetchMissingNames();
-  }, [activeReactionModal?.message?.reactions, reactionUsers]);
+
+    messages.forEach(checkMessageUsers);
+    chatMessages.forEach(checkMessageUsers);
+    if (activeReactionModal?.message) checkMessageUsers(activeReactionModal.message);
+      
+    if (hasMissing) {
+      const missingArray = Array.from(missingIds);
+      missingArray.forEach(id => fetchedReactionIdsRef.current.add(id));
+      
+      const fetchMissingNames = async () => {
+        try {
+          const { data } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', missingArray);
+          
+          if (data && data.length > 0) {
+            setReactionUsers(prev => {
+              const newMap = { ...prev };
+              data.forEach(p => {
+                newMap[p.id] = { nickname: p.nickname || null, avatar_url: p.avatar_url || null };
+              });
+              return newMap;
+            });
+          }
+        } catch (e) {
+          console.warn("Failed to fetch reaction users:", e);
+        }
+      };
+      fetchMissingNames();
+    }
+  }, [messages, chatMessages, activeReactionModal?.message]);
 
   useEffect(() => { 
     activeTabRef.current = activeTab; 
     window.activeChatTab = activeTab;
     localStorage.setItem('activeChatTab', activeTab);
+    
+    if (activeTab === 'global') {
+      localStorage.setItem('lastOpenedGlobalChatTime', new Date().toISOString());
+      window.dispatchEvent(new CustomEvent('globalChatOpened'));
+    }
   }, [activeTab]);
   
   useEffect(() => { 
@@ -467,54 +565,70 @@ export default function SocialHubView({
   }, [selectedChat]);
 
   const fetchGlobalMessages = useCallback(async (signal = null) => {
-    if (loading && messages.length > 0) return;
-    try {
-      let query = supabase
-        .from('messages')
-        .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url)')
-        .is('receiver_id', null)
-        .order('created_at', { ascending: false }) // Fetch descending so we get latest 50
-        .limit(50);
+    if (globalFetchTimeoutRef.current) clearTimeout(globalFetchTimeoutRef.current);
+    
+    return new Promise((resolve) => {
+      globalFetchTimeoutRef.current = setTimeout(async () => {
+        try {
+          let query = supabase
+            .from('messages')
+            .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url)')
+            .is('receiver_id', null)
+            .order('created_at', { ascending: false }) // Fetch descending so we get latest 20
+            .limit(20);
 
-      if (signal) query = query.abortSignal(signal);
+          if (signal) query = query.abortSignal(signal);
 
-      const { data, error } = await query;
-      
-      if (error) {
-        if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
-        // Fallback if join syntax fails
-        query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(50);
-        if (signal) query = query.abortSignal(signal);
-        const fallbackRes = await query;
-        if (fallbackRes.error) throw fallbackRes.error;
-        const userIds = [...new Set(fallbackRes.data.map(m => m.user_id))];
-        const { data: profiles } = await supabase.from('profiles').select('id, avatar_url').in('id', userIds);
-        const avatarMap = {};
-        if (profiles) profiles.forEach(p => avatarMap[p.id] = p.avatar_url);
-        fallbackRes.data.forEach(m => m.user_avatar = avatarMap[m.user_id] || 'default');
-        setMessages(fallbackRes.data.reverse()); // Reverse to show ascending in UI
-        return;
-      }
+          const { data, error } = await query;
+          
+          if (error) {
+            if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
+            // Fallback if join syntax fails
+            query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(20);
+            if (signal) query = query.abortSignal(signal);
+            const fallbackRes = await query;
+            if (fallbackRes.error) throw fallbackRes.error;
+            const userIds = [...new Set(fallbackRes.data.map(m => m.user_id))];
+            const { data: profiles } = await supabase.from('profiles').select('id, avatar_url').in('id', userIds);
+            const avatarMap = {};
+            if (profiles) profiles.forEach(p => avatarMap[p.id] = p.avatar_url);
+            fallbackRes.data.forEach(m => m.user_avatar = avatarMap[m.user_id] || 'default');
+            setMessages(fallbackRes.data.reverse()); // Reverse to show ascending in UI
+            setConnectionError(false);
+            resolve();
+            return;
+          }
 
-      if (data) {
-        data.forEach(m => {
-          m.user_avatar = m.sender?.avatar_url || 'default';
-        });
-        setMessages(data.reverse()); // Reverse to show ascending in UI
-      } else {
-        setMessages([]);
-      }
-    } catch (err) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
-      console.warn("Global fetch error:", err);
-    } finally {
-      if (activeTab === 'global') setLoading(false);
-    }
-  }, [activeTab, loading, messages.length]);
+          if (data) {
+            data.forEach(m => {
+              m.user_avatar = m.sender?.avatar_url || 'default';
+            });
+            setMessages(data.reverse()); // Reverse to show ascending in UI
+          } else {
+            setMessages([]);
+          }
+          setConnectionError(false);
+        } catch (err) {
+          if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
+          console.warn("Global fetch error:", err);
+          if (err.message?.includes('timeout') || err.message?.includes('504')) {
+            setConnectionError(true);
+          }
+        } finally {
+          setLoading(false);
+          resolve();
+        }
+      }, 300);
+    });
+  }, []);
 
   const fetchFriendsData = useCallback(async (signal = null) => {
     if (!user?.id) return;
-    try {
+    if (friendsFetchTimeoutRef.current) clearTimeout(friendsFetchTimeoutRef.current);
+    
+    return new Promise((resolve) => {
+      friendsFetchTimeoutRef.current = setTimeout(async () => {
+        try {
       let fQuery = supabase
         .from('friendships')
         .select(`
@@ -580,18 +694,29 @@ export default function SocialHubView({
       
       setPendingRequests(requests);
       setFriends(accepted);
-      setPendingSentIds(sentPendingList);
-    } catch (err) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
-      console.warn("Friendships fetch error:", err);
-    } finally {
-      setLoading(false);
-    }
+          setPendingSentIds(sentPendingList);
+          setConnectionError(false);
+        } catch (err) {
+          if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
+          console.warn("Friendships fetch error:", err);
+          if (err.message?.includes('timeout') || err.message?.includes('504')) {
+            setConnectionError(true);
+          }
+        } finally {
+          setLoading(false);
+          resolve();
+        }
+      }, 300);
+    });
   }, [user?.id]);
 
   const fetchPrivateConversations = useCallback(async (signal = null) => {
     if (loadingAuth || !user?.id || user.id === 'undefined') return;
-    try {
+    if (privateFetchTimeoutRef.current) clearTimeout(privateFetchTimeoutRef.current);
+
+    return new Promise((resolve) => {
+      privateFetchTimeoutRef.current = setTimeout(async () => {
+        try {
       let query = supabase.rpc('get_user_conversations', { current_user_id: user.id });
       if (signal) query = query.abortSignal(signal);
 
@@ -636,14 +761,21 @@ export default function SocialHubView({
         };
       });
       
-      setUnreadMessageCount(unread);
-      setPrivateChats(formatted);
-    } catch (err) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
-      console.warn("Private convo fetch failed:", err);
-    } finally {
-      setLoading(false);
-    }
+          setUnreadMessageCount(unread);
+          setPrivateChats(formatted);
+          setConnectionError(false);
+        } catch (err) {
+          if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
+          console.warn("Private convo fetch failed:", err);
+          if (err.message?.includes('timeout') || err.message?.includes('504')) {
+            setConnectionError(true);
+          }
+        } finally {
+          setLoading(false);
+          resolve();
+        }
+      }, 300);
+    });
   }, [user?.id, loadingAuth]);
 
   const fetchPrivateChatHistory = useCallback(async (partnerId) => {
@@ -653,44 +785,110 @@ export default function SocialHubView({
         .from('messages')
         .select('id, content, user_id, receiver_id, created_at, is_read, reactions')
         .or(`and(user_id.eq.${user?.id},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${user?.id})`)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false }) // Limit 20 descending
+        .limit(20);
       if (error) throw error;
-      setChatMessages(data || []);
+      setChatMessages(data ? data.reverse() : []); // Reverse to show ascending
     } catch (err) {
       console.error("Chat history fetch error:", err);
+      if (err.message?.includes('timeout') || err.message?.includes('504')) {
+        setConnectionError(true);
+      }
     }
   }, [user?.id, loadingAuth]);
 
   useEffect(() => {
     if (!user?.id) return;
-    const globalSub = supabase.channel('public:messages:global').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
-      if (payload.new.user_id !== user?.id) {
-        playNotifSound();
-        if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
+    const currentUserId = user.id;
+
+    const globalSub = supabase.channel('public:messages:global').on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
+      if (payload.eventType === 'INSERT') {
+        const newMsg = payload.new;
+        if (newMsg.user_id !== currentUserId) {
+          playNotifSound();
+          if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
+        }
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+        // Removed individual profile fetch here to prevent IO overload. 
+        // The checkMessageUsers useEffect will batch-fetch the missing avatar.
+      } else if (payload.eventType === 'UPDATE') {
+        setMessages(prev => prev.map(m => m.id === payload.new.id ? { ...m, ...payload.new } : m));
+      } else if (payload.eventType === 'DELETE') {
+        setMessages(prev => prev.filter(m => m.id !== payload.old.id));
       }
-      fetchGlobalMessages();
     }).subscribe();
     
     const socialSub = supabase.channel('public:friendships').on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => fetchFriendsData()).subscribe();
     
     const privateMsgSub = supabase.channel('private:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-      const isPrivate = payload.new.receiver_id !== null;
-      const involvesMe = payload.new.user_id === user?.id || payload.new.receiver_id === user?.id;
-      if (isPrivate && involvesMe) {
-        if (payload.eventType === 'INSERT' && payload.new.user_id !== user?.id) {
-          const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === payload.new.user_id;
-          if (!isCurrentlyViewingChat) {
-            playNotifSound();
-          }
+      let involvedPayload = payload.new || payload.old;
+      if (!involvedPayload) return;
+      const isPrivate = involvedPayload.receiver_id !== null;
+      const involvesMe = involvedPayload.user_id === currentUserId || involvedPayload.receiver_id === currentUserId;
+      if (!isPrivate || !involvesMe) return;
+
+      if (payload.eventType === 'INSERT') {
+        const newMsg = payload.new;
+        if (newMsg.user_id !== currentUserId) {
+          const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === newMsg.user_id;
+          if (!isCurrentlyViewingChat) playNotifSound();
         }
-        fetchPrivateConversations();
-        if (selectedChatRef.current && (payload.new.user_id === selectedChatRef.current.id || payload.new.receiver_id === selectedChatRef.current.id)) {
-          fetchPrivateChatHistory(selectedChatRef.current.id);
+        
+        if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
+           setChatMessages(prev => {
+             if (prev.some(m => m.id === newMsg.id)) return prev;
+             return [...prev, newMsg];
+           });
+        }
+        
+        const partnerId = newMsg.user_id === currentUserId ? newMsg.receiver_id : newMsg.user_id;
+        setPrivateChats(prev => {
+          const existingIdx = prev.findIndex(c => c.id === partnerId);
+          if (existingIdx > -1) {
+            let newConvos = [...prev];
+            const chat = { ...newConvos[existingIdx] };
+            chat.lastMsg = newMsg.content;
+            chat.time = newMsg.created_at;
+            if (newMsg.user_id !== currentUserId && (!selectedChatRef.current || selectedChatRef.current.id !== partnerId || activeTabRef.current !== 'private')) {
+              chat.unreadCount = (chat.unreadCount || 0) + 1;
+              setUnreadMessageCount(c => c + 1);
+            }
+            newConvos.splice(existingIdx, 1);
+            newConvos.unshift(chat);
+            return newConvos;
+          } else {
+             fetchPrivateConversations();
+             return prev;
+          }
+        });
+      } else if (payload.eventType === 'UPDATE') {
+        const updatedMsg = payload.new;
+        if (selectedChatRef.current && (updatedMsg.user_id === selectedChatRef.current.id || updatedMsg.receiver_id === selectedChatRef.current.id)) {
+           setChatMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m));
+        }
+        if (updatedMsg.is_read && updatedMsg.user_id === currentUserId) {
+           const partnerId = updatedMsg.receiver_id;
+           setPrivateChats(prev => {
+              return prev.map(c => {
+                 if (c.id === partnerId && c.unreadCount > 0) {
+                    return { ...c, unreadCount: Math.max(0, c.unreadCount - 1) };
+                 }
+                 return c;
+              });
+           });
+        }
+      } else if (payload.eventType === 'DELETE') {
+        const oldMsg = payload.old;
+        if (selectedChatRef.current) {
+           setChatMessages(prev => prev.filter(m => m.id !== oldMsg.id));
         }
       }
     }).subscribe();
     
-    const typingChannel = supabase.channel(`typing-${user?.id}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
+    const typingChannel = supabase.channel(`typing-${currentUserId}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
       if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(true);
     }).on('broadcast', { event: 'stop' }, ({ payload }) => {
       if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(false);
@@ -704,25 +902,24 @@ export default function SocialHubView({
       supabase.removeChannel(privateMsgSub);
       supabase.removeChannel(typingChannel);
     };
-  }, [user?.id, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations, fetchPrivateChatHistory, playNotifSound]);
+  }, [user?.id, fetchFriendsData, fetchPrivateConversations, playNotifSound]);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchGlobalMessages(controller.signal);
-    fetchFriendsData(controller.signal);
-    fetchPrivateConversations(controller.signal);
-    // Removed the 60s setInterval polling, relying strictly on realtime!
+    
+    // Only fetch the currently active tab immediately to reduce load.
+    if (activeTab === 'global') { 
+      fetchGlobalMessages(controller.signal); 
+      setNewGlobalCount(0); 
+    } else if (activeTab === 'friends') {
+      fetchFriendsData(controller.signal);
+    } else if (activeTab === 'private') {
+      fetchPrivateConversations(controller.signal);
+    }
+
     return () => {
       controller.abort();
     };
-  }, [user?.id, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    if (activeTab === 'global') { fetchGlobalMessages(controller.signal); setNewGlobalCount(0); }
-    if (activeTab === 'friends') fetchFriendsData(controller.signal);
-    if (activeTab === 'private') fetchPrivateConversations(controller.signal);
-    return () => controller.abort();
   }, [activeTab, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations]);
 
   useEffect(() => {
@@ -731,14 +928,16 @@ export default function SocialHubView({
   }, [selectedChat, fetchPrivateChatHistory]);
 
   useEffect(() => {
-    if (activeTab === 'global' || selectedChat) {
-      if (messagesContainerRef.current) {
-        // Immediate scroll for new messages, smooth for tab switches
-        const behavior = (messages.length > 0 || chatMessages.length > 0) ? 'auto' : 'smooth';
-        messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior });
-      }
+    if ((activeTab === 'global' || selectedChat) && isVisible) {
+      // Delay slightly to ensure display:none is removed and scrollHeight is accurate
+      requestAnimationFrame(() => {
+        if (messagesContainerRef.current) {
+          const behavior = (messages.length > 0 || chatMessages.length > 0) ? 'auto' : 'smooth';
+          messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior });
+        }
+      });
     }
-  }, [messages.length, chatMessages.length, activeTab, selectedChat]);
+  }, [messages.length, chatMessages.length, activeTab, selectedChat, isVisible]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -1100,6 +1299,22 @@ export default function SocialHubView({
         </div>
       </div>
 
+      <AnimatePresence>
+        {connectionError && (
+          <Motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="px-4 mb-2"
+          >
+            <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-md p-2 flex items-center justify-center gap-2">
+              <span className="material-symbols-outlined text-[16px]">cloud_off</span>
+              <span className="text-xs font-black">کێشەیەک د پەیوەندیێ دا هەیە... بزاڤا دووبارە دکەین</span>
+            </div>
+          </Motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Main Content Area - Layout Engine */}
       <div className="flex-1 overflow-hidden relative flex flex-col">
         {loading && (
@@ -1134,6 +1349,7 @@ export default function SocialHubView({
                     currentUserId={user?.id}
                     currentUserNickname={userNickname}
                     showNickname={true}
+                    reactionUsers={reactionUsers}
                     onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: false })}
                     onReact={handleReact}
                     onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
@@ -1293,6 +1509,7 @@ export default function SocialHubView({
                         isMe={m.user_id === user?.id}
                         currentUserId={user?.id}
                         currentUserNickname={userNickname}
+                        reactionUsers={reactionUsers}
                         onSeen={async (id) => {
                           if (m.user_id !== user?.id && !m.is_read) {
                             await supabase

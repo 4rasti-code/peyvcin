@@ -2,7 +2,7 @@ import React from 'react';
 import { motion as Motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, notificationCount = 0 }) {
+export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, notificationCount = 0, hasGlobalNewMessage = false }) {
   const tabs = [
     { id: 'profile', icon: 'person', label: 'بەرپەڕ' },
     { id: 'leaderboard', icon: 'workspace_premium', label: 'ڕێزبەندی' },
@@ -75,6 +75,20 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                       {notificationCount > 99 ? '99+' : notificationCount}
                     </Motion.div>
                   )}
+                {tab.id === 'social_hub' && hasGlobalNewMessage && notificationCount === 0 && (
+                  <Motion.div 
+                    animate={{ 
+                      scale: [1, 1.4, 1],
+                      opacity: [0.6, 1, 0.6]
+                    }}
+                    transition={{ 
+                      repeat: Infinity, 
+                      duration: 1.5,
+                      ease: "easeInOut"
+                    }}
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                  />
+                )}
                 <Motion.span 
                   animate={{ 
                      y: isActive ? -2 : 0, 

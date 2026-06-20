@@ -915,6 +915,129 @@ export const MultiplayerProvider = ({ children }) => {
 
 
 
+  // --- PRIVATE MATCH SYSTEM ---
+  const createPrivateMatch = useCallback(async () => {
+    if (!user?.id) return null;
+    
+    // Cleanup any old private waiting rooms for this user
+    await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'private_waiting');
+    
+    setMultiplayerStateGuarded('searching'); // Show loading state temporarily
+    setOpponent(null);
+    setOpponentGuesses([]);
+    setMatchReward(null);
+
+    let selectedWords = [];
+    let selectedRiddles = [];
+
+    try {
+      const { data: sequencedWords, error: wordError } = await supabase.rpc('get_multiplayer_words_sequenced');
+      if (!wordError && sequencedWords?.length > 0) {
+        selectedWords = sequencedWords.map(e => e.word);
+        selectedRiddles = sequencedWords.map(e => e.hint || 'No riddle');
+      } else {
+        throw new Error('DB Sequenced Fetch Error');
+      }
+    } catch (_) {
+      const localWords = getUnifiedWords();
+      const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
+      const fallback = [...fiveLetterLocal].sort(() => Math.random() - 0.5).slice(0, 5);
+      selectedWords = fallback.map(w => w.word);
+      selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+    }
+
+    const { data: newMatch, error: createError } = await supabase
+      .from('online_matches')
+      .insert({
+        player1_id: user.id,
+        status: 'private_waiting', // Isolates from random matchmaking
+        words: selectedWords,
+        riddles: selectedRiddles,
+        current_word_index: 0,
+        p1_score: 0, p2_score: 0
+      })
+      .select().single();
+
+    if (createError) {
+      console.error('[Multiplayer] Private Match Create Failed:', createError);
+      setMultiplayerStateGuarded('idle');
+      return null;
+    }
+    
+    if (newMatch) {
+      setMatchId(newMatch.id);
+      setActiveMatchGuarded(newMatch);
+      // Ensure real-time connect
+      if (supabase.realtime && !supabase.realtime.isConnected()) supabase.realtime.connect();
+      setMultiplayerStateGuarded('private_lobby'); // Custom state for host waiting
+      return newMatch.id;
+    }
+    return null;
+  }, [user?.id, setMultiplayerStateGuarded, setActiveMatchGuarded]);
+
+  const joinPrivateMatch = useCallback(async (roomIdOrCode) => {
+    if (!user?.id || !roomIdOrCode) return false;
+    
+    setMultiplayerStateGuarded('searching');
+    setOpponent(null);
+    setOpponentGuesses([]);
+    setMatchReward(null);
+
+    try {
+      if (supabase.realtime && !supabase.realtime.isConnected()) supabase.realtime.connect();
+
+      // Find the room using id or starting with code
+      const { data: targetMatches, error: searchError } = await supabase
+        .from('online_matches')
+        .select('*')
+        .eq('status', 'private_waiting')
+        .is('player2_id', null)
+        .neq('player1_id', user.id)
+        .ilike('id', `${roomIdOrCode}%`) // Allows joining by first 6 chars or full UUID
+        .limit(1);
+      
+      if (searchError || !targetMatches || targetMatches.length === 0) {
+        setMultiplayerStateGuarded('idle');
+        return false;
+      }
+
+      const targetMatch = targetMatches[0];
+
+      // Atomic claim
+      const { data: joinedMatch, error: claimError } = await supabase
+        .from('online_matches')
+        .update({ 
+          player2_id: user.id,
+          status: 'playing' 
+        })
+        .eq('id', targetMatch.id)
+        .is('player2_id', null)
+        .select()
+        .single();
+
+      if (!claimError && joinedMatch) {
+        setMatchId(joinedMatch.id);
+        setActiveMatchGuarded(joinedMatch);
+        setCurrentWordIndex(joinedMatch.current_word_index || 0);
+
+        const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
+        if (hostProfile) {
+          setMultiplayerStateGuarded('playing');
+          triggerHaptic([50, 50, 100]);
+        } else {
+          setMultiplayerStateGuarded('syncing');
+        }
+        return true;
+      }
+      setMultiplayerStateGuarded('idle');
+      return false;
+    } catch (error) {
+      console.error('[Multiplayer] Join Private Failed:', error);
+      setMultiplayerStateGuarded('idle');
+      return false;
+    }
+  }, [user?.id, setMultiplayerStateGuarded, setActiveMatchGuarded, fetchOpponentProfile]);
+
   const value = useMemo(() => ({
     multiplayerState,
     MatchmakingTime,
@@ -922,6 +1045,8 @@ export const MultiplayerProvider = ({ children }) => {
     opponent,
     setMultiplayerState,
     startMatchmaking,
+    createPrivateMatch,
+    joinPrivateMatch,
     cancelMatch,
     submitGuess,
     submitFailure,
@@ -946,7 +1071,7 @@ export const MultiplayerProvider = ({ children }) => {
     isForfeitWin
   }), [
     multiplayerState, MatchmakingTime, activeMatch, opponent, setMultiplayerState,
-    startMatchmaking, cancelMatch, submitGuess, submitFailure, broadcastGuess,
+    startMatchmaking, createPrivateMatch, joinPrivateMatch, cancelMatch, submitGuess, submitFailure, broadcastGuess,
     opponentGuesses, scores, currentWordIndex, isRoundWinner, MatchResultTrigger,
     LastMatchResult, MatchReward, ResetMatchResultTrigger, winnerNickname,
     roundMessage, fetchOpponentProfile, forfeitStatus, forfeitCountdown,

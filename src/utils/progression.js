@@ -31,7 +31,7 @@ export const XP_REWARDS = {
  * Early levels are fast, higher levels progressively take much more XP.
  */
 export const getLevelFromXP = (totalXP) => {
-  if (totalXP <= 0) return 1;
+  if (!totalXP || isNaN(totalXP) || totalXP <= 0) return 1;
   // Inverse of the TotalXP formula: level = (totalXP / CONSTANT)^(1 / EXPONENT) + 1
   return Math.floor(Math.pow(totalXP / XP_CONSTANT, 1 / XP_EXPONENT)) + 1;
 };
@@ -40,15 +40,16 @@ export const getLevelFromXP = (totalXP) => {
  * Calculates detailed level data including progress percentage
  */
 export const getLevelData = (totalXP) => {
-  const level = getLevelFromXP(totalXP);
+  const safeXP = (!totalXP || isNaN(totalXP)) ? 0 : totalXP;
+  const level = getLevelFromXP(safeXP);
   
   const currentLevelBase = getTotalXPForLevel(level);
   const nextLevelBase = getTotalXPForLevel(level + 1);
   
   const xpRequiredForNext = nextLevelBase - currentLevelBase;
-  const xpInCurrentLevel = totalXP - currentLevelBase;
+  const xpInCurrentLevel = safeXP - currentLevelBase;
   
-  const progressPercent = Math.min(100, Math.max(0, (xpInCurrentLevel / xpRequiredForNext) * 100));
+  const progressPercent = Math.min(100, Math.max(0, (xpInCurrentLevel / xpRequiredForNext) * 100)) || 0;
 
   return {
     level,
@@ -82,8 +83,9 @@ export const getRewardForMode = (mode) => {
  * Based on the 5-level progression system.
  */
 export const getLevelTier = (lvl) => {
+  const safeLvl = (!lvl || isNaN(lvl)) ? 1 : lvl;
   // Legendary Diamond Tier for 100+
-  if (lvl > 100) {
+  if (safeLvl > 100) {
     return {
       name: 'Diamond',
       stop1: '#b4fbff',
@@ -116,6 +118,6 @@ export const getLevelTier = (lvl) => {
     { name: 'Midnight', stop1: '#1e293b', stop2: '#0f172a', shadow: 'rgba(30, 41, 59, 0.4)' },
   ];
 
-  const tierIndex = Math.floor((lvl - 1) / 5);
-  return tiers[Math.min(tierIndex, tiers.length - 1)];
+  const tierIndex = Math.floor((safeLvl - 1) / 5);
+  return tiers[Math.min(Math.max(tierIndex, 0), tiers.length - 1)] || tiers[0];
 };

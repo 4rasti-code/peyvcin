@@ -236,7 +236,9 @@ const DefeatOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
-                    const text = `تەماشەی ئەنجامێن من بکەن!\n\n${grid}`;
+                    const modeNames = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
+                    const modeName = modeNames[gameMode] || 'پەیڤۆک';
+                    const text = `${modeName}\n\n${grid}`;
                     const success = await onShareToGlobal(text);
                     if (success) {
                       setGlobalShareStatus('success');
