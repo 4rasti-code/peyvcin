@@ -259,7 +259,7 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
-                    const timeStr = solveTimeMs > 0 ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
+                    const timeStr = (gameMode === 'word_fever' && solveTimeMs > 0) ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
                     const title = gameMode === 'word_fever' && streak > 0
                       ? `من شیام ${streak} پەیڤان ببینم د تایا پەیڤان دا! 🔥${timeStr}`
                       : `تە سەرکەفتن ئینا د پەیڤۆک دا! 🎉${timeStr}`;
@@ -290,7 +290,7 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
-                    const timeStr = solveTimeMs > 0 ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
+                    const timeStr = (gameMode === 'word_fever' && solveTimeMs > 0) ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
                     const modeNames = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
                     const modeName = modeNames[gameMode] || 'پەیڤۆک';
                     const text = gameMode === 'word_fever' && streak > 0 
