@@ -1205,7 +1205,7 @@ export default function SocialHubView({
         setChatMessages(prev => [...prev, tempMsg]);
         setReplyingTo(null); // Clear reply state after sending
 
-        const { error } = await supabase
+        const { data: insertedMsg, error } = await supabase
           .from('messages')
           .insert([{
             content: msgContent,
@@ -1214,12 +1214,26 @@ export default function SocialHubView({
             reply_to_id: tempMsg.reply_to_id,
             reply_to_text: tempMsg.reply_to_text,
             is_read: false
-          }]);
+          }]).select();
 
         if (error) {
           console.error("Private send error:", error);
           throw error;
         }
+
+        // --- FORWARD BOT MESSAGES TO REPORTED_MESSAGES ---
+        if (partnerId === '9a813c24-b662-477d-a74a-6f822d17bbf1' && insertedMsg && insertedMsg[0]) {
+          try {
+            await supabase.from('reported_messages').insert([{
+              message_id: insertedMsg[0].id,
+              reporter_id: currentUserId,
+              reason: `[نامەیا بۆتی]: ${msgContent}`
+            }]);
+          } catch (reportErr) {
+            console.error("Failed to forward to reported_messages:", reportErr);
+          }
+        }
+        // -------------------------------------------------
 
         // Refresh history to get real DB data (IDs, etc)
         fetchPrivateChatHistory(partnerId);
