@@ -1330,9 +1330,9 @@ export default function SocialHubView({
             <div
               className="absolute inset-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none grayscale"
               style={{
-                backgroundImage: "url('/chat_wallpaper.png')",
+                backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="350" height="350" viewBox="0 0 350 350"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-size="48" font-weight="900" fill="#9ca3af">پ ە ی ڤ ۆ ک</text></svg>')}")`,
                 backgroundRepeat: 'repeat',
-                backgroundSize: '450px'
+                backgroundSize: '350px'
               }}
             />
 
