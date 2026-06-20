@@ -62,6 +62,25 @@ const VictoryOverlay = ({
     return (ms / 1000).toFixed(1);
   };
 
+  const generateTimeStr = (mode, ms) => {
+    if (!ms || ms <= 0 || mode === 'battle') return '';
+    
+    if (mode === 'word_fever') {
+      const takenSecs = ms / 1000;
+      const remainingSecs = Math.max(0, 30 - takenSecs).toFixed(1);
+      return ` ⏱️ ${remainingSecs} چرکە مابوون`;
+    }
+    
+    const totalSecs = ms / 1000;
+    if (totalSecs >= 60) {
+      const mins = Math.floor(totalSecs / 60);
+      const secs = Math.floor(totalSecs % 60);
+      return ` ⏱️ ${mins} خولەک و ${secs} چرکە`;
+    } else {
+      return ` ⏱️ ${totalSecs.toFixed(1)} چرکە`;
+    }
+  };
+
   const isNewRecord = solveTimeMs > 0 && solveTimeMs <= (profileData?.fastest_solve_ms || Infinity);
 
   useEffect(() => {
@@ -259,7 +278,7 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
-                    const timeStr = (gameMode === 'word_fever' && solveTimeMs > 0) ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
+                    const timeStr = generateTimeStr(gameMode, solveTimeMs);
                     const title = gameMode === 'word_fever' && streak > 0
                       ? `من شیام ${streak} پەیڤان ببینم د تایا پەیڤان دا! 🔥${timeStr}`
                       : `تە سەرکەفتن ئینا د پەیڤۆک دا! 🎉${timeStr}`;
@@ -290,7 +309,7 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
-                    const timeStr = (gameMode === 'word_fever' && solveTimeMs > 0) ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
+                    const timeStr = generateTimeStr(gameMode, solveTimeMs);
                     const modeNames = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
                     const modeName = modeNames[gameMode] || 'پەیڤۆک';
                     const text = gameMode === 'word_fever' && streak > 0 
