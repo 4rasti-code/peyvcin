@@ -3,6 +3,8 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import AccountSettings from './AccountSettings';
 import HelpCenterModal from './HelpCenterModal';
+import BlockedUsersModal from './BlockedUsersModal';
+import { useUser } from '../context/AuthContext';
 
 
 function SettingsModal({
@@ -24,6 +26,8 @@ function SettingsModal({
 }) {
 
    const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
+   const [isBlockedModalOpen, setIsBlockedModalOpen] = React.useState(false);
+   const { user, handleToggleBlock } = useUser();
 
    return (
       <>
@@ -198,6 +202,13 @@ function SettingsModal({
 
                      {/* HELP & FEEDBACK SECTION */}
                      <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
+                        <button onClick={() => { triggerHaptic(10); setIsBlockedModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                           <div className="flex items-center gap-3">
+                              <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">block</span>
+                              <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">لیستا بلۆککریان</span>
+                           </div>
+                           <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+                        </button>
                         <button onClick={() => { triggerHaptic(10); setIsHelpCenterOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
                            <div className="flex items-center gap-3">
                               <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">help</span>
@@ -241,6 +252,13 @@ function SettingsModal({
                />
             )}
          </AnimatePresence>
+         
+         <BlockedUsersModal
+            isOpen={isBlockedModalOpen}
+            onClose={() => setIsBlockedModalOpen(false)}
+            user={user}
+            handleToggleBlock={handleToggleBlock}
+         />
       </>
    );
 }
