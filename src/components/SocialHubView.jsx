@@ -541,6 +541,17 @@ export default function SocialHubView({
   const globalFetchTimeoutRef = useRef(null);
   const privateFetchTimeoutRef = useRef(null);
 
+  useEffect(() => {
+    if (isVisible) {
+      if (initialChatPartner) {
+        setSelectedChat(initialChatPartner);
+        setActiveTab('private');
+      } else if (initialTab) {
+        setActiveTab(initialTab);
+      }
+    }
+  }, [initialChatPartner, initialTab, isVisible]);
+
   // Fetch real names and avatars for missing users (senders and reactions)
   useEffect(() => {
     let hasMissing = false;
