@@ -10,39 +10,39 @@ export default function BlockedUsersModal({ isOpen, onClose, user, handleToggleB
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchBlockedUsers = async () => {
+      setLoading(true);
+      try {
+        const { data: blocks, error } = await supabase
+          .from('blocks')
+          .select('blocked_id')
+          .eq('blocker_id', user.id);
+
+        if (error) throw error;
+
+        if (blocks && blocks.length > 0) {
+          const ids = blocks.map(b => b.blocked_id);
+          const { data: profiles, error: profilesError } = await supabase
+            .from('profiles')
+            .select('id, nickname, avatar_url')
+            .in('id', ids);
+
+          if (profilesError) throw profilesError;
+          setBlockedUsers(profiles || []);
+        } else {
+          setBlockedUsers([]);
+        }
+      } catch (err) {
+        console.error("Error fetching blocked users:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (isOpen && user?.id) {
       fetchBlockedUsers();
     }
   }, [isOpen, user?.id]);
-
-  const fetchBlockedUsers = async () => {
-    setLoading(true);
-    try {
-      const { data: blocks, error } = await supabase
-        .from('blocks')
-        .select('blocked_id')
-        .eq('blocker_id', user.id);
-
-      if (error) throw error;
-
-      if (blocks && blocks.length > 0) {
-        const ids = blocks.map(b => b.blocked_id);
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, nickname, avatar_url')
-          .in('id', ids);
-
-        if (profilesError) throw profilesError;
-        setBlockedUsers(profiles || []);
-      } else {
-        setBlockedUsers([]);
-      }
-    } catch (err) {
-      console.error("Error fetching blocked users:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUnblock = async (targetId) => {
     triggerHaptic(10);
