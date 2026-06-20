@@ -17,36 +17,24 @@ const GlobalInviteToast = () => {
   useEffect(() => {
     if (!user?.id) return;
 
-    console.log(`[GlobalInviteToast] Listening for DB invites on online_matches for user ${user.id}...`);
+    console.log(`[GlobalInviteToast] Listening for invites on channel: user_invites_${user.id}...`);
     
-    const channel = supabase.channel(`db_user_invites_${user.id}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'online_matches', filter: `player2_id=eq.${user.id}` },
-        async (payload) => {
-          console.log('[GlobalInviteToast] DB Invite Received!', payload);
-          const matchData = payload.new;
-          
-          if (matchData.status === 'private_waiting') {
-            // Fetch host nickname
-            const { data: hostProfile } = await supabase.from('profiles').select('nickname').eq('id', matchData.player1_id).single();
-            const hostName = hostProfile?.nickname || 'هەڤالەکێ تە';
-            
-            setInvite({ roomId: matchData.id, hostName });
-            
-            // Play notification sound & haptic
-            if (playNotifSound) playNotifSound();
-            triggerHaptic(15);
+    const channel = supabase.channel(`user_invites_${user.id}`);
+    channel.on('broadcast', { event: 'match_invite' }, (payload) => {
+      console.log('[GlobalInviteToast] Invite Received!', payload);
+      const inviteData = payload.payload;
+      setInvite(inviteData);
+      
+      // Play notification sound & haptic
+      if (playNotifSound) playNotifSound();
+      triggerHaptic(15);
 
-            // Auto dismiss after 10 seconds
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-            timeoutRef.current = setTimeout(() => {
-              setInvite(null);
-            }, 10000);
-          }
-        }
-      )
-      .subscribe();
+      // Auto dismiss after 10 seconds
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setInvite(null);
+      }, 10000);
+    }).subscribe();
 
     return () => {
       supabase.removeChannel(channel);

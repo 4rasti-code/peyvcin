@@ -32,7 +32,7 @@ const LobbyView = memo(({
   const [sentInvites, setSentInvites] = useState(new Set());
   
   const { playSettingsOpenSound } = useAudio();
-  const { user, onlineUsers } = useUser();
+  const { user, userNickname, onlineUsers } = useUser();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch } = useMultiplayer();
 
   const handleBackgroundClick = (e) => {
@@ -81,7 +81,8 @@ const LobbyView = memo(({
     setSentInvites(prev => new Set(prev).add(targetUserId));
     
     try {
-      const newRoomId = await createPrivateMatch(targetUserId);
+      const { supabase } = await import('../lib/supabase');
+      const newRoomId = await createPrivateMatch();
       if (!newRoomId) {
         alert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
         setSentInvites(prev => {
@@ -92,7 +93,24 @@ const LobbyView = memo(({
         return;
       }
 
-      console.log(`[LobbyView] Invite sent via DB match creation for user ${targetUserId}`);
+      console.log(`[LobbyView] Attempting to send invite to channel: user_invites_${targetUserId}`);
+      const channel = supabase.channel(`user_invites_${targetUserId}`, { config: { broadcast: { ack: true } } });
+      channel.subscribe(async (status) => {
+        console.log(`[LobbyView] Channel subscribe status:`, status);
+        if (status === 'SUBSCRIBED') {
+          console.log(`[LobbyView] Sending broadcast event match_invite...`);
+          const resp = await channel.send({
+            type: 'broadcast',
+            event: 'match_invite',
+            payload: { 
+              roomId: newRoomId, 
+              hostName: userNickname || 'هەڤالەکێ تە'
+            }
+          });
+          console.log(`[LobbyView] Broadcast sent! Response:`, resp);
+          setTimeout(() => supabase.removeChannel(channel), 1000);
+        }
+      });
     } catch (err) {
       console.error("Invite error", err);
       setSentInvites(prev => {
