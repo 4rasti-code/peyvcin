@@ -32,7 +32,7 @@ const LobbyView = memo(({
   const [sentInvites, setSentInvites] = useState(new Set());
   
   const { playSettingsOpenSound } = useAudio();
-  const { user, userNickname, onlineUsers } = useUser();
+  const { user, onlineUsers } = useUser();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch } = useMultiplayer();
 
   const handleBackgroundClick = (e) => {
@@ -81,7 +81,6 @@ const LobbyView = memo(({
     setSentInvites(prev => new Set(prev).add(targetUserId));
     
     try {
-      const { supabase } = await import('../lib/supabase');
       const newRoomId = await createPrivateMatch(targetUserId);
       if (!newRoomId) {
         alert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
