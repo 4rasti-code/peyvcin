@@ -519,7 +519,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
     const { playTabSound } = useAudio();
 
-    /* Social Login - Hidden for now as requested
+    // Social Login
     const handleSocialLogin = async (provider) => {
         try {
             setLoading(true);
@@ -530,7 +530,8 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
             triggerHaptic(10);
             
             // Explicitly define the redirect URL to current location
-            const redirectTo = window.location.origin + window.location.pathname;
+            // Use environment variable or default to current origin
+            const redirectTo = window.location.origin;
             console.log(`[AuthView] Redirect URL:`, redirectTo);
 
             const options = {
@@ -560,7 +561,6 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
             setLoading(false);
         }
     };
-    */
 
     const handleGuestLogin = async () => {
         try {
@@ -615,7 +615,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                             className="w-5 h-5 object-contain mb-1 transform hover:scale-110 transition-transform duration-500 cursor-pointer" 
                             alt="Peyvok Icon" 
                         />
-                        <h1 className="text-3xl font-black font-heading text-mono-900 dark:text-white text-pop tracking-tight">پەیڤۆک</h1>
+                        <h1 className="text-3xl font-black font-heading text-mono-900 dark:text-white text-pop">پەیڤۆک</h1>
                     </div>
                     <div className="relative z-10 w-full">
                         {/* 1. LOGIN / SIGNUP FLOW */}
@@ -819,50 +819,44 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                     </button>
                                 </form>
 
-                                {/* Social Login Buttons - Hidden for now as requested
-                                <div className="mt-2">
-                                    <div className="flex items-center gap-4 mb-1 text-on-surface/30">
+                                <div className="mt-4">
+                                    <div className="flex items-center gap-4 mb-3 text-mono-400 dark:text-white/30">
                                         <div className="flex-1 h-px bg-current opacity-20"></div>
-                                        <span className="text-[8px] font-bold uppercase font-body opacity-60">یان</span>
+                                        <span className="text-[10px] font-black font-rabar opacity-60">یان ب ڕێکا</span>
                                         <div className="flex-1 h-px bg-current opacity-20"></div>
                                     </div>
 
-                                     <div className="flex flex-row gap-2">
-                                         <button
-                                             onClick={() => handleSocialLogin('google')}
-                                             className="flex-1 h-5 rounded-md bg-white text-black border border-outline/10 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all "
-                                             title="Google"
-                                         >
-                                             <svg className="w-4 h-4" viewBox="0 0 24 24">
-                                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                                 <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
-                                                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                                             </svg>
-                                         </button>
-                                         <button
-                                             onClick={() => handleSocialLogin('facebook')}
-                                             className="flex-1 h-5 rounded-md bg-[#1877F2] text-white flex items-center justify-center hover:bg-[#1877F2]/90 active:scale-95 transition-all "
-                                             title="Facebook"
-                                         >
-                                             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                                 <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
-                                             </svg>
-                                         </button>
-                                         <button
-                                             onClick={() => handleSocialLogin('apple')}
-                                             className="flex-1 h-5 rounded-md bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:bg-black/80 dark:hover:bg-white/90 active:scale-95 transition-all "
-                                             title="Apple"
-                                         >
-                                             <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                                                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.15 2.67.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.62 1.52-1.46 3.01-2.53 4.08zM12.03 7.25C11.64 4.03 14.36 1 17.07 1c.5 3.32-2.92 6.64-5.04 6.25z" />
-                                             </svg>
-                                         </button>
-                                     </div>
-                                </div>
-                                */}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSocialLogin('google')}
+                                        disabled={loading}
+                                        className="w-full h-10 sm:h-9 rounded-md bg-white text-mono-900 border border-mono-200 flex items-center justify-center gap-3 hover:bg-gray-50 active:scale-95 transition-all shadow-sm font-bold font-rabar text-sm sm:text-xs"
+                                        title="Google"
+                                    >
+                                        <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                            <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
+                                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                        </svg>
+                                        <span className="relative z-10 font-bold text-[15px]">گۆگڵ</span>
+                                    </button>
 
-                                <div className="mt-3 flex flex-col items-center">
+                                    {/* DISCORD BUTTON */}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSocialLogin('discord')}
+                                        disabled={loading}
+                                        className="w-full mt-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md h-10 sm:h-9 font-bold font-rabar text-sm sm:text-xs transition-all flex items-center justify-center gap-3 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
+                                    >
+                                        <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                                        </svg>
+                                        <span className="relative z-10 font-bold text-[15px]">دیسکۆرد</span>
+                                    </button>
+                                </div>
+
+                                <div className="mt-4 flex flex-col items-center">
                                     <button
                                         type="button"
                                         onClick={handleGuestLogin}
@@ -873,7 +867,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         <span className="material-symbols-outlined text-[16px]">person_outline</span>
                                     </button>
 
-                                    <div className="flex items-center justify-center gap-4 text-[9px] font-black font-rabar text-mono-400 dark:text-white/30 uppercase tracking-tighter mt-1">
+                                    <div className="flex items-center justify-center gap-4 text-[9px] font-black font-rabar text-mono-400 dark:text-white/30 uppercase mt-1">
                                         <button type="button" onClick={() => setActivePolicyModal('privacy')} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
                                         <span className="opacity-20">•</span>
                                         <button type="button" onClick={() => setActivePolicyModal('terms')} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
@@ -1126,7 +1120,7 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
                 >
                     {/* Custom Header for Policy Modals */}
                     <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/5">
-                        <h3 className="text-xl font-black font-heading text-white uppercase tracking-wider">
+                        <h3 className="text-xl font-black font-heading text-white uppercase">
                             {type === 'terms' ? 'Terms of Service' : type === 'privacy' ? 'Privacy Policy' : 'Data Deletion'}
                         </h3>
                         <button

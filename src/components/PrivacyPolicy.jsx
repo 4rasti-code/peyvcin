@@ -199,7 +199,7 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
 
                     <header className="mb-16 text-center sm:text-start">
                         <h2 className="text-4xl sm:text-5xl font-bold text-mono-900 dark:text-white mb-4 leading-tight">{current.title}</h2>
-                        <span className="text-mono-50 dark:text-mono-900 font-bold text tracking-widest bg-mono-900 dark:bg-mono-50 px-4 py-1.5 rounded-md border border-mono-200 dark:border-mono-700 uppercase">{current.subtitle}</span>
+                        <span className="text-mono-50 dark:text-mono-900 font-bold text bg-mono-900 dark:bg-mono-50 px-4 py-1.5 rounded-md border border-mono-200 dark:border-mono-700 uppercase">{current.subtitle}</span>
                     </header>
 
                     <p className="text-xl text-mono-700 dark:text-mono-300 mb-16 leading-relaxed font-medium italic border-r-4 border-mono-900 dark:border-mono-50 pr-6">
@@ -235,7 +235,7 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
 
                 {/* Footer */}
                 <div className="mt-16 text-center space-y-8">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-500 dark:text-white/30 font-bold text-xs uppercase tracking-widest">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-500 dark:text-white/30 font-bold text-xs uppercase">
                         <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-mono-900 dark:hover:text-mono-50 transition-colors">Terms of Service</button>
                         <span className="w-1 h-1 rounded-md bg-white/10"></span>
                         <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="text-mono-900 dark:text-mono-50 hover:text-white transition-colors">Privacy Policy</button>

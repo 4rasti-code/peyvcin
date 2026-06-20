@@ -190,9 +190,9 @@ const VictoryOverlay = ({
                       <span className="material-symbols-outlined text-blue-400 text-lg">bolt</span>
                     </div>
                     <div className="flex flex-col items-start leading-none gap-0.5">
-                      <span className="text-white font-black text-xs tracking-tight">ڕیکۆردێ تایا پەیڤان</span>
+                      <span className="text-white font-black text-xs">ڕیکۆردێ تایا پەیڤان</span>
                       {isNewRecord && solveTimeMs > 0 && (
-                        <span className="text-blue-400 text-[7px] font-bold uppercase tracking-widest animate-pulse">ڕیکۆردێ نوی!</span>
+                        <span className="text-blue-400 text-[7px] font-bold uppercase animate-pulse">ڕیکۆردێ نوی!</span>
                       )}
                     </div>
                   </div>
@@ -217,7 +217,7 @@ const VictoryOverlay = ({
                       <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-lg">local_fire_department</span>
                     </div>
                     <div className="flex flex-col items-start leading-none">
-                      <span className="text-amber-700 dark:text-amber-400 font-black text-xs tracking-tight">زنجیرەیا پەیڤان</span>
+                      <span className="text-amber-700 dark:text-amber-400 font-black text-xs">زنجیرەیا پەیڤان</span>
                     </div>
                   </div>
                   <div className="relative z-10 flex items-center gap-1">
@@ -259,8 +259,12 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
+                    const timeStr = solveTimeMs > 0 ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
+                    const title = gameMode === 'word_fever' && streak > 0
+                      ? `من شیام ${streak} پەیڤان ببینم د تایا پەیڤان دا! 🔥${timeStr}`
+                      : `تە سەرکەفتن ئینا د پەیڤۆک دا! 🎉${timeStr}`;
                     const result = await shareGameResult({
-                      title: 'تە سەرکەفتن ئینا د پەیڤۆک دا! 🎉',
+                      title: title,
                       grid: grid
                     });
                     
@@ -286,9 +290,12 @@ const VictoryOverlay = ({
                   onClick={async () => {
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
+                    const timeStr = solveTimeMs > 0 ? ` ⏱️ ${(solveTimeMs / 1000).toFixed(1)} چرکە` : '';
                     const modeNames = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
                     const modeName = modeNames[gameMode] || 'پەیڤۆک';
-                    const text = `${modeName}\n\n${grid}`;
+                    const text = gameMode === 'word_fever' && streak > 0 
+                      ? (guesses.length === 0 ? `${modeName} 🔥 زنجیرە: ${streak}${timeStr}` : `${modeName} 🔥 زنجیرە: ${streak}${timeStr}\n\n${grid}`)
+                      : `${modeName}${timeStr}\n\n${grid}`;
                     const success = await onShareToGlobal(text);
                     if (success) {
                       setGlobalShareStatus('success');

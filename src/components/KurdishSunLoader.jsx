@@ -75,7 +75,7 @@ const KurdishSunLoader = ({ size = 80, color = "#FFD700", progress = 0 }) => {
                 key={progress > 60 ? 'syncing' : 'connecting'}
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 0.5, y: 0 }}
-                className="text-[9px] text-slate-400 font-medium uppercase tracking-widest"
+                className="text-[9px] text-slate-400 font-medium uppercase"
             >
                 {progress < 40 ? 'Connecting to Server' : progress < 80 ? 'Syncing Profile' : 'Finalizing'}
             </Motion.span>

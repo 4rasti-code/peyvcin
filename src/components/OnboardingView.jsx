@@ -121,7 +121,7 @@ export default function OnboardingView() {
 
         const debounce = setTimeout(checkName, 500);
         return () => clearTimeout(debounce);
-    }, [nickname]);
+    }, [nickname, user?.id]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -152,7 +152,7 @@ export default function OnboardingView() {
                     <div className="flex justify-center mb-4">
                         <img src="/Peyvok-icon.png" className="w-12 h-12 object-contain" alt="Peyvok" />
                     </div>
-                    <h2 className="text-2xl font-black font-heading text-mono-900 dark:text-white mb-2 tracking-tight">ناسناڤێ خوە هەلبژێرە</h2>
+                    <h2 className="text-2xl font-black font-heading text-mono-900 dark:text-white mb-2">ناسناڤێ خوە هەلبژێرە</h2>
                     <p className="text-sm font-rabar text-mono-500 dark:text-white/60 leading-relaxed">دا کو دەست ب یاریێ بکەی، پێدڤییە ناسناڤەکێ تایبەت بۆ خوە دیار بکەی.</p>
                 </div>
 

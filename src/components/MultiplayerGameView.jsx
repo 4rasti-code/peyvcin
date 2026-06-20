@@ -239,7 +239,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
             
-            <div className={`text-[10px] font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase tracking-widest px-1`}>
+            <div className={`text-[10px] font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase px-1`}>
               گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
             

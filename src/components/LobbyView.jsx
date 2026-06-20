@@ -57,6 +57,7 @@ const LobbyView = memo(({
               .from('profiles')
               .select('id, nickname, avatar_url, xp')
               .in('id', onlineIds)
+              .neq('nickname', 'Admin_4rasti')
               .limit(50);
               
             if (!error && data) {
@@ -333,7 +334,7 @@ const LobbyView = memo(({
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
                     <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex-1 flex items-center justify-center gap-2 mr-4">
-                      یاریزانێن ئۆنلاین
+                      یاریزانێن سەرهێل
                       {loadingOnline && onlineProfiles.length > 0 && (
                         <span className="material-symbols-outlined animate-spin text-sm text-blue-500">sync</span>
                       )}
@@ -393,7 +394,7 @@ const LobbyView = memo(({
                         <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
                           <span className="material-symbols-outlined text-2xl">person_off</span>
                         </div>
-                        <p className="text-sm font-medium text-mono-600 dark:text-mono-400">چ یاریزانێن دی نۆکە ئۆنلاین نینە.</p>
+                        <p className="text-sm font-medium text-mono-600 dark:text-mono-400">چ یاریزانێن دی نۆکە سەرهێل نینە.</p>
                       </div>
                     )}
                   </div>

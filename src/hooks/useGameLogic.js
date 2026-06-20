@@ -123,8 +123,8 @@ export default function useGameLogic({
       const nextGuess = [...prev];
       let placed = false;
       for (let i = 0; i < nextGuess.length; i++) {
-        // LOCKING: Don't overwrite if it's a hint or revealed
-        if (nextGuess[i] === '' && !revealedIndicesRef.current.includes(i) && !hintIndicesRef.current.includes(i)) {
+        // LOCKING: Don't overwrite if it's revealed
+        if (nextGuess[i] === '' && !revealedIndicesRef.current.includes(i)) {
           nextGuess[i] = cleanKey;
           placed = true;
           break;
@@ -141,8 +141,8 @@ export default function useGameLogic({
       const nextGuess = [...prev];
       let deleted = false;
       for (let i = nextGuess.length - 1; i >= 0; i--) {
-        // LOCKING: Cannot delete hintIndices or revealedIndices
-        if (nextGuess[i] !== '' && !revealedIndicesRef.current.includes(i) && !hintIndicesRef.current.includes(i)) {
+        // LOCKING: Cannot delete revealedIndices
+        if (nextGuess[i] !== '' && !revealedIndicesRef.current.includes(i)) {
           nextGuess[i] = '';
           deleted = true;
           break;
@@ -209,15 +209,9 @@ export default function useGameLogic({
 
     // 3. Select random index
     const randomIndex = available[Math.floor(Math.random() * available.length)];
-    const revealedLetter = target[randomIndex];
 
     // 4. Update states
     setHintIndices(prev => [...prev, randomIndex]);
-    setCurrentGuess(prev => {
-      const next = [...prev];
-      next[randomIndex] = revealedLetter;
-      return next;
-    });
 
     return randomIndex;
   }, [getLetterStatus]);

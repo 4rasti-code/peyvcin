@@ -237,14 +237,14 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
 
               <div className="mt-8 flex flex-col gap-3 relative z-10">
                 {!claimedToday && (
-                  <p className="text-center text-mono-400 dark:text-white/30 text-[10px] font-bold uppercase tracking-widest animate-pulse">
+                  <p className="text-center text-mono-400 dark:text-white/30 text-[10px] font-bold uppercase animate-pulse">
                     کلیک ل سەر دیارییا ئەڤرۆ بکە بۆ وەرگرتنێ
                   </p>
                 )}
                 
                 <button 
                   onClick={() => { playBackSfx(); onClose(); }}
-                  className="w-full h-14 flex items-center justify-center rounded-md bg-black dark:bg-white text-white dark:text-black hover:brightness-110 font-black text-sm uppercase tracking-widest transition-all active:scale-95 shadow-lg"
+                  className="w-full h-14 flex items-center justify-center rounded-md bg-black dark:bg-white text-white dark:text-black hover:brightness-110 font-black text-sm uppercase transition-all active:scale-95 shadow-lg"
                 >
                   داخستن
                 </button>

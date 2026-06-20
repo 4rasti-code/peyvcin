@@ -112,7 +112,7 @@ const AchievementsView = ({ profileData, onViewChange }) => {
                     {/* Progress Bar */}
                     <div className="mt-4">
                       <div className="flex justify-between items-end mb-1.5">
-                        <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: tierColor }}>
+                        <span className="text-[10px] font-bold uppercase" style={{ color: tierColor }}>
                           {achievement.tierIndex === -1 ? 'قفل' : 
                           achievement.tierIndex === 0 ? 'برۆنزی' : 
                           achievement.tierIndex === 1 ? 'زیڤی' : 

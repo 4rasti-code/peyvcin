@@ -3,7 +3,7 @@ import { STATUS } from '../data/constants';
 import { motion as Motion, useTransform } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isHinted, isFocused, isSecretMode, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true, rowIndex = 0, gridId = 'main' }) => {
+const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevealed, isHinted, isFocused, isSecretMode, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true, rowIndex = 0, gridId = 'main' }) => {
   const { playRightLetterSound, playWrongPlaceSound } = useAudio();
 
   // 🎨 COLORS BASED ON THEME (isDark)
@@ -135,13 +135,13 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isHinted, 
           className={`${targetBg} z-20 flex items-center justify-center`}
         >
            <span 
-            className={`font-bold text-white select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'}`}
+            className={`font-bold ${isHinted && !char ? 'text-black/70' : 'text-white'} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'}`}
             style={{ 
               fontSize: wordLength > 8 ? '0.9rem' : '1.1rem',
               lineHeight: 1
             }}
           >
-            {char}
+            {char || (isHinted ? hintChar : '')}
           </span>
         </div>
 
@@ -157,6 +157,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isHinted, 
   );
 }, (prev, next) => {
   return prev.char === next.char &&
+         prev.hintChar === next.hintChar &&
          prev.status === next.status &&
          prev.isFocused === next.isFocused &&
          prev.isFocusedMV === next.isFocusedMV &&
@@ -168,7 +169,7 @@ const Tile = memo(({ char, isCurrent, status, wordLength, isRevealed, isHinted, 
          prev.hideLetters === next.hideLetters;
 });
 
-const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, hintIndices = [], isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null, isDark = true, rowIndex = 0, gridId = 'main' }) => {
+const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, hintIndices = [], isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null, isDark = true, rowIndex = 0, gridId = 'main' }) => {
   const activeClass = '';
 
   // PRE-CALCULATE CONSTANTS for the row maps
@@ -205,6 +206,7 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
         let status = STATUS.NONE;
         let isRevealed = (revealedIndices || []).includes(i);
         let isHinted = isCurrent && (hintIndices || []).includes(i);
+        let hintChar = targetWord ? targetWord[i] : '';
         
         const isFocused = !isMV && isCurrent && i === actualFocusIndex;
         
@@ -218,6 +220,7 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
           <Tile 
             key={`cell-${gridId}-${rowIndex}-${i}`} 
             char={char} 
+            hintChar={hintChar}
             isCurrent={isCurrent}
             status={status}
             wordLength={wordLength}
@@ -237,11 +240,13 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
       })}
     </div>
   );
+
 }, (prev, next) => {
   const prevStr = Array.isArray(prev.guess) ? prev.guess.join('') : prev.guess;
   const nextStr = Array.isArray(next.guess) ? next.guess.join('') : next.guess;
 
   return prevStr === nextStr &&
+         prev.targetWord === next.targetWord &&
          prev.isCurrent === next.isCurrent &&
          prev.isShaking === next.isShaking &&
          prev.isSecretMode === next.isSecretMode &&
@@ -253,7 +258,7 @@ const Row = memo(({ guess, wordLength, getLetterStatus = () => '', isCurrent, re
          prev.hintIndices?.length === next.hintIndices?.length;
 });
 
-const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], hintIndices = [], maxRows = 6, isSecretMode = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null, isDark = true, gridId = 'main' }) => {
+const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], hintIndices = [], maxRows = 6, isSecretMode = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null, isDark = true, gridId = 'main' }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   
   useEffect(() => {
@@ -334,6 +339,7 @@ const Grid = memo(({ guesses = [], currentGuess = [], wordLength = 0, getLetterS
                 key={`row-${gridId}-${i}`} 
                 guess={isCurrent ? currentGuess : (guess || '')} 
                 wordLength={wordLength}
+                targetWord={targetWord}
                 getLetterStatus={getLetterStatus}
                 isCurrent={isCurrent}
                 revealedIndices={isCurrent ? revealedIndices : []}

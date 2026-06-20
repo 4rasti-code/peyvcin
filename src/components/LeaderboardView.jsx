@@ -140,6 +140,7 @@ export default function LeaderboardView({ onOpenChat }) {
         const { data, error: leaderError } = await supabase
           .from('profiles')
           .select('*')
+          .neq('nickname', 'Admin_4rasti')
           .order('xp', { ascending: false })
           .order('updated_at', { ascending: true })
           .range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1);
@@ -222,7 +223,7 @@ export default function LeaderboardView({ onOpenChat }) {
   useEffect(() => {
     let isMounted = true;
     const fetchStats = async () => {
-      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true });
+      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('nickname', 'Admin_4rasti');
       if (isMounted && count !== null) setTotalPlayersCount(count);
     };
     fetchStats();
@@ -244,7 +245,7 @@ export default function LeaderboardView({ onOpenChat }) {
       }
       // 2. Fetch from DB
       if (userXP !== undefined) {
-         const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', userXP);
+         const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', userXP).neq('nickname', 'Admin_4rasti');
          if (isMounted && count !== null) setTrueRank(count + 1);
       }
     };
@@ -303,7 +304,7 @@ export default function LeaderboardView({ onOpenChat }) {
           </Motion.div>
           
           <div className="relative z-20 flex flex-col items-center">
-             <h2 className="text-[24px] font-black font-rabar uppercase text-mono-900 dark:text-mono-50 tracking-widest drop-shadow-sm mb-6">رێزبەندی</h2>
+             <h2 className="text-[24px] font-black font-rabar uppercase text-mono-900 dark:text-mono-50 drop-shadow-sm mb-6">رێزبەندی</h2>
           </div>
         </div>
 

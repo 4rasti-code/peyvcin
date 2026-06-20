@@ -2,13 +2,13 @@ import React from 'react';
 import { motion as Motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, notificationCount = 0, hasGlobalNewMessage = false }) {
+export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, notificationCount = 0, pendingFriendsCount = 0, hasGlobalNewMessage = false }) {
   const tabs = [
     { id: 'profile', icon: 'person', label: 'بەرپەڕ' },
     { id: 'leaderboard', icon: 'workspace_premium', label: 'ڕێزبەندی' },
     { id: 'lobby', icon: 'grid_view', label: 'سەرەکی' },
     { id: 'store', icon: 'shopping_bag', label: 'بازاڕ' },
-    { id: 'social_hub', icon: 'public', label: 'جڤاکی' }
+    { id: 'social_hub', icon: 'chat', label: 'چات' }
   ];
 
   return (
@@ -112,6 +112,15 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
               className={`text-[10px] font-black font-rabar whitespace-nowrap uppercase relative z-10 transition-colors duration-300 ${isActive ? 'text-mono-900 dark:text-white' : 'text-mono-500'}`}
             >
               {tab.label}
+              {tab.id === 'profile' && pendingFriendsCount > 0 && (
+                <Motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1.5 -right-2 bg-red-500 min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-sm px-1"
+                >
+                  <span className="text-[10px] font-black text-white leading-none mt-0.5">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
+                </Motion.div>
+              )}
             </Motion.span>
           </Motion.button>
         );
@@ -120,5 +129,3 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
     </LayoutGroup>
   );
 }
-
-

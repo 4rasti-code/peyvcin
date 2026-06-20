@@ -150,10 +150,10 @@ export default function StatsView({
               { label: 'مەزنترین زنجیرە', value: stats.maxStreak, icon: 'military_tech' }
             ].map((item, idx) => (
               <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800/60 p-3.5 flex flex-col items-center gap-1 shadow-sm transition-transform hover:scale-[1.02]">
-                <span className="text-base font-black text-mono-900 dark:text-white tabular-nums tracking-tight">
+                <span className="text-base font-black text-mono-900 dark:text-white tabular-nums">
                   {toKuDigits(item.value)}{item.suffix || ''}
                 </span>
-                <span className="text-[8px] font-black text-mono-400 dark:text-mono-500 uppercase tracking-widest text-center leading-tight">
+                <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase text-center leading-none mt-1">
                   {item.label}
                 </span>
               </div>
@@ -180,7 +180,7 @@ export default function StatsView({
                 <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between shadow-sm transition-all hover:border-mono-300 dark:hover:border-mono-700">
                   <div className="flex items-center gap-4">
                     <span className={`material-symbols-outlined ${metric.color} text-2xl`}>{metric.icon}</span>
-                    <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase tracking-tight">{metric.label}</span>
+                    <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">{metric.label}</span>
                   </div>
                   <span className="text-base font-black text-mono-900 dark:text-white tabular-nums">{toKuDigits(metric.value)}</span>
                 </div>

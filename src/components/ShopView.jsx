@@ -67,7 +67,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
       </div>
       
       <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
-        <h3 className="text-[17px] font-black text-white dark:text-mono-50 mb-0.5 tracking-tight leading-tight truncate drop-shadow-sm">{item.name}</h3>
+        <h3 className="text-[17px] font-black text-white dark:text-mono-50 mb-0.5 leading-tight truncate drop-shadow-sm">{item.name}</h3>
         <p className="text-[12px] font-bold text-white/90 dark:text-mono-200 leading-tight truncate">{item.description}</p>
       </div>
 

@@ -18,8 +18,9 @@ import { getLevelFromXP, getLevelTier } from '../utils/progression';
 import { getCroppedImg } from '../utils/imageUtils';
 import Cropper from 'react-easy-crop';
 import { MEDALS } from '../constants/medals';
+import FriendsList from './FriendsList';
 
-export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange }) {
+export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount }) {
    const {
       user, userNickname, userAvatar, profileData
    } = useUser();
@@ -29,7 +30,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
       userRank, progressPercent, solvedWords
    } = useGame();
 
-   const { playSaveSound } = useAudio();
+   const { playSaveSound, playTabSound } = useAudio();
    const [draftAvatar, setDraftAvatar] = useState(userAvatar);
    const [saveSuccess, setSaveSuccess] = useState(false);
    const [isUploading, setIsUploading] = useState(false);
@@ -54,6 +55,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    const [zoom, setZoom] = useState(1);
    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
    const [croppedBlob, setCroppedBlob] = useState(null);
+
+   const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
 
    const handleBackgroundClick = (e) => {
       // Pulse on background void clicks
@@ -496,6 +499,23 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          <div className="flex-1 px-4 pb-[max(env(safe-area-inset-bottom),80px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 bg-trigger-zone flex flex-col justify-start pt-2">
             <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center">
                
+               {/* Friends Button (Tab Design) */}
+               <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300 w-full max-w-sm mx-auto mt-2 mb-4" dir="rtl">
+                  <button
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(15); if(playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
+                     onClick={(e) => { e.stopPropagation(); triggerHaptic(15); if(playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
+                     className="w-full py-2.5 rounded-sm bg-black dark:bg-mono-800 shadow-md text-mono-50 font-black text-[14px] flex items-center justify-center gap-2 transition-all relative z-10 hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  >
+                     <span className="material-symbols-outlined text-[20px]">group</span>
+                     لیستا هەڤالان
+                     {pendingFriendsCount > 0 && (
+                        <div className="absolute -top-2 -right-2 bg-red-500 min-w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-[#141414] z-20 shadow-md px-1">
+                           <span className="text-[11px] font-black text-white leading-none mt-0.5">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
+                        </div>
+                     )}
+                  </button>
+               </div>
+
                {/* Quick Actions (Stats, Achievements, Dictionary) */}
                <div className="flex flex-row items-center justify-center gap-8 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10">
                  
@@ -509,7 +529,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                    <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-[#8b5cf6] transition-colors mb-2">
                      bar_chart
                    </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">ئامار</span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئامار</span>
                  </Motion.button>
 
                  {/* Achievements */}
@@ -522,7 +542,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                    <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-yellow-500 transition-colors mb-2">
                      emoji_events
                    </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">دەستکەفت</span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">دەستکەفت</span>
                  </Motion.button>
 
                  {/* Dictionary */}
@@ -535,7 +555,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                    <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-cyan-500 transition-colors mb-2">
                      menu_book
                    </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase tracking-wider">فەرهەنگ</span>
+                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">فەرهەنگ</span>
                  </Motion.button>
 
                </div>
@@ -680,6 +700,43 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </Motion.div>
             </div>,
             document.body
+         )}
+
+         {/* Friends Modal Inline (No Portal/AnimatePresence to fix iOS touch bugs) */}
+         {isFriendsModalOpen && (
+           <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-mono-white dark:bg-black" dir="rtl">
+             <Motion.div
+               initial={{ x: '100%' }}
+               animate={{ x: 0 }}
+               exit={{ x: '100%' }}
+               transition={{ type: "spring", stiffness: 300, damping: 30 }}
+               className="bg-mono-white dark:bg-black w-full h-full max-w-md mx-auto shadow-2xl flex flex-col overflow-hidden relative z-10"
+             >
+               <div className="p-4 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 shrink-0">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/30 text-emerald-500">
+                     <span className="material-symbols-outlined font-bold">group</span>
+                   </div>
+                   <h3 className="text-mono-900 dark:text-white font-black font-rabar text-lg">لیستا ھەڤالان</h3>
+                 </div>
+                 <button
+                   onPointerDown={() => setIsFriendsModalOpen(false)}
+                   className="w-10 h-10 flex items-center justify-center rounded-2xl text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all active:scale-95 border border-transparent hover:border-mono-300 dark:hover:border-mono-700"
+                 >
+                   <span className="material-symbols-outlined">close</span>
+                 </button>
+               </div>
+               
+               <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
+                 <FriendsList 
+                   onOpenChat={(player) => {
+                     setIsFriendsModalOpen(false);
+                     if (onOpenChat) onOpenChat(player);
+                   }} 
+                 />
+               </div>
+             </Motion.div>
+           </div>
          )}
       </div>
    );

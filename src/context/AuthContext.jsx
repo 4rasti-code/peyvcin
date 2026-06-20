@@ -117,10 +117,18 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
-          let nickname = currentUser?.user_metadata?.nickname ||
+          // Generate a guaranteed safe nickname (8-15 chars, no spaces) to pass DB constraints
+          let rawName = currentUser?.user_metadata?.nickname ||
             currentUser?.user_metadata?.username ||
             currentUser?.user_metadata?.full_name ||
-            'یاریکەر';
+            'user';
+            
+          // Remove spaces and invalid characters, keep only alphanumeric
+          rawName = rawName.replace(/[^a-zA-Z0-9]/g, '');
+          if (rawName.length < 4) rawName = 'user';
+          rawName = rawName.substring(0, 8); // Max 8 chars for base
+          
+          let nickname = `${rawName}_${Math.floor(1000 + Math.random() * 9000)}`;
 
           // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
           // We wrap this in a loop to handle nickname conflicts client-side too
@@ -129,7 +137,7 @@ export const AuthProvider = ({ children }) => {
           let lastError = null;
 
           while (!success && attempts < 3) {
-            const currentNickname = attempts === 0 ? nickname : `${nickname}_${activeUserId.substring(0, 4)}`;
+            const currentNickname = attempts === 0 ? nickname : `${nickname.substring(0, 8)}_${Math.floor(1000 + Math.random() * 9000)}`;
 
             const { data: newData, error: insertError } = await supabase
               .from('profiles')
@@ -375,7 +383,7 @@ export const AuthProvider = ({ children }) => {
   // NEW: Global App Presence Tracking
   useEffect(() => {
     if (!user?.id) return;
-    
+
     // Heartbeat to update `updated_at` in profiles table so friends see us as online
     const pingPresence = async () => {
       try {
@@ -384,16 +392,16 @@ export const AuthProvider = ({ children }) => {
         console.error("Presence ping failed:", e);
       }
     };
-    
+
     // Initial ping
     pingPresence();
-    
+
     // Ping every 2 minutes
     const heartbeatInterval = setInterval(pingPresence, 2 * 60 * 1000);
 
     let isMounted = true;
     const presenceChannel = supabase.channel('global:app_presence');
-    
+
     presenceChannel.on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
       if (isMounted) {
@@ -491,7 +499,7 @@ export const AuthProvider = ({ children }) => {
         p_is_in_kurdistan: profileData.is_kurdistan ?? currentIsInKurdistan ?? true
       });
       if (rpcError) {
-         console.warn("[AuthContext] RPC update_profile_identity failed, relying on fallback direct updates:", rpcError);
+        console.warn("[AuthContext] RPC update_profile_identity failed, relying on fallback direct updates:", rpcError);
       }
 
       // Sync metadata to auth.users so it shows up in the Supabase Auth Dashboard
@@ -513,7 +521,7 @@ export const AuthProvider = ({ children }) => {
       if (profileData.voice_volume !== undefined) directUpdates.voice_volume = profileData.voice_volume;
       if (profileData.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData.haptic_enabled;
       if (profileData.onboarded !== undefined) directUpdates.onboarded = profileData.onboarded;
-      
+
       // Fallback: Also update avatar_url and nickname directly in case the RPC fails or is missing
       if (profileData.avatar_url !== undefined) directUpdates.avatar_url = profileData.avatar_url;
       if (profileData.nickname !== undefined) directUpdates.nickname = profileData.nickname;

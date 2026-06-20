@@ -76,16 +76,15 @@ export const shareGameResult = async ({ title, grid, isDark = document.documentE
 
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
-        title: 'ئەنجامێ من د پەیڤۆک دا',
-        text: fullText,
-        files: [file]
+        files: [file],
+        url: 'https://www.peyvokgame.com'
       });
       return true;
     } else if (navigator.share) {
-      // Fallback to text sharing
+      // Fallback to text/url sharing
       await navigator.share({
-        title: 'ئەنجامێ من د پەیڤۆک دا',
-        text: fullText,
+        text: `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
+        url: 'https://www.peyvokgame.com'
       });
       return true;
     }
@@ -165,7 +164,14 @@ export const generateShareImageCanvas = async (fullText, isDark = document.docum
       const gridWidth = cols * tileSize + (cols - 1) * gap;
       const gridHeight = rows * tileSize + (rows - 1) * gap;
 
-      const width = Math.max(gridWidth + padding * 2 + 40, 360);
+      const fontStr = 'bold 22px "Rabar_038", "Rabar", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      
+      // Measure title text width to prevent clipping
+      ctx.font = fontStr;
+      const textMetrics = ctx.measureText(title);
+      const minTextWidth = textMetrics.width + padding * 2 + 60; // Extra padding for safe text bounds
+
+      const width = Math.max(gridWidth + padding * 2 + 40, 360, minTextWidth);
       const titleHeight = 50;
       const footerHeight = 40;
       const height = padding + titleHeight + gridHeight + footerHeight + padding;
@@ -198,7 +204,7 @@ export const generateShareImageCanvas = async (fullText, isDark = document.docum
       ctx.stroke();
 
       // Title
-      ctx.font = 'bold 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = fontStr;
       ctx.fillStyle = titleColor;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
@@ -261,7 +267,7 @@ export const generateShareImageCanvas = async (fullText, isDark = document.docum
           // Letter
           if (!isEmpty) {
             ctx.fillStyle = tileText;
-            ctx.font = '900 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.font = '900 24px "Rabar_038", "Rabar", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             // Slight Y offset for better visual centering

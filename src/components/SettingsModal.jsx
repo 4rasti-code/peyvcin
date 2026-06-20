@@ -3,7 +3,7 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import AccountSettings from './AccountSettings';
 import HelpCenterModal from './HelpCenterModal';
-import { useUser } from '../context/AuthContext';
+
 
 function SettingsModal({
    isOpen,
@@ -22,14 +22,8 @@ function SettingsModal({
    onLogout,
    onPlaySound
 }) {
-   const { user } = useUser();
-   const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
 
-   const handleInvite = () => {
-      const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
-      navigator.clipboard.writeText(shareLink);
-      alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
-   };
+   const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
 
    return (
       <>
@@ -217,19 +211,6 @@ function SettingsModal({
                               <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">فیدباک</span>
                            </div>
                            <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
-                        </button>
-                     </div>
-
-                     {/* 5. INVITE FRIENDS SECTION */}
-                     <div className="p-3.5 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex items-center justify-between">
-                        <div className="flex items-center gap-2.5">
-                           <div className="w-8 h-8 rounded-md bg-green-100/50 dark:bg-green-900/30 flex items-center justify-center border border-green-200/50 dark:border-green-800/30">
-                              <span className="material-symbols-outlined text-[18px] text-green-600 dark:text-green-400 font-bold">person_add</span>
-                           </div>
-                           <h4 className="text-[12px] font-bold font-rabar text-mono-900 dark:text-mono-50">ھەڤالێن خوە داخواز بکە</h4>
-                        </div>
-                        <button onClick={() => { triggerHaptic(10); handleInvite(); }} className="px-3 py-2 bg-green-600 text-white rounded-md font-black font-rabar text-[10px] hover:brightness-110 active:scale-95 transition-all shadow-sm shrink-0">
-                           کۆپی لینک
                         </button>
                      </div>
 

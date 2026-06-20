@@ -8,6 +8,7 @@ import Avatar from './Avatar';
 import PublicProfileModal from './PublicProfileModal';
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
+import ClashingSwords from './ClashingSwords';
 
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
@@ -87,10 +88,10 @@ const ChatWallpaperPattern = () => {
             <text x="122" y="170" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-5 122 164)">ک</text>
 
             {/* Magnifying glass looking at a letter */}
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" transform="translate(150, 10) scale(1.2)" opacity="0.6"/>
-            
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" transform="translate(150, 10) scale(1.2)" opacity="0.6" />
+
             {/* Star/Score */}
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" transform="translate(20, 150) scale(0.8) rotate(-15)" opacity="0.6"/>
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" transform="translate(20, 150) scale(0.8) rotate(-15)" opacity="0.6" />
 
             {/* A few scattered small dots for texture */}
             <circle cx="80" cy="50" r="2" opacity="0.4" />
@@ -107,7 +108,7 @@ const ChatWallpaperPattern = () => {
 
 function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose }) {
   return (
-    <div 
+    <div
       className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4"
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -127,7 +128,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         style={{
           position: 'fixed',
           top: Math.max(10, Math.min(y - 20, window.innerHeight - 220)),
-          ...(isMe 
+          ...(isMe
             ? { right: Math.max(10, window.innerWidth - x - 40) }
             : { left: Math.max(10, x - 40) }
           ),
@@ -209,64 +210,67 @@ const BattleResultRenderer = ({ text }) => {
   try {
     const jsonStr = text.replace('[BATTLE_RESULT]', '').trim();
     data = JSON.parse(jsonStr);
-  } catch(_e) {
+  } catch (_e) {
     hasError = true;
   }
 
   if (hasError || !data) {
     return <div className="text-[10px] text-red-500 italic p-2 bg-red-500/10 rounded">هەڵە د خاندنا ئەنجامان دا</div>;
   }
-  
+
   return (
-    <div className="flex flex-col items-center gap-2 my-1 cursor-default w-full min-w-[180px] max-w-[220px] bg-mono-100/50 dark:bg-white/5 rounded-xl p-3 border border-mono-200/50 dark:border-white/10" onClick={e => e.stopPropagation()}>
-      <div className="text-[11px] font-black text-center text-primary dark:text-sky-400 mb-1">ئەنجامێ هەڤڕکیێ ⚔️</div>
-      
-      <div className="flex items-center justify-between w-full gap-2">
+    <div className={`flex flex-col items-center gap-2 mt-3 mb-1 cursor-default w-full min-w-[180px] max-w-[220px] rounded-md p-3 bg-linear-to-r from-[#ff6b00] to-[#e65c00] shadow-[0_4px_0_#cc5200] border-none relative overflow-hidden`} onClick={e => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none" />
+      <div className="text-[11px] font-black text-center text-white mb-1 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ ⚔️</div>
+
+      <div className="flex items-center justify-between w-full gap-2 relative z-10">
         {/* P1 */}
-        <div className="flex flex-col items-center gap-1 flex-1 overflow-hidden">
-          <div className={`p-[2px] rounded-full ${data.result === 'victory' ? 'ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-[#1A1A1A]' : ''}`}>
+        <div className="flex flex-col items-center gap-1 flex-1 min-w-0 pt-1 relative z-10">
+          <div className={`p-[2px] rounded-full ${data.result === 'victory' ? 'ring-2 ring-white ring-offset-1 ring-offset-[#e65c00]' : ''}`}>
             {data.myAvatar && data.myAvatar !== 'default' ? (
-              <img src={data.myAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+              <img src={data.myAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-white/20" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-black text-primary uppercase shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm border border-white/20">
                 {(data.myName || 'ی')[0]}
               </div>
             )}
           </div>
-          <span className="text-[9px] font-black uppercase truncate w-full text-center text-mono-900 dark:text-white">{data.myName}</span>
-          <span className="text-sm font-black text-primary leading-none">{toKuDigits(data.myScore)}</span>
+          <span className="text-[9px] font-black uppercase truncate w-full text-center text-white drop-shadow-sm">{data.myName}</span>
+          <span className="text-xl font-black text-white drop-shadow-md leading-none">{toKuDigits(data.myScore)}</span>
         </div>
 
-        <span className="text-[9px] font-black text-mono-400/50 italic px-1">VS</span>
+        {/* VS text */}
+        <div className="flex flex-col items-center justify-center z-10 opacity-90 scale-75">
+          <ClashingSwords className="w-10 h-10 drop-shadow-md text-white/90" />
+        </div>
 
         {/* P2 */}
-        <div className="flex flex-col items-center gap-1 flex-1 overflow-hidden">
-          <div className={`p-[2px] rounded-full ${data.result === 'defeat' ? 'ring-2 ring-emerald-500 ring-offset-1 dark:ring-offset-[#1A1A1A]' : ''}`}>
+        <div className="flex flex-col items-center gap-1 flex-1 min-w-0 pt-1 relative z-10">
+          <div className={`p-[2px] rounded-full ${data.result === 'defeat' ? 'ring-2 ring-white ring-offset-1 ring-offset-[#e65c00]' : ''}`}>
             {data.oppAvatar && data.oppAvatar !== 'default' ? (
-              <img src={data.oppAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm" />
+              <img src={data.oppAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-white/20" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-xs font-black text-red-500 uppercase shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm border border-white/20">
                 {(data.oppName || 'ی')[0]}
               </div>
             )}
           </div>
-          <span className="text-[9px] font-black uppercase truncate w-full text-center text-mono-900 dark:text-white">{data.oppName}</span>
-          <span className="text-sm font-black text-red-500 leading-none">{toKuDigits(data.oppScore)}</span>
+          <span className="text-[9px] font-black uppercase truncate w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
+          <span className="text-xl font-black text-white drop-shadow-md leading-none">{toKuDigits(data.oppScore)}</span>
         </div>
       </div>
 
-      <div className={`text-[10px] font-black px-2.5 py-1 rounded-md mt-1 w-full text-center ${
-        data.result === 'victory' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 
-        data.result === 'defeat' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 
-        'bg-mono-500/10 text-mono-600 dark:text-mono-400'
-      }`}>
+      <div className={`text-[10px] font-black px-2.5 py-1 rounded-md mt-1 w-full text-center backdrop-blur-sm ${data.result === 'victory' ? 'bg-white/20 text-white' :
+          data.result === 'defeat' ? 'bg-black/20 text-white/90' :
+            'bg-white/10 text-white/80'
+          }`}>
         {data.result === 'victory' ? 'سەرکەفتی 🏆' : data.result === 'defeat' ? 'سەرنەکەفتی 💔' : 'یەکسانبوون 🤝'}
       </div>
     </div>
   );
 };
 
-const GameResultRenderer = ({ text }) => {
+const GameResultRenderer = ({ text, isMe }) => {
   const lines = text.trim().split('\n');
   const title = lines[0]; // e.g., "تەماشەی ئەنجامێن من بکەن!"
   const gridLines = lines.slice(1).filter(l => l.trim().length > 0);
@@ -290,9 +294,7 @@ const GameResultRenderer = ({ text }) => {
                 let bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
                 let textColor = "text-black dark:text-white";
 
-                if (isEmpty) {
-                  bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
-                } else if (hasCorrect) {
+                if (hasCorrect) {
                   bgColor = "bg-[#6aaa64] dark:bg-[#538d4e] border-[#6aaa64] dark:border-[#538d4e]";
                   textColor = "text-white";
                 } else if (hasWrongPos) {
@@ -300,7 +302,9 @@ const GameResultRenderer = ({ text }) => {
                   textColor = "text-white";
                 } else if (hasAbsent) {
                   bgColor = "bg-[#D4D4D4] dark:bg-[#262626] border-[#A3A3A3] dark:border-[#4b4b4b]";
-                  textColor = "text-mono-900 dark:text-white";
+                  textColor = isMe ? "text-white" : "text-mono-900 dark:text-white";
+                } else if (isEmpty) {
+                  bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
                 }
 
                 return (
@@ -396,8 +400,8 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
               onLongPress(m, e.clientX, e.clientY);
             }}
             className={`message-bubble px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
-                ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
-                : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
+              ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
+              : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
@@ -413,16 +417,17 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
               </button>
             )}
 
-              {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
-                (m.content || m.text).startsWith('[BATTLE_RESULT]') 
-                  ? <BattleResultRenderer text={m.content || m.text} />
-                  : (
-                    ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')) &&
-                    (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.content || m.text))
-                  )
-                    ? <GameResultRenderer text={m.content || m.text} />
-                    : renderFormattedText(m.content || m.text)
-              )}
+            {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
+              (m.content || m.text).startsWith('[BATTLE_RESULT]')
+                ? <BattleResultRenderer text={m.content || m.text} isMe={isMe} />
+                : (
+                  ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')) &&
+                  (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.content || m.text)) &&
+                  m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1'
+                )
+                  ? <GameResultRenderer text={m.content || m.text} isMe={isMe} />
+                  : renderFormattedText(m.content || m.text)
+            )}
 
             <div className="flex items-center justify-end gap-1 mt-1">
               <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
@@ -461,7 +466,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                   >
                     <span className="text-[13px] leading-none drop-shadow-sm pointer-events-none">{emoji}</span>
                     <span className="text-[10px] tabular-nums mt-0.5 pointer-events-none">{users.length}</span>
-                    
+
                     {/* Custom Tooltip for Desktop Hover */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10 hidden md:block">
                       {users.map(u => {
@@ -510,8 +515,6 @@ export default function SocialHubView({
   const [activeTab, setActiveTab] = useState(initialTab || (initialChatPartner ? 'private' : 'global'));
   const [messages, setMessages] = useState([]);
   const [privateChats, setPrivateChats] = useState([]);
-  const [friends, setFriends] = useState([]);
-  const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newMessage, setNewMessage] = useState('');
   const [selectedChat, setSelectedChat] = useState(initialChatPartner);
@@ -523,30 +526,26 @@ export default function SocialHubView({
   const [activeReactionModal, setActiveReactionModal] = useState(null); // { message, activeTab }
   const [reactionUsers, setReactionUsers] = useState({}); // { id: nickname }
   const [showCopySuccess, setShowCopySuccess] = useState(false);
-  const [pendingSentIds, setPendingSentIds] = useState(new Set());
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
-  const searchTimeoutRef = useRef(null);
-  const isSearchingRef = useRef(false);
   const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
-  
+
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
   const fetchedReactionIdsRef = useRef(new Set());
-  
+
   const [connectionError, setConnectionError] = useState(false);
   const globalFetchTimeoutRef = useRef(null);
-  const friendsFetchTimeoutRef = useRef(null);
   const privateFetchTimeoutRef = useRef(null);
-  
+
   // Fetch real names and avatars for missing users (senders and reactions)
   useEffect(() => {
     let hasMissing = false;
     const missingIds = new Set();
-    
+
     const checkMessageUsers = (msg) => {
       if (msg?.user_id && !fetchedReactionIdsRef.current.has(msg.user_id)) {
         missingIds.add(msg.user_id);
@@ -568,15 +567,15 @@ export default function SocialHubView({
     messages.forEach(checkMessageUsers);
     chatMessages.forEach(checkMessageUsers);
     if (activeReactionModal?.message) checkMessageUsers(activeReactionModal.message);
-      
+
     if (hasMissing) {
       const missingArray = Array.from(missingIds);
       missingArray.forEach(id => fetchedReactionIdsRef.current.add(id));
-      
+
       const fetchMissingNames = async () => {
         try {
           const { data } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', missingArray);
-          
+
           if (data && data.length > 0) {
             setReactionUsers(prev => {
               const newMap = { ...prev };
@@ -594,34 +593,41 @@ export default function SocialHubView({
     }
   }, [messages, chatMessages, activeReactionModal?.message]);
 
-  useEffect(() => { 
-    activeTabRef.current = activeTab; 
+  useEffect(() => {
+    activeTabRef.current = activeTab;
     window.activeChatTab = activeTab;
     localStorage.setItem('activeChatTab', activeTab);
-    
+
     if (activeTab === 'global') {
       localStorage.setItem('lastOpenedGlobalChatTime', new Date().toISOString());
       window.dispatchEvent(new CustomEvent('globalChatOpened'));
+      window.dispatchEvent(new Event('clear_global_notifs'));
+      setNewGlobalCount(0);
     }
+
+    return () => {
+      window.activeChatTab = null;
+      localStorage.removeItem('activeChatTab');
+    };
   }, [activeTab]);
-  
-  useEffect(() => { 
-    selectedChatRef.current = selectedChat; 
+
+  useEffect(() => {
+    selectedChatRef.current = selectedChat;
     window.activeChatId = selectedChat?.id || null;
     if (selectedChat?.id) {
       localStorage.setItem('activeChatId', selectedChat.id);
     } else {
       localStorage.removeItem('activeChatId');
     }
-    return () => { 
-      window.activeChatId = null; 
+    return () => {
+      window.activeChatId = null;
       localStorage.removeItem('activeChatId');
     };
   }, [selectedChat]);
 
   const fetchGlobalMessages = useCallback(async (signal = null) => {
     if (globalFetchTimeoutRef.current) clearTimeout(globalFetchTimeoutRef.current);
-    
+
     return new Promise((resolve) => {
       globalFetchTimeoutRef.current = setTimeout(async () => {
         try {
@@ -635,7 +641,7 @@ export default function SocialHubView({
           if (signal) query = query.abortSignal(signal);
 
           const { data, error } = await query;
-          
+
           if (error) {
             if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
             // Fallback if join syntax fails
@@ -677,93 +683,7 @@ export default function SocialHubView({
     });
   }, []);
 
-  const fetchFriendsData = useCallback(async (signal = null) => {
-    if (!user?.id) return;
-    if (friendsFetchTimeoutRef.current) clearTimeout(friendsFetchTimeoutRef.current);
-    
-    return new Promise((resolve) => {
-      friendsFetchTimeoutRef.current = setTimeout(async () => {
-        try {
-      let fQuery = supabase
-        .from('friendships')
-        .select(`
-          *,
-          user_data:profiles!user_id(id, nickname, avatar_url, updated_at),
-          friend_data:profiles!friend_id(id, nickname, avatar_url, updated_at)
-        `)
-        .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`);
 
-      if (signal) fQuery = fQuery.abortSignal(signal);
-
-      const { data: friendships, error: fError } = await fQuery;
-      
-      let finalFriendships = friendships;
-      
-      if (fError) {
-        if (fError.name === 'AbortError' || fError.message?.includes('aborted')) throw fError;
-        // Fallback for missing join relations
-        console.warn("Using friends fallback", fError);
-        let fbQuery = supabase.from('friendships').select('*').or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`);
-        if (signal) fbQuery = fbQuery.abortSignal(signal);
-        const fallbackRes = await fbQuery;
-        if (fallbackRes.error) throw fallbackRes.error;
-        
-        const profileIds = new Set();
-        fallbackRes.data.forEach(f => { profileIds.add(f.user_id); profileIds.add(f.friend_id); });
-        const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', Array.from(profileIds));
-        const profileMap = (profiles || []).reduce((acc, p) => ({ ...acc, [p.id]: p }), {});
-        
-        finalFriendships = fallbackRes.data.map(f => ({
-          ...f,
-          user_data: profileMap[f.user_id],
-          friend_data: profileMap[f.friend_id]
-        }));
-      }
-
-      const requests = [];
-      const accepted = [];
-      const sentPendingList = new Set();
-      const uniqueRelationships = new Map();
-      
-      finalFriendships.forEach(f => {
-        const isUserMe = f.user_id === user?.id;
-        const otherId = isUserMe ? f.friend_id : f.user_id;
-        const profileData = isUserMe ? f.friend_data : f.user_data;
-        
-        if (!profileData) return;
-        
-        const existing = uniqueRelationships.get(otherId);
-        if (!existing || f.status === 'accepted' || (f.status === 'pending' && f.friend_id === user?.id && existing.status !== 'accepted')) {
-          uniqueRelationships.set(otherId, { ...f, friendData: profileData });
-        }
-      });
-
-      uniqueRelationships.forEach(rel => {
-        if (rel.status === 'pending') {
-          if (rel.friend_id === user?.id) requests.push({ ...rel, sender: rel.friendData });
-          else sentPendingList.add(rel.friend_id);
-        } else if (rel.status === 'accepted') {
-          accepted.push({ ...rel, friend: rel.friendData });
-        }
-      });
-      
-      setPendingRequests(requests);
-      setFriends(accepted);
-          setPendingSentIds(sentPendingList);
-          setConnectionError(false);
-        } catch (err) {
-          if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
-          console.warn("Friendships fetch error:", err);
-          if (err.message?.includes('timeout') || err.message?.includes('504')) {
-            setConnectionError(true);
-          }
-        } finally {
-          setLoading(false);
-          resolve();
-        }
-      }, 300);
-    });
-  }, [user?.id]);
 
   const fetchPrivateConversations = useCallback(async (signal = null) => {
     if (loadingAuth || !user?.id || user.id === 'undefined') return;
@@ -772,52 +692,80 @@ export default function SocialHubView({
     return new Promise((resolve) => {
       privateFetchTimeoutRef.current = setTimeout(async () => {
         try {
-      let query = supabase.rpc('get_user_conversations', { current_user_id: user.id });
-      if (signal) query = query.abortSignal(signal);
+          let query = supabase.rpc('get_user_conversations', { current_user_id: user.id });
+          if (signal) query = query.abortSignal(signal);
 
-      const { data, error } = await query;
-      
-      if (error) {
-        if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
-        console.warn("WhatsApp RPC failed, falling back to basic fetch:", error);
-        const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
-        const { data: fallbackData, error: fErr } = await (signal ? fallbackQuery.abortSignal(signal) : fallbackQuery);
-        if (fErr) throw fErr;
-        let unread = fallbackData.filter(m => m.receiver_id === user?.id && !m.is_read).length;
-        setUnreadMessageCount(unread);
-        const convosMap = new Map();
-        fallbackData.forEach(m => {
-          const partnerId = m.user_id == user?.id ? m.receiver_id : m.user_id;
-          if (!convosMap.has(partnerId)) {
-            convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId, unreadCount: 0 });
+          const { data, error } = await query;
+
+          let allFormatted = [];
+
+          if (!error && data) {
+            allFormatted = data.map(row => ({
+              id: row.partner_id,
+              nickname: row.nickname,
+              avatar_url: row.avatar_url,
+              lastMsg: row.last_message,
+              time: row.last_message_time,
+              unreadCount: Number(row.unread_count),
+              isBotChat: false
+            }));
+          } else {
+            console.warn("WhatsApp RPC failed, falling back to basic fetch:", error);
+            const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
+            const { data: fallbackData, error: fErr } = await (signal ? fallbackQuery.abortSignal(signal) : fallbackQuery);
+            if (!fErr && fallbackData) {
+              const convosMap = new Map();
+              fallbackData.forEach(m => {
+                const partnerId = m.user_id == user?.id ? m.receiver_id : m.user_id;
+                if (!convosMap.has(partnerId)) {
+                  convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId, unreadCount: 0 });
+                }
+                if (m.receiver_id === user?.id && !m.is_read) {
+                  convosMap.get(partnerId).unreadCount++;
+                }
+              });
+              const partnerIds = Array.from(convosMap.keys());
+              if (partnerIds.length > 0) {
+                const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', partnerIds);
+                allFormatted = (profiles || []).map(p => ({ ...p, ...convosMap.get(p.id), isBotChat: false }));
+              }
+            }
           }
-          if (m.receiver_id === user?.id && !m.is_read) {
-            convosMap.get(partnerId).unreadCount++;
+
+          // If user is Admin, fetch Bot's conversations
+          if (user?.email === '4rasti@gmail.com') {
+            const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
+            const botQuery = supabase.from('messages').select('*').or(`user_id.eq.${BOT_ID},receiver_id.eq.${BOT_ID}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
+            const { data: botData, error: botErr } = await (signal ? botQuery.abortSignal(signal) : botQuery);
+
+            if (!botErr && botData) {
+              const convosMap = new Map();
+              botData.forEach(m => {
+                const partnerId = m.user_id == BOT_ID ? m.receiver_id : m.user_id;
+                if (!convosMap.has(partnerId)) {
+                  convosMap.set(partnerId, { lastMsg: m.content, time: m.created_at, partnerId, unreadCount: 0 });
+                }
+                if (m.receiver_id === BOT_ID && !m.is_read) {
+                  convosMap.get(partnerId).unreadCount++;
+                }
+              });
+              const partnerIds = Array.from(convosMap.keys());
+              if (partnerIds.length > 0) {
+                const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', partnerIds);
+                const botFormatted = (profiles || []).map(p => ({ ...p, ...convosMap.get(p.id), isBotChat: true }));
+                allFormatted = [...allFormatted, ...botFormatted];
+              }
+            }
           }
-        });
-        const partnerIds = Array.from(convosMap.keys());
-        if (partnerIds.length === 0) { setPrivateChats([]); return; }
-        const { data: profiles } = await supabase.from('profiles').select('id, nickname, avatar_url, updated_at').in('id', partnerIds);
-        const enriched = (profiles || []).map(p => ({ ...p, ...convosMap.get(p.id) })).sort((a, b) => new Date(b.time) - new Date(a.time));
-        setPrivateChats(enriched);
-        return;
-      }
-      
-      let unread = 0;
-      const formatted = (data || []).map(row => {
-        unread += Number(row.unread_count);
-        return {
-          id: row.partner_id,
-          nickname: row.nickname,
-          avatar_url: row.avatar_url,
-          lastMsg: row.last_message,
-          time: row.last_message_time,
-          unreadCount: Number(row.unread_count)
-        };
-      });
-      
+
+          // Sort combined
+          allFormatted.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+          let unread = 0;
+          allFormatted.forEach(c => { unread += (c.unreadCount || 0); });
+
           setUnreadMessageCount(unread);
-          setPrivateChats(formatted);
+          setPrivateChats(allFormatted);
           setConnectionError(false);
         } catch (err) {
           if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
@@ -831,15 +779,16 @@ export default function SocialHubView({
         }
       }, 300);
     });
-  }, [user?.id, loadingAuth]);
+  }, [user?.id, user?.email, loadingAuth]);
 
-  const fetchPrivateChatHistory = useCallback(async (partnerId) => {
+  const fetchPrivateChatHistory = useCallback(async (partnerId, isBotChat = false) => {
     if (loadingAuth || !user?.id || user.id === 'undefined' || !partnerId) return;
     try {
+      const myId = isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user.id;
       const { data, error } = await supabase
         .from('messages')
         .select('id, content, user_id, receiver_id, created_at, is_read, reactions')
-        .or(`and(user_id.eq.${user?.id},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${user?.id})`)
+        .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`)
         .order('created_at', { ascending: false }) // Limit 20 descending
         .limit(20);
       if (error) throw error;
@@ -875,9 +824,9 @@ export default function SocialHubView({
         setMessages(prev => prev.filter(m => m.id !== payload.old.id));
       }
     }).subscribe();
-    
-    const socialSub = supabase.channel('public:friendships').on('postgres_changes', { event: '*', schema: 'public', table: 'friendships' }, () => fetchFriendsData()).subscribe();
-    
+
+
+
     const privateMsgSub = supabase.channel('private:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
       let involvedPayload = payload.new || payload.old;
       if (!involvedPayload) return;
@@ -891,14 +840,14 @@ export default function SocialHubView({
           const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === newMsg.user_id;
           if (!isCurrentlyViewingChat) playNotifSound();
         }
-        
+
         if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
-           setChatMessages(prev => {
-             if (prev.some(m => m.id === newMsg.id)) return prev;
-             return [...prev, newMsg];
-           });
+          setChatMessages(prev => {
+            if (prev.some(m => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
         }
-        
+
         const partnerId = newMsg.user_id === currentUserId ? newMsg.receiver_id : newMsg.user_id;
         setPrivateChats(prev => {
           const existingIdx = prev.findIndex(c => c.id === partnerId);
@@ -915,59 +864,56 @@ export default function SocialHubView({
             newConvos.unshift(chat);
             return newConvos;
           } else {
-             fetchPrivateConversations();
-             return prev;
+            fetchPrivateConversations();
+            return prev;
           }
         });
       } else if (payload.eventType === 'UPDATE') {
         const updatedMsg = payload.new;
         if (selectedChatRef.current && (updatedMsg.user_id === selectedChatRef.current.id || updatedMsg.receiver_id === selectedChatRef.current.id)) {
-           setChatMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m));
+          setChatMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m));
         }
         if (updatedMsg.is_read && updatedMsg.user_id === currentUserId) {
-           const partnerId = updatedMsg.receiver_id;
-           setPrivateChats(prev => {
-              return prev.map(c => {
-                 if (c.id === partnerId && c.unreadCount > 0) {
-                    return { ...c, unreadCount: Math.max(0, c.unreadCount - 1) };
-                 }
-                 return c;
-              });
-           });
+          const partnerId = updatedMsg.receiver_id;
+          setPrivateChats(prev => {
+            return prev.map(c => {
+              if (c.id === partnerId && c.unreadCount > 0) {
+                return { ...c, unreadCount: Math.max(0, c.unreadCount - 1) };
+              }
+              return c;
+            });
+          });
         }
       } else if (payload.eventType === 'DELETE') {
         const oldMsg = payload.old;
         if (selectedChatRef.current) {
-           setChatMessages(prev => prev.filter(m => m.id !== oldMsg.id));
+          setChatMessages(prev => prev.filter(m => m.id !== oldMsg.id));
         }
       }
     }).subscribe();
-    
+
     const typingChannel = supabase.channel(`typing-${currentUserId}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
       if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(true);
     }).on('broadcast', { event: 'stop' }, ({ payload }) => {
       if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(false);
     }).subscribe();
-    
+
     typingChannelRef.current = typingChannel;
-    
+
     return () => {
       supabase.removeChannel(globalSub);
-      supabase.removeChannel(socialSub);
       supabase.removeChannel(privateMsgSub);
       supabase.removeChannel(typingChannel);
     };
-  }, [user?.id, fetchFriendsData, fetchPrivateConversations, playNotifSound]);
+  }, [user?.id, fetchPrivateConversations, playNotifSound]);
 
   useEffect(() => {
     const controller = new AbortController();
-    
+
     // Only fetch the currently active tab immediately to reduce load.
-    if (activeTab === 'global') { 
-      fetchGlobalMessages(controller.signal); 
-      setNewGlobalCount(0); 
-    } else if (activeTab === 'friends') {
-      fetchFriendsData(controller.signal);
+    if (activeTab === 'global') {
+      fetchGlobalMessages(controller.signal);
+      setNewGlobalCount(0);
     } else if (activeTab === 'private') {
       fetchPrivateConversations(controller.signal);
     }
@@ -975,11 +921,11 @@ export default function SocialHubView({
     return () => {
       controller.abort();
     };
-  }, [activeTab, fetchGlobalMessages, fetchFriendsData, fetchPrivateConversations]);
+  }, [activeTab, fetchGlobalMessages, fetchPrivateConversations]);
 
   useEffect(() => {
     setPartnerIsTyping(false);
-    if (selectedChat) fetchPrivateChatHistory(selectedChat.id);
+    if (selectedChat) fetchPrivateChatHistory(selectedChat.id, selectedChat.isBotChat);
   }, [selectedChat, fetchPrivateChatHistory]);
 
   useEffect(() => {
@@ -994,63 +940,7 @@ export default function SocialHubView({
     }
   }, [messages.length, chatMessages.length, activeTab, selectedChat, isVisible]);
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [searching, setSearching] = useState(false);
 
-  const handleSearchPlayers = useCallback(async (query) => {
-    setSearchQuery(query);
-    if (query.length < 2) { setSearchResults([]); return; }
-    if (loadingAuth || !user?.id || user.id === 'undefined' || isSearchingRef.current) return;
-
-    // 1. Debounce Logic: Wait 500ms before firing request
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      setSearching(true);
-      isSearchingRef.current = true;
-      try {
-        let queryBuilder = supabase.from('profiles').select('id, nickname, avatar_url, updated_at').ilike('nickname', `%${query}%`);
-        queryBuilder = queryBuilder.neq('id', user.id);
-        const { data, error } = await queryBuilder.limit(10);
-        if (error) throw error;
-        setSearchResults(data || []);
-      } catch (err) {
-        console.error("Search error:", err);
-      } finally {
-        setSearching(false);
-        isSearchingRef.current = false;
-        searchTimeoutRef.current = null;
-      }
-    }, 500);
-  }, [user?.id, loadingAuth]);
-
-  const handleAddFriend = async (friendId) => {
-    try {
-      if (!user?.id || pendingSentIds.has(friendId)) return;
-      triggerHaptic(15);
-      setPendingSentIds(prev => new Set([...prev, friendId]));
-      const { error } = await supabase.from('friendships').insert([{ user_id: user.id, friend_id: friendId, status: 'pending' }]);
-      if (error) { if (error.code === '23505') return; throw error; }
-    } catch (err) {
-      console.error("Friend request error:", err);
-      setPendingSentIds(prev => { const next = new Set(prev); next.delete(friendId); return next; });
-    }
-  };
-
-  const handleAcceptRequest = async (requestId) => {
-    try {
-      triggerHaptic(20);
-      const { error } = await supabase
-        .from('friendships')
-        .update({ status: 'accepted' })
-        .eq('id', requestId);
-      if (error) throw error;
-      fetchFriendsData();
-    } catch (err) {
-      console.error("Error accepting friend request:", err);
-    }
-  };
 
 
   const sendTypingStatus = async (isTyping) => {
@@ -1136,7 +1026,7 @@ export default function SocialHubView({
     } else {
       setMessages(prev => updateLocalState(prev));
     }
-    
+
     // Insert into reported_messages table
     try {
       await supabase.from('reported_messages').insert([{
@@ -1191,11 +1081,14 @@ export default function SocialHubView({
         fetchGlobalMessages();
       } else if (selectedChat) {
         const partnerId = selectedChat.id;
+        const isBotChat = selectedChat.isBotChat;
+        const myId = isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : currentUserId;
+        const myNickname = isBotChat ? 'پەیڤۆک' : (userNickname || 'یاریزان');
 
         // Optimistic update for Private
         const tempMsg = {
           content: msgContent,
-          user_id: currentUserId,
+          user_id: myId,
           receiver_id: partnerId,
           reply_to_id: replyingTo?.id,
           reply_to_text: replyingTo?.content || replyingTo?.text,
@@ -1209,7 +1102,8 @@ export default function SocialHubView({
           .from('messages')
           .insert([{
             content: msgContent,
-            user_id: currentUserId,
+            user_id: myId,
+            user_nickname: myNickname,
             receiver_id: partnerId,
             reply_to_id: tempMsg.reply_to_id,
             reply_to_text: tempMsg.reply_to_text,
@@ -1222,7 +1116,7 @@ export default function SocialHubView({
         }
 
         // --- FORWARD BOT MESSAGES TO REPORTED_MESSAGES ---
-        if (partnerId === '9a813c24-b662-477d-a74a-6f822d17bbf1' && insertedMsg && insertedMsg[0]) {
+        if (partnerId === '9a813c24-b662-477d-a74a-6f822d17bbf1' && insertedMsg && insertedMsg[0] && !isBotChat) {
           try {
             await supabase.from('reported_messages').insert([{
               message_id: insertedMsg[0].id,
@@ -1236,30 +1130,11 @@ export default function SocialHubView({
         // -------------------------------------------------
 
         // Refresh history to get real DB data (IDs, etc)
-        fetchPrivateChatHistory(partnerId);
+        fetchPrivateChatHistory(partnerId, isBotChat);
         // Also refresh conversations list to update last message
         fetchPrivateConversations();
 
-        // Auto-reply logic for System Bot
-        if (partnerId === '9a813c24-b662-477d-a74a-6f822d17bbf1') {
-          setTimeout(async () => {
-            const replyText = msgContent.includes('پێشنیار') || msgContent.includes('ڕەخنە') || msgContent.includes('کێشە') || msgContent.includes('ئاریشە')
-              ? 'زۆر سوپاس بۆ تێبینییا تە! مە پەیاما تە گەهاندە ستافێ گەشەپێدەران و دێ پێداچوونێ ل سەر کەین. هاریکارییا تە یاریێ بەرەڤ پێش دەت.'
-              : msgContent.includes('یارمەتی') || msgContent.includes('چەوا') || msgContent.includes('یاسا') || msgContent.includes('هاریکاری')
-              ? 'بۆ زانینا چەوانییا یاریێ، تو دشێی ل سەر شاشەیا سەرەکی پێل ل ئایکۆنا پرسیارێ (?) بکەی دا کو یاسایان بخوینی. ئەگەر کێشەیەک تە هەبێت، تنێ پەیڤا (پێشنیار) دگەل کێشەیا خوە بنڤێسە.'
-              : 'سلاڤ! ئەز پەیڤۆکم، هاریکارێ تە د یاریێ دا. ئەگەر هەر ڕەخنە یان پێشنیارەک تە هەبێت، تکایە پەیڤا (پێشنیار) دگەل نامەیا خوە بنڤێسە دا کو بگەهیتە دەستێ گەشەپێدەران.';
 
-            await supabase.from('messages').insert([{
-              content: replyText,
-              user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1',
-              user_nickname: 'پەیڤۆک',
-              receiver_id: currentUserId,
-              is_read: false
-            }]);
-            fetchPrivateChatHistory(partnerId);
-            fetchPrivateConversations();
-          }, 1000);
-        }
       }
     } catch (err) {
       console.error("Failed to send message:", err);
@@ -1353,9 +1228,8 @@ export default function SocialHubView({
       <div className="px-4 py-3">
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
-            { id: 'global', label: 'جیھانی', icon: 'public', badge: newGlobalCount },
-            { id: 'private', label: 'نامە', icon: 'chat', badge: unreadMessageCount },
-            { id: 'friends', label: 'ھەڤال', icon: 'group', badge: pendingRequests.length }
+            { id: 'global', label: 'نامەیێن گشتی', icon: 'public', badge: newGlobalCount },
+            { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
           ].map(tab => (
             <button
               key={tab.id}
@@ -1382,8 +1256,8 @@ export default function SocialHubView({
           <div
             className="absolute top-1 bottom-1 transition-all duration-300 ease-out bg-black dark:bg-mono-800 rounded-sm z-0 shadow-md"
             style={{
-              width: 'calc(33.33% - 4px)',
-              right: activeTab === 'global' ? '4px' : activeTab === 'private' ? '33.33%' : '66.66%'
+              width: 'calc(50% - 4px)',
+              right: activeTab === 'global' ? '4px' : '50%'
             }}
           />
         </div>
@@ -1391,7 +1265,7 @@ export default function SocialHubView({
 
       <AnimatePresence>
         {connectionError && (
-          <Motion.div 
+          <Motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -1442,108 +1316,7 @@ export default function SocialHubView({
           </div>
         )}
 
-        {/* Friends View - Scrollable */}
-        {activeTab === 'friends' && (
-          <div className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar">
-            <div className="relative group">
-              <span className="material-symbols-outlined absolute right-3 top-3.5 text-mono-500">search</span>
-              <input
-                type="text"
-                id="player-search"
-                name="player-search"
-                aria-label="Search for players"
-                placeholder="گەڕیان ل ھەڤالێن نوو..."
-                value={searchQuery}
-                onChange={(e) => handleSearchPlayers(e.target.value)}
-                className="w-full bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md py-3.5 pr-11 pl-4 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 outline-none transition-all duration-300 text-mono-900 dark:text-mono-50"
-              />
-              {searching && <div className="absolute left-4 top-4 w-4 h-4 border-2 border-mono-300 dark:border-mono-700 border-t-primary rounded-full animate-spin" />}
-            </div>
 
-            {searchResults.length > 0 && (
-              <div className="space-y-3 p-3 bg-mono-50 dark:bg-mono-900/50 rounded-md border border-mono-200 dark:border-mono-800">
-                <h3 className="text-[10px] font-black uppercase text-mono-500  px-1">ئەنجامێن ئەڤێ ھاتینە دیتن</h3>
-                {searchResults.map(res => {
-                  const isFriend = friends.some(f => f.friend?.id === res.id);
-                  const isPending = pendingRequests.some(r => r.sender?.id === res.id || r.friend_id === res.id);
-
-                  return (
-                    <div key={res.id} className="flex items-center gap-3 p-2 hover:bg-mono-100 dark:hover:bg-white/5 rounded-md transition-all group cursor-pointer">
-                      <div className="flex items-center gap-3 flex-1" onClick={() => { triggerHaptic(10); setSelectedPlayer(res); }}>
-                        <Avatar src={res.avatar_url} lastActive={res.updated_at} isOnline={onlineUsers?.has(res.id)} showStatus={true} size="sm" />
-                        <div className="flex-1 text-right">
-                          <div className="font-black text-sm group-hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{res.nickname}</div>
-                        </div>
-                      </div>
-
-                      {isFriend ? (
-                        <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-md font-black text-[10px] flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">check</span>
-                          ھوین ھەڤالن
-                        </div>
-                      ) : (isPending || pendingSentIds.has(res.id)) ? (
-                        <div className="px-3 py-1.5 bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-500 border border-mono-200 dark:border-mono-700 rounded-md font-black text-[10px] flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">hourglass_top</span>
-                          چاڤەڕێبە
-                        </div>
-                      ) : (
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleAddFriend(res.id); }}
-                          className="px-3 py-1.5 bg-emerald-500 text-white rounded-md font-black text-[10px] flex items-center gap-1 hover:bg-emerald-600 active:scale-95 transition-all"
-                        >
-                          <span className="material-symbols-outlined text-[14px]">add</span>
-                          ببە ھەڤاڵ
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {pendingRequests.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-[10px] font-black uppercase text-mono-500  px-2">داخوازێن ھەڤالینیێ</h3>
-                {pendingRequests.map(req => (
-                  <div key={req.id} className="flex items-center gap-3 p-3 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm transition-colors duration-300">
-                    <Avatar src={req.sender?.avatar_url} lastActive={req.sender?.updated_at} isOnline={onlineUsers?.has(req.sender?.id)} showStatus={true} size="sm" />
-                    <div className="flex-1 text-right">
-                      <div className="font-black text-sm text-mono-900 dark:text-mono-100">{req.sender?.nickname}</div>
-                    </div>
-                    <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-emerald-500 text-white rounded-md font-black text-[10px] uppercase hover:bg-emerald-600 active:scale-95 transition-all">پەژراندن</button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <h3 className="text-[10px] font-black uppercase text-mono-600 dark:text-mono-400  px-2">ھەڤالێن تە</h3>
-              {friends
-                .sort((a, b) => {
-                  const activeA = new Date(a.friend?.updated_at || 0);
-                  const activeB = new Date(b.friend?.updated_at || 0);
-                  const isOnlineA = onlineUsers?.has(a.friend?.id);
-                  const isOnlineB = onlineUsers?.has(b.friend?.id);
-                  if (isOnlineA && !isOnlineB) return -1;
-                  if (!isOnlineA && isOnlineB) return 1;
-                  return activeB - activeA; // Secondary sort by last active
-                })
-                .map(f => (
-                  <div key={f.id} className="flex items-center gap-3 p-2 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 group hover:border-primary/30 transition-all shadow-sm">
-                    <div className="flex items-center gap-3 flex-1 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(f.friend); }}>
-                      <Avatar src={f.friend?.avatar_url} lastActive={f.friend?.updated_at} isOnline={onlineUsers?.has(f.friend?.id)} showStatus={true} size="sm" />
-                      <div className="flex-1 text-right">
-                        <div className="font-black text-sm text-mono-900 dark:text-mono-100 group-hover:text-primary transition-colors">{f.friend?.nickname}</div>
-                      </div>
-                    </div>
-                    <button onClick={() => { triggerHaptic(10); playBubblePopSound(); setActiveTab('private'); setSelectedChat(f.friend); }} className="w-10 h-10 flex items-center justify-center rounded-md bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-300 hover:bg-primary hover:text-white transition-all">
-                      <span className="material-symbols-outlined text-[20px] font-bold">chat</span>
-                    </button>
-                  </div>
-                ))}
-            </div>
-          </div>
-        )}
 
         {/* Private Chat View - Complex Layout Support */}
         {activeTab === 'private' && (
@@ -1566,13 +1339,13 @@ export default function SocialHubView({
                         {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
                       </span>
                       <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                        {onlineUsers?.has(selectedChat.id) ? 'ئۆنلاینە' : (() => {
-                          if (!selectedChat.updated_at) return 'ئۆفلاین';
+                        {onlineUsers?.has(selectedChat.id) ? 'سەرهێلە' : (() => {
+                          if (!selectedChat.updated_at) return 'دەرهێل';
                           const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
-                          if (diff < 60) return 'کۆتا بینین چەند چرکەیەک پێش ئێستا';
-                          if (diff < 3600) return `کۆتا بینین ${Math.floor(diff / 60)} خولەک پێش ئێستا`;
-                          if (diff < 86400) return `کۆتا بینین ${Math.floor(diff / 3600)} کاتژمێر پێش ئێستا`;
-                          return `کۆتا بینین ${Math.floor(diff / 86400)} ڕۆژ پێش ئێستا`;
+                          if (diff < 60) return 'دوماهیک دیتن چەند چرکەیەک ژبەری نۆکە';
+                          if (diff < 3600) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 60))} خولەک ژبەری نۆکە`;
+                          if (diff < 86400) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 3600))} دەمژمێر ژبەری نۆکە`;
+                          return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 86400))} ڕۆژ ژبەری نۆکە`;
                         })()}
                       </span>
                     </div>
@@ -1589,12 +1362,13 @@ export default function SocialHubView({
                       <MessageItem
                         key={m.id || idx}
                         m={m}
-                        isMe={m.user_id === user?.id}
-                        currentUserId={user?.id}
-                        currentUserNickname={userNickname}
+                        isMe={selectedChat?.isBotChat ? m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : m.user_id === user?.id}
+                        currentUserId={selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id}
+                        currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
                         reactionUsers={reactionUsers}
                         onSeen={async (id) => {
-                          if (m.user_id !== user?.id && !m.is_read) {
+                          const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
+                          if (m.user_id !== myId && !m.is_read) {
                             await supabase
                               .from('messages')
                               .update({ is_read: true })
@@ -1629,18 +1403,55 @@ export default function SocialHubView({
             ) : (
               <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
                 {privateChats.length === 0 && !loading ? (
-                  <div className="flex-1 flex flex-col items-center justify-center opacity-40 space-y-4">
-                    <span className="material-symbols-outlined text-6xl text-mono-400">forum</span>
-                    <div className="text-center">
-                      <div className="font-black text-lg text-mono-900 dark:text-mono-50">ھیچ نامەیەک نینە</div>
-                      <div className="text-xs font-bold font-rabar text-mono-500">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                  <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
+                    <div className="flex flex-col items-center space-y-4 opacity-50">
+                      <span className="material-symbols-outlined text-6xl text-mono-400">forum</span>
+                      <div className="text-center">
+                        <div className="font-black text-lg text-mono-900 dark:text-mono-50">ھیچ نامەیەک نینە</div>
+                        <div className="text-xs font-bold font-rabar text-mono-500">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                      </div>
+                      <button
+                        onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
+                        className="px-6 py-2 bg-mono-100 dark:bg-mono-900 rounded-md text-xs font-black border border-mono-200 dark:border-mono-800 shadow-sm"
+                      >
+                        دیتنا ھەڤالان
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setActiveTab('friends')}
-                      className="px-6 py-2 bg-mono-100 dark:bg-mono-900 rounded-md text-xs font-black border border-mono-200 dark:border-mono-800 shadow-sm"
-                    >
-                      دیتنا ھەڤالان
-                    </button>
+
+                    <div className="w-full max-w-sm p-4 rounded-xl bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex flex-col items-center gap-3 shadow-sm mx-auto">
+                      <div className="w-10 h-10 rounded-full bg-green-100/50 dark:bg-green-900/30 flex items-center justify-center border border-green-200/50 dark:border-green-800/30">
+                        <span className="material-symbols-outlined text-xl text-green-600 dark:text-green-400 font-bold">person_add</span>
+                      </div>
+                      <div className="text-center">
+                        <h4 className="text-[14px] font-black font-rabar text-mono-900 dark:text-white">ھەڤالێن خوە داخواز بکە</h4>
+                        <p className="text-[11px] font-bold text-mono-500 mt-1 px-4">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
+                      </div>
+                      <button 
+                        onClick={async () => { 
+                          triggerHaptic(10); 
+                          const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
+                          const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
+                          if (navigator.share) {
+                            try {
+                              // Only send URL for strict apps like Snapchat
+                              await navigator.share({ url: shareLink });
+                            } catch (err) {
+                              if (err.name !== 'AbortError') {
+                                navigator.clipboard.writeText(shareText);
+                                alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                              }
+                            }
+                          } else {
+                            navigator.clipboard.writeText(shareText);
+                            alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                          }
+                        }} 
+                        className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-base">share</span>
+                        بەلاڤکرنا لینکێ یاریێ
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   privateChats.map(chat => {
@@ -1649,11 +1460,10 @@ export default function SocialHubView({
                       <div
                         key={chat.id}
                         onClick={() => setSelectedChat(chat)}
-                        className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${
-                          isBot
-                            ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-[6px] active:translate-y-[2px] active:shadow-[0_0px_0_#047857] mb-4'
-                            : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
-                        }`}
+                        className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
+                          ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-[6px] active:translate-y-[2px] active:shadow-[0_0px_0_#047857] mb-4'
+                          : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
+                          }`}
                       >
                         {isBot && (
                           <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
@@ -1680,12 +1490,11 @@ export default function SocialHubView({
                           </div>
 
                           {/* Name and Message */}
-                          <div className="flex flex-col items-start min-w-0">
-                            <span className={`font-black text-sm truncate w-full text-left transition-colors ${
-                              isBot
-                                ? 'text-white'
-                                : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
-                            }`}>
+                          <div className="flex flex-col items-start min-w-0 flex-1">
+                            <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
+                              ? 'text-white'
+                              : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
+                              }`}>
                               {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
                             </span>
                             <div className={`flex items-center gap-1.5 text-xs font-bold font-rabar w-full justify-start ${isBot ? 'text-white/80' : 'text-mono-500 dark:text-mono-400'}`}>
@@ -1722,8 +1531,6 @@ export default function SocialHubView({
           <PublicProfileModal
             profile={selectedPlayer}
             currentUser={user}
-            isFriend={friends.some(f => f.friend?.id === selectedPlayer.id)}
-            isPending={pendingRequests.some(r => r.sender?.id === selectedPlayer.id || r.friend_id === selectedPlayer.id)}
             onClose={() => setSelectedPlayer(null)}
             onToggleBlock={handleToggleBlock}
             onOpenChat={(player) => {
@@ -1732,7 +1539,6 @@ export default function SocialHubView({
               setSelectedChat(player);
             }}
             onActionComplete={() => {
-              fetchFriendsData();
               fetchPrivateConversations();
             }}
           />
@@ -1742,7 +1548,7 @@ export default function SocialHubView({
             m={activeContextMenu.message}
             x={activeContextMenu.x}
             y={activeContextMenu.y}
-            isMe={activeContextMenu.message.user_id === user?.id}
+            isMe={selectedChat?.isBotChat ? activeContextMenu.message.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : activeContextMenu.message.user_id === user?.id}
             onClose={() => setActiveContextMenu(null)}
             onReport={handleReport}
             onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
@@ -1884,7 +1690,7 @@ export default function SocialHubView({
                 <h3 className="font-sans font-bold text-[13px] text-mono-600 dark:text-mono-300 mb-2 text-right w-full" dir="rtl">
                   {toKuDigits(Object.values(activeReactionModal.message.reactions).flat().length)} کارڤەدان
                 </h3>
-                
+
                 {/* Tabs for Emojis */}
                 <div className="flex items-center justify-start gap-1 overflow-x-auto no-scrollbar shrink-0" dir="rtl">
                   {Object.entries(activeReactionModal.message.reactions).map(([emoji, users]) => (
@@ -1911,44 +1717,44 @@ export default function SocialHubView({
                     const uName = typeof u !== 'string' ? u.name : null;
                     const name = reactionData?.nickname || (uName !== 'یاریکەر' ? uName : null) || 'یاریکەر';
                     const avatarUrl = reactionData?.avatar_url;
-                    
+
                     const isMeReaction = id === user?.id;
-                    
+
                     return (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-mono-50 dark:hover:bg-mono-800/50 transition-colors ${isMeReaction ? 'cursor-pointer' : ''}`}
                         onClick={isMeReaction ? (e) => {
                           e.stopPropagation();
                           handleReact(activeReactionModal.message.id, emoji, activeReactionModal.isPrivate);
-                          
+
                           // Optimistically update the modal's local state so the reaction disappears
                           setActiveReactionModal(prev => {
                             if (!prev) return prev;
-                            
+
                             const newReactions = { ...prev.message.reactions };
                             const usersArray = [...(newReactions[emoji] || [])];
-                            
+
                             const userIdx = usersArray.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
                             if (userIdx > -1) {
                               usersArray.splice(userIdx, 1);
                             }
-                            
+
                             if (usersArray.length === 0) {
                               delete newReactions[emoji];
                             } else {
                               newReactions[emoji] = usersArray;
                             }
-                            
+
                             if (Object.keys(newReactions).length === 0) {
                               return null; // Close if no reactions left globally
                             }
-                            
+
                             let newTab = prev.activeTab;
                             if (!newReactions[emoji] && prev.activeTab === emoji) {
                               newTab = 'all';
                             }
-                            
+
                             return {
                               ...prev,
                               activeTab: newTab,

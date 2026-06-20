@@ -128,10 +128,10 @@ const WordFeverResultOverlay = ({
                 {isWin ? '' : 'تە پەیڤا ڕاست نەدیت، دەستا نەداھێلە!'}
               </p>
 
-              {isWin && solvedWord && (
+              {solvedWord && (
                 <div className={`bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 px-6 py-4 rounded-3xl mt-2 inline-block`}>
                   <span className="text-mono-400 dark:text-white/40 text-[10px] font-bold uppercase  block mb-1">پەیڤا ڕاست</span>
-                  <span className={`text-2xl font-black font-heading tracking-normal text-sky-400`}>{solvedWord}</span>
+                  <span className={`text-2xl font-black font-heading tracking-normal ${isWin ? 'text-sky-400' : 'text-red-500'}`}>{solvedWord}</span>
                 </div>
               )}
 
@@ -237,7 +237,7 @@ const WordFeverResultOverlay = ({
                   triggerHaptic(10);
                   const grid = generateWordleGrid(guesses, solvedWord);
                   const result = await shareGameResult({
-                    title: isWin ? 'من شیام هەمی پەیڤێن Word Fever بدۆزم! ⚡' : 'من تاقیكرنا Word Fever ئەنجامدا! 🔥',
+                    title: isWin ? 'من شیام هەمی پەیڤێن Word Fever ببینم! ⚡' : 'من تاقیكرنا Word Fever ئەنجامدا! 🔥',
                     grid: grid
                   });
                   

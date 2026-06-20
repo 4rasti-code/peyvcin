@@ -7,6 +7,7 @@ import OneSignal from 'react-onesignal';
 import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
+import AdminPanelView from './components/AdminPanelView';
 import Avatar from './components/Avatar';
 import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
@@ -530,7 +531,7 @@ export default function App() {
   }, [currentView, multiplayerState, cancelMatch]);
 
   const [notificationsList, setNotificationsList] = useState([]);
-  const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0 });
+  const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0, unreadGlobal: 0 });
   const [hasUnreadGlobalMessage, setHasUnreadGlobalMessage] = useState(false);
 
 
@@ -1422,13 +1423,26 @@ export default function App() {
         };
       });
 
+      const lastSeenGlobal = localStorage.getItem('last_seen_global_chat') || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count: globalCount } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .is('receiver_id', null)
+        .gt('created_at', lastSeenGlobal)
+        .neq('user_id', user.id);
+
       const combined = [...msgList, ...reqList].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       setNotificationsList(combined);
-      setSocialNotifications({ unreadMessages: msgList.length, pendingRequests: reqList.length });
+      setSocialNotifications({ unreadMessages: msgList.length, pendingRequests: reqList.length, unreadGlobal: globalCount || 0 });
     };
 
     fetchCounts();
+
+    const handleClearGlobal = () => {
+      setSocialNotifications(prev => ({ ...prev, unreadGlobal: 0 }));
+    };
+    window.addEventListener('clear_global_notifs', handleClearGlobal);
 
     const socialChannel = supabase
       .channel(`social_notifs:${user.id}`)
@@ -1439,9 +1453,21 @@ export default function App() {
         filter: `receiver_id=eq.${user.id}`
       }, () => fetchCounts())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` }, () => fetchCounts())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
+        if (payload.new.user_id !== user.id) {
+          if (window.location.pathname.includes('social_hub') && localStorage.getItem('activeChatTab') === 'global') {
+             localStorage.setItem('last_seen_global_chat', new Date().toISOString());
+          } else {
+             setSocialNotifications(prev => ({ ...prev, unreadGlobal: (prev.unreadGlobal || 0) + 1 }));
+          }
+        }
+      })
       .subscribe();
 
-    return () => { supabase.removeChannel(socialChannel); };
+    return () => { 
+      supabase.removeChannel(socialChannel); 
+      window.removeEventListener('clear_global_notifs', handleClearGlobal);
+    };
   }, [user?.id]);
 
 
@@ -1487,8 +1513,7 @@ export default function App() {
   }, [navigateTo]);
 
   const handleViewFriends = useCallback(() => {
-    setInitialSocialTab('friends');
-    navigateTo('social_hub');
+    navigateTo('profile');
   }, [navigateTo]);
 
 
@@ -1547,7 +1572,7 @@ export default function App() {
             equippedAvatar={equippedAvatar}
             gameMode={gameMode}
             timeLeft={timeLeft}
-            notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+            notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadGlobal || 0)}
             onPlaySound={playBubblePopSound}
             onDailyRewardClick={() => {
               playBubblePopSound();
@@ -1613,51 +1638,64 @@ export default function App() {
 
           {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
           {currentView === 'lobby' && multiplayerState === 'idle' && (
-            <LobbyView
-              onStartClassic={() => {
-                forceResumeAudio();
-                playTabSound();
-                stopBGM();
-                triggerHaptic(10);
-                setIsDailyActive(false);
-                selectCategory('ھەموو', 'classic');
-              }}
-              onStartHardWords={() => {
-                playTabSound();
-                stopBGM();
-                triggerHaptic(10);
-                setIsDailyActive(true);
-                selectCategory('ھەموو', 'hard_words');
-              }}
-              onStartWordFever={() => {
-                playTabSound();
-                stopBGM();
-                triggerHaptic(10);
-                setIsDailyActive(false);
-                selectCategory('ھەموو', 'word_fever');
-              }}
-              onDailyRewardClick={() => {
-                playBubblePopSound();
-                setIsDailyRewardOpen(true);
-              }}
-              onStartMamak={() => {
-                playTabSound();
-                stopBGM();
-                triggerHaptic(10);
-                setIsDailyActive(false);
-                selectCategory('مامک', 'mamak');
-              }}
-              dailyStreak={dailyStreak}
-              onViewChange={setCurrentView}
-              notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
-              onStartMultiplayer={() => {
-                forceResumeAudio(); // iOS Unlock on User Gesture
-                playTabSound();
-                stopBGM();
-                startMatchmaking();
-              }}
-              onOpenHowToPlay={handleOpenHowToPlay}
-            />
+            <>
+              <LobbyView
+                onStartClassic={() => {
+                  forceResumeAudio();
+                  playTabSound();
+                  stopBGM();
+                  triggerHaptic(10);
+                  setIsDailyActive(false);
+                  selectCategory('ھەموو', 'classic');
+                }}
+                onStartHardWords={() => {
+                  playTabSound();
+                  stopBGM();
+                  triggerHaptic(10);
+                  setIsDailyActive(true);
+                  selectCategory('ھەموو', 'hard_words');
+                }}
+                onStartWordFever={() => {
+                  playTabSound();
+                  stopBGM();
+                  triggerHaptic(10);
+                  setIsDailyActive(false);
+                  selectCategory('ھەموو', 'word_fever');
+                }}
+                onDailyRewardClick={() => {
+                  playBubblePopSound();
+                  setIsDailyRewardOpen(true);
+                }}
+                onStartMamak={() => {
+                  playTabSound();
+                  stopBGM();
+                  triggerHaptic(10);
+                  setIsDailyActive(false);
+                  selectCategory('مامک', 'mamak');
+                }}
+                dailyStreak={dailyStreak}
+                onViewChange={setCurrentView}
+                notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadGlobal || 0)}
+                onStartMultiplayer={() => {
+                  forceResumeAudio(); // iOS Unlock on User Gesture
+                  playTabSound();
+                  stopBGM();
+                  startMatchmaking();
+                }}
+                onOpenHowToPlay={handleOpenHowToPlay}
+              />
+              
+              {/* ADMIN PANEL BUTTON (Only visible to the specific admin email) */}
+              {user?.email === '4rasti@gmail.com' && (
+                <button
+                  onClick={() => setCurrentView('admin_panel')}
+                  className="fixed bottom-24 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg z-9999 flex items-center gap-2 active:scale-95 transition-transform"
+                >
+                  <span className="material-symbols-outlined">admin_panel_settings</span>
+                  پەنێڵی ئەدمین
+                </button>
+              )}
+            </>
           )}
 
           {currentView === 'game' && (
@@ -1816,6 +1854,7 @@ export default function App() {
                   <ProfileView
                     onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
                     onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
+                    onOpenChat={handleOpenChat}
                     user={user}
                     userNickname={userNickname}
                     onProfileSave={handleProfileSave}
@@ -1832,8 +1871,14 @@ export default function App() {
                     playerStats={playerStats}
                     userRank={userRank}
                     dailyStreak={dailyStreak}
+                    pendingFriendsCount={socialNotifications.pendingRequests || 0}
                   />
                 </div>
+                {currentView === 'admin_panel' && (
+                  <div className="contents">
+                    <AdminPanelView onBack={() => setCurrentView('lobby')} />
+                  </div>
+                )}
               </>
             )}
 
@@ -1906,7 +1951,8 @@ export default function App() {
               setCurrentView={navigateTo}
               onSettingsToggle={() => { setIsSettingsOpen(true); }}
               onTabClickSound={playBubblePopSound}
-              notificationCount={socialNotifications.unreadMessages + socialNotifications.pendingRequests}
+              notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.unreadGlobal || 0)}
+              pendingFriendsCount={socialNotifications.pendingRequests || 0}
               hasGlobalNewMessage={hasUnreadGlobalMessage}
             />
           )}

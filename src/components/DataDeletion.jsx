@@ -157,7 +157,7 @@ const DataDeletion = ({ onViewChange, onClose }) => {
 
                     <div className="flex flex-col items-center text-center mb-12">
                         <h2 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{t.title}</h2>
-                        <span className="px-4 py-1.5 rounded-md bg-mono-900 dark:bg-mono-50 border border-mono-200 dark:border-mono-700 text font-bold tracking-widest text-mono-50 dark:text-mono-900 uppercase">
+                        <span className={`px-4 py-1.5 rounded-md bg-mono-900 dark:bg-mono-50 border border-mono-200 dark:border-mono-700 text font-bold ${isKurdish ? "" : "tracking-widest"} text-mono-50 dark:text-mono-900 uppercase`}>
                             {t.lastUpdated}
                         </span>
                     </div>
@@ -216,7 +216,7 @@ const DataDeletion = ({ onViewChange, onClose }) => {
 
                 {/* Footer Section */}
                 <div className="mt-16 text-center space-y-8">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-500 dark:text-white/30 font-bold text-xs uppercase tracking-widest">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-500 dark:text-white/30 font-bold text-xs uppercase">
                         <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-mono-900 dark:hover:text-mono-50 transition-colors">Terms of Service</button>
                         <span className="w-1 h-1 rounded-md bg-white/10"></span>
                         <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="hover:text-mono-900 dark:hover:text-mono-50 transition-colors">Privacy Policy</button>

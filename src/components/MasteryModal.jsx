@@ -41,7 +41,7 @@ const MasteryModal = ({ isOpen, onClose, targetWord, stats, gameMode, isDark }) 
 
         <div className="mb-8 bg-white/5 rounded-2xl p-6 border border-white/5">
           <p className="text-[10px] font-bold text-slate-500 uppercase  mb-2">تە پەیڤا دژوار دیت</p>
-          <p className="text-4xl font-bold font-heading text-white tracking-widest">{targetWord}</p>
+          <p className="text-4xl font-bold font-heading text-white">{targetWord}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-8">
@@ -56,7 +56,7 @@ const MasteryModal = ({ isOpen, onClose, targetWord, stats, gameMode, isDark }) 
 
           <div className="bg-primary/10 p-6 rounded-2xl border border-primary/20 col-span-2">
             <div className="flex flex-col items-center">
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">
+              <span className="text-[10px] font-bold text-primary uppercase mb-2">
                 {gameMode === 'secret' ? 'خەلاتێ پەیڤا نھێنی' : 'خەلاتێ پەیڤێن دژوار'}
               </span>
               <div className="flex items-center gap-3">

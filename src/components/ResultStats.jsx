@@ -7,7 +7,7 @@ const StatItem = ({ label, value, suffix = "" }) => (
     <span className="text-xl font-black text-mono-900 dark:text-white tabular-nums">
       {toKuDigits(value)}{suffix}
     </span>
-    <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase tracking-tighter text-center leading-none mt-1">
+    <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase text-center leading-none mt-1">
       {label}
     </span>
   </div>

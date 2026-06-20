@@ -187,7 +187,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
                   : 'bg-mono-white dark:bg-mono-900/20 text-mono-400 dark:text-mono-500 border-mono-200 dark:border-mono-800/60 hover:border-mono-400 dark:hover:border-mono-600'
                   }`}
               >
-                <span className="text-[10px] tracking-wider">{cat.label}</span>
+                <span className="text-[10px]">{cat.label}</span>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${isActive ? 'bg-mono-50/20 dark:bg-black/20' : 'bg-mono-100 dark:bg-white/5'} tabular-nums`}>
                   {toKuDigits(cat.count)}
                 </span>
