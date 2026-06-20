@@ -177,6 +177,16 @@ export const AuthProvider = ({ children }) => {
           }
 
           console.error("[AuthContext] Self-heal failed:", lastError?.message);
+          
+          // GHOST SESSION FIX: If the user was deleted from the database but the local session remains,
+          // the self-heal insert will fail with a foreign key constraint violation (code 23503).
+          if (lastError?.code === '23503' || lastError?.message?.includes('foreign key constraint')) {
+            console.warn("[AuthContext] Ghost session detected (user deleted from DB). Forcing sign-out.");
+            await supabase.auth.signOut();
+            setUser(null);
+            return;
+          }
+
           throw lastError;
         }
         throw error;
