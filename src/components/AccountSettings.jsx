@@ -326,7 +326,7 @@ export default function AccountSettings({ updateProfile }) {
             {/* GOOGLE BUTTON */}
             <button
                onClick={async () => {
-                  if (!user?.is_anonymous && !user?.app_metadata?.providers?.includes('google')) {
+                  if (!user?.app_metadata?.providers?.includes('google')) {
                      triggerHaptic(10);
                      try {
                         const { error } = await supabase.auth.linkIdentity({
@@ -341,7 +341,7 @@ export default function AccountSettings({ updateProfile }) {
                      }
                   }
                }}
-               disabled={user?.is_anonymous || user?.app_metadata?.providers?.includes('google')}
+               disabled={user?.app_metadata?.providers?.includes('google')}
                className={`w-full h-[54px] mt-3 rounded-[12px] relative flex flex-col items-center justify-center font-black font-rabar transition-all ${user?.app_metadata?.providers?.includes('google') ? 'bg-mono-50 dark:bg-white/5 text-mono-500 cursor-default border border-mono-200 dark:border-white/10' : 'bg-white text-mono-900 cursor-pointer shadow-md hover:bg-mono-50 active:scale-[0.98]'}`}
                dir="rtl"
             >
@@ -362,7 +362,7 @@ export default function AccountSettings({ updateProfile }) {
             {/* DISCORD BUTTON */}
             <button
                onClick={async () => {
-                  if (!user?.is_anonymous && !user?.app_metadata?.providers?.includes('discord')) {
+                  if (!user?.app_metadata?.providers?.includes('discord')) {
                      triggerHaptic(10);
                      try {
                         const { error } = await supabase.auth.linkIdentity({
@@ -378,7 +378,7 @@ export default function AccountSettings({ updateProfile }) {
                      }
                   }
                }}
-               disabled={user?.is_anonymous || user?.app_metadata?.providers?.includes('discord')}
+               disabled={user?.app_metadata?.providers?.includes('discord')}
                className={`w-full h-[54px] mt-3 rounded-[12px] relative flex flex-col items-center justify-center font-black font-rabar transition-all ${user?.app_metadata?.providers?.includes('discord') ? 'bg-mono-50 dark:bg-white/5 text-mono-500 cursor-default border border-mono-200 dark:border-white/10' : 'bg-[#5865F2] hover:bg-[#4752C4] text-white cursor-pointer shadow-md hover:shadow-lg active:scale-[0.98]'}`}
                dir="rtl"
             >
