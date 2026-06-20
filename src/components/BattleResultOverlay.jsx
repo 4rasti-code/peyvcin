@@ -61,6 +61,8 @@ const BattleResultOverlay = ({
   }, []);
 
   useEffect(() => {
+    let timeoutId;
+
     if (isVisible && result === 'victory' && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       triggerHaptic(200);
@@ -68,7 +70,7 @@ const BattleResultOverlay = ({
       playRewardSfx();
       
       const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         confetti({
           particleCount: 120,
           spread: 60,
@@ -81,6 +83,10 @@ const BattleResultOverlay = ({
       // Reset when closed so it can trigger next time
       hasTriggeredRef.current = false;
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [isVisible, result, isDark]);
 
   const myScore = isPlayer1 ? scores.p1 : scores.p2;

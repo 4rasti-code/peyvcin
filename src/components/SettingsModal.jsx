@@ -64,8 +64,11 @@ function SettingsModal({
                    <div className="p-6 pt-2 pb-12 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
                       <AccountSettings updateProfile={updateProfile} />
                       
-                      <h2 className="text-xl font-black text-mono-900 dark:text-white text-center w-full py-2">ڕێکخستن</h2>
-                      
+                      <div className="flex items-center w-full pt-4 pb-2">
+                         <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
+                         <span className="px-4 text-[13px] font-black font-rabar text-mono-400 dark:text-mono-500">ڕێکخستن</span>
+                         <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
+                      </div>
                       {/* 1. AUDIO & HAPTICS */}
                       <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
                          

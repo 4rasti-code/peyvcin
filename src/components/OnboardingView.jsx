@@ -54,7 +54,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
 };
 
 export default function OnboardingView() {
-    const { completeOnboarding } = useUser();
+    const { completeOnboarding, user } = useUser();
     const { playTabSound } = useAudio();
     const [nickname, setNickname] = useState('');
     const [availability, setAvailability] = useState(null); // 'checking', 'available', 'taken', 'invalid'
@@ -102,11 +102,11 @@ export default function OnboardingView() {
             try {
                 const { data } = await supabase
                     .from('profiles')
-                    .select('nickname')
+                    .select('nickname, id')
                     .ilike('nickname', raw)
                     .maybeSingle();
 
-                if (data) {
+                if (data && data.id !== user?.id) {
                     setAvailability('taken');
                     setError('ئەڤ ناڤە یێ ھاتییە برن');
                 } else {
@@ -142,8 +142,8 @@ export default function OnboardingView() {
     return (
         <div className="fixed inset-0 z-200 flex flex-col items-center justify-center p-4 bg-mono-white dark:bg-black overflow-hidden">
             <FloatingLetterBackground baseOpacity={0.25} />
-            
-            <Motion.div 
+
+            <Motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 className="w-full max-w-[400px] bg-mono-50 dark:bg-mono-900 p-8 sm:p-10 rounded-md border border-mono-200 dark:border-white/5 relative z-10 shadow-2xl"
@@ -166,7 +166,7 @@ export default function OnboardingView() {
                             required
                             isError={availability === 'taken' || availability === 'invalid'}
                         />
-                        
+
                         <AnimatePresence>
                             {availability && (
                                 <Motion.div
@@ -175,16 +175,15 @@ export default function OnboardingView() {
                                     exit={{ opacity: 0, height: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className={`text-[12px] font-black font-rabar pt-1 pr-2 flex items-center gap-1.5 ${
-                                        availability === 'available' ? 'text-emerald-400' :
-                                        availability === 'checking' ? 'text-blue-400' : 'text-red-400'
-                                    }`}>
+                                    <div className={`text-[12px] font-black font-rabar pt-1 pr-2 flex items-center gap-1.5 ${availability === 'available' ? 'text-emerald-400' :
+                                            availability === 'checking' ? 'text-blue-400' : 'text-red-400'
+                                        }`}>
                                         <span className="material-symbols-outlined text-[16px]">
                                             {availability === 'available' ? 'check_circle' :
-                                             availability === 'checking' ? 'sync' : 'error'}
+                                                availability === 'checking' ? 'sync' : 'error'}
                                         </span>
                                         {availability === 'available' ? 'ئەڤ ناڤە یێ ئامادەیە' :
-                                         availability === 'checking' ? 'لێگەریان...' : error}
+                                            availability === 'checking' ? 'لێگەریان...' : error}
                                     </div>
                                 </Motion.div>
                             )}
@@ -194,11 +193,10 @@ export default function OnboardingView() {
                     <button
                         type="submit"
                         disabled={loading || availability !== 'available'}
-                        className={`w-full py-3.5 rounded-md font-black font-rabar text-base transition-all duration-300 flex items-center justify-center gap-2 ${
-                            availability === 'available' && !loading
-                            ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
-                            : 'bg-mono-200 dark:bg-white/10 text-mono-400 dark:text-white/20 cursor-not-allowed'
-                        }`}
+                        className={`w-full py-3.5 rounded-md font-black font-rabar text-base transition-all duration-300 flex items-center justify-center gap-2 ${availability === 'available' && !loading
+                                ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/20'
+                                : 'bg-mono-200 dark:bg-white/10 text-mono-400 dark:text-white/20 cursor-not-allowed'
+                            }`}
                     >
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

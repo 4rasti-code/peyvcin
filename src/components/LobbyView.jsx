@@ -93,10 +93,10 @@ const LobbyView = memo(({
         return;
       }
 
-      console.log(`[LobbyView] Attempting to send invite to channel: user_invites_${targetUserId}`);
+      console.log('1. Attempting to create channel for user:', targetUserId);
       const channel = supabase.channel(`user_invites_${targetUserId}`, { config: { broadcast: { ack: true } } });
       channel.subscribe(async (status) => {
-        console.log(`[LobbyView] Channel subscribe status:`, status);
+        console.log('2. Channel status:', status);
         if (status === 'SUBSCRIBED') {
           console.log(`[LobbyView] Sending broadcast event match_invite...`);
           const resp = await channel.send({
@@ -107,7 +107,7 @@ const LobbyView = memo(({
               hostName: userNickname || 'هەڤالەکێ تە'
             }
           });
-          console.log(`[LobbyView] Broadcast sent! Response:`, resp);
+          console.log('3. Broadcast send response:', resp);
           setTimeout(() => supabase.removeChannel(channel), 1000);
         }
       });
@@ -291,7 +291,7 @@ const LobbyView = memo(({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm bg-mono-100 dark:bg-mono-900 rounded-2xl p-6 shadow-2xl border border-mono-200 dark:border-mono-800 flex flex-col max-h-[80vh]"
+              className="w-full max-w-sm bg-mono-100 dark:bg-mono-900 rounded-md p-6 shadow-2xl border border-mono-200 dark:border-mono-800 flex flex-col max-h-[80vh]"
             >
               {inviteStep === 'select' ? (
                 <>
@@ -303,7 +303,7 @@ const LobbyView = memo(({
                         setShowMultiplayerModal(false);
                         onStartMultiplayer();
                       }}
-                      className="w-full py-4 rounded-xl bg-linear-to-r from-[#ff6b00] to-[#e65c00] hover:brightness-110 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-4 rounded-md bg-linear-to-r from-[#ff6b00] to-[#e65c00] hover:brightness-110 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
                     >
                       <span className="material-symbols-outlined">public</span>
                       لێگەڕیانا گشتی
@@ -313,14 +313,14 @@ const LobbyView = memo(({
                         triggerHaptic(10);
                         setInviteStep('invite');
                       }}
-                      className="w-full py-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
                     >
                       <span className="material-symbols-outlined">person_add</span>
                       داخوازکرنا تایبەت
                     </button>
                     <button 
                       onClick={() => setShowMultiplayerModal(false)}
-                      className="w-full py-3 rounded-xl bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm mt-2"
+                      className="w-full py-3 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm mt-2"
                     >
                       ڤەگەڕیان
                     </button>
@@ -332,12 +332,17 @@ const LobbyView = memo(({
                     <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors">
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
-                    <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex-1 mr-4">یاریزانێن ئۆنلاین</h3>
+                    <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex-1 flex items-center justify-center gap-2 mr-4">
+                      یاریزانێن ئۆنلاین
+                      {loadingOnline && onlineProfiles.length > 0 && (
+                        <span className="material-symbols-outlined animate-spin text-sm text-blue-500">sync</span>
+                      )}
+                    </h3>
                   </div>
                   
-                  <div className="flex-1 overflow-y-auto min-h-[150px] pr-2 custom-scrollbar space-y-2 mb-4">
-                    {loadingOnline ? (
-                      <div className="flex flex-col items-center justify-center py-8 opacity-50">
+                  <div className={`overflow-y-auto h-[250px] pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
+                    {loadingOnline && onlineProfiles.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center h-full opacity-50">
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
@@ -345,7 +350,7 @@ const LobbyView = memo(({
                       onlineProfiles.map(profile => {
                         const isSent = sentInvites.has(profile.id);
                         return (
-                          <div key={profile.id} className="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
+                          <div key={profile.id} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
                                 <Avatar src={profile.avatar_url} size="full" border={false} />
@@ -365,7 +370,7 @@ const LobbyView = memo(({
                             <button
                               onClick={() => handleSendInviteToUser(profile.id)}
                               disabled={isSent}
-                              className={`px-4 py-2 rounded-lg font-bold text-xs transition-all flex items-center gap-1 ${
+                              className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center gap-1 ${
                                 isSent 
                                   ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default' 
                                   : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
@@ -384,7 +389,7 @@ const LobbyView = memo(({
                         );
                       })
                     ) : (
-                      <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+                      <div className="flex flex-col items-center justify-center h-full text-center px-4">
                         <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
                           <span className="material-symbols-outlined text-2xl">person_off</span>
                         </div>
@@ -396,7 +401,7 @@ const LobbyView = memo(({
                   <div className="shrink-0 mt-auto pt-2 border-t border-mono-200 dark:border-mono-800">
                     <button 
                       onClick={() => setShowMultiplayerModal(false)}
-                      className="w-full py-3 rounded-xl bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm"
+                      className="w-full py-3 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm"
                     >
                       داخستن
                     </button>

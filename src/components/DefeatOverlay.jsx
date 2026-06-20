@@ -103,12 +103,7 @@ const DefeatOverlay = ({
                  تو سەرنەکەڤتی!
               </h2>
 
-              {solvedWord && (
-                <div className="bg-mono-100 dark:bg-[#141414] border border-mono-200 dark:border-white/5 px-3 py-1.5 rounded-sm inline-block">
-                  <span className="text-mono-400 dark:text-white/40 text-[9px] font-bold uppercase  block mb-0.5">پەیڤا ڕاست</span>
-                  <span className="text-base font-black text-mono-900 dark:text-white font-heading tracking-normal">{solvedWord}</span>
-                </div>
-              )}
+
 
               {/* Stats & Penalties Table */}
               <div className="w-full space-y-1.5 mt-0.5 bg-mono-100 dark:bg-mono-900/60 p-2 rounded border border-red-500/10 text-right">

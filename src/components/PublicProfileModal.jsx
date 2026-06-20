@@ -105,16 +105,29 @@ export default function PublicProfileModal({
   if (!profile) return null;
 
   const baseData = fullData || profile;
+  const isBot = baseData?.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
   
   // Exponential Progress Logic (Standardized)
-  const levelData = getLevelData(baseData.xp || 0);
-  const displayData = { ...baseData, level: levelData.level };
+  const levelData = isBot ? { level: 99, progressPercent: 100, nextLevelBase: 999999 } : getLevelData(baseData.xp || 0);
+  const displayData = isBot ? { 
+    ...baseData, 
+    level: 99, 
+    xp: 999999, 
+    nickname: 'پەیڤۆک', 
+    is_kurdistan: true, 
+    country_code: 'IQ',
+    games_won: 9999,
+    daily_streak: 999,
+    kurdish_words_completed: 9999,
+    words_without_hints: 9999,
+    mode_classic_played: 9999
+  } : { ...baseData, level: levelData.level };
   const safeLevel = levelData.level;
   const progressRatio = levelData.progressPercent;
   const nextLevelXP = Math.round(levelData.nextLevelBase);
 
   // Online Status Logic: Consider online if active in the last 3 minutes
-  const isOnline = isMe || onlineUsers?.has(displayData.id) || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
+  const isOnline = isBot || isMe || onlineUsers?.has(displayData.id) || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
 
   // Mastery Logic
   const getMastery = (d) => {
@@ -315,7 +328,7 @@ export default function PublicProfileModal({
         </button>
 
         {/* Level Badge - Reverted to Top Right Corner of Modal */}
-        {(() => {
+        {!isBot && (() => {
           const tier = getLevelTier(safeLevel);
           return (
             <div className="absolute top-4 right-5 z-10 scale-125 origin-top-right">
@@ -368,21 +381,30 @@ export default function PublicProfileModal({
                 </div>
 
                 <div className="w-full h-full rounded-full bg-mono-white dark:bg-slate-900 flex items-center justify-center border-4 border-mono-white dark:border-slate-900 relative z-10 overflow-hidden">
-                  <Avatar
-                    src={displayData.avatar_url}
-                    updatedAt={displayData.updated_at}
-                    size="2xl"
-                    border={false}
-                    className="w-full h-full object-cover"
-                  />
+                  {isBot ? (
+                    <div className="w-full h-full flex items-center justify-center bg-white dark:bg-[#141414]">
+                      <img src="/Peyvok-logo-01.png" alt="Bot Avatar" className="w-[70%] h-[70%] object-contain block dark:hidden" />
+                      <img src="/Peyvok-logo-02.png" alt="Bot Avatar" className="w-[70%] h-[70%] object-contain hidden dark:block" />
+                    </div>
+                  ) : (
+                    <Avatar
+                      src={displayData.avatar_url}
+                      updatedAt={displayData.updated_at}
+                      size="2xl"
+                      border={false}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
 
                 {/* Highest Medal Badge - On Avatar Circle */}
-                <div 
-                  className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110"
-                >
-                  <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
-                </div>
+                {!isBot && (
+                  <div 
+                    className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110"
+                  >
+                    <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
+                  </div>
+                )}
 
                 {/* Online Indicator on Avatar Edge */}
                 {isOnline && (
@@ -397,15 +419,15 @@ export default function PublicProfileModal({
         <div className="space-y-1 mb-3 flex flex-col items-center">
           <div className="flex items-center justify-center gap-2">
             <h2
-              className="text-2xl font-black font-rabar transition-colors duration-500"
-              style={{ color: getLevelTier(safeLevel).stop1 }}
+              className={`text-2xl font-black font-rabar transition-colors duration-500 ${isBot ? 'text-primary' : ''}`}
+              style={isBot ? {} : { color: getLevelTier(safeLevel).stop1 }}
             >
               {displayData.nickname}
             </h2>
             <FlagBadge countryCode={displayData.country_code} isInKurdistan={displayData.is_kurdistan} size="sm" />
           </div>
 
-          {mastery && (
+          {mastery && !isBot && (
             <div className="relative mt-2 pt-1 flex items-center justify-center gap-2 group">
               <div
                 className="relative flex items-center justify-center cursor-pointer"
@@ -438,7 +460,7 @@ export default function PublicProfileModal({
           )}
 
           {/* Social Action Icons Row */}
-          {!isMe && (
+          {!isMe && !isBot && (
             <div className="flex items-center justify-center gap-3 mt-4 pt-1">
               {/* Friend Action */}
               {relStatus === 'friend' && !effectiveIsBlocked && (
@@ -468,7 +490,7 @@ export default function PublicProfileModal({
         </div>
 
         {/* Stats Grid */}
-        {!loading && (() => {
+        {!loading && !isBot && (() => {
           const tier = getLevelTier(safeLevel);
           return (
             <Motion.div
@@ -555,7 +577,7 @@ export default function PublicProfileModal({
         {/* Bottom Section (Conditional) */}
         {(() => {
           const hasConfirm = showUnfriendConfirm || showBlockConfirm;
-          const showBottom = isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
+          const showBottom = isBot || isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
           
           if (!showBottom) return null;
 
@@ -594,10 +616,10 @@ export default function PublicProfileModal({
                     <span className="material-symbols-outlined text-lg">close</span>
                   </button>
                 </div>
-              ) : relStatus === 'friend' ? (
+              ) : relStatus === 'friend' || isBot ? (
                 <button
                   onClick={() => { triggerHaptic(20); onOpenChat(displayData || profile); }}
-                  className="w-full py-2.5 rounded-md bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 font-black text-sm hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar border border-white/10 shadow-sm"
+                  className="w-full py-2.5 rounded-md bg-primary text-slate-950 font-black text-sm hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm"
                 >
                   <span>نامەیێ بھنێرە</span>
                   <span className="material-symbols-outlined text-lg">chat</span>

@@ -279,7 +279,7 @@ export const MultiplayerProvider = ({ children }) => {
       await supabase.from('online_matches').update(updates).eq('id', mId);
       
       // Standardized DB Reward Sync (Battle Reward: 1 Dinar, 100 XP)
-      const rewardData = await syncProgressToDatabase(5, 'battle');
+      const rewardData = await syncProgressToDatabase(5, 'battle', { isWin: true, attempts: 1 });
       if (rewardData) setMatchReward(rewardData);
       // Trigger reward sound
       try { playRewardSound(); } catch(_e) { /* Audio context failure */ }
@@ -374,10 +374,43 @@ export const MultiplayerProvider = ({ children }) => {
     const idToCancel = matchId || matchIdRef.current;
     const isValidId = idToCancel && idToCancel !== 'null' && idToCancel !== 'undefined';
     
+    // Capture state needed for DB queries before clearing
+    const wasPlaying = multiplayerState === 'playing';
+    const isP1 = activeMatch?.player1_id === user?.id;
+
+    // IMMEDIATELY CLEAR LOCAL STATE TO PREVENT RACE CONDITIONS AND RE-TRIGGERS
+    setMatchId(null);
+    setActiveMatchGuarded(null);
+    setOpponentGuarded(null);
+    setMultiplayerStateGuarded('idle');
+    setMatchmakingTime(0);
+    setOpponentGuesses([]);
+    setScores({ p1: 0, p2: 0 });
+    setCurrentWordIndex(0);
+    setForfeitStatus(null);
+    setMatchResultTrigger(0);
+    setLastMatchResult(null);
+    setMatchReward(null);
+    
+    if (forfeitTimerRef.current) {
+      clearTimeout(forfeitTimerRef.current);
+      forfeitTimerRef.current = null;
+    }
+
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
+    }
+
+    try { 
+      stopSearchingSound(false); 
+    } catch (e) {
+      console.warn("Failed to stop searching sound:", e);
+    }
+
     try {
       if (isValidId) {
-          const isP1 = activeMatch?.player1_id === user?.id;
-          if (multiplayerState === 'playing') {
+          if (wasPlaying) {
             const updates = { status: 'finished' };
             // Award the win to the OTHER player and reset the leaver's score
             if (isP1) {
@@ -390,42 +423,12 @@ export const MultiplayerProvider = ({ children }) => {
             await supabase.from('online_matches').update(updates).eq('id', idToCancel);
             applyPenalty(10, 25); // Very light penalty for leaving mid-game
           } else {
-            // If just searching/waiting, delete the record
+            // If just searching/waiting/game_over, delete the record
             await supabase.from('online_matches').delete().eq('id', idToCancel);
           }
         }
     } catch (err) {
       console.warn('[Multiplayer] Cancel/Cleanup failed:', err);
-    } finally {
-      setMatchId(null);
-      setActiveMatchGuarded(null);
-      setOpponentGuarded(null);
-      setMultiplayerStateGuarded('idle');
-      setMatchmakingTime(0);
-      setOpponentGuesses([]);
-      setScores({ p1: 0, p2: 0 });
-      setCurrentWordIndex(0);
-      setForfeitStatus(null);
-      setMatchResultTrigger(0);
-      setLastMatchResult(null);
-      setMatchReward(null);
-      
-      if (forfeitTimerRef.current) {
-        clearTimeout(forfeitTimerRef.current);
-        forfeitTimerRef.current = null;
-      }
-
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current);
-        channelRef.current = null;
-      }
-
-      // STOP SEARCHING SOUND
-      try { 
-        stopSearchingSound(false); 
-      } catch (e) {
-        console.warn("Failed to stop searching sound:", e);
-      }
     }
   }, [matchId, multiplayerState, stopSearchingSound, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded, activeMatch?.player1_id, applyPenalty, user?.id]);
 
@@ -492,19 +495,30 @@ export const MultiplayerProvider = ({ children }) => {
           const updatedMatch = payload.new;
           if (!updatedMatch) return;
 
-          setActiveMatchGuarded(updatedMatch);
+          // Fetch full match data to ensure columns like 'words' and 'player1_id' are not missing due to REPLICA IDENTITY DEFAULT
+          supabase.from('online_matches').select('*').eq('id', updatedMatch.id).maybeSingle()
+            .then(({ data: fullMatch, error }) => {
+              if (error || !fullMatch) {
+                console.error("[Multiplayer] Full match fetch failed or blocked by RLS:", error);
+                return;
+              }
+              
+              if (fullMatch) {
+                setActiveMatchGuarded(fullMatch);
 
-          // 2.1 DIRECT HANDSHAKE RESOLUTION: If we are Host and a Joiner just claimed the room
-          const isP1 = updatedMatch.player1_id === user?.id;
-          if (isP1 && updatedMatch.player2_id && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
-            console.log('[Multiplayer] Realtime found Joiner! Resolving handshake...');
-            fetchOpponentProfile(updatedMatch.player2_id).then(prof => {
-              if (prof) {
-                setMultiplayerStateGuarded('playing');
-                triggerHaptic([50, 50, 100]);
+                // 2.1 DIRECT HANDSHAKE RESOLUTION: If we are Host and a Joiner just claimed the room
+                const isP1 = fullMatch.player1_id === user?.id;
+                if (isP1 && fullMatch.player2_id && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
+                  console.log('[Multiplayer] Realtime found Joiner! Resolving handshake...');
+                  fetchOpponentProfile(fullMatch.player2_id).then(prof => {
+                    if (prof) {
+                      setMultiplayerStateGuarded('playing');
+                      triggerHaptic([50, 50, 100]);
+                    }
+                  });
+                }
               }
             });
-          }
         }
       )
       .on(
@@ -635,7 +649,7 @@ export const MultiplayerProvider = ({ children }) => {
             }
           }
         } else {
-          if (multiplayerState !== 'waiting' && multiplayerState !== 'searching') {
+          if (multiplayerState !== 'waiting' && multiplayerState !== 'searching' && multiplayerState !== 'private_lobby') {
             setMultiplayerState('waiting');
           }
         }
@@ -696,11 +710,16 @@ export const MultiplayerProvider = ({ children }) => {
         // SYNC REWARDS TO DATABASE
         if (result === 'victory') {
           const isFlawless = myScore === 3 && oppScore === 0;
-          syncProgressToDatabase(10, 'battle', { isPvPFlawless: isFlawless }).then(rewardData => {
+          const attemptsVal = isFlawless ? 1 : (oppScore === 1 ? 2 : 3);
+          syncProgressToDatabase(10, 'battle', { 
+            isPvPFlawless: isFlawless,
+            isWin: true,
+            attempts: attemptsVal 
+          }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         } else if (result === 'draw') {
-          syncProgressToDatabase(10, 'battle_draw').then(rewardData => {
+          syncProgressToDatabase(10, 'battle_draw', { isWin: false }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         }
@@ -986,22 +1005,19 @@ export const MultiplayerProvider = ({ children }) => {
     try {
       if (supabase.realtime && !supabase.realtime.isConnected()) supabase.realtime.connect();
 
-      // Find the room using id or starting with code
-      const { data: targetMatches, error: searchError } = await supabase
+      // Find the room securely
+      const { data: targetMatch, error: searchError } = await supabase
         .from('online_matches')
         .select('*')
-        .eq('status', 'private_waiting')
-        .is('player2_id', null)
-        .neq('player1_id', user.id)
-        .ilike('id', `${roomIdOrCode}%`) // Allows joining by first 6 chars or full UUID
-        .limit(1);
+        .eq('id', roomIdOrCode)
+        .maybeSingle();
       
-      if (searchError || !targetMatches || targetMatches.length === 0) {
+      if (searchError || !targetMatch) {
+        console.error("[Multiplayer] Match not found or access denied:", searchError);
+        alert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
         setMultiplayerStateGuarded('idle');
         return false;
       }
-
-      const targetMatch = targetMatches[0];
 
       // Atomic claim
       const { data: joinedMatch, error: claimError } = await supabase
@@ -1013,7 +1029,14 @@ export const MultiplayerProvider = ({ children }) => {
         .eq('id', targetMatch.id)
         .is('player2_id', null)
         .select()
-        .single();
+        .maybeSingle();
+
+      if (claimError || !joinedMatch) {
+        console.error("[Multiplayer] Match not found or access denied:", claimError);
+        alert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
+        setMultiplayerStateGuarded('idle');
+        return false;
+      }
 
       if (!claimError && joinedMatch) {
         setMatchId(joinedMatch.id);

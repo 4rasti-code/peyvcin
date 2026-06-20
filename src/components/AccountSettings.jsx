@@ -6,6 +6,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { COUNTRIES } from '../data/countries';
 import FlagBadge from './FlagBadge';
 import { toKuDigits } from '../utils/formatters';
+import UpgradeAccountModal from './UpgradeAccountModal';
 
 export default function AccountSettings({ updateProfile }) {
    const { user, userNickname, countryCode, isInKurdistan, lastNicknameUpdate } = useUser();
@@ -36,6 +37,7 @@ export default function AccountSettings({ updateProfile }) {
    const [isEditNicknameModalOpen, setIsEditNicknameModalOpen] = useState(false);
    const [isEditCountryModalOpen, setIsEditCountryModalOpen] = useState(false);
    const [showLockToast, setShowLockToast] = useState(false);
+   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
    let isHardLocked = false;
    let daysRemaining = 0;
@@ -89,25 +91,34 @@ export default function AccountSettings({ updateProfile }) {
          {/* 4. ACCOUNT SETTINGS SECTION */}
          <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5 relative">
             
-            <div className="w-full flex items-center justify-between transition-all py-3">
-               <div className="flex items-center gap-2">
-                  <button
-                     onClick={() => { 
-                        triggerHaptic(10); 
-                        if (isHardLocked) {
-                           setShowLockToast(true);
-                           setTimeout(() => setShowLockToast(false), 3000);
-                           return;
-                        }
-                        setIsEditNicknameModalOpen(true);
-                     }}
-                     className={`px-4 py-2.5 rounded-md font-bold font-rabar text-[12px] transition-all flex items-center gap-2 shrink-0 ${isHardLocked ? 'bg-mono-100 dark:bg-mono-800/50 text-mono-400 cursor-not-allowed' : 'bg-mono-100 dark:bg-white/10 text-mono-800 dark:text-mono-100 hover:bg-mono-200 dark:hover:bg-white/20 active:scale-95'}`}
-                  >
-                     <span>بگوهۆڕە</span>
-                     {isHardLocked ? <span className="material-symbols-outlined text-[14px]">lock</span> : <span className="material-symbols-outlined text-[14px]">edit_square</span>}
-                  </button>
+            <div className="w-full flex flex-col transition-all py-3 border-b border-mono-100 dark:border-white/5">
+               <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                     <button
+                        onClick={() => { 
+                           if (user?.is_anonymous) return;
+                           triggerHaptic(10); 
+                           if (isHardLocked) {
+                              setShowLockToast(true);
+                              setTimeout(() => setShowLockToast(false), 3000);
+                              return;
+                           }
+                           setIsEditNicknameModalOpen(true);
+                        }}
+                        className={`px-4 py-2.5 rounded-md font-bold font-rabar text-[12px] transition-all flex items-center gap-2 shrink-0 ${user?.is_anonymous || isHardLocked ? 'bg-mono-100 dark:bg-mono-800/50 text-mono-400 cursor-not-allowed' : 'bg-mono-100 dark:bg-white/10 text-mono-800 dark:text-mono-100 hover:bg-mono-200 dark:hover:bg-white/20 active:scale-95'}`}
+                     >
+                        <span>{user?.is_anonymous ? 'قوفلکریە' : 'بگوهۆڕە'}</span>
+                        {user?.is_anonymous || isHardLocked ? <span className="material-symbols-outlined text-[14px]">lock</span> : <span className="material-symbols-outlined text-[14px]">edit_square</span>}
+                     </button>
+                  </div>
+                  <span className={`text-[17px] font-bold font-rabar text-mono-900 dark:text-white ${isHardLocked || user?.is_anonymous ? 'opacity-50' : ''}`}>{userNickname}</span>
                </div>
-               <span className={`text-[17px] font-bold font-rabar text-mono-900 dark:text-white ${isHardLocked ? 'opacity-50' : ''}`}>{userNickname}</span>
+               
+               {user?.is_anonymous && (
+                  <div className="flex flex-col items-end mt-1 w-full">
+                     <span className="text-[11px] font-bold font-rabar text-mono-500">هیڤیە بۆ گۆهۆڕینا ناسناڤی، خوە تۆمار بکە</span>
+                  </div>
+               )}
                
                <AnimatePresence>
                   {showLockToast && (
@@ -152,7 +163,7 @@ export default function AccountSettings({ updateProfile }) {
                                     if (saveError) setSaveError(null);
                                  }}
                                  maxLength={20}
-                                 className="w-full h-14 border rounded-md px-4 font-black font-rabar text-right text-[15px] bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-500 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                                 className="w-full h-14 border rounded-md px-4 font-black font-rabar text-right text-[15px] transition-all outline-none bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-500 focus:border-primary focus:ring-1 focus:ring-primary"
                                  autoFocus
                               />
                               <AnimatePresence>
@@ -272,14 +283,44 @@ export default function AccountSettings({ updateProfile }) {
                )}
             </div>
 
-            <div className="w-full flex items-center justify-between transition-all py-3">
-               <div className="flex items-center gap-2"></div>
-               <div className="flex items-center gap-2 flex-row-reverse">
-                  <span className="material-symbols-outlined text-[18px] text-mono-400 dark:text-mono-500">mail</span>
-                  <span className="text-[15px] font-bold font-rabar text-mono-500 dark:text-mono-400 truncate max-w-[200px]" dir="ltr">{user?.email || 'جیمایڵ نەتایبەتە'}</span>
-               </div>
-            </div>
          </div>
+
+         {/* ACCOUNT LINKING SECTION */}
+         <div className="w-full pt-2">
+            <div className="flex items-center w-full pb-4">
+               <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
+               <span className="px-4 text-[13px] font-black font-rabar text-mono-400 dark:text-mono-500">هەژمار</span>
+               <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
+            </div>
+            
+            <button
+               onClick={() => {
+                  if (user?.is_anonymous) {
+                     triggerHaptic(10);
+                     setIsUpgradeModalOpen(true);
+                  }
+               }}
+               disabled={!user?.is_anonymous}
+               className={`w-full h-[54px] rounded-xl relative flex items-center justify-center font-black font-rabar transition-all ${user?.is_anonymous ? 'bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-600/20 active:scale-[0.98]' : 'bg-mono-100 dark:bg-white/5 text-mono-500 cursor-default'}`}
+               dir="rtl"
+            >
+               <span className="material-symbols-outlined text-[20px] absolute left-5">mail</span>
+               <span className="text-[15px] tracking-wide">{user?.is_anonymous ? 'ئیمەیل' : 'بەسراوە ب ئیمەیل'}</span>
+               {!user?.is_anonymous && (
+                  <span className="absolute right-5 text-[12px] font-bold truncate max-w-[130px] opacity-70" dir="ltr">{user?.email}</span>
+               )}
+            </button>
+         </div>
+
+         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
+         <UpgradeAccountModal 
+            isOpen={isUpgradeModalOpen} 
+            onSuccess={() => {
+               setIsUpgradeModalOpen(false);
+               setIsEditNicknameModalOpen(false); // Close settings if they registered successfully
+            }} 
+            onClose={() => setIsUpgradeModalOpen(false)}
+         />
       </div>
    );
 }

@@ -22,7 +22,7 @@ import KurdishSunLoader from './components/KurdishSunLoader';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatus';
-import { getRewardForMode } from './utils/progression';
+import { getRewardForMode, getTotalXPForLevel } from './utils/progression';
 import useGameLogic from './hooks/useGameLogic';
 import { FilsIcon, DerhemIcon, DinarIcon } from './components/CurrencyIcon';
 import { AVATARS } from './data/avatars';
@@ -84,6 +84,7 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import DataDeletion from './components/DataDeletion';
 import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
+import UpgradeAccountModal from './components/UpgradeAccountModal';
 
 const PEYVOK_VERSION = '2.0.0';
 
@@ -250,6 +251,69 @@ export default function App() {
       OneSignal.logout().catch(err => console.warn("🔔 [OneSignal] Logout Error:", err));
     }
   }, [user?.id]);
+
+  // --- GUEST LEVEL 5 PROGRESSION TRIGGER ---
+  useEffect(() => {
+    if (!user || !user.is_anonymous || !profileData || typeof profileData.xp !== 'number') return;
+    
+    const xpThreshold = getTotalXPForLevel(5);
+    const hasBeenNotified = localStorage.getItem('guest_level5_notified') === 'true';
+
+    if (profileData.xp >= xpThreshold && !hasBeenNotified) {
+      console.log("[Progression] Guest reached Level 5. Sending automated system message.");
+      
+      const sendSystemMessage = async () => {
+        try {
+          const { error } = await supabase.from('messages').insert([{
+            content: "تو گەهشتیە ئاستەکێ باش!\nلێ بۆ پاراستنا ئاست و زانیاریێن خوە و بەردەوامبوونا یاریێ، پێدڤیە هژمارا خوە ب شێوەیەکێ فەرمی تۆمار بکەی. ئەو کەسێن وەکو مێڤان خوە تۆمارکرین و بێی ئیمێل، دێ پشتی ٧ ڕۆژان ب شێوەیەکێ تۆتۆماتیکی هێنە ژێبرن د ناڤ یاریێ دا. هێڤیە ب زویترین دەم ب شێوەیەکێ فەرمی ب ڕێکا ئیمێلی خوە تۆمار بکە!",
+            user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
+            user_nickname: 'پەیڤۆک',
+            receiver_id: user.id,
+            is_read: false
+          }]);
+
+          if (error) throw error;
+          
+          localStorage.setItem('guest_level5_notified', 'true');
+        } catch (err) {
+          console.error("Failed to send guest level 5 message:", err);
+        }
+      };
+
+      sendSystemMessage();
+    }
+  }, [user, profileData]);
+
+  // --- BETA WELCOME MESSAGE TRIGGER ---
+  useEffect(() => {
+    if (!user || !user.id) return;
+
+    const hasBeenWelcomed = localStorage.getItem('beta_welcome_sent') === 'true';
+
+    if (!hasBeenWelcomed) {
+      console.log("[Welcome] First login detected. Sending automated welcome message.");
+      
+      const sendWelcomeMessage = async () => {
+        try {
+          const { error } = await supabase.from('messages').insert([{
+            content: "سڵاڤ و رێز... ب خێرهاتی بۆ یاریا پەیڤۆک 🧩\n\nمە دڤیا ب ڕێکا ڤێ نامەیێ، هەم ب گەرمی خێرهاتنا تە بکەین و هەم ژی ب شانازی ڤە پێزانینەکا گرنگ بگەهینینە تە. 'پەیڤۆک' یارییەکا کوردی یا رەسەنە، کو ب تەمامی ب دەستێ گەشەپێدەرێن کورد هاتییە دروستکرن و ب ڕەنگەکێ راستەوخۆ گرێدایی زمان و کلتورێ مە یێ دەوڵەمەندە.\n\nیارییا مە نۆکە د قۆناغا تاقیکرنێ (Beta) دایە، و پرۆسەیا دروستکرنا وێ هێشتا یا د بەردەوامە. تیمێ مە ب بەردەوامی کار دکەت بۆ زێدەکرنا پەیڤێن کوردی یێن نووتر و بەرفرەهتر، دگەل چارەسەرکرنا هەر ئاریشەیەکا تەکنیکی کو بهێتە پێش. ژبەر هندێ، ئەگەر تو تووشی هەر ئاریشەیەکێ ببی، قۆناغەکا دەمییە و ئەم کار ل سەر دکەین.\n\nل ڤان نێزیکان، 'پەیڤۆک' دێ ب شێوەیەکێ فەرمی وەک ئەپلیکەیشن بۆ ئەندرۆید (Android) و ئایئۆئێس (iOS) بەردەست بیت!\n\nپشکدارییا تە د ڤێ قۆناغێ دا بۆ مە گەلەک یا گرنگە. تو ئێک ژ بکارهێنەرێن مە یێن دەستپێکێی، و پشتەڤانییا تە دێ هاریکارییا مە کەت بۆ پێشخستنا یاریێ، دا کو ببیتە باشترین یارییا هزری ب زمانێ کوردی/بەهدینی.\n\nزۆر سوپاس بۆ باوەری و پشتەڤانییا تە. \nـ دگەل رێزێن تیما گەشەپێدەرێن \"پەیڤۆک\"",
+            user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
+            user_nickname: 'پەیڤۆک',
+            receiver_id: user.id,
+            is_read: false
+          }]);
+
+          if (error) throw error;
+          
+          localStorage.setItem('beta_welcome_sent', 'true');
+        } catch (err) {
+          console.error("Failed to send beta welcome message:", err);
+        }
+      };
+
+      sendWelcomeMessage();
+    }
+  }, [user]);
 
   // 1. INITIALIZE VIEW FROM URL
   const [currentView, setCurrentView] = useState(() => {
@@ -1774,7 +1838,7 @@ export default function App() {
             )}
 
             {/* SOCIAL ONBOARDING OVERLAY */}
-            {user && profileData && (profileData.onboarded === false || profileData.onboarded === null) && (
+            {user && !user.is_anonymous && profileData && (profileData.onboarded === false || profileData.onboarded === null) && (
               <OnboardingView />
             )}
           </Suspense>
@@ -1985,6 +2049,15 @@ export default function App() {
 
         {/* GLOBAL INVITE TOAST */}
         <GlobalInviteToast />
+
+        {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
+        <UpgradeAccountModal 
+          isOpen={user?.is_anonymous && level >= 5} 
+          onSuccess={() => {
+            // The profile updates will automatically reflect due to AuthContext listeners
+            console.log("Guest account upgraded successfully!");
+          }} 
+        />
 
         {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
         <AnimatePresence>

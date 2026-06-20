@@ -17,11 +17,11 @@ const GlobalInviteToast = () => {
   useEffect(() => {
     if (!user?.id) return;
 
-    console.log(`[GlobalInviteToast] Listening for invites on channel: user_invites_${user.id}...`);
+    console.log('A. GlobalInviteToast MOUNTED for user:', user.id);
     
-    const channel = supabase.channel(`user_invites_${user.id}`);
+    const channel = supabase.channel(`user_invites_${user.id}`, { config: { broadcast: { ack: true } } });
     channel.on('broadcast', { event: 'match_invite' }, (payload) => {
-      console.log('[GlobalInviteToast] Invite Received!', payload);
+      console.log('C. INVITE RECEIVED!', payload);
       const inviteData = payload.payload;
       setInvite(inviteData);
       
@@ -34,7 +34,9 @@ const GlobalInviteToast = () => {
       timeoutRef.current = setTimeout(() => {
         setInvite(null);
       }, 10000);
-    }).subscribe();
+    }).subscribe((status) => {
+      console.log('B. Receiver channel status:', status);
+    });
 
     return () => {
       supabase.removeChannel(channel);

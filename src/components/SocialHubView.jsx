@@ -59,6 +59,52 @@ function useLongPress(onLongPress, onClick, ms = 500) {
   };
 }
 
+const ChatWallpaperPattern = () => {
+  return (
+    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.08] dark:opacity-[0.1] z-0" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="chat-pattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+          <g fill="currentColor">
+            {/* Square tile for a letter */}
+            <rect x="20" y="20" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(10 34 34)" />
+            <text x="34" y="40" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(10 34 34)">پ</text>
+
+            {/* Just a letter */}
+            <text x="120" y="40" fontFamily="Rabar, sans-serif" fontSize="24" fontWeight="bold" transform="rotate(-15 120 40)">ە</text>
+
+            {/* Another tile */}
+            <rect x="150" y="90" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-10 164 104)" />
+            <text x="164" y="110" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-10 164 104)">ی</text>
+
+            {/* A letter */}
+            <text x="50" y="120" fontFamily="Rabar, sans-serif" fontSize="22" fontWeight="bold" transform="rotate(20 50 120)">ڤ</text>
+
+            {/* Two connected tiles */}
+            <rect x="80" y="150" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-5 94 164)" />
+            <text x="94" y="170" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-5 94 164)">ۆ</text>
+
+            <rect x="108" y="150" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-5 122 164)" />
+            <text x="122" y="170" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-5 122 164)">ک</text>
+
+            {/* Magnifying glass looking at a letter */}
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" transform="translate(150, 10) scale(1.2)" opacity="0.6"/>
+            
+            {/* Star/Score */}
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" transform="translate(20, 150) scale(0.8) rotate(-15)" opacity="0.6"/>
+
+            {/* A few scattered small dots for texture */}
+            <circle cx="80" cy="50" r="2" opacity="0.4" />
+            <circle cx="30" cy="100" r="1.5" opacity="0.4" />
+            <circle cx="180" cy="160" r="2" opacity="0.4" />
+            <circle cx="130" cy="110" r="1.5" opacity="0.4" />
+          </g>
+        </pattern>
+      </defs>
+      <rect x="0" y="0" width="100%" height="100%" fill="url(#chat-pattern)" className="text-mono-900 dark:text-mono-100" />
+    </svg>
+  );
+};
+
 function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose }) {
   return (
     <div 
@@ -311,18 +357,25 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
       ref={ref}
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      className={`flex flex-col ${isMe ? 'items-start' : 'items-end'} group max-w-full`}
+      className={`flex flex-col ${isMe ? 'items-start' : 'items-end'} group max-w-full mb-4`}
     >
       {showNickname && (
         <div className="flex items-center gap-1.5 mb-1 px-1">
-          {m.user_avatar && m.user_avatar !== 'default' ? (
+          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+            <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+              <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+              <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+            </div>
+          ) : m.user_avatar && m.user_avatar !== 'default' ? (
             <Avatar src={m.user_avatar} size="xs" border={false} className="w-[18px]! h-[18px]! text-[10px]! shadow-sm" />
           ) : (
             <div className="w-[18px] h-[18px] rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-[9px] font-black text-primary uppercase shrink-0 shadow-sm border border-primary/20">
               {(m.user_nickname || 'ی')[0]}
             </div>
           )}
-          <span className="text-[9px] font-black text-mono-500 uppercase">{m.user_nickname || 'یاریکەر'}</span>
+          <span className={`text-[9px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : 'text-mono-500'}`}>
+            {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'یاریکەر')}
+          </span>
         </div>
       )}
 
@@ -342,7 +395,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
               e.preventDefault();
               onLongPress(m, e.clientX, e.clientY);
             }}
-            className={`message-bubble px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light break-all whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
+            className={`message-bubble px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
                 ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
                 : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
@@ -377,7 +430,9 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
               </div>
               {isMe && !isDeleted && (
                 <div className="flex items-center">
-                  {m.is_read ? (
+                  {m.receiver_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                    <span className="material-symbols-outlined text-[14px] text-mono-300 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
+                  ) : m.is_read ? (
                     <span className="material-symbols-outlined text-[14px] text-primary font-bold" style={{ fontSize: '14px' }}>done_all</span>
                   ) : m.id?.startsWith?.('temp-') ? (
                     <span className="material-symbols-outlined text-[14px] text-mono-300 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
@@ -1170,6 +1225,27 @@ export default function SocialHubView({
         fetchPrivateChatHistory(partnerId);
         // Also refresh conversations list to update last message
         fetchPrivateConversations();
+
+        // Auto-reply logic for System Bot
+        if (partnerId === '9a813c24-b662-477d-a74a-6f822d17bbf1') {
+          setTimeout(async () => {
+            const replyText = msgContent.includes('پێشنیار') || msgContent.includes('ڕەخنە') || msgContent.includes('کێشە') || msgContent.includes('ئاریشە')
+              ? 'زۆر سوپاس بۆ تێبینییا تە! مە پەیاما تە گەهاندە ستافێ گەشەپێدەران و دێ پێداچوونێ ل سەر کەین. هاریکارییا تە یاریێ بەرەڤ پێش دەت.'
+              : msgContent.includes('یارمەتی') || msgContent.includes('چەوا') || msgContent.includes('یاسا') || msgContent.includes('هاریکاری')
+              ? 'بۆ زانینا چەوانییا یاریێ، تو دشێی ل سەر شاشەیا سەرەکی پێل ل ئایکۆنا پرسیارێ (?) بکەی دا کو یاسایان بخوینی. ئەگەر کێشەیەک تە هەبێت، تنێ پەیڤا (پێشنیار) دگەل کێشەیا خوە بنڤێسە.'
+              : 'سلاڤ! ئەز پەیڤۆکم، هاریکارێ تە د یاریێ دا. ئەگەر هەر ڕەخنە یان پێشنیارەک تە هەبێت، تکایە پەیڤا (پێشنیار) دگەل نامەیا خوە بنڤێسە دا کو بگەهیتە دەستێ گەشەپێدەران.';
+
+            await supabase.from('messages').insert([{
+              content: replyText,
+              user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1',
+              user_nickname: 'پەیڤۆک',
+              receiver_id: currentUserId,
+              is_read: false
+            }]);
+            fetchPrivateChatHistory(partnerId);
+            fetchPrivateConversations();
+          }, 1000);
+        }
       }
     } catch (err) {
       console.error("Failed to send message:", err);
@@ -1326,15 +1402,7 @@ export default function SocialHubView({
         {/* Global Chat View */}
         {activeTab === 'global' && (
           <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-black/50 transition-colors duration-500">
-            {/* Delicate Texture Overlay */}
-            <div
-              className="absolute inset-0 opacity-[0.06] dark:opacity-[0.1] pointer-events-none grayscale"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="350" height="350" viewBox="0 0 350 350"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="system-ui, sans-serif" font-size="48" font-weight="900" fill="#9ca3af">پ ە ی ڤ ۆ ک</text></svg>')}")`,
-                backgroundRepeat: 'repeat',
-                backgroundSize: '350px'
-              }}
-            />
+            <ChatWallpaperPattern />
 
             <div
               ref={messagesContainerRef}
@@ -1471,9 +1539,18 @@ export default function SocialHubView({
                 <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center gap-3 z-10 shadow-sm transition-colors duration-300">
                   <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
                   <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
-                    <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
+                    {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+                        <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+                        <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+                      </div>
+                    ) : (
+                      <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
+                    )}
                     <div className="flex flex-col items-start">
-                      <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">{selectedChat.nickname}</span>
+                      <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">
+                        {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
+                      </span>
                       <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
                         {onlineUsers?.has(selectedChat.id) ? 'ئۆنلاینە' : (() => {
                           if (!selectedChat.updated_at) return 'ئۆفلاین';
@@ -1488,15 +1565,7 @@ export default function SocialHubView({
                   </div>
                 </div>
                 <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-mono-900 transition-colors duration-500">
-                  {/* Delicate Texture Overlay */}
-                  <div
-                    className="absolute inset-0 opacity-[0.06] dark:opacity-[0.12] pointer-events-none grayscale invert dark:invert-0"
-                    style={{
-                      backgroundImage: "url('/chat_wallpaper.png')",
-                      backgroundRepeat: 'repeat',
-                      backgroundSize: '450px'
-                    }}
-                  />
+                  <ChatWallpaperPattern />
 
                   <div
                     ref={messagesContainerRef}
@@ -1560,51 +1629,72 @@ export default function SocialHubView({
                     </button>
                   </div>
                 ) : (
-                  privateChats.map(chat => (
-                    <div
-                      key={chat.id}
-                      onClick={() => setSelectedChat(chat)}
-                      className="flex items-center justify-between gap-4 p-3 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 hover:bg-mono-50 dark:hover:bg-mono-800/50 cursor-pointer transition-all group relative active:scale-[0.98] shadow-sm"
-                    >
-                      {/* Left Group: Avatar + Content */}
-                      <div className="flex flex-1 items-center justify-start gap-3 min-w-0">
-                        {/* Avatar */}
-                        <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
-                          <Avatar
-                            src={chat.avatar_url}
-                            lastActive={chat.updated_at}
-                            showStatus={true}
-                            size="md"
-                            border={false}
-                            className="transition-all"
-                          />
-                        </div>
-
-                        {/* Name and Message */}
-                        <div className="flex flex-col items-start min-w-0">
-                          <span className="font-black text-sm text-mono-900 dark:text-mono-100 group-hover:text-primary transition-colors truncate w-full text-left">
-                            {chat.nickname}
-                          </span>
-                          <div className="flex items-center gap-1.5 text-xs font-bold font-rabar text-mono-500 dark:text-mono-400 w-full justify-start">
-                            <span className="material-symbols-outlined text-[14px]">chat</span>
-                            <span className="truncate">{chat.lastMsg || 'نامەک ل ڤێرێیە'}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right Side: Time and Indicator */}
-                      <div className="flex flex-col items-end justify-center min-w-[50px] pr-1">
-                        <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 mb-1">
-                          {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        {chat.unreadCount > 0 && (
-                          <div className="w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center">
-                            {toKuDigits(chat.unreadCount)}
-                          </div>
+                  privateChats.map(chat => {
+                    const isBot = chat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
+                    return (
+                      <div
+                        key={chat.id}
+                        onClick={() => setSelectedChat(chat)}
+                        className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${
+                          isBot
+                            ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-[6px] active:translate-y-[2px] active:shadow-[0_0px_0_#047857] mb-4'
+                            : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
+                        }`}
+                      >
+                        {isBot && (
+                          <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
                         )}
+                        {/* Left Group: Avatar + Content */}
+                        <div className="flex flex-1 items-center justify-start gap-3 min-w-0 relative z-10">
+                          {/* Avatar */}
+                          <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
+                            {isBot ? (
+                              <div className="w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
+                                <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
+                                <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+                              </div>
+                            ) : (
+                              <Avatar
+                                src={chat.avatar_url}
+                                lastActive={chat.updated_at}
+                                showStatus={true}
+                                size="md"
+                                border={false}
+                                className="transition-all"
+                              />
+                            )}
+                          </div>
+
+                          {/* Name and Message */}
+                          <div className="flex flex-col items-start min-w-0">
+                            <span className={`font-black text-sm truncate w-full text-left transition-colors ${
+                              isBot
+                                ? 'text-white'
+                                : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
+                            }`}>
+                              {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
+                            </span>
+                            <div className={`flex items-center gap-1.5 text-xs font-bold font-rabar w-full justify-start ${isBot ? 'text-white/80' : 'text-mono-500 dark:text-mono-400'}`}>
+                              <span className="material-symbols-outlined text-[14px]">chat</span>
+                              <span className="truncate">{chat.lastMsg || 'نامەک ل ڤێرێیە'}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Side: Time and Indicator */}
+                        <div className="flex flex-col items-end justify-center min-w-[50px] pr-1 relative z-10">
+                          <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-400 dark:text-mono-500'}`}>
+                            {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                          {chat.unreadCount > 0 && (
+                            <div className={`w-5 h-5 text-[10px] font-black rounded-full flex items-center justify-center ${isBot ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
+                              {toKuDigits(chat.unreadCount)}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}

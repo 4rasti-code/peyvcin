@@ -214,8 +214,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               gridId="player"
               guesses={guesses}
               currentGuess={currentGuess}
-              targetWord={targetWord}
-              wordLength={targetWord.length}
+              targetWord={targetWord || ''}
+              wordLength={targetWord?.length || 5}
               getLetterStatus={getLetterStatus}
               isDark={isDark}
               compact={true}
@@ -233,21 +233,21 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
           <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md px-4 py-1.5 rounded-full border relative z-10`}>
             <div className="flex items-center justify-center min-w-[24px]">
               <span className={`text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} leading-none tabular-nums`}>
-                {toKuDigits(isPlayer1 ? scores.p1 : scores.p2)}
+                {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
               </span>
             </div>
             
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
             
             <div className={`text-[10px] font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase tracking-widest px-1`}>
-              گەڕ {toKuDigits(currentRound + 1)}
+              گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
             
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
             
             <div className="flex items-center justify-center min-w-[24px]">
               <span className={`text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} leading-none tabular-nums`}>
-                {toKuDigits(isPlayer1 ? scores.p2 : scores.p1)}
+                {toKuDigits(isPlayer1 ? scores?.p2 : scores?.p1)}
               </span>
             </div>
           </div>
@@ -259,10 +259,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             <Grid
               gridId="opponent"
               opponentStatuses={opponentGuesses}
-              wordLength={targetWord.length}
+              wordLength={targetWord?.length || 5}
               maxRows={3}
               hideLetters={true}
-              targetWord={targetWord}
+              targetWord={targetWord || ''}
               getLetterStatus={(guess, i) => {
                 // For opponent's completed rows, we use the pre-calculated colors
                 if (Array.isArray(guess)) return guess[i] || '';
