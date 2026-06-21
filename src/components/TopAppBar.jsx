@@ -5,7 +5,7 @@ import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 import { toKuDigits } from '../utils/formatters';
-import DailyStampIcon from './DailyStampIcon';
+import ClipboardIcon from './ClipboardIcon';
 
 const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
   const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
@@ -127,7 +127,7 @@ export default function TopAppBar({
                     }`}
                   >
                     <div className="w-10 h-10 flex items-center justify-center -ml-1 -mt-1">
-                      <DailyStampIcon className="w-full h-full drop-shadow-md" />
+                      <ClipboardIcon className="w-full h-full drop-shadow-md" />
                     </div>
                   </div>
 
