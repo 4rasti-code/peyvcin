@@ -122,7 +122,7 @@ export default function TopAppBar({
                 >
                   <div className={`relative z-10 w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-500 
                     ${isDailyAvailable
-                      ? 'bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 shadow-[0_4px_15px_rgba(16,185,129,0.4),inset_0_2px_4px_rgba(255,255,255,0.4)] border-t border-emerald-300'
+                      ? 'bg-linear-to-br from-emerald-400 via-emerald-500 to-emerald-600 shadow-[0_4px_15px_rgba(16,185,129,0.4),inset_0_2px_4px_rgba(255,255,255,0.4)] border-t border-emerald-300'
                       : 'bg-slate-800/50 border border-slate-700/50 grayscale opacity-80'
                     }`}
                   >
@@ -133,7 +133,7 @@ export default function TopAppBar({
 
                   {/* Notification Dot (Only when available) */}
                   {isDailyAvailable && (
-                    <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#ef4444] rounded-full border-[2px] border-white dark:border-black shadow-sm" />
+                    <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#ef4444] rounded-full border-2 border-white dark:border-black shadow-sm" />
                   )}
                 </Motion.button>
               </div>
