@@ -4,12 +4,14 @@ import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
 import { useUser } from '../context/AuthContext';
+import { useGame } from '../context/GameContext';
 import Avatar from './Avatar';
 import ClashingSwords from './ClashingSwords';
 import ClassicIcon from './ClassicIcon';
 import MamakIcon from './MamakIcon';
 import CubeIcon from './CubeIcon';
 import TimerIcon from './TimerIcon';
+import ClipboardIcon from './ClipboardIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 
@@ -19,7 +21,7 @@ const LobbyView = memo(({
   onStartHardWords,
   onStartWordFever,
   onStartMultiplayer,
-  _onDailyRewardClick,
+  onDailyRewardClick,
   _dailyStreak,
   _notificationCount = 0,
   onOpenHowToPlay
@@ -33,7 +35,25 @@ const LobbyView = memo(({
   
   const { playSettingsOpenSound } = useAudio();
   const { user, userNickname, onlineUsers } = useUser();
+  const { lastRewardClaimedAt } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch } = useMultiplayer();
+  
+  const isDailyAvailable = (() => {
+    if (!lastRewardClaimedAt) return true;
+    try {
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Baghdad',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      const lastClaimStr = formatter.format(new Date(lastRewardClaimedAt));
+      const todayStr = formatter.format(new Date());
+      return lastClaimStr !== todayStr;
+    } catch {
+      return false;
+    }
+  })();
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
@@ -147,8 +167,10 @@ const LobbyView = memo(({
       className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-mono-white dark:bg-black relative h-full bg-trigger-zone transition-colors duration-500"
     >
       <div className="relative z-10">
+        
         <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
-          <div className="flex items-center justify-start w-full">
+          <div className="flex items-center justify-between w-full">
+            {/* Right Side: Tutorial Button */}
             <div className="flex items-center gap-2">
               <Motion.button
                 whileHover={{ scale: 1.05, y: -1 }}
@@ -161,6 +183,40 @@ const LobbyView = memo(({
                 </span>
                 <span className="text-[11px] font-black font-rabar text-white uppercase mt-0.5">فێرکاری</span>
               </Motion.button>
+            </div>
+            
+            {/* Left Side: Daily Reward Button */}
+            <div className="flex items-center gap-2">
+               <Motion.button
+                 initial={{ opacity: 0, scale: 0.8 }}
+                 animate={{
+                   opacity: 1,
+                   scale: 1,
+                   rotate: isDailyAvailable ? [-2, 2, -2, 2, 0] : 0,
+                 }}
+                 whileHover={{ scale: 1.1 }}
+                 whileTap={{ scale: 0.9 }}
+                 transition={{
+                   rotate: isDailyAvailable ? { repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 3 } : { duration: 0.2 },
+                   type: "spring", stiffness: 400, damping: 17
+                 }}
+                 onClick={(e) => { 
+                    e.stopPropagation(); 
+                    triggerHaptic(15); 
+                    onDailyRewardClick?.(); 
+                 }}
+                 className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+               >
+                 <div className="relative">
+                   <div className="-scale-x-100">
+                     <ClipboardIcon className="w-[58px] h-[58px] transition-transform duration-300 group-hover:scale-110" style={{ willChange: 'transform' }} />
+                   </div>
+                   
+                   {isDailyAvailable && (
+                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-md z-20 animate-pulse" />
+                   )}
+                 </div>
+               </Motion.button>
             </div>
           </div>
         </div>

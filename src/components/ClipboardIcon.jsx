@@ -5,97 +5,68 @@ export default function ClipboardIcon({ className = "w-16 h-16" }) {
     <div className={`relative flex items-center justify-center ${className}`}>
       <style>
         {`
-          @keyframes clipboard-float {
+          @keyframes clipboard-float-simple {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-3px) rotate(1deg); }
+            50% { transform: translateY(-3px) rotate(2deg); }
           }
-          @keyframes pencil-write {
+          @keyframes pencil-write-simple {
             0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            10%, 30%, 50%, 70% { transform: translate(-2px, -1px) rotate(-3deg); }
-            20%, 40%, 60%, 80% { transform: translate(2px, 1px) rotate(1deg); }
+            25% { transform: translate(-2px, -2px) rotate(-4deg); }
+            75% { transform: translate(2px, 2px) rotate(4deg); }
           }
-          @keyframes star-burst {
-             0%, 86% { transform: scale(0) rotate(0deg); opacity: 0; }
-             88% { transform: scale(1.5) rotate(45deg); opacity: 1; }
-             95% { transform: scale(0.5) rotate(120deg); opacity: 0; }
-             100% { opacity: 0; }
-           }
+          @keyframes star-pulse-simple {
+             0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 2px rgba(253,224,71,0.5)); }
+             50% { transform: scale(1.3); opacity: 1; filter: drop-shadow(0 0 6px rgba(253,224,71,0.9)); }
+          }
         `}
       </style>
       
-      <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.3)] overflow-visible absolute inset-0 z-10" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible absolute inset-0 z-10" style={{ transform: 'translateZ(0)', willChange: 'transform' }} xmlns="http://www.w3.org/2000/svg">
+        
         {/* Main Group with Float Animation */}
-        <g style={{ animation: 'clipboard-float 5s infinite ease-in-out', transformOrigin: '50px 50px' }}>
+        <g style={{ animation: 'clipboard-float-simple 4s infinite ease-in-out', transformOrigin: '50px 50px' }}>
           
           {/* --- Board --- */}
-          {/* Shadow/Base Layer */}
-          <rect x="18" y="15" width="56" height="74" rx="8" fill="#b45309" />
-          {/* Top Layer */}
-          <rect x="15" y="12" width="56" height="74" rx="8" fill="#f59e0b" />
+          {/* Main Board Base */}
+          <rect x="20" y="15" width="60" height="75" rx="8" fill="#f59e0b" stroke="#d97706" strokeWidth="2.5" />
+          {/* Board Inner Highlight */}
+          <rect x="22" y="17" width="56" height="71" rx="6" fill="none" stroke="#fbbf24" strokeWidth="1.5" />
           
           {/* --- Paper --- */}
-          {/* Paper Shadow */}
-          <rect x="23" y="27" width="40" height="52" rx="3" fill="#e5e7eb" />
-          {/* Paper Face */}
-          <rect x="21" y="25" width="40" height="52" rx="3" fill="#fef3c7" />
-
+          <rect x="28" y="26" width="44" height="58" rx="2" fill="#fef3c7" stroke="#fcd34d" strokeWidth="1.5" />
+          
           {/* Paper Lines */}
-          <line x1="26" y1="35" x2="56" y2="35" stroke="#fde68a" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="26" y1="43" x2="56" y2="43" stroke="#fde68a" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="26" y1="51" x2="48" y2="51" stroke="#fde68a" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="26" y1="59" x2="52" y2="59" stroke="#fde68a" strokeWidth="1.5" strokeLinecap="round" />
-
+          <line x1="36" y1="42" x2="64" y2="42" stroke="#fde68a" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="36" y1="54" x2="64" y2="54" stroke="#fde68a" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="36" y1="66" x2="55" y2="66" stroke="#fde68a" strokeWidth="2.5" strokeLinecap="round" />
+          
           {/* --- Clip Mechanism --- */}
-          {/* Clip Shadow */}
-          <path d="M 33 5 L 53 5 Q 58 5 58 10 L 58 20 Q 58 25 53 25 L 33 25 Q 28 25 28 20 L 28 10 Q 28 5 33 5 Z" fill="#374151" />
-          {/* Clip Face */}
-          <path d="M 31 3 L 51 3 Q 56 3 56 8 L 56 18 Q 56 23 51 23 L 31 23 Q 26 23 26 18 L 26 8 Q 26 3 31 3 Z" fill="#4b5563" />
+          {/* Clip Body */}
+          <rect x="35" y="8" width="30" height="18" rx="4" fill="#4b5563" stroke="#374151" strokeWidth="2" />
+          {/* Clip Highlight */}
+          <rect x="36" y="9" width="28" height="16" rx="3" fill="none" stroke="#6b7280" strokeWidth="1" />
           {/* Clip Hole */}
-          <circle cx="43" cy="11" r="3" fill="#1f2937" />
-          <circle cx="42" cy="10" r="3" fill="#111827" />
-          <circle cx="42" cy="10" r="1.5" fill="#374151" />
+          <rect x="42" y="13" width="16" height="5" rx="2.5" fill="#1f2937" />
 
           {/* --- Animated Pencil --- */}
-          <g style={{ animation: 'pencil-write 4s infinite ease-in-out 1s', transformOrigin: '80px 80px' }}>
-             {/* Pencil Drop Shadow */}
-             <g filter="drop-shadow(3px 5px 4px rgba(0,0,0,0.4))">
-                {/* Position and rotate the pencil diagonally */}
-                <g transform="translate(52, 22) rotate(35)">
-                  
-                  {/* Eraser */}
-                  <path d="M 0 0 L 14 0 L 14 10 L 0 10 Z" fill="#ef4444" />
-                  <path d="M 0 0 L 6 0 L 6 10 L 0 10 Z" fill="#f87171" /> {/* Eraser Highlight */}
-                  
-                  {/* Metal band */}
-                  <path d="M 0 10 L 14 10 L 14 16 L 0 16 Z" fill="#9ca3af" />
-                  <path d="M 0 12 L 14 12 L 14 14 L 0 14 Z" fill="#6b7280" />
-                  <path d="M 0 10 L 4 10 L 4 16 L 0 16 Z" fill="#d1d5db" /> {/* Metal Highlight */}
-                  
-                  {/* Wood body */}
-                  <path d="M 0 16 L 14 16 L 14 55 L 0 55 Z" fill="#f59e0b" />
-                  <path d="M 0 16 L 5 16 L 5 55 L 0 55 Z" fill="#fbbf24" /> {/* Body Highlight */}
-                  <path d="M 11 16 L 14 16 L 14 55 L 11 55 Z" fill="#d97706" /> {/* Body Shadow */}
-                  
-                  {/* Cone / Sharpened wood */}
-                  <path d="M 0 55 L 14 55 L 7 70 Z" fill="#fcd34d" />
-                  <path d="M 2 55 L 12 55 L 7 66 Z" fill="#fde68a" />
-                  
-                  {/* Lead tip */}
-                  <path d="M 4.5 64.5 L 9.5 64.5 L 7 70 Z" fill="#1f2937" />
-                  
-                </g>
+          <g style={{ animation: 'pencil-write-simple 2s infinite ease-in-out', transformOrigin: '75px 65px' }}>
+             {/* Position and rotate the pencil diagonally */}
+             <g transform="translate(68, 40) rotate(35)">
+                {/* Pencil Base / Wood */}
+                <polygon points="0,0 12,0 12,35 0,35" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5" strokeLinejoin="round" />
+                
+                {/* Eraser End */}
+                <path d="M 0,0 L 12,0 L 12,-8 C 12,-10 10,-12 6,-12 C 2,-12 0,-10 0,-8 Z" fill="#ef4444" stroke="#b91c1c" strokeWidth="1.5" />
+                
+                {/* Metal Band */}
+                <rect x="0" y="-1" width="12" height="6" fill="#9ca3af" stroke="#4b5563" strokeWidth="1.5" />
+                
+                {/* Sharpened Wood Cone */}
+                <polygon points="0,35 12,35 6,50" fill="#fef08a" stroke="#d97706" strokeWidth="1.5" strokeLinejoin="round" />
+                
+                {/* Lead Tip */}
+                <polygon points="3.5,44 8.5,44 6,50" fill="#374151" stroke="#374151" strokeWidth="1.5" strokeLinejoin="round" />
              </g>
-          </g>
-
-          {/* --- Golden Stars bursting from the pencil --- */}
-          <g transform="translate(18, 70)" style={{ animation: 'star-burst 4s infinite 1.5s ease-out', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))' }}>
-            <path d="M 0 -6 L 1.5 -2 L 6 -2 L 2.5 1 L 4 5.5 L 0 3 L -4 5.5 L -2.5 1 L -6 -2 L -1.5 -2 Z" fill="#fde047" />
-          </g>
-          <g transform="translate(28, 80)" style={{ animation: 'star-burst 4s infinite 2.5s ease-out', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))' }}>
-            <path d="M 0 -4 L 1 -1.5 L 4 -1.5 L 1.5 0.5 L 2.5 3.5 L 0 2 L -2.5 3.5 L -1.5 0.5 L -4 -1.5 L -1 -1.5 Z" fill="#fcd34d" />
-          </g>
-          <g transform="translate(12, 85)" style={{ animation: 'star-burst 4s infinite 3.5s ease-out', filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))' }}>
-            <path d="M 0 -3 L 0.8 -1 L 3 -1 L 1.2 0.5 L 2 2.5 L 0 1.2 L -2 2.5 L -1.2 0.5 L -3 -1 L -0.8 -1 Z" fill="#fde047" />
           </g>
 
         </g>
