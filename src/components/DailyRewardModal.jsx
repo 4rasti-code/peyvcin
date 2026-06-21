@@ -8,7 +8,6 @@ import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
-import ClipboardIcon from './ClipboardIcon';
 
 const REWARDS_CONFIG = [
   { day: 1, label: '٢٠٠ فلس', type: 'fils', reward: { fils: 200 }, color: '#CD7F32' },
@@ -134,7 +133,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
 
               <div className="flex flex-col items-center mb-8 text-center relative z-10">
                 <div className="w-16 h-16 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center mb-4 shadow-lg">
-                  <ClipboardIcon className="w-12 h-12 drop-shadow-md" />
+                  <span className="material-symbols-outlined text-4xl text-primary drop-shadow-md">redeem</span>
                 </div>
                 <h2 className="text-3xl font-black text-mono-900 dark:text-white">خەلاتێن ڕۆژانە</h2>
                 <p className="text-mono-500 dark:text-white/50 text-sm font-medium mt-1">٧ ڕۆژ - خەلاتێن بەردەوام و نایاب</p>
@@ -185,7 +184,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         ) : isDay7 ? (
                           <DinarIcon size={isDay7 && isNext ? 85 : 70} />
                         ) : isNext && !isClaimed ? (
-                          <ClipboardIcon className="w-12 h-12" />
+                          <span className="material-symbols-outlined text-4xl!">redeem</span>
                         ) : (
                           <>
                             {item.type === 'fils' ? (
@@ -196,12 +195,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                               <HintIcon size={40} />
                             ) : item.icon === 'auto_fix_high' ? (
                               <MagnetIcon size={40} />
-                            ) : item.icon ? (
-                              <span className="material-symbols-outlined text-4xl!">
-                                {item.icon}
-                              </span>
                             ) : (
-                              <ClipboardIcon className="w-12 h-12" />
+                              <span className="material-symbols-outlined text-4xl!">
+                                {item.icon || 'redeem'}
+                              </span>
                             )}
                           </>
                         )}
@@ -353,14 +350,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                           <HintIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
                           <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(239,68,68,0.5)]" />
-                        ) : claimedDayInfo?.icon ? (
-                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-                            {claimedDayInfo.icon}
-                          </span>
                         ) : (
-                          <div className="flex justify-center items-center">
-                             <ClipboardIcon className="w-[120px] h-[120px] drop-shadow-[0_0_30px_rgba(250,204,21,0.6)]" />
-                          </div>
+                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                            {claimedDayInfo?.icon || 'redeem'}
+                          </span>
                         )}
                       </Motion.div>
                     </Motion.div>

@@ -56,7 +56,7 @@ export default function TopAppBar({
   onNotificationAction,
   gameMode = 'classic',
   onPlaySound,
-  onDailyRewardClick,
+  _onDailyRewardClick,
   onOpenHowToPlay,
   onHint,
   onMagnet,
@@ -66,7 +66,7 @@ export default function TopAppBar({
   magnetUsedInRound = false,
   skipsUsedInRound = 0,
   skipLimit = 1,
-  isDailyAvailable = false,
+  _isDailyAvailable = false,
   isDark = true
 }) {
   const [isNotifsOpen, setIsNotifsOpen] = useState(false);
@@ -101,41 +101,8 @@ export default function TopAppBar({
             </div>
           ) : (
             currentView === 'lobby' ? (
-              <div className="flex items-center gap-1">
-                <Motion.button
-                  key="daily-reward-btn"
-                  initial={{ opacity: 0, scale: 0, x: -20 }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    x: 0,
-                    rotate: isDailyAvailable ? [-2, 2, -2, 2, 0] : 0,
-                  }}
-                  whileHover={isDailyAvailable ? { scale: 1.1 } : {}}
-                  whileTap={isDailyAvailable ? { scale: 0.9 } : {}}
-                  transition={{
-                    rotate: isDailyAvailable ? { repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 3 } : { duration: 0.2 },
-                    type: "spring", stiffness: 400, damping: 17
-                  }}
-                  onClick={() => { triggerHaptic(15); onDailyRewardClick?.(); }}
-                  className={`relative w-14 h-14 flex items-center justify-center group ${!isDailyAvailable ? 'cursor-default' : 'cursor-pointer'}`}
-                >
-                  <div className={`relative z-10 w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-500 
-                    ${isDailyAvailable
-                      ? 'bg-linear-to-br from-emerald-400 via-emerald-500 to-emerald-600 shadow-[0_4px_15px_rgba(16,185,129,0.4),inset_0_2px_4px_rgba(255,255,255,0.4)] border-t border-emerald-300'
-                      : 'bg-slate-800/50 border border-slate-700/50 grayscale opacity-80'
-                    }`}
-                  >
-                    <div className="w-10 h-10 flex items-center justify-center -ml-1 -mt-1">
-                      <ClipboardIcon className="w-full h-full drop-shadow-md" />
-                    </div>
-                  </div>
-
-                  {/* Notification Dot (Only when available) */}
-                  {isDailyAvailable && (
-                    <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#ef4444] rounded-full border-2 border-white dark:border-black shadow-sm" />
-                  )}
-                </Motion.button>
+              <div className="flex items-center justify-end relative h-full">
+                {/* Daily Reward button moved to LobbyView as a floating widget */}
               </div>
             ) : (
               currentView !== 'store' && (
