@@ -119,18 +119,28 @@ export default function TopAppBar({
                   onClick={() => { triggerHaptic(15); onDailyRewardClick?.(); }}
                   className={`relative w-14 h-14 flex items-center justify-center group ${!isDailyAvailable ? 'cursor-default' : 'cursor-pointer'}`}
                 >
-                  <div className={`relative z-10 w-11 h-11 rounded-md flex items-center justify-center transition-all duration-500 
+                  <div className={`relative z-10 w-12 h-12 rounded-[14px] flex items-center justify-center transition-all duration-500 
                     ${isDailyAvailable
-                      ? 'bg-emerald-500 text-white border border-emerald-400/50'
-                      : 'bg-slate-800/50 text-slate-500 border border-slate-700/50 grayscale'
+                      ? 'bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-600 shadow-[0_4px_15px_rgba(16,185,129,0.4),inset_0_2px_4px_rgba(255,255,255,0.4)] border-t border-emerald-300'
+                      : 'bg-slate-800/50 border border-slate-700/50 grayscale opacity-80'
                     }`}
                   >
-                    <span className="material-symbols-outlined text-3xl">redeem</span>
+                    <Motion.div
+                      animate={isDailyAvailable ? { 
+                         rotate: [0, -12, 12, -12, 12, 0],
+                         scale: [1, 1.15, 1.15, 1.15, 1.15, 1] 
+                      } : {}}
+                      transition={isDailyAvailable ? { repeat: Infinity, duration: 1.5, repeatDelay: 3 } : {}}
+                      className="text-[28px] leading-none select-none"
+                      style={{ filter: isDailyAvailable ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : '' }}
+                    >
+                      🎁
+                    </Motion.div>
                   </div>
 
                   {/* Notification Dot (Only when available) */}
                   {isDailyAvailable && (
-                    <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950" />
+                    <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#ef4444] rounded-full border-[2px] border-white dark:border-black shadow-sm" />
                   )}
                 </Motion.button>
               </div>
