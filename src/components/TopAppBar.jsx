@@ -5,6 +5,7 @@ import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 import { toKuDigits } from '../utils/formatters';
+import GiftBoxIcon from './GiftBoxIcon';
 
 const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
   const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
@@ -125,17 +126,9 @@ export default function TopAppBar({
                       : 'bg-slate-800/50 border border-slate-700/50 grayscale opacity-80'
                     }`}
                   >
-                    <Motion.div
-                      animate={isDailyAvailable ? { 
-                         rotate: [0, -12, 12, -12, 12, 0],
-                         scale: [1, 1.15, 1.15, 1.15, 1.15, 1] 
-                      } : {}}
-                      transition={isDailyAvailable ? { repeat: Infinity, duration: 1.5, repeatDelay: 3 } : {}}
-                      className="text-[28px] leading-none select-none"
-                      style={{ filter: isDailyAvailable ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' : '' }}
-                    >
-                      🎁
-                    </Motion.div>
+                    <div className="w-10 h-10 flex items-center justify-center -ml-1 -mt-1">
+                      <GiftBoxIcon className="w-full h-full drop-shadow-md" />
+                    </div>
                   </div>
 
                   {/* Notification Dot (Only when available) */}
