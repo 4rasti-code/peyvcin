@@ -627,8 +627,8 @@ export default function LeaderboardView({ onOpenChat }) {
                     </div>
 
                     {/* Info and Name (CENTERED) */}
-                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2">
-                      <span className={`font-black text-sm tracking-normal uppercase truncate leading-none ${
+                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2 pt-1">
+                      <span className={`font-black text-sm tracking-normal uppercase truncate leading-normal ${
                         rank === 1
                           ? 'text-white'
                           : rank === 2

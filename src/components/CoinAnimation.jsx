@@ -1,31 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
-import { playCoinSfx } from '../utils/audio';
+import ReactDOM from 'react-dom';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, XPIcon, SpinTicketIcon } from './CurrencyIcon';
+import MysteryBoxIcon from './MysteryBoxIcon';
+import { playCoinSfx, playMagnetSfx, playPopSfx, playSuccessSfx } from '../utils/audio';
 
 const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
   const [coins, setCoins] = useState([]);
 
   useEffect(() => {
     if (trigger) {
-      // Dynamic Scaling: Number of coins based on reward amount
-      let length = Math.min(100, Math.max(15, Math.floor((amount || 100) / 10)));
-      if (isDaily) length = Math.max(length, 45); // Daily minimum boost
-      if (['hint', 'magnet', 'skip'].includes(type)) length = Math.min(amount > 0 ? amount : 1, 15); // Exact amount for powerups
-      
-      // Multi-Play Sound Burst Logic
-      const soundCount = Math.min(12, Math.max(3, Math.floor(length / 7)));
-      for (let i = 0; i < soundCount; i++) {
-        setTimeout(() => {
-          playCoinSfx();
-        }, i * (isDaily ? 50 : 80));
+      // Fixed to 10 coins for currencies, or exact amount for powerups
+      let length = 10;
+      if (['hint', 'magnet', 'skip', 'spinTicket', 'mystery_box'].includes(type)) {
+        length = amount > 0 ? amount : 1;
+      } else if (type === 'xp') {
+        length = 10; // XP flies as 10 particles for a burst effect
       }
       
-      const newCoins = Array.from({ length }).map((_, i) => ({
-        id: Date.now() + i,
-        delay: i * (isDaily ? 0.04 : 0.06),
-        x: Math.random() * 160 - 80, 
-        y: Math.random() * 160 - 80,
-      }));
+      let soundTimers = [];
+      const newCoins = Array.from({ length }).map((_, i) => {
+        const delayInSeconds = i * 0.15; // 0.15s gap for optimal rhythm
+        
+        // Play sound exactly when the coin's delay finishes and it starts animating
+        const timer = setTimeout(() => {
+          if (type === 'magnet') {
+            playMagnetSfx();
+          } else if (type === 'hint' || type === 'skip' || type === 'spinTicket') {
+            playPopSfx();
+          } else if (type === 'xp') {
+            playSuccessSfx();
+          } else {
+            playCoinSfx();
+          }
+        }, delayInSeconds * 1000);
+        soundTimers.push(timer);
+        
+        // BUMP effect for all flying items
+        const bumpTime = type === 'spinTicket' ? 1500 : 900;
+        const bumpTimer = setTimeout(() => {
+          let elementId = `topbar-${type}`;
+          if (type === 'spinTicket') {
+            elementId = `nav-lucky-wheel`;
+          } else if (type === 'mystery_box') {
+            elementId = `nav-store`;
+          } else if (type === 'xp') {
+            elementId = `xp-progress`;
+          }
+          
+          const targetEl = document.getElementById(elementId);
+          if (targetEl) {
+            targetEl.classList.remove('animate-wheel-bump');
+            void targetEl.offsetWidth; // Trigger reflow so consecutive coins restart the animation
+            targetEl.classList.add('animate-wheel-bump');
+            setTimeout(() => targetEl.classList.remove('animate-wheel-bump'), 500);
+          }
+          
+          // Notify TopAppBar or other listeners to increment visual counters exactly on impact
+          window.dispatchEvent(new CustomEvent('reward-coin-hit', { detail: { type } }));
+        }, delayInSeconds * 1000 + bumpTime);
+        soundTimers.push(bumpTimer);
+        
+        return {
+          id: Date.now() + i,
+          delay: delayInSeconds,
+          x: Math.random() * 40 - 20, // Slight natural scatter
+          y: Math.random() * 40 - 20,
+        };
+      });
 
       const animationTimer = setTimeout(() => {
         setCoins(newCoins);
@@ -33,29 +74,43 @@ const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
       
       const cleanupTimer = setTimeout(() => {
         setCoins([]);
-      }, 3500); // Clear after animation
+      }, 4500); // Clear after animation
 
       return () => {
         clearTimeout(animationTimer);
         clearTimeout(cleanupTimer);
+        soundTimers.forEach(timer => clearTimeout(timer));
       };
+    } else if (coins.length > 0) {
+      const timer = setTimeout(() => setCoins([]), 0);
+      return () => clearTimeout(timer);
     }
-  }, [trigger, isDaily, amount, type]);
+  }, [trigger, isDaily, amount, type, coins.length]);
 
-  if (coins.length === 0) return null;
-
+  if (!trigger && coins.length === 0) return null;
   const getTargetPosition = () => {
     let elementId = `topbar-${type}`;
-    if (['hint', 'magnet', 'skip'].includes(type) && !document.getElementById(elementId)) {
-      elementId = `btn-${type}`;
+    if (type === 'spinTicket') {
+      elementId = `nav-lucky-wheel`;
+    } else if (type === 'mystery_box') {
+      elementId = `nav-store`;
+    } else if (type === 'xp') {
+      elementId = `xp-progress`;
     }
 
     const el = document.getElementById(elementId);
     if (el) {
       const rect = el.getBoundingClientRect();
+      let offsetY = 0;
+      let offsetX = 0;
+      if (type === 'spinTicket') {
+        offsetY = -25; // User requested it to fly slightly higher
+        offsetX = -15; // User requested it to fly slightly to the left
+      }
+      
       return {
-        targetX: rect.left + rect.width / 2 - window.innerWidth / 2,
-        targetY: rect.top + rect.height / 2 - window.innerHeight / 2
+        targetX: rect.left + rect.width / 2 - window.innerWidth / 2 + offsetX,
+        targetY: rect.top + rect.height / 2 - window.innerHeight / 2 + offsetY
       };
     }
     
@@ -74,30 +129,42 @@ const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
       case 'hint': return <HintIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
       case 'magnet': return <MagnetIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
       case 'skip': return <SkipIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
+      case 'spinTicket': return <SpinTicketIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
+      case 'mystery_box': return <div className="w-11 h-11"><MysteryBoxIcon /></div>;
+      case 'xp': return <XPIcon size={44} className="hover:scale-110 transition-transform drop-shadow-[0_4px_10px_rgba(168,85,247,0.6)]" />;
       default: return <FilsIcon size={44} className="hover:scale-110 transition-transform" />;
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-110 flex items-center justify-center pointer-events-none">
+  const isPowerup = ['hint', 'magnet', 'skip', 'xp', 'spinTicket', 'mystery_box'].includes(type);
+
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-9999 flex items-center justify-center pointer-events-none">
       {coins.map((coin) => (
         <div
           key={coin.id}
-          className="coin-icon"
+          className={type === 'spinTicket' ? "ticket-container" : (isPowerup ? "powerup-container" : "coin-icon")}
           style={{
-            '--target-x': `${targetX}px`,
-            '--target-y': `${targetY}px`,
+            '--target-x': `${targetX - coin.x}px`,
+            '--target-y': `${targetY - coin.y}px`,
             animationDelay: `${coin.delay}s`,
             left: `calc(50% + ${coin.x}px)`,
             top: `calc(50% + ${coin.y}px)`
           }}
         >
-          <div className="w-12 h-12 flex items-center justify-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-            {getIcon()}
-          </div>
+          {isPowerup ? (
+             <div className="powerup-inner w-12 h-12 flex items-center justify-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+               {getIcon()}
+             </div>
+          ) : (
+             <div className="w-12 h-12 flex items-center justify-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+               {getIcon()}
+             </div>
+          )}
         </div>
       ))}
-    </div>
+    </div>,
+    document.body
   );
 };
 

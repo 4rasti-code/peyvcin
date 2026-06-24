@@ -13,13 +13,19 @@ const SFX_PATHS = {
   START_GAME: '/ui_sfx_start_button.wav',
   BACK: '/ui_sfx_menu_close.wav',
   SAVE: '/minimal-pop-click-save.ui.wav',
-  TAB: '/punchy-taps-ui.wav',
+  TAB: '/Puzzle-game-tile-swap-912.wav',
   VICTORY: '/victory.mp3',
-  DAILY_OPEN: '/wooden-trunk-latch-ui.wav',
+  DAILY_OPEN: '/Video-game-reward-chest-opening-gentle-950.wav',
   DAILY_CLAIM: '/coin-jingle-trio-89078.wav', 
   BUBBLE_POP: '/bubble-poP.wav',
   PURCHASE: '/coin-drop-229314.wav',
   EARNING: '/coin-jingle-trio-89078.wav',
+  WHEEL_COIN: '/wheel_ coin_sound.mp3',
+  WHEEL_SPIN: '/Casino-game-fortune-wheel-spin-2-252.wav',
+  CHEST_OPEN: '/Chest-open-reward-888.wav',
+  CHEST_CREAK: '/old-wooden-floor-creaking.mp3',
+  REWARD_POP: '/Chest-open-fail-reward-191.wav',
+  MAGNET_CLAIM: '/dizzy-ellectric-bolt-spell_S2n2FK1z.mp3',
   BOOSTER: '/hit-shell-01-266294.wav',
   SWORD_COMBO: '/freesound_crunchpixstudio-rpg-sword-attack-combo-34-388950.mp3',
   SWORD_SLASH: '/gargamel10-sword-slashing-game-sound-effect-2-379229.mp3',
@@ -51,7 +57,7 @@ class SoundEngine {
     this.loadingBuffers = {}; // Track in-progress loads to avoid duplicates
     this.initialized = false;
     this.masterVolume = 0.20; // 20% Default as requested
-    this.musicVolume = 0.10;
+    this.musicVolume = 0.03; // Extremely low so it doesn't overpower anything
     
     // Music management (Streaming)
     this.musicAudioElement = null;
@@ -212,7 +218,7 @@ class SoundEngine {
       try { await this.context.resume(); } catch (_e) { /* Audio context resume failed or was blocked */ }
     }
 
-    const { volume = 1.0, pitchRandomization = 0, detune = 0 } = options;
+    const { volume = 1.0, pitchRandomization = 0, detune = 0, duration } = options;
     const source = this.context.createBufferSource();
     source.buffer = this.buffers[key];
 
@@ -240,6 +246,9 @@ class SoundEngine {
     if (key === 'SHANAZI_JIHANI') baseVolume *= 1.0;
     if (key === 'HEARTBEAT') baseVolume *= 1.0;
     if (key === 'MESSAGE_RECEIVED') baseVolume *= 0.9;
+    if (key === 'WHEEL_COIN') baseVolume *= 1.4; // Boost custom wheel sound slightly
+    if (key === 'REWARD_POP') baseVolume *= 2.0; // Restored to original 2.0
+    if (key === 'CHEST_CREAK') baseVolume *= 8.0; // Boosted to 8.0 to make it louder
     
     gainNode.gain.value = baseVolume * this.masterVolume;
 
@@ -253,6 +262,13 @@ class SoundEngine {
     source.connect(gainNode);
     gainNode.connect(this.context.destination);
     source.start(0);
+
+    if (duration) {
+      // Fade out over the last 0.1s before stopping for a smooth cut
+      gainNode.gain.setValueAtTime(baseVolume * this.masterVolume, this.context.currentTime + duration - 0.1);
+      gainNode.gain.linearRampToValueAtTime(0.01, this.context.currentTime + duration);
+      source.stop(this.context.currentTime + duration);
+    }
   }
 
   /**
@@ -440,13 +456,31 @@ export const playSuccessSfx = (enabled = true) => {
   engine.play('VICTORY');
 };
 export const playVictorySfx = playSuccessSfx;
+export const playChestOpenSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('CHEST_OPEN');
+};
+export const playChestCreakSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('CHEST_CREAK');
+};
 export const playDefeatSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('DEFEAT');
 };
 export const playCoinSfx = (enabled = true) => {
   if (!enabled) return;
-  engine.play('EARNING');
+  engine.play('WHEEL_COIN'); // Exact same sound every time without pitch shift
+};
+
+export const playMagnetSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('MAGNET_CLAIM');
+};
+
+export const playWheelSpinSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('WHEEL_SPIN');
 };
 
 export const playRewardSfx = (enabled = true) => {
@@ -466,7 +500,7 @@ export const playBoosterSfx = (enabled = true) => {
 
 export const playDailyOpenSfx = (enabled = true) => {
   if (!enabled) return;
-  engine.play('DAILY_OPEN');
+  engine.play('DAILY_OPEN', { duration: 1.2 });
 };
 
 export const playDailyClaimSfx = (enabled = true) => {
@@ -480,6 +514,10 @@ export const playBubblePopSfx = (enabled = true) => {
 };
 export const playSwordComboSfx = () => engine.play('SWORD_COMBO');
 export const playSwordSlashSfx = () => engine.play('SWORD_SLASH', { pitchRandomization: 50 });
+export const playRewardPopSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('REWARD_POP');
+};
 export const playWhooshSfx = () => engine.play('WHOOSH');
 export const startSearchingSfx = () => engine.startSearchingSfx();
 export const stopSearchingSfx = (fade = true) => engine.stopSearchingSfx(fade);

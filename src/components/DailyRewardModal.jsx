@@ -8,6 +8,7 @@ import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
+import ClipboardIcon from './ClipboardIcon';
 
 const REWARDS_CONFIG = [
   { day: 1, label: '٢٠٠ فلس', type: 'fils', reward: { fils: 200 }, color: '#CD7F32' },
@@ -50,6 +51,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   const [animatingReward, setAnimatingReward] = useState(false);
   const [claimedDayInfo, setClaimedDayInfo] = useState(null);
   const [serverReportedClaimed, setServerReportedClaimed] = useState(false);
+  const [timeLeftStr, setTimeLeftStr] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -57,6 +59,12 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
       if (hapticEnabled) triggerHaptic(10);
     }
   }, [isOpen, playDailyOpenSfx, hapticEnabled]);
+
+  // Reset state when closing
+  const handleClose = () => {
+    window.isAnimatingReward = false;
+    onClose();
+  };
 
   // --- LOGIC HELPERS ---
   const hasClaimedToday = () => {
@@ -85,10 +93,51 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   const effectiveStreak = (rewardStreak === 7 && !claimedToday) ? 0 : rewardStreak;
   const activeDay = claimedToday ? -1 : (effectiveStreak % 7) + 1;
 
+  useEffect(() => {
+    if (!claimedToday) return;
+
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      // Get current time in Baghdad timezone
+      const baghdadTimeStr = now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' });
+      const baghdadDate = new Date(baghdadTimeStr);
+      
+      // Calculate midnight of the next day in Baghdad
+      const tomorrowBaghdad = new Date(baghdadTimeStr);
+      tomorrowBaghdad.setHours(24, 0, 0, 0);
+
+      const diffMs = tomorrowBaghdad - baghdadDate;
+      
+      if (diffMs <= 0) {
+        return toKuDigits('00:00:00');
+      }
+
+      const h = Math.floor(diffMs / (1000 * 60 * 60));
+      const m = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      const hStr = h.toString().padStart(2, '0');
+      const mStr = m.toString().padStart(2, '0');
+      const sStr = s.toString().padStart(2, '0');
+
+      return toKuDigits(`${hStr}:${mStr}:${sStr}`);
+    };
+
+    setTimeLeftStr(calculateTimeLeft());
+    const interval = setInterval(() => {
+      setTimeLeftStr(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [claimedToday]);
+
   const handleClaim = async () => {
     if (claiming || claimedToday) return;
     console.log('[DailyRewardModal] handleClaim triggered');
     setClaiming(true);
+    
+    // Signal TopAppBar to defer visual wallet updates until coins fly
+    window.isAnimatingReward = true;
 
     try {
       const result = await claimDailyReward();
@@ -103,9 +152,11 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
         } else {
           alert(errorMsg);
         }
+        window.isAnimatingReward = false; // Reset on failure
       }
     } catch (err) {
       console.error('[DailyRewardModal] Claim error:', err);
+      window.isAnimatingReward = false; // Reset on error
     } finally {
       setClaiming(false);
     }
@@ -132,11 +183,15 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
               <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16" />
 
               <div className="flex flex-col items-center mb-8 text-center relative z-10">
-                <div className="w-16 h-16 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center mb-4 shadow-lg">
-                  <span className="material-symbols-outlined text-4xl text-primary drop-shadow-md">redeem</span>
+                <div className="mb-4 flex items-center justify-center">
+                  <ClipboardIcon className="w-20 h-20" />
                 </div>
-                <h2 className="text-3xl font-black text-mono-900 dark:text-white">خەلاتێن ڕۆژانە</h2>
-                <p className="text-mono-500 dark:text-white/50 text-sm font-medium mt-1">٧ ڕۆژ - خەلاتێن بەردەوام و نایاب</p>
+                <h2 className="text-3xl font-black text-mono-900 dark:text-white mb-2">خەلاتێن ڕۆژانە</h2>
+                {claimedToday && (
+                  <div className="text-mono-500 dark:text-white/50 text-sm font-bold font-sans tracking-widest bg-mono-100 dark:bg-white/5 px-4 py-1 rounded-full border border-mono-200 dark:border-white/10 shadow-sm" dir="ltr">
+                    {timeLeftStr}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-3 relative z-10">
@@ -241,7 +296,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 )}
                 
                 <button 
-                  onClick={() => { playBackSfx(); onClose(); }}
+                  onClick={() => { playBackSfx(); handleClose(); }}
                   className="w-full h-14 flex items-center justify-center rounded-md bg-black dark:bg-white text-white dark:text-black hover:brightness-110 font-black text-sm uppercase transition-all active:scale-95 shadow-lg"
                 >
                   داخستن
@@ -387,6 +442,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       setTimeout(() => {
                         setShowSuccess(false); 
                         setAnimatingReward(false);
+                        window.isAnimatingReward = false; // Reset after animation completes
                         onClose(); 
                       }, 2200);
                     }}

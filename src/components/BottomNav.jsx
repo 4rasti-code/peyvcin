@@ -2,7 +2,7 @@ import React from 'react';
 import { motion as Motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, notificationCount = 0, pendingFriendsCount = 0, hasGlobalNewMessage = false }) {
+export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, chatBadgeCount = 0, hasSilentGlobal = false, pendingFriendsCount = 0 }) {
   const tabs = [
     { id: 'profile', icon: 'person', label: 'بەرپەڕ' },
     { id: 'leaderboard', icon: 'workspace_premium', label: 'ڕێزبەندی' },
@@ -21,6 +21,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
         return (
           <Motion.button 
             key={tab.id}
+            id={`nav-${tab.id}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => { 
@@ -52,43 +53,33 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
 
             {/* Icon Wrapper */}
             <div className={`relative z-10 transition-colors duration-300 ${isActive ? 'text-black dark:text-white' : 'text-mono-500 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white/80'}`}>
-                {tab.id === 'store' && (
-                  <Motion.div 
-                    animate={{ 
-                      scale: [1, 1.4, 1],
-                      opacity: [0.6, 1, 0.6]
-                    }}
-                    transition={{ 
-                      repeat: Infinity, 
-                      duration: 1.5,
-                      ease: "easeInOut"
-                    }}
-                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
-                  />
-                )}
-                {tab.id === 'social_hub' && notificationCount > 0 && (
+
+                
+                {tab.id === 'social_hub' && chatBadgeCount > 0 && (
                     <Motion.div 
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
                     >
-                      {notificationCount > 99 ? '99+' : notificationCount}
+                      {chatBadgeCount > 99 ? '99+' : chatBadgeCount}
                     </Motion.div>
-                  )}
-                {tab.id === 'social_hub' && hasGlobalNewMessage && notificationCount === 0 && (
+                )}
+
+                {tab.id === 'social_hub' && hasSilentGlobal && chatBadgeCount === 0 && (
                   <Motion.div 
                     animate={{ 
-                      scale: [1, 1.4, 1],
-                      opacity: [0.6, 1, 0.6]
+                      scale: [1, 1.2, 1],
+                      opacity: [0.8, 1, 0.8]
                     }}
                     transition={{ 
                       repeat: Infinity, 
-                      duration: 1.5,
+                      duration: 2,
                       ease: "easeInOut"
                     }}
-                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)]"
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-mono-white dark:border-mono-950 z-20 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                   />
                 )}
+
                 <Motion.span 
                   animate={{ 
                      y: isActive ? -2 : 0, 

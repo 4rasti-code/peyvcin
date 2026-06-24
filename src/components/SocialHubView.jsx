@@ -1239,7 +1239,14 @@ export default function SocialHubView({
       <div className="px-4 py-3">
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
-            { id: 'global', label: 'نامەیێن گشتی', icon: 'public', badge: newGlobalCount },
+            { 
+              id: 'global', 
+              label: 'نامەیێن گشتی', 
+              icon: 'public', 
+              badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0 
+                ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length 
+                : (newGlobalCount > 0 ? -1 : 0)
+            },
             { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
           ].map(tab => (
             <button
@@ -1249,17 +1256,23 @@ export default function SocialHubView({
                 playTabSound();
                 setActiveTab(tab.id);
                 setSelectedChat(null);
+                if (tab.id === 'global') {
+                  setNewGlobalCount(0); // clear local mentions/count on view
+                }
               }}
               className={`flex-1 py-2.5 rounded-sm flex items-center justify-center gap-2 transition-all relative z-10 ${activeTab === tab.id ? 'text-mono-50 font-black dark:text-mono-50' : 'text-mono-600 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'}`}
             >
               <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
               <span className="text-xs font-black">{tab.label}</span>
               {tab.badge > 0 && (
-                <span className="absolute -top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 ring-2 ring-mono-200 dark:ring-mono-800">
-                  <span className="text-[10px] text-white font-black leading-none">
+                <span className="absolute -top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 ring-2 ring-mono-200 dark:ring-mono-800 shadow-sm z-20">
+                  <span className="text-[10px] text-white font-black leading-none mt-0.5">
                     {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
                   </span>
                 </span>
+              )}
+              {tab.badge === -1 && (
+                <span className="absolute top-1 right-3 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></span>
               )}
             </button>
           ))}
@@ -1470,7 +1483,22 @@ export default function SocialHubView({
                     return (
                       <div
                         key={chat.id}
-                        onClick={() => setSelectedChat(chat)}
+                        onClick={async () => {
+                          setSelectedChat(chat);
+                          if (chat.unreadCount > 0 && user?.id) {
+                            // Optimistically update
+                            setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
+                            setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
+                            
+                            const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
+                            await supabase
+                              .from('messages')
+                              .update({ is_read: true })
+                              .eq('user_id', partnerId)
+                              .eq('receiver_id', user.id)
+                              .eq('is_read', false);
+                          }
+                        }}
                         className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
                           ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-[6px] active:translate-y-[2px] active:shadow-[0_0px_0_#047857] mb-4'
                           : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'

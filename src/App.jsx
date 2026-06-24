@@ -87,7 +87,7 @@ import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
 import UpgradeAccountModal from './components/UpgradeAccountModal';
 
-const PEYVOK_VERSION = '2.0.0';
+const PEYVOK_VERSION = '2.1.0';
 
 // Audio logic handled via GameContext useGame()
 
@@ -263,6 +263,9 @@ export default function App() {
     if (profileData.xp >= xpThreshold && !hasBeenNotified) {
       console.log("[Progression] Guest reached Level 5. Sending automated system message.");
       
+      // Optimistically set the flag to prevent duplicate messages from race conditions
+      localStorage.setItem('guest_level5_notified', 'true');
+
       const sendSystemMessage = async () => {
         try {
           const { error } = await supabase.from('messages').insert([{
@@ -273,9 +276,10 @@ export default function App() {
             is_read: false
           }]);
 
-          if (error) throw error;
-          
-          localStorage.setItem('guest_level5_notified', 'true');
+          if (error) {
+            localStorage.removeItem('guest_level5_notified');
+            throw error;
+          }
         } catch (err) {
           console.error("Failed to send guest level 5 message:", err);
         }
@@ -294,6 +298,9 @@ export default function App() {
     if (!hasBeenWelcomed) {
       console.log("[Welcome] First login detected. Sending automated welcome message.");
       
+      // Optimistically set the flag to prevent duplicate messages from race conditions
+      localStorage.setItem('beta_welcome_sent', 'true');
+
       const sendWelcomeMessage = async () => {
         try {
           const { error } = await supabase.from('messages').insert([{
@@ -304,9 +311,10 @@ export default function App() {
             is_read: false
           }]);
 
-          if (error) throw error;
-          
-          localStorage.setItem('beta_welcome_sent', 'true');
+          if (error) {
+            localStorage.removeItem('beta_welcome_sent');
+            throw error;
+          }
         } catch (err) {
           console.error("Failed to send beta welcome message:", err);
         }
@@ -519,7 +527,19 @@ export default function App() {
     submitFailure
   } = useMultiplayer();
 
-
+  // Force view to 'game' when multiplayer starts to prevent cleanup hook from destroying the match
+  const hasForcedGameViewRef = useRef(false);
+  useEffect(() => {
+    const isGameActive = multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found' || multiplayerState === 'playing';
+    if (isGameActive && !hasForcedGameViewRef.current) {
+      if (currentView !== 'game') {
+        setCurrentView('game');
+      }
+      hasForcedGameViewRef.current = true;
+    } else if (!isGameActive) {
+      hasForcedGameViewRef.current = false;
+    }
+  }, [multiplayerState, currentView]);
 
   // CLEANUP: Ensure multiplayer state is reset when navigating away from results
   useEffect(() => {
@@ -1431,10 +1451,22 @@ export default function App() {
         .gt('created_at', lastSeenGlobal)
         .neq('user_id', user.id);
 
+      const { count: botGlobalCount } = await supabase
+        .from('messages')
+        .select('id', { count: 'exact', head: true })
+        .is('receiver_id', null)
+        .gt('created_at', lastSeenGlobal)
+        .eq('user_id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
+
       const combined = [...msgList, ...reqList].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       setNotificationsList(combined);
-      setSocialNotifications({ unreadMessages: msgList.length, pendingRequests: reqList.length, unreadGlobal: globalCount || 0 });
+      setSocialNotifications({ 
+        unreadMessages: msgList.length, 
+        pendingRequests: reqList.length, 
+        unreadGlobal: globalCount || 0,
+        unreadBotGlobal: botGlobalCount || 0
+      });
     };
 
     fetchCounts();
@@ -1572,7 +1604,7 @@ export default function App() {
             equippedAvatar={equippedAvatar}
             gameMode={gameMode}
             timeLeft={timeLeft}
-            notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadGlobal || 0)}
+            notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadBotGlobal || 0)}
             onPlaySound={playBubblePopSound}
             onDailyRewardClick={() => {
               playBubblePopSound();

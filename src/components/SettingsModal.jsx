@@ -99,7 +99,7 @@ function SettingsModal({
                                <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">مۆزیکا پاشبنەمایی</span>
                             </div>
                             <button
-                               onClick={() => { triggerHaptic(10); onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 10); }}
+                               onClick={() => { triggerHaptic(10); onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 3); }}
                                className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${bgMusicVolume > 0 ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
                             >
                                <Motion.div
@@ -235,7 +235,7 @@ function SettingsModal({
                      </button>
 
                      <div className="pt-2 flex flex-col items-center gap-1 opacity-20">
-                        <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.0</p>
+                        <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.1.0</p>
                      </div>
                   </div>
                </Motion.div>

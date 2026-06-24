@@ -432,10 +432,10 @@ export const MultiplayerProvider = ({ children }) => {
     }
   }, [matchId, multiplayerState, stopSearchingSound, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded, activeMatch?.player1_id, applyPenalty, user?.id]);
 
-  // 1. POLLING FALLBACK: Detect player join automatically
+  // 1. POLLING FALLBACK: Detect player join automatically AND prevent desync during play
   useEffect(() => {
-    const isSearching = multiplayerState === 'waiting' || multiplayerState === 'searching';
-    if (!isSearching || !matchId) return;
+    const isIdle = multiplayerState === 'idle';
+    if (isIdle || !matchId) return;
 
     const controller = new AbortController();
 
@@ -451,10 +451,26 @@ export const MultiplayerProvider = ({ children }) => {
           .abortSignal(controller.signal)
           .maybeSingle();
 
-        if (match && (match.player2_id || match.status === 'playing') && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
-          console.log('[Multiplayer] Polling Fallback found opponent! Syncing.');
-          setActiveMatchGuarded(match);
-          clearInterval(pollInterval);
+        if (match) {
+          const isSearching = stateRef.current === 'waiting' || stateRef.current === 'searching';
+          
+          if (isSearching && (match.player2_id || match.status === 'playing') && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
+            console.log('[Multiplayer] Polling Fallback found opponent! Syncing.');
+            setActiveMatchGuarded(match);
+            clearInterval(pollInterval);
+          } else if (stateRef.current === 'playing') {
+            // Desync protection: Check if server state has advanced beyond our local state
+            const hasDesynced = 
+              match.current_word_index !== wordIndexRef.current || 
+              match.status !== activeMatch?.status || 
+              (match.p1_failed && !activeMatch?.p1_failed) || 
+              (match.p2_failed && !activeMatch?.p2_failed);
+
+            if (hasDesynced) {
+              console.log('[Multiplayer] Polling Fallback detected desync! Resolving...');
+              setActiveMatchGuarded(match);
+            }
+          }
         }
       } catch (err) {
         if (err.name === 'AbortError') return;
@@ -462,13 +478,13 @@ export const MultiplayerProvider = ({ children }) => {
       } finally {
         isPollingRef.current = false;
       }
-    }, 2000);
+    }, 3000);
 
     return () => {
       clearInterval(pollInterval);
       controller.abort();
     };
-  }, [multiplayerState, matchId, setActiveMatchGuarded]);
+  }, [multiplayerState, matchId, setActiveMatchGuarded, activeMatch?.status, activeMatch?.p1_failed, activeMatch?.p2_failed]);
 
   // 2. REALTIME SUBSCRIPTION
   useEffect(() => {
@@ -736,6 +752,31 @@ export const MultiplayerProvider = ({ children }) => {
       setOpponentGuesses(oppColors);
     }
   }, [activeMatch, user?.id, multiplayerState, opponentGuesses.length, LastMatchResult, setMultiplayerStateGuarded, syncProgressToDatabase]);
+
+  // 4.5 HOST TIE-BREAK FALLBACK (Resolves Race Conditions when both fail simultaneously)
+  useEffect(() => {
+    if (!activeMatch || !user?.id) return;
+    const isP1 = activeMatch.player1_id === user.id;
+    
+    if (isP1 && activeMatch.p1_failed && activeMatch.p2_failed) {
+      console.log('[Multiplayer] Host Tie-Break: Both players failed. Forcing round advance.');
+      const currentIdx = activeMatch.current_word_index || 0;
+      const scoreDiff = Math.abs((activeMatch.p1_score || 0) - (activeMatch.p2_score || 0));
+      const totalWords = activeMatch.words?.length || 5;
+      const isMatchEnd = scoreDiff >= 2 || (currentIdx + 1 >= totalWords);
+      
+      const nextRoundData = {
+        current_word_index: currentIdx + 1,
+        p1_failed: false,
+        p2_failed: false,
+        p1_colors: [],
+        p2_colors: []
+      };
+      if (isMatchEnd) nextRoundData.status = 'finished';
+
+      supabase.from('online_matches').update(nextRoundData).eq('id', activeMatch.id);
+    }
+  }, [activeMatch, user?.id]);
 
   // 5. MOUNT-TIME RECOVERY EFFECT
   useEffect(() => {

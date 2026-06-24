@@ -21,10 +21,10 @@ export default function ClipboardIcon({ className = "w-16 h-16" }) {
         `}
       </style>
       
-      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible absolute inset-0 z-10" style={{ transform: 'translateZ(0)', willChange: 'transform' }} xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" xmlns="http://www.w3.org/2000/svg">
         
-        {/* Main Group with Float Animation */}
-        <g style={{ animation: 'clipboard-float-simple 4s infinite ease-in-out', transformOrigin: '50px 50px' }}>
+        {/* Main Group with NO Float Animation */}
+        <g style={{ transformOrigin: '50px 50px' }}>
           
           {/* --- Board --- */}
           {/* Main Board Base */}

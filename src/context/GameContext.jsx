@@ -50,6 +50,7 @@ export const GameProvider = ({ children }) => {
   const [magnetCount, setMagnetCount] = useState(() => getInitial('peyvchin_magnets', 3));
   const [hintCount, setHintCount] = useState(() => getInitial('peyvchin_hints', 3));
   const [skipCount, setSkipCount] = useState(() => getInitial('peyvchin_skips', 3));
+  const [spinTicketCount, setSpinTicketCount] = useState(() => getInitial('peyvchin_spin_tickets', 0));
 
   const [solvedWords, setSolvedWords] = useState(() => {
     const saved = localStorage.getItem('peyvchin_solved_words');
@@ -74,7 +75,7 @@ export const GameProvider = ({ children }) => {
   const sessionGuardRef = useRef(new Set()); // To prevent double submission in same session
 
   const gameStateRef = useRef({ 
-    user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+    user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
     currentXP, level, inventory,
     dailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt,
     playerStats, solvedWords
@@ -82,13 +83,13 @@ export const GameProvider = ({ children }) => {
 
   useEffect(() => {
     gameStateRef.current = { 
-      user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+      user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
       currentXP, level, inventory,
       dailyStreak, rewardStreak, lastRewardClaimedAt,
       playerStats, solvedWords
     };
   }, [
-    user, fils, derhem, dinar, magnetCount, hintCount, skipCount, 
+    user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
     currentXP, level, inventory,
     dailyStreak, rewardStreak, lastRewardClaimedAt,
     playerStats, solvedWords
@@ -222,6 +223,12 @@ export const GameProvider = ({ children }) => {
         setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
         setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
         setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
+        // Fallback reading from old JSON inventory in case the new column hasn't been populated yet
+        if (profileData.spin_tickets !== undefined && profileData.spin_tickets !== null) {
+          setSpinTicketCount(prev => prev !== profileData.spin_tickets ? profileData.spin_tickets : prev);
+        } else if (profileData.inventory?.spinTickets !== undefined) {
+          setSpinTicketCount(prev => prev !== profileData.inventory.spinTickets ? profileData.inventory.spinTickets : prev);
+        }
         setDailyStreak(prev => prev !== (profileData.daily_streak || 0) ? (profileData.daily_streak || 0) : prev);
         setLastStreakAt(prev => prev !== profileData.last_streak_at ? profileData.last_streak_at : prev);
         setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
@@ -313,6 +320,8 @@ export const GameProvider = ({ children }) => {
           // Deep merge for inventory/stats
           if (data.inventory) {
              setInventory(data.inventory);
+             if (data.spin_tickets !== undefined && data.spin_tickets !== null) setSpinTicketCount(prev => prev !== data.spin_tickets ? data.spin_tickets : prev);
+             else if (data.inventory?.spinTickets !== undefined) setSpinTicketCount(prev => prev !== data.inventory.spinTickets ? data.inventory.spinTickets : prev);
              if (data.inventory.stats) {
                 setPlayerStats(prev => ({ ...prev, ...data.inventory.stats }));
              }
@@ -343,7 +352,7 @@ export const GameProvider = ({ children }) => {
 
   const updateInventory = useCallback(async (updates, isAdditive = true, syncToDB = true) => {
     const calculateNext = (current, offset, additive) => additive ? (current + offset) : offset;
-    const { user: currentUser, fils: currFils, derhem: currDerhem, dinar: currDinar, magnetCount: currMags, hintCount: currHints, skipCount: currSkips } = gameStateRef.current;
+    const { user: currentUser, fils: currFils, derhem: currDerhem, dinar: currDinar, magnetCount: currMags, hintCount: currHints, skipCount: currSkips, spinTicketCount: currSpinTickets } = gameStateRef.current;
     
     const nextValues = {
       fils: updates.fils !== undefined ? calculateNext(currFils, updates.fils, isAdditive) : undefined,
@@ -351,7 +360,8 @@ export const GameProvider = ({ children }) => {
       dinar: updates.dinar !== undefined ? calculateNext(currDinar, updates.dinar, isAdditive) : undefined,
       magnets: updates.magnetCount !== undefined ? calculateNext(currMags, updates.magnetCount, isAdditive) : undefined,
       hints: updates.hintCount !== undefined ? calculateNext(currHints, updates.hintCount, isAdditive) : undefined,
-      skips: updates.skipCount !== undefined ? calculateNext(currSkips, updates.skipCount, isAdditive) : undefined
+      skips: updates.skipCount !== undefined ? calculateNext(currSkips, updates.skipCount, isAdditive) : undefined,
+      spinTickets: updates.spinTicketCount !== undefined ? calculateNext(currSpinTickets, updates.spinTicketCount, isAdditive) : undefined
     };
 
     if (nextValues.fils !== undefined) setFils(nextValues.fils);
@@ -360,16 +370,22 @@ export const GameProvider = ({ children }) => {
     if (nextValues.magnets !== undefined) setMagnetCount(nextValues.magnets);
     if (nextValues.hints !== undefined) setHintCount(nextValues.hints);
     if (nextValues.skips !== undefined) setSkipCount(nextValues.skips);
+    if (nextValues.spinTickets !== undefined) setSpinTicketCount(nextValues.spinTickets);
 
     Object.entries(updates).forEach(([key, val]) => {
-      const storageKey = key === 'magnetCount' ? 'peyvchin_magnets' : key === 'hintCount' ? 'peyvchin_hints' : key === 'skipCount' ? 'peyvchin_skips' : `peyvchin_${key}`;
+      const storageKey = key === 'magnetCount' ? 'peyvchin_magnets' : key === 'hintCount' ? 'peyvchin_hints' : key === 'skipCount' ? 'peyvchin_skips' : key === 'spinTicketCount' ? 'peyvchin_spin_tickets' : `peyvchin_${key}`;
       const current = getInitial(storageKey, 0);
       localStorage.setItem(storageKey, (isAdditive ? (current + val) : val).toString());
     });
 
     if (currentUser && syncToDB) {
       try { 
-        await supabase.rpc('sync_profile_inventory', {
+        // Sync standalone spin_tickets column
+        if (nextValues.spinTickets !== undefined) {
+           await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser.id);
+        }
+
+        const { error: rpcError } = await supabase.rpc('sync_profile_inventory', {
           p_magnets: nextValues.magnets,
           p_hints: nextValues.hints,
           p_skips: nextValues.skips,
@@ -377,8 +393,31 @@ export const GameProvider = ({ children }) => {
           p_derhem: nextValues.derhem,
           p_dinar: nextValues.dinar
         }); 
+        if (rpcError) throw rpcError;
       }
-      catch (err) { console.warn("DB Inventory Sync Failed:", err); }
+      catch (err) { 
+        console.warn("DB Inventory Sync Failed via RPC, trying direct update:", err); 
+        try {
+          const payload = {};
+          if (nextValues.magnets !== undefined) payload.magnets = nextValues.magnets;
+          if (nextValues.hints !== undefined) payload.hints = nextValues.hints;
+          if (nextValues.skips !== undefined) payload.skips = nextValues.skips;
+          if (nextValues.fils !== undefined) payload.fils = nextValues.fils;
+          if (nextValues.derhem !== undefined) payload.derhem = nextValues.derhem;
+          if (nextValues.dinar !== undefined) payload.dinar = nextValues.dinar;
+          
+          if (Object.keys(payload).length > 0) {
+            await supabase.from('profiles').update(payload).eq('id', currentUser.id);
+          }
+          
+          // Fallback for standalone spin tickets
+          if (nextValues.spinTickets !== undefined) {
+             await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser.id);
+          }
+        } catch (fallbackErr) {
+          console.error("Direct fallback update also failed:", fallbackErr);
+        }
+      }
     }
   }, []);
 
@@ -741,7 +780,7 @@ export const GameProvider = ({ children }) => {
   const value = useMemo(() => ({
 level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt, claimDailyReward,
-    inventory, magnetCount, hintCount, skipCount,
+    inventory, magnetCount, hintCount, skipCount, spinTicketCount,
     solvedWords, playerStats,
     userRank: _userRank, updateInventory, setCurrentXP, setLastNotifiedLevel, lastNotifiedLevel, setNotifiedLevelDB,
     syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, getLevelData, progressPercent,
@@ -849,7 +888,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
   }), [
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
-    inventory, magnetCount, hintCount, skipCount, solvedWords, playerStats,
+    inventory, magnetCount, hintCount, skipCount, spinTicketCount, solvedWords, playerStats,
     _userRank, updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
     syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB, lastStreakAt
   ]);

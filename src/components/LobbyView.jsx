@@ -11,7 +11,11 @@ import ClassicIcon from './ClassicIcon';
 import MamakIcon from './MamakIcon';
 import CubeIcon from './CubeIcon';
 import TimerIcon from './TimerIcon';
+import LuckyWheelModal from './LuckyWheelModal';
+import MysteryBoxModal from './MysteryBoxModal';
 import ClipboardIcon from './ClipboardIcon';
+import LuckyWheelIcon from './LuckyWheelIcon';
+import MysteryBoxIcon from './MysteryBoxIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 
@@ -28,14 +32,16 @@ const LobbyView = memo(({
 }) => {
   const bgRef = useRef(null);
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
+  const [showLuckyWheel, setShowLuckyWheel] = useState(false);
+  const [showMysteryBox, setShowMysteryBox] = useState(false);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
   const [loadingOnline, setLoadingOnline] = useState(false);
   const [sentInvites, setSentInvites] = useState(new Set());
   
-  const { playSettingsOpenSound } = useAudio();
-  const { user, userNickname, onlineUsers } = useUser();
-  const { lastRewardClaimedAt } = useGame();
+  const { playSettingsOpenSound, playDailyOpenSfx } = useAudio();
+  const { user, userNickname, onlineUsers, profileData } = useUser();
+  const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch } = useMultiplayer();
   
   const isDailyAvailable = (() => {
@@ -53,6 +59,22 @@ const LobbyView = memo(({
     } catch {
       return false;
     }
+  })();
+
+  const isLuckyWheelAvailable = (() => {
+    if (spinTicketCount > 0) return true;
+    if (!profileData?.last_spin_date) return true;
+    const lastSpin = new Date(profileData.last_spin_date);
+    const now = new Date();
+    return (now - lastSpin) >= (24 * 60 * 60 * 1000);
+  })();
+
+  const isMysteryBoxAvailable = (() => {
+    if ((profileData?.mystery_boxes_count || 0) > 0) return true;
+    if (!profileData?.last_mystery_box_date) return true;
+    const lastOpen = new Date(profileData.last_mystery_box_date);
+    const now = new Date();
+    return (now - lastOpen) >= (24 * 60 * 60 * 1000);
   })();
 
   const handleBackgroundClick = (e) => {
@@ -185,8 +207,8 @@ const LobbyView = memo(({
               </Motion.button>
             </div>
             
-            {/* Left Side: Daily Reward Button */}
-            <div className="flex items-center gap-2">
+            {/* Left Side: Daily Rewards Group */}
+            <div className="flex flex-row items-center gap-1 bg-mono-100 dark:bg-white/5 p-1 rounded-xl border border-mono-200 dark:border-white/10 shadow-sm backdrop-blur-md">
                <Motion.button
                  initial={{ opacity: 0, scale: 0.8 }}
                  animate={{
@@ -207,16 +229,47 @@ const LobbyView = memo(({
                  }}
                  className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
-                 <div className="relative">
-                   <div className="-scale-x-100">
-                     <ClipboardIcon className="w-[58px] h-[58px] transition-transform duration-300 group-hover:scale-110" style={{ willChange: 'transform' }} />
-                   </div>
+                 <div className="relative flex items-center justify-center">
+                   <ClipboardIcon className="w-[58px] h-[58px] transition-transform duration-300 group-hover:scale-110 drop-shadow-md" />
                    
                    {isDailyAvailable && (
                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-md z-20 animate-pulse" />
                    )}
                  </div>
                </Motion.button>
+
+               <div className="w-px h-8 bg-mono-300 dark:bg-white/10 mx-1"></div>
+
+               <button
+                 id="nav-lucky-wheel"
+                 onClick={(e) => { 
+                    e.stopPropagation(); 
+                    triggerHaptic(15); 
+                    playDailyOpenSfx();
+                    setShowLuckyWheel(true);
+                 }}
+                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+               >
+                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
+                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className="w-[48px] h-[48px] drop-shadow-md" />
+                 </div>
+               </button>
+
+               <div className="w-px h-8 bg-mono-300 dark:bg-white/10 mx-1"></div>
+
+               <button
+                 onClick={(e) => { 
+                    e.stopPropagation(); 
+                    triggerHaptic(15); 
+                    playDailyOpenSfx();
+                    setShowMysteryBox(true);
+                 }}
+                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+               >
+                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className="w-[48px] h-[48px] drop-shadow-md" />
+                 </div>
+               </button>
             </div>
           </div>
         </div>
@@ -505,6 +558,9 @@ const LobbyView = memo(({
           </Motion.div>
         )}
       </AnimatePresence>
+
+      <LuckyWheelModal isOpen={showLuckyWheel} onClose={() => setShowLuckyWheel(false)} />
+      <MysteryBoxModal isOpen={showMysteryBox} onClose={() => setShowMysteryBox(false)} />
     </Motion.div>
   );
 });

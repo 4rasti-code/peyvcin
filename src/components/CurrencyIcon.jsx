@@ -142,14 +142,13 @@ export const MagnetIcon = ({ className = "w-5 h-5", size = 24, animate = false, 
     {animate && (
       <style>
         {`
-          .zap-flash { animation: zapPulse 2s infinite; opacity: 0; }
-          .zap-flash-2 { animation-delay: 0.3s; }
+          .zap-flash { animation: zapPulse 1s infinite; opacity: 0; }
+          .zap-flash-2 { animation-delay: 0.15s; }
           @keyframes zapPulse {
-            0%, 85% { opacity: 0; transform: scale(0.8) translate(5px, 5px); }
-            88% { opacity: 1; transform: scale(1.1) translate(0, 0); }
-            92% { opacity: 0; transform: scale(0.9) translate(2px, 2px); }
-            95% { opacity: 1; transform: scale(1) translate(0, 0); }
-            100% { opacity: 0; }
+            0% { opacity: 1; transform: scale(1.1) translate(0, 0); }
+            15% { opacity: 0; transform: scale(0.9) translate(2px, 2px); }
+            30% { opacity: 1; transform: scale(1) translate(0, 0); }
+            45%, 100% { opacity: 0; transform: scale(0.8) translate(5px, 5px); }
           }
         `}
       </style>
@@ -163,6 +162,17 @@ export const MagnetIcon = ({ className = "w-5 h-5", size = 24, animate = false, 
         <path className="zap-flash zap-flash-2" d="M58 84L52 78L55 92L48 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       </>
     )}
+  </svg>
+);
+
+export const XPIcon = ({ className = "w-5 h-5", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Glow */}
+    <circle cx="50" cy="50" r="40" fill={disabled ? "#4B5563" : "#FBBF24"} opacity="0.2" filter="blur(8px)" />
+    {/* Star Outer */}
+    <path d="M50 10L62 38L90 38L66 55L75 85L50 68L25 85L34 55L10 38L38 38L50 10Z" fill={disabled ? "#6B7280" : "#F59E0B"} stroke={disabled ? "#374151" : "#D97706"} strokeWidth="3" strokeLinejoin="round" />
+    {/* Star Inner Highlight */}
+    <path d="M50 20L58 41L80 41L61 55L68 76L50 63L32 76L39 55L20 41L42 41L50 20Z" fill={disabled ? "#9CA3AF" : "#FCD34D"} />
   </svg>
 );
 
@@ -441,5 +451,38 @@ export const ExpertDiamondIcon = ({ className = "w-6 h-6", size = 24, disabled =
     <path d="M 50 40 L 75 40 L 50 90" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.2" />
     <path d="M 10 40 L 90 40" fill="none" stroke="#FFFFFF" strokeWidth="1" opacity="0.4" />
 
+  </svg>
+);
+
+export const SpinTicketIcon = ({ className = "w-6 h-6", size = 24, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Ticket Shadow & Depth */}
+    <path d="M 15 32 L 85 32 L 85 43 A 7 7 0 0 0 85 57 L 85 68 L 15 68 L 15 57 A 7 7 0 0 0 15 43 Z" fill={disabled ? "#1F2937" : "#B45309"} transform="translate(0, 4)" />
+    
+    {/* Ticket Main Body */}
+    <path d="M 15 32 L 85 32 L 85 43 A 7 7 0 0 0 85 57 L 85 68 L 15 68 L 15 57 A 7 7 0 0 0 15 43 Z" fill={disabled ? "#374151" : "#F59E0B"} />
+
+    {/* Ticket Inner Bright Base */}
+    <path d="M 18 35 L 82 35 L 82 43.5 A 6.5 6.5 0 0 0 82 56.5 L 82 65 L 18 65 L 18 56.5 A 6.5 6.5 0 0 0 18 43.5 Z" fill={disabled ? "#4B5563" : "#FBBF24"} />
+
+    {/* Ticket Dashed Border */}
+    <path d="M 22 39 L 78 39 M 22 61 L 78 61 M 26 39 L 26 61 M 74 39 L 74 61" stroke={disabled ? "#9CA3AF" : "#FDE047"} strokeWidth="1.5" strokeDasharray="3 3" />
+
+    {/* Center Wheel Star / Token */}
+    <circle cx="50" cy="50" r="10" fill={disabled ? "#6B7280" : "#F59E0B"} stroke={disabled ? "#374151" : "#B45309"} strokeWidth="2" />
+    <path d="M 50 42 L 50 58 M 42 50 L 58 50 M 44.5 44.5 L 55.5 55.5 M 44.5 55.5 L 55.5 44.5" stroke={disabled ? "#9CA3AF" : "#FEF3C7"} strokeWidth="1.5" strokeLinecap="round" />
+
+    {/* Ticket Side Text/Barcode Details */}
+    <rect x="30" y="42" width="2" height="16" fill={disabled ? "#9CA3AF" : "#D97706"} />
+    <rect x="34" y="45" width="2" height="10" fill={disabled ? "#9CA3AF" : "#D97706"} />
+    <rect x="38" y="42" width="2" height="16" fill={disabled ? "#9CA3AF" : "#D97706"} />
+    
+    <rect x="68" y="42" width="2" height="16" fill={disabled ? "#9CA3AF" : "#D97706"} />
+    <rect x="64" y="45" width="2" height="10" fill={disabled ? "#9CA3AF" : "#D97706"} />
+    <rect x="60" y="42" width="2" height="16" fill={disabled ? "#9CA3AF" : "#D97706"} />
+
+    {/* Star Sparkles */}
+    <path d="M 20 28 L 22 23 L 24 28 L 29 30 L 24 32 L 22 37 L 20 32 L 15 30 Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
+    <path d="M 80 72 L 82 67 L 84 72 L 89 74 L 84 76 L 82 81 L 80 76 L 75 74 Z" fill={disabled ? "#9CA3AF" : "#FEF08A"} />
   </svg>
 );

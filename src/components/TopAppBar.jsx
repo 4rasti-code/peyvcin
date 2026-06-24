@@ -1,22 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
-import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 import { toKuDigits } from '../utils/formatters';
 import ClipboardIcon from './ClipboardIcon';
 
+const AnimatedCounter = ({ value }) => {
+  const [internalValue, setInternalValue] = useState(value);
+  const count = useMotionValue(internalValue);
+  const [displayValue, setDisplayValue] = useState(toKuDigits(internalValue));
+  const [prevPropValue, setPrevPropValue] = useState(value);
+
+  // Derive state during render instead of in useEffect to avoid cascading renders
+  if (value !== prevPropValue) {
+    setPrevPropValue(value);
+    if (!window.isAnimatingReward) {
+      setInternalValue(value);
+    }
+  }
+
+  useEffect(() => {
+    const handleCoinHit = () => {
+      setInternalValue(value);
+    };
+
+    window.addEventListener('reward-coin-hit', handleCoinHit);
+    return () => window.removeEventListener('reward-coin-hit', handleCoinHit);
+  }, [value]);
+
+  useEffect(() => {
+    const controls = animate(count, internalValue, {
+      duration: 1.0,
+      ease: "easeOut",
+      onUpdate: (latest) => {
+        setDisplayValue(toKuDigits(Math.round(latest)));
+      }
+    });
+    
+    return () => controls.stop();
+  }, [internalValue, count]);
+
+  return <>{displayValue}</>;
+};
+
 const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
   const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
+
   return (
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
-      <div id={`topbar-${currency}`} className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-all duration-300`}>
+      <div 
+        id={`topbar-${currency}`} 
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center`}
+      >
         <div className={`w-4 h-4 flex items-center justify-center ${color}`}>
           <_IconComponent className="w-full h-full" />
         </div>
         <div className="flex flex-col items-center leading-none">
-          <span className={`text-[15px] font-black font-heading ${isDark ? 'text-white' : 'text-mono-900'}`}>{toKuDigits(value || 0)}</span>
+          <span className={`text-[15px] font-black font-heading ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
           <span className={`text-[7px] font-black uppercase mt-0.5 ${isDark ? color : 'text-mono-600'} opacity-60`}>{currencyName}</span>
         </div>
       </div>
@@ -34,7 +76,7 @@ const InventoryStat = ({ value, icon, Icon, color, bg, isDark = true, type }) =>
           {icon}
         </span>
       )}
-      <span className={`text-[14px] font-black ${isDark ? 'text-white' : 'text-mono-900'}`}>{toKuDigits(value || 0)}</span>
+      <span className={`text-[14px] font-black ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
     </div>
   );
 };
@@ -102,7 +144,16 @@ export default function TopAppBar({
           ) : (
             currentView === 'lobby' ? (
               <div className="flex items-center justify-end relative h-full">
-                {/* Daily Reward button moved to LobbyView as a floating widget */}
+                {/* Currencies Group */}
+                <div className="flex items-center gap-1">
+                  {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
+                    <>
+                      <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                      <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                      <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                    </>
+                  )}
+                </div>
               </div>
             ) : (
               currentView !== 'store' && (
@@ -202,22 +253,12 @@ export default function TopAppBar({
                 </div>
               )}
 
-              {/* Currencies Group */}
-              <div className="flex items-center gap-1">
-                {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
-                  <>
-                    <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                    <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                    <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                  </>
-                )}
-              </div>
 
               {/* Notification Button (Lobby Only) */}
               {currentView === 'lobby' && (
                 <div className="relative ml-2">
                   <Motion.button
-                    animate={notificationCount > 0 ? {
+                    animate={notificationCount > 0 && !window.__hasViewedSystemNotifs ? {
                       scale: [1, 1.1, 1],
                       filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"]
                     } : {}}
@@ -228,11 +269,16 @@ export default function TopAppBar({
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { triggerHaptic(10); if (onPlaySound) onPlaySound(); setIsNotifsOpen(!isNotifsOpen); }}
-                    className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || notificationCount > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-600/60 dark:text-mono-400/60 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+                    onClick={() => { 
+                      triggerHaptic(10); 
+                      if (onPlaySound) onPlaySound(); 
+                      setIsNotifsOpen(!isNotifsOpen);
+                      window.__hasViewedSystemNotifs = true;
+                    }}
+                    className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-600/60 dark:text-mono-400/60 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
                   >
-                    <span className="material-symbols-outlined text-[48px] font-black" style={{ fontVariationSettings: notificationCount > 0 ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
-                    {notificationCount > 0 && (
+                    <span className="material-symbols-outlined text-[48px] font-black" style={{ fontVariationSettings: (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
+                    {notificationCount > 0 && !window.__hasViewedSystemNotifs && (
                       <Motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}

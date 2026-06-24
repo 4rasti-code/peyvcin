@@ -49,6 +49,7 @@ const ExperienceBar = () => {
     
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentXP]);
 
   const fillPercentage = progressPercent;
@@ -75,7 +76,7 @@ const ExperienceBar = () => {
       </style>
 
       {/* Slim & Seamless Bar */}
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', maxWidth: '320px', height: '44px', margin: '0 auto' }}>
+      <div id="xp-progress" style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%', maxWidth: '320px', height: '44px', margin: '0 auto' }}>
         <div style={{
             position: 'relative', flexGrow: 1, height: '18px', backgroundColor: 'rgba(0, 0, 0, 0.4)',
             borderRadius: '50px 0 0 50px', border: '1.5px solid rgba(255,255,255,0.2)', borderRight: 'none', 

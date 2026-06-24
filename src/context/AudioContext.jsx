@@ -39,7 +39,7 @@ export const AudioProvider = ({ children }) => {
   });
   const [bgMusicVolume, setBgMusicVolume] = useState(() => {
     const saved = localStorage.getItem('peyvchin_bg_music_volume');
-    return saved !== null ? Number(saved) : 10;
+    return saved !== null ? Number(saved) : 3;
   });
 
   const setAppSfxVolumeGuarded = useCallback((val) => {

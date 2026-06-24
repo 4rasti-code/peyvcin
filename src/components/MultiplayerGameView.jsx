@@ -283,7 +283,24 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'}`}>
+      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
+        {/* WAITING FOR OPPONENT OVERLAY */}
+        <AnimatePresence>
+          {guesses.length >= 3 && multiplayerState === 'playing' && !isRoundWinner && (
+            <Motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute -top-12 left-0 right-0 flex justify-center pointer-events-none"
+            >
+              <div className={`backdrop-blur-md px-4 py-2 rounded-full text-xs font-noto-sans-arabic flex items-center gap-2 shadow-lg border ${isDark ? 'bg-black/80 border-white/10 text-white/90' : 'bg-white/90 border-slate-200 text-slate-800'}`}>
+                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <span>چاڤەڕێی یاریزانێ بەرامبەربە...</span>
+              </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+
         <Keyboard
           onKey={onKey}
           onDelete={onDelete}
