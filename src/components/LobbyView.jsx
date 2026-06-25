@@ -18,7 +18,7 @@ import LuckyWheelIcon from './LuckyWheelIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
-
+import { supabase } from '../lib/supabase';
 const LobbyView = memo(({
   onStartClassic,
   onStartMamak,
@@ -38,11 +38,14 @@ const LobbyView = memo(({
   const [onlineProfiles, setOnlineProfiles] = useState([]);
   const [loadingOnline, setLoadingOnline] = useState(false);
   const [sentInvites, setSentInvites] = useState(new Set());
-  
+  const [invitedUserProfile, setInvitedUserProfile] = useState(null);
+  const [inviteTimeLeft, setInviteTimeLeft] = useState(15);
+  const inviteTimerRef = useRef(null);
+
   const { playSettingsOpenSound, playDailyOpenSfx } = useAudio();
   const { user, userNickname, onlineUsers, profileData } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
-  const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch } = useMultiplayer();
+  const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
   
   const isDailyAvailable = (() => {
     if (!lastRewardClaimedAt) return true;
@@ -60,6 +63,66 @@ const LobbyView = memo(({
       return false;
     }
   })();
+
+  useEffect(() => {
+    if (!user?.id || multiplayerState !== 'private_lobby') return;
+    const channel = supabase.channel(`user_invites_${user.id}`, { config: { broadcast: { ack: true } } });
+    channel.on('broadcast', { event: 'match_invite_rejected' }, (payload) => {
+      if (payload.payload.roomId === activeMatch?.id) {
+        cancelMatch();
+        alert("وی کەسی داخوازنامە ڕەتکر");
+        setInvitedUserProfile(null);
+        if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+      }
+    })
+    .on('broadcast', { event: 'match_invite_accepted' }, (payload) => {
+      if (payload.payload.roomId === activeMatch?.id) {
+        console.log('[LobbyView] Invite explicitly accepted! Transitioning host instantly...');
+        if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+        setInvitedUserProfile(null);
+        setInviteTimeLeft(15);
+        if (hostAcceptJoiner) hostAcceptJoiner(payload.payload.joinerId);
+      }
+    })
+    .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, multiplayerState, activeMatch?.id, cancelMatch, hostAcceptJoiner]);
+
+  useEffect(() => {
+    if (multiplayerState === 'private_lobby' && inviteTimeLeft === 0 && invitedUserProfile) {
+      cancelMatch();
+      alert("بەرسڤا داخوازنامەیێ نەهاتە دان");
+      const channel = supabase.channel(`user_invites_${invitedUserProfile.id}`);
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.send({ type: 'broadcast', event: 'invite_cancelled', payload: { roomId: activeMatch?.id } });
+          supabase.removeChannel(channel);
+        }
+      });
+      setInvitedUserProfile(null);
+      if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+    }
+  }, [inviteTimeLeft, multiplayerState, invitedUserProfile, activeMatch, cancelMatch]);
+
+  const handleHostCancelInvite = async () => {
+    triggerHaptic(10);
+    cancelMatch();
+    if (invitedUserProfile && activeMatch) {
+      const channel = supabase.channel(`user_invites_${invitedUserProfile.id}`);
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.send({ type: 'broadcast', event: 'invite_cancelled', payload: { roomId: activeMatch.id } });
+          supabase.removeChannel(channel);
+        }
+      });
+    }
+    setInvitedUserProfile(null);
+    if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+  };
+
 
   const isLuckyWheelAvailable = (() => {
     if (spinTicketCount > 0) return true;
@@ -124,7 +187,6 @@ const LobbyView = memo(({
     setSentInvites(prev => new Set(prev).add(targetUserId));
     
     try {
-      const { supabase } = await import('../lib/supabase');
       const newRoomId = await createPrivateMatch();
       if (!newRoomId) {
         alert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
@@ -135,6 +197,20 @@ const LobbyView = memo(({
         });
         return;
       }
+
+      const targetProfile = onlineProfiles.find(p => p.id === targetUserId);
+      setInvitedUserProfile(targetProfile);
+      setInviteTimeLeft(15);
+      if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+      inviteTimerRef.current = setInterval(() => {
+        setInviteTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(inviteTimerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
 
       console.log('1. Attempting to create channel for user:', targetUserId);
       const channel = supabase.channel(`user_invites_${targetUserId}`, { config: { broadcast: { ack: true } } });
@@ -147,7 +223,8 @@ const LobbyView = memo(({
             event: 'match_invite',
             payload: { 
               roomId: newRoomId, 
-              hostName: userNickname || 'هەڤالەکێ تە'
+              hostName: userNickname || 'هەڤالەکێ تە',
+              hostId: user.id
             }
           });
           console.log('3. Broadcast send response:', resp);
@@ -457,10 +534,10 @@ const LobbyView = memo(({
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
                     ) : onlineProfiles.length > 0 ? (
-                      onlineProfiles.map(profile => {
+                      onlineProfiles.map((profile, index) => {
                         const isSent = sentInvites.has(profile.id);
                         return (
-                          <div key={profile.id} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
+                          <div key={`${profile.id}-${index}`} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
                                 <Avatar src={profile.avatar_url} size="full" border={false} />
@@ -524,37 +601,66 @@ const LobbyView = memo(({
       </AnimatePresence>
 
       <AnimatePresence>
-        {multiplayerState === 'private_lobby' && activeMatch && (
+        {(multiplayerState === 'private_lobby' || multiplayerState === 'match_starting') && activeMatch && (
           <Motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
+            initial="hidden"
+            animate="show"
+            exit="hidden"
+            className="fixed inset-0 z-999 flex flex-col items-center justify-between bg-black pb-20 pt-12 px-4"
           >
-            <Motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="w-full max-w-sm bg-mono-100 dark:bg-mono-900 rounded-2xl p-6 shadow-2xl border border-mono-200 dark:border-mono-800 relative overflow-hidden"
-            >
-              <div className="absolute -inset-20 bg-linear-to-tr from-primary/20 via-transparent to-blue-500/20 animate-spin-slow opacity-50" />
-              
-              <div className="relative z-10 flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-4">
-                  <span className="material-symbols-outlined text-4xl text-primary animate-pulse">hourglass_empty</span>
-                </div>
-                
-                <h3 className="text-xl font-black text-center text-mono-900 dark:text-white mb-2">ژوورا تایبەت</h3>
-                <p className="text-sm text-center text-mono-500 mb-8 font-medium">ل چاوەڕێیا هەڤالی...</p>
-                
-                <button 
-                  onClick={() => { triggerHaptic(10); cancelMatch(); }}
-                  className="w-full py-3.5 rounded-xl bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 hover:text-red-500 hover:bg-red-500/10 font-bold text-sm transition-colors"
-                >
-                  ڤەگەڕیان و داخستنا ژوورێ
-                </button>
+            {/* Top Right Close Button (Hide during match_starting) */}
+            {multiplayerState === 'private_lobby' && (
+              <button 
+                onClick={handleHostCancelInvite}
+                className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-mono-800 text-mono-400 hover:text-white flex items-center justify-center transition-colors shadow-lg"
+              >
+                <span className="material-symbols-outlined font-black text-2xl">close</span>
+              </button>
+            )}
+
+            {/* Top Center: Target User (Red Neon) */}
+            <div className="flex flex-col items-center mt-12">
+              <div className="w-24 h-24 rounded-full bg-mono-800 overflow-hidden shadow-[0_0_25px_rgba(239,68,68,0.6)] border-2 border-red-500 mb-4 flex items-center justify-center relative">
+                {(invitedUserProfile?.avatar_url || opponent?.avatar_url) ? (
+                  <Avatar src={invitedUserProfile?.avatar_url || opponent?.avatar_url} size="full" border={false} />
+                ) : (
+                  <span className="material-symbols-outlined text-4xl text-red-400">person</span>
+                )}
               </div>
-            </Motion.div>
+              <p className="text-white font-black text-lg drop-shadow-md">
+                {invitedUserProfile?.nickname || opponent?.nickname || 'یاریزان'}
+              </p>
+            </div>
+
+            {/* Middle Center: Timer or Loading Spinner */}
+            <div className="flex flex-col items-center justify-center flex-1">
+              {multiplayerState === 'match_starting' ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin text-[64px] text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] mb-4">progress_activity</span>
+                  <p className="text-mono-300 font-bold text-sm mt-2 animate-pulse">ئامادەکرنا تابلۆیا یاریێ...</p>
+                </>
+              ) : (
+                <>
+                  <div className="text-[64px] font-black text-white font-mono drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] tracking-wider">
+                    00:{inviteTimeLeft.toString().padStart(2, '0')}
+                  </div>
+                  <p className="text-mono-300 font-bold text-sm mt-2 animate-pulse">چاڤەڕێی بەرسڤێیە...</p>
+                </>
+              )}
+            </div>
+
+            {/* Bottom Center: Host User (Blue Neon) */}
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-24 h-24 rounded-full bg-mono-800 overflow-hidden shadow-[0_0_25px_rgba(59,130,246,0.6)] border-2 border-blue-500 mb-4 flex items-center justify-center relative">
+                {profileData?.avatar_url || user?.user_metadata?.avatar_url ? (
+                  <Avatar src={profileData?.avatar_url || user?.user_metadata?.avatar_url} size="full" border={false} />
+                ) : (
+                  <span className="material-symbols-outlined text-4xl text-blue-400">person</span>
+                )}
+              </div>
+              <p className="text-white font-black text-lg drop-shadow-md">{userNickname}</p>
+            </div>
           </Motion.div>
         )}
       </AnimatePresence>

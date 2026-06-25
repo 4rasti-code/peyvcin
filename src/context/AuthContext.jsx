@@ -51,11 +51,7 @@ export const AuthProvider = ({ children }) => {
     return saved !== null ? saved === 'true' : true;
   });
 
-  // 3.3 VOICE SETTINGS: Persistent global states
-  const [micEnabled, setMicEnabled] = useState(true);
-  const [micVolume, setMicVolume] = useState(100);
-  const [speakerEnabled, setSpeakerEnabled] = useState(true);
-  const [voiceVolume, setVoiceVolume] = useState(100);
+  // 3.3 VOICE SETTINGS: Persistent global states (Removed)
 
   const [profileData, setProfileData] = useState(() => {
     const cached = localStorage.getItem('peyvchin_cached_profile');
@@ -153,11 +149,7 @@ export const AuthProvider = ({ children }) => {
                 hints: 3,
                 skips: 3,
                 inventory: { owned_avatars: ["default"], unlocked_themes: ["default"], solved_words: [] },
-                haptic_enabled: true,
-                mic_enabled: false,
-                speaker_enabled: true,
-                voice_volume: 1.0,
-                mic_volume: 1.0
+                haptic_enabled: true
               }])
               .select()
               .single();
@@ -229,11 +221,6 @@ export const AuthProvider = ({ children }) => {
       }
       return prev;
     });
-
-    setMicEnabled(data.mic_enabled ?? true);
-    setMicVolume(data.mic_volume ?? 100);
-    setSpeakerEnabled(data.speaker_enabled ?? true);
-    setVoiceVolume(data.voice_volume ?? 100);
 
     localStorage.setItem('peyvchin_cached_profile', JSON.stringify(data));
 
@@ -495,11 +482,6 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('peyvchin_haptic_enabled', profileData.haptic_enabled.toString());
     }
 
-    if (profileData.mic_enabled !== undefined) setMicEnabled(profileData.mic_enabled);
-    if (profileData.mic_volume !== undefined) setMicVolume(profileData.mic_volume);
-    if (profileData.speaker_enabled !== undefined) setSpeakerEnabled(profileData.speaker_enabled);
-    if (profileData.voice_volume !== undefined) setVoiceVolume(profileData.voice_volume);
-
     try {
       // 1. Update Identity via RPC
       const { error: rpcError } = await supabase.rpc('update_profile_identity', {
@@ -525,10 +507,6 @@ export const AuthProvider = ({ children }) => {
 
       // 2. Update Voice Settings & Haptic via direct update (as columns are new)
       const directUpdates = {};
-      if (profileData.mic_enabled !== undefined) directUpdates.mic_enabled = profileData.mic_enabled;
-      if (profileData.mic_volume !== undefined) directUpdates.mic_volume = profileData.mic_volume;
-      if (profileData.speaker_enabled !== undefined) directUpdates.speaker_enabled = profileData.speaker_enabled;
-      if (profileData.voice_volume !== undefined) directUpdates.voice_volume = profileData.voice_volume;
       if (profileData.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData.haptic_enabled;
       if (profileData.onboarded !== undefined) directUpdates.onboarded = profileData.onboarded;
 
@@ -586,14 +564,13 @@ export const AuthProvider = ({ children }) => {
     isInKurdistan, setIsInKurdistan, countryCode, setCountryCode,
     profileData, lastNicknameUpdate,
     ownedAvatars, setOwnedAvatars, hapticEnabled, setHapticEnabled,
-    micEnabled, setMicEnabled, micVolume, setMicVolume, speakerEnabled, setSpeakerEnabled, voiceVolume, setVoiceVolume,
     lastProfileUpdate, setLastProfileUpdate,
     onlineCount, onlineUsers,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
-    countryCode, ownedAvatars, hapticEnabled, micEnabled, micVolume, speakerEnabled, voiceVolume, syncProfile,
+    countryCode, ownedAvatars, hapticEnabled, syncProfile,
     updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers
   ]);
 

@@ -39,6 +39,10 @@ export const MultiplayerProvider = ({ children }) => {
   const [isForfeitWin, setIsForfeitWin] = useState(false);
   const [MatchReward, setMatchReward] = useState(null);
 
+  // Dynamic Background Readiness Sync
+  const [isGameBoardMounted, setIsGameBoardMounted] = useState(false);
+  const [isOpponentBackgroundReady, setIsOpponentBackgroundReady] = useState(false);
+
   const setMultiplayerStateGuarded = useCallback((next) => {
     setMultiplayerState(prev => prev !== next ? next : prev);
   }, []);
@@ -378,24 +382,11 @@ export const MultiplayerProvider = ({ children }) => {
     const wasPlaying = multiplayerState === 'playing';
     const isP1 = activeMatch?.player1_id === user?.id;
 
-    // IMMEDIATELY CLEAR LOCAL STATE TO PREVENT RACE CONDITIONS AND RE-TRIGGERS
-    setMatchId(null);
-    setActiveMatchGuarded(null);
-    setOpponentGuarded(null);
-    setMultiplayerStateGuarded('idle');
-    setMatchmakingTime(0);
-    setOpponentGuesses([]);
-    setScores({ p1: 0, p2: 0 });
-    setCurrentWordIndex(0);
-    setForfeitStatus(null);
-    setMatchResultTrigger(0);
-    setLastMatchResult(null);
-    setMatchReward(null);
-    
     if (forfeitTimerRef.current) {
       clearTimeout(forfeitTimerRef.current);
       forfeitTimerRef.current = null;
     }
+    setForfeitStatus(null); // Ensure "Connection Lost" popup is explicitly suppressed
 
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
@@ -422,6 +413,13 @@ export const MultiplayerProvider = ({ children }) => {
             }
             await supabase.from('online_matches').update(updates).eq('id', idToCancel);
             applyPenalty(10, 25); // Very light penalty for leaving mid-game
+            
+            // DIRECTLY transition to Results UI without wiping state to prevent black screens/glitches
+            setLastMatchResult('defeat');
+            setMatchReward({ status: 'defeat', msg: 'تە یاری بجهێلا' });
+            setMatchResultTrigger(prev => prev + 1);
+            setMultiplayerStateGuarded('game_over');
+            return; // EXIT EARLY to keep game board mounted behind the results screen
           } else {
             // If just searching/waiting/game_over, delete the record
             await supabase.from('online_matches').delete().eq('id', idToCancel);
@@ -430,6 +428,21 @@ export const MultiplayerProvider = ({ children }) => {
     } catch (err) {
       console.warn('[Multiplayer] Cancel/Cleanup failed:', err);
     }
+
+    // IMMEDIATELY CLEAR LOCAL STATE TO PREVENT RACE CONDITIONS AND RE-TRIGGERS
+    setMatchId(null);
+    setActiveMatchGuarded(null);
+    setOpponentGuarded(null);
+    setMultiplayerStateGuarded('idle');
+    setMatchmakingTime(0);
+    setOpponentGuesses([]);
+    setScores({ p1: 0, p2: 0 });
+    setCurrentWordIndex(0);
+    setMatchResultTrigger(0);
+    setLastMatchResult(null);
+    setMatchReward(null);
+    setIsGameBoardMounted(false);
+    setIsOpponentBackgroundReady(false);
   }, [matchId, multiplayerState, stopSearchingSound, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded, activeMatch?.player1_id, applyPenalty, user?.id]);
 
   // 1. POLLING FALLBACK: Detect player join automatically AND prevent desync during play
@@ -452,7 +465,7 @@ export const MultiplayerProvider = ({ children }) => {
           .maybeSingle();
 
         if (match) {
-          const isSearching = stateRef.current === 'waiting' || stateRef.current === 'searching';
+          const isSearching = stateRef.current === 'waiting' || stateRef.current === 'searching' || stateRef.current === 'private_lobby';
           
           if (isSearching && (match.player2_id || match.status === 'playing') && stateRef.current !== 'playing' && stateRef.current !== 'game_over') {
             console.log('[Multiplayer] Polling Fallback found opponent! Syncing.');
@@ -528,7 +541,6 @@ export const MultiplayerProvider = ({ children }) => {
                   console.log('[Multiplayer] Realtime found Joiner! Resolving handshake...');
                   fetchOpponentProfile(fullMatch.player2_id).then(prof => {
                     if (prof) {
-                      setMultiplayerStateGuarded('playing');
                       triggerHaptic([50, 50, 100]);
                     }
                   });
@@ -563,6 +575,37 @@ export const MultiplayerProvider = ({ children }) => {
             setOpponentLiveStatuses(data.statuses || []);
             opponentLiveCursor.set(data.cursorIndex || 0);
           }
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'I_AM_READY' },
+        () => {
+          // Rely strictly on stateRef to avoid stale closures. Host is in private_lobby.
+          const isHost = stateRef.current === 'private_lobby';
+          if (isHost) {
+            console.log('[Multiplayer] Receiver is fully ready. Syncing match start...');
+            channel.send({ type: 'broadcast', event: 'START_MATCH_TIMER' });
+            setMultiplayerStateGuarded('match_starting');
+          }
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'START_MATCH_TIMER' },
+        () => {
+          console.log('[Multiplayer] Received sync timer broadcast!');
+          if (stateRef.current === 'joining' || stateRef.current === 'syncing') {
+            setMultiplayerStateGuarded('match_starting');
+          }
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'CLIENT_BACKGROUND_READY' },
+        (payload) => {
+          console.log('[Multiplayer] Received Opponent Background Ready!', payload);
+          setIsOpponentBackgroundReady(true);
         }
       )
       .on('presence', { event: 'sync' }, () => {
@@ -600,6 +643,15 @@ export const MultiplayerProvider = ({ children }) => {
       .subscribe(async (status) => {
         console.log(`[Multiplayer] Realtime Channel (${matchId}):`, status);
         if (status === 'SUBSCRIBED') {
+          console.log(`[Multiplayer] Channel match_room_${matchId} active.`);
+          
+          // Rely strictly on stateRef to avoid stale closures. Joiner is in joining/syncing.
+          const isJoiner = stateRef.current === 'joining' || stateRef.current === 'syncing';
+          if (isJoiner) {
+            console.log('[Multiplayer] Joiner fully subscribed. Sending I_AM_READY broadcast...');
+            channel.send({ type: 'broadcast', event: 'I_AM_READY' });
+          }
+
           channelRef.current = channel;
           await channel.track({
             user_id: user?.id,
@@ -640,11 +692,25 @@ export const MultiplayerProvider = ({ children }) => {
     const verifyAndStart = async () => {
       try {
         if (activeMatch.player1_id && activeMatch.player2_id) {
-          if (opponent) {
-            if (multiplayerState !== 'playing' && multiplayerState !== 'game_over' && multiplayerState !== 'found') {
-              setMultiplayerState('found');
-              setTimeout(() => setMultiplayerState(prev => prev === 'found' ? 'playing' : prev), 2000);
+          const handleTransition = () => {
+            const currentState = stateRef.current;
+            if (currentState === 'private_lobby' || currentState === 'joining' || currentState === 'syncing') {
+              // Direct invite transition: Wait for explicit broadcast handshake!
+              // Do NOT automatically set 'match_starting' here, otherwise desync occurs.
+              if (currentState === 'joining') {
+                setMultiplayerStateGuarded('syncing');
+              }
+            } else if (currentState !== 'playing' && currentState !== 'game_over' && currentState !== 'found' && currentState !== 'match_starting') {
+              // Random matchmaking transition: 2-second delay
+              setMultiplayerStateGuarded('found');
+              setTimeout(() => {
+                if (stateRef.current === 'found') setMultiplayerStateGuarded('playing');
+              }, 2000);
             }
+          };
+
+          if (opponent) {
+            handleTransition();
           } else {
             console.warn("[Multiplayer] Handshake: Waiting for opponent profile...");
             const isP1 = activeMatch.player1_id === user.id;
@@ -657,26 +723,60 @@ export const MultiplayerProvider = ({ children }) => {
               .maybeSingle();
 
             if (error || !opponentProfile) {
-              setMultiplayerState('syncing'); 
+              setMultiplayerStateGuarded('syncing'); 
             } else {
               setOpponent(opponentProfile);
-              setMultiplayerState('found');
-              setTimeout(() => setMultiplayerState(prev => prev === 'found' ? 'playing' : prev), 2000);
+              setOpponentGuarded(opponentProfile);
+              handleTransition();
             }
           }
         } else {
-          if (multiplayerState !== 'waiting' && multiplayerState !== 'searching' && multiplayerState !== 'private_lobby') {
-            setMultiplayerState('waiting');
+          if (stateRef.current !== 'waiting' && stateRef.current !== 'searching' && stateRef.current !== 'private_lobby') {
+            setMultiplayerStateGuarded('waiting');
           }
         }
       } catch (err) {
         console.error("[Multiplayer] Handshake verification failed:", err);
-        setMultiplayerState('syncing');
+        setMultiplayerStateGuarded('syncing');
       }
     };
 
     verifyAndStart();
-  }, [activeMatch, opponent, user?.id, multiplayerState]);
+  }, [activeMatch, opponent, user?.id, setMultiplayerStateGuarded, setOpponentGuarded]);
+
+  // 3.4 LOCAL BACKGROUND READY BROADCAST
+  useEffect(() => {
+    if (isGameBoardMounted) {
+      console.log('[Multiplayer] Local background is 100% ready. Broadcasting to opponent...');
+      channelRef.current?.send({ type: 'broadcast', event: 'CLIENT_BACKGROUND_READY' });
+    }
+  }, [isGameBoardMounted, multiplayerState]);
+
+  // 3.5 MATCH STARTING BUFFER EFFECT (DYNAMIC SYNC & SAFETY FALLBACK)
+  useEffect(() => {
+    let timeoutId;
+
+    if (multiplayerState === 'match_starting') {
+      // If both ready, lift curtain immediately
+      if (isGameBoardMounted && isOpponentBackgroundReady) {
+        console.log('[Multiplayer] Both clients background ready. Lifting curtain!');
+        setMultiplayerStateGuarded('playing');
+      } else {
+        // Safety Fallback Timeout: 15 seconds
+        timeoutId = setTimeout(() => {
+          if (stateRef.current === 'match_starting') {
+            console.warn('[Multiplayer] 15-second safety timeout expired during match_starting. Readiness:', { isGameBoardMounted, isOpponentBackgroundReady });
+            // Silently cancel the match on fatal connection drops.
+            cancelMatch(); 
+          }
+        }, 15000);
+      }
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [multiplayerState, isGameBoardMounted, isOpponentBackgroundReady, setMultiplayerStateGuarded, cancelMatch]);
   
   // 4. GAME SYNC EFFECT: Handle round transitions and match results
   useEffect(() => {
@@ -908,7 +1008,6 @@ export const MultiplayerProvider = ({ children }) => {
           // DIRECT JOINER RESOLUTION: Fetch Host profile and transition immediately
           const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
           if (hostProfile) {
-            setMultiplayerStateGuarded('playing');
             triggerHaptic([50, 50, 100]);
           } else {
             // Fallback to syncing if profile fetch is slow
@@ -982,7 +1081,7 @@ export const MultiplayerProvider = ({ children }) => {
     // Cleanup any old private waiting rooms for this user
     await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'private_waiting');
     
-    setMultiplayerStateGuarded('searching'); // Show loading state temporarily
+    setMultiplayerStateGuarded('private_lobby'); // Show waiting lobby instead of triggering 'searching' navigation
     setOpponent(null);
     setOpponentGuesses([]);
     setMatchReward(null);
@@ -1035,10 +1134,21 @@ export const MultiplayerProvider = ({ children }) => {
     return null;
   }, [user?.id, setMultiplayerStateGuarded, setActiveMatchGuarded]);
 
+  const hostAcceptJoiner = useCallback(async (joinerId) => {
+    if (!matchId || !joinerId) return;
+    const prof = await fetchOpponentProfile(joinerId);
+    if (prof) {
+      // Optimistically update local activeMatch to avoid waiting for polling
+      setActiveMatchGuarded(prev => prev ? { ...prev, player2_id: joinerId, status: 'playing' } : prev);
+      triggerHaptic([50, 50, 100]);
+    }
+  }, [matchId, fetchOpponentProfile, setActiveMatchGuarded]);
+
   const joinPrivateMatch = useCallback(async (roomIdOrCode) => {
     if (!user?.id || !roomIdOrCode) return false;
     
-    setMultiplayerStateGuarded('searching');
+    // Use joining state to avoid flashing the random matchmaking Search UI
+    setMultiplayerStateGuarded('joining');
     setOpponent(null);
     setOpponentGuesses([]);
     setMatchReward(null);
@@ -1086,7 +1196,6 @@ export const MultiplayerProvider = ({ children }) => {
 
         const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
         if (hostProfile) {
-          setMultiplayerStateGuarded('playing');
           triggerHaptic([50, 50, 100]);
         } else {
           setMultiplayerStateGuarded('syncing');
@@ -1132,7 +1241,11 @@ export const MultiplayerProvider = ({ children }) => {
     broadcastLiveAction,
     opponentLiveStatuses,
     opponentLiveCursor,
-    isForfeitWin
+    isForfeitWin,
+    hostAcceptJoiner,
+    isGameBoardMounted,
+    setIsGameBoardMounted,
+    isOpponentBackgroundReady
   }), [
     multiplayerState, MatchmakingTime, activeMatch, opponent, setMultiplayerState,
     startMatchmaking, createPrivateMatch, joinPrivateMatch, cancelMatch, submitGuess, submitFailure, broadcastGuess,
@@ -1140,7 +1253,8 @@ export const MultiplayerProvider = ({ children }) => {
     LastMatchResult, MatchReward, ResetMatchResultTrigger, winnerNickname,
     roundMessage, fetchOpponentProfile, forfeitStatus, forfeitCountdown,
     triggerForfeitVictory, broadcastLiveAction, opponentLiveStatuses,
-    opponentLiveCursor, isForfeitWin
+    opponentLiveCursor, isForfeitWin, hostAcceptJoiner,
+    isGameBoardMounted, isOpponentBackgroundReady
   ]);
 
   return (

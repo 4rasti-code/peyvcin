@@ -12,7 +12,12 @@ const GlobalInviteToast = () => {
   const { playNotifSound } = useAudio();
   
   const [invite, setInvite] = useState(null);
+  const inviteRef = useRef(null); // Keep a ref to access inside channel callbacks
   const timeoutRef = useRef(null);
+
+  useEffect(() => {
+    inviteRef.current = invite;
+  }, [invite]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -20,6 +25,7 @@ const GlobalInviteToast = () => {
     console.log('A. GlobalInviteToast MOUNTED for user:', user.id);
     
     const channel = supabase.channel(`user_invites_${user.id}`, { config: { broadcast: { ack: true } } });
+    
     channel.on('broadcast', { event: 'match_invite' }, (payload) => {
       console.log('C. INVITE RECEIVED!', payload);
       const inviteData = payload.payload;
@@ -29,12 +35,22 @@ const GlobalInviteToast = () => {
       if (playNotifSound) playNotifSound();
       triggerHaptic(15);
 
-      // Auto dismiss after 10 seconds
+      // Auto dismiss after 15 seconds
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         setInvite(null);
-      }, 10000);
-    }).subscribe((status) => {
+      }, 15000);
+    })
+    .on('broadcast', { event: 'invite_cancelled' }, (payload) => {
+       console.log('D. INVITE CANCELLED RECEIVED', payload);
+       const cancelledData = payload.payload;
+       if (inviteRef.current && inviteRef.current.roomId === cancelledData.roomId) {
+          setInvite(null);
+          if (timeoutRef.current) clearTimeout(timeoutRef.current);
+          alert("داخوازنامە ژ لایێ وی کەسی ڤە هاتە هەلوەشاندن");
+       }
+    })
+    .subscribe((status) => {
       console.log('B. Receiver channel status:', status);
     });
 
@@ -44,17 +60,48 @@ const GlobalInviteToast = () => {
     };
   }, [user?.id, playNotifSound]);
 
-  const handleAccept = () => {
+  const handleAccept = async () => {
     triggerHaptic(15);
-    if (invite?.roomId) {
+    if (invite?.roomId && invite?.hostId) {
+      joinPrivateMatch(invite.roomId);
+      
+      // Broadcast acceptance to host for INSTANT transition
+      const replyChannel = supabase.channel(`user_invites_${invite.hostId}`, { config: { broadcast: { ack: true } } });
+      replyChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await replyChannel.send({
+            type: 'broadcast',
+            event: 'match_invite_accepted',
+            payload: { roomId: invite.roomId, joinerId: user.id }
+          });
+          supabase.removeChannel(replyChannel);
+        }
+      });
+    } else if (invite?.roomId) {
       joinPrivateMatch(invite.roomId);
     }
     setInvite(null);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
 
-  const handleDecline = () => {
+  const handleDecline = async () => {
     triggerHaptic(10);
+    
+    if (invite?.hostId && invite?.roomId) {
+      // Broadcast rejection to host
+      const replyChannel = supabase.channel(`user_invites_${invite.hostId}`, { config: { broadcast: { ack: true } } });
+      replyChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await replyChannel.send({
+            type: 'broadcast',
+            event: 'match_invite_rejected',
+            payload: { roomId: invite.roomId }
+          });
+          supabase.removeChannel(replyChannel);
+        }
+      });
+    }
+
     setInvite(null);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
   };
@@ -98,7 +145,7 @@ const GlobalInviteToast = () => {
             <Motion.div 
               initial={{ width: "100%" }}
               animate={{ width: "0%" }}
-              transition={{ duration: 8, ease: "linear" }}
+              transition={{ duration: 15, ease: "linear" }}
               className="absolute bottom-0 left-0 h-1 bg-blue-500 opacity-80"
             />
           </div>

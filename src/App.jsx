@@ -175,8 +175,7 @@ export default function App() {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
     userNickname, userAvatar, userAvatar: equippedAvatar, city, isInKurdistan, countryCode,
     ownedAvatars, unlockedThemes: _unlockedThemes, currentTheme,
-    updateProfile, profileData,
-    micEnabled, micVolume, speakerEnabled, voiceVolume
+    updateProfile, profileData
   } = useUser();
 
   const {
@@ -530,6 +529,12 @@ export default function App() {
   // Force view to 'game' when multiplayer starts to prevent cleanup hook from destroying the match
   const hasForcedGameViewRef = useRef(false);
   useEffect(() => {
+    // 1. Force view to 'lobby' for the 5-second match_starting buffer (Receiver might be in social_hub)
+    if (multiplayerState === 'match_starting' && currentView !== 'lobby') {
+      setCurrentView('lobby');
+    }
+
+    // 2. Force view to 'game' when officially playing
     const isGameActive = multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found' || multiplayerState === 'playing';
     if (isGameActive && !hasForcedGameViewRef.current) {
       if (currentView !== 'game') {
@@ -1642,7 +1647,7 @@ export default function App() {
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-        <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || multiplayerState === 'playing') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+        <main className={`flex-1 ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
               onAuthSuccess={async (u) => {
@@ -1657,7 +1662,7 @@ export default function App() {
             />
           )}
 
-          {(multiplayerState === 'playing' || multiplayerState === 'game_over' || multiplayerState === 'syncing') && (
+          {(multiplayerState === 'playing' || multiplayerState === 'game_over' || multiplayerState === 'syncing' || multiplayerState === 'match_starting') && (
             <Suspense fallback={<KurdishSunLoader />}>
               <MultiplayerGameView
                 opponent={opponent}
@@ -1669,7 +1674,7 @@ export default function App() {
           )}
 
           {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
-          {currentView === 'lobby' && multiplayerState === 'idle' && (
+          {currentView === 'lobby' && (multiplayerState === 'idle' || multiplayerState === 'private_lobby' || multiplayerState === 'match_starting') && (
             <>
               <LobbyView
                 onStartClassic={() => {
@@ -2088,10 +2093,6 @@ export default function App() {
             onHapticToggle={() => {
               updateProfile({ haptic_enabled: !hapticEnabled });
             }}
-            micEnabled={micEnabled}
-            micVolume={micVolume}
-            speakerEnabled={speakerEnabled}
-            voiceVolume={voiceVolume}
             updateProfile={updateProfile}
             user={user}
             onLogout={handleLogout}

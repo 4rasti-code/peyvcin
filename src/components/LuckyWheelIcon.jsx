@@ -60,11 +60,9 @@ export const LuckyWheelInner = ({ className, hideContent = false }) => {
               return (
                 <g key={`content-${i}`} transform={`rotate(${rotateAngle})`}>
                   {isSpecial ? (
-                    <foreignObject x="-6.5" y="-42" width="13" height="13">
-                      <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: '100%', height: '100%' }}>
-                        <reward.Icon className="w-full h-full drop-shadow-md" />
-                      </div>
-                    </foreignObject>
+                    <g transform={`translate(-6.5, -46)`}>
+                      <reward.Icon size={reward.size} asSvg={true} className="drop-shadow-md" />
+                    </g>
                   ) : (
                     <g transform={`translate(-4.5, -42)`}><reward.Icon size={reward.size} /></g>
                   )}

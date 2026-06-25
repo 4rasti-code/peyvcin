@@ -16,10 +16,6 @@ function SettingsModal({
    onBgMusicVolumeChange,
    hapticEnabled,
    onHapticToggle,
-   micEnabled,
-   micVolume,
-   speakerEnabled,
-   voiceVolume,
    updateProfile,
    onLogout,
    onPlaySound
@@ -126,77 +122,6 @@ function SettingsModal({
                                   className={`w-3 h-3 rounded-sm ${hapticEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
                                />
                             </button>
-                         </div>
-
-                         {/* Mic Section */}
-                         <div className="flex flex-col py-3 space-y-4">
-                            <div className="flex items-center justify-between group">
-                               <div className="flex items-center gap-3">
-                                  <span className={`material-symbols-outlined text-lg transition-colors ${micEnabled ? 'text-mono-900 dark:text-white' : 'text-mono-400'}`}>
-                                     {micEnabled ? 'mic' : 'mic_off'}
-                                  </span>
-                                  <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">دەنگکێش</span>
-                               </div>
-                               <button
-                                  onClick={() => { triggerHaptic(10); updateProfile({ mic_enabled: !micEnabled }); }}
-                                  className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${micEnabled ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                               >
-                                  <Motion.div
-                                     layout
-                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                     className={`w-3 h-3 rounded-sm ${micEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                  />
-                               </button>
-                            </div>
-                            {micEnabled && (
-                               <div className="px-1 flex items-center gap-3 w-full pb-1">
-                                  <input
-                                     type="range"
-                                     dir="ltr"
-                                     min="0"
-                                     max="100"
-                                     value={micVolume}
-                                     onChange={(e) => updateProfile({ mic_volume: parseInt(e.target.value) })}
-                                     className="flex-1 h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
-                                  />
-                                  <span className="text-[10px] font-bold text-mono-400 shrink-0 min-w-[28px] text-center" dir="ltr">{micVolume}%</span>
-                               </div>
-                            )}
-                         </div>
-
-                         {/* Speaker Section */}
-                         <div className="flex flex-col py-3 space-y-4">
-                            <div className="flex items-center justify-between group">
-                               <div className="flex items-center gap-3">
-                                  <span className={`material-symbols-outlined text-lg transition-colors ${speakerEnabled ? 'text-mono-900 dark:text-white' : 'text-mono-400'}`}>
-                                     {speakerEnabled ? 'volume_up' : 'volume_off'}
-                                  </span>
-                                  <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">بلندگۆ</span>
-                               </div>
-                               <button
-                                  onClick={() => { triggerHaptic(10); updateProfile({ speaker_enabled: !speakerEnabled }); }}
-                                  className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 relative ${speakerEnabled ? 'bg-green-600/20' : 'bg-red-600/20'}`}
-                               >
-                                  <Motion.div
-                                     animate={{ x: speakerEnabled ? -20 : 0 }}
-                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                     className={`w-3 h-3 rounded-sm ${speakerEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                  />
-                               </button>
-                            </div>
-                            {speakerEnabled && (
-                               <div className="px-1 flex items-center gap-3 w-full pb-1">
-                                  <input
-                                     type="range"
-                                     min="0"
-                                     max="100"
-                                     value={voiceVolume}
-                                     onChange={(e) => updateProfile({ voice_volume: parseInt(e.target.value) })}
-                                     className="flex-1 h-1 bg-mono-100 dark:bg-white/10 rounded-none appearance-none cursor-pointer accent-mono-900 dark:accent-white transition-all"
-                                  />
-                                  <span className="text-[10px] font-bold text-mono-400 shrink-0 min-w-[28px] text-center" dir="ltr">{voiceVolume}%</span>
-                               </div>
-                            )}
                          </div>
                       </div>
 

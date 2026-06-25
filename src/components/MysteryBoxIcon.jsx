@@ -1,8 +1,14 @@
 import React from 'react';
 
-export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false, isIdleAnimated = false }) {
-  return (
-    <div className={`relative flex items-center justify-center ${className}`}>
+export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false, isIdleAnimated = false, asSvg = false, size }) {
+  const content = (
+    <svg 
+      viewBox="0 0 100 100" 
+      className={asSvg ? className : "w-full h-full overflow-visible"} 
+      width={size} 
+      height={size} 
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <style>
         {`
           .chest-lid {
@@ -40,7 +46,6 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
           }
         `}
       </style>
-      <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" xmlns="http://www.w3.org/2000/svg">
         
         <defs>
           <radialGradient id="boxIdleGlow" cx="50%" cy="50%" r="50%">
@@ -179,7 +184,14 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
           </g>
 
         </g>
-      </svg>
+    </svg>
+  );
+
+  if (asSvg) return content;
+
+  return (
+    <div className={`relative flex items-center justify-center ${className}`} style={size ? { width: size, height: size } : {}}>
+      {content}
     </div>
   );
 }

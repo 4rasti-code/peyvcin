@@ -47,7 +47,7 @@ export default function NotificationsView({
         initial={{ x: 10, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         onClick={(e) => { e.stopPropagation(); triggerHaptic(10); onAction(item); }}
-        className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-mono-100 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-mono-200 dark:hover:border-white/5 bg-mono-50 dark:bg-white/2 mb-1.5"
+        className="flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-mono-100 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-mono-200 dark:hover:border-white/5 bg-mono-50 dark:bg-white/2 mb-1.5"
       >
         <div className="w-10 h-10 shrink-0 relative flex items-center justify-center">
           <Avatar src={item.user_avatar} size="sm" />

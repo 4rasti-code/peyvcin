@@ -10,10 +10,9 @@ import useGameLogic from '../hooks/useGameLogic';
 import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
 import RoundIntro from './RoundIntro';
-import VoiceManager from './VoiceManager';
 import { toKuDigits } from '../utils/formatters';
 
-export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay }) {
+export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay: _onOpenHowToPlay }) {
   const {
     activeMatch,
     opponent: contextOpponent,
@@ -33,16 +32,16 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     forfeitCountdown,
     triggerForfeitVictory: _triggerForfeitVictory,
     submitFailure,
-    cancelMatch,
+    cancelMatch: _cancelMatch,
     broadcastLiveAction,
     opponentLiveStatuses,
-    opponentLiveCursor
+    opponentLiveCursor,
+    setIsGameBoardMounted
   } = useMultiplayer();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
   const opponent = propOpponent || contextOpponent;
-
-
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const { user, userNickname, userAvatar } = useUser();
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
@@ -56,6 +55,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     const idx = currentRound % activeMatch.words.length;
     return activeMatch.words[idx] || '';
   }, [activeMatch, currentRound]);
+
+  // Expose Game Board Readiness
+  useEffect(() => {
+    if (opponent && targetWord && activeMatch) {
+      setIsGameBoardMounted?.(true);
+    } else {
+      setIsGameBoardMounted?.(false);
+    }
+  }, [opponent, targetWord, activeMatch, setIsGameBoardMounted]);
 
   // CORE ENGINE
   const onGuessSubmitted = useCallback(async (colors, isWin) => {
@@ -141,7 +149,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     );
   }
 
-  if (multiplayerState !== 'playing' || !opponent) {
+  if (!opponent) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center bg-[#020617] text-white">
         <KurdishSunLoader />
@@ -169,27 +177,87 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             }
             .riddle-text {
               font-size: clamp(0.55rem, 3.2vw, 1.1rem) !important;
-              line-height: 1 !important;
-              white-space: nowrap !important;
+              line-height: 1.2 !important;
+              white-space: normal !important;
               font-weight: 300 !important;
+              text-align: center;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
             }
           }
           .riddle-text {
-            white-space: nowrap !important;
+            white-space: normal !important;
+            line-height: 1.2 !important;
             font-size: clamp(0.6rem, 3.5vw, 1.25rem) !important;
+            text-align: center;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
           }
         `}
       </style>
 
       {/* 0. ACTION TOP BAR */}
-      <div className="fixed top-0 left-0 right-0 z-400 pt-[env(safe-area-inset-top)] px-2 h-14 flex items-center justify-between pointer-events-none">
-        {/* VOICE CHAT MANAGER (HAMBURGER ON THE RIGHT) */}
-        <VoiceManager 
-          matchId={activeMatch?.id} 
-          onHelp={onOpenHowToPlay}
-          onExit={cancelMatch}
-        />
+      <div className="fixed top-0 left-0 right-0 z-400 pt-[env(safe-area-inset-top)] px-4 h-14 flex items-center justify-between pointer-events-none">
+        <div className="flex items-center gap-2 pointer-events-auto relative">
+          <button
+            onClick={() => { playPopSound(); setIsMenuOpen(true); }}
+            className={`w-10 h-10 flex items-center justify-center rounded-md transition-all ${isDark ? 'bg-black/60 text-white/80 hover:bg-black/80' : 'bg-white/80 text-slate-700 hover:bg-white'} backdrop-blur-md shadow-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}`}
+          >
+            <span className="material-symbols-outlined text-[20px]">menu</span>
+          </button>
 
+          <AnimatePresence>
+            {isMenuOpen && (
+              <>
+                <Motion.div 
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-10" 
+                  onClick={() => setIsMenuOpen(false)} 
+                />
+                
+                <Motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -10, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -10, x: 20 }}
+                  className={`absolute top-12 right-0 w-48 rounded-xl shadow-2xl border backdrop-blur-xl z-20 overflow-hidden ${isDark ? 'bg-black/90 border-white/10' : 'bg-white/95 border-slate-200'}`}
+                  dir="rtl"
+                >
+                  <div className="flex flex-col py-1">
+                    <button
+                      onClick={() => {
+                        playPopSound();
+                        setIsMenuOpen(false);
+                        _onOpenHowToPlay?.();
+                      }}
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'}`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">help</span>
+                      ڕێنمایی
+                    </button>
+                    
+                    <div className={`h-px w-full ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
+
+                    <button
+                      onClick={() => {
+                        playPopSound();
+                        setIsMenuOpen(false);
+                        _cancelMatch?.();
+                      }}
+                      className="flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar text-red-500 hover:bg-red-500/10 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">logout</span>
+                      دەرکەفتن
+                    </button>
+                  </div>
+                </Motion.div>
+              </>
+            )}
+          </AnimatePresence>
+        </div>
         <div className="flex items-center gap-1" />
       </div>
 
@@ -197,17 +265,17 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+52px)]" dir="rtl">
 
         {/* RIDDLE DISPLAY */}
-        <div className={`w-full flex flex-col items-center justify-center py-3 px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
-          <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} leading-none font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text`}>
+        <div className={`w-full h-12 sm:h-14 flex flex-col items-center justify-center px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
+          <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text w-full`}>
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
         </div>
 
         {/* TOP HALF: YOUR GRID */}
-        <div className="flex-[1.2] min-h-0 flex flex-col items-center justify-center p-1 bg-white/2">
-          <div className="flex items-center gap-2 opacity-60 scale-75 mb-1">
-            <Avatar src={userAvatar} size="xs" />
-            <span className="text-[10px] font-black text-blue-400 uppercase">{userNickname}</span>
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-1 bg-white/2">
+          <div className="flex items-center gap-2 opacity-90 mb-1">
+            <Avatar src={userAvatar} size="sm" />
+            <span className="text-xs sm:text-sm font-black text-blue-400 uppercase">{userNickname}</span>
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
             <Grid
@@ -230,7 +298,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
           <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-${isDark ? 'white/10' : 'slate-300/60'} to-transparent h-px w-full`} />
 
           {/* Score & Round Pill */}
-          <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md px-4 py-1.5 rounded-full border relative z-10`}>
+          <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md px-4 py-1.5 rounded-md border relative z-10`}>
             <div className="flex items-center justify-center min-w-[24px]">
               <span className={`text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} leading-none tabular-nums`}>
                 {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
@@ -239,7 +307,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
             
-            <div className={`text-[10px] font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase px-1`}>
+            <div className={`text-sm font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase px-1`}>
               گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
             
@@ -275,9 +343,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               isDark={isDark}
             />
           </div>
-          <div className="flex items-center gap-2 opacity-60 scale-75 mt-1">
-            <span className="text-[10px] font-black text-red-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
-            <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xs" />
+          <div className="flex items-center gap-2 opacity-90 mt-1">
+            <span className="text-xs sm:text-sm font-black text-red-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
+            <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
           </div>
         </div>
       </div>
