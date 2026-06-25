@@ -786,6 +786,7 @@ export const MultiplayerProvider = ({ children }) => {
   // 3.5 MATCH STARTING BUFFER EFFECT (DYNAMIC SYNC & SAFETY FALLBACK)
   useEffect(() => {
     let timeoutId;
+    let cancelFallbackId;
 
     if (multiplayerState === 'match_starting') {
       // If both ready, lift curtain immediately
@@ -800,11 +801,20 @@ export const MultiplayerProvider = ({ children }) => {
             setMultiplayerStateGuarded('playing');
           }
         }, 3000);
+
+        // 10-Second Critical Fallback: If opponent never readies up, cancel the frozen match
+        cancelFallbackId = setTimeout(() => {
+          if (!isOpponentBackgroundReady) {
+            console.warn('[Multiplayer] 10-second critical failure. Opponent never connected. Cancelling match.');
+            if (cancelMatch) cancelMatch();
+          }
+        }, 10000);
       }
     }
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
+      if (cancelFallbackId) clearTimeout(cancelFallbackId);
     };
   }, [multiplayerState, isGameBoardMounted, isOpponentBackgroundReady, setMultiplayerStateGuarded, cancelMatch]);
   
@@ -996,14 +1006,14 @@ export const MultiplayerProvider = ({ children }) => {
 
     try {
       // PHASE 0: CLEANUP (Ensure no old waiting matches for this user exist)
-      await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'waiting');
+      await supabase.from('online_matches').delete().eq('player1_id', user.id).eq('status', 'global_waiting');
 
       // PHASE 1: SEARCH (DIRECT CLIENT-SIDE JOIN - AUDITED)
-      console.log('[Multiplayer] SEARCH: Querying for status=waiting AND player2_id=NULL...');
+      console.log('[Multiplayer] SEARCH: Querying for status=global_waiting AND player2_id=NULL...');
       const { data: openMatches, error: searchError } = await supabase
         .from('online_matches')
         .select('id, player1_id')
-        .eq('status', 'waiting')
+        .eq('status', 'global_waiting')
         .is('player2_id', null)
         .neq('player1_id', user.id)
         .order('created_at', { ascending: true })
@@ -1080,7 +1090,7 @@ export const MultiplayerProvider = ({ children }) => {
         .from('online_matches')
         .insert({
           player1_id: user.id,
-          status: 'waiting',
+          status: 'global_waiting',
           words: selectedWords,
           riddles: selectedRiddles,
           current_word_index: 0,

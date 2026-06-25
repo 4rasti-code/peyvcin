@@ -7,7 +7,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
 import Avatar from './Avatar';
 
-const GlobalInviteToast = ({ setGameMode, currentView }) => {
+const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
   const { user } = useUser();
   const { playNotifSound } = useAudio();
   const { joinPrivateMatch, multiplayerState } = useMultiplayer();
@@ -114,7 +114,17 @@ const GlobalInviteToast = ({ setGameMode, currentView }) => {
 
   const handleAccept = async () => {
     triggerHaptic(15);
+    
+    // 1. FORCE BLUR: Close OS keyboard and clear focus from chat inputs
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+    
+    // 2. DISPATCH EVENT: Tell SocialHub to clean up internal state
+    window.dispatchEvent(new Event('forceCloseChat'));
+
     if (setGameMode) setGameMode('multiplayer');
+    if (setCurrentView) setCurrentView('game'); // STRICTLY ROUTE TO GAME VIEW
     
     if (invite?.roomId && invite?.hostId) {
       joinPrivateMatch(invite.roomId);

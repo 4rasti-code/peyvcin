@@ -71,20 +71,20 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "circOut" }}
-            className="absolute w-[150%] h-[6px] bg-linear-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-35"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[6px] bg-linear-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-35"
           />
           
           <Motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-35 pointer-events-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-35 pointer-events-none"
           />
 
           {/* 4. PLAYER CONTENT (DIAGONAL) */}
-          <div className="relative w-full h-full p-8 sm:p-16 z-20 flex flex-col justify-between items-center max-w-5xl mx-auto">
+          <div className="absolute inset-0 w-full h-full z-20 max-w-5xl mx-auto overflow-hidden">
             
-            {/* OPPONENT - TOP LEFT */}
-            <div className="w-full flex justify-start mt-28 px-8">
+            {/* OPPONENT - TOP RIGHT (RTL) */}
+            <div className="absolute top-24 sm:top-32 right-8 sm:right-16 md:right-32">
               <Motion.div
                 initial={{ x: -200, y: -200, opacity: 0, scale: 0.3 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
@@ -96,18 +96,18 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   <div className="relative p-2 rounded-full bg-linear-to-br from-red-600 via-orange-500 to-red-900 shadow-[0_0_60px_rgba(220,38,38,0.5)]">
                     <Avatar 
                       src={opponent?.avatar_url} 
-                      size="2xl" 
+                      size="xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
                       level={opponent?.level} 
                     />
                   </div>
-                  {/* Identity Label (Matches mockup position) */}
+                  {/* Identity Label */}
                   <div className="absolute -bottom-3 -right-3 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
                     ھەڤڕک
                   </div>
                 </div>
-                <span className="text-white font-black text-2xl sm:text-3xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
+                <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
                   {opponent?.nickname || 'ھەڤڕک'}
                 </span>
               </Motion.div>
@@ -118,30 +118,30 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
               initial={{ scale: 0, opacity: 0, rotate: 90, filter: 'blur(20px)' }}
               animate={{ scale: 1, opacity: 1, rotate: 0, filter: 'blur(0px)' }}
               transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.8 }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 -mt-8"
             >
-              <div className="relative group">
+              <div className="relative group flex items-center justify-center">
                 {/* Intense Central Flare */}
                 <Motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.9, 0.6] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                   className="absolute -inset-16 bg-linear-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
                 />
-                <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
+                <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none translate-x-4 sm:translate-x-8
                   bg-linear-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
                   drop-shadow-[0_0_50px_rgba(251,191,36,1)] filter brightness-125">
                   و
                 </h1>
                 {/* Ghost Text for Depth */}
-                <h1 className="absolute inset-0 text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
-                  text-white/20 blur-[3px] translate-y-1 translate-x-1 -z-10">
+                <h1 className="absolute text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none translate-x-5 sm:translate-x-9
+                  text-white/20 blur-[3px] translate-y-1 -z-10">
                   و
                 </h1>
               </div>
             </Motion.div>
 
-            {/* YOU - BOTTOM RIGHT */}
-            <div className="w-full flex justify-end mb-28 px-8">
+            {/* YOU - BOTTOM LEFT (RTL) */}
+            <div className="absolute bottom-24 sm:bottom-32 left-8 sm:left-16 md:left-32">
               <Motion.div
                 initial={{ x: 200, y: 200, opacity: 0, scale: 0.3 }}
                 animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
@@ -153,18 +153,18 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   <div className="relative p-2 rounded-full bg-linear-to-br from-cyan-400 via-blue-500 to-blue-900 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
                     <Avatar 
                       src={userAvatar} 
-                      size="2xl" 
+                      size="xl" 
                       className="border-4 border-white/30 rounded-full" 
                       border={false} 
                       level={userLevel} 
                     />
                   </div>
-                  {/* Identity Label (Matches mockup position) */}
+                  {/* Identity Label */}
                   <div className="absolute -bottom-3 -left-3 bg-cyan-500 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
                     تۆ
                   </div>
                 </div>
-                <span className="text-white font-black text-2xl sm:text-3xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
+                <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
                   {userNickname}
                 </span>
               </Motion.div>
@@ -174,12 +174,12 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
 
           {/* 5. ROUND TEXT (Sleek Bottom Bar) */}
           <Motion.div
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 60 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ type: "spring", stiffness: 100, damping: 20, delay: 1.2 }}
-            className="absolute bottom-16 z-50 text-center px-10"
+            className="absolute bottom-12 sm:bottom-16 right-8 sm:right-16 md:right-32 z-50 text-right"
           >
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-end">
               <h2 className="text-2xl sm:text-3xl font-black text-white font-rabar uppercase tracking-normal drop-shadow-2xl">
                 {/* CORE TIE MESSAGE: DO NOT REMOVE */}
                 {roundMessage === 'ROUND_DRAW' ? (

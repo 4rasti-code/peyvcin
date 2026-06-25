@@ -203,7 +203,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       style={{ display: multiplayerState === 'match_starting' ? 'none' : 'flex' }}
     >
       {showCinematicOverlay && (
-        <div className="absolute inset-0 z-9999 bg-[#020617] flex flex-col overflow-hidden text-white">
+        <div className="fixed inset-0 z-[9999] bg-[#020617] flex flex-col overflow-hidden text-white">
           {/* Top Half: Opponent */}
           <div className="flex-1 bg-red-700 border-b-4 border-red-900 flex flex-col items-center justify-center relative shadow-[inset_0_-30px_60px_rgba(0,0,0,0.3)]">
             <div className="ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] rounded-full z-10">

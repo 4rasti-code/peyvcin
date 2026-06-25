@@ -1596,7 +1596,7 @@ export default function App() {
         )}
 
         {/* 1. STATE-BASED NAVIGATION HEADER */}
-        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && multiplayerState !== 'playing' && (
+        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && !['playing', 'joining', 'syncing', 'match_starting'].includes(multiplayerState) && (
           <TopAppBar
             user={user} fils={fils} derhem={derhem} dinar={dinar}
             magnetCount={magnetCount} hintCount={hintCount} skipCount={skipCount}
@@ -1741,7 +1741,7 @@ export default function App() {
             </>
           )}
 
-          {currentView === 'game' && (
+          {currentView === 'game' && gameMode !== 'multiplayer' && (
             <div className="flex-1 flex flex-col overflow-hidden relative h-full">
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar">
@@ -2133,7 +2133,7 @@ export default function App() {
         </Suspense>
 
         {/* GLOBAL INVITE TOAST */}
-        <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} />
+        <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} setCurrentView={setCurrentView} />
 
         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
         <UpgradeAccountModal 

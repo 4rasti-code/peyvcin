@@ -623,6 +623,15 @@ export default function SocialHubView({
   }, [activeTab]);
 
   useEffect(() => {
+    const handleForceClose = () => {
+      setIsKeyboardVisible(false);
+      onKeyboardToggle?.(false);
+    };
+    window.addEventListener('forceCloseChat', handleForceClose);
+    return () => window.removeEventListener('forceCloseChat', handleForceClose);
+  }, [onKeyboardToggle]);
+
+  useEffect(() => {
     selectedChatRef.current = selectedChat;
     window.activeChatId = selectedChat?.id || null;
     if (selectedChat?.id) {
