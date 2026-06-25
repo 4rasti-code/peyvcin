@@ -36,48 +36,47 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   const dynamicClass = getDynamicStyles(item.id);
 
   return (
-    <Motion.button
-      layout
-      whileHover={{ scale: 1.01, filter: "brightness(1.05)" }}
-      whileTap={{ scale: 0.99 }}
-      onClick={() => { 
-        if (canAfford) {
-          triggerHaptic(10); 
-          onRequestPurchase(item); 
-        } else {
-          triggerHaptic([50, 30, 50]);
-        }
-      }}
-      className={`group relative w-full px-5 py-4 ${dynamicClass} rounded-[8px] flex items-center gap-4 overflow-visible transition-all mb-1 active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent]`}
-    >
-      <div className="w-[48px] h-[48px] rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 transition-transform group-hover:scale-110 duration-300 border border-white/30">
-        {item.id === 'hint_pack' ? (
-          <HintIcon className="w-8 h-8 drop-shadow-md" />
-        ) : item.id === 'attractor_field' ? (
-          <MagnetIcon className="w-8 h-8 drop-shadow-md" />
-        ) : item.id === 'full_skip' ? (
-          <SkipIcon className="w-8 h-8 drop-shadow-md" />
-        ) : (
-          <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
-        )}
-      </div>
-      
-      <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
-        <h3 className="text-[17px] font-black text-white dark:text-mono-50 mb-0.5 leading-tight truncate drop-shadow-sm">{item.name}</h3>
-        <p className="text-[12px] font-bold text-white/90 dark:text-mono-200 leading-tight truncate">{item.description}</p>
-      </div>
-
-      <div className="flex flex-col items-center justify-center shrink-0 z-10 relative">
-        <div className={`flex items-center gap-2 px-4 py-1.5 rounded-md transition-all shadow-inner duration-300 ${!canAfford ? 'bg-black/20 text-white/50' : 'bg-white/20 dark:bg-black/30 text-white border border-white/20 group-hover:scale-105'}`}>
-          <div className="flex flex-col items-center leading-none">
-            <span className="text-[14px] font-black">{toKuDigits(item.price || 0)}</span>
-          </div>
-          <div className={`w-4 h-4 flex items-center justify-center ${!canAfford ? 'grayscale opacity-60' : ''}`}>
-            {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'dinar' ? <DinarIcon /> : <FilsIcon />}
-          </div>
+    <div className="flex items-stretch gap-3 w-full">
+      {/* Info Card (Right Side in RTL) */}
+      <div className={`flex-1 relative px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-3 overflow-visible transition-all mb-1`}>
+        <div className="w-[44px] h-[44px] rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/30">
+          {item.id === 'hint_pack' ? (
+            <HintIcon className="w-7 h-7 drop-shadow-md" />
+          ) : item.id === 'attractor_field' ? (
+            <MagnetIcon className="w-7 h-7 drop-shadow-md" />
+          ) : item.id === 'full_skip' ? (
+            <SkipIcon className="w-7 h-7 drop-shadow-md" />
+          ) : (
+            <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
+          )}
+        </div>
+        
+        <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
+          <h3 className="text-[16px] font-black text-white dark:text-mono-50 mb-0.5 leading-tight truncate drop-shadow-sm">{item.name}</h3>
+          <p className="text-[11px] font-bold text-white/90 dark:text-mono-200 leading-tight truncate">{item.description}</p>
         </div>
       </div>
-    </Motion.button>
+
+      {/* Price Button (Left Side in RTL) */}
+      <button
+        onClick={() => { 
+          if (canAfford) {
+            triggerHaptic(10); 
+            onRequestPurchase(item); 
+          } else {
+            triggerHaptic([50, 30, 50]);
+          }
+        }}
+        className={`group flex-shrink-0 w-[95px] flex items-center justify-center gap-2 px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
+      >
+        <div className="flex flex-col items-center leading-none relative z-10">
+          <span className="text-[17px] font-black text-white drop-shadow-sm">{toKuDigits(item.price || 0)}</span>
+        </div>
+        <div className={`w-5 h-5 flex items-center justify-center text-white drop-shadow-md relative z-10 group-hover:rotate-12 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : ''}`}>
+          {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'dinar' ? <DinarIcon /> : <FilsIcon />}
+        </div>
+      </button>
+    </div>
   );
 };
 

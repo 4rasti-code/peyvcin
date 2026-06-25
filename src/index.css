@@ -175,6 +175,13 @@ html.dark #root {
     text-align: right;
   }
 
+  /* Custom Game Cursor for Desktop */
+  @media (hover: hover) and (pointer: fine) {
+    body, html, * {
+      cursor: pointer !important;
+    }
+  }
+
 /* --- PANIC & STRESS ANIMATIONS (WORD FEVER MODE) --- */
 @keyframes panic-pulse {
   0%, 100% { opacity: 0.3; }
