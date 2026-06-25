@@ -142,36 +142,27 @@ export default function TopAppBar({
               </Motion.button>
             </div>
           ) : (
-            currentView === 'lobby' ? (
-              <div className="flex items-center justify-end relative h-full">
-                {/* Currencies Group */}
-                <div className="flex items-center gap-1">
-                  {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
-                    <>
-                      <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                      <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                      <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                    </>
-                  )}
+            <div className="flex items-center gap-1 relative h-full">
+              {(currentView === 'leaderboard' || currentView === 'profile') && (
+                <Motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  onClick={() => { triggerHaptic(10); onOpenSettings(); }}
+                  className={`flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all ${currentView === 'profile' ? 'w-[60px] h-[60px] mt-[12px]' : 'w-12 h-12'}`}
+                >
+                  <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
+                </Motion.button>
+              )}
+              
+              {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
+                <div className="flex items-center gap-1 ml-1">
+                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
                 </div>
-              </div>
-            ) : (
-              currentView !== 'store' && (
-                <div className="flex items-center gap-1">
-                  {(currentView === 'lobby' || currentView === 'leaderboard' || currentView === 'profile') && (
-                    <Motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                      onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-                      className={`flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all ${currentView === 'profile' ? 'w-[60px] h-[60px] mt-[12px]' : 'w-12 h-12'}`}
-                    >
-                      <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
-                    </Motion.button>
-                  )}
-                </div>
-              )
-            )
+              )}
+            </div>
           )}
         </div>
 
