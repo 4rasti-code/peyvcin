@@ -426,6 +426,11 @@ export const playStartGameSfx = (enabled = true) => {
   engine.play('START_GAME');
 };
 
+export const playHeartbeatSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('HEARTBEAT');
+};
+
 export const playBackSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('BACK');
@@ -568,9 +573,4 @@ export const playShanaziKurdistanSfx = (enabled = true) => {
 export const playShanaziJihaniSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('SHANAZI_JIHANI');
-};
-
-export const playHeartbeatSfx = (enabled = true) => {
-  if (!enabled) return;
-  engine.play('HEARTBEAT');
 };

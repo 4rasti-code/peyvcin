@@ -270,7 +270,7 @@ const WordFeverResultOverlay = ({
                     }
                   }}
                   disabled={globalShareStatus === 'success'}
-                  className="w-full h-9 bg-blue-600/20 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors mt-0.5 disabled:opacity-50"
+                  className="w-full h-9 bg-blue-600/20 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded font-bold text-xs flex items-center justify-center gap-2 transition-colors mt-0.5 disabled:opacity-50"
                 >
                   <span className="material-symbols-outlined text-base">
                     {globalShareStatus === 'success' ? 'check_circle' : 'forum'}

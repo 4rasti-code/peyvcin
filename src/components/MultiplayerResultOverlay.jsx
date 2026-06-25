@@ -116,7 +116,7 @@ export default function MultiplayerResultOverlay({
 
             <div className="flex flex-col items-center">
               <div className="w-8 h-[2px] bg-white/10 rounded-full mb-1" />
-              <span className="text-xs font-black text-white/20 italic">VS</span>
+              <span className="text-xs font-black text-white/20 italic">و</span>
               <div className="w-8 h-[2px] bg-white/10 rounded-full mt-1" />
             </div>
 

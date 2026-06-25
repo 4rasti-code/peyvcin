@@ -50,9 +50,20 @@ const BattleResultOverlay = ({
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
   const [globalShareStatus, setGlobalShareStatus] = useState(null);
+  const [snapshot, setSnapshot] = useState(null);
   const hasTriggeredRef = useRef(false);
   const isVictory = result === 'victory';
   const isDefeat = result === 'defeat';
+
+  useEffect(() => {
+    if (isVisible && !snapshot && opponent) {
+      const timer = setTimeout(() => setSnapshot({ scores, opponent, user, isPlayer1 }), 0);
+      return () => clearTimeout(timer);
+    } else if (!isVisible && snapshot) {
+      const timer = setTimeout(() => setSnapshot(null), 500); // clear after animation
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, opponent, scores, user, isPlayer1, snapshot]);
 
   useEffect(() => {
     return () => {
@@ -89,8 +100,13 @@ const BattleResultOverlay = ({
     };
   }, [isVisible, result, isDark]);
 
-  const myScore = isPlayer1 ? scores.p1 : scores.p2;
-  const oppScore = isPlayer1 ? scores.p2 : scores.p1;
+  const displayScores = snapshot?.scores || scores;
+  const displayOpponent = snapshot?.opponent || opponent;
+  const displayIsP1 = snapshot?.isPlayer1 ?? isPlayer1;
+  const displayUser = snapshot?.user || user;
+
+  const myScore = displayIsP1 ? displayScores.p1 : displayScores.p2;
+  const oppScore = displayIsP1 ? displayScores.p2 : displayScores.p1;
 
   return (
     <AnimatePresence>
@@ -99,15 +115,15 @@ const BattleResultOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-2000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
+          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-md p-6"
         >
 
           <Motion.div
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`w-full max-w-md bg-mono-white dark:bg-black border-2 ${isVictory
-              ? 'border-black/20 dark:border-white/20'
+            className={`w-full max-w-md bg-mono-white dark:bg-[#0a0a0a] border-2 ${isVictory
+              ? 'border-black/10 dark:border-white/10'
               : isDefeat
                 ? 'border-red-500/20 dark:border-red-500/30'
                 : 'border-blue-500/20 dark:border-blue-500/30'
@@ -119,10 +135,10 @@ const BattleResultOverlay = ({
             {/* Title */}
             <div className="text-center">
               <h2 className={`text-4xl font-black font-heading ${isVictory
-                ? 'text-black dark:text-white'
+                ? 'text-mono-900 dark:text-white'
                 : isDefeat
-                  ? 'text-red-700 dark:text-red-500'
-                  : 'text-blue-700 dark:text-blue-400'
+                  ? 'text-red-600 dark:text-red-500'
+                  : 'text-blue-600 dark:text-blue-400'
                 }`}>
                 {isVictory ? 'سەرکەفتن!' : isDefeat ? 'خوسارەتی!' : 'یەکسانبوون!'}
               </h2>
@@ -130,7 +146,7 @@ const BattleResultOverlay = ({
             </div>
 
             {/* VS SECTION (Premium Look) */}
-            <div className="w-full bg-mono-100 dark:bg-[#141414] rounded-md border border-mono-200 dark:border-white/10 p-4 flex items-center justify-between relative">
+            <div className="w-full bg-mono-50 dark:bg-[#141414] rounded-md border border-mono-200 dark:border-white/10 p-4 flex items-center justify-between relative">
               <div className="absolute inset-0 bg-mono-200 dark:bg-white/5 h-px top-1/2 -translate-y-1/2 w-full" />
 
               {/* Player 1 (YOU) */}
@@ -138,28 +154,28 @@ const BattleResultOverlay = ({
                 <div className="p-0.5 rounded-full border border-sky-500/30">
                   <Avatar src={user?.avatar_url} size="lg" />
                 </div>
-                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{user?.nickname || 'تۆ'}</span>
-                <span className={`text-2xl font-black ${isVictory ? 'text-sky-400' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(myScore)}</span>
+                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{displayUser?.nickname || 'تۆ'}</span>
+                <span className={`text-2xl font-black ${isVictory ? 'text-sky-500 dark:text-sky-400' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(myScore)}</span>
               </div>
 
               <div className="flex flex-col items-center z-10">
-                <span className="text-xs font-black text-white/20 italic mb-1">VS</span>
+                <span className="text-xs font-black text-mono-300 dark:text-white/20 italic mb-1">و</span>
               </div>
 
               {/* Player 2 (FOE) */}
               <div className="flex flex-col items-center gap-2 flex-1 z-10">
                 <div className="p-0.5 rounded-full border border-red-500/30">
-                  <Avatar src={opponent?.avatar_url} size="lg" />
+                  <Avatar src={displayOpponent?.avatar_url} size="lg" />
                 </div>
-                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{opponent?.nickname || 'ھەڤڕک'}</span>
+                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{displayOpponent?.nickname || 'بەرامبەر'}</span>
                 <span className={`text-2xl font-black ${isDefeat ? 'text-red-500' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(oppScore)}</span>
               </div>
             </div>
 
             {/* REWARDS SECTION */}
-            <div className="w-full space-y-2 bg-mono-50 dark:bg-[#141414] p-4 rounded-md border border-mono-100 dark:border-white/5">
+            <div className="w-full space-y-2 bg-mono-50 dark:bg-[#141414] p-4 rounded-md border border-mono-200 dark:border-white/5">
               <div className="flex justify-between items-center text-sm font-bold">
-                <span className="text-mono-600 dark:text-white/60">خەلاتێ تە</span>
+                <span className="text-mono-600 dark:text-white/60">خەڵاتێ تە</span>
                 <div className={`flex items-center gap-2 ${isVictory ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-400 dark:text-white/20'}`}>
                   <div className="flex flex-col items-end leading-none">
                     <AnimatedNumber value={breakdown?.awardAmount || 0} prefix={isVictory ? "+" : ""} />
@@ -176,8 +192,8 @@ const BattleResultOverlay = ({
               <div className="h-px bg-mono-200 dark:bg-white/5" />
 
               <div className="flex justify-between items-center text-sm font-bold">
-                <span className="text-mono-600 dark:text-white/60">خەلاتێ ئێکس پی</span>
-                <div className={`flex items-center gap-2 ${isVictory ? 'text-yellow-500' : 'text-mono-400 dark:text-white/20'}`}>
+                <span className="text-mono-600 dark:text-white/60">خەڵاتێ ئێکەم یاری</span>
+                <div className={`flex items-center gap-2 ${isVictory ? 'text-yellow-600 dark:text-yellow-500' : 'text-mono-400 dark:text-white/20'}`}>
                   <div className="flex flex-col items-end leading-none">
                     <AnimatedNumber value={breakdown?.xpAdded || xp || (isVictory ? 100 : 20)} prefix="+" />
                     <span className="text-[7px] font-bold opacity-60">XP</span>
@@ -186,10 +202,10 @@ const BattleResultOverlay = ({
               </div>
 
               {/* Progress Dots */}
-              <div className="pt-4 mt-2 border-t border-white/5 flex flex-col items-center gap-2">
+              <div className="pt-4 mt-2 border-t border-mono-200 dark:border-white/5 flex flex-col items-center gap-2">
                 <div className="flex items-center gap-3">
                   {[...Array(5)].map((_, i) => {
-                    let colorClass = "bg-white/10";
+                    let colorClass = "bg-mono-200 dark:bg-white/10";
                     if (i < myScore) colorClass = "bg-sky-500";
                     else if (i < myScore + oppScore) colorClass = "bg-red-500";
 
@@ -204,13 +220,13 @@ const BattleResultOverlay = ({
                     );
                   })}
                 </div>
-                <span className="text-[7px] font-bold text-mono-400 dark:text-white/20 uppercase">ئەنجامێ گەڕان</span>
+                <span className="text-[7px] font-bold text-mono-400 dark:text-white/20 uppercase">پلەیا نوی</span>
               </div>
             </div>
 
             {/* Unified Stats Section */}
             <ResultStats 
-              profileData={user}
+              profileData={displayUser}
               playerStats={playerStats}
               gameMode="battle"
               currentGuessCount={-1}
@@ -227,60 +243,62 @@ const BattleResultOverlay = ({
                 <span className="material-symbols-outlined group-hover:translate-x-[-4px] transition-transform">arrow_back</span>
               </button>
 
-              <button
-                onClick={async () => {
-                  triggerHaptic(10);
-                  const shareGrid = generateWordleGrid(guesses, solvedWord, 6);
-                  const result = await shareGameResult({
-                    title: isVictory ? `من سەرکەفتن ئینا ل سەر ${opponent?.nickname || 'ھەڤڕکەکێ'}! 🏆` : `یەکسانبووم دگەل ${opponent?.nickname || 'ھەڤڕکەکێ'}! 🤝`,
-                    grid: shareGrid
-                  });
-
-                  if (result === 'clipboard') {
-                    setShareStatus('copied');
-                    setTimeout(() => setShareStatus(null), 2000);
-                  } else if (result) {
-                    setShareStatus('success');
-                    setTimeout(() => setShareStatus(null), 2000);
-                  }
-                }}
-                className="w-full h-9 bg-transparent text-mono-400 dark:text-white/30 rounded-lg font-bold text-xs flex items-center justify-center gap-2 hover:text-mono-600 dark:hover:text-white/50 transition-colors mt-1"
-              >
-                <span className="material-symbols-outlined text-base">
-                  {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
-                </span>
-                {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'هاتە ناردن!' : 'بەلاڤ بکە'}
-              </button>
-
-              {onShareToGlobal && (
+              <div className="flex items-center gap-2 w-full mt-2">
                 <button
                   onClick={async () => {
                     triggerHaptic(10);
-                    const battleData = {
-                      myAvatar: user?.avatar_url || 'default',
-                      myName: user?.nickname || 'من',
-                      myScore: myScore,
-                      oppAvatar: opponent?.avatar_url || 'default',
-                      oppName: opponent?.nickname || 'ھەڤڕک',
-                      oppScore: oppScore,
-                      result: isVictory ? 'victory' : isDefeat ? 'defeat' : 'draw'
-                    };
-                    const text = `[BATTLE_RESULT] ${JSON.stringify(battleData)}`;
-                    const success = await onShareToGlobal(text);
-                    if (success) {
-                      setGlobalShareStatus('success');
-                      setTimeout(() => setGlobalShareStatus(null), 2000);
+                    const shareGrid = generateWordleGrid(guesses, solvedWord, 6);
+                    const result = await shareGameResult({
+                      title: isVictory ? `من سەرکەفتن ئینا ل سەر ${displayOpponent?.nickname || 'یەکیتر'}! 🏆` : `من خوسارەت کر بەرامبەر ${displayOpponent?.nickname || 'یەکیتر'}! 😔`,
+                      grid: shareGrid
+                    });
+
+                    if (result === 'clipboard') {
+                      setShareStatus('copied');
+                      setTimeout(() => setShareStatus(null), 2000);
+                    } else if (result) {
+                      setShareStatus('success');
+                      setTimeout(() => setShareStatus(null), 2000);
                     }
                   }}
-                  disabled={globalShareStatus === 'success'}
-                  className="w-full h-9 bg-blue-600/20 border border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-colors mt-0.5 disabled:opacity-50"
+                  className="flex-1 h-9 bg-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <span className="material-symbols-outlined text-base">
-                    {globalShareStatus === 'success' ? 'check_circle' : 'forum'}
+                    {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
                   </span>
-                  {globalShareStatus === 'success' ? 'هاتەهنارتن بۆ چاتی' : 'هنارتن بۆ چاتێ گشتی'}
+                  {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'هاتە ناردن!' : 'بەلاڤ بکە'}
                 </button>
-              )}
+
+                {onShareToGlobal && (
+                  <button
+                    onClick={async () => {
+                      triggerHaptic(10);
+                      const battleData = {
+                        myAvatar: displayUser?.avatar_url || 'default',
+                        myName: displayUser?.nickname || 'من',
+                        myScore: myScore,
+                        oppAvatar: displayOpponent?.avatar_url || 'default',
+                        oppName: displayOpponent?.nickname || 'یەکیتر',
+                        oppScore: oppScore,
+                        result: isVictory ? 'victory' : isDefeat ? 'defeat' : 'draw'
+                      };
+                      const text = `[BATTLE_RESULT] ${JSON.stringify(battleData)}`;
+                      const success = await onShareToGlobal(text);
+                      if (success) {
+                        setGlobalShareStatus('success');
+                        setTimeout(() => setGlobalShareStatus(null), 2000);
+                      }
+                    }}
+                    disabled={globalShareStatus === 'success'}
+                    className="flex-1 h-9 bg-blue-600/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      {globalShareStatus === 'success' ? 'check_circle' : 'forum'}
+                    </span>
+                    {globalShareStatus === 'success' ? 'هاتەهنارتن بۆ چاتی' : 'هنارتن بۆ چاتێ گشتی'}
+                  </button>
+                )}
+              </div>
             </div>
           </Motion.div>
         </Motion.div>

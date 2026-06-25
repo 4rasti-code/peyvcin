@@ -182,7 +182,7 @@ export default function App() {
     appSoundsEnabled,
     appSfxVolume, updateSfxVolume,
     bgMusicVolume, updateMusicVolume,
-    playPopSound, playNotifSound, playMessageSound,
+    playPopSound, playNotifSound, playMessageSound, playHeartbeatSound,
     playStartGameSound, playRewardSound, playPurchaseSound, playBoosterSound, playBubblePopSound,
     playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, startBGM, stopBGM
@@ -472,6 +472,7 @@ export default function App() {
   const [isMasteryOpen, setIsMasteryOpen] = useState(false);
   const [masteryData, _setMasteryData] = useState(null);
   const [isKeyboardWarningOpen, setIsKeyboardWarningOpen] = useState(false);
+  const [isUpgradeModalDismissed, setIsUpgradeModalDismissed] = useState(false);
 
   // 1. Memoized flattened dictionary for ultra-fast lookups
   const dictionarySet = useMemo(() => {
@@ -542,6 +543,10 @@ export default function App() {
       }
       hasForcedGameViewRef.current = true;
     } else if (!isGameActive) {
+      // If the match search was cancelled/failed, we must safely return to the lobby.
+      if (hasForcedGameViewRef.current && multiplayerState === 'idle') {
+        setCurrentView('lobby');
+      }
       hasForcedGameViewRef.current = false;
     }
   }, [multiplayerState, currentView]);
@@ -789,6 +794,8 @@ export default function App() {
     setVictoryBreakdown({ awardAmount: 0, xpAdded: 0, greenCount: 0, yellowCount: 0, grayCount: 0 });
     setRewardAmountXp(0); setVictoryCustomText(null); setIsWordFeverResultVisible(false); setIsDailyActive(false);
     setCategory(''); setTargetWord(''); setRevealedIndices([]);
+    setGameMode('menu');
+    setTimeLeft(30);
     if (cancelMatch) cancelMatch();
     setCurrentView('lobby');
   }, [setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setIsDailyActive, setCategory, setTargetWord, cancelMatch, setCurrentView]);
@@ -1169,24 +1176,23 @@ export default function App() {
         // Reward sound handled by result overlay if needed
       }
 
-      const timer = setTimeout(() => {
-        setCurrentView('lobby');
-      }, 10000);
-
-      return () => clearTimeout(timer);
+      setCurrentView('lobby');
     }
   }, [MatchResultTrigger, LastMatchResult, playRewardSound, setCurrentView]);
 
   // Safe Audio Trigger for Game Start
   useEffect(() => {
-    if (currentView === 'game') {
+    // Multiplayer handles its own delayed start sound in MultiplayerGameView
+    const isSinglePlayer = gameMode !== 'multiplayer' && multiplayerState === 'idle';
+    
+    if (currentView === 'game' && isSinglePlayer) {
       try {
         playStartGameSound();
       } catch (e) {
         console.warn("Start sound trigger failed", e);
       }
     }
-  }, [currentView, playStartGameSound]);
+  }, [currentView, gameMode, playStartGameSound, multiplayerState]);
 
   // Delay Result Overlay by a short amount to allow final word animation to finish
   useEffect(() => {
@@ -1309,7 +1315,7 @@ export default function App() {
   // --- WORD FEVER MODE TIMER ENGINE ---
   useEffect(() => {
     let timer;
-    if (currentView === 'game' && gameMode === 'word_fever' && !isVictory && !isWordFeverResultVisible) {
+    if (currentView === 'game' && gameMode === 'word_fever' && !isVictory && !isWordFeverResultVisible && multiplayerState === 'idle') {
       if (timeLeft > 0) {
         timer = setInterval(() => {
           setTimeLeft(prev => prev - 1);
@@ -1340,15 +1346,14 @@ export default function App() {
       }
     }
     return () => clearInterval(timer);
-  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible, applyPenalty]);
+  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible, applyPenalty, multiplayerState]);
 
   // --- WORD FEVER LAST 10 SECONDS TENSION AUDIO ---
   useEffect(() => {
-    if (currentView === 'game' && gameMode === 'word_fever') {
-      if (timeLeft <= 10 && timeLeft >= 0) {
-        const audio = new Audio('/heartbeat.mp3');
-        audio.volume = 1.0;
-        audio.play().catch(e => console.warn("Failed to play heartbeat:", e));
+    if (currentView === 'game' && gameMode === 'word_fever' && !isVictory && !isWordFeverResultVisible && multiplayerState === 'idle') {
+      if (timeLeft <= 10 && timeLeft > 0) {
+        // Play the heartbeat using the Web Audio API Engine for zero latency and perfect sync
+        playHeartbeatSound();
         
         // Add a slight haptic feedback for mobile users to increase tension
         if (window.Telegram?.WebApp?.HapticFeedback) {
@@ -1358,7 +1363,7 @@ export default function App() {
         }
       }
     }
-  }, [timeLeft, currentView, gameMode]);
+  }, [timeLeft, currentView, gameMode, isVictory, isWordFeverResultVisible, playHeartbeatSound, multiplayerState]);
 
   // Audio logic handled via AudioContext hooks
   // Auth logic handled via AuthContext hooks
@@ -1586,7 +1591,7 @@ export default function App() {
       <Analytics />
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] md:max-h-[1080px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
         {/* Panic Overlay for Word Fever Mode Critical Time */}
-        {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && (
+        {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
           <div className="panic-overlay" />
         )}
 
@@ -1717,6 +1722,7 @@ export default function App() {
                   forceResumeAudio(); // iOS Unlock on User Gesture
                   playTabSound();
                   stopBGM();
+                  setGameMode('multiplayer');
                   startMatchmaking();
                 }}
                 onOpenHowToPlay={handleOpenHowToPlay}
@@ -2047,7 +2053,7 @@ export default function App() {
 
         {/* UNIFIED MULTIPLAYER BATTLE RESULT */}
         <BattleResultOverlay
-          isVisible={multiplayerState === 'game_over' && !!LastMatchResult}
+          isVisible={(multiplayerState === 'game_over' || multiplayerState === 'idle') && !!LastMatchResult}
           result={LastMatchResult}
           scores={scores}
           opponent={opponent}
@@ -2127,11 +2133,12 @@ export default function App() {
         </Suspense>
 
         {/* GLOBAL INVITE TOAST */}
-        <GlobalInviteToast />
+        <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} />
 
         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
         <UpgradeAccountModal 
-          isOpen={user?.is_anonymous && level >= 5} 
+          isOpen={user?.is_anonymous && level >= 5 && !isUpgradeModalDismissed} 
+          onClose={() => setIsUpgradeModalDismissed(true)}
           onSuccess={() => {
             // The profile updates will automatically reflect due to AuthContext listeners
             console.log("Guest account upgraded successfully!");

@@ -26,7 +26,8 @@ import {
   playWrongPlaceSfx,
   setBackgroundMusicVolume,
   startBackgroundMusic, 
-  stopBackgroundMusic
+  stopBackgroundMusic,
+  playHeartbeatSfx
 } from '../utils/audio';
 
 const AudioContext = createContext();
@@ -58,6 +59,7 @@ export const AudioProvider = ({ children }) => {
   }, [user, appSfxVolume, bgMusicVolume]);
 
   const playPopSound = useCallback((bypass = false) => playPopSfx(appSoundsEnabled, bypass), [appSoundsEnabled]);
+  const playHeartbeatSound = useCallback(() => playHeartbeatSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playNotifSound = useCallback(() => playNotifSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playMessageSound = useCallback(() => playMessageSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playMessageSentSound = useCallback(() => playMessageSentSfx(appSoundsEnabled), [appSoundsEnabled]);
@@ -100,7 +102,7 @@ export const AudioProvider = ({ children }) => {
     playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
     playBubblePopSound, playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, playAlertSound, playBackSound, playSaveSound, playStartGameSound,
-    playRightLetterSound, playWrongPlaceSound,
+    playRightLetterSound, playWrongPlaceSound, playHeartbeatSound,
     startSearchingSound, stopSearchingSound, startBGM, stopBGM,
     updateMusicVolume, updateSfxVolume,
     playDailyOpenSfx, playDailyClaimSfx
@@ -109,7 +111,7 @@ export const AudioProvider = ({ children }) => {
     playMessageSound, playMessageSentSound, playVictorySound, playRewardSound, 
     playPurchaseSound, playBoosterSound, playBubblePopSound, playSettingsOpenSound, 
     playSettingsCloseSound, playTabSound, playAlertSound, playBackSound, playSaveSound, 
-    playStartGameSound, playRightLetterSound, playWrongPlaceSound, startSearchingSound, stopSearchingSound, startBGM, stopBGM, 
+    playStartGameSound, playRightLetterSound, playWrongPlaceSound, playHeartbeatSound, startSearchingSound, stopSearchingSound, startBGM, stopBGM, 
     updateMusicVolume, updateSfxVolume
   ]);
 

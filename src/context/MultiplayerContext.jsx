@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useMotionValue } from 'framer-motion';
+import { useMotionValue, motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { getUnifiedWords } from '../data/wordList';
 import { triggerHaptic } from '../utils/haptics';
@@ -15,15 +15,14 @@ export const MultiplayerProvider = ({ children }) => {
   const { 
     startSearchingSound, 
     stopSearchingSound, 
-    playStartGameSound: _playStartGameSound,
     playRewardSound 
   } = useAudio();
   const { syncProgressToDatabase, applyPenalty } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle');
   const [MatchmakingTime, setMatchmakingTime] = useState(0);
   const [activeMatch, setActiveMatch] = useState(null);
-  const [matchId, setMatchId] = useState(null);
   const [opponent, setOpponent] = useState(null);
+  const [errorAlert, setErrorAlert] = useState(null);
   const [LastMatchResult, setLastMatchResult] = useState(null);
   const [MatchResultTrigger, setMatchResultTrigger] = useState(0);
 
@@ -71,7 +70,8 @@ export const MultiplayerProvider = ({ children }) => {
   const wordIndexRef = useRef(currentWordIndex);
   const scoresRef = useRef(scores);
   const opponentRef = useRef(opponent);
-  const matchIdRef = useRef(matchId);
+  const matchIdRef = useRef(null);
+  const [matchId, setMatchId] = useState(null);
   const channelRef = useRef(null);
   const matchmakingTimeoutRef = useRef(null);
   const _handshakeTimerRef = useRef(null);
@@ -299,7 +299,9 @@ export const MultiplayerProvider = ({ children }) => {
       }
 
       // Transition out of playing state
-      setMultiplayerStateGuarded('game_over');
+      setIsGameBoardMounted(false);
+      setIsOpponentBackgroundReady(false);
+      setMultiplayerStateGuarded('idle');
     } catch (err) {
       console.error('[Multiplayer] Forfeit handling failed:', err);
     }
@@ -389,6 +391,15 @@ export const MultiplayerProvider = ({ children }) => {
     setForfeitStatus(null); // Ensure "Connection Lost" popup is explicitly suppressed
 
     if (channelRef.current) {
+      // Broadcast cancellation to opponent before disconnecting, ONLY if we haven't started playing.
+      // If we are playing, the DB update to 'finished' will trigger the Victory card for them.
+      if (!wasPlaying) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'MATCH_CANCELLED'
+        }).catch(err => console.warn('[Multiplayer] Failed to send cancel broadcast:', err));
+      }
+      
       supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
@@ -418,8 +429,9 @@ export const MultiplayerProvider = ({ children }) => {
             setLastMatchResult('defeat');
             setMatchReward({ status: 'defeat', msg: 'تە یاری بجهێلا' });
             setMatchResultTrigger(prev => prev + 1);
-            setMultiplayerStateGuarded('game_over');
-            return; // EXIT EARLY to keep game board mounted behind the results screen
+            setIsGameBoardMounted(false);
+            setIsOpponentBackgroundReady(false);
+            setMultiplayerStateGuarded('idle');
           } else {
             // If just searching/waiting/game_over, delete the record
             await supabase.from('online_matches').delete().eq('id', idToCancel);
@@ -512,12 +524,10 @@ export const MultiplayerProvider = ({ children }) => {
         (payload) => {
           if (payload.eventType === 'DELETE') {
             console.log('[Multiplayer] Match record deleted (cancelled by opponent).');
-            // Give the UI time to show the result or just avoid abrupt pop-out
-            setTimeout(() => {
-              setMultiplayerStateGuarded('idle');
-              setActiveMatchGuarded(null);
-              setOpponentGuarded(null);
-            }, 10000);
+            // Match was deleted before it could finish (or was aborted). Kick immediately.
+            setMultiplayerStateGuarded('idle');
+            setActiveMatchGuarded(null);
+            setOpponentGuarded(null);
             return;
           }
 
@@ -606,6 +616,16 @@ export const MultiplayerProvider = ({ children }) => {
         (payload) => {
           console.log('[Multiplayer] Received Opponent Background Ready!', payload);
           setIsOpponentBackgroundReady(true);
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'MATCH_CANCELLED' },
+        () => {
+          console.log('[Multiplayer] Received MATCH_CANCELLED broadcast. Kicking to lobby.');
+          setMultiplayerStateGuarded('idle');
+          setActiveMatchGuarded(null);
+          setOpponentGuarded(null);
         }
       )
       .on('presence', { event: 'sync' }, () => {
@@ -703,8 +723,19 @@ export const MultiplayerProvider = ({ children }) => {
             } else if (currentState !== 'playing' && currentState !== 'game_over' && currentState !== 'found' && currentState !== 'match_starting') {
               // Random matchmaking transition: 2-second delay
               setMultiplayerStateGuarded('found');
-              setTimeout(() => {
-                if (stateRef.current === 'found') setMultiplayerStateGuarded('playing');
+              setTimeout(async () => {
+                if (stateRef.current === 'found') {
+                  // Final Safety Check: Did the host cancel/delete the room while we were waiting?
+                  const { data } = await supabase.from('online_matches').select('id').eq('id', activeMatch.id).maybeSingle();
+                  if (!data) {
+                    console.log('[Multiplayer] Safety Check: Room was deleted before we could start. Aborting.');
+                    setMultiplayerStateGuarded('idle');
+                    setActiveMatchGuarded(null);
+                    setOpponentGuarded(null);
+                    return;
+                  }
+                  setMultiplayerStateGuarded('playing');
+                }
               }, 2000);
             }
           };
@@ -742,7 +773,7 @@ export const MultiplayerProvider = ({ children }) => {
     };
 
     verifyAndStart();
-  }, [activeMatch, opponent, user?.id, setMultiplayerStateGuarded, setOpponentGuarded]);
+  }, [activeMatch, opponent, user?.id, setMultiplayerStateGuarded, setOpponentGuarded, setActiveMatchGuarded]);
 
   // 3.4 LOCAL BACKGROUND READY BROADCAST
   useEffect(() => {
@@ -759,17 +790,16 @@ export const MultiplayerProvider = ({ children }) => {
     if (multiplayerState === 'match_starting') {
       // If both ready, lift curtain immediately
       if (isGameBoardMounted && isOpponentBackgroundReady) {
-        console.log('[Multiplayer] Both clients background ready. Lifting curtain!');
+        console.log('[Multiplayer] Transitioning instantly!');
         setMultiplayerStateGuarded('playing');
       } else {
-        // Safety Fallback Timeout: 15 seconds
+        // Safety Fallback Timeout: 3 seconds to guarantee match starts
         timeoutId = setTimeout(() => {
           if (stateRef.current === 'match_starting') {
-            console.warn('[Multiplayer] 15-second safety timeout expired during match_starting. Readiness:', { isGameBoardMounted, isOpponentBackgroundReady });
-            // Silently cancel the match on fatal connection drops.
-            cancelMatch(); 
+            console.warn('[Multiplayer] Safety timeout expired during match_starting. Forcing transition to playing. Readiness:', { isGameBoardMounted, isOpponentBackgroundReady });
+            setMultiplayerStateGuarded('playing');
           }
-        }, 15000);
+        }, 3000);
       }
     }
 
@@ -821,7 +851,9 @@ export const MultiplayerProvider = ({ children }) => {
         console.log(`[Multiplayer] Sync found finished match. Scores: ${myScore}-${oppScore}. Result: ${result}.`);
         setLastMatchResult(result);
         setMatchResultTrigger(prev => prev + 1);
-        setMultiplayerStateGuarded('game_over');
+        setIsGameBoardMounted(false);
+        setIsOpponentBackgroundReady(false);
+        setMultiplayerStateGuarded('idle');
 
         // SYNC REWARDS TO DATABASE
         if (result === 'victory') {
@@ -958,7 +990,7 @@ export const MultiplayerProvider = ({ children }) => {
     matchmakingTimeoutRef.current = setTimeout(() => {
       if (stateRef.current === 'searching' || stateRef.current === 'waiting') {
         setMultiplayerState('idle'); 
-        alert("چ یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
+        setErrorAlert("چ یاریزان نەهاتە دیتن ل ڤێ گاڤێ. پشتى دەمەکێ دى تاقی بکە.");
       }
     }, 60000);
 
@@ -1165,7 +1197,7 @@ export const MultiplayerProvider = ({ children }) => {
       
       if (searchError || !targetMatch) {
         console.error("[Multiplayer] Match not found or access denied:", searchError);
-        alert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
+        setErrorAlert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
         setMultiplayerStateGuarded('idle');
         return false;
       }
@@ -1184,7 +1216,7 @@ export const MultiplayerProvider = ({ children }) => {
 
       if (claimError || !joinedMatch) {
         console.error("[Multiplayer] Match not found or access denied:", claimError);
-        alert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
+        setErrorAlert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
         setMultiplayerStateGuarded('idle');
         return false;
       }
@@ -1260,6 +1292,37 @@ export const MultiplayerProvider = ({ children }) => {
   return (
     <MultiplayerContext.Provider value={value}>
       {children}
+      <AnimatePresence>
+        {errorAlert && (
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <Motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-sm bg-mono-100 dark:bg-[#141414] border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-6 flex flex-col gap-4 text-center items-center"
+              dir="rtl"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mb-2">
+                <span className="material-symbols-outlined text-[28px]">error</span>
+              </div>
+              <p className="text-sm font-bold text-mono-900 dark:text-white leading-relaxed">
+                {errorAlert}
+              </p>
+              <button
+                onClick={() => setErrorAlert(null)}
+                className="mt-4 w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-md transition-colors"
+              >
+                باشە
+              </button>
+            </Motion.div>
+          </Motion.div>
+        )}
+      </AnimatePresence>
     </MultiplayerContext.Provider>
   );
 };

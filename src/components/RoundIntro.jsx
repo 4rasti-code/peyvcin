@@ -33,7 +33,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[2000] flex flex-col items-center justify-center overflow-hidden bg-[#0f0431]"
+          className="fixed inset-0 z-2000 flex flex-col items-center justify-center overflow-hidden bg-[#0f0431]"
         >
           {/* 1. ARCADE BACKGROUND GRID */}
           <div className="absolute inset-0 pointer-events-none opacity-30">
@@ -62,7 +62,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                 </span>
               </div>
               {/* Animated Glow Border */}
-              <div className="absolute -inset-[2px] rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-red-500 opacity-50 blur-[2px] -z-10 animate-pulse" />
+              <div className="absolute -inset-[2px] rounded-full bg-linear-to-r from-cyan-500 via-purple-500 to-red-500 opacity-50 blur-[2px] -z-10 animate-pulse" />
             </div>
           </Motion.div>
 
@@ -71,13 +71,13 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.3, ease: "circOut" }}
-            className="absolute w-[150%] h-[6px] bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-[35deg]"
+            className="absolute w-[150%] h-[6px] bg-linear-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-35"
           />
           
           <Motion.div
             animate={{ x: ['100%', '-100%'] }}
             transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="absolute w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-[35deg] pointer-events-none"
+            className="absolute w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-35 pointer-events-none"
           />
 
           {/* 4. PLAYER CONTENT (DIAGONAL) */}
@@ -93,7 +93,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
               >
                 <div className="relative">
                   {/* Outer Circular Glow Container */}
-                  <div className="relative p-2 rounded-full bg-gradient-to-br from-red-600 via-orange-500 to-red-900 shadow-[0_0_60px_rgba(220,38,38,0.5)]">
+                  <div className="relative p-2 rounded-full bg-linear-to-br from-red-600 via-orange-500 to-red-900 shadow-[0_0_60px_rgba(220,38,38,0.5)]">
                     <Avatar 
                       src={opponent?.avatar_url} 
                       size="2xl" 
@@ -125,17 +125,17 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                 <Motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.9, 0.6] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute -inset-16 bg-gradient-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
+                  className="absolute -inset-16 bg-linear-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
                 />
                 <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
-                  bg-gradient-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
+                  bg-linear-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
                   drop-shadow-[0_0_50px_rgba(251,191,36,1)] filter brightness-125">
-                  VS
+                  و
                 </h1>
                 {/* Ghost Text for Depth */}
                 <h1 className="absolute inset-0 text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none px-12
                   text-white/20 blur-[3px] translate-y-1 translate-x-1 -z-10">
-                  VS
+                  و
                 </h1>
               </div>
             </Motion.div>
@@ -150,7 +150,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
               >
                 <div className="relative">
                   {/* Outer Circular Glow Container */}
-                  <div className="relative p-2 rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-900 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
+                  <div className="relative p-2 rounded-full bg-linear-to-br from-cyan-400 via-blue-500 to-blue-900 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
                     <Avatar 
                       src={userAvatar} 
                       size="2xl" 
@@ -188,7 +188,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   <>گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">دەستپێکر</span></>
                 )}
               </h2>
-              <div className="mt-4 w-32 h-1 bg-gradient-to-r from-transparent via-amber-500 to-transparent rounded-full opacity-50" />
+              <div className="mt-4 w-32 h-1 bg-linear-to-r from-transparent via-amber-500 to-transparent rounded-full opacity-50" />
             </div>
           </Motion.div>
 

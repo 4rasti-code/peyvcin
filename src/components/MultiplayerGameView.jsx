@@ -42,10 +42,40 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   // Prioritize Prop over Context to force re-renders from App.jsx
   const opponent = propOpponent || contextOpponent;
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [showCinematicOverlay, setShowCinematicOverlay] = React.useState(true);
+  const [countdown, setCountdown] = React.useState(5);
 
   const { user, userNickname, userAvatar } = useUser();
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
   const { level: userLevel } = useGame();
+
+  useEffect(() => {
+    if (!showCinematicOverlay || multiplayerState !== 'playing') return;
+    
+    const tickAudio = new Audio('/Cartoon-timer-ticking-tick-tock-countdown.mp3');
+    tickAudio.volume = 0.25;
+    tickAudio.play().catch(e => console.warn("Failed to play tick audio:", e));
+
+    const interval = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setShowCinematicOverlay(false);
+          tickAudio.pause();
+          tickAudio.currentTime = 0;
+          playStartSound();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => {
+      clearInterval(interval);
+      tickAudio.pause();
+      tickAudio.currentTime = 0;
+    };
+  }, [showCinematicOverlay, multiplayerState, playStartSound]);
 
   // 1. TOP-LEVEL DERIVED DATA (DECLARE BEFORE ANY RETURNS)
   const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);
@@ -58,6 +88,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   // Expose Game Board Readiness
   useEffect(() => {
+    console.log('[MultiplayerGameView] Readiness Check:', {
+      hasOpponent: !!opponent,
+      hasTargetWord: !!targetWord,
+      hasActiveMatch: !!activeMatch,
+      targetWord,
+      opponentId: opponent?.id,
+      matchId: activeMatch?.id
+    });
+
     if (opponent && targetWord && activeMatch) {
       setIsGameBoardMounted?.(true);
     } else {
@@ -136,7 +175,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     if (targetWord) {
       resetLocalBoard(targetWord);
     }
-  }, [currentRound, targetWord, resetLocalBoard, playStartSound]);
+  }, [currentRound, targetWord, resetLocalBoard]);
 
 
   // --- GUARDS & EARLY RETURNS (Declare AFTER all hooks) ---
@@ -159,7 +198,47 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   }
 
   return (
-    <div className={`flex flex-col flex-1 h-full w-full ${isDark ? 'bg-black' : 'bg-mono-white'} overflow-hidden transition-colors duration-500`}>
+    <div 
+      className={`flex flex-col flex-1 h-full w-full ${isDark ? 'bg-black' : 'bg-mono-white'} overflow-hidden transition-colors duration-500`}
+      style={{ display: multiplayerState === 'match_starting' ? 'none' : 'flex' }}
+    >
+      {showCinematicOverlay && (
+        <div className="absolute inset-0 z-9999 bg-[#020617] flex flex-col overflow-hidden text-white">
+          {/* Top Half: Opponent */}
+          <div className="flex-1 bg-red-700 border-b-4 border-red-900 flex flex-col items-center justify-center relative shadow-[inset_0_-30px_60px_rgba(0,0,0,0.3)]">
+            <div className="ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] rounded-full z-10">
+              <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xl" />
+            </div>
+            <p className="mt-4 text-2xl font-rabar font-black text-white z-10">{opponent?.nickname || 'Opponent'}</p>
+          </div>
+
+          {/* Middle: VS */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -mt-4 z-50 flex items-center justify-center">
+            <Motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.9, 0.6] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="absolute w-40 h-40 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"
+            />
+            <span className="relative font-black text-7xl sm:text-8xl italic bg-linear-to-b from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(245,158,11,0.8)] select-none">
+              و
+            </span>
+          </div>
+          {/* Countdown Badge */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-20 z-50 flex flex-col items-center">
+            <div className="bg-black/60 px-8 py-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-xl">
+              <span className="text-4xl font-black text-white">{countdown}</span>
+            </div>
+          </div>
+
+          {/* Bottom Half: User */}
+          <div className="flex-1 bg-blue-700 border-t-4 border-blue-900 flex flex-col items-center justify-center relative shadow-[inset_0_30px_60px_rgba(0,0,0,0.3)]">
+            <div className="ring-4 ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] rounded-full z-10">
+              <Avatar src={userAvatar} size="xl" />
+            </div>
+            <p className="mt-4 text-2xl font-rabar font-black text-white z-10">{userNickname || 'You'}</p>
+          </div>
+        </div>
+      )}
       <style>
         {`
           .battlefield-container {
@@ -201,7 +280,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </style>
 
       {/* 0. ACTION TOP BAR */}
-      <div className="fixed top-0 left-0 right-0 z-400 pt-[env(safe-area-inset-top)] px-4 h-14 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-400 pt-[env(safe-area-inset-top)] px-4 h-14 flex items-center justify-between pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto relative">
           <button
             onClick={() => { playPopSound(); setIsMenuOpen(true); }}
@@ -213,17 +292,17 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
           <AnimatePresence>
             {isMenuOpen && (
               <>
-                <Motion.div 
+                <Motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setIsMenuOpen(false)} 
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsMenuOpen(false)}
                 />
-                
+
                 <Motion.div
                   initial={{ opacity: 0, scale: 0.9, y: -10, x: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: -10, x: 20 }}
-                  className={`absolute top-12 right-0 w-48 rounded-xl shadow-2xl border backdrop-blur-xl z-20 overflow-hidden ${isDark ? 'bg-black/90 border-white/10' : 'bg-white/95 border-slate-200'}`}
+                  className={`absolute top-12 right-0 w-48 rounded-md shadow-2xl border backdrop-blur-xl z-20 overflow-hidden ${isDark ? 'bg-black/90 border-white/10' : 'bg-white/95 border-slate-200'}`}
                   dir="rtl"
                 >
                   <div className="flex flex-col py-1">
@@ -238,7 +317,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                       <span className="material-symbols-outlined text-[20px]">help</span>
                       ڕێنمایی
                     </button>
-                    
+
                     <div className={`h-px w-full ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
 
                     <button
@@ -304,15 +383,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
               </span>
             </div>
-            
+
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
-            
+
             <div className={`text-sm font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase px-1`}>
               گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
-            
+
             <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
-            
+
             <div className="flex items-center justify-center min-w-[24px]">
               <span className={`text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} leading-none tabular-nums`}>
                 {toKuDigits(isPlayer1 ? scores?.p2 : scores?.p1)}

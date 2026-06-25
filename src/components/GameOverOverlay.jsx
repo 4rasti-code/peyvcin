@@ -37,7 +37,7 @@ export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onR
             </div>
           </div>
 
-          <div className="text-white/5 text-5xl font-black italic select-none">VS</div>
+          <div className="text-white/5 text-5xl font-black italic select-none">و</div>
 
           {/* FOE */}
           <div className="flex flex-col items-center gap-4">

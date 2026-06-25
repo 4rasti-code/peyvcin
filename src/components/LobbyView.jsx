@@ -40,12 +40,20 @@ const LobbyView = memo(({
   const [sentInvites, setSentInvites] = useState(new Set());
   const [invitedUserProfile, setInvitedUserProfile] = useState(null);
   const [inviteTimeLeft, setInviteTimeLeft] = useState(15);
+  const [inviteAlert, setInviteAlert] = useState(null);
   const inviteTimerRef = useRef(null);
 
   const { playSettingsOpenSound, playDailyOpenSfx } = useAudio();
-  const { user, userNickname, onlineUsers, profileData } = useUser();
+  const { user, userNickname, userAvatar, onlineUsers, profileData } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
+  
+  // Clear sent invites when returning to idle state (e.g. after a match finishes or is cancelled)
+  useEffect(() => {
+    if (multiplayerState === 'idle') {
+      setSentInvites(new Set());
+    }
+  }, [multiplayerState]);
   
   const isDailyAvailable = (() => {
     if (!lastRewardClaimedAt) return true;
@@ -66,11 +74,19 @@ const LobbyView = memo(({
 
   useEffect(() => {
     if (!user?.id || multiplayerState !== 'private_lobby') return;
-    const channel = supabase.channel(`user_invites_${user.id}`, { config: { broadcast: { ack: true } } });
+    const channel = supabase.channel(`host_replies_${user.id}`, { config: { broadcast: { ack: true } } });
     channel.on('broadcast', { event: 'match_invite_rejected' }, (payload) => {
       if (payload.payload.roomId === activeMatch?.id) {
         cancelMatch();
-        alert("وی کەسی داخوازنامە ڕەتکر");
+        setInviteAlert("وی کەسی داخوازنامە ڕەتکر");
+        setInvitedUserProfile(null);
+        if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
+      }
+    })
+    .on('broadcast', { event: 'match_invite_busy' }, (payload) => {
+      if (payload.payload.roomId === activeMatch?.id) {
+        cancelMatch();
+        setInviteAlert("یاریزان یێ د ناڤ یاریێ دا");
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
       }
@@ -94,35 +110,40 @@ const LobbyView = memo(({
   useEffect(() => {
     if (multiplayerState === 'private_lobby' && inviteTimeLeft === 0 && invitedUserProfile) {
       cancelMatch();
-      alert("بەرسڤا داخوازنامەیێ نەهاتە دان");
-      const channel = supabase.channel(`user_invites_${invitedUserProfile.id}`);
-      channel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.send({ type: 'broadcast', event: 'invite_cancelled', payload: { roomId: activeMatch?.id } });
-          supabase.removeChannel(channel);
-        }
-      });
+      setInviteAlert("بەرسڤا داخوازنامەیێ نەهاتە دان");
+      broadcastInviteEvent(invitedUserProfile.id, 'invite_cancelled', { roomId: activeMatch?.id });
       setInvitedUserProfile(null);
       if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
     }
   }, [inviteTimeLeft, multiplayerState, invitedUserProfile, activeMatch, cancelMatch]);
 
-  const handleHostCancelInvite = async () => {
-    triggerHaptic(10);
-    cancelMatch();
-    if (invitedUserProfile && activeMatch) {
-      const channel = supabase.channel(`user_invites_${invitedUserProfile.id}`);
+  const broadcastInviteEvent = async (targetUserId, event, payload) => {
+    const topic = `user_invites_${targetUserId}`;
+    let channel = supabase.getChannels().find(c => c.topic === `realtime:${topic}`);
+    if (channel && channel.state === 'joined') {
+      await channel.send({ type: 'broadcast', event, payload });
+    } else {
+      if (!channel) channel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
       channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          await channel.send({ type: 'broadcast', event: 'invite_cancelled', payload: { roomId: activeMatch.id } });
-          supabase.removeChannel(channel);
+          await channel.send({ type: 'broadcast', event, payload });
         }
       });
     }
+  };
+
+  const handleHostCancelInvite = async () => {
+    triggerHaptic(10);
+    cancelMatch();
+    
+    if (invitedUserProfile && activeMatch) {
+      await broadcastInviteEvent(invitedUserProfile.id, 'invite_cancelled', { roomId: activeMatch.id });
+    }
+
+    // Clean up local state
     setInvitedUserProfile(null);
     if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
   };
-
 
   const isLuckyWheelAvailable = (() => {
     if (spinTicketCount > 0) return true;
@@ -189,7 +210,7 @@ const LobbyView = memo(({
     try {
       const newRoomId = await createPrivateMatch();
       if (!newRoomId) {
-        alert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
+        setInviteAlert('کێشەیەک دروست بوو د چێکرنا ژوورێ دا.');
         setSentInvites(prev => {
           const next = new Set(prev);
           next.delete(targetUserId);
@@ -212,25 +233,14 @@ const LobbyView = memo(({
         });
       }, 1000);
 
-      console.log('1. Attempting to create channel for user:', targetUserId);
-      const channel = supabase.channel(`user_invites_${targetUserId}`, { config: { broadcast: { ack: true } } });
-      channel.subscribe(async (status) => {
-        console.log('2. Channel status:', status);
-        if (status === 'SUBSCRIBED') {
-          console.log(`[LobbyView] Sending broadcast event match_invite...`);
-          const resp = await channel.send({
-            type: 'broadcast',
-            event: 'match_invite',
-            payload: { 
-              roomId: newRoomId, 
-              hostName: userNickname || 'هەڤالەکێ تە',
-              hostId: user.id
-            }
-          });
-          console.log('3. Broadcast send response:', resp);
-          setTimeout(() => supabase.removeChannel(channel), 1000);
-        }
+      console.log('1. Attempting to broadcast to user:', targetUserId);
+      await broadcastInviteEvent(targetUserId, 'match_invite', { 
+        roomId: newRoomId, 
+        hostName: userNickname || 'هەڤالەکێ تە',
+        hostAvatar: userAvatar || profileData?.avatar_url || user?.user_metadata?.avatar_url || 'default',
+        hostId: user.id
       });
+      console.log('2. Broadcast match_invite complete');
     } catch (err) {
       console.error("Invite error", err);
       setSentInvites(prev => {
@@ -661,6 +671,36 @@ const LobbyView = memo(({
               </div>
               <p className="text-white font-black text-lg drop-shadow-md">{userNickname}</p>
             </div>
+          </Motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Alert Modal */}
+      <AnimatePresence>
+        {inviteAlert && (
+          <Motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <Motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-mono-100 dark:bg-mono-900 rounded p-6 shadow-2xl border border-mono-200 dark:border-mono-800 max-w-xs w-full flex flex-col items-center gap-4 text-center"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-red-500 text-2xl">error</span>
+              </div>
+              <p className="text-sm font-bold text-mono-900 dark:text-white leading-relaxed">{inviteAlert}</p>
+              <button
+                onClick={() => setInviteAlert(null)}
+                className="w-full py-2.5 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-colors mt-2"
+              >
+                باشە
+              </button>
+            </Motion.div>
           </Motion.div>
         )}
       </AnimatePresence>
