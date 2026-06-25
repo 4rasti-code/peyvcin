@@ -20,11 +20,7 @@ const SHOP_ITEMS = {
     { id: 'fils_pack_medium', name: '٢٥٠٠ فلس', description: 'پاکێجا ناڤین و ب مفاتر', icon: 'savings', price_usd: 2.99, price_iqd: 4500, amount: 2500, color: 'from-emerald-400 to-teal-600', glow: 'shadow-emerald-500/30', type: 'currency' },
     { id: 'fils_pack_large', name: '٧٥٠٠ فلس', description: 'مەزنترین بڕا دراوی بۆ یاریزانێن زیرەک', icon: 'account_balance_wallet', price_usd: 6.99, price_iqd: 10000, amount: 7500, color: 'from-amber-400 to-orange-600', glow: 'shadow-amber-500/40', type: 'currency' }
   ],
-  AVATARS: [
-    { id: 'peshmerga', name: 'پێشمەرگە', description: 'رێبەرێ چەلەنگ و پارێزەر', image: '/src/assets/characters/peshmerga_guide.png', price: 500, currency: 'derhem', color: 'from-green-600 to-emerald-800' },
-    { id: 'grandma', name: 'داپیرە', description: 'خودان ئەزموون و دانەپیر', image: '/src/assets/characters/wise_grandma.png', price: 250, currency: 'derhem', color: 'from-purple-500 to-indigo-700' },
-    { id: 'gamer', name: 'یاریکەر', description: 'گەنجێ ژیر و شارەزا', image: '/src/assets/characters/young_gamer.png', price: 1000, currency: 'fils', color: 'from-blue-500 to-cyan-600' }
-  ]
+  AVATARS: []
 };
 
 const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
@@ -89,7 +85,6 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
 export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hintCount, skipCount, onPurchase, onPurchaseAvatar, onEquipAvatar, ownedAvatars = ['default'], equippedAvatar = 'default' }) {
   const { playTabSound } = useAudio();
   const { user: _user, loadingAuth } = useUser();
-  const [activeTab, setActiveTab] = useState('powerups');
   const bgRef = useRef(null);
 
   const handleBackgroundClick = (e) => {
@@ -145,95 +140,13 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
       </div>
 
       <div className="relative z-20 bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-3 shadow-sm flex flex-col gap-4 transition-colors duration-300">
-        <div className="flex p-1 bg-mono-100 dark:bg-black backdrop-blur-2xl rounded-md border border-mono-200 dark:border-mono-800 shadow-sm relative transition-colors duration-300">
-        {['powerups', 'avatars'].map((tab) => (
-          <button 
-            key={tab}
-            onClick={() => { 
-                triggerHaptic(10); 
-                playTabSound();
-                setActiveTab(tab); 
-            }} 
-            className={`flex-1 flex items-center justify-center py-2 px-2 transition-all duration-300 relative z-10 font-rabar font-black text-[14px] tracking-normal ${
-              activeTab === tab 
-                ? 'text-mono-950 dark:text-mono-50' 
-                : 'text-mono-600 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
-            }`}
-          >
-            {activeTab === tab && (
-              <Motion.div
-                layoutId="shopActiveTab"
-                className="absolute inset-0 bg-mono-white dark:bg-mono-800 rounded-sm shadow-sm z-[-1] transition-all duration-300"
-                transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-              />
-            )}
-            {tab === 'powerups' ? 'ھاریکار' : 'ئێمۆجی'}
-          </button>
-        ))}
+      <div className="flex flex-col gap-5">
+        <div className="grid grid-cols-1 gap-4">
+          {SHOP_ITEMS.POWERUPS.map(item => (
+            <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => executePurchase({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
+          ))}
+        </div>
       </div>
-
-      <Motion.div layout className="flex flex-col gap-5">
-        <AnimatePresence mode="wait">
-          {activeTab === 'powerups' && (
-            <Motion.div key="powerups" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex flex-col gap-5">
-              <div className="grid grid-cols-1 gap-4">
-                {SHOP_ITEMS.POWERUPS.map(item => (
-                  <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => executePurchase({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
-                ))}
-              </div>
-            </Motion.div>
-          )}
-          {activeTab === 'avatars' && (
-            <Motion.div key="avatars" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="flex flex-col gap-3">
-              {SHOP_ITEMS.AVATARS.map(avatar => (
-                <Motion.div
-                  key={avatar.id}
-                  className={`bg-mono-white dark:bg-mono-900 py-3 px-4 rounded-md border border-mono-200 dark:border-mono-800 flex items-center gap-3 transition-all shadow-sm ${ownedAvatars.includes(avatar.id) && equippedAvatar === avatar.id ? 'border-primary/50 ring-1 ring-primary/10' : ''}`}
-                >
-                  <div className="w-12 h-12 rounded-md bg-mono-100 dark:bg-white/10 border border-mono-200 dark:border-white/5 p-0.5 shrink-0 overflow-hidden relative group shadow-sm">
-                    <img src={avatar.image} alt={avatar.name} className="w-full h-full object-cover rounded-[8px] animate-character-idle" />
-                  </div>
-                  <div className="flex-1 text-right min-w-0">
-                    <h3 className="text-md font-bold text-mono-900 dark:text-mono-50 mb-0 truncate">{avatar.name}</h3>
-                    <p className="text-[9px] font-bold text-mono-500 dark:text-mono-400 leading-tight truncate">{avatar.description}</p>
-                  </div>
-                  <div className="shrink-0 flex items-center">
-                    {ownedAvatars.includes(avatar.id) ? (
-                      <button
-                        onClick={() => { triggerHaptic(10); onEquipAvatar(avatar.id); }}
-                        className={`px-3 py-1 rounded-md font-bold text-[11px] transition-all ${equippedAvatar === avatar.id ? 'bg-primary text-white shadow-md' : 'bg-mono-100 dark:bg-white/10 text-mono-600 dark:text-mono-300 hover:bg-mono-200'}`}
-                      >
-                        {equippedAvatar === avatar.id ? 'چالاکە' : 'بکاربینە'}
-                      </button>
-                    ) : (
-                      <div className="relative">
-                        <button
-                          onClick={() => { 
-                            if ((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) {
-                              triggerHaptic(10); 
-                              executePurchase({ data: avatar, type: 'avatar' });
-                            } else {
-                              triggerHaptic([50, 30, 50]);
-                            }
-                          }}
-                          className={`flex items-center gap-1.5 px-3.5 py-1 rounded-md transition-all shadow-sm ${((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) ? 'bg-mono-100 dark:bg-mono-800 text-mono-700 dark:text-mono-200 border border-mono-200 dark:border-mono-700' : 'bg-mono-100 dark:bg-mono-900 text-mono-400 dark:text-mono-500 border border-mono-200/50 dark:border-mono-800/50 cursor-not-allowed'}`}
-                        >
-                          <div className="flex flex-col items-center leading-none">
-                            <span className="text-[11px] font-bold">{toKuDigits(avatar.price || 0)}</span>
-                          </div>
-                          <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
-                             {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
-                          </div>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </Motion.div>
-              ))}
-            </Motion.div>
-          )}
-        </AnimatePresence>
-      </Motion.div>
 
       {/* Store Compliance Virtual Currency Disclaimer */}
       <div className="relative z-20 mt-6 px-4 py-3 bg-mono-100/50 dark:bg-mono-900/50 border border-mono-200 dark:border-mono-800 rounded-md text-center shadow-inner">
