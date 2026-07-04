@@ -32,6 +32,21 @@ const DAY_THEMES = {
   7: { border: 'border-[#facc15] bg-[#fef08a]', banner: 'bg-[#f59e0b]' },
 };
 
+const RibbonLabel = ({ text }) => (
+  <div 
+    className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10"
+    style={{ filter: 'drop-shadow(0px 2px 0px #064e3b)' }}
+  >
+    <div 
+      className="bg-[#16a34a] text-white px-3 sm:px-4 py-[2px] text-[11px] sm:text-[13px] font-black whitespace-nowrap text-center"
+      style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 6px) 50%, 100% 100%, 0 100%, 6px 50%)', minWidth: '44px' }}
+      dir="ltr"
+    >
+      {text}
+    </div>
+  </div>
+);
+
 export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   const {
     rewardStreak,
@@ -65,26 +80,26 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   // --- LOGIC HELPERS ---
   const hasClaimedToday = () => {
     if (!lastRewardClaimedAt) return false;
-    
+
     try {
       // Force calculation using Kurdistan Timezone (Asia/Baghdad)
-      const formatter = new Intl.DateTimeFormat('en-CA', { 
+      const formatter = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'Asia/Baghdad',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
       });
-      
+
       const lastClaimStr = formatter.format(new Date(lastRewardClaimedAt));
       const todayStr = formatter.format(new Date());
-      
+
       return lastClaimStr === todayStr;
     } catch (e) {
       console.warn("[DailyRewardModal] Date formatting error:", e);
       return false;
     }
   };
-  
+
   const claimedToday = hasClaimedToday() || serverReportedClaimed;
   const effectiveStreak = (rewardStreak === 7 && !claimedToday) ? 0 : rewardStreak;
   const activeDay = claimedToday ? -1 : (effectiveStreak % 7) + 1;
@@ -97,13 +112,13 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
       // Get current time in Baghdad timezone
       const baghdadTimeStr = now.toLocaleString('en-US', { timeZone: 'Asia/Baghdad' });
       const baghdadDate = new Date(baghdadTimeStr);
-      
+
       // Calculate midnight of the next day in Baghdad
       const tomorrowBaghdad = new Date(baghdadTimeStr);
       tomorrowBaghdad.setHours(24, 0, 0, 0);
 
       const diffMs = tomorrowBaghdad - baghdadDate;
-      
+
       if (diffMs <= 0) {
         return toKuDigits('00:00:00');
       }
@@ -131,7 +146,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
     if (claiming || claimedToday) return;
     console.log('[DailyRewardModal] handleClaim triggered');
     setClaiming(true);
-    
+
     // Signal TopAppBar to defer visual wallet updates until coins fly
     window.isAnimatingReward = true;
 
@@ -196,7 +211,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   const isNext = item.day === activeDay;
                   const isFuture = item.day > (claimedToday ? rewardStreak : activeDay);
                   const isDay7 = item.day === 7;
-                  
+
                   // Compute ribbon text
                   const getRibbonText = (r) => {
                     return `x${toKuDigits(r.fils || r.hintCount || r.spinTicketCount || r.derhem || r.magnetCount || r.mystery_boxes_count || r.skipCount || r.dinar || 1)}`;
@@ -218,49 +233,41 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     >
                       {/* Upper Icon Section */}
                       {isDay7 ? (
-                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-2 sm:px-4 pt-1 pb-2 sm:pb-3">
-                           <div className="relative flex flex-col items-center justify-center">
-                             <SkipIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
-                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                               {getRibbonText({skipCount: 1})}
-                             </div>
-                           </div>
-                           <div className="relative flex flex-col items-center justify-center">
-                             <DinarIcon className="w-11 h-11 sm:w-[56px] sm:h-[56px] drop-shadow-md" />
-                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                               {getRibbonText({dinar: 1})}
-                             </div>
-                           </div>
-                           <div className="relative flex flex-col items-center justify-center">
-                             <FilsIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
-                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                               {getRibbonText({fils: 200})}
-                             </div>
-                           </div>
+                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
+                          <div className="relative flex flex-col items-center justify-center">
+                            <SkipIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
+                            <RibbonLabel text={getRibbonText({ skipCount: 1 })} />
+                          </div>
+                          <div className="relative flex flex-col items-center justify-center">
+                            <DinarIcon className="w-11 h-11 sm:w-[56px] sm:h-[56px] drop-shadow-md" />
+                            <RibbonLabel text={getRibbonText({ dinar: 1 })} />
+                          </div>
+                          <div className="relative flex flex-col items-center justify-center">
+                            <FilsIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
+                            <RibbonLabel text={getRibbonText({ fils: 200 })} />
+                          </div>
                         </div>
                       ) : (
-                        <div className="flex-1 w-full flex items-center justify-center relative pt-1 pb-2 sm:pb-3">
-                            <div className="relative flex flex-col items-center justify-center">
-                                <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
-                                  {item.type === 'fils' ? <FilsIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
-                                   item.type === 'derhem' ? <DerhemIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
-                                   item.type === 'spinTicket' ? <SpinTicketIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
-                                   item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> :
-                                   item.icon === 'lightbulb' ? <HintIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> :
-                                   item.icon === 'auto_fix_high' ? <MagnetIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> : null}
-                                </div>
-
-                                {/* Always show the ribbon positioned right underneath the icon */}
-                                <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                                  {getRibbonText(item.reward)}
-                                </div>
+                        <div className="flex-1 w-full flex items-center justify-center relative pt-1 pb-3">
+                          <div className="relative flex flex-col items-center justify-center">
+                            <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
+                              {item.type === 'fils' ? <FilsIcon className="w-[60px] h-[60px]" /> :
+                                item.type === 'derhem' ? <DerhemIcon className="w-[60px] h-[60px]" /> :
+                                  item.type === 'spinTicket' ? <SpinTicketIcon className="w-[60px] h-[60px]" /> :
+                                    item.type === 'mystery_box' ? <MysteryBoxIcon className="w-[64px] h-[64px]" /> :
+                                      item.icon === 'lightbulb' ? <HintIcon className="w-[64px] h-[64px]" /> :
+                                        item.icon === 'auto_fix_high' ? <MagnetIcon className="w-[64px] h-[64px]" /> : null}
                             </div>
+
+                            {/* Always show the ribbon positioned right underneath the icon */}
+                            <RibbonLabel text={getRibbonText(item.reward)} />
+                          </div>
                         </div>
                       )}
 
                       {/* Lower Day Label Section */}
                       <div className={`w-full flex items-center justify-center text-white font-black relative z-0 tracking-wide drop-shadow-sm shrink-0
-                        ${isDay7 ? 'h-8 sm:h-10 text-[14px] sm:text-[16px]' : 'h-7 sm:h-10 text-[12px] sm:text-[14px]'}
+                        ${isDay7 ? 'h-10 text-[16px]' : 'h-10 text-[14px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
                         ڕۆژی {toKuDigits(item.day)}
@@ -269,9 +276,9 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {/* Checkmark overlay */}
                       {isClaimed && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10">
-                           <div className="absolute top-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
-                              <span className="material-symbols-outlined text-[20px] font-black">check</span>
-                           </div>
+                          <div className="absolute top-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+                            <span className="material-symbols-outlined text-[20px] font-black">check</span>
+                          </div>
                         </div>
                       )}
                     </Motion.div>
@@ -285,8 +292,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     کلیک ل سەر دیارییا ئەڤرۆ بکە بۆ وەرگرتنێ
                   </p>
                 )}
-                
-                <button 
+
+                <button
                   onClick={() => { playBackSfx(); handleClose(); }}
                   className="w-full h-14 flex items-center justify-center rounded-md bg-black dark:bg-white text-white dark:text-black hover:brightness-110 font-black text-sm uppercase transition-all active:scale-95 shadow-lg"
                 >
@@ -312,27 +319,27 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
               className="text-center bg-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-10 flex flex-col items-center relative overflow-hidden min-w-[320px] min-h-[350px] justify-center"
             >
               {boxState === 'unopened' && (
-                <Motion.div 
+                <Motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col items-center w-full"
                 >
                   <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2">دیاریەک بۆ تە!</h3>
                   <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 animate-pulse">کلیک ل سەر دیاریێ بکە بۆ ڤەکرنێ</p>
-                  
+
                   <Motion.button
                     animate={{ y: [0, -15, 0] }}
                     transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
                     onClick={() => {
-                       setBoxState('opening');
-                       if (hapticEnabled) triggerHaptic([20, 30, 20, 50, 60, 80]);
-                       setTimeout(() => {
-                         setBoxState('opened');
-                         playDailyClaimSfx();
-                         if (hapticEnabled) triggerHaptic([60, 100, 60]);
-                         const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
-                         confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
-                       }, 1300);
+                      setBoxState('opening');
+                      if (hapticEnabled) triggerHaptic([20, 30, 20, 50, 60, 80]);
+                      setTimeout(() => {
+                        setBoxState('opened');
+                        playDailyClaimSfx();
+                        if (hapticEnabled) triggerHaptic([60, 100, 60]);
+                        const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
+                        confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
+                      }, 1300);
                     }}
                     className="mb-6 hover:scale-110 transition-transform cursor-pointer relative group"
                   >
@@ -348,10 +355,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 <div className="flex flex-col items-center w-full">
                   <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2 opacity-50">ڤەکرن...</h3>
                   <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 opacity-0">کلیک</p>
-                  
+
                   <Motion.div
-                    animate={{ 
-                      x: [-10, 10, -15, 15, -8, 8, -5, 5, 0], 
+                    animate={{
+                      x: [-10, 10, -15, 15, -8, 8, -5, 5, 0],
                       scale: [1, 1.05, 1.1, 1.15, 1.25, 1.3],
                       rotate: [-5, 5, -5, 5, -2, 2, 0]
                     }}
@@ -366,7 +373,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
               )}
 
               {boxState === 'opened' && (
-                <Motion.div 
+                <Motion.div
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: [0.5, 1.15, 1], opacity: 1 }}
                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -374,7 +381,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 >
                   <h3 className="text-4xl font-black mb-2 bg-linear-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">پیرۆزە!</h3>
                   <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
-                  
+
                   <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                     <Motion.div
                       initial={{ rotate: -180, scale: 0 }}
@@ -403,10 +410,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         )}
                       </Motion.div>
                     </Motion.div>
-                    
+
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
 
-                    <Motion.div 
+                    <Motion.div
                       initial={{ scale: 0, y: 20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
@@ -415,11 +422,11 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       + {claimedDayInfo?.label}
                     </Motion.div>
 
-                    <CoinAnimation 
-                      trigger={animatingReward} 
-                      isDaily={true} 
+                    <CoinAnimation
+                      trigger={animatingReward}
+                      isDaily={true}
                       type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
-                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1} 
+                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
                     />
                   </div>
 
@@ -427,14 +434,14 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    onClick={() => { 
+                    onClick={() => {
                       if (animatingReward) return;
                       setAnimatingReward(true);
                       setTimeout(() => {
-                        setShowSuccess(false); 
+                        setShowSuccess(false);
                         setAnimatingReward(false);
                         window.isAnimatingReward = false; // Reset after animation completes
-                        onClose(); 
+                        onClose();
                       }, 2200);
                     }}
                     className={`w-full h-14 bg-primary text-white rounded-md font-black text-lg shadow-xl transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
