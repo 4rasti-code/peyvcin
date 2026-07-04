@@ -210,7 +210,13 @@ export default function PublicProfileModal({
 
     setReporting(false);
     setShowReportConfirm(false);
-    alert(error ? "شاشیەک ڕوویدا" : "سکاڵا بە سەرکەوتوویی نێردرا، سوپاس");
+
+    if (error) {
+      console.error("Report Error:", error);
+      alert("شاشیەک ڕوویدا: " + error.message);
+    } else {
+      alert("سکاڵا بە سەرکەوتوویی نێردرا، سوپاس");
+    }
   };
 
   const handleSendFriendRequest = async () => {
