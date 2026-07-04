@@ -32,6 +32,8 @@ export default function PublicProfileModal({
 
 
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
+  const [showReportConfirm, setShowReportConfirm] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
@@ -195,6 +197,20 @@ export default function PublicProfileModal({
       setTimeout(() => setShowCoinAnim(false), 3500);
     }
     setClaiming(false);
+  };
+
+  const handleReport = async () => {
+    if (!currentUser || reporting) return;
+    setReporting(true);
+    triggerHaptic(20);
+
+    const { error } = await supabase
+      .from('reports')
+      .insert([{ reporter_id: currentUser.id, reported_id: profile.id, reason: 'Inappropriate User/Content' }]);
+
+    setReporting(false);
+    setShowReportConfirm(false);
+    alert(error ? "شاشیەک ڕوویدا" : "سکاڵا بە سەرکەوتوویی نێردرا، سوپاس");
   };
 
   const handleSendFriendRequest = async () => {
@@ -479,6 +495,11 @@ export default function PublicProfileModal({
                 </button>
               )}
 
+              {/* Report Action */}
+              <button onClick={() => { triggerHaptic(10); setShowReportConfirm(true); }} className="w-10 h-10 rounded-full bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/40 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/20 transition-all shadow-sm" title="ڕیپۆرتکرن / سکاڵا">
+                <span className="material-symbols-outlined text-[20px]">flag</span>
+              </button>
+
               {/* Block Action */}
               {onToggleBlock && (
                 <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`} title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
@@ -576,7 +597,7 @@ export default function PublicProfileModal({
 
         {/* Bottom Section (Conditional) */}
         {(() => {
-          const hasConfirm = showUnfriendConfirm || showBlockConfirm;
+          const hasConfirm = showUnfriendConfirm || showBlockConfirm || showReportConfirm;
           const showBottom = isBot || isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
           
           if (!showBottom) return null;
@@ -585,6 +606,14 @@ export default function PublicProfileModal({
             <div className="w-full space-y-2 mt-auto flex flex-col pt-3 border-t border-mono-200 dark:border-white/5">
               {isMe ? (
                 <div className="w-full py-3 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold text-sm text-center shadow-sm">ئەڤە پڕۆفایلا تەیا تایبەتە</div>
+              ) : showReportConfirm ? (
+                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-orange-500/10 border border-orange-500/20 py-3 px-4 rounded-md">
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-200">دڵنیایی ژ سکاڵا ل سەر ڤی کەسی؟</span>
+                  <div className="flex gap-2 w-full">
+                    <button onClick={handleReport} disabled={reporting} className="flex-1 text-white bg-orange-600 hover:bg-orange-500 py-2 rounded-md text-xs font-black disabled:opacity-50">بەڵێ، سکاڵا</button>
+                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold">نەخێر</button>
+                  </div>
+                </Motion.div>
               ) : showBlockConfirm ? (
                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-3 px-4 rounded-md">
                   <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی ژ بلۆککرنا ڤی کەسی؟</span>
