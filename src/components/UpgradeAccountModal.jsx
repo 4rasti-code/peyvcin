@@ -517,7 +517,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                     <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
                                 ) : (
                                     <>
-                                        <span>تۆمارکرنا هەژمارێ</span>
+                                        <span>تۆمارکرنا هژمارێ</span>
                                         <span className="material-symbols-outlined text-[18px]">verified_user</span>
                                     </>
                                 )}

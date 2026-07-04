@@ -65,6 +65,16 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                     </Motion.div>
                 )}
 
+                {tab.id === 'profile' && pendingFriendsCount > 0 && (
+                  <Motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
+                  >
+                    {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}
+                  </Motion.div>
+                )}
+
                 {tab.id === 'social_hub' && hasSilentGlobal && chatBadgeCount === 0 && (
                   <Motion.div 
                     animate={{ 
@@ -103,15 +113,6 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
               className={`text-[10px] font-black font-rabar whitespace-nowrap uppercase relative z-10 transition-colors duration-300 ${isActive ? 'text-mono-900 dark:text-white' : 'text-mono-500'}`}
             >
               {tab.label}
-              {tab.id === 'profile' && pendingFriendsCount > 0 && (
-                <Motion.div 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1.5 -right-2 bg-red-500 min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-sm px-1"
-                >
-                  <span className="text-[10px] font-black text-white leading-none mt-0.5">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
-                </Motion.div>
-              )}
             </Motion.span>
           </Motion.button>
         );

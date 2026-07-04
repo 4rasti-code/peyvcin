@@ -1,47 +1,20 @@
 import React, { useState } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { playBackSfx } from '../utils/audio';
+import { playBackSfx, playTabSfx } from '../utils/audio';
 
-const KurdistanFlag = () => (
-    <svg viewBox="0 0 512 341" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
-        <path fill="#ed2024" d="M0 0h512v113.8H0z" />
-        <path fill="#fff" d="M0 113.8h512v113.4H0z" />
-        <path fill="#278e3c" d="M0 227.2h512v113.8H0z" />
-        <g transform="translate(256 170.5)">
-            <circle fill="#f8e71c" r="54" />
-            {Array.from({ length: 21 }).map((_, i) => (
-                <path
-                    key={i}
-                    fill="#f8e71c"
-                    d="M0-65L6-45h-12z"
-                    transform={`rotate(${(i * 360) / 21})`}
-                />
-            ))}
-            <circle fill="#f8e71c" r="22" />
-        </g>
-    </svg>
-);
 
-const USFlag = () => (
-    <svg viewBox="0 0 741 390" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
-        <path fill="#fff" d="M0 0h741v390H0z" />
-        <path d="M0 0h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0zm0 60h741v30H0z" fill="#b22234" />
-        <path d="M0 0h296.4v210H0z" fill="#3c3b6e" />
-        <g fill="#fff">
-            {Array.from({ length: 50 }).map((_, i) => (
-                <path
-                    key={i}
-                    d="M0-11l3 9h9l-7 5l3 9l-8-6l-8 6l3-9l-7-5h9z"
-                    transform={`translate(${16.5 + (i % 6) * 49.4 + (Math.floor(i / 11) % 2 ? 0 : 0)}, ${14 + (Math.floor(i / 11)) * 21}) scale(0.6)`}
-                />
-            ))}
-        </g>
-    </svg>
-);
 
 const PrivacyPolicy = ({ onViewChange, onClose }) => {
-    const [lang, setLang] = useState('ku'); // 'en' or 'ku'
+    const [lang, setLang] = useState(() => {
+        return localStorage.getItem('policy_lang') || 'ku';
+    });
+
+    const handleLanguageChange = (newLang) => {
+        setLang(newLang);
+        localStorage.setItem('policy_lang', newLang);
+        playTabSfx();
+    }; // 'en' or 'ku'
     const navigate = useNavigate();
 
     const handleNavigate = (path, policyKey) => {
@@ -53,6 +26,7 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
     };
 
     const handleClose = () => {
+        playBackSfx();
         if (onClose) {
             onClose();
         } else {
@@ -64,11 +38,11 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
         en: {
             title: "Privacy Policy",
             subtitle: "Last Updated: April 2, 2026",
-            intro: "At پەیڤۆک, we are committed to protecting your privacy and security. This Privacy Policy outlines how we handle your personal information when you use our application.",
+            intro: "At Peyvok, we are committed to protecting your privacy and security. This Privacy Policy outlines how we handle your personal information when you use our application.",
             sections: [
                 {
                     title: "1. Information We Collect",
-                    text: "When you use پەیڤۆک, we may collect the following information:",
+                    text: "When you use Peyvok, we may collect the following information:",
                     list: [
                         "Public profile information (Name, Profile Picture) from Facebook, Google, or Apple.",
                         "Email address provided during sign-in.",
@@ -155,35 +129,32 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
     const isRTL = lang === 'ku';
 
     return (
-        <div className="h-full bg-mono-white dark:bg-black text-mono-900 dark:text-mono-100 selection:bg-mono-900/30 dark:selection:bg-mono-50/30 selection:text-white font-body p-6 sm:p-12" dir={isRTL ? 'rtl' : 'ltr'}>
+        <div className={`min-h-screen bg-mono-white dark:bg-black text-mono-900 dark:text-mono-100 selection:bg-mono-900/30 dark:selection:bg-mono-50/30 selection:text-white ${isRTL ? 'font-rabar' : 'font-body'} p-6 sm:p-12`} dir={isRTL ? 'rtl' : 'ltr'}>
             <div className="max-w-4xl mx-auto relative">
                 {/* Header Section */}
-                <div className="flex flex-col sm:flex-row items-center justify-between mb-16 gap-8">
-                    <div className="flex items-center gap-6 group cursor-pointer" onClick={handleClose}>
-                        <div>
-                            <h1 className="text-4xl font-bold text-mono-900 dark:text-white mb-1">پەیڤۆک</h1>
-                            <p className="text-text-dim/60 text-xs font-bold uppercase tracking">Heritage Reborn</p>
+                <div className="flex flex-col items-center justify-center mb-16 gap-8">
+                    <div className="flex flex-col items-center justify-center group cursor-pointer" onClick={handleClose}>
+                        <div className="text-center">
+                            <h1 className="text-4xl font-bold text-mono-900 dark:text-white mb-1">{isRTL ? 'پەیڤۆک' : 'Peyvok'}</h1>
+                            <p className="text-text-dim/60 text-xs font-bold uppercase tracking">{isRTL ? 'سیاسەتا تایبەتمەندیێ' : 'PRIVACY POLICY'}</p>
                         </div>
                     </div>
 
-                    <div className="flex bg-mono-50 dark:bg-mono-900/80 backdrop-blur-xl border border-mono-200 dark:border-white/5 rounded-md p-1.5 ">
+                    <div dir="ltr" className="flex bg-mono-100 dark:bg-black/40 p-1.5 rounded-md border border-mono-200 dark:border-white/5 backdrop-blur-md relative">
+                        <div
+                            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-mono-900 dark:bg-mono-50 rounded shadow-sm border border-mono-200 dark:border-white/10 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${lang === 'en' ? 'left-1.5' : 'left-[50%]'}`}
+                        />
                         <button
-                            onClick={() => setLang('ku')}
-                            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-md transition-all duration-300 font-bold text-sm ${lang === 'ku' ? 'bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 ' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
+                            onClick={() => handleLanguageChange('en')}
+                            className={`flex-1 relative z-10 px-6 py-2.5 rounded-md text-xs font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${lang === 'en' ? 'text-mono-50 dark:text-mono-900' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
                         >
-                            <div className="w-5 h-3.5 rounded overflow-hidden ">
-                                <KurdistanFlag />
-                            </div>
-                            <span>بەهدینی</span>
+                            English
                         </button>
                         <button
-                            onClick={() => setLang('en')}
-                            className={`flex items-center gap-2.5 px-6 py-2.5 rounded-md transition-all duration-300 font-bold text-sm ${lang === 'en' ? 'bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 ' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
+                            onClick={() => handleLanguageChange('ku')}
+                            className={`flex-1 relative z-10 px-6 py-2.5 rounded-md text-xs font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${lang === 'ku' ? 'text-mono-50 dark:text-mono-900' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
                         >
-                            <div className="w-5 h-3.5 rounded overflow-hidden ">
-                                <USFlag />
-                            </div>
-                            <span>English</span>
+                            <span>کوردی</span>
                         </button>
                     </div>
                 </div>
@@ -193,30 +164,27 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
                     key={lang}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-mono-50 dark:bg-mono-900/50 backdrop-blur-2xl border border-mono-200 dark:border-white/5 rounded-md p-10 sm:p-20 relative"
+                    className="bg-mono-50 dark:bg-mono-900/50 backdrop-blur-2xl border border-mono-200 dark:border-white/5 rounded-md p-6 sm:p-10 relative text-start"
                 >
                     <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-mono-500/50 to-transparent opacity-30"></div>
 
-                    <header className="mb-16 text-center sm:text-start">
-                        <h2 className="text-4xl sm:text-5xl font-bold text-mono-900 dark:text-white mb-4 leading-tight">{current.title}</h2>
-                        <span className="text-mono-50 dark:text-mono-900 font-bold text bg-mono-900 dark:bg-mono-50 px-4 py-1.5 rounded-md border border-mono-200 dark:border-mono-700 uppercase">{current.subtitle}</span>
-                    </header>
 
-                    <p className="text-xl text-mono-700 dark:text-mono-300 mb-16 leading-relaxed font-medium italic border-r-4 border-mono-900 dark:border-mono-50 pr-6">
+
+                    <p className={`text-sm text-mono-800 dark:text-white/90 mb-8 leading-relaxed font-normal italic border-mono-900 dark:border-mono-50 ${lang === 'ku' ? 'border-r-4 pr-4' : 'border-l-4 pl-4'}`}>
                         {current.intro}
                     </p>
 
-                    <div className="space-y-16">
+                    <div className="space-y-8">
                         {current.sections.map((section, idx) => (
                             <section key={idx} className="relative">
-                                <h3 className="text-2xl font-bold text-mono-900 dark:text-white mb-6 flex items-center gap-4">
+                                <h3 className="text-lg font-medium text-mono-900 dark:text-white/90 mb-4 flex items-center gap-3">
                                     {section.title}
                                 </h3>
-                                <p className="text-mono-600 dark:text-white/60 leading-relaxed text-lg mb-6">{section.text}</p>
+                                <p className="text-sm text-mono-800 dark:text-white/90 leading-relaxed font-normal mb-4">{section.text}</p>
                                 {section.list && (
                                     <ul className="space-y-4 pr-12">
                                         {section.list.map((item, i) => (
-                                            <li key={i} className="flex items-start gap-4 text-mono-600 dark:text-white/50 group">
+                                            <li key={i} className="flex items-start gap-3 text-xs text-mono-800 dark:text-white/90 font-normal group">
                                                 <div className="w-1.5 h-1.5 rounded-md bg-mono-900 dark:bg-mono-50 mt-2.5 transition-transform group-hover:scale-150"></div>
                                                 <span className="flex-1">{item}</span>
                                             </li>
@@ -224,7 +192,7 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
                                     </ul>
                                 )}
                                 {section.email && (
-                                    <a href={`mailto:${section.email}`} className="inline-block mt-4 text-mono-900 dark:text-mono-50 font-bold text-xl hover:text-white transition-colors border-b-2 border-mono-300 dark:border-mono-600 pb-1">
+                                    <a href={`mailto:${section.email}`} className="inline-block mt-2 text-mono-900 dark:text-mono-50 font-medium text-base hover:text-white transition-colors border-b-2 border-mono-300 dark:border-mono-600 pb-1">
                                         {section.email}
                                     </a>
                                 )}
@@ -235,25 +203,24 @@ const PrivacyPolicy = ({ onViewChange, onClose }) => {
 
                 {/* Footer */}
                 <div className="mt-16 text-center space-y-8">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-500 dark:text-white/30 font-bold text-xs uppercase">
-                        <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-mono-900 dark:hover:text-mono-50 transition-colors">Terms of Service</button>
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-800 dark:text-white/90 font-medium text-[11px] uppercase tracking-wider antialiased">
+                        <button onClick={() => handleNavigate('/data-deletion', 'deletion')} className="text-mono-500 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-colors">{lang === 'ku' ? 'ژێبرنا داتایان' : 'Data Deletion'}</button>
                         <span className="w-1 h-1 rounded-md bg-white/10"></span>
-                        <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="text-mono-900 dark:text-mono-50 hover:text-white transition-colors">Privacy Policy</button>
+                        <button className="text-blue-600 dark:text-blue-400 font-bold pointer-events-none">{lang === 'ku' ? 'سیاسەتا تایبەتمەندیێ' : 'Privacy Policy'}</button>
                         <span className="w-1 h-1 rounded-md bg-white/10"></span>
-                        <button onClick={() => handleNavigate('/data-deletion', 'deletion')} className="hover:text-mono-900 dark:hover:text-mono-50 transition-colors">Data Deletion</button>
+                        <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="text-mono-500 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-colors">{lang === 'ku' ? 'مەرجێن خزمەتگوزاریێ' : 'Terms of Service'}</button>
                     </div>
 
                     <button
-                        onClick={() => {
-                            playBackSfx();
-                            handleClose();
-                        }}
-                        className="bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 px-10 py-5 rounded-md font-black text-sm uppercase tracking hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 mx-auto pt-4 mt-8"
+                        onClick={handleClose}
+                        className="bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 px-6 py-3 rounded-md font-bold text-xs uppercase tracking-wide hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 mx-auto mt-8"
                     >
                         <span className="material-symbols-outlined text-xl">arrow_back</span>
                         {lang === 'ku' ? 'ڤەگەڕە' : 'Back to Game'}
                     </button>
-                    <p className="mt-8 text text-mono-300 dark:text-white/10 uppercase font-bold italic">&copy; 2026 پەیڤۆک App. All Rights Reserved.</p>
+                    <p className="mt-8 text-center text-mono-500 dark:text-white/50 text-xs font-normal uppercase tracking-wider antialiased opacity-90">
+                        {isRTL ? '© ٢٠٢٦ تیما پەیڤۆک • هاتیە دروستکرن بۆ کەلەپووری' : '© 2026 Peyvok Team • Built for Heritage'}
+                    </p>
                 </div>
             </div>
 

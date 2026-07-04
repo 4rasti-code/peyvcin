@@ -42,6 +42,7 @@ export default function LeaderboardView({ onOpenChat }) {
   const [error, setError] = useState(null);
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Caching for instant load
   const cacheRef = useRef({ global: null, friends: null });
@@ -55,6 +56,19 @@ export default function LeaderboardView({ onOpenChat }) {
 
   const bgRef = useRef(null);
   const fetchTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    triggerHaptic(10);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleBackgroundClick = (e) => {
     // Only trigger if clicking the direct container to avoid item capture
@@ -271,7 +285,7 @@ export default function LeaderboardView({ onOpenChat }) {
              let formattedDate = lastProfileUpdate;
              try {
                formattedDate = new Date(lastProfileUpdate).toISOString();
-             } catch(e) {
+             } catch(_e) {
                console.warn("Invalid date format", lastProfileUpdate);
              }
              const { count } = await supabase
@@ -764,6 +778,22 @@ export default function LeaderboardView({ onOpenChat }) {
           </Motion.div>
         </div>
       )}
+
+      {/* Scroll To Top Button */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <Motion.button
+            initial={{ opacity: 0, scale: 0.5, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 20 }}
+            onClick={scrollToTop}
+            className="fixed bottom-[calc(148px+env(safe-area-inset-bottom))] left-4 md:left-8 z-50 w-12 h-12 bg-mono-900 dark:bg-white text-white dark:text-mono-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all border border-white/10 dark:border-black/10"
+            title="بۆ سەرەوە"
+          >
+            <span className="material-symbols-outlined text-[24px]">keyboard_arrow_up</span>
+          </Motion.button>
+        )}
+      </AnimatePresence>
 
       <PublicProfileModal
         profile={selectedPlayer}

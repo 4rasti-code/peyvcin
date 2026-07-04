@@ -414,6 +414,7 @@ export default function App() {
   const [isHowToPlayShowTabs, setIsHowToPlayShowTabs] = useState(true);
   const [activeChatPartner, setActiveChatPartner] = useState(null);
   const [initialSocialTab, setInitialSocialTab] = useState(null);
+  const [openFriendsFromNotif, setOpenFriendsFromNotif] = useState(false);
   const [_isRecoveringPassword, setIsRecoveringPassword] = useState(false);
   const [_isVerifyingSignup, setIsVerifyingSignup] = useState(false);
   const isRecoveringRef = useRef(false);
@@ -1534,9 +1535,9 @@ export default function App() {
       setInitialSocialTab('private');
       navigateTo('social_hub');
     } else if (item.type === 'friend') {
-      setInitialSocialTab('friends');
-      navigateTo('social_hub');
-    } else {
+        setOpenFriendsFromNotif(true);
+        navigateTo('profile');
+      } else {
       setInitialSocialTab('global');
       navigateTo('social_hub');
     }
@@ -1895,6 +1896,8 @@ export default function App() {
                 </div>
                 <div className={currentView === 'profile' ? 'contents' : 'hidden'}>
                   <ProfileView
+                      initialFriendsModalOpen={openFriendsFromNotif}
+                      onFriendsModalConsumed={() => setOpenFriendsFromNotif(false)}
                     onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
                     onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
                     onOpenChat={handleOpenChat}
@@ -1941,12 +1944,17 @@ export default function App() {
                 onClick={() => {
                   setPushNotification(null);
                   triggerHaptic(10);
-                  setCurrentView('social_hub');
+                  if (pushNotification.type === 'friend_request') {
+                    setOpenFriendsFromNotif(true);
+                    navigateTo('profile');
+                  } else {
+                    setCurrentView('social_hub');
+                  }
                 }}
                 className="fixed top-[env(safe-area-inset-top,16px)] left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] z-9999 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-[16px] shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-mono-800 dark:bg-mono-200 shrink-0">
-                  <img src={pushNotification.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${pushNotification.title}`} alt="avatar" className="w-full h-full object-cover" />
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-mono-800 dark:bg-mono-200 shrink-0 flex items-center justify-center">
+                  <Avatar src={pushNotification.avatar || 'default'} size="full" border={false} className="object-cover w-full h-full" />
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col items-start text-right">
                   <h4 className={`text-[15px] font-black ${isSystemDark ? 'text-mono-900' : 'text-mono-50'} truncate w-full leading-tight font-heading`}>
@@ -1994,9 +2002,9 @@ export default function App() {
               setCurrentView={navigateTo}
               onSettingsToggle={() => { setIsSettingsOpen(true); }}
               onTabClickSound={playBubblePopSound}
-              notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.unreadGlobal || 0)}
+              chatBadgeCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.unreadGlobal || 0)}
               pendingFriendsCount={socialNotifications.pendingRequests || 0}
-              hasGlobalNewMessage={hasUnreadGlobalMessage}
+              hasSilentGlobal={hasUnreadGlobalMessage}
             />
           )}
 

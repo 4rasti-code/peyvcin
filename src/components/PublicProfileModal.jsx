@@ -35,7 +35,7 @@ export default function PublicProfileModal({
   const [showReportConfirm, setShowReportConfirm] = useState(false);
   const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [reporting, setReporting] = useState(false);
-  const [reportReason, setReportReason] = useState("");
+  const [reportReasons, setReportReasons] = useState([]);
   const [customReason, setCustomReason] = useState("");
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const [showCoinAnim, setShowCoinAnim] = useState(false);
@@ -205,10 +205,9 @@ export default function PublicProfileModal({
   const handleReport = async () => {
     if (!currentUser || reporting) return;
     
-    let finalReason = reportReason;
-    if (reportReason === 'یێن دیتر') {
-      finalReason = customReason.trim();
-      if (!finalReason) return;
+    let finalReason = reportReasons.filter(r => r !== 'یێن دیتر').join('، ');
+    if (reportReasons.includes('یێن دیتر')) {
+      finalReason = finalReason ? finalReason + '، ' + customReason.trim() : customReason.trim();
     }
     if (!finalReason) return;
 
@@ -221,7 +220,7 @@ export default function PublicProfileModal({
 
     setReporting(false);
     setShowReportConfirm(false);
-    setReportReason("");
+    setReportReasons([]);
     setCustomReason("");
 
     if (error) {
@@ -673,7 +672,7 @@ export default function PublicProfileModal({
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
               onClick={() => {
                 setShowReportConfirm(false);
-                setReportReason("");
+                setReportReasons([]);
                 setCustomReason("");
                 setShowBlockConfirm(false);
                 setShowUnfriendConfirm(false);
@@ -683,57 +682,64 @@ export default function PublicProfileModal({
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className={`relative w-full max-w-[300px] ${showReportConfirm ? 'bg-[#1a0f0a] border-orange-500/30' : 'bg-[#1a0a0a] border-red-500/30'} border rounded-xl p-5 flex flex-col items-center shadow-2xl overflow-hidden`}
+              className="relative w-full max-w-[300px] bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
               dir="rtl"
             >
               {showReportConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-orange-200 mb-4 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
+                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-4 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
                   <div className="flex flex-col gap-1.5 w-full mb-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
                     {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'یێن دیتر'].map(reason => (
-                      <label key={reason} className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-orange-500/10 transition-colors">
+                      <label key={reason} className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-mono-200 dark:hover:bg-white/5 transition-colors">
                         <input 
-                          type="radio" 
+                          type="checkbox" 
                           name="reportReason" 
                           value={reason} 
-                          checked={reportReason === reason} 
-                          onChange={(e) => { triggerHaptic(5); setReportReason(e.target.value); }} 
-                          className="w-4 h-4 accent-[#ff5a00] cursor-pointer"
+                          checked={reportReasons.includes(reason)} 
+                          onChange={(e) => { 
+                            triggerHaptic(5); 
+                            if (e.target.checked) {
+                              setReportReasons(prev => [...prev, reason]);
+                            } else {
+                              setReportReasons(prev => prev.filter(r => r !== reason));
+                            }
+                          }} 
+                          className="w-4 h-4 rounded-sm accent-primary cursor-pointer"
                         />
-                        <span className="text-orange-100 text-xs font-bold">{reason}</span>
+                        <span className="text-mono-700 dark:text-mono-300 text-xs font-bold">{reason}</span>
                       </label>
                     ))}
                     
-                    {reportReason === 'یێن دیتر' && (
+                    {reportReasons.includes('یێن دیتر') && (
                       <textarea
                         value={customReason}
                         onChange={(e) => setCustomReason(e.target.value)}
                         placeholder="کێشەیێ ل ڤێرێ بنڤێسە..."
-                        className="w-full bg-black/50 border border-orange-500/30 rounded-md p-2.5 text-orange-100 text-[11px] font-bold mt-1 focus:outline-none focus:border-[#ff5a00] resize-none h-20 placeholder:text-orange-100/30"
+                        className="w-full bg-mono-100 dark:bg-black/50 border border-mono-200 dark:border-white/10 rounded-md p-2.5 text-mono-900 dark:text-white text-[11px] font-bold mt-1 focus:outline-none focus:border-primary resize-none h-20 placeholder:text-mono-400 dark:placeholder:text-white/30"
                       />
                     )}
                   </div>
                   <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || !reportReason || (reportReason === 'یێن دیتر' && !customReason.trim())} className="flex-1 text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">هنارتن</button>
-                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReason(""); setCustomReason(""); }} className="flex-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمانبوون</button>
+                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || reportReasons.length === 0 || (reportReasons.includes('یێن دیتر') && !customReason.trim())} className="flex-1 text-white bg-primary hover:brightness-110 py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">هنارتن</button>
+                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReasons([]); setCustomReason(""); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمانبوون</button>
                   </div>
                 </>
               )}
               {showBlockConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-red-200 mb-5 drop-shadow-sm">دڵنیایی ژ بلۆککرنا ڤی کەسی؟</h3>
+                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-5 drop-shadow-sm">تو پشتڕاستی ژ بلۆککرنا ڤی کەسی؟</h3>
                   <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-[#e60000] hover:bg-[#ff1a1a] py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ، بلۆک</button>
-                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-red-100/70 bg-[#2d1111] hover:bg-[#3d1717] py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-red-500 hover:bg-red-600 py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ، بلۆک</button>
+                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
                   </div>
                 </>
               )}
               {showUnfriendConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-red-200 mb-5 drop-shadow-sm">دڵنیایی ژ لابرنا ڤی ھەڤاڵی؟</h3>
+                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-5 drop-shadow-sm">تو پشتڕاستی ژ ژێبرانا ڤی هەڤالی؟</h3>
                   <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-[#e60000] hover:bg-[#ff1a1a] py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ</button>
-                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-red-100/70 bg-[#2d1111] hover:bg-[#3d1717] py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-red-500 hover:bg-red-600 py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ</button>
+                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
                   </div>
                 </>
               )}

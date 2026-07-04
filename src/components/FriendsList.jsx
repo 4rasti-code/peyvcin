@@ -218,6 +218,16 @@ export default function FriendsList({
       if (!user?.id || pendingSentIds.has(friendId)) return;
       triggerHaptic(15);
       setPendingSentIds(prev => new Set([...prev, friendId]));
+      
+      // Check if it already exists to avoid 409 console error
+      const { data: existing } = await supabase
+        .from('friendships')
+        .select('id')
+        .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`)
+        .maybeSingle();
+
+      if (existing) return; // Already requested/friends
+      
       const { error } = await supabase.from('friendships').insert([{ user_id: user.id, friend_id: friendId, status: 'pending' }]);
       if (error) { if (error.code === '23505') return; throw error; }
     } catch (err) {

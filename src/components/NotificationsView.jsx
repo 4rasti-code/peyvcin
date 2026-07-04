@@ -59,11 +59,11 @@ export default function NotificationsView({
         </div>
         
         <div className="flex-1 min-w-0">
-          <p className="text-[12px] font-bold text-mono-900 dark:text-white/90 leading-tight">
+          <p className="text-[12px] font-bold text-mono-900 dark:text-white/90 leading-tight truncate">
             <span className="text-primary font-black">{item.user_nickname}</span>
-            {item.type === 'message' ? ' نامە' : ' داخوازى'}
+            {item.type === 'message' ? ' نامە ' : ' داخوازى '}
+            <span className="text-[9px] text-mono-400 dark:text-white/30 font-bold uppercase mr-1">{timeAgo}</span>
           </p>
-          <span className="text-[9px] text-mono-400 dark:text-white/30 font-bold uppercase">{timeAgo}</span>
         </div>
         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
       </Motion.div>

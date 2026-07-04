@@ -624,7 +624,6 @@ export default function SocialHubView({
 
   useEffect(() => {
     const handleForceClose = () => {
-      setIsKeyboardVisible(false);
       onKeyboardToggle?.(false);
     };
     window.addEventListener('forceCloseChat', handleForceClose);

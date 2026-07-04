@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { triggerHaptic } from '../utils/haptics';
-import { playAlertSfx, playBackSfx } from '../utils/audio';
+import { playPopSfx, playAlertSfx, playBackSfx } from '../utils/audio';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import DataDeletion from './DataDeletion';
@@ -82,12 +82,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
 
     return (
         <div className="relative w-full text-right">
-            <label
-                htmlFor={id}
-                className={`block text-[11px] sm:text-[10px] font-black font-rabar mb-1.5 sm:mb-1 pr-2 uppercase transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-mono-400 dark:text-white/70 hover:text-mono-900 dark:hover:text-white/90'}`}
-            >
-                {label}
-            </label>
+            
             <div className={`
                 relative w-full rounded-md transition-all duration-300 border flex items-center
                 ${isFocused ? 'bg-mono-100 dark:bg-white/10 border-emerald-500/50' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 hover:border-mono-400 dark:hover:border-white/20'}
@@ -97,6 +92,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                 <input
                     id={id}
                     type={type}
+                    placeholder={label}
                     required={required}
                     value={value}
                     onChange={onChange}
@@ -110,7 +106,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     autoComplete={autoComplete}
                     name={name || id}
                     aria-label={label}
-                    className={`w-full bg-transparent py-1.5 sm:py-1 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-mono-900 dark:text-white text-base sm:text-sm font-bold focus:outline-none transition-all duration-200 caret-emerald-400 relative z-10`}
+                    className={`w-full bg-transparent py-2.5 sm:py-2 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-mono-900 dark:text-white text-base sm:text-sm placeholder-mono-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200 caret-emerald-400 relative z-10`}
                     style={{
                         appearance: 'none',
                         userSelect: 'text',
@@ -120,7 +116,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     }}
                 />
                 {suffix && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-emerald-400 transition-colors z-20 flex items-center justify-center">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mono-400 dark:text-white/40 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors z-20 flex items-center justify-center">
                         {suffix}
                     </div>
                 )}
@@ -165,6 +161,9 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
     const [activePolicyModal, setActivePolicyModal] = useState(null); // 'terms', 'privacy', 'deletion'
     const [resendCooldown, setResendCooldown] = useState(0);
     const [isUnverifiedLogin, setIsUnverifiedLogin] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
+    const [showEmailForm, setShowEmailForm] = useState(false);
+    const [showGuestWarning, setShowGuestWarning] = useState(false);
 
     // Real-time Availability Check
     React.useEffect(() => {
@@ -285,6 +284,13 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                 if (nameAvailability !== 'available' || passwordError || confirmError || !password || !confirmPassword) {
                     playAlertSfx();
                     setError(nameError || passwordError || confirmError || 'ھیڤییە هەمی زانیاریان ب درستی پڕ بکەو');
+                    setLoading(false);
+                    return;
+                }
+                
+                if (!agreedToTerms) {
+                    playAlertSfx();
+                    setError('پێویستە ڕازی بیت ل سەر مەرج و سیاسەتا تایبەتمەندیێ');
                     setLoading(false);
                     return;
                 }
@@ -621,6 +627,109 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                         {/* 1. LOGIN / SIGNUP FLOW */}
                         {!showOtpScreen && recoveryStep === 0 && (
                             <>
+                                {!showEmailForm ? (
+                                    <div className="w-full flex flex-col mt-2 space-y-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSocialLogin('google')}
+                                            disabled={loading}
+                                            className="relative w-full h-11 sm:h-10 rounded-md bg-white text-mono-900 border border-mono-200 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all shadow-sm"
+                                            title="Google"
+                                        >
+                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">گۆگڵ</span>
+                                            <div className="absolute right-4 flex items-center justify-center">
+                                                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                    <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
+                                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                                </svg>
+                                            </div>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => handleSocialLogin('discord')}
+                                            disabled={loading}
+                                            className="relative w-full h-11 sm:h-10 rounded-md bg-[#5865F2] hover:bg-[#4752C4] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all shadow-sm"
+                                        >
+                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">دیسکۆرد</span>
+                                            <div className="absolute right-4 flex items-center justify-center">
+                                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
+                                                </svg>
+                                            </div>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setIsLogin(false);
+                                                setShowEmailForm(true);
+                                            }}
+                                            className="relative w-full h-11 sm:h-10 bg-[#0095f6] hover:bg-[#1877f2] text-white rounded-md flex items-center justify-center active:scale-95 transition-all shadow-sm"
+                                        >
+                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">تۆمارکرن ب ئیمەیڵی</span>
+                                            <div className="absolute right-4 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-[18px]">mail</span>
+                                            </div>
+                                        </button>
+
+                                        <div className="flex items-center gap-4 py-1 text-mono-400 dark:text-white/30">
+                                            <div className="flex-1 h-px bg-current"></div>
+                                            <span className="text-[10px] font-black font-rabar opacity-60">یان</span>
+                                            <div className="flex-1 h-px bg-current"></div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                playPopSfx();
+                                                setShowGuestWarning(true);
+                                            }}
+                                            disabled={loading}
+                                            className="relative w-full h-11 sm:h-10 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 dark:text-emerald-500 rounded-md flex items-center justify-center active:scale-95 transition-all"
+                                        >
+                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">یاریکرن وەکو مێهڤان</span>
+                                            <div className="absolute right-4 flex items-center justify-center">
+                                                <span className="material-symbols-outlined text-sm">person</span>
+                                            </div>
+                                        </button>
+
+                                        <div className="flex items-center justify-center mt-6 mb-2">
+                                            <p className="text-[11px] font-bold font-rabar text-mono-400 dark:text-white/50">
+                                                تە ژبەری نۆکە هژمار دروست کریە؟{' '}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsLogin(true);
+                                                        setShowEmailForm(true);
+                                                    }}
+                                                    className="text-[#0095f6] hover:text-[#1877f2] transition-colors"
+                                                >
+                                                    چوونا ژوورێ
+                                                </button>
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-4 mb-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[9.5px] font-black font-rabar text-mono-400 dark:text-white/30 uppercase">
+                                            <button type="button" onClick={() => setActivePolicyModal('privacy')} className="hover:text-emerald-400 transition-colors">سیاسەتا تایبەتمەندیێ</button>
+                                            <span className="opacity-30">•</span>
+                                            <button type="button" onClick={() => setActivePolicyModal('terms')} className="hover:text-emerald-400 transition-colors">مەرجێن بکارهینانێ</button>
+                                            <span className="opacity-30">•</span>
+                                            <button type="button" onClick={() => setActivePolicyModal('deletion')} className="hover:text-emerald-400 transition-colors">ژێبرنا داتایان</button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="w-full">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { triggerHaptic(5); setShowEmailForm(false); setError(null); }} 
+                                            className="mb-4 flex items-center gap-2 text-mono-400 hover:text-mono-900 dark:hover:text-white transition-colors text-xs font-rabar font-bold w-full justify-start active:scale-95"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">arrow_forward</span> 
+                                            پاشڤەزڤرین
+                                        </button>
                                 <div className="flex p-0.5 bg-mono-100 dark:bg-black rounded-md border border-mono-200 dark:border-white/10 mb-4 relative z-10">
                                     <Motion.div
                                         className="absolute top-1 bottom-1 bg-[#0095f6] rounded-md"
@@ -663,12 +772,10 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                             className="mb-6 p-4 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold font-rabar text-center flex flex-col items-center gap-2"
                                         >
                                             <span className="material-symbols-outlined text-xl">check_circle</span>
-                                            <p>هەژمار ب سەرکەفتیانە هاتە تۆمارکرن</p>
+                                            <p>هژمار ب سەرکەفتیانە هاتە تۆمارکرن</p>
                                         </Motion.div>
                                     )}
                                 </AnimatePresence>
-
-
 
                                 <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
                                     {!isLogin && (
@@ -740,7 +847,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                 id="toggle-password"
                                                 name="toggle-password"
                                                 aria-label={showPassword ? "Hide password" : "Show password"}
-                                                className="flex items-center justify-center p-2 text-slate-900 hover:text-emerald-600 transition-colors"
+                                                className="flex items-center justify-center p-2 text-mono-400 dark:text-white/40 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
                                             >
                                                 <span className="material-symbols-outlined text-xl">
                                                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -756,7 +863,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                 setRecoveryStep(1);
                                                 setError(null);
                                             }}
-                                            className="w-full text-right text-[11px] font-black font-rabar text-emerald-400 hover:text-emerald-300 transition-colors pt-1 px-2"
+                                            className="w-full text-right text-[11px] font-black font-rabar text-[#0095f6] hover:text-[#1877f2] transition-colors pt-1 px-2"
                                         >
                                             تە پەیڤا نهێنی ژبیر کرییە؟
                                         </button>
@@ -793,6 +900,28 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         </div>
                                     )}
 
+                                    {!isLogin && (
+                                        <label className="flex items-start gap-3 mt-4 mb-3 cursor-pointer p-1" dir="rtl">
+                                            <div className="relative flex items-center justify-center mt-0.5">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={agreedToTerms}
+                                                    onChange={(e) => {
+                                                        setAgreedToTerms(e.target.checked);
+                                                        if (e.target.checked) setError(null);
+                                                    }}
+                                                    className="peer sr-only" 
+                                                />
+                                                <div className="w-5 h-5 rounded border-2 border-mono-300 dark:border-white/20 peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-all flex items-center justify-center group-hover:border-emerald-400">
+                                                    <span className="material-symbols-outlined text-white text-[14px] opacity-0 peer-checked:opacity-100 scale-50 peer-checked:scale-100 transition-all duration-200 font-bold">check</span>
+                                                </div>
+                                            </div>
+                                            <div className="text-[10px] sm:text-[9px] font-bold font-rabar text-mono-500 dark:text-white/50 leading-relaxed text-right pt-0.5">
+                                                ئەز یێ ڕازیمە ب <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('terms'); }} className="text-emerald-500 hover:text-emerald-400 hover:underline transition-colors">مەرجێن بکارهینانێ</button> و <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('privacy'); }} className="text-emerald-500 hover:text-emerald-400 hover:underline transition-colors">سیاسەتا تایبەتمەندیێ</button>
+                                            </div>
+                                        </label>
+                                    )}
+
                                     <AnimatePresence>
                                         {error && (
                                             <Motion.div
@@ -819,62 +948,8 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                     </button>
                                 </form>
 
-                                <div className="mt-4">
-                                    <div className="flex items-center gap-4 mb-3 text-mono-400 dark:text-white/30">
-                                        <div className="flex-1 h-px bg-current opacity-20"></div>
-                                        <span className="text-[10px] font-black font-rabar opacity-60">یان ب ڕێکا</span>
-                                        <div className="flex-1 h-px bg-current opacity-20"></div>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSocialLogin('google')}
-                                        disabled={loading}
-                                        className="w-full h-10 sm:h-9 rounded-md bg-white text-mono-900 border border-mono-200 flex items-center justify-center gap-3 hover:bg-gray-50 active:scale-95 transition-all shadow-sm font-bold font-rabar text-sm sm:text-xs"
-                                        title="Google"
-                                    >
-                                        <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                            <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
-                                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                                        </svg>
-                                        <span className="relative z-10 font-bold text-[15px]">گۆگڵ</span>
-                                    </button>
-
-                                    {/* DISCORD BUTTON */}
-                                    <button
-                                        type="button"
-                                        onClick={() => handleSocialLogin('discord')}
-                                        disabled={loading}
-                                        className="w-full mt-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md h-10 sm:h-9 font-bold font-rabar text-sm sm:text-xs transition-all flex items-center justify-center gap-3 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
-                                    >
-                                        <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
-                                        </svg>
-                                        <span className="relative z-10 font-bold text-[15px]">دیسکۆرد</span>
-                                    </button>
-                                </div>
-
-                                <div className="mt-4 flex flex-col items-center">
-                                    <button
-                                        type="button"
-                                        onClick={handleGuestLogin}
-                                        disabled={loading}
-                                        className="w-full h-9 sm:h-8 mb-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold font-rabar text-[11px] sm:text-xs transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <span>یاریکرن وەکو مێهڤان</span>
-                                        <span className="material-symbols-outlined text-[16px]">person_outline</span>
-                                    </button>
-
-                                    <div className="flex items-center justify-center gap-4 text-[9px] font-black font-rabar text-mono-400 dark:text-white/30 uppercase mt-1">
-                                        <button type="button" onClick={() => setActivePolicyModal('privacy')} className="hover:text-emerald-400 transition-colors">Privacy Policy</button>
-                                        <span className="opacity-20">•</span>
-                                        <button type="button" onClick={() => setActivePolicyModal('terms')} className="hover:text-emerald-400 transition-colors">Terms of Service</button>
-                                        <span className="opacity-20">•</span>
-                                        <button type="button" onClick={() => setActivePolicyModal('deletion')} className="hover:text-emerald-400 transition-colors">Data Deletion</button>
-                                    </div>
-                                </div>
+                                                                </div>
+                                )}
                             </>
                         )}
 
@@ -883,12 +958,12 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                             <div className="space-y-6">
                                 <div className="text-right space-y-2">
                                     <h2 className="text-2xl font-black font-heading text-white">
-                                        {isUnverifiedLogin ? "پشتڕاستکرنا هەژمارێ" : "کۆدێ پشتڕاستکرنێ بنڤێسە"}
+                                        {isUnverifiedLogin ? "پشتڕاستکرنا هژمارێ" : "کۆدێ پشتڕاستکرنێ بنڤێسە"}
                                     </h2>
                                     <p className="text-xs font-black font-rabar text-white/70 leading-relaxed">
                                         {isUnverifiedLogin
                                             ? "تە هێشتا ئیمێلێ خوە پشتڕاست نەکرییە. مە کۆدەکێ نوی بۆ تە فرێکر، ژ کەرەما خوە ل ڤێرە بنڤێسە."
-                                            : "مە کۆدەکێ ٦ ژمارەیی هنارت بۆ ئیمێلێ تە. ژ کەرەما خوە کۆدی ل ڤێرە بنڤێیسە دا کو هەژمارا تە چالاک ببیت."
+                                            : "مە کۆدەکێ ٦ ژمارەیی هنارت بۆ ئیمێلێ تە. ژ کەرەما خوە کۆدی ل ڤێرە بنڤێیسە دا کو هژمارا تە چالاک ببیت."
                                         }
                                     </p>
                                 </div>
@@ -1079,6 +1154,67 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                 </Motion.div>
             </div>
 
+            <AnimatePresence>
+                {showGuestWarning && (
+                    <Motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-1000 flex items-center justify-center p-4 sm:p-6"
+                    >
+                        {/* Backdrop */}
+                        <div 
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => {
+                                playBackSfx();
+                                setShowGuestWarning(false);
+                            }}
+                        />
+                        
+                        {/* Modal */}
+                        <Motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className="relative w-full max-w-[320px] bg-white dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-5"
+                            dir="rtl"
+                        >
+
+                            <h3 className="text-base font-black font-rabar text-mono-900 dark:text-white text-center mb-2">
+                                تێبینی بۆ مێهڤانان
+                            </h3>
+                            
+                            <p className="text-xs font-bold font-rabar text-mono-600 dark:text-white/80 text-center leading-relaxed">
+                                یاریکرن وەکو مێهڤان بۆ تاقیکرنا یاریێیە ب لەز. ئەگەر خوە تۆمار نەکەی، د ماوەیێ حەفتییەکێ دا داتایێن تە دێ ژێ چن.
+                            </p>
+                            
+                            <div className="flex items-center gap-2 mt-5">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        playBackSfx();
+                                        setShowGuestWarning(false);
+                                    }}
+                                    className="flex-1 h-9 bg-mono-100 hover:bg-mono-200 dark:bg-white/5 dark:hover:bg-white/10 text-mono-700 dark:text-white/70 rounded-md font-bold font-rabar text-[11px] transition-colors"
+                                >
+                                    ڤەگەڕە
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowGuestWarning(false);
+                                        handleGuestLogin();
+                                    }}
+                                    className="flex-1 h-9 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-500 rounded-md font-black font-rabar text-[11px] transition-colors"
+                                >
+                                    بەردەوام بە
+                                </button>
+                            </div>
+                        </Motion.div>
+                    </Motion.div>
+                )}
+            </AnimatePresence>
+
             <PolicyModal
                 isOpen={!!activePolicyModal}
                 onClose={() => setActivePolicyModal(null)}
@@ -1119,10 +1255,7 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
                     className="fixed inset-0 z-1000 flex flex-col bg-mono-white dark:bg-black overflow-y-auto"
                 >
                     {/* Custom Header for Policy Modals */}
-                    <div className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/5">
-                        <h3 className="text-xl font-black font-heading text-white uppercase">
-                            {type === 'terms' ? 'Terms of Service' : type === 'privacy' ? 'Privacy Policy' : 'Data Deletion'}
-                        </h3>
+                    <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/5">
                         <button
                             onClick={() => {
                                 playBackSfx();
@@ -1142,5 +1275,4 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
         </AnimatePresence>
     );
 }
-
 

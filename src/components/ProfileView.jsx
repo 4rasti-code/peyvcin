@@ -20,7 +20,7 @@ import Cropper from 'react-easy-crop';
 import { MEDALS } from '../constants/medals';
 import FriendsList from './FriendsList';
 
-export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount }) {
+export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount, initialFriendsModalOpen, onFriendsModalConsumed }) {
    const {
       user, userNickname, userAvatar, profileData
    } = useUser();
@@ -57,6 +57,13 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    const [croppedBlob, setCroppedBlob] = useState(null);
 
    const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false);
+
+   useEffect(() => {
+      if (initialFriendsModalOpen) {
+         setIsFriendsModalOpen(true);
+         if (onFriendsModalConsumed) onFriendsModalConsumed();
+      }
+   }, [initialFriendsModalOpen, onFriendsModalConsumed]);
 
    const handleBackgroundClick = (e) => {
       // Pulse on background void clicks

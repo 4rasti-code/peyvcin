@@ -230,7 +230,7 @@ export default function LinkEmailModal({ isOpen, onSuccess, onClose }) {
                                 بەستنەوەی ئیمێڵ
                             </h3>
                             <p className="text-[11px] font-bold text-mono-500 text-center leading-relaxed mt-1">
-                                ئیمێڵ و پاسۆردێکی نوێ دابنێ بۆ ئەوەی بێجگە لە گۆگڵ، بتوانیت بەم ئیمێڵەش بێیتە ناو هەژمارەکەت.
+                                ئیمێڵ و پاسۆردێکی نوێ دابنێ بۆ ئەوەی بێجگە لە گۆگڵ، بتوانیت بەم ئیمێڵەش بێیتە ناو هژمارەکەت.
                             </p>
                         </div>
                     </div>

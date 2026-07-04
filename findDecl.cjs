@@ -1,0 +1,10 @@
+﻿const fs = require('fs');
+let file = 'src/components/AuthView.jsx';
+let content = fs.readFileSync(file, 'utf8');
+console.log("File length:", content.length);
+let match = content.match(/export default function/);
+if (match) console.log("Found export default function");
+match = content.match(/export default AuthView/);
+if (match) console.log("Found export default AuthView");
+match = content.match(/function AuthView/);
+if (match) console.log("Found function AuthView");
