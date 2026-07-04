@@ -33,25 +33,32 @@ const DAY_THEMES = {
 };
 
 const RibbonLabel = ({ text }) => (
-  <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
+  <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center pointer-events-none drop-shadow-lg">
     
-    {/* Left Fishtail */}
-    <div 
-      className="absolute right-[calc(100%-6px)] top-[50%] -translate-y-1/2 w-[18px] h-[80%] bg-linear-to-b from-[#15803d] to-[#14532d] z-0"
-      style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 35% 50%)' }}
-    />
-    
-    {/* Right Fishtail */}
-    <div 
-      className="absolute left-[calc(100%-6px)] top-[50%] -translate-y-1/2 w-[18px] h-[80%] bg-linear-to-b from-[#15803d] to-[#14532d] z-0"
-      style={{ clipPath: 'polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%)' }}
-    />
-    
-    {/* Main Front Banner */}
-    <div className="relative z-10 bg-linear-to-b from-[#4ade80] via-[#22c55e] to-[#16a34a] text-white px-3 sm:px-4 py-[3px] text-[12px] sm:text-[14px] font-black whitespace-nowrap text-center shadow-[0_2px_0_#064e3b] min-w-[36px] rounded-[2px] border-t border-white/50">
-      <span style={{ textShadow: '1px 1px 0 #064e3b, -1px -1px 0 #064e3b, 1px -1px 0 #064e3b, -1px 1px 0 #064e3b, 0 1px 0 #064e3b' }}>
-        {text}
-      </span>
+    <div className="relative flex items-center justify-center">
+      {/* Left Tail */}
+      <div 
+        className="absolute right-[calc(100%-12px)] top-[50%] -translate-y-1/2 mt-[2px] w-[20px] h-[18px] bg-gradient-to-r from-[#064e3b] to-[#022c22] z-0"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 25% 50%)' }}
+      />
+      
+      {/* Right Tail */}
+      <div 
+        className="absolute left-[calc(100%-12px)] top-[50%] -translate-y-1/2 mt-[2px] w-[20px] h-[18px] bg-gradient-to-l from-[#064e3b] to-[#022c22] z-0"
+        style={{ clipPath: 'polygon(0 0, 100% 0, 75% 50%, 100% 100%, 0 100%)' }}
+      />
+      
+      {/* Main Pill Banner */}
+      <div className="relative z-10 bg-gradient-to-b from-[#34d399] via-[#10b981] to-[#047857] text-white px-3 sm:px-4 py-[2px] sm:py-[3px] text-[11px] sm:text-[13px] font-black whitespace-nowrap text-center min-w-[40px] sm:min-w-[48px] rounded-full border-[1.5px] border-[#a7f3d0] shadow-[0_2px_0_#022c22] overflow-hidden flex items-center justify-center">
+        
+        {/* Glossy Top Shine */}
+        <div className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-white/60 to-white/5 pointer-events-none" />
+        
+        {/* Text */}
+        <span className="relative z-10 tracking-wide" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.8), 0px 2px 4px rgba(0,0,0,0.5)' }}>
+          {text}
+        </span>
+      </div>
     </div>
   </div>
 );
