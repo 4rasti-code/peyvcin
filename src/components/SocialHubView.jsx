@@ -1356,33 +1356,66 @@ export default function SocialHubView({
           <div className="flex-1 flex flex-col overflow-hidden">
             {selectedChat ? (
               <div className="flex-1 flex flex-col overflow-hidden bg-mono-50 dark:bg-black">
-                <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center gap-3 z-10 shadow-sm transition-colors duration-300">
-                  <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
-                  <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
-                    {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
-                        <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
-                        <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+                <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between z-10 shadow-sm transition-colors duration-300">
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
+                      {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+                          <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+                          <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+                        </div>
+                      ) : (
+                        <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
+                      )}
+                      <div className="flex flex-col items-start">
+                        <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">
+                          {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
+                        </span>
+                        <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
+                          {onlineUsers?.has(selectedChat.id) ? 'سەرهێلە' : (() => {
+                            if (!selectedChat.updated_at) return 'دەرهێل';
+                            const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
+                            if (diff < 60) return 'دوماهیک دیتن چەند چرکەیەک ژبەری نۆکە';
+                            if (diff < 3600) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 60))} خولەک ژبەری نۆکە`;
+                            if (diff < 86400) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 3600))} دەمژمێر ژبەری نۆکە`;
+                            return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 86400))} ڕۆژ ژبەری نۆکە`;
+                          })()}
+                        </span>
                       </div>
-                    ) : (
-                      <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
-                    )}
-                    <div className="flex flex-col items-start">
-                      <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">
-                        {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
-                      </span>
-                      <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                        {onlineUsers?.has(selectedChat.id) ? 'سەرهێلە' : (() => {
-                          if (!selectedChat.updated_at) return 'دەرهێل';
-                          const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
-                          if (diff < 60) return 'دوماهیک دیتن چەند چرکەیەک ژبەری نۆکە';
-                          if (diff < 3600) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 60))} خولەک ژبەری نۆکە`;
-                          if (diff < 86400) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 3600))} دەمژمێر ژبەری نۆکە`;
-                          return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 86400))} ڕۆژ ژبەری نۆکە`;
-                        })()}
-                      </span>
                     </div>
                   </div>
+
+                  {/* Clear Chat Button */}
+                  {selectedChat.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                    <button 
+                      onClick={async () => {
+                        triggerHaptic(20);
+                        const confirmDelete = window.confirm("ئەرێ تو یێ پشتڕاستی تە دڤێت هەمی نامەیێن ناڤبەرا خۆ و ڤی کەسی ژێببەی؟ ئەڤە دێ نامەیان ل دەڤ هەردووکان ژێبەت!");
+                        if (!confirmDelete) return;
+                        try {
+                          const myId = user?.id;
+                          const partnerId = selectedChat.id;
+                          const { error } = await supabase
+                            .from('messages')
+                            .delete()
+                            .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`);
+                          if (error) throw error;
+                          
+                          setChatMessages([]);
+                          setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
+                          setSelectedChat(null);
+                        } catch (err) {
+                          console.error("Error clearing chat:", err);
+                          alert("شاشیەک ڕوویدا د ژێبرنا نامەیان دا.");
+                        }
+                      }}
+                      className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm shrink-0 ml-1"
+                      title="ژێبرنا نامەیان"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  )}
                 </div>
                 <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-mono-900 transition-colors duration-500">
                   <ChatWallpaperPattern />
