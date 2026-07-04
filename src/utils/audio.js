@@ -80,12 +80,24 @@ class SoundEngine {
       this.context = new (window.AudioContext || window.webkitAudioContext)();
       this.initialized = true;
       
-      // 1. Setup Streaming Music (HTML5 Audio) - Bypassing AudioContext for maximum stability
+      // 1. Setup Streaming Music (HTML5 Audio) - Routed through AudioContext for mobile volume control
       if (!this.musicAudioElement) {
         this.musicAudioElement = new Audio(MUSIC_PATH);
         this.musicAudioElement.loop = true;
         this.musicAudioElement.crossOrigin = "anonymous";
         this.musicAudioElement.volume = this.musicVolume;
+
+        // Mobile Volume Fix: Route through Web Audio API GainNode
+        try {
+          this.musicGain = this.context.createGain();
+          this.musicGain.gain.value = this.musicVolume;
+          this.musicGain.connect(this.context.destination);
+          
+          this.musicMediaSource = this.context.createMediaElementSource(this.musicAudioElement);
+          this.musicMediaSource.connect(this.musicGain);
+        } catch (err) {
+          console.warn("Failed to route music through GainNode (Mobile volume might fail):", err);
+        }
       }
 
       // 2. Pre-fetch ONLY CRITICAL SFX (Ultra Fast Initial Load)
@@ -190,9 +202,15 @@ class SoundEngine {
     // Apply a global multiplier to drastically reduce BGM volume
     const scaledVolume = volume * 0.15;
     this.musicVolume = scaledVolume;
+    
+    // Desktop Volume Control
     if (this.musicAudioElement) {
-      // Direct volume control is more stable and bypasses CPU-heavy AudioContext processing
       this.musicAudioElement.volume = scaledVolume;
+    }
+    
+    // Mobile Volume Control (Web Audio API)
+    if (this.musicGain && this.context) {
+      this.musicGain.gain.setTargetAtTime(scaledVolume, this.context.currentTime, 0.1);
     }
   }
 
