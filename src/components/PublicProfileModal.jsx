@@ -653,7 +653,7 @@ export default function PublicProfileModal({
       {/* Action Confirmation Modals Overlay */}
       <AnimatePresence>
         {(showReportConfirm || showBlockConfirm || showUnfriendConfirm) && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-110 flex items-center justify-center p-4">
             <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
