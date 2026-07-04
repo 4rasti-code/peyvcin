@@ -204,7 +204,7 @@ class SoundEngine {
    */
   setMusicVolume(volume) {
     // Apply a global multiplier to drastically reduce BGM volume
-    const scaledVolume = volume * 0.25;
+    const scaledVolume = volume * 0.35;
     this.musicVolume = scaledVolume;
     
     if (this.musicGain && this.context) {
