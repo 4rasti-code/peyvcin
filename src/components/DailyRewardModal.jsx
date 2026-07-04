@@ -220,7 +220,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {isDay7 ? (
                         <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
                            <div className="relative flex flex-col items-center justify-center">
-                             <SkipIcon size={46} />
+                             <SkipIcon size={64} />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({skipCount: 1})}
@@ -228,7 +228,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <DinarIcon size={52} />
+                             <DinarIcon size={70} />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({dinar: 1})}
@@ -236,7 +236,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <FilsIcon size={46} />
+                             <FilsIcon size={64} />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({fils: 200})}
@@ -246,26 +246,19 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         </div>
                       ) : (
                         <div className="flex-1 w-full flex items-center justify-center relative pt-2 pb-4">
-                          {isFuture && !isClaimed ? (
-                            <span className="material-symbols-outlined text-4xl! text-mono-300">lock</span>
-                          ) : isNext && !isClaimed ? (
-                            <span className="material-symbols-outlined text-6xl! text-[#0ea5e9] animate-pulse">redeem</span>
-                          ) : (
-                            <div className="scale-125 drop-shadow-md">
-                              {item.type === 'fils' ? <FilsIcon size={48} /> :
-                               item.type === 'derhem' ? <DerhemIcon size={48} /> :
-                               item.type === 'spinTicket' ? <SpinTicketIcon size={48} /> :
-                               item.type === 'mystery_box' ? <MysteryBoxIcon size={54} /> :
-                               item.icon === 'lightbulb' ? <HintIcon size={54} /> :
-                               item.icon === 'auto_fix_high' ? <MagnetIcon size={54} /> : null}
+                            <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
+                              {item.type === 'fils' ? <FilsIcon size={68} /> :
+                               item.type === 'derhem' ? <DerhemIcon size={68} /> :
+                               item.type === 'spinTicket' ? <SpinTicketIcon size={68} /> :
+                               item.type === 'mystery_box' ? <MysteryBoxIcon size={74} /> :
+                               item.icon === 'lightbulb' ? <HintIcon size={74} /> :
+                               item.icon === 'auto_fix_high' ? <MagnetIcon size={74} /> : null}
                             </div>
-                          )}
 
-                          {(!isFuture || isClaimed || isNext) && (!isNext || isClaimed) && (
-                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[13px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                              {getRibbonText(item.reward)}
-                            </div>
-                          )}
+                          {/* Always show the ribbon */}
+                          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[13px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                            {getRibbonText(item.reward)}
+                          </div>
                         </div>
                       )}
 
@@ -280,8 +273,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {/* Checkmark overlay */}
                       {isClaimed && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10">
-                           <div className="w-12 h-12 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-xl scale-110">
-                              <span className="material-symbols-outlined text-[32px] font-black">check</span>
+                           <div className="absolute bottom-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+                              <span className="material-symbols-outlined text-[20px] font-black">check</span>
                            </div>
                         </div>
                       )}
