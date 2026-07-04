@@ -1116,7 +1116,7 @@ export const MultiplayerProvider = ({ children }) => {
       try { stopSearchingSound(false); } catch(_e) { /* Ignore audio stop failures */ }
       setMultiplayerStateGuarded('idle');
     }
-  }, [user?.id, startSearchingSound, stopSearchingSound, safeClearMatchmakingTimeout, fetchOpponentProfile, setActiveMatchGuarded, setMultiplayerStateGuarded]);
+  }, [user?.id, startSearchingSound, stopSearchingSound, safeClearMatchmakingTimeout, fetchOpponentProfile, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded]);
 
 
 
