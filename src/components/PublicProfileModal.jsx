@@ -35,6 +35,8 @@ export default function PublicProfileModal({
   const [showReportConfirm, setShowReportConfirm] = useState(false);
   const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [customReason, setCustomReason] = useState("");
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
@@ -200,17 +202,27 @@ export default function PublicProfileModal({
     setClaiming(false);
   };
 
-  const handleReport = async (reasonText) => {
+  const handleReport = async () => {
     if (!currentUser || reporting) return;
+    
+    let finalReason = reportReason;
+    if (reportReason === 'دیتر') {
+      finalReason = customReason.trim();
+      if (!finalReason) return;
+    }
+    if (!finalReason) return;
+
     setReporting(true);
     triggerHaptic(20);
 
     const { error } = await supabase
       .from('reports')
-      .insert([{ reporter_id: currentUser.id, reported_id: profile.id, reason: reasonText }]);
+      .insert([{ reporter_id: currentUser.id, reported_id: profile.id, reason: finalReason }]);
 
     setReporting(false);
     setShowReportConfirm(false);
+    setReportReason("");
+    setCustomReason("");
 
     if (error) {
       console.error("Report Error:", error);
@@ -661,6 +673,8 @@ export default function PublicProfileModal({
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
               onClick={() => {
                 setShowReportConfirm(false);
+                setReportReason("");
+                setCustomReason("");
                 setShowBlockConfirm(false);
                 setShowUnfriendConfirm(false);
               }}
@@ -674,14 +688,35 @@ export default function PublicProfileModal({
             >
               {showReportConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-orange-200 mb-5 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
-                  <div className="grid grid-cols-2 gap-2.5 w-full mb-3">
-                    <button onClick={() => handleReport('ئاخفتنێن نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ئاخفتنێن نەجوان</button>
-                    <button onClick={() => handleReport('ناڤێ نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ناڤێ نەجوان</button>
-                    <button onClick={() => handleReport('فێلکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">فێلکرن</button>
-                    <button onClick={() => handleReport('بێزارکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">بێزارکرن</button>
+                  <h3 className="text-sm font-bold font-rabar text-orange-200 mb-4 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
+                  <div className="flex flex-col gap-1.5 w-full mb-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
+                    {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'دیتر'].map(reason => (
+                      <label key={reason} className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-orange-500/10 transition-colors">
+                        <input 
+                          type="radio" 
+                          name="reportReason" 
+                          value={reason} 
+                          checked={reportReason === reason} 
+                          onChange={(e) => { triggerHaptic(5); setReportReason(e.target.value); }} 
+                          className="w-4 h-4 accent-[#ff5a00] cursor-pointer"
+                        />
+                        <span className="text-orange-100 text-xs font-bold">{reason}</span>
+                      </label>
+                    ))}
+                    
+                    {reportReason === 'دیتر' && (
+                      <textarea
+                        value={customReason}
+                        onChange={(e) => setCustomReason(e.target.value)}
+                        placeholder="کێشەیێ ل ڤێرێ بنڤێسە..."
+                        className="w-full bg-black/50 border border-orange-500/30 rounded-md p-2.5 text-orange-100 text-[11px] font-bold mt-1 focus:outline-none focus:border-[#ff5a00] resize-none h-20 placeholder:text-orange-100/30"
+                      />
+                    )}
                   </div>
-                  <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); }} className="w-full mt-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمان بوون</button>
+                  <div className="flex gap-2.5 w-full">
+                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || !reportReason || (reportReason === 'دیتر' && !customReason.trim())} className="flex-1 text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ناردن</button>
+                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReason(""); setCustomReason(""); }} className="flex-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمان بوون</button>
+                  </div>
                 </>
               )}
               {showBlockConfirm && (
