@@ -29,7 +29,7 @@ const DAY_THEMES = {
   4: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
   5: { border: 'border-[#f472b6]', banner: 'bg-[#ec4899]' },
   6: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
-  7: { border: 'border-[#facc15] bg-[#fef08a] dark:bg-yellow-900/40', banner: 'bg-[#f59e0b]' },
+  7: { border: 'border-[#facc15] bg-[#fef08a]', banner: 'bg-[#f59e0b]' },
 };
 
 export default function DailyRewardModal({ isOpen, onClose, isDark }) {
@@ -210,35 +210,35 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       transition={isNext && !isClaimed ? { scale: { duration: 2, repeat: Infinity } } : { duration: 0.2 }}
                       className={`
                         relative flex flex-col transition-all overflow-hidden
-                        ${isDay7 ? 'col-span-3 h-28 rounded-[20px] border-[4px]' : 'aspect-square rounded-[24px] border-[4px]'}
-                        ${!isDay7 ? 'bg-white dark:bg-mono-900' : ''}
+                        ${isDay7 ? 'col-span-3 h-32 rounded-[20px] border-[5px]' : 'aspect-square rounded-[20px] border-[5px]'}
+                        ${!isDay7 ? 'bg-white' : ''}
                         ${DAY_THEMES[item.day].border}
-                        ${isClaimed ? 'opacity-50 scale-95' : (isNext ? 'ring-4 ring-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.8)] scale-[1.03] z-20 cursor-pointer' : 'opacity-90 hover:opacity-100')}
+                        ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-4 ring-white dark:ring-black outline outline-4 outline-[#facc15] shadow-[0_0_30px_rgba(250,204,21,1)] scale-[1.05] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
                       `}
                     >
                       {/* Upper Icon Section */}
                       {isDay7 ? (
-                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-2">
+                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
                            <div className="relative flex flex-col items-center justify-center">
-                             <SkipIcon size={40} />
+                             <SkipIcon size={46} />
                              {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({skipCount: 1})}
                                </div>
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <DinarIcon size={46} />
+                             <DinarIcon size={52} />
                              {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({dinar: 1})}
                                </div>
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <FilsIcon size={40} />
+                             <FilsIcon size={46} />
                              {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({fils: 200})}
                                </div>
                              )}
@@ -247,22 +247,22 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       ) : (
                         <div className="flex-1 w-full flex items-center justify-center relative pt-2 pb-4">
                           {isFuture && !isClaimed ? (
-                            <span className="material-symbols-outlined text-4xl! opacity-40">lock</span>
+                            <span className="material-symbols-outlined text-4xl! text-mono-300">lock</span>
                           ) : isNext && !isClaimed ? (
-                            <span className="material-symbols-outlined text-5xl! text-[#0ea5e9] animate-pulse">redeem</span>
+                            <span className="material-symbols-outlined text-6xl! text-[#0ea5e9] animate-pulse">redeem</span>
                           ) : (
-                            <div className="scale-110 drop-shadow-sm">
-                              {item.type === 'fils' ? <FilsIcon size={42} /> :
-                               item.type === 'derhem' ? <DerhemIcon size={42} /> :
-                               item.type === 'spinTicket' ? <SpinTicketIcon size={42} /> :
-                               item.type === 'mystery_box' ? <MysteryBoxIcon size={46} /> :
-                               item.icon === 'lightbulb' ? <HintIcon size={46} /> :
-                               item.icon === 'auto_fix_high' ? <MagnetIcon size={46} /> : null}
+                            <div className="scale-125 drop-shadow-md">
+                              {item.type === 'fils' ? <FilsIcon size={48} /> :
+                               item.type === 'derhem' ? <DerhemIcon size={48} /> :
+                               item.type === 'spinTicket' ? <SpinTicketIcon size={48} /> :
+                               item.type === 'mystery_box' ? <MysteryBoxIcon size={54} /> :
+                               item.icon === 'lightbulb' ? <HintIcon size={54} /> :
+                               item.icon === 'auto_fix_high' ? <MagnetIcon size={54} /> : null}
                             </div>
                           )}
 
                           {(!isFuture || isClaimed || isNext) && (!isNext || isClaimed) && (
-                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#22c55e] text-white rounded-sm text-[11px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[13px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                               {getRibbonText(item.reward)}
                             </div>
                           )}
@@ -270,8 +270,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       )}
 
                       {/* Lower Day Label Section */}
-                      <div className={`w-full h-8 flex items-center justify-center text-white font-black text-xs relative z-0 tracking-wide
-                        ${isDay7 ? 'h-9 text-sm' : ''}
+                      <div className={`w-full flex items-center justify-center text-white font-black relative z-0 tracking-wide drop-shadow-sm
+                        ${isDay7 ? 'h-10 text-[16px]' : 'h-10 text-[15px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
                         ڕۆژی {toKuDigits(item.day)}
@@ -279,9 +279,9 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
 
                       {/* Checkmark overlay */}
                       {isClaimed && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-                           <div className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black shadow-2xl border-2 border-white dark:border-black scale-110 rotate-12">
-                              <span className="material-symbols-outlined text-[24px] font-bold">check</span>
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10">
+                           <div className="w-12 h-12 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-xl scale-110">
+                              <span className="material-symbols-outlined text-[32px] font-black">check</span>
                            </div>
                         </div>
                       )}
