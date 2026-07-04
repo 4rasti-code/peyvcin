@@ -388,6 +388,44 @@ export default function PublicProfileModal({
           );
         })()}
 
+        {/* Daily Streak Badge */}
+        {!isBot && fullData && (
+          <div className="absolute top-16 left-3 z-10">
+            <Motion.div
+                key="streak-badge-public"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center relative w-12 h-12"
+            >
+                <Motion.div
+                    className="relative text-xl leading-none"
+                    animate={{
+                        filter: [
+                        "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))",
+                        "drop-shadow(0 0 20px rgba(255, 159, 28, 0.8))",
+                        "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))"
+                        ]
+                    }}
+                    transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                >
+                    {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
+                    <Motion.div
+                        className="absolute inset-x-0 bottom-0 top-1/4 bg-orange-500/30 rounded-full blur-lg z-[-1]"
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+                        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                    />
+                </Motion.div>
+                <div className="flex flex-col items-center z-10 w-full mt-0.5">
+                    <span className="text-[7px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
+                    <div className="flex items-baseline gap-0.5">
+                        <span className="text-sm font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(fullData.daily_streak || 0)}</span>
+                        <span className="text-[8px] font-bold text-mono-600 dark:text-mono-400">ڕۆژ</span>
+                    </div>
+                </div>
+            </Motion.div>
+          </div>
+        )}
+
         {/* Avatar Section (Centered) */}
         {(() => {
           const tier = getLevelTier(safeLevel);
