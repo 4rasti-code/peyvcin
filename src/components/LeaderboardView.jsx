@@ -268,11 +268,17 @@ export default function LeaderboardView({ onOpenChat }) {
            // Query 2: same XP but older (better) updated_at
            let countSame = 0;
            if (lastProfileUpdate) {
+             let formattedDate = lastProfileUpdate;
+             try {
+               formattedDate = new Date(lastProfileUpdate).toISOString();
+             } catch(e) {
+               console.warn("Invalid date format", lastProfileUpdate);
+             }
              const { count } = await supabase
                .from('profiles')
                .select('id', { count: 'exact', head: true })
                .eq('xp', userXP)
-               .lt('updated_at', lastProfileUpdate)
+               .lt('updated_at', formattedDate)
                .neq('nickname', 'Admin_4rasti');
              countSame = count || 0;
            }
