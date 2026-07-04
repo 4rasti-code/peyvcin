@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">peyvok</string>
+    <string name="title_activity_main">peyvok</string>
+    <string name="package_name">com.peyvokgame.app</string>
+    <string name="custom_url_scheme">com.peyvokgame.app</string>
+</resources>

@@ -21,7 +21,6 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
   const [timeLeftStr, setTimeLeftStr] = useState('');
   const [isSpinning, setIsSpinning] = useState(false);
   const spinRotationMotion = useMotionValue(0);
-  const [flickTrigger, setFlickTrigger] = useState(0);
   const [showReward, setShowReward] = useState(false);
   const [wonReward, setWonReward] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(true);
@@ -88,21 +87,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
     };
   }, [isOpen, user]);
 
-  useEffect(() => {
-    const numSegments = WHEEL_REWARDS.length;
-    const segmentAngle = 360 / numSegments;
-    const offset = segmentAngle / 2;
-    let lastSegment = Math.floor((spinRotationMotion.get() + offset) / segmentAngle);
-    
-    const unsubscribe = spinRotationMotion.on("change", (latest) => {
-      const currentSegment = Math.floor((latest + offset) / segmentAngle);
-      if (currentSegment !== lastSegment) {
-        lastSegment = currentSegment;
-        setFlickTrigger(prev => prev + 1);
-      }
-    });
-    return () => unsubscribe();
-  }, [spinRotationMotion]);
+
 
   const startCountdown = (initialDiffMs) => {
     const updateTimer = (diff) => {
@@ -196,7 +181,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
     
     animate(spinRotationMotion, targetRotation, {
       duration: 6.8,
-      ease: [0.1, 0.9, 0.2, 1], // Custom cubic-bezier to precisely match audio mechanical friction
+      ease: [0.2, 0.8, 0.2, 1], // Custom cubic-bezier to precisely match audio mechanical friction
     });
     
     setWonReward(reward);
@@ -332,11 +317,16 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             >
               
               {/* Static Outer Frame with Pointer */}
-              <LuckyWheelFrame flickTrigger={flickTrigger} rotation={spinRotationMotion} className="absolute inset-0 w-full h-full z-20 pointer-events-none drop-shadow-lg" />
+              <LuckyWheelFrame rotation={spinRotationMotion} className="absolute inset-0 w-full h-full z-20 pointer-events-none drop-shadow-lg" />
 
               {/* The Spinning Inner Wheel */}
               <Motion.div
-                style={{ rotate: spinRotationMotion }}
+                style={{ 
+                  rotate: spinRotationMotion,
+                  willChange: 'transform',
+                  WebkitTransform: 'translateZ(0)',
+                  transform: 'translateZ(0)'
+                }}
                 className="absolute inset-0 w-full h-full z-10 flex items-center justify-center"
               >
                 <LuckyWheelInner className="w-full h-full" />

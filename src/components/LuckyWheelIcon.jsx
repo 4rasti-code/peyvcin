@@ -61,7 +61,7 @@ export const LuckyWheelInner = ({ className, hideContent = false }) => {
                 <g key={`content-${i}`} transform={`rotate(${rotateAngle})`}>
                   {isSpecial ? (
                     <g transform={`translate(-6.5, -46)`}>
-                      <reward.Icon size={reward.size} asSvg={true} className="drop-shadow-md" />
+                      <reward.Icon size={reward.size} asSvg={true} />
                     </g>
                   ) : (
                     <g transform={`translate(-4.5, -42)`}><reward.Icon size={reward.size} /></g>
@@ -77,7 +77,7 @@ export const LuckyWheelInner = ({ className, hideContent = false }) => {
                     paintOrder="stroke fill" 
                     strokeLinejoin="round" 
                     textAnchor="middle" 
-                    style={{ textShadow: "0px 1px 1px rgba(0,0,0,0.8)" }}
+
                   >
                     {reward.label}
                   </text>
@@ -110,6 +110,28 @@ export const LuckyWheelFrame = ({ className, flickTrigger = 0, rotation }) => {
       });
     }
   }, [flickTrigger, pointerRotation]);
+
+  React.useEffect(() => {
+    if (!rotation) return;
+    const numSegments = WHEEL_REWARDS.length;
+    const segmentAngle = 360 / numSegments;
+    const offset = segmentAngle / 2;
+    let lastSegment = Math.floor((rotation.get() + offset) / segmentAngle);
+
+    const unsubscribe = rotation.on("change", (latest) => {
+      const currentSegment = Math.floor((latest + offset) / segmentAngle);
+      if (currentSegment !== lastSegment) {
+        lastSegment = currentSegment;
+        animate(pointerRotation, [-30, 0], {
+          type: "spring",
+          stiffness: 800,
+          damping: 10,
+          mass: 0.5
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [rotation, pointerRotation]);
 
   const pointerTransform = useTransform(pointerRotation, rot => `rotate(${rot} 50 -6)`);
 

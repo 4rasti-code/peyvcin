@@ -51,7 +51,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   useEffect(() => {
     if (!showCinematicOverlay || multiplayerState !== 'playing') return;
-    
+
     const tickAudio = new Audio('/Cartoon-timer-ticking-tick-tock-countdown.mp3');
     tickAudio.volume = 0.25;
     tickAudio.play().catch(e => console.warn("Failed to play tick audio:", e));
@@ -69,7 +69,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         return prev - 1;
       });
     }, 1000);
-    
+
     return () => {
       clearInterval(interval);
       tickAudio.pause();
@@ -198,12 +198,12 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   }
 
   return (
-    <div 
+    <div
       className={`flex flex-col flex-1 h-full w-full ${isDark ? 'bg-black' : 'bg-mono-white'} overflow-hidden transition-colors duration-500`}
       style={{ display: multiplayerState === 'match_starting' ? 'none' : 'flex' }}
     >
       {showCinematicOverlay && (
-        <div className="fixed inset-0 z-[9999] bg-[#020617] flex flex-col overflow-hidden text-white">
+        <div className="fixed inset-0 z-9999 bg-[#020617] flex flex-col overflow-hidden text-white">
           {/* Top Half: Opponent */}
           <div className="flex-1 bg-red-700 border-b-4 border-red-900 flex flex-col items-center justify-center relative shadow-[inset_0_-30px_60px_rgba(0,0,0,0.3)]">
             <div className="ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] rounded-full z-10">
