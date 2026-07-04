@@ -221,27 +221,21 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
                            <div className="relative flex flex-col items-center justify-center">
                              <SkipIcon className="w-[56px] h-[56px] drop-shadow-md" />
-                             {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                                 {getRibbonText({skipCount: 1})}
-                               </div>
-                             )}
+                             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                               {getRibbonText({skipCount: 1})}
+                             </div>
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
                              <DinarIcon className="w-[64px] h-[64px] drop-shadow-md" />
-                             {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                                 {getRibbonText({dinar: 1})}
-                               </div>
-                             )}
+                             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                               {getRibbonText({dinar: 1})}
+                             </div>
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
                              <FilsIcon className="w-[56px] h-[56px] drop-shadow-md" />
-                             {(!isFuture || isClaimed || isNext) && (
-                               <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                                 {getRibbonText({fils: 200})}
-                               </div>
-                             )}
+                             <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                               {getRibbonText({fils: 200})}
+                             </div>
                            </div>
                         </div>
                       ) : (
@@ -275,7 +269,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {/* Checkmark overlay */}
                       {isClaimed && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10">
-                           <div className="absolute bottom-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+                           <div className="absolute top-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
                               <span className="material-symbols-outlined text-[20px] font-black">check</span>
                            </div>
                         </div>
