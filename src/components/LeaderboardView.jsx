@@ -235,25 +235,61 @@ export default function LeaderboardView({ onOpenChat }) {
 
   // Compute absolute true rank for sticky bar
   useEffect(() => {
-    let isMounted = true;
-    const fetchTrueRank = async () => {
-      // 1. Try to find in current page first for instant update
+    // 1. Try to find in current page first for instant update
+    if (view === 'global') {
       const index = leaders.findIndex(l => l.id === userId);
       if (index !== -1) {
-         if (isMounted) setTrueRank(index + 1);
-         return;
+         setTrueRank(index + 1);
+         return; // We found it locally, no need for DB
       }
-      // 2. Fetch from DB
-      if (userXP !== undefined) {
-         const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', userXP).neq('nickname', 'Admin_4rasti');
-         if (isMounted && count !== null) setTrueRank(count + 1);
+    }
+  }, [leaders, userId, view]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTrueRank = async () => {
+      // If we already found them in the loaded global list, don't spam the DB
+      const localIndex = cacheRef.current['global']?.findIndex(l => l.id === userId);
+      if (localIndex !== undefined && localIndex !== -1) {
+        if (isMounted) setTrueRank(localIndex + 1);
+        return;
+      }
+
+      // 2. Fetch from DB as fallback
+      if (userXP !== undefined && view === 'global') {
+         try {
+           // Query 1: strictly greater XP
+           const { count: countGreater } = await supabase
+             .from('profiles')
+             .select('id', { count: 'exact', head: true })
+             .gt('xp', userXP)
+             .neq('nickname', 'Admin_4rasti');
+             
+           // Query 2: same XP but older (better) updated_at
+           let countSame = 0;
+           if (lastProfileUpdate) {
+             const { count } = await supabase
+               .from('profiles')
+               .select('id', { count: 'exact', head: true })
+               .eq('xp', userXP)
+               .lt('updated_at', lastProfileUpdate)
+               .neq('nickname', 'Admin_4rasti');
+             countSame = count || 0;
+           }
+
+           if (isMounted && countGreater !== null) {
+             setTrueRank(countGreater + countSame + 1);
+           }
+         } catch (e) {
+           console.warn("Error fetching true rank", e);
+         }
       }
     };
+    
     if (userId) fetchTrueRank();
     
     return () => { isMounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, userXP]);
+  }, [userId, userXP, lastProfileUpdate, view]);
 
 
   return (
