@@ -607,7 +607,7 @@ export default function PublicProfileModal({
 
         {/* Bottom Section (Conditional) */}
         {(() => {
-          const hasConfirm = showUnfriendConfirm || showBlockConfirm || showReportSuccess;
+          const hasConfirm = showReportSuccess;
           const showBottom = isBot || isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
           
           if (!showBottom) return null;
@@ -620,22 +620,6 @@ export default function PublicProfileModal({
                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full py-3 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-500 font-bold text-sm text-center flex items-center justify-center gap-2 shadow-sm">
                   <span className="material-symbols-outlined text-lg">check_circle</span>
                   سکاڵا بە سەرکەوتوویی نێردرا، سوپاس
-                </Motion.div>
-              ) : showBlockConfirm ? (
-                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-3 px-4 rounded-md">
-                  <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی ژ بلۆککرنا ڤی کەسی؟</span>
-                  <div className="flex gap-2 w-full">
-                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-red-600 hover:bg-red-500 py-2 rounded-md text-xs font-black">بەڵێ، بلۆک</button>
-                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold">نەخێر</button>
-                  </div>
-                </Motion.div>
-              ) : showUnfriendConfirm ? (
-                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-red-500/10 border border-red-500/20 py-3 px-4 rounded-md">
-                  <span className="text-xs font-bold text-red-600 dark:text-red-200">دڵنیایی ژ لابرنا ڤی ھەڤاڵی؟</span>
-                  <div className="flex gap-2 w-full">
-                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-red-600 hover:bg-red-500 py-2 rounded-md text-xs font-black transition-colors">بەڵێ</button>
-                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold transition-colors">نەخێر</button>
-                  </div>
                 </Motion.div>
               ) : effectiveIsBlocked ? (
                 <div className="w-full py-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm text-center flex items-center justify-center gap-2">
@@ -666,32 +650,58 @@ export default function PublicProfileModal({
         })()}
       </Motion.div>
 
-      {/* Report Modal Overlay */}
+      {/* Action Confirmation Modals Overlay */}
       <AnimatePresence>
-        {showReportConfirm && (
+        {(showReportConfirm || showBlockConfirm || showUnfriendConfirm) && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
-              onClick={() => setShowReportConfirm(false)}
+              onClick={() => {
+                setShowReportConfirm(false);
+                setShowBlockConfirm(false);
+                setShowUnfriendConfirm(false);
+              }}
             />
             <Motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-[300px] bg-[#1a0f0a] border border-orange-500/30 rounded-xl p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+              className={`relative w-full max-w-[300px] ${showReportConfirm ? 'bg-[#1a0f0a] border-orange-500/30' : 'bg-[#1a0a0a] border-red-500/30'} border rounded-xl p-5 flex flex-col items-center shadow-2xl overflow-hidden`}
               dir="rtl"
             >
-              <h3 className="text-sm font-bold font-rabar text-orange-200 mb-5 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
-              <div className="grid grid-cols-2 gap-2.5 w-full mb-3">
-                <button onClick={() => handleReport('ئاخفتنێن نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ئاخفتنێن نەجوان</button>
-                <button onClick={() => handleReport('ناڤێ نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ناڤێ نەجوان</button>
-                <button onClick={() => handleReport('فێلکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">فێلکرن</button>
-                <button onClick={() => handleReport('بێزارکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">بێزارکرن</button>
-              </div>
-              <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); }} className="w-full mt-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمان بوون</button>
+              {showReportConfirm && (
+                <>
+                  <h3 className="text-sm font-bold font-rabar text-orange-200 mb-5 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
+                  <div className="grid grid-cols-2 gap-2.5 w-full mb-3">
+                    <button onClick={() => handleReport('ئاخفتنێن نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ئاخفتنێن نەجوان</button>
+                    <button onClick={() => handleReport('ناڤێ نەجوان')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ناڤێ نەجوان</button>
+                    <button onClick={() => handleReport('فێلکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">فێلکرن</button>
+                    <button onClick={() => handleReport('بێزارکرن')} disabled={reporting} className="text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-3 rounded-md text-[12px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">بێزارکرن</button>
+                  </div>
+                  <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); }} className="w-full mt-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمان بوون</button>
+                </>
+              )}
+              {showBlockConfirm && (
+                <>
+                  <h3 className="text-sm font-bold font-rabar text-red-200 mb-5 drop-shadow-sm">دڵنیایی ژ بلۆککرنا ڤی کەسی؟</h3>
+                  <div className="flex gap-2.5 w-full">
+                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-[#e60000] hover:bg-[#ff1a1a] py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ، بلۆک</button>
+                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-red-100/70 bg-[#2d1111] hover:bg-[#3d1717] py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                  </div>
+                </>
+              )}
+              {showUnfriendConfirm && (
+                <>
+                  <h3 className="text-sm font-bold font-rabar text-red-200 mb-5 drop-shadow-sm">دڵنیایی ژ لابرنا ڤی ھەڤاڵی؟</h3>
+                  <div className="flex gap-2.5 w-full">
+                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-[#e60000] hover:bg-[#ff1a1a] py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ</button>
+                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-red-100/70 bg-[#2d1111] hover:bg-[#3d1717] py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                  </div>
+                </>
+              )}
             </Motion.div>
           </div>
         )}
