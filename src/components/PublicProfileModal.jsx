@@ -33,6 +33,7 @@ export default function PublicProfileModal({
 
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showReportConfirm, setShowReportConfirm] = useState(false);
+  const [showReportSuccess, setShowReportSuccess] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
   const [showCoinAnim, setShowCoinAnim] = useState(false);
@@ -215,7 +216,10 @@ export default function PublicProfileModal({
       console.error("Report Error:", error);
       alert("شاشیەک ڕوویدا: " + error.message);
     } else {
-      alert("سکاڵا بە سەرکەوتوویی نێردرا، سوپاس");
+      setShowReportSuccess(true);
+      setTimeout(() => {
+        setShowReportSuccess(false);
+      }, 4000);
     }
   };
 
@@ -603,7 +607,7 @@ export default function PublicProfileModal({
 
         {/* Bottom Section (Conditional) */}
         {(() => {
-          const hasConfirm = showUnfriendConfirm || showBlockConfirm || showReportConfirm;
+          const hasConfirm = showUnfriendConfirm || showBlockConfirm || showReportConfirm || showReportSuccess;
           const showBottom = isBot || isMe || effectiveIsBlocked || relStatus === 'friend' || relStatus === 'pending_received' || hasConfirm;
           
           if (!showBottom) return null;
@@ -612,6 +616,11 @@ export default function PublicProfileModal({
             <div className="w-full space-y-2 mt-auto flex flex-col pt-3 border-t border-mono-200 dark:border-white/5">
               {isMe ? (
                 <div className="w-full py-3 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold text-sm text-center shadow-sm">ئەڤە پڕۆفایلا تەیا تایبەتە</div>
+              ) : showReportSuccess ? (
+                <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full py-3 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-500 font-bold text-sm text-center flex items-center justify-center gap-2 shadow-sm">
+                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  سکاڵا بە سەرکەوتوویی نێردرا، سوپاس
+                </Motion.div>
               ) : showReportConfirm ? (
                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-orange-500/10 border border-orange-500/20 py-3 px-4 rounded-md">
                   <span className="text-xs font-bold text-orange-600 dark:text-orange-200">تو پشتڕاستی بۆ تۆمارکرنا سکاڵایێ ل سەر ڤی کەسی؟</span>
