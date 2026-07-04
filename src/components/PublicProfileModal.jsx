@@ -206,7 +206,7 @@ export default function PublicProfileModal({
     if (!currentUser || reporting) return;
     
     let finalReason = reportReason;
-    if (reportReason === 'دیتر') {
+    if (reportReason === 'یێن دیتر') {
       finalReason = customReason.trim();
       if (!finalReason) return;
     }
@@ -690,7 +690,7 @@ export default function PublicProfileModal({
                 <>
                   <h3 className="text-sm font-bold font-rabar text-orange-200 mb-4 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
                   <div className="flex flex-col gap-1.5 w-full mb-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
-                    {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'دیتر'].map(reason => (
+                    {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'یێن دیتر'].map(reason => (
                       <label key={reason} className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-orange-500/10 transition-colors">
                         <input 
                           type="radio" 
@@ -704,7 +704,7 @@ export default function PublicProfileModal({
                       </label>
                     ))}
                     
-                    {reportReason === 'دیتر' && (
+                    {reportReason === 'یێن دیتر' && (
                       <textarea
                         value={customReason}
                         onChange={(e) => setCustomReason(e.target.value)}
@@ -714,8 +714,8 @@ export default function PublicProfileModal({
                     )}
                   </div>
                   <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || !reportReason || (reportReason === 'دیتر' && !customReason.trim())} className="flex-1 text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">ناردن</button>
-                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReason(""); setCustomReason(""); }} className="flex-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمان بوون</button>
+                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || !reportReason || (reportReason === 'یێن دیتر' && !customReason.trim())} className="flex-1 text-white bg-[#ff5a00] hover:bg-[#ff7a2e] py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">هنارتن</button>
+                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReason(""); setCustomReason(""); }} className="flex-1 text-orange-100/70 bg-[#2d1b11] hover:bg-[#3d2517] py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمانبوون</button>
                   </div>
                 </>
               )}
