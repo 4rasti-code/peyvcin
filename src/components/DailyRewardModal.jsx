@@ -225,7 +225,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       transition={isNext && !isClaimed ? { scale: { duration: 2, repeat: Infinity } } : { duration: 0.2 }}
                       className={`
                         relative flex flex-col transition-all overflow-hidden
-                        ${isDay7 ? 'col-span-3 h-32 rounded-[20px] border-[5px]' : 'aspect-square rounded-[20px] border-[5px]'}
+                        ${isDay7 ? 'col-span-3 h-auto min-h-[110px] sm:h-32 rounded-[20px] border-[5px]' : 'aspect-[4/5] sm:aspect-square rounded-[20px] border-[5px]'}
                         ${!isDay7 ? 'bg-white' : ''}
                         ${DAY_THEMES[item.day].border}
                         ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-4 ring-white dark:ring-black outline outline-4 outline-[#facc15] shadow-[0_0_30px_rgba(250,204,21,1)] scale-[1.05] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
