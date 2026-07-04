@@ -21,20 +21,15 @@ const REWARDS_CONFIG = [
   { day: 7, label: '١ سکیپ + ١ دینار', type: 'grand', reward: { skipCount: 1, dinar: 1, fils: 200 }, color: '#FFD700', isGrand: true }
 ];
 
-// COLOR MAP FOR DAYS
-const DAY_COLORS = {
-  1: "bg-violet-500 text-white shadow-[0_4px_0_#6d28d9] border-none",
-  2: "bg-amber-500 text-white shadow-[0_4px_0_#b45309] border-none",
-  3: "bg-rose-500 text-white shadow-[0_4px_0_#be123c] border-none",
-  4: "bg-emerald-500 text-white shadow-[0_4px_0_#047857] border-none",
-  5: "bg-cyan-500 text-white shadow-[0_4px_0_#0e7490] border-none",
-  6: "bg-fuchsia-500 text-white shadow-[0_4px_0_#a21caf] border-none",
-  7: "bg-yellow-500 text-white shadow-[0_5px_0_#ca8a04] border-none",
-};
-
-const DAY_STYLES = {
-  available: "ring-2 ring-white dark:ring-black outline outline-4 outline-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.6)] z-20 cursor-pointer scale-105 brightness-110",
-  claimed: "opacity-60 translate-y-[4px] !shadow-none border-none",
+// COLOR MAP FOR DAYS MATCHING SCREENSHOT
+const DAY_THEMES = {
+  1: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
+  2: { border: 'border-[#f472b6]', banner: 'bg-[#ec4899]' },
+  3: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
+  4: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
+  5: { border: 'border-[#f472b6]', banner: 'bg-[#ec4899]' },
+  6: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
+  7: { border: 'border-[#facc15] bg-[#fef08a] dark:bg-yellow-900/40', banner: 'bg-[#f59e0b]' },
 };
 
 export default function DailyRewardModal({ isOpen, onClose, isDark }) {
@@ -202,90 +197,92 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   const isFuture = item.day > (claimedToday ? rewardStreak : activeDay);
                   const isDay7 = item.day === 7;
                   
+                  // Compute ribbon text
+                  const getRibbonText = (r) => {
+                    return `x${toKuDigits(r.fils || r.hintCount || r.spinTicketCount || r.derhem || r.magnetCount || r.mystery_boxes_count || r.skipCount || r.dinar || 1)}`;
+                  };
+
                   return (
                     <Motion.div
                       key={item.day}
                       onClick={isNext && !claiming ? handleClaim : undefined}
-                      // STOP ALL ANIMATION IF CLAIMED
                       animate={isNext && !isClaimed ? { scale: [1, 1.05, 1] } : { scale: 1 }}
                       transition={isNext && !isClaimed ? { scale: { duration: 2, repeat: Infinity } } : { duration: 0.2 }}
                       className={`
-                        relative p-3 rounded-md border flex flex-col items-center justify-center gap-1.5 transition-all
-                        ${isDay7 ? 'col-span-3 h-28 flex-row justify-between px-8 overflow-hidden' : 'aspect-square'}
-                        
-                        ${DAY_COLORS[item.day]}
-                        ${isClaimed ? DAY_STYLES.claimed : (isNext ? DAY_STYLES.available : 'opacity-90 hover:opacity-100')}
-                        ${isFuture && !isClaimed && !isNext ? 'opacity-70' : ''}
+                        relative flex flex-col transition-all overflow-hidden
+                        ${isDay7 ? 'col-span-3 h-28 rounded-[20px] border-[4px]' : 'aspect-square rounded-[24px] border-[4px]'}
+                        ${!isDay7 ? 'bg-white dark:bg-mono-900' : ''}
+                        ${DAY_THEMES[item.day].border}
+                        ${isClaimed ? 'opacity-50 scale-95' : (isNext ? 'ring-4 ring-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.8)] scale-[1.03] z-20 cursor-pointer' : 'opacity-90 hover:opacity-100')}
                       `}
                     >
-                      <div className={`flex flex-col ${isDay7 ? 'items-start' : 'items-center'}`}>
-                        <span className={`font-black text-[10px] uppercase tracking-normal ${isNext && !isClaimed ? '' : 'opacity-80'}`}>
-                          ڕۆژا {toKuDigits(item.day)}
-                        </span>
-                        {isDay7 && !isFuture && (
-                          <span className={`font-black text-2xl italic mt-1`}>
-                            {item.label}
-                          </span>
-                        )}
-                      </div>
+                      {/* Upper Icon Section */}
+                      {isDay7 ? (
+                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-2">
+                           <div className="relative flex flex-col items-center justify-center">
+                             <SkipIcon size={40} />
+                             {(!isFuture || isClaimed || isNext) && (
+                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                                 {getRibbonText({skipCount: 1})}
+                               </div>
+                             )}
+                           </div>
+                           <div className="relative flex flex-col items-center justify-center">
+                             <DinarIcon size={46} />
+                             {(!isFuture || isClaimed || isNext) && (
+                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                                 {getRibbonText({dinar: 1})}
+                               </div>
+                             )}
+                           </div>
+                           <div className="relative flex flex-col items-center justify-center">
+                             <FilsIcon size={40} />
+                             {(!isFuture || isClaimed || isNext) && (
+                               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 bg-[#22c55e] text-white rounded-sm text-[10px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                                 {getRibbonText({fils: 200})}
+                               </div>
+                             )}
+                           </div>
+                        </div>
+                      ) : (
+                        <div className="flex-1 w-full flex items-center justify-center relative pt-2 pb-4">
+                          {isFuture && !isClaimed ? (
+                            <span className="material-symbols-outlined text-4xl! opacity-40">lock</span>
+                          ) : isNext && !isClaimed ? (
+                            <span className="material-symbols-outlined text-5xl! text-[#0ea5e9] animate-pulse">redeem</span>
+                          ) : (
+                            <div className="scale-110 drop-shadow-sm">
+                              {item.type === 'fils' ? <FilsIcon size={42} /> :
+                               item.type === 'derhem' ? <DerhemIcon size={42} /> :
+                               item.type === 'spinTicket' ? <SpinTicketIcon size={42} /> :
+                               item.type === 'mystery_box' ? <MysteryBoxIcon size={46} /> :
+                               item.icon === 'lightbulb' ? <HintIcon size={46} /> :
+                               item.icon === 'auto_fix_high' ? <MagnetIcon size={46} /> : null}
+                            </div>
+                          )}
 
-                      <div className={`relative flex items-center justify-center ${isDay7 ? 'w-24' : 'flex-1'}`}>
-                        {/* ICON LOGIC */}
-                        {isFuture && !isClaimed ? (
-                          <div className="flex flex-col items-center justify-center opacity-40">
-                            <span className={`material-symbols-outlined ${isDay7 ? 'text-[70px]' : 'text-4xl'}!`}>
-                              lock
-                            </span>
-                          </div>
-                        ) : isDay7 ? (
-                          <DinarIcon size={isDay7 && isNext ? 85 : 70} />
-                        ) : isNext && !isClaimed ? (
-                          <span className="material-symbols-outlined text-4xl!">redeem</span>
-                        ) : (
-                          <>
-                            {item.type === 'fils' ? (
-                              <FilsIcon size={36} />
-                            ) : item.type === 'derhem' ? (
-                              <DerhemIcon size={36} />
-                            ) : item.type === 'spinTicket' ? (
-                              <SpinTicketIcon size={36} />
-                            ) : item.type === 'mystery_box' ? (
-                              <MysteryBoxIcon size={40} />
-                            ) : item.icon === 'lightbulb' ? (
-                              <HintIcon size={40} />
-                            ) : item.icon === 'auto_fix_high' ? (
-                              <MagnetIcon size={40} />
-                            ) : (
-                              <span className="material-symbols-outlined text-4xl!">
-                                {item.icon || 'redeem'}
-                              </span>
-                            )}
-                          </>
-                        )}
-
-                        {isClaimed && (
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                             <div className="w-8 h-8 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black shadow-lg border border-mono-200 dark:border-white/10 scale-110">
-                                <span className="material-symbols-outlined text-[18px] font-bold">check</span>
-                             </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {!isDay7 && (
-                        <div className="w-full text-center">
-                          <span className="font-black uppercase tracking-normal text-[11px] leading-tight block truncate">
-                            {isFuture ? '' : item.label}
-                          </span>
+                          {(!isFuture || isClaimed || isNext) && (!isNext || isClaimed) && (
+                            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#22c55e] text-white rounded-sm text-[11px] font-black shadow-[0_2px_0_#166534] whitespace-nowrap" dir="ltr">
+                              {getRibbonText(item.reward)}
+                            </div>
+                          )}
                         </div>
                       )}
 
-                      {isNext && (
-                        <div className="absolute -top-1 -left-1">
-                          <span className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-current"></span>
-                          </span>
+                      {/* Lower Day Label Section */}
+                      <div className={`w-full h-8 flex items-center justify-center text-white font-black text-xs relative z-0 tracking-wide
+                        ${isDay7 ? 'h-9 text-sm' : ''}
+                        ${DAY_THEMES[item.day].banner}
+                      `}>
+                        ڕۆژی {toKuDigits(item.day)}
+                      </div>
+
+                      {/* Checkmark overlay */}
+                      {isClaimed && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                           <div className="w-10 h-10 bg-black dark:bg-white rounded-full flex items-center justify-center text-white dark:text-black shadow-2xl border-2 border-white dark:border-black scale-110 rotate-12">
+                              <span className="material-symbols-outlined text-[24px] font-bold">check</span>
+                           </div>
                         </div>
                       )}
                     </Motion.div>
