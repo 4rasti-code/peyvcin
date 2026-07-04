@@ -6,18 +6,19 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
-import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, SpinTicketIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import ClipboardIcon from './ClipboardIcon';
+import MysteryBoxIcon from './MysteryBoxIcon';
 
 const REWARDS_CONFIG = [
-  { day: 1, label: '٢٠٠ فلس', type: 'fils', reward: { fils: 200 }, color: '#CD7F32' },
+  { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
   { day: 2, label: '١ ھاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
-  { day: 3, label: '٥ دەرھەم', type: 'derhem', reward: { derhem: 5 }, color: '#A0A0A0' },
-  { day: 4, label: '١ موگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#f43f5e' },
-  { day: 5, label: '١٥ دەرھەم', type: 'derhem', reward: { derhem: 15 }, color: '#A0A0A0' },
-  { day: 6, label: '١ دەربازبوون', icon: 'fast_forward', reward: { skipCount: 1 }, color: '#0ea5e9' },
-  { day: 7, label: '٢٠٠٠ فلس + ١ دینار', type: 'fils', reward: { fils: 2000, dinar: 1 }, color: '#FFD700', isGrand: true }
+  { day: 3, label: '١ پلێتا چەرخی', type: 'spinTicket', reward: { spinTicketCount: 1 }, color: '#10b981' },
+  { day: 4, label: '٣ دەرھەم', type: 'derhem', reward: { derhem: 3 }, color: '#A0A0A0' },
+  { day: 5, label: '١ موگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#f43f5e' },
+  { day: 6, label: '١ سندۆقا نەدیار', type: 'mystery_box', reward: { mystery_boxes_count: 1 }, color: '#8b5cf6' },
+  { day: 7, label: '١ سکیپ + ١ دینار', type: 'grand', reward: { skipCount: 1, dinar: 1, fils: 200 }, color: '#FFD700', isGrand: true }
 ];
 
 // COLOR MAP FOR DAYS
@@ -246,6 +247,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                               <FilsIcon size={36} />
                             ) : item.type === 'derhem' ? (
                               <DerhemIcon size={36} />
+                            ) : item.type === 'spinTicket' ? (
+                              <SpinTicketIcon size={36} />
+                            ) : item.type === 'mystery_box' ? (
+                              <MysteryBoxIcon size={40} />
                             ) : item.icon === 'lightbulb' ? (
                               <HintIcon size={40} />
                             ) : item.icon === 'auto_fix_high' ? (
