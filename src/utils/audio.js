@@ -57,7 +57,7 @@ class SoundEngine {
     this.loadingBuffers = {}; // Track in-progress loads to avoid duplicates
     this.initialized = false;
     this.masterVolume = 0.20; // 20% Default as requested
-    this.musicVolume = 0.015; // Decreased by 50% as requested
+    this.musicVolume = 0.005; // Decreased further to be very quiet
     
     // Music management (Streaming)
     this.musicAudioElement = null;
