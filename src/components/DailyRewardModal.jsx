@@ -218,40 +218,40 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     >
                       {/* Upper Icon Section */}
                       {isDay7 ? (
-                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
+                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-2 sm:px-4 pt-1 pb-2 sm:pb-3">
                            <div className="relative flex flex-col items-center justify-center">
-                             <SkipIcon className="w-[52px] h-[52px] drop-shadow-md" />
-                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                             <SkipIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
+                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                {getRibbonText({skipCount: 1})}
                              </div>
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <DinarIcon className="w-[56px] h-[56px] drop-shadow-md" />
-                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                             <DinarIcon className="w-11 h-11 sm:w-[56px] sm:h-[56px] drop-shadow-md" />
+                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                {getRibbonText({dinar: 1})}
                              </div>
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <FilsIcon className="w-[52px] h-[52px] drop-shadow-md" />
-                             <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                             <FilsIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
+                             <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                {getRibbonText({fils: 200})}
                              </div>
                            </div>
                         </div>
                       ) : (
-                        <div className="flex-1 w-full flex items-center justify-center relative pt-1 pb-3">
+                        <div className="flex-1 w-full flex items-center justify-center relative pt-1 pb-2 sm:pb-3">
                             <div className="relative flex flex-col items-center justify-center">
                                 <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
-                                  {item.type === 'fils' ? <FilsIcon className="w-[60px] h-[60px]" /> :
-                                   item.type === 'derhem' ? <DerhemIcon className="w-[60px] h-[60px]" /> :
-                                   item.type === 'spinTicket' ? <SpinTicketIcon className="w-[60px] h-[60px]" /> :
-                                   item.type === 'mystery_box' ? <MysteryBoxIcon className="w-[64px] h-[64px]" /> :
-                                   item.icon === 'lightbulb' ? <HintIcon className="w-[64px] h-[64px]" /> :
-                                   item.icon === 'auto_fix_high' ? <MagnetIcon className="w-[64px] h-[64px]" /> : null}
+                                  {item.type === 'fils' ? <FilsIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
+                                   item.type === 'derhem' ? <DerhemIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
+                                   item.type === 'spinTicket' ? <SpinTicketIcon className="w-12 h-12 sm:w-[60px] sm:h-[60px]" /> :
+                                   item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> :
+                                   item.icon === 'lightbulb' ? <HintIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> :
+                                   item.icon === 'auto_fix_high' ? <MagnetIcon className="w-14 h-14 sm:w-[64px] sm:h-[64px]" /> : null}
                                 </div>
 
                                 {/* Always show the ribbon positioned right underneath the icon */}
-                                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                                <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 px-2 sm:px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[10px] sm:text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                   {getRibbonText(item.reward)}
                                 </div>
                             </div>
@@ -260,7 +260,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
 
                       {/* Lower Day Label Section */}
                       <div className={`w-full flex items-center justify-center text-white font-black relative z-0 tracking-wide drop-shadow-sm shrink-0
-                        ${isDay7 ? 'h-10 text-[16px]' : 'h-10 text-[14px]'}
+                        ${isDay7 ? 'h-8 sm:h-10 text-[14px] sm:text-[16px]' : 'h-7 sm:h-10 text-[12px] sm:text-[14px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
                         ڕۆژی {toKuDigits(item.day)}
