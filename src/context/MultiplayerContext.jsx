@@ -992,6 +992,9 @@ export const MultiplayerProvider = ({ children }) => {
     setMultiplayerStateGuarded('searching');
     setMatchmakingTime(0);
     setOpponent(null);
+    setOpponentGuarded(null);
+    setActiveMatchGuarded(null);
+    setMatchId(null);
     setOpponentGuesses([]);
     setMatchReward(null);
 
@@ -1108,6 +1111,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     } catch (error) {
       console.error('[Multiplayer] Matchmaking Failed:', error);
+      setErrorAlert("هەڵەیەک ڕوویدا: " + (error.message || "نەتوانرا یاری دروست بکرێت"));
       safeClearMatchmakingTimeout();
       try { stopSearchingSound(false); } catch(_e) { /* Ignore audio stop failures */ }
       setMultiplayerStateGuarded('idle');
