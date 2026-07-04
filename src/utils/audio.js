@@ -95,6 +95,10 @@ class SoundEngine {
           
           this.musicMediaSource = this.context.createMediaElementSource(this.musicAudioElement);
           this.musicMediaSource.connect(this.musicGain);
+          
+          // CRITICAL: Reset HTML5 volume to 1.0 because the GainNode handles the volume now!
+          // If we don't do this, desktop will scale the volume twice (Audio element * GainNode).
+          this.musicAudioElement.volume = 1.0;
         } catch (err) {
           console.warn("Failed to route music through GainNode (Mobile volume might fail):", err);
         }
@@ -203,14 +207,12 @@ class SoundEngine {
     const scaledVolume = volume * 0.25;
     this.musicVolume = scaledVolume;
     
-    // Desktop Volume Control
-    if (this.musicAudioElement) {
-      this.musicAudioElement.volume = scaledVolume;
-    }
-    
-    // Mobile Volume Control (Web Audio API)
     if (this.musicGain && this.context) {
+      // If GainNode is active, it handles the volume for ALL platforms equally.
       this.musicGain.gain.setTargetAtTime(scaledVolume, this.context.currentTime, 0.1);
+    } else if (this.musicAudioElement) {
+      // Fallback only if Web Audio API routing failed
+      this.musicAudioElement.volume = scaledVolume;
     }
   }
 
