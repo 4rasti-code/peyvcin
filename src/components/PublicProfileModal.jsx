@@ -614,7 +614,7 @@ export default function PublicProfileModal({
                 <div className="w-full py-3 rounded-md bg-primary/10 border border-primary/20 text-primary font-bold text-sm text-center shadow-sm">ئەڤە پڕۆفایلا تەیا تایبەتە</div>
               ) : showReportConfirm ? (
                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center gap-3 bg-orange-500/10 border border-orange-500/20 py-3 px-4 rounded-md">
-                  <span className="text-xs font-bold text-orange-600 dark:text-orange-200">دڵنیایی ژ سکاڵا ل سەر ڤی کەسی؟</span>
+                  <span className="text-xs font-bold text-orange-600 dark:text-orange-200">تو پشتڕاستی بۆ تۆمارکرنا سکاڵایێ ل سەر ڤی کەسی؟</span>
                   <div className="flex gap-2 w-full">
                     <button onClick={handleReport} disabled={reporting} className="flex-1 text-white bg-orange-600 hover:bg-orange-500 py-2 rounded-md text-xs font-black disabled:opacity-50">بەڵێ، سکاڵا</button>
                     <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); }} className="flex-1 text-mono-600 dark:text-slate-300 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 py-2 rounded-md text-xs font-bold">نەخێر</button>
