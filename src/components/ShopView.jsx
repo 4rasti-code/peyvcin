@@ -67,7 +67,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
             triggerHaptic([50, 30, 50]);
           }
         }}
-        className={`group flex-shrink-0 w-[95px] flex items-center justify-center gap-2 px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
+        className={`group shrink-0 w-[95px] flex items-center justify-center gap-2 px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
       >
         <div className="flex flex-col items-center leading-none relative z-10">
           <span className="text-[17px] font-black text-white drop-shadow-sm">{toKuDigits(item.price || 0)}</span>
