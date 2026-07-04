@@ -220,7 +220,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {isDay7 ? (
                         <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
                            <div className="relative flex flex-col items-center justify-center">
-                             <SkipIcon size={64} />
+                             <SkipIcon className="w-[56px] h-[56px] drop-shadow-md" />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({skipCount: 1})}
@@ -228,7 +228,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <DinarIcon size={70} />
+                             <DinarIcon className="w-[64px] h-[64px] drop-shadow-md" />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({dinar: 1})}
@@ -236,7 +236,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                              )}
                            </div>
                            <div className="relative flex flex-col items-center justify-center">
-                             <FilsIcon size={64} />
+                             <FilsIcon className="w-[56px] h-[56px] drop-shadow-md" />
                              {(!isFuture || isClaimed || isNext) && (
                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-3 py-0.5 bg-[#16a34a] text-white rounded-sm text-[12px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
                                  {getRibbonText({fils: 200})}
@@ -246,19 +246,21 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         </div>
                       ) : (
                         <div className="flex-1 w-full flex items-center justify-center relative pt-2 pb-4">
-                            <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
-                              {item.type === 'fils' ? <FilsIcon size={68} /> :
-                               item.type === 'derhem' ? <DerhemIcon size={68} /> :
-                               item.type === 'spinTicket' ? <SpinTicketIcon size={68} /> :
-                               item.type === 'mystery_box' ? <MysteryBoxIcon size={74} /> :
-                               item.icon === 'lightbulb' ? <HintIcon size={74} /> :
-                               item.icon === 'auto_fix_high' ? <MagnetIcon size={74} /> : null}
-                            </div>
+                            <div className="relative flex flex-col items-center justify-center">
+                                <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
+                                  {item.type === 'fils' ? <FilsIcon className="w-[72px] h-[72px]" /> :
+                                   item.type === 'derhem' ? <DerhemIcon className="w-[72px] h-[72px]" /> :
+                                   item.type === 'spinTicket' ? <SpinTicketIcon className="w-[72px] h-[72px]" /> :
+                                   item.type === 'mystery_box' ? <MysteryBoxIcon className="w-[72px] h-[72px]" /> :
+                                   item.icon === 'lightbulb' ? <HintIcon className="w-[72px] h-[72px]" /> :
+                                   item.icon === 'auto_fix_high' ? <MagnetIcon className="w-[72px] h-[72px]" /> : null}
+                                </div>
 
-                          {/* Always show the ribbon */}
-                          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[13px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
-                            {getRibbonText(item.reward)}
-                          </div>
+                                {/* Always show the ribbon positioned right underneath the icon */}
+                                <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-0.5 bg-[#16a34a] text-white rounded-sm text-[13px] font-black shadow-[0_2px_0_#064e3b] whitespace-nowrap" dir="ltr">
+                                  {getRibbonText(item.reward)}
+                                </div>
+                            </div>
                         </div>
                       )}
 
