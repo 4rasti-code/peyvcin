@@ -33,16 +33,25 @@ const DAY_THEMES = {
 };
 
 const RibbonLabel = ({ text }) => (
-  <div 
-    className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10"
-    style={{ filter: 'drop-shadow(0px 2px 0px #064e3b)' }}
-  >
+  <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center">
+    
+    {/* Left Fishtail */}
     <div 
-      className="bg-[#16a34a] text-white px-3 sm:px-4 py-[2px] text-[11px] sm:text-[13px] font-black whitespace-nowrap text-center"
-      style={{ clipPath: 'polygon(0 0, 100% 0, calc(100% - 6px) 50%, 100% 100%, 0 100%, 6px 50%)', minWidth: '44px' }}
-      dir="ltr"
-    >
-      {text}
+      className="absolute right-[calc(100%-6px)] top-[50%] -translate-y-1/2 w-[18px] h-[80%] bg-linear-to-b from-[#15803d] to-[#14532d] z-0"
+      style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 35% 50%)' }}
+    />
+    
+    {/* Right Fishtail */}
+    <div 
+      className="absolute left-[calc(100%-6px)] top-[50%] -translate-y-1/2 w-[18px] h-[80%] bg-linear-to-b from-[#15803d] to-[#14532d] z-0"
+      style={{ clipPath: 'polygon(0 0, 100% 0, 65% 50%, 100% 100%, 0 100%)' }}
+    />
+    
+    {/* Main Front Banner */}
+    <div className="relative z-10 bg-linear-to-b from-[#4ade80] via-[#22c55e] to-[#16a34a] text-white px-3 sm:px-4 py-[3px] text-[12px] sm:text-[14px] font-black whitespace-nowrap text-center shadow-[0_2px_0_#064e3b] min-w-[36px] rounded-[2px] border-t border-white/50">
+      <span style={{ textShadow: '1px 1px 0 #064e3b, -1px -1px 0 #064e3b, 1px -1px 0 #064e3b, -1px 1px 0 #064e3b, 0 1px 0 #064e3b' }}>
+        {text}
+      </span>
     </div>
   </div>
 );
