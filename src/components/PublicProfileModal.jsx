@@ -631,7 +631,7 @@ export default function PublicProfileModal({
               ) : showReportSuccess ? (
                 <Motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-full py-3 rounded-md bg-orange-500/10 border border-orange-500/20 text-orange-500 font-bold text-sm text-center flex items-center justify-center gap-2 shadow-sm">
                   <span className="material-symbols-outlined text-lg">check_circle</span>
-                  سکاڵا بە سەرکەوتوویی نێردرا، سوپاس
+                  سکاڵا ب سەرکەڤتی هاتە هنارتن، سوپاس
                 </Motion.div>
               ) : effectiveIsBlocked ? (
                 <div className="w-full py-3 rounded-md bg-red-500/10 border border-red-500/20 text-red-500 font-bold text-sm text-center flex items-center justify-center gap-2">
