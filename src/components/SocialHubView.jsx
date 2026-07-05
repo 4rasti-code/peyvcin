@@ -9,6 +9,7 @@ import PublicProfileModal from './PublicProfileModal';
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
 import ClashingSwords from './ClashingSwords';
+import { getLevelTier, getLevelData } from '../utils/progression';
 
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
@@ -129,8 +130,8 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
           position: 'fixed',
           top: Math.max(10, Math.min(y - 20, window.innerHeight - 220)),
           ...(isMe
-            ? { right: Math.max(10, window.innerWidth - x - 40) }
-            : { left: Math.max(10, x - 40) }
+            ? { right: Math.min(window.innerWidth - 230, Math.max(10, window.innerWidth - x - 40)) }
+            : { left: Math.min(window.innerWidth - 230, Math.max(10, x - 40)) }
           ),
           transformOrigin: isMe ? 'top right' : 'top left'
         }}
@@ -204,7 +205,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
 }
 
 
-const BattleResultRenderer = ({ text }) => {
+const BattleResultRenderer = ({ text, onProfileClick }) => {
   let data = null;
   let hasError = false;
   try {
@@ -218,54 +219,104 @@ const BattleResultRenderer = ({ text }) => {
     return <div className="text-[10px] text-red-500 italic p-2 bg-red-500/10 rounded">هەڵە د خاندنا ئەنجامان دا</div>;
   }
 
-  return (
-    <div className={`flex flex-col items-center gap-2 mt-3 mb-1 cursor-default w-full min-w-[180px] max-w-[220px] rounded-md p-3 bg-linear-to-r from-[#ff6b00] to-[#e65c00] shadow-[0_4px_0_#cc5200] border-none relative overflow-hidden`} onClick={e => e.stopPropagation()}>
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none" />
-      <div className="text-[11px] font-black text-center text-white mb-1 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ ⚔️</div>
+  let myTier = { stop1: 'rgba(255,255,255,0.2)', stop2: 'rgba(255,255,255,0.2)' };
+  let oppTier = { stop1: 'rgba(255,255,255,0.2)', stop2: 'rgba(255,255,255,0.2)' };
+  try {
+    const myLevel = data.myLevel || 1;
+    myTier = getLevelTier(myLevel);
+    const oppLevel = data.oppLevel || 1;
+    oppTier = getLevelTier(oppLevel);
+  } catch(_e) {
+    // Ignore invalid level data safely
+  }
 
-      <div className="flex items-center justify-between w-full gap-2 relative z-10">
+  return (
+    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-[280px] xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 bg-linear-to-br from-[#ff7a1f] via-[#e65c00] to-[#b34700] shadow-[0_3px_0_#8c3800,0_5px_15px_rgba(230,92,0,0.3)] border border-[#ff8c42]/30 relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
+      {/* Radial Light */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.3),transparent_70%)] pointer-events-none z-0" />
+      
+      {/* Premium Crossed Swords Pattern */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay z-0" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="swords-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+            <g stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
+              {/* Sword 1: Top-Left to Bottom-Right */}
+              <line x1="14" y1="14" x2="28" y2="28" />
+              <line x1="12" y1="16" x2="16" y2="12" />
+              <line x1="10" y1="10" x2="14" y2="14" />
+              
+              {/* Sword 2: Top-Right to Bottom-Left */}
+              <line x1="26" y1="14" x2="12" y2="28" />
+              <line x1="24" y1="12" x2="28" y2="16" />
+              <line x1="30" y1="10" x2="26" y2="14" />
+            </g>
+            {/* Center Diamond */}
+            <rect x="19" y="27" width="2" height="2" fill="#ffffff" transform="rotate(45, 20, 28)" />
+          </pattern>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#swords-pattern)" />
+      </svg>
+
+      {/* Edge Highlights */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/50 to-transparent z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-black/40 to-transparent z-10" />
+      <div className="text-[10px] font-black text-center text-white mb-0.5 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ ⚔️</div>
+
+      <div className="flex items-center justify-between w-full gap-2 relative z-10 my-1">
         {/* P1 */}
-        <div className="flex flex-col items-center gap-1 flex-1 min-w-0 pt-1 relative z-10">
-          <div className={`p-[2px] rounded-full ${data.result === 'victory' ? 'ring-2 ring-white ring-offset-1 ring-offset-[#e65c00]' : ''}`}>
+        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
+          <div 
+            className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.myId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            style={{ background: `linear-gradient(135deg, ${myTier.stop1}, ${myTier.stop2})` }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (data.myId) {
+                onProfileClick?.({ id: data.myId, nickname: data.myName, avatar_url: data.myAvatar, xp: data.myXP });
+              }
+            }}
+          >
             {data.myAvatar && data.myAvatar !== 'default' ? (
-              <img src={data.myAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-white/20" />
+              <img src={data.myAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover bg-white border border-black/10" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm border border-white/20">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-black text-[#e65c00] uppercase border border-black/10">
                 {(data.myName || 'ی')[0]}
               </div>
             )}
           </div>
-          <span className="text-[9px] font-black uppercase truncate w-full text-center text-white drop-shadow-sm">{data.myName}</span>
-          <span className="text-xl font-black text-white drop-shadow-md leading-none">{toKuDigits(data.myScore)}</span>
+          <span className="text-[10px] font-black uppercase whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.myName}</span>
+          <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.myScore)}</span>
         </div>
 
         {/* VS text */}
-        <div className="flex flex-col items-center justify-center z-10 opacity-90 scale-75">
-          <ClashingSwords className="w-10 h-10 drop-shadow-md text-white/90" />
+        <div className="flex flex-col items-center justify-center z-10 opacity-90 mx-1">
+          <ClashingSwords className="w-9 h-9 drop-shadow-lg text-white/90" />
         </div>
 
         {/* P2 */}
-        <div className="flex flex-col items-center gap-1 flex-1 min-w-0 pt-1 relative z-10">
-          <div className={`p-[2px] rounded-full ${data.result === 'defeat' ? 'ring-2 ring-white ring-offset-1 ring-offset-[#e65c00]' : ''}`}>
+        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
+          <div 
+            className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.oppId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            style={{ background: `linear-gradient(135deg, ${oppTier.stop1}, ${oppTier.stop2})` }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (data.oppId) {
+                onProfileClick?.({ id: data.oppId, nickname: data.oppName, avatar_url: data.oppAvatar, xp: data.oppXP });
+              }
+            }}
+          >
             {data.oppAvatar && data.oppAvatar !== 'default' ? (
-              <img src={data.oppAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover shadow-sm border border-white/20" />
+              <img src={data.oppAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover bg-white border border-black/10" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-xs font-black text-white uppercase shadow-sm border border-white/20">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-black text-[#e65c00] uppercase border border-black/10">
                 {(data.oppName || 'ی')[0]}
               </div>
             )}
           </div>
-          <span className="text-[9px] font-black uppercase truncate w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
-          <span className="text-xl font-black text-white drop-shadow-md leading-none">{toKuDigits(data.oppScore)}</span>
+          <span className="text-[10px] font-black uppercase whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
+          <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.oppScore)}</span>
         </div>
       </div>
 
-      <div className={`text-[10px] font-black px-2.5 py-1 rounded-md mt-1 w-full text-center backdrop-blur-sm ${data.result === 'victory' ? 'bg-white/20 text-white' :
-          data.result === 'defeat' ? 'bg-black/20 text-white/90' :
-            'bg-white/10 text-white/80'
-          }`}>
-        {data.result === 'victory' ? 'سەرکەفتی 🏆' : data.result === 'defeat' ? 'سەرنەکەفتی 💔' : 'یەکسانبوون 🤝'}
-      </div>
     </div>
   );
 };
@@ -321,7 +372,7 @@ const GameResultRenderer = ({ text, isMe }) => {
   );
 };
 
-function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {} }) {
+function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -364,22 +415,66 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
       className={`flex flex-col ${isMe ? 'items-start' : 'items-end'} group max-w-full mb-4`}
     >
       {showNickname && (
-        <div className="flex items-center gap-1.5 mb-1 px-1">
-          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-            <div className="w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
-              <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
-              <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
-            </div>
-          ) : m.user_avatar && m.user_avatar !== 'default' ? (
-            <Avatar src={m.user_avatar} size="xs" border={false} className="w-[18px]! h-[18px]! text-[10px]! shadow-sm" />
-          ) : (
-            <div className="w-[18px] h-[18px] rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-[9px] font-black text-primary uppercase shrink-0 shadow-sm border border-primary/20">
-              {(m.user_nickname || 'ی')[0]}
-            </div>
-          )}
-          <span className={`text-[9px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : 'text-mono-500'}`}>
-            {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'یاریکەر')}
-          </span>
+        <div className={`flex items-center gap-1.5 mb-1 px-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+          {(() => {
+            const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
+            const userLvl = getLevelData(userXp).level;
+            const msgTier = getLevelTier(userLvl);
+            
+            const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+                <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+                <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+              </div>
+            ) : (
+              <div 
+                className="p-[2px] rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
+                style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: m.user_avatar, xp: userXp });
+                }}
+              >
+                {m.user_avatar && m.user_avatar !== 'default' ? (
+                  <div className="w-[24px] h-[24px] rounded-full overflow-hidden border border-black/10 bg-white">
+                    <img src={m.user_avatar} alt="Avatar" className="w-full h-full object-cover block" />
+                  </div>
+                ) : (
+                  <div className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
+                    {(m.user_nickname || 'ی')[0]}
+                  </div>
+                )}
+              </div>
+            );
+
+            return (
+              <>
+                {avatar}
+                <div className={`flex items-center gap-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <span 
+                    className={`text-[11px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''}`}
+                    style={m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' ? { color: msgTier.stop1 } : {}}
+                  >
+                    {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'یاریکەر')}
+                  </span>
+                  {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                    <div className="relative w-[13px] h-[15px] flex items-center justify-center shrink-0">
+                      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
+                        <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradientChat-${m.id || m.user_id})`} />
+                        <defs>
+                          <linearGradient id={`medalGradientChat-${m.id || m.user_id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                            <stop stopColor={msgTier.stop1} />
+                            <stop offset="1" stopColor={msgTier.stop2} />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <span className="relative z-10 text-[7px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -419,7 +514,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
 
             {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
               (m.content || m.text).startsWith('[BATTLE_RESULT]')
-                ? <BattleResultRenderer text={m.content || m.text} isMe={isMe} />
+                ? <BattleResultRenderer text={m.content || m.text} isMe={isMe} onProfileClick={onProfileClick} />
                 : (
                   ((m.content || m.text).includes('🟩') || (m.content || m.text).includes('🟨') || (m.content || m.text).includes('⬛') || (m.content || m.text).includes('⬜')) &&
                   (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.content || m.text)) &&
@@ -585,13 +680,13 @@ export default function SocialHubView({
 
       const fetchMissingNames = async () => {
         try {
-          const { data } = await supabase.from('profiles').select('id, nickname, avatar_url').in('id', missingArray);
+          const { data } = await supabase.from('profiles').select('id, nickname, avatar_url, xp').in('id', missingArray);
 
           if (data && data.length > 0) {
             setReactionUsers(prev => {
               const newMap = { ...prev };
               data.forEach(p => {
-                newMap[p.id] = { nickname: p.nickname || null, avatar_url: p.avatar_url || null };
+                newMap[p.id] = { nickname: p.nickname || null, avatar_url: p.avatar_url || null, xp: p.xp || 0 };
               });
               return newMap;
             });
@@ -652,7 +747,7 @@ export default function SocialHubView({
         try {
           let query = supabase
             .from('messages')
-            .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url)')
+            .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url, xp)')
             .is('receiver_id', null)
             .order('created_at', { ascending: false }) // Fetch descending so we get latest 20
             .limit(20);
@@ -669,10 +764,13 @@ export default function SocialHubView({
             const fallbackRes = await query;
             if (fallbackRes.error) throw fallbackRes.error;
             const userIds = [...new Set(fallbackRes.data.map(m => m.user_id))];
-            const { data: profiles } = await supabase.from('profiles').select('id, avatar_url').in('id', userIds);
+            const { data: profiles } = await supabase.from('profiles').select('id, avatar_url, xp').in('id', userIds);
             const avatarMap = {};
-            if (profiles) profiles.forEach(p => avatarMap[p.id] = p.avatar_url);
-            fallbackRes.data.forEach(m => m.user_avatar = avatarMap[m.user_id] || 'default');
+            if (profiles) profiles.forEach(p => avatarMap[p.id] = { avatar_url: p.avatar_url, xp: p.xp });
+            fallbackRes.data.forEach(m => {
+              m.user_avatar = avatarMap[m.user_id]?.avatar_url || 'default';
+              m.user_xp = avatarMap[m.user_id]?.xp || 0;
+            });
             setMessages(fallbackRes.data.reverse()); // Reverse to show ascending in UI
             setConnectionError(false);
             resolve();
@@ -682,6 +780,7 @@ export default function SocialHubView({
           if (data) {
             data.forEach(m => {
               m.user_avatar = m.sender?.avatar_url || 'default';
+              m.user_xp = m.sender?.xp || 0;
             });
             setMessages(data.reverse()); // Reverse to show ascending in UI
           } else {
@@ -1247,12 +1346,12 @@ export default function SocialHubView({
       <div className="px-4 py-3">
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
-            { 
-              id: 'global', 
-              label: 'نامەیێن گشتی', 
-              icon: 'public', 
-              badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0 
-                ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length 
+            {
+              id: 'global',
+              label: 'نامەیێن گشتی',
+              icon: 'public',
+              badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0
+                ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length
                 : (newGlobalCount > 0 ? -1 : 0)
             },
             { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
@@ -1341,6 +1440,7 @@ export default function SocialHubView({
                     onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: false })}
                     onReact={handleReact}
                     onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
+                    onProfileClick={setSelectedPlayer}
                   />
                 ))}
               </AnimatePresence>
@@ -1387,7 +1487,7 @@ export default function SocialHubView({
 
                   {/* Clear Chat Button */}
                   {selectedChat.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <button 
+                    <button
                       onClick={async () => {
                         triggerHaptic(20);
                         const confirmDelete = window.confirm("ئەرێ تو یێ پشتڕاستی تە دڤێت هەمی نامەیێن ناڤبەرا خۆ و ڤی کەسی ژێببەی؟ ئەڤە دێ نامەیان ل دەڤ هەردووکان ژێبەت!");
@@ -1400,7 +1500,7 @@ export default function SocialHubView({
                             .delete()
                             .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`);
                           if (error) throw error;
-                          
+
                           setChatMessages([]);
                           setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
                           setSelectedChat(null);
@@ -1443,6 +1543,7 @@ export default function SocialHubView({
                         onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: true })}
                         onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
                         onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
+                        onProfileClick={setSelectedPlayer}
                       />
                     ))}
 
@@ -1491,9 +1592,9 @@ export default function SocialHubView({
                         <h4 className="text-[14px] font-black font-rabar text-mono-900 dark:text-white">ھەڤالێن خوە داخواز بکە</h4>
                         <p className="text-[11px] font-bold text-mono-500 mt-1 px-4">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
                       </div>
-                      <button 
-                        onClick={async () => { 
-                          triggerHaptic(10); 
+                      <button
+                        onClick={async () => {
+                          triggerHaptic(10);
                           const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
                           const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
                           if (navigator.share) {
@@ -1510,7 +1611,7 @@ export default function SocialHubView({
                             navigator.clipboard.writeText(shareText);
                             alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
                           }
-                        }} 
+                        }}
                         className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
                       >
                         <span className="material-symbols-outlined text-base">share</span>
@@ -1530,7 +1631,7 @@ export default function SocialHubView({
                             // Optimistically update
                             setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
                             setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
-                            
+
                             const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
                             await supabase
                               .from('messages')

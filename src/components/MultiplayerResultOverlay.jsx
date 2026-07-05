@@ -59,7 +59,7 @@ export default function MultiplayerResultOverlay({
           initial={{ scale: 0.9, y: 20, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.9, y: 20, opacity: 0 }}
-          className="relative w-full max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-[48px] p-8 overflow-hidden transition-colors duration-500 shadow-2xl"
+          className="relative w-full max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-xl p-8 overflow-hidden transition-colors duration-500 shadow-2xl"
         >
           {/* Close/Exit Button */}
           <button
@@ -67,7 +67,7 @@ export default function MultiplayerResultOverlay({
               triggerHaptic(10);
               onClose();
             }}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-mono-100 dark:bg-white/10 flex items-center justify-center text-mono-400 dark:text-white/40 hover:bg-mono-200 dark:hover:bg-white/20 hover:text-mono-900 dark:hover:text-white active:scale-95 transition-all z-50 group border border-mono-200 dark:border-white/10"
+            className="absolute top-6 right-6 w-10 h-10 rounded-md bg-mono-100 dark:bg-white/10 flex items-center justify-center text-mono-400 dark:text-white/40 hover:bg-mono-200 dark:hover:bg-white/20 hover:text-mono-900 dark:hover:text-white active:scale-95 transition-all z-50 group border border-mono-200 dark:border-white/10"
           >
             <span className="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform duration-300">close</span>
           </button>
@@ -107,10 +107,10 @@ export default function MultiplayerResultOverlay({
           </div>
 
           {/* Scores Comparison */}
-          <div className="flex items-center justify-between gap-4 mb-4 bg-mono-100 dark:bg-white/5 rounded-3xl p-6 border border-mono-200 dark:border-white/5">
+          <div className="flex items-center justify-between gap-4 mb-4 bg-mono-100 dark:bg-white/5 rounded-lg p-6 border border-mono-200 dark:border-white/5">
             <div className="flex flex-col items-center gap-2 flex-1">
               <Avatar src={userAvatar} size="sm" />
-              <span className="text-[10px] font-black text-mono-400 dark:text-white/30 uppercase truncate w-full text-center">{userNickname}</span>
+              <span className="text-[10px] font-black text-mono-400 dark:text-white/40 uppercase w-full text-center whitespace-normal break-all line-clamp-2 leading-tight">{userNickname}</span>
               <span className="text-3xl font-black text-mono-900 dark:text-white">{scores.p1}</span>
             </div>
 
@@ -122,7 +122,7 @@ export default function MultiplayerResultOverlay({
 
             <div className="flex flex-col items-center gap-2 flex-1">
               <Avatar src={opponent?.avatar_url} size="sm" />
-              <span className="text-[10px] font-black text-mono-400 dark:text-white/30 uppercase truncate w-full text-center">{opponent?.nickname || 'Hévrk'}</span>
+              <span className="text-[10px] font-black text-mono-400 dark:text-white/40 uppercase w-full text-center whitespace-normal break-all line-clamp-2 leading-tight">{opponent?.nickname || 'Hévrk'}</span>
               <span className="text-3xl font-black text-mono-900 dark:text-white">{scores.p2}</span>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function MultiplayerResultOverlay({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="w-full space-y-2 mb-8 bg-mono-50 dark:bg-black/40 p-5 rounded-[2rem] border border-emerald-500/10"
+              className="w-full space-y-2 mb-8 bg-mono-50 dark:bg-black/40 p-5 rounded-lg border border-emerald-500/10"
             >
               <div className="flex justify-between items-center text-md font-black">
                 <span className="text-mono-600 dark:text-white/60">خەلاتێ تە</span>

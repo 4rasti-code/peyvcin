@@ -45,11 +45,9 @@ BEGIN
     
     v_diff := v_today_date - v_last_claim_date;
     
-    IF v_diff = 1 THEN
-      v_streak := (v_streak % 7) + 1;
-    ELSE
-      v_streak := 1;
-    END IF;
+    -- SOFT SYSTEM: Always advance to the next day in the cycle, regardless of missed days.
+    -- Modulo 7 ensures it cycles back to 1 after day 7.
+    v_streak := (v_streak % 7) + 1;
   ELSE
     v_streak := 1;
   END IF;
@@ -93,4 +91,4 @@ BEGIN
     )
   );
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

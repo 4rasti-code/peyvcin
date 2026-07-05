@@ -11,6 +11,29 @@ import CoinAnimation from './CoinAnimation';
 import ClipboardIcon from './ClipboardIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 
+const AdvancedSparkle = ({ className, delaySec }) => (
+  <Motion.div
+    className={`absolute pointer-events-none z-50 ${className}`}
+    initial={{ scale: 0, opacity: 0, rotate: -20 }}
+    animate={{
+      scale: [0, 1.3, 0],
+      opacity: [0, 1, 0],
+      rotate: [-20, 70]
+    }}
+    transition={{
+      duration: 4,
+      repeat: Infinity,
+      delay: delaySec,
+      ease: "easeInOut"
+    }}
+  >
+    <svg viewBox="-20 -20 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible drop-shadow-[0_0_8px_rgba(250,204,21,0.9)]">
+      <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" fill="#FDE047" />
+      <path d="M50 20C50 36.568 36.568 50 20 50C36.568 50 50 63.431 50 80C50 63.431 63.431 50 80 50C63.431 50 50 36.568 50 20Z" fill="#FFFFFF" />
+    </svg>
+  </Motion.div>
+);
+
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
   { day: 2, label: '١ ھاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
@@ -23,45 +46,14 @@ const REWARDS_CONFIG = [
 
 // COLOR MAP FOR DAYS MATCHING SCREENSHOT
 const DAY_THEMES = {
-  1: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
-  2: { border: 'border-[#f472b6]', banner: 'bg-[#ec4899]' },
-  3: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
-  4: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
-  5: { border: 'border-[#f472b6]', banner: 'bg-[#ec4899]' },
-  6: { border: 'border-[#38bdf8]', banner: 'bg-[#0ea5e9]' },
-  7: { border: 'border-[#facc15] bg-[#fef08a]', banner: 'bg-[#f59e0b]' },
+  1: { border: 'border-[#2563eb]', banner: 'bg-[#3b82f6]' }, // Blue (Complementary to Bronze/Fils)
+  2: { border: 'border-[#7c3aed]', banner: 'bg-[#8b5cf6]' }, // Purple (Complementary to Yellow/Hint)
+  3: { border: 'border-[#0284c7]', banner: 'bg-[#0ea5e9]' }, // Sky/Cyan (Complementary to Orange/Ticket)
+  4: { border: 'border-[#e11d48]', banner: 'bg-[#f43f5e]' }, // Rose/Pink (Contrast for Silver/Derhem)
+  5: { border: 'border-[#059669]', banner: 'bg-[#10b981]' }, // Emerald (Complementary to Red/Magnet)
+  6: { border: 'border-[#ea580c]', banner: 'bg-[#f97316]' }, // Orange (Contrast for Wood/Mystery Box)
+  7: { border: 'border-[#facc15] bg-[#fef08a]', banner: 'bg-[#f59e0b]' }, // Gold (Grand)
 };
-
-const RibbonLabel = ({ text }) => (
-  <div className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center justify-center pointer-events-none drop-shadow-lg">
-    
-    <div className="relative flex items-center justify-center">
-      {/* Left Tail */}
-      <div 
-        className="absolute right-[calc(100%-12px)] top-[50%] -translate-y-1/2 mt-[2px] w-[20px] h-[18px] bg-gradient-to-r from-[#064e3b] to-[#022c22] z-0"
-        style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 25% 50%)' }}
-      />
-      
-      {/* Right Tail */}
-      <div 
-        className="absolute left-[calc(100%-12px)] top-[50%] -translate-y-1/2 mt-[2px] w-[20px] h-[18px] bg-gradient-to-l from-[#064e3b] to-[#022c22] z-0"
-        style={{ clipPath: 'polygon(0 0, 100% 0, 75% 50%, 100% 100%, 0 100%)' }}
-      />
-      
-      {/* Main Pill Banner */}
-      <div className="relative z-10 bg-gradient-to-b from-[#34d399] via-[#10b981] to-[#047857] text-white px-3 sm:px-4 py-[2px] sm:py-[3px] text-[11px] sm:text-[13px] font-black whitespace-nowrap text-center min-w-[40px] sm:min-w-[48px] rounded-full border-[1.5px] border-[#a7f3d0] shadow-[0_2px_0_#022c22] overflow-hidden flex items-center justify-center">
-        
-        {/* Glossy Top Shine */}
-        <div className="absolute top-0 left-0 w-full h-[40%] bg-gradient-to-b from-white/60 to-white/5 pointer-events-none" />
-        
-        {/* Text */}
-        <span className="relative z-10 tracking-wide" style={{ textShadow: '0px 1px 2px rgba(0,0,0,0.8), 0px 2px 4px rgba(0,0,0,0.5)' }}>
-          {text}
-        </span>
-      </div>
-    </div>
-  </div>
-);
 
 export default function DailyRewardModal({ isOpen, onClose, isDark }) {
   const {
@@ -170,8 +162,15 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
       const result = await claimDailyReward();
       if (result && result.success) {
         setClaimedDayInfo(REWARDS_CONFIG.find(r => r.day === result.streak));
-        setBoxState('unopened');
+        setBoxState('opened');
         setShowSuccess(true);
+        
+        setTimeout(() => {
+          playDailyClaimSfx();
+          if (hapticEnabled) triggerHaptic([60, 100, 60]);
+          const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
+          confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
+        }, 100);
       } else {
         const errorMsg = result?.error || "خەلات ناهێتە وەرگرتن، دبیت تو یێ ل هیڤیا دەمێ نوو بی.";
         if (errorMsg.toLowerCase().includes('already claimed') || errorMsg.includes('claimed today') || errorMsg.includes('بەری نوکە')) {
@@ -197,25 +196,34 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
         {isOpen && (
           <Motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: animatingReward ? 0 : 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/40 dark:bg-black/80 backdrop-blur-sm"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md pointer-events-auto"
           >
+            {/* Screen-level Close Button */}
+            <button 
+              onClick={() => { playBackSfx(); handleClose(); }} 
+              className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-500/10 dark:bg-white/10 backdrop-blur-md border border-mono-500/10 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/70 hover:text-mono-900 dark:hover:text-white hover:bg-mono-500/20 dark:hover:bg-white/20 transition-all z-110"
+            >
+              <span className="material-symbols-outlined text-[24px]">close</span>
+            </button>
+
             <Motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-lg bg-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-6 relative overflow-hidden"
+              className="w-full max-w-lg p-6 relative"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none" />
 
               <div className="flex flex-col items-center mb-8 text-center relative z-10">
                 <div className="mb-4 flex items-center justify-center">
                   <ClipboardIcon className="w-20 h-20" />
                 </div>
-                <h2 className="text-3xl font-black text-mono-900 dark:text-white mb-2">خەلاتێن ڕۆژانە</h2>
+                <h2 className="text-3xl font-black text-mono-900 dark:text-white drop-shadow-md mb-2">خەلاتێن ڕۆژانە</h2>
                 {claimedToday && (
-                  <div className="text-mono-500 dark:text-white/50 text-sm font-bold font-sans tracking-widest bg-mono-100 dark:bg-white/5 px-4 py-1 rounded-full border border-mono-200 dark:border-white/10 shadow-sm" dir="ltr">
+                  <div className="text-mono-500 dark:text-white/50 text-sm font-bold font-sans tracking-widest bg-mono-100 dark:bg-white/5 px-4 py-1 rounded-full border border-mono-200 dark:border-white/10 shadow-sm tabular-nums" dir="ltr">
                     {timeLeftStr}
                   </div>
                 )}
@@ -225,7 +233,6 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 {REWARDS_CONFIG.map((item) => {
                   const isClaimed = item.day <= effectiveStreak;
                   const isNext = item.day === activeDay;
-                  const isFuture = item.day > (claimedToday ? rewardStreak : activeDay);
                   const isDay7 = item.day === 7;
 
                   // Compute ribbon text
@@ -237,61 +244,104 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     <Motion.div
                       key={item.day}
                       onClick={isNext && !claiming ? handleClaim : undefined}
-                      animate={isNext && !isClaimed ? { scale: [1, 1.05, 1] } : { scale: 1 }}
-                      transition={isNext && !isClaimed ? { scale: { duration: 2, repeat: Infinity } } : { duration: 0.2 }}
+                      animate={isNext && !isClaimed ? { scale: [1, 1.025, 1] } : { scale: 1 }}
+                      transition={isNext && !isClaimed ? { scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' } } : { duration: 0.2 }}
                       className={`
-                        relative flex flex-col transition-all overflow-hidden
-                        ${isDay7 ? 'col-span-3 h-auto min-h-[110px] sm:h-32 rounded-[20px] border-[5px]' : 'aspect-[4/5] sm:aspect-square rounded-[20px] border-[5px]'}
-                        ${!isDay7 ? 'bg-white' : ''}
+                        relative flex flex-col transition-all
+                        ${isDay7 ? 'col-span-3 h-auto min-h-[130px] sm:min-h-[150px] rounded-[20px] border-[5px]' : 'aspect-square rounded-[20px] border-[5px]'}
+                        ${!isDay7 ? 'bg-[#fff9e6]' : ''}
                         ${DAY_THEMES[item.day].border}
-                        ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-4 ring-white dark:ring-black outline outline-4 outline-[#facc15] shadow-[0_0_30px_rgba(250,204,21,1)] scale-[1.05] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
+                        ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-2 ring-[#facc15] shadow-[0_0_15px_3px_rgba(250,204,21,0.9)] scale-[1.025] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
                       `}
                     >
+                      {/* Active Day Sparkles */}
+                      {isNext && !isClaimed && (
+                        <div className="absolute inset-0 pointer-events-none z-40">
+                          {/* Main large stars */}
+                          <AdvancedSparkle className="-top-3 -left-2 w-8 h-8" delaySec={0} />
+                          <AdvancedSparkle className="top-8 -right-3 w-6 h-6" delaySec={0.8} />
+                          <AdvancedSparkle className="-bottom-2 left-4 w-7 h-7" delaySec={1.5} />
+                          
+                          {/* Small companion stars (some blurred for depth) */}
+                          <AdvancedSparkle className="-top-1 right-2 w-4 h-4" delaySec={0.4} />
+                          <AdvancedSparkle className="bottom-6 -left-2 w-3 h-3 blur-[1px] opacity-80" delaySec={1.1} />
+                          <AdvancedSparkle className="-bottom-1 right-5 w-5 h-5 blur-[1px]" delaySec={1.9} />
+                          
+                          {/* Extra tiny blurry background stars */}
+                          <AdvancedSparkle className="top-1/2 -left-4 w-3 h-3 blur-[1px]" delaySec={0.6} />
+                          <AdvancedSparkle className="top-2 right-1/4 w-2 h-2 blur-[1px] opacity-70" delaySec={1.3} />
+                          <AdvancedSparkle className="-top-3 left-1/3 w-4 h-4 blur-[2px] opacity-60" delaySec={2.2} />
+                          <AdvancedSparkle className="-bottom-4 right-2 w-3 h-3 blur-[1px] opacity-80" delaySec={2.7} />
+                          <AdvancedSparkle className="bottom-1/3 -right-3 w-4 h-4 blur-[1px]" delaySec={3.1} />
+                        </div>
+                      )}
+
+                      {/* Day 7 Pattern Overlay */}
+                      {isDay7 && (
+                        <div className="absolute inset-0 pointer-events-none rounded-[15px] overflow-hidden z-0">
+                          <div className="absolute -inset-4 opacity-50" style={{
+                            backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(255,255,255,0.4) 15px, rgba(255,255,255,0.4) 30px)'
+                          }} />
+                        </div>
+                      )}
+
                       {/* Upper Icon Section */}
                       {isDay7 ? (
-                        <div className="flex-1 w-full flex flex-row items-center justify-around relative px-4 pt-1 pb-3">
-                          <div className="relative flex flex-col items-center justify-center">
-                            <SkipIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
-                            <RibbonLabel text={getRibbonText({ skipCount: 1 })} />
+                        <div className="absolute top-0 left-0 right-0 bottom-8 sm:bottom-10 flex flex-row items-center justify-around px-2 sm:px-4">
+                          <div className="relative flex flex-col items-center justify-center pt-2">
+                            <SkipIcon className="w-12 h-12 sm:w-[56px] sm:h-[56px]" />
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                              {getRibbonText({ skipCount: 1 })}
+                            </span>
                           </div>
-                          <div className="relative flex flex-col items-center justify-center">
-                            <DinarIcon className="w-11 h-11 sm:w-[56px] sm:h-[56px] drop-shadow-md" />
-                            <RibbonLabel text={getRibbonText({ dinar: 1 })} />
+                          <div className="relative flex flex-col items-center justify-center pt-2">
+                            <DinarIcon className="w-10 h-10 sm:w-[44px] sm:h-[44px]" />
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                              {getRibbonText({ dinar: 1 })}
+                            </span>
                           </div>
-                          <div className="relative flex flex-col items-center justify-center">
-                            <FilsIcon className="w-10 h-10 sm:w-[52px] sm:h-[52px] drop-shadow-md" />
-                            <RibbonLabel text={getRibbonText({ fils: 200 })} />
+                          <div className="relative flex flex-col items-center justify-center pt-2">
+                            <FilsIcon className="w-10 h-10 sm:w-[40px] sm:h-[40px]" />
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                              {getRibbonText({ fils: 200 })}
+                            </span>
                           </div>
                         </div>
                       ) : (
-                        <div className="flex-1 w-full flex items-center justify-center relative pt-1 pb-3">
+                        <div className="absolute top-0 left-0 right-0 bottom-7 sm:bottom-10 flex flex-col items-center justify-center">
                           <div className="relative flex flex-col items-center justify-center">
-                            <div className={`drop-shadow-md ${isNext && !isClaimed ? 'animate-pulse' : ''}`}>
-                              {item.type === 'fils' ? <FilsIcon className="w-[60px] h-[60px]" /> :
-                                item.type === 'derhem' ? <DerhemIcon className="w-[60px] h-[60px]" /> :
-                                  item.type === 'spinTicket' ? <SpinTicketIcon className="w-[60px] h-[60px]" /> :
-                                    item.type === 'mystery_box' ? <MysteryBoxIcon className="w-[64px] h-[64px]" /> :
-                                      item.icon === 'lightbulb' ? <HintIcon className="w-[64px] h-[64px]" /> :
-                                        item.icon === 'auto_fix_high' ? <MagnetIcon className="w-[64px] h-[64px]" /> : null}
+                            <div className="flex items-center justify-center">
+                              {item.type === 'fils' ? <FilsIcon className="w-9 h-9 sm:w-[40px] sm:h-[40px]" /> :
+                               item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-[40px] sm:h-[40px]" /> :
+                               item.type === 'spinTicket' ? <SpinTicketIcon className="w-16 h-16 sm:w-[64px] sm:h-[64px]" /> :
+                               item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-[56px] sm:h-[56px]" /> :
+                               item.icon === 'lightbulb' ? <HintIcon className="w-12 h-12 sm:w-[48px] sm:h-[48px]" /> :
+                               item.icon === 'auto_fix_high' ? <MagnetIcon className="w-12 h-12 sm:w-[48px] sm:h-[48px]" /> : null}
                             </div>
 
-                            {/* Always show the ribbon positioned right underneath the icon */}
-                            <RibbonLabel text={getRibbonText(item.reward)} />
+                            <span className={`font-black text-[13px] sm:text-[15px] ${
+                              item.type === 'spinTicket' ? '-mt-3 sm:-mt-5 relative z-10' :
+                              item.type === 'derhem' || item.type === 'fils' ? '-mt-0.5 sm:-mt-1 relative z-10' :
+                              item.type === 'mystery_box' || item.icon === 'auto_fix_high' ? '-mt-1.5 sm:-mt-2 relative z-10' :
+                              '-mt-1 sm:-mt-1.5 relative z-10'
+                            } text-gray-800 drop-shadow-sm`} dir="ltr">
+                              {getRibbonText(item.reward)}
+                            </span>
                           </div>
                         </div>
                       )}
 
                       {/* Lower Day Label Section */}
-                      <div className={`w-full flex items-center justify-center text-white font-black relative z-0 tracking-wide drop-shadow-sm shrink-0
-                        ${isDay7 ? 'h-10 text-[16px]' : 'h-10 text-[14px]'}
+                      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center text-white font-black z-10 tracking-wide drop-shadow-sm rounded-b-[14px]
+                        ${isDay7 ? 'h-8 sm:h-10 text-[14px] sm:text-[16px]' : 'h-7 sm:h-10 text-[12px] sm:text-[14px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
-                        ڕۆژی {toKuDigits(item.day)}
+                        ڕۆژا {toKuDigits(item.day)}
                       </div>
 
                       {/* Checkmark overlay */}
                       {isClaimed && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10">
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-30 bg-black/10 rounded-[15px]">
                           <div className="absolute top-2 right-2 w-8 h-8 bg-[#22c55e] rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
                             <span className="material-symbols-outlined text-[20px] font-black">check</span>
                           </div>
@@ -308,13 +358,6 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     کلیک ل سەر دیارییا ئەڤرۆ بکە بۆ وەرگرتنێ
                   </p>
                 )}
-
-                <button
-                  onClick={() => { playBackSfx(); handleClose(); }}
-                  className="w-full h-14 flex items-center justify-center rounded-md bg-black dark:bg-white text-white dark:text-black hover:brightness-110 font-black text-sm uppercase transition-all active:scale-95 shadow-lg"
-                >
-                  داخستن
-                </button>
               </div>
             </Motion.div>
           </Motion.div>
@@ -327,67 +370,18 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-110 flex items-center justify-center bg-black/40 dark:bg-black/80 backdrop-blur-md p-6"
+            className="fixed inset-0 z-110 flex items-center justify-center p-6"
           >
+            <Motion.div 
+              animate={{ opacity: animatingReward ? 0 : 1 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
+            />
             <Motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="text-center bg-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-10 flex flex-col items-center relative overflow-hidden min-w-[320px] min-h-[350px] justify-center"
+              className="text-center p-6 flex flex-col items-center relative min-w-[320px] justify-center w-full max-w-md pointer-events-auto"
             >
-              {boxState === 'unopened' && (
-                <Motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center w-full"
-                >
-                  <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2">دیاریەک بۆ تە!</h3>
-                  <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 animate-pulse">کلیک ل سەر دیاریێ بکە بۆ ڤەکرنێ</p>
-
-                  <Motion.button
-                    animate={{ y: [0, -15, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                    onClick={() => {
-                      setBoxState('opening');
-                      if (hapticEnabled) triggerHaptic([20, 30, 20, 50, 60, 80]);
-                      setTimeout(() => {
-                        setBoxState('opened');
-                        playDailyClaimSfx();
-                        if (hapticEnabled) triggerHaptic([60, 100, 60]);
-                        const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
-                        confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
-                      }, 1300);
-                    }}
-                    className="mb-6 hover:scale-110 transition-transform cursor-pointer relative group"
-                  >
-                    <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full group-hover:bg-primary/40 transition-all duration-500" />
-                    <span className="relative z-10 material-symbols-outlined text-[120px]! text-primary drop-shadow-[0_10px_20px_rgba(var(--color-primary),0.5)]">
-                      featured_seasonal_and_gifts
-                    </span>
-                  </Motion.button>
-                </Motion.div>
-              )}
-
-              {boxState === 'opening' && (
-                <div className="flex flex-col items-center w-full">
-                  <h3 className="text-3xl font-black text-mono-900 dark:text-white mb-2 opacity-50">ڤەکرن...</h3>
-                  <p className="text-mono-500 dark:text-white/50 text-sm font-medium mb-10 opacity-0">کلیک</p>
-
-                  <Motion.div
-                    animate={{
-                      x: [-10, 10, -15, 15, -8, 8, -5, 5, 0],
-                      scale: [1, 1.05, 1.1, 1.15, 1.25, 1.3],
-                      rotate: [-5, 5, -5, 5, -2, 2, 0]
-                    }}
-                    transition={{ duration: 1.3, ease: "easeInOut" }}
-                    className="mb-6"
-                  >
-                    <span className="material-symbols-outlined text-[120px]! text-primary blur-[1px]">
-                      featured_seasonal_and_gifts
-                    </span>
-                  </Motion.div>
-                </div>
-              )}
-
               {boxState === 'opened' && (
                 <Motion.div
                   initial={{ scale: 0.5, opacity: 0 }}
@@ -395,8 +389,13 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
                   className="flex flex-col items-center w-full"
                 >
-                  <h3 className="text-4xl font-black mb-2 bg-linear-to-r from-amber-400 to-yellow-600 bg-clip-text text-transparent">پیرۆزە!</h3>
-                  <p className="text-mono-500 dark:text-white/50 text-lg font-medium mb-8">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
+                  <Motion.div 
+                    animate={{ opacity: animatingReward ? 0 : 1, scale: animatingReward ? 0.95 : 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex flex-col items-center w-full"
+                  >
+                    <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_4px_10px_rgba(250,204,21,0.3)]">پیرۆزە!</h3>
+                    <p className="text-mono-900 dark:text-white/90 text-xl font-medium mb-12 drop-shadow-md">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
 
                   <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                     <Motion.div
@@ -427,23 +426,17 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       </Motion.div>
                     </Motion.div>
 
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/30 rounded-full blur-[80px] pointer-events-none" />
 
                     <Motion.div
                       initial={{ scale: 0, y: 20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
-                      className="mt-6 px-8 py-3 bg-linear-to-r from-mono-900 to-black dark:from-white dark:to-mono-100 text-white dark:text-black rounded-xl font-black text-2xl relative z-10 shadow-2xl border border-white/10 dark:border-mono-900/10"
+                      className="mt-6 text-mono-900 dark:text-white font-black text-4xl relative z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
                     >
-                      + {claimedDayInfo?.label}
+                      {claimedDayInfo?.label}
                     </Motion.div>
 
-                    <CoinAnimation
-                      trigger={animatingReward}
-                      isDaily={true}
-                      type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
-                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
-                    />
                   </div>
 
                   <Motion.button
@@ -460,11 +453,21 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         onClose();
                       }, 2200);
                     }}
-                    className={`w-full h-14 bg-primary text-white rounded-md font-black text-lg shadow-xl transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
+                    className={`w-40 h-11 flex items-center justify-center mx-auto bg-primary text-white rounded-md font-black text-lg shadow-md transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
                   >
-                    بەردەوام بە
+                    وەرگرتن
                   </Motion.button>
                 </Motion.div>
+                
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                  <CoinAnimation
+                    trigger={animatingReward}
+                    isDaily={true}
+                    type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
+                    amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
+                  />
+                </div>
+              </Motion.div>
               )}
             </Motion.div>
           </Motion.div>

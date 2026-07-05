@@ -31,3 +31,22 @@ export const toKuDigits = (val) => {
   const str = String(val);
   return str.replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
 };
+
+/**
+ * Formats large numbers compactly (e.g., 1500 -> ١.٥K, 1200000 -> ١.٢M).
+ */
+export const formatCompactNumber = (val) => {
+  if (val === undefined || val === null) return '';
+  const num = Number(val);
+  if (isNaN(num)) return toKuDigits(val);
+  
+  if (num >= 1000000) {
+    const formatted = (num / 1000000).toFixed(1).replace(/\.0$/, '');
+    return toKuDigits(formatted) + 'م';
+  }
+  if (num >= 1000) {
+    const formatted = (num / 1000).toFixed(1).replace(/\.0$/, '');
+    return toKuDigits(formatted) + 'ھ';
+  }
+  return toKuDigits(num);
+};

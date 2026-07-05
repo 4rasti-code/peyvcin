@@ -274,12 +274,18 @@ const BattleResultOverlay = ({
                     onClick={async () => {
                       triggerHaptic(10);
                       const battleData = {
+                        myId: displayUser?.id,
+                        myXP: displayUser?.xp || 0,
                         myAvatar: displayUser?.avatar_url || 'default',
                         myName: displayUser?.nickname || 'من',
                         myScore: myScore,
+                        myLevel: displayUser?.level || 1,
+                        oppId: displayOpponent?.id,
+                        oppXP: displayOpponent?.xp || 0,
                         oppAvatar: displayOpponent?.avatar_url || 'default',
                         oppName: displayOpponent?.nickname || 'یەکیتر',
                         oppScore: oppScore,
+                        oppLevel: displayOpponent?.level || 1,
                         result: isVictory ? 'victory' : isDefeat ? 'defeat' : 'draw'
                       };
                       const text = `[BATTLE_RESULT] ${JSON.stringify(battleData)}`;

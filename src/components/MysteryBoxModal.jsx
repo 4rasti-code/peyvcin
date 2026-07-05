@@ -240,18 +240,18 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
             animate={{ opacity: isClaiming ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 dark:bg-black/90 backdrop-blur-sm"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
             style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
           >
             <Motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="w-full max-w-sm bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-6 relative overflow-hidden flex flex-col items-center"
+              className="w-full max-w-sm relative p-6 flex flex-col items-center"
             >
               {/* Close Button Top Right */}
               {!isOpening && !showReward && (
-                <button onClick={() => { playBackSfx(); handleClose(); }} className="absolute top-4 right-4 w-8 h-8 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 hover:text-mono-800 dark:text-mono-400 dark:hover:text-white transition-all z-50">
+                <button onClick={() => { playBackSfx(); handleClose(); }} className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
                   <span className="material-symbols-outlined text-[18px]">close</span>
                 </button>
               )}
@@ -259,18 +259,18 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
               {/* Ambient Glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-fuchsia-500/20 blur-[80px] rounded-full pointer-events-none" />
 
-              <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canOpenFree && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-2'} relative z-10 drop-shadow-sm uppercase`}>سندۆقا نهێنی</h2>
+              <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canOpenFree && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-2'} relative z-10 drop-shadow-md uppercase`}>سندۆقا نهێنی</h2>
 
             {!canOpenFree && !loadingCheck && timeLeftStr && (
-              <span className="font-black text-xl text-fuchsia-500 font-sans tracking-normal mb-6 relative z-10" dir="ltr">{timeLeftStr}</span>
+              <span className="font-black text-xl text-fuchsia-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
             )}
 
               {!showReward && (
-                <div className="absolute top-4 left-4 flex items-center gap-2 h-8 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-2.5 shadow-sm border border-mono-200 dark:border-white/10 z-50 transition-colors duration-500">
-                  <span className="text-[18px] font-black text-mono-900 dark:text-white font-sans mt-px">
+                <div className="fixed top-6 left-6 flex items-center gap-2 h-11 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-4 shadow-xl border border-mono-200 dark:border-white/10 z-50">
+                  <span className="text-[19px] font-black text-mono-900 dark:text-white font-sans mt-px">
                     {toKuDigits(boxCount)}
                   </span>
-                  <div className="w-[1.5px] h-4 bg-mono-200 dark:bg-white/10 rounded-full" />
+                  <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
                   <MysteryBoxIcon isOpen={false} className="w-[24px] h-[24px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
                 </div>
               )}
@@ -296,12 +296,8 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                     x: [-5, 5, -5, 5, -3, 3, 0],
                     scale: [1, 1.05, 1.1, 1.15, 1.2],
                     rotate: [0, -2, 2, -2, 0]
-                  } : (canActuallyOpen && !isLidOpen ? {
-                    scale: [1, 0.92, 1.1, 0.96, 1.02, 1, 1],
-                    rotate: [0, -3, 4, -2, 1, 0, 0],
-                    y: [0, 8, -12, 4, -1, 0, 0]
-                  } : {})}
-                  transition={isOpening ? { duration: 1.5, ease: "easeInOut" } : (canActuallyOpen && !isLidOpen ? { duration: 3, repeat: Infinity, times: [0, 0.05, 0.15, 0.25, 0.35, 0.45, 1], ease: "easeInOut" } : {})}
+                  } : {}}
+                  transition={isOpening ? { duration: 1.5, ease: "easeInOut" } : (canActuallyOpen && !isLidOpen ? { duration: 3, repeat: Infinity, ease: "easeInOut" } : {})}
                   className={`w-full h-full flex items-center justify-center ${canActuallyOpen && !isOpening ? 'cursor-pointer' : ''}`}
                   onClick={canActuallyOpen && !isOpening && !isLidOpen ? handleOpen : undefined}
                   whileTap={canActuallyOpen && !isOpening ? { scale: 0.95 } : {}}
@@ -364,7 +360,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                       >
                         <button
                           onClick={handleClaim}
-                          className="w-full py-4 bg-linear-to-r from-green-500 to-emerald-600 text-white font-black text-lg uppercase rounded-md hover:scale-105 active:scale-95 transition-all shadow-[0_5px_15px_rgba(16,185,129,0.4)] border-2 border-emerald-400"
+                          className="w-40 py-2.5 mx-auto bg-linear-to-r from-green-500 to-emerald-600 text-white font-black text-lg uppercase rounded-md hover:scale-105 active:scale-95 transition-all shadow-md border-2 border-emerald-400"
                         >
                           وەرگرتن
                         </button>

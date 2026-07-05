@@ -4,13 +4,13 @@ import { motion as Motion, AnimatePresence, useMotionValue, animate } from 'fram
 import { triggerHaptic } from '../utils/haptics';
 import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
-import { toKuDigits } from '../utils/formatters';
+import { toKuDigits, formatCompactNumber } from '../utils/formatters';
 import ClipboardIcon from './ClipboardIcon';
 
 const AnimatedCounter = ({ value }) => {
   const [internalValue, setInternalValue] = useState(value);
   const count = useMotionValue(internalValue);
-  const [displayValue, setDisplayValue] = useState(toKuDigits(internalValue));
+  const [displayValue, setDisplayValue] = useState(formatCompactNumber(internalValue));
   const [prevPropValue, setPrevPropValue] = useState(value);
 
   // Derive state during render instead of in useEffect to avoid cascading renders
@@ -35,7 +35,7 @@ const AnimatedCounter = ({ value }) => {
       duration: 1.0,
       ease: "easeOut",
       onUpdate: (latest) => {
-        setDisplayValue(toKuDigits(Math.round(latest)));
+        setDisplayValue(formatCompactNumber(Math.round(latest)));
       }
     });
     
@@ -46,21 +46,16 @@ const AnimatedCounter = ({ value }) => {
 };
 
 const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
-  const currencyName = currency === 'derhem' ? 'دەرهەم' : currency === 'dinar' ? 'دینار' : 'فلس';
-
   return (
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
       <div 
         id={`topbar-${currency}`} 
-        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[10px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center`}
+        className={`flex flex-row items-center gap-1.5 px-2 py-1 rounded-[8px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-[50px] justify-center`}
       >
         <div className={`w-4 h-4 flex items-center justify-center ${color}`}>
           <_IconComponent className="w-full h-full" />
         </div>
-        <div className="flex flex-col items-center leading-none">
-          <span className={`text-[15px] font-black font-heading ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
-          <span className={`text-[7px] font-black uppercase mt-0.5 ${isDark ? color : 'text-mono-600'} opacity-60`}>{currencyName}</span>
-        </div>
+        <span className={`text-[15px] font-black font-heading tabular-nums leading-none pt-0.5 ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
       </div>
     </CurrencyDecrementEffect>
   );
@@ -76,7 +71,7 @@ const InventoryStat = ({ value, icon, Icon, color, bg, isDark = true, type }) =>
           {icon}
         </span>
       )}
-      <span className={`text-[14px] font-black ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
+      <span className={`text-[14px] font-black tabular-nums ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
     </div>
   );
 };
@@ -143,6 +138,20 @@ export default function TopAppBar({
             </div>
           ) : (
             <div className="flex items-center gap-1 relative h-full">
+              {currentView === 'lobby' && (
+                <Motion.button
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { triggerHaptic(10); if(onPlaySound) onPlaySound(); onOpenHowToPlay?.(); }}
+                  className="h-8 px-2.5 bg-[#8b5cf6] shadow-[0_2px_0_#6d28d9] hover:brightness-110 rounded-[5px] flex items-center justify-center gap-1 group transition-all border-none ml-2"
+                >
+                  <span className="material-symbols-outlined text-white text-[15px] group-hover:scale-110 transition-transform">
+                    help
+                  </span>
+                  <span className="text-[10px] font-black font-rabar text-white uppercase mt-0.5">فێرکاری</span>
+                </Motion.button>
+              )}
+              
               {(currentView === 'leaderboard' || currentView === 'profile') && (
                 <Motion.button
                   whileHover={{ scale: 1.1 }}
@@ -157,9 +166,9 @@ export default function TopAppBar({
               
               {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
                 <div className="flex items-center gap-1 ml-1">
-                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/20" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
                 </div>
               )}
             </div>

@@ -275,18 +275,18 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             animate={{ opacity: isClaiming ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
             style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
           >
           <Motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="w-full max-w-sm bg-mono-white/95 dark:bg-black/95 border border-mono-200 dark:border-white/10 backdrop-blur-xl rounded-md shadow-2xl p-6 relative overflow-hidden flex flex-col items-center transition-colors duration-500"
+            className="w-full max-w-sm relative p-6 flex flex-col items-center"
           >
             {/* Close Button Top Right */}
             {!isSpinning && (
-              <button onClick={() => { playBackSfx(); onClose(); }} className="absolute top-4 right-4 w-8 h-8 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 hover:text-mono-800 dark:text-mono-400 dark:hover:text-white transition-all z-50">
+              <button onClick={() => { playBackSfx(); onClose(); }} className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             )}
@@ -294,18 +294,18 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             {/* Ambient Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 blur-[100px] rounded-full pointer-events-none" />
 
-            <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-sm uppercase transition-colors duration-500`}>چەرخێ بەختی</h2>
+            <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
             {!canSpin && !loadingCheck && timeLeftStr && (
-              <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10" dir="ltr">{timeLeftStr}</span>
+              <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
             )}
 
             {/* Spin Ticket Pill Counter */}
-            <div className="absolute top-4 left-4 flex items-center gap-1.5 h-7 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-2 shadow-sm border border-mono-200 dark:border-white/10 z-50 transition-colors duration-500">
-              <span className="text-[17px] font-black text-mono-900 dark:text-white font-sans mt-px">
+            <div className="fixed top-6 left-6 flex items-center gap-2 h-11 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-4 shadow-xl border border-mono-200 dark:border-white/10 z-50">
+              <span className="text-[19px] font-black text-mono-900 dark:text-white font-sans mt-px">
                 {toKuDigits(spinTicketCount || 0)}
               </span>
-              <div className="w-[1.5px] h-3 bg-mono-200 dark:bg-white/10 rounded-full" />
-              <SpinTicketIcon size={22} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+              <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
+              <SpinTicketIcon size={24} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
             </div>
 
             {/* Wheel Container with Dimming Effect (Optimized for GPU safety) */}
@@ -383,7 +383,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
                     onClick={handleClaim}
-                    className="w-[160px] h-12 mt-8 z-20 bg-linear-to-b from-yellow-300 via-amber-500 to-orange-600 text-amber-950 font-black text-lg uppercase rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(245,158,11,0.5),inset_0_2px_4px_rgba(255,255,255,0.6)] border border-yellow-300/50 flex items-center justify-center"
+                    className="w-40 py-2.5 rounded-md mx-auto bg-linear-to-b from-yellow-300 via-amber-500 to-orange-600 text-amber-950 font-black text-lg uppercase hover:scale-105 active:scale-95 transition-all shadow-md border border-yellow-300/50 flex items-center justify-center"
                   >
                     وەرگرتن
                   </Motion.button>

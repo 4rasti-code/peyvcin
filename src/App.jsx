@@ -8,6 +8,7 @@ import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
 import AdminPanelView from './components/AdminPanelView';
+import UpdateNotesModal from './components/UpdateNotesModal';
 import Avatar from './components/Avatar';
 import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
@@ -87,7 +88,7 @@ import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
 import UpgradeAccountModal from './components/UpgradeAccountModal';
 
-const PEYVOK_VERSION = '2.1.0';
+const PEYVOK_VERSION = '2.2.0';
 
 // Audio logic handled via GameContext useGame()
 
@@ -1590,6 +1591,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-dvh max-h-dvh w-full items-center justify-center bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
       <Analytics />
+      <UpdateNotesModal />
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] md:max-h-[1080px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
@@ -2066,7 +2068,7 @@ export default function App() {
           scores={scores}
           opponent={opponent}
           playerStats={playerStats}
-          user={{ nickname: userNickname, avatar_url: userAvatar, level: level }}
+          user={{ id: user?.id, nickname: userNickname, avatar_url: userAvatar, level: level, xp: profileData?.xp || 0 }}
           isPlayer1={activeMatch?.player1_id === user?.id}
           breakdown={MatchReward?.awards ? {
             awardAmount: MatchReward.awards.amount,

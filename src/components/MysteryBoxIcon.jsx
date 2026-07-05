@@ -44,6 +44,15 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
             transform-origin: 50px 50px;
             animation: idleGlowPulse 2s ease-in-out infinite;
           }
+          @keyframes padlockShake {
+            0%, 80%, 100% { transform: rotate(0deg); }
+            82%, 86%, 90%, 94%, 98% { transform: rotate(-4deg); }
+            84%, 88%, 92%, 96% { transform: rotate(4deg); }
+          }
+          .chest-padlock.idle-shake {
+            animation: padlockShake 2.5s infinite;
+            transform-origin: 50px 50px;
+          }
         `}
       </style>
         
@@ -53,7 +62,13 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
             <stop offset="60%" stopColor="#FFA000" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#FFA000" stopOpacity="0" />
           </radialGradient>
+          <path id="magicStar" d="M 0 -8 L 2 -2 L 8 0 L 2 2 L 0 8 L -2 2 L -8 0 L -2 -2 Z" fill="#FFF59D" />
         </defs>
+
+        {/* Shining Thin Stroke Outline (STATIC) */}
+        {!isOpen && (
+          <path d="M 12 50 C 12 20, 88 20, 88 50 L 88 85 L 12 85 Z" fill="none" stroke="#FFF59D" strokeWidth="1.5" transform="scale(1.05)" transformOrigin="50 50" opacity="0.9" />
+        )}
 
         {/* Idle Animated Glow and Stars */}
         {isIdleAnimated && !isOpen && (
@@ -61,11 +76,13 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
             {/* Golden radial glow behind the box */}
             <circle cx="50" cy="50" r="55" fill="url(#boxIdleGlow)" />
             
-            {/* Sparkle Stars */}
-            <path d="M 20 20 L 22 26 L 28 28 L 22 30 L 20 36 L 18 30 L 12 28 L 18 26 Z" fill="#FFF59D" />
-            <path d="M 80 25 L 81.5 29 L 85.5 30 L 81.5 31 L 80 35 L 78.5 31 L 74.5 30 L 78.5 29 Z" fill="#FFF59D" />
-            <path d="M 15 65 L 16 68 L 19 69 L 16 70 L 15 73 L 14 70 L 11 69 L 14 68 Z" fill="#FFF59D" />
-            <path d="M 85 70 L 86 73 L 89 74 L 86 75 L 85 78 L 84 75 L 81 74 L 84 73 Z" fill="#FFF59D" />
+            {/* Sparkle Stars - Clean and organized placement */}
+            <use href="#magicStar" transform="translate(18, 25) scale(1.2) rotate(10)" />
+            <use href="#magicStar" transform="translate(82, 28) scale(1.0) rotate(-15)" />
+            <use href="#magicStar" transform="translate(35, 12) scale(0.6) rotate(25)" />
+            <use href="#magicStar" transform="translate(65, 15) scale(0.8) rotate(-10)" />
+            <use href="#magicStar" transform="translate(10, 48) scale(0.7) rotate(-20)" />
+            <use href="#magicStar" transform="translate(90, 52) scale(0.5) rotate(15)" />
           </g>
         )}
 
@@ -167,7 +184,7 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
           {/* ======================================= */}
           {/* CENTER PADLOCK - THIS FALLS OFF */}
           {/* ======================================= */}
-          <g className={`chest-padlock ${isOpen ? 'open' : ''}`}>
+          <g className={`chest-padlock ${isOpen ? 'open' : ''} ${isIdleAnimated && !isOpen ? 'idle-shake' : ''}`}>
             {/* Padlock Shackle Background (Outline) */}
             <path d="M 44 48 C 44 35, 56 35, 56 48" fill="none" stroke="#6b7280" strokeWidth="5.5" strokeLinecap="round" />
             {/* Padlock Shackle Fill (Silver) */}

@@ -22,7 +22,8 @@ export default function PublicProfileModal({
   isPending = false,
   isBlocked = false,
   onToggleBlock,
-  onActionComplete
+  onActionComplete,
+  minimalMode = false
 }) {
   const [fullData, setFullData] = useState(null);
   const [playerStats, setPlayerStats] = useState(null);
@@ -465,7 +466,7 @@ export default function PublicProfileModal({
             </h2>
             
             {/* Minimal Daily Streak Badge */}
-            {!isBot && fullData?.daily_streak > 0 && (
+            {!isBot && fullData?.daily_streak > 0 && !(minimalMode && relStatus !== 'friend' && !isMe) && (
               <div className="flex items-center gap-1 pl-2 border-l border-mono-200 dark:border-white/10" dir="ltr">
                 <span className="text-lg leading-none" style={{ filter: "drop-shadow(0 0 6px rgba(255, 159, 28, 0.4))" }}>
                    {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
@@ -544,7 +545,7 @@ export default function PublicProfileModal({
         </div>
 
         {/* Stats Grid */}
-        {!loading && !isBot && (() => {
+        {!(minimalMode && relStatus !== 'friend' && !isMe) && !loading && !isBot && (() => {
           const tier = getLevelTier(safeLevel);
           return (
             <Motion.div

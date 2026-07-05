@@ -28,7 +28,7 @@ const LobbyView = memo(({
   onDailyRewardClick,
   _dailyStreak,
   _notificationCount = 0,
-  onOpenHowToPlay
+  _onOpenHowToPlay
 }) => {
   const bgRef = useRef(null);
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
@@ -43,7 +43,7 @@ const LobbyView = memo(({
   const [inviteAlert, setInviteAlert] = useState(null);
   const inviteTimerRef = useRef(null);
 
-  const { playSettingsOpenSound, playDailyOpenSfx } = useAudio();
+  const { playDailyOpenSfx } = useAudio();
   const { user, userNickname, userAvatar, onlineUsers, profileData } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
@@ -278,24 +278,9 @@ const LobbyView = memo(({
       <div className="relative z-10">
         
         <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
-          <div className="flex items-center justify-between w-full">
-            {/* Right Side: Tutorial Button */}
-            <div className="flex items-center gap-2">
-              <Motion.button
-                whileHover={{ scale: 1.05, y: -1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { triggerHaptic(10); playSettingsOpenSound(); onOpenHowToPlay?.(); }}
-                className="h-8 px-3 bg-[#8b5cf6] shadow-[0_3px_0_#6d28d9] hover:brightness-110 rounded-[5px] flex items-center justify-center gap-1.5 group transition-all border-none mb-1"
-              >
-                <span className="material-symbols-outlined text-white text-[16px] group-hover:scale-110 transition-transform">
-                  help
-                </span>
-                <span className="text-[11px] font-black font-rabar text-white uppercase mt-0.5">فێرکاری</span>
-              </Motion.button>
-            </div>
-            
-            {/* Left Side: Daily Rewards Group */}
-            <div className="flex flex-row items-center gap-1 bg-mono-100 dark:bg-white/5 p-1 rounded-xl border border-mono-200 dark:border-white/10 shadow-sm backdrop-blur-md">
+          <div className="flex items-center justify-center w-full mt-2 mb-2">
+            {/* Centered Daily Rewards Group */}
+            <div className="flex flex-row items-center gap-3">
                <Motion.button
                  initial={{ opacity: 0, scale: 0.8 }}
                  animate={{
@@ -314,10 +299,10 @@ const LobbyView = memo(({
                     triggerHaptic(15); 
                     onDailyRewardClick?.(); 
                  }}
-                 className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
-                 <div className="relative flex items-center justify-center">
-                   <ClipboardIcon className="w-[58px] h-[58px] transition-transform duration-300 group-hover:scale-110 drop-shadow-md" />
+                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
+                   <ClipboardIcon className="w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md" />
                    
                    {isDailyAvailable && (
                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-md z-20 animate-pulse" />
@@ -325,7 +310,7 @@ const LobbyView = memo(({
                  </div>
                </Motion.button>
 
-               <div className="w-px h-8 bg-mono-300 dark:bg-white/10 mx-1"></div>
+               <div className="w-px h-8 bg-mono-200 dark:bg-white/10 mx-1"></div>
 
                <button
                  id="nav-lucky-wheel"
@@ -335,14 +320,14 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowLuckyWheel(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className="w-[48px] h-[48px] drop-shadow-md" />
+                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className="w-[48px] h-[48px] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md transition-transform duration-300 hover:scale-110" />
                  </div>
                </button>
 
-               <div className="w-px h-8 bg-mono-300 dark:bg-white/10 mx-1"></div>
+               <div className="w-px h-8 bg-mono-200 dark:bg-white/10 mx-1"></div>
 
                <button
                  onClick={(e) => { 
@@ -351,10 +336,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowMysteryBox(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className="w-[48px] h-[48px] drop-shadow-md" />
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className="w-[58px] h-[58px] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md transition-transform duration-300 hover:scale-[1.10]" />
                  </div>
                </button>
             </div>
