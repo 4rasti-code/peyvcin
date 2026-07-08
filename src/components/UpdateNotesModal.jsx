@@ -72,7 +72,7 @@ const UpdateNotesModal = () => {
                            <strong className="text-mono-900 dark:text-white transition-colors">🎬 ئەنیمەیشنێ سینەمایی:</strong> ئەنیمەیشنێ 3D و لڤینا مۆبایلێ دەمێ تو مەدالیایەکا نوی وەردگری.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">✨ نیشانێن نوی:</strong> چێکرنا باجێن ب کوالێتیەکا بلند (وەکی سەرەتایی، پەهلەوان، شارەزا، مامۆستا، شانازیا کوردستانێ، شاهێ پەیڤان).
+                           <strong className="text-mono-900 dark:text-white transition-colors">✨ نیشانێن نوی و دەنگێن تایبەت:</strong> چێکرنا باجێن ب کوالێتیەکا بلند (وەکی سەرەتایی، پەهلەوان، شارەزا، مامۆستا، شانازیا کوردستانێ، شاهێ پەیڤان) دگەل دەنگەکێ تایبەت و جیاواز بۆ هەر ئێک ژ وان دەمێ وەردگری!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
                            <strong className="text-mono-900 dark:text-white transition-colors">👀 دیارکرنا پلەیێ:</strong> ژ نۆکە و پێڤە، مەزنترین مەدالیایا تە دێ ل سەر پرۆفایلێ تە یێ گشتی دیار بیت!
