@@ -61,7 +61,7 @@ const UpdateNotesModal = () => {
                      </p>
 
                      {/* Scrollable Content */}
-                     <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
+                     <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-none">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
                            <strong className="text-mono-900 dark:text-white transition-colors">🏅 سیستەمێ پلەیان (Rank):</strong> مەرجان بجهبینە و گەلەک پلە و باجێن تایبەت ب دەستڤە بینە!
                         </li>
