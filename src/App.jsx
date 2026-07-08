@@ -90,7 +90,7 @@ import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
 import UpgradeAccountModal from './components/UpgradeAccountModal';
 
-const PEYVOK_VERSION = '2.2.0';
+const PEYVOK_VERSION = '2.3.0';
 
 // Audio logic handled via GameContext useGame()
 
