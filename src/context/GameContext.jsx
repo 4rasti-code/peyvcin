@@ -443,9 +443,8 @@ export const GameProvider = ({ children }) => {
       const { user: currentUser } = gameStateRef.current;
       if (currentUser?.id) {
         supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id })
-          .catch(_err => {
-             // Fallback to direct update if RPC is missing
-             supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id).catch(console.error);
+          .catch(() => {
+             // Silently catch missing RPC. A Supabase SQL migration will add this RPC.
           });
       }
 
