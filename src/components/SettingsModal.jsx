@@ -205,7 +205,7 @@ function SettingsModal({
                         دەرکەفتن ژ ھەژمارێ
                      </button>
 
-                     <div className="pt-2 flex flex-col items-center gap-1 opacity-20">
+                     <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
                         <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.3.0</p>
                      </div>
                   </div>
