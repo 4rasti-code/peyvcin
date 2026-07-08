@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const UPDATE_VERSION = 'v2.2.0'; // Change this string to force the modal to show again for all users
+const UPDATE_VERSION = 'v2.3.0'; // Change this string to force the modal to show again for all users
 
 const UpdateNotesModal = () => {
    const [isVisible, setIsVisible] = useState(false);
@@ -63,22 +63,22 @@ const UpdateNotesModal = () => {
                      {/* Scrollable Content */}
                      <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🎁 خەلاتێن ڕۆژانە ب دیزاینەکا نوی:</strong> شێوازێ خەلاتان ب تەمامی هاتە گوهۆڕین بۆ دیزاینەکا پرێمیۆم، و نوکە ئایکۆنێن ڕاستەقینە یێن خەلاتان ل شوینا قفلان دیار دبن.
+                           <strong className="text-mono-900 dark:text-white transition-colors">🏅 سیستەمێ پلەیان (Rank):</strong> مەرجان بجهبینە و گەلەک پلە و باجێن تایبەت ب دەستڤە بینە!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🎡 چەرخێ بەختی و خەلاتێن مەزنتر:</strong> ئەگەرێن دەرکەفتنا خەلاتێن مەزن ل چەرخێ بەختی و سندوقا نهێنی باشتر لێهاتن.
+                           <strong className="text-mono-900 dark:text-white transition-colors">🏆 پشکا تایبەت یا پلەیان:</strong> شاشەیەکا نوی بۆ دیتنا هەمی مەدالیا و دەستکەڤتێن تە ب ڕەنگەکێ جوان.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">💬 پرۆفایلێ گشتی و چات:</strong> نۆکە د ناڤ چاتیدا ناڤ و باجا ئاستێ تە ب ڕەنگێ ئاستێ تە یێ بەرپەڕی دیار دبن. هەروەسا هەر کەسەک دشێت ئامار و مەدالیایێن تە بینیت، لێ نامە هنارتنا تایبەت ب تەمامی هاتە پاراستن و تنێ د ناڤبەرا هەڤالان دایە.
+                           <strong className="text-mono-900 dark:text-white transition-colors">🎬 ئەنیمەیشنێ سینەمایی:</strong> ئەنیمەیشنێ 3D و لڤینا مۆبایلێ دەمێ تو مەدالیایەکا نوی وەردگری.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🛡️ سیستەمێ ڕیپۆرت و بلۆککرنێ:</strong> سیستەمەکێ پێشکەفتی بۆ ڕیپۆرتکرن و بلۆککرنێ هاتە زێدەکرن، دگەل بژاردەیا ژێبرنا نامەیان د ناڤ نامەیێن تایبەت دا (Clear Chat) ژی هاتە زێدەکرن.
+                           <strong className="text-mono-900 dark:text-white transition-colors">✨ نیشانێن نوی:</strong> چێکرنا باجێن ب کوالێتیەکا بلند (وەکی پەهلەوان، مامۆستا، شارەزا، شاهێ پەیڤان).
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">⚔️ یاریکرن دگەل هەڤالان بێ ئاریشە:</strong> ئاریشەیا شاشەیا ڕەش د دەستپێکا یاریێ دا و ئاریشەیا لێگەڕیانا گشتی د مۆدێ هەڤڕکی دا هاتنە چارەسەرکرن، و نۆکە یاری ب ٥ چرکەیێن ئامادەکاریێ گەلەک نەرمتر دەست پێ دکەت.
+                           <strong className="text-mono-900 dark:text-white transition-colors">👀 دیارکرنا پلەیێ:</strong> ژ نۆکە و پێڤە، مەزنترین مەدالیایا تە دێ ل سەر پرۆفایلێ تە یێ گشتی دیار بیت!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🚀 باشترکرنا یاریێ ب گشتی:</strong> چەندین ئاریشەیێن تەکنیکی و ئاریشەیێن دەنگی (مۆسیقا) هاتنە چارەسەرکرن. هەروەسا کارتا ئەنجامێ هەڤڕکیێ د ناڤ چاتیدا هاتە باشترکرن دا کو ئەنجامان ب دیزاینەکا جوانتر و ڕوونتر نیشان بدەت، و یاری ب گشتی بلەزتر لێهات.
+                           <strong className="text-mono-900 dark:text-white transition-colors">⚡ بلەزکرنا ئەپی:</strong> چارەسەرکرنا هندەک ئاریشەیێن بچویک و ڕێکخستنا بەرپەڕێ پرۆفایلی.
                         </li>
                      </ul>
 
