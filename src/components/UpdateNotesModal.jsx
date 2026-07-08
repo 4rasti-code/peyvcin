@@ -14,14 +14,14 @@ const UpdateNotesModal = () => {
          // Add a small delay so it doesn't instantly jump scare the user on load
          const timer = setTimeout(() => {
             setIsVisible(true);
-            try { playPopSound(); } catch(_e) { /* ignore */ }
+            try { playPopSound(); } catch (_e) { /* ignore */ }
          }, 1500);
          return () => clearTimeout(timer);
       }
    }, [playPopSound]);
 
    const handleClose = () => {
-      try { playPopSound(); } catch(_e) { /* ignore */ }
+      try { playPopSound(); } catch (_e) { /* ignore */ }
       setIsVisible(false);
       localStorage.setItem(`update_seen_${UPDATE_VERSION}`, 'true');
    };
@@ -51,7 +51,7 @@ const UpdateNotesModal = () => {
 
                   {/* Main Card */}
                   <div className="bg-mono-white dark:bg-mono-900 rounded-xl w-full border border-mono-200 dark:border-white/10 shadow-xl pt-16 pb-6 px-6 overflow-hidden flex flex-col relative transition-colors duration-500">
-                     
+
                      {/* Title */}
                      <h2 className="text-xl font-black text-center text-mono-900 dark:text-white mb-1 transition-colors">
                         وەشانا نوی گەهشت!
@@ -61,24 +61,24 @@ const UpdateNotesModal = () => {
                      </p>
 
                      {/* Scrollable Content */}
-                     <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-none">
+                     <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🏅 سیستەمێ پلەیان (Rank):</strong> مەرجان بجهبینە و گەلەک پلە و باجێن تایبەت ب دەستڤە بینە!
+                           🏅 مەرجان بجهبینە و گەلەک پلە و باجێن تایبەت ب دەستڤە بینە!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🏆 پشکا تایبەت یا پلەیان:</strong> شاشەیەکا نوی بۆ دیتنا هەمی مەدالیا و دەستکەڤتێن تە ب ڕەنگەکێ جوان.
+                           🏆 شاشەیەکا نوی بۆ دیتنا هەمی مەدالیا و دەستکەڤتێن تە ب ڕەنگەکێ جوان.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">🎬 ئەنیمەیشنێ سینەمایی:</strong> ئەنیمەیشنێ 3D و لڤینا مۆبایلێ دەمێ تو مەدالیایەکا نوی وەردگری.
+                           🎬 ئەنیمەیشنێ 3D و لڤینا مۆبایلێ دەمێ تو مەدالیایەکا نوی وەردگری.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">✨ نیشانێن نوی و دەنگێن تایبەت:</strong> چێکرنا باجێن ب کوالێتیەکا بلند (وەکی سەرەتایی، پەهلەوان، شارەزا، مامۆستا، شانازیا کوردستانێ، شاهێ پەیڤان) دگەل دەنگەکێ تایبەت و جیاواز بۆ هەر ئێک ژ وان دەمێ وەردگری!
+                           ✨ چێکرنا باجێن ب کوالێتیەکا بلند (وەکی سەرەتایی، پەهلەوان، شارەزا، مامۆستا، شانازیا کوردستانێ، شاهێ پەیڤان) دگەل دەنگەکێ تایبەت و جیاواز بۆ هەر ئێک ژ وان دەمێ وەردگری!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">👀 دیارکرنا پلەیێ:</strong> ژ نۆکە و پێڤە، مەزنترین مەدالیایا تە دێ ل سەر پرۆفایلێ تە یێ گشتی دیار بیت!
+                           👀 ژ نۆکە و پێڤە، مەزنترین مەدالیایا تە دێ ل سەر پرۆفایلێ تە یێ گشتی دیار بیت!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           <strong className="text-mono-900 dark:text-white transition-colors">⚡ بلەزکرنا ئەپی:</strong> چارەسەرکرنا هندەک ئاریشەیێن بچویک و ڕێکخستنا بەرپەڕێ پرۆفایلی.
+                           ⚡ چارەسەرکرنا هندەک ئاریشەیێن بچویک و ڕێکخستنا بەرپەڕێ پرۆفایلی.
                         </li>
                      </ul>
 
