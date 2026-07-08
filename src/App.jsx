@@ -72,6 +72,8 @@ const MasteryModal = lazyWithRetry(() => import('./components/MasteryModal'));
 const KeyboardLanguageModal = lazyWithRetry(() => import('./components/KeyboardLanguageModal'));
 const StatsView = lazyWithRetry(() => import('./components/StatsView'));
 const AchievementsView = lazyWithRetry(() => import('./components/AchievementsView'));
+const MedalsView = lazyWithRetry(() => import('./components/MedalsView'));
+
 
 import { useGame } from './context/GameContext';
 import { useUser } from './context/AuthContext';
@@ -205,7 +207,8 @@ export default function App() {
     applyPenalty,
     initializeStatsInDB,
     loading: isGameLoading,
-    resetBoard: _resetContextBoard
+    resetBoard: _resetContextBoard,
+    hasUnclaimedMedals
   } = useGame();
 
   // --- ONESIGNAL NOTIFICATION ENGINE ---
@@ -409,6 +412,7 @@ export default function App() {
   }, [currentView, navigate, location.pathname]);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [howToPlayMode, setHowToPlayMode] = useState('classic');
@@ -1599,7 +1603,7 @@ export default function App() {
         )}
 
         {/* 1. STATE-BASED NAVIGATION HEADER */}
-        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && !['playing', 'joining', 'syncing', 'match_starting'].includes(multiplayerState) && (
+        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && currentView !== 'medals' && !['playing', 'joining', 'syncing', 'match_starting'].includes(multiplayerState) && (
           <TopAppBar
             user={user} fils={fils} derhem={derhem} dinar={dinar}
             magnetCount={magnetCount} hintCount={hintCount} skipCount={skipCount}
@@ -1889,6 +1893,11 @@ export default function App() {
                     onViewChange={navigateTo}
                   />
                 </div>
+                <div className={currentView === 'medals' ? 'contents' : 'hidden'}>
+                  <MedalsView
+                    onViewChange={navigateTo}
+                  />
+                </div>
                 <div className={currentView === 'dictionary' ? 'contents' : 'hidden'}>
                   <DictionaryView
                     solvedWords={solvedWords}
@@ -1997,6 +2006,7 @@ export default function App() {
           currentView !== 'stats' &&
           currentView !== 'achievements' &&
           currentView !== 'dictionary' &&
+          currentView !== 'medals' &&
           (multiplayerState === 'idle' || multiplayerState === 'game_over') &&
           !isKeyboardOpen && (
             <BottomNav
@@ -2007,6 +2017,7 @@ export default function App() {
               chatBadgeCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.unreadGlobal || 0)}
               pendingFriendsCount={socialNotifications.pendingRequests || 0}
               hasSilentGlobal={hasUnreadGlobalMessage}
+              hasUnclaimedRewards={hasUnclaimedMedals}
             />
           )}
 
@@ -2343,6 +2354,13 @@ export default function App() {
             updateInventory({ fils: 100 }); // Bonus reward
           }}
         />
+
+        {/* TEMPORARY MEDALS PREVIEW */}
+        <Suspense fallback={null}>
+          <AnimatePresence>
+            
+          </AnimatePresence>
+        </Suspense>
 
       </div>
     </div>

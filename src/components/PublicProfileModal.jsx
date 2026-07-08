@@ -4,7 +4,7 @@ import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
 import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
-import { FilsIcon, Level10Icon, KawaHammerIcon, GraduationCapIcon, KurdishShieldIcon, GlobeIcon, ExpertDiamondIcon } from './CurrencyIcon';
+import { FilsIcon, Level10Icon, PahlawanIcon, SharezaCompassIcon, KurdishShieldIcon, KingOfTheLettersIcon, MamostaBookIcon } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
@@ -29,7 +29,7 @@ export default function PublicProfileModal({
   const [playerStats, setPlayerStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullStats, setShowFullStats] = useState(false);
-  const [isMedalsExpanded] = useState(true);
+
 
 
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
@@ -314,12 +314,12 @@ export default function PublicProfileModal({
 
   // Medals Configuration
   const medals = [
-    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-amber-500', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
-    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-red-500', glow: '', IconComponent: KawaHammerIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-    { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-cyan-400', glow: '', IconComponent: ExpertDiamondIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-yellow-400', glow: '', IconComponent: GraduationCapIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
-    { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-emerald-500', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
-    { id: 'shanazi_jihani', name: 'شانازیا جیھانی', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: GlobeIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
+    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-slate-300', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
+    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-yellow-400', glow: '', IconComponent: PahlawanIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
+    { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-emerald-400', glow: '', IconComponent: SharezaCompassIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
+    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-cyan-400', glow: '', IconComponent: MamostaBookIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
+    { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-blue-400', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
+    { id: 'shanazi_jihani', name: 'شاهێ پەیڤان', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: KingOfTheLettersIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
   ];
 
   const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
@@ -441,7 +441,7 @@ export default function PublicProfileModal({
                   <div 
                     className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110"
                   >
-                    <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
+                    <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} isBadge={true} />
                   </div>
                 )}
 
@@ -578,53 +578,11 @@ export default function PublicProfileModal({
                   className="w-full py-2.5 mt-2 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 text-mono-900 dark:text-white font-black text-sm hover:bg-mono-200 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm"
                 >
                   <span className="material-symbols-outlined text-[18px]">query_stats</span>
-                  <span>ئامار و دەستکەفت</span>
+                  <span>ئامار</span>
                 </button>
               </div>
 
-              {!effectiveIsBlocked && (
-                <div className="w-full mt-2 pt-2 border-t border-mono-200 dark:border-white/5">
-                  <AnimatePresence>
-                    {isMedalsExpanded && (
-                      <Motion.div 
-                        initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                        exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                        transition={{ duration: 0.3 }}
-                        className="bg-mono-50 dark:bg-mono-900/50 p-4 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain relative overflow-hidden mb-2"
-                      >
-                        <div 
-                          className="w-full flex items-center justify-center mb-4"
-                        >
-                          <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center whitespace-nowrap">دەستکەڤتێن {displayData.nickname || 'یاریزان'}</span>
-                        </div>
 
-                        <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
-                          {medals.map((m) => {
-                            const isUnlocked = m.condition(displayData);
-                            return (
-                              <div
-                                key={m.id}
-                                className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
-                              >
-                                <div className="h-10 mb-2 flex items-center justify-center relative">
-                                  <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
-                                </div>
-                                <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
-                                  {m.name}
-                                </span>
-                                <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight">
-                                  {m.tooltip}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </Motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )}
             </Motion.div>
           );
         })()}

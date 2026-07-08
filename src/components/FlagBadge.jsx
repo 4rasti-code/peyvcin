@@ -25,7 +25,7 @@ export default function FlagBadge({ countryCode = 'IQ', isInKurdistan = false, s
           <path fill="#fff" d="M0 113.8h512v113.4H0z"/>
           <path fill="#278e3c" d="M0 227.2h512v113.8H0z"/>
           <g transform="translate(256 170.5)">
-            <circle fill="#f8e71c" r="54"/>
+            <circle cx="0" cy="0" fill="#f8e71c" r="54"/>
             {Array.from({ length: 21 }).map((_, i) => (
               <path 
                 key={i}
@@ -34,7 +34,7 @@ export default function FlagBadge({ countryCode = 'IQ', isInKurdistan = false, s
                 transform={`rotate(${(i * 360) / 21})`}
               />
             ))}
-            <circle fill="#f8e71c" r="22"/>
+            <circle cx="0" cy="0" fill="#f8e71c" r="22"/>
           </g>
         </svg>
       </div>

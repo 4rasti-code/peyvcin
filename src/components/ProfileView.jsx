@@ -27,11 +27,14 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
    const {
       currentXP, level, dailyStreak, lastStreakAt,
-      userRank, progressPercent, solvedWords
+      userRank, progressPercent, solvedWords, hasUnclaimedMedals
+      // updateInventory, addXP
    } = useGame();
 
-   const { playSaveSound, playTabSound } = useAudio();
+   const audioContext = useAudio();
+   const { playSaveSound, playTabSound /* , playVictorySound */ } = audioContext;
    const [draftAvatar, setDraftAvatar] = useState(userAvatar);
+
    const [saveSuccess, setSaveSuccess] = useState(false);
    const [isUploading, setIsUploading] = useState(false);
    const fileInputRef = useRef(null);
@@ -216,10 +219,10 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          setCroppedBlob(null);
          setLocalPreviewUrl(null);
          setTimeout(() => setSaveSuccess(false), 2000);
-      } catch (err) { 
+      } catch (err) {
          alert(err.message || 'شاشیەک ڕوویدا');
-      } finally { 
-         setIsUploading(false); 
+      } finally {
+         setIsUploading(false);
       }
    };
 
@@ -382,10 +385,10 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                <div className="absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-[18px] sm:pb-3 pt-2 flex flex-col justify-end shadow-sm" dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-[14px] px-2" dir="ltr">
                      {/* Left: Medal Badge */}
-                     <div 
+                     <div
                         className="w-12 h-12 flex items-center justify-center shrink-0"
                      >
-                        <bestMedal.IconComponent className={`w-10 h-10 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} />
+                        <bestMedal.IconComponent className={`w-10 h-10 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} isBadge={true} />
                      </div>
 
                      {/* Center: Name */}
@@ -425,11 +428,11 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                                  key="streak-badge"
                                  initial={{ opacity: 0, scale: 0.8 }}
                                  animate={{ opacity: 1, scale: 1 }}
-                                 className="flex flex-col items-center justify-center relative w-12 h-12 hover:scale-110 transition-transform cursor-pointer"
+                                 className="flex flex-col items-center justify-center relative w-12 h-12 transition-transform cursor-pointer"
                               >
                                  <Motion.div
                                     className="relative text-xl leading-none"
-                                    animate={{
+                                    animate={{ 
                                        filter: [
                                           "drop-shadow(0 0 8px rgba(255, 159, 28, 0.4))",
                                           "drop-shadow(0 0 20px rgba(255, 159, 28, 0.8))",
@@ -505,12 +508,12 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
          <div className="flex-1 px-4 pb-[max(env(safe-area-inset-bottom),80px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 bg-trigger-zone flex flex-col justify-start pt-2">
             <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center">
-               
+
                {/* Friends Button (Tab Design) */}
                <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300 w-full max-w-sm mx-auto mt-2 mb-4" dir="rtl">
                   <button
-                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(15); if(playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
-                     onClick={(e) => { e.stopPropagation(); triggerHaptic(15); if(playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
+                     onClick={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
                      className="w-full py-2.5 rounded-sm bg-black dark:bg-mono-800 shadow-md text-mono-50 font-black text-[14px] flex items-center justify-center gap-2 transition-all relative z-10 hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   >
                      <span className="material-symbols-outlined text-[20px]">group</span>
@@ -523,78 +526,67 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   </button>
                </div>
 
-               {/* Quick Actions (Stats, Achievements, Dictionary) */}
-               <div className="flex flex-row items-center justify-center gap-8 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10">
-                 
-                 {/* Stats */}
-                 <Motion.button
-                   whileHover={{ scale: 1.05, y: -2 }}
-                   whileTap={{ scale: 0.95 }}
-                   onClick={() => { triggerHaptic(15); onViewChange('stats'); }}
-                   className="flex flex-col items-center justify-center transition-all group"
-                 >
-                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-[#8b5cf6] transition-colors mb-2">
-                     bar_chart
-                   </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئامار</span>
-                 </Motion.button>
+               {/* Quick Actions (Stats, Missions, Medals, Dictionary) */}
+               <div className="flex flex-row items-center justify-between gap-2 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10 px-4">
 
-                 {/* Achievements */}
-                 <Motion.button
-                   whileHover={{ scale: 1.05, y: -2 }}
-                   whileTap={{ scale: 0.95 }}
-                   onClick={() => { triggerHaptic(15); onViewChange('achievements'); }}
-                   className="flex flex-col items-center justify-center transition-all group"
-                 >
-                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-yellow-500 transition-colors mb-2">
-                     emoji_events
-                   </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">دەستکەفت</span>
-                 </Motion.button>
+                  {/* Stats */}
+                  <Motion.button
+                     whileHover={{ scale: 1.05, y: -2 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => { triggerHaptic(15); onViewChange('stats'); }}
+                     className="flex flex-col items-center justify-center transition-all group"
+                  >
+                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-[#8b5cf6] transition-colors mb-2">
+                        bar_chart
+                     </span>
+                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئامار</span>
+                  </Motion.button>
 
-                 {/* Dictionary */}
-                 <Motion.button
-                   whileHover={{ scale: 1.05, y: -2 }}
-                   whileTap={{ scale: 0.95 }}
-                   onClick={() => { triggerHaptic(15); onViewChange('dictionary'); }}
-                   className="flex flex-col items-center justify-center transition-all group"
-                 >
-                   <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[56px] group-hover:text-cyan-500 transition-colors mb-2">
-                     menu_book
-                   </span>
-                   <span className="text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">فەرهەنگ</span>
-                 </Motion.button>
+                  {/* Missions */}
+                  <Motion.button
+                     whileHover={{ scale: 1.05, y: -2 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => { triggerHaptic(15); onViewChange('achievements'); }}
+                     className="flex flex-col items-center justify-center transition-all group"
+                  >
+                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-yellow-500 transition-colors mb-2">
+                        track_changes
+                     </span>
+                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئەرک</span>
+                  </Motion.button>
+
+                  {/* Rank (New Button) */}
+                  <Motion.button
+                     whileHover={{ scale: 1.05, y: -2 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => { triggerHaptic(15); onViewChange('medals'); }}
+                     className="flex flex-col items-center justify-center transition-all group relative"
+                  >
+                     {hasUnclaimedMedals && (
+                        <div className="absolute top-0 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-mono-white dark:border-black z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" />
+                     )}
+                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-amber-500 transition-colors mb-2">
+                        military_tech
+                     </span>
+                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">پلە</span>
+                  </Motion.button>
+
+                  {/* Dictionary */}
+                  <Motion.button
+                     whileHover={{ scale: 1.05, y: -2 }}
+                     whileTap={{ scale: 0.95 }}
+                     onClick={() => { triggerHaptic(15); onViewChange('dictionary'); }}
+                     className="flex flex-col items-center justify-center transition-all group"
+                  >
+                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-cyan-500 transition-colors mb-2">
+                        menu_book
+                     </span>
+                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">فەرهەنگ</span>
+                  </Motion.button>
 
                </div>
 
-               {/* Medals Section */}
-               <div className="bg-mono-50 dark:bg-mono-900/50 p-4 pb-8 rounded-md border border-mono-200 dark:border-mono-800 flex flex-col items-center noise-grain mt-2 relative overflow-hidden mb-2">
-                  <div className="w-full flex items-center justify-center mb-4">
-                     <span className="text-sm font-black text-mono-400 dark:text-mono-500 uppercase text-center whitespace-nowrap">دەستکەفتێن تە</span>
-                  </div>
 
-                  <div className="flex flex-wrap justify-center gap-x-2 gap-y-3 px-0 w-full">
-                     {medals.map((m) => {
-                        const isUnlocked = m.condition(displayData);
-                        return (
-                           <div
-                              key={m.id}
-                              className={`flex flex-col items-center justify-start py-3 transition-all duration-300 w-[30%] min-w-[90px] ${!isUnlocked ? 'opacity-50 grayscale' : ''}`}
-                           >
-                              <div className="h-10 mb-2 flex items-center justify-center relative">
-                                 <m.IconComponent className={`w-9 h-9 transition-all hover:scale-110 ${isUnlocked ? '' : 'text-slate-500'}`} disabled={!isUnlocked} />
-                              </div>
-                              <span className={`text-[11px] font-black font-rabar mb-0.5 text-center drop-shadow-sm ${isUnlocked ? m.color : 'text-mono-500 dark:text-mono-400'}`}>
-                                 {m.name}
-                              </span>
-                              <span className="text-[8px] font-bold text-mono-400 dark:text-mono-500 text-center leading-tight px-1">
-                                 {m.tooltip}
-                              </span>
-                           </div>
-                        );
-                     })}
-                  </div>
-               </div>
 
                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </Motion.div>
@@ -709,43 +701,45 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
             document.body
          )}
 
+
          {/* Friends Modal Inline (No Portal/AnimatePresence to fix iOS touch bugs) */}
          {isFriendsModalOpen && (
-           <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-mono-white dark:bg-black" dir="rtl">
-             <Motion.div
-               initial={{ x: '100%' }}
-               animate={{ x: 0 }}
-               exit={{ x: '100%' }}
-               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-               className="bg-mono-white dark:bg-black w-full h-full max-w-md mx-auto shadow-2xl flex flex-col overflow-hidden relative z-10"
-             >
-               <div className="p-4 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 shrink-0">
-                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/30 text-emerald-500">
-                     <span className="material-symbols-outlined font-bold">group</span>
-                   </div>
-                   <h3 className="text-mono-900 dark:text-white font-black font-rabar text-lg">لیستا ھەڤالان</h3>
-                 </div>
-                 <button
-                   onPointerDown={() => setIsFriendsModalOpen(false)}
-                   className="w-10 h-10 flex items-center justify-center rounded-2xl text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all active:scale-95 border border-transparent hover:border-mono-300 dark:hover:border-mono-700"
-                 >
-                   <span className="material-symbols-outlined">close</span>
-                 </button>
-               </div>
-               
-               <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
-                 <FriendsList 
-                   onOpenChat={(player) => {
-                     setIsFriendsModalOpen(false);
-                     if (onOpenChat) onOpenChat(player);
-                   }} 
-                 />
-               </div>
-             </Motion.div>
-           </div>
+            <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-mono-white dark:bg-black" dir="rtl">
+               <Motion.div
+                  initial={{ x: '100%' }}
+                  animate={{ x: 0 }}
+                  exit={{ x: '100%' }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="bg-mono-white dark:bg-black w-full h-full max-w-md mx-auto shadow-2xl flex flex-col overflow-hidden relative z-10"
+               >
+                  <div className="p-4 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 shrink-0">
+                     <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/30 text-emerald-500">
+                           <span className="material-symbols-outlined font-bold">group</span>
+                        </div>
+                        <h3 className="text-mono-900 dark:text-white font-black font-rabar text-lg">لیستا ھەڤالان</h3>
+                     </div>
+                     <button
+                        onPointerDown={() => setIsFriendsModalOpen(false)}
+                        className="w-10 h-10 flex items-center justify-center rounded-2xl text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all active:scale-95 border border-transparent hover:border-mono-300 dark:hover:border-mono-700"
+                     >
+                        <span className="material-symbols-outlined">close</span>
+                     </button>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
+                     <FriendsList
+                        onOpenChat={(player) => {
+                           setIsFriendsModalOpen(false);
+                           if (onOpenChat) onOpenChat(player);
+                        }}
+                     />
+                  </div>
+               </Motion.div>
+            </div>
          )}
+
+
       </div>
    );
 }
-

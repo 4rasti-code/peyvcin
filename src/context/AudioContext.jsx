@@ -27,7 +27,13 @@ import {
   setBackgroundMusicVolume,
   startBackgroundMusic, 
   stopBackgroundMusic,
-  playHeartbeatSfx
+  playHeartbeatSfx,
+  playNoberaSfx,
+  playPalawanSfx,
+  playExpertSfx,
+  playMamostaSfx,
+  playShanaziKurdistanSfx,
+  playShanaziJihaniSfx
 } from '../utils/audio';
 
 const AudioContext = createContext();
@@ -82,6 +88,13 @@ export const AudioProvider = ({ children }) => {
   const startBGM = useCallback(() => startBackgroundMusic(), []);
   const stopBGM = useCallback(() => stopBackgroundMusic(), []);
 
+  const playNoberaSound = useCallback(() => playNoberaSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playPalawanSound = useCallback(() => playPalawanSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playExpertSound = useCallback(() => playExpertSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playMamostaSound = useCallback(() => playMamostaSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playShanaziKurdistanSound = useCallback(() => playShanaziKurdistanSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playShanaziJihaniSound = useCallback(() => playShanaziJihaniSfx(appSoundsEnabled), [appSoundsEnabled]);
+
   const updateMusicVolume = useCallback((val) => {
     setBgMusicVolumeGuarded(val);
     localStorage.setItem('peyvchin_bg_music_volume', val.toString());
@@ -105,14 +118,15 @@ export const AudioProvider = ({ children }) => {
     playRightLetterSound, playWrongPlaceSound, playHeartbeatSound,
     startSearchingSound, stopSearchingSound, startBGM, stopBGM,
     updateMusicVolume, updateSfxVolume,
-    playDailyOpenSfx, playDailyClaimSfx
+    playDailyOpenSfx, playDailyClaimSfx,
+    playNoberaSound, playPalawanSound, playExpertSound, playMamostaSound, playShanaziKurdistanSound, playShanaziJihaniSound
   }), [
     appSfxVolume, bgMusicVolume, appSoundsEnabled, playPopSound, playNotifSound, 
     playMessageSound, playMessageSentSound, playVictorySound, playRewardSound, 
     playPurchaseSound, playBoosterSound, playBubblePopSound, playSettingsOpenSound, 
     playSettingsCloseSound, playTabSound, playAlertSound, playBackSound, playSaveSound, 
     playStartGameSound, playRightLetterSound, playWrongPlaceSound, playHeartbeatSound, startSearchingSound, stopSearchingSound, startBGM, stopBGM, 
-    updateMusicVolume, updateSfxVolume
+    updateMusicVolume, updateSfxVolume, playNoberaSound, playPalawanSound, playExpertSound, playMamostaSound, playShanaziKurdistanSound, playShanaziJihaniSound
   ]);
 
   return <AudioContext.Provider value={value}>{children}</AudioContext.Provider>;

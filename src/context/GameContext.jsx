@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
 import { safeJSONParse } from '../utils/safeParse';
+import { MEDALS } from '../constants/medals';
 
 const GameContext = createContext();
 
@@ -30,6 +31,11 @@ export const GameProvider = ({ children }) => {
   const [inventory, setInventory] = useState({ badges: [] });
   const [loading, setLoading] = useState(true);
   const claimRef = useRef(false);
+
+  const [claimedMedals, setClaimedMedals] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_claimed_medals');
+    return safeJSONParse(saved, [], 'peyvchin_claimed_medals');
+  });
 
   // Standardized Level Math (Hardcore Hybrid Infinite System)
   const { level, progressPercent, currentLevelBase, nextLevelBase } = useMemo(() => getLevelData(currentXP), [currentXP]);
@@ -421,6 +427,32 @@ export const GameProvider = ({ children }) => {
     }
   }, []);
 
+  const claimMedal = useCallback((medalId, rewardAmount = 1000) => {
+    setClaimedMedals(prev => {
+      if (prev.includes(medalId)) return prev;
+      
+      const next = [...prev, medalId];
+      localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(next));
+
+      // 1. Give reward
+      if (rewardAmount && rewardAmount > 0) {
+        updateInventory({ fils: rewardAmount }, true, true);
+      }
+
+      // 2. Try to sync to DB if user is logged in
+      const { user: currentUser } = gameStateRef.current;
+      if (currentUser?.id) {
+        supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id })
+          .catch(_err => {
+             // Fallback to direct update if RPC is missing
+             supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id).catch(console.error);
+          });
+      }
+
+      return next;
+    });
+  }, [updateInventory]);
+
   const processPurchase = useCallback(async (item) => {
     const { user: currentUser, fils: currFils, derhem: currDerhem, dinar: currDinar, hintCount: currHints, magnetCount: currMags, skipCount: currSkips } = gameStateRef.current;
     if (!currentUser) return { success: false, error: "Must be logged in" };
@@ -777,6 +809,17 @@ export const GameProvider = ({ children }) => {
     }
   }, [user]);
 
+  const { hasUnclaimedMedals, unclaimedMedalsList } = useMemo(() => {
+    const safeLevel = getLevelFromXP(currentXP || 0);
+    const displayData = { ...(profileData || {}), ...(playerStats || {}), level: safeLevel };
+    
+    const unclaimed = MEDALS.filter(m => m.condition(displayData) && !claimedMedals.includes(m.id));
+    return {
+      hasUnclaimedMedals: unclaimed.length > 0,
+      unclaimedMedalsList: unclaimed
+    };
+  }, [currentXP, profileData, playerStats, claimedMedals]);
+
   const value = useMemo(() => ({
 level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, setDailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt, claimDailyReward,
@@ -784,6 +827,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     solvedWords, playerStats,
     userRank: _userRank, updateInventory, setCurrentXP, setLastNotifiedLevel, lastNotifiedLevel, setNotifiedLevelDB,
     syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, getLevelData, progressPercent,
+    claimedMedals, claimMedal, hasUnclaimedMedals, unclaimedMedalsList,
     // ==========================================
     // Fetch Word Logic
     // ==========================================
@@ -890,7 +934,8 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount, spinTicketCount, solvedWords, playerStats,
     _userRank, updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
-    syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB, lastStreakAt
+    syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB, lastStreakAt,
+    claimedMedals, claimMedal, hasUnclaimedMedals, unclaimedMedalsList
   ]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

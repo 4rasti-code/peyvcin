@@ -2,7 +2,7 @@ import React from 'react';
 import { motion as Motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
-export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, chatBadgeCount = 0, hasSilentGlobal = false, pendingFriendsCount = 0 }) {
+export default function BottomNav({ currentView, setCurrentView, onSettingsToggle, onTabClickSound, chatBadgeCount = 0, hasSilentGlobal = false, pendingFriendsCount = 0, hasUnclaimedRewards = false }) {
   const tabs = [
     { id: 'profile', icon: 'person', label: 'بەرپەڕ' },
     { id: 'leaderboard', icon: 'workspace_premium', label: 'ڕێزبەندی' },
@@ -73,6 +73,15 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   >
                     {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}
                   </Motion.div>
+                )}
+
+                
+                {tab.id === 'profile' && pendingFriendsCount === 0 && hasUnclaimedRewards && (
+                  <Motion.div 
+                    animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
+                    transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                    className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 z-20 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                  />
                 )}
 
                 {tab.id === 'social_hub' && hasSilentGlobal && chatBadgeCount === 0 && (

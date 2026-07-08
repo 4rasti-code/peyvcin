@@ -346,8 +346,8 @@ export default function LeaderboardView({ onOpenChat }) {
                  { cx: 5, cy: 40, r: 5 }, { cx: 25, cy: 55, r: 4 }, { cx: 50, cy: 20, r: 6 }, { cx: 75, cy: 55, r: 4 }, { cx: 95, cy: 40, r: 5 }
                ].map((b, i) => (
                  <g key={i}>
-                   <circle cx={b.cx} cy={b.cy} r={b.r} fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                   <circle cx={b.cx - b.r / 3} cy={b.cy - b.r / 3} r={b.r / 4} fill="white" fillOpacity="0.6" />
+                   <circle cx={b.cx || 0} cy={b.cy || 0} r={b.r || 0} fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
+                   <circle cx={(b.cx - b.r / 3) || 0} cy={(b.cy - b.r / 3) || 0} r={(b.r / 4) || 0} fill="white" fillOpacity="0.6" />
                  </g>
                ))}
 
@@ -572,13 +572,13 @@ export default function LeaderboardView({ onOpenChat }) {
                               ].map((b, i) => (
                                 <g key={i}>
                                   <Motion.circle
-                                    cx={b.cx} cy={b.cy} r={b.r}
+                                    cx={b.cx || 0} cy={b.cy || 0} r={b.r || 0}
                                     fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5"
                                     animate={{ filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"] }}
                                     transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
                                   />
                                   <Motion.circle
-                                    cx={b.cx - b.r / 3} cy={b.cy - b.r / 3} r={b.r / 4}
+                                    cx={(b.cx - b.r / 3) || 0} cy={(b.cy - b.r / 3) || 0} r={(b.r / 4) || 0}
                                     fill="white" fillOpacity="0.6"
                                     animate={{ opacity: [0.4, 0.9, 0.4] }}
                                     transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}

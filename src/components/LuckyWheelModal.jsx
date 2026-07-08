@@ -278,25 +278,11 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
             style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
           >
-          <Motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="w-full max-w-sm relative p-6 flex flex-col items-center"
-          >
             {/* Close Button Top Right */}
             {!isSpinning && (
               <button onClick={() => { playBackSfx(); onClose(); }} className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
-            )}
-
-            {/* Ambient Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 blur-[100px] rounded-full pointer-events-none" />
-
-            <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
-            {!canSpin && !loadingCheck && timeLeftStr && (
-              <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
             )}
 
             {/* Spin Ticket Pill Counter */}
@@ -307,6 +293,24 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
               <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
               <SpinTicketIcon size={24} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
             </div>
+
+          <Motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="w-full max-w-sm relative p-6 flex flex-col items-center"
+          >
+
+
+            {/* Ambient Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 blur-[100px] rounded-full pointer-events-none" />
+
+            <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
+            {!canSpin && !loadingCheck && timeLeftStr && (
+              <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
+            )}
+
+
 
             {/* Wheel Container with Dimming Effect (Optimized for GPU safety) */}
             <Motion.div 
@@ -372,8 +376,8 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                     </div>
 
                     {/* Reward Amount Text */}
-                    <p className="text-5xl font-black text-yellow-400 drop-shadow-[0_5px_15px_rgba(0,0,0,1)] mt-3">
-                      + {wonReward.label}
+                    <p className="text-5xl font-black text-yellow-400 drop-shadow-[0_5px_15px_rgba(0,0,0,1)] mt-4 mb-8">
+                      + {wonReward.type === 'mystery_box' ? `${toKuDigits(wonReward.amount)} ${wonReward.label}` : wonReward.label}
                     </p>
                   </Motion.div>
                   
