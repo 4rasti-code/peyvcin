@@ -299,17 +299,55 @@ export const PahlawanIcon = ({ className = "w-6 h-6", size = 24, disabled = fals
         </svg>
       )}
 
-      <img
-        src="/icons/Pahlawan.svg?v=7"
-        alt="Pahlawan"
+      <svg
+        viewBox="0 0 100 100"
         className="z-10 relative"
         style={{
           width: '100%',
           height: '100%',
-          maxWidth: '100%',
-          filter: disabled ? 'grayscale(100%) opacity(50%)' : 'drop-shadow(0px 2px 4px rgba(0,0,0,0.5))'
+          filter: disabled ? 'grayscale(100%) opacity(50%)' : 'drop-shadow(0px 4px 6px rgba(0,0,0,0.6))'
         }}
-      />
+      >
+        <defs>
+          <linearGradient id="hammer-metal" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#EAB308" />
+            <stop offset="100%" stopColor="#A16207" />
+          </linearGradient>
+          <linearGradient id="hammer-edge" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#FDE047" />
+            <stop offset="50%" stopColor="#CA8A04" />
+            <stop offset="100%" stopColor="#713F12" />
+          </linearGradient>
+        </defs>
+        <g transform="scale(0.2)">
+          {/* Main Hammer Body */}
+          <path
+            d="M98,25h300l30,20v100l-30,20H288v230l5,40l-45,40l-45-40l5-40V165H98l-30-20V45L98,25z"
+            fill="url(#hammer-metal)"
+            stroke="url(#hammer-edge)"
+            strokeWidth="8"
+            strokeLinejoin="round"
+          />
+          {/* Hammer Handle Grip Details */}
+          <path
+            d="M243,165 v230 M253,165 v230 M243,185 h10 M243,225 h10 M243,265 h10 M243,305 h10 M243,345 h10"
+            stroke="#713F12"
+            strokeWidth="4"
+            opacity="0.6"
+          />
+          {/* Hammer Head Engravings */}
+          <path
+            d="M128,45 h240 v60 h-240 z"
+            fill="none"
+            stroke="#713F12"
+            strokeWidth="4"
+            opacity="0.3"
+          />
+          <circle cx="248" cy="75" r="15" fill="none" stroke="#FEF08A" strokeWidth="6" opacity="0.8" />
+          <polygon points="248,65 251,72 258,72 252,77 254,84 248,80 242,84 244,77 238,72 245,72" fill="#FEF08A" />
+        </g>
+      </svg>
 
       {/* Orbiting Energy Beam Overlay & Glowing God of War Runes */}
       {!disabled && (

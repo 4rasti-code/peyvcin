@@ -84,7 +84,7 @@ export const GameProvider = ({ children }) => {
     user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
     currentXP, level, inventory,
     dailyStreak, rewardStreak, lastRewardClaimedAt, lastStreakAt,
-    playerStats, solvedWords
+    playerStats, solvedWords, claimedMedals
   });
 
   useEffect(() => {
@@ -92,13 +92,13 @@ export const GameProvider = ({ children }) => {
       user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
       currentXP, level, inventory,
       dailyStreak, rewardStreak, lastRewardClaimedAt,
-      playerStats, solvedWords
+      playerStats, solvedWords, claimedMedals
     };
   }, [
     user, fils, derhem, dinar, magnetCount, hintCount, skipCount, spinTicketCount,
     currentXP, level, inventory,
     dailyStreak, rewardStreak, lastRewardClaimedAt,
-    playerStats, solvedWords
+    playerStats, solvedWords, claimedMedals
   ]);
 
   // Sync statistics from profileData when it loads
@@ -427,29 +427,34 @@ export const GameProvider = ({ children }) => {
     }
   }, []);
 
-  const claimMedal = useCallback((medalId, rewardAmount = 1000) => {
-    setClaimedMedals(prev => {
-      if (prev.includes(medalId)) return prev;
-      
-      const next = [...prev, medalId];
-      localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(next));
+  const claimMedal = useCallback(async (medalId, rewardAmount = 1000) => {
+    // Check locally first to prevent double claim
+    const currentMedals = gameStateRef.current.claimedMedals || [];
+    if (currentMedals.includes(medalId)) return;
+    
+    // 1. Optimistic local update
+    const next = [...currentMedals, medalId];
+    setClaimedMedals(next);
+    localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(next));
 
-      // 1. Give reward
-      if (rewardAmount && rewardAmount > 0) {
-        updateInventory({ fils: rewardAmount }, true, true);
+    // 2. Give reward
+    if (rewardAmount && rewardAmount > 0) {
+      updateInventory({ fils: rewardAmount }, true, true);
+    }
+
+    // 3. Try to sync to DB if user is logged in
+    const { user: currentUser } = gameStateRef.current;
+    if (currentUser?.id) {
+      try {
+        const { error } = await supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id });
+        if (error) {
+           console.warn('claim_medal rpc failed:', error);
+        }
+      } catch (err) {
+         // Silently catch missing RPC or network errors without crashing the app
+         console.warn('claim_medal rpc error:', err);
       }
-
-      // 2. Try to sync to DB if user is logged in
-      const { user: currentUser } = gameStateRef.current;
-      if (currentUser?.id) {
-        supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id })
-          .catch(() => {
-             // Silently catch missing RPC. A Supabase SQL migration will add this RPC.
-          });
-      }
-
-      return next;
-    });
+    }
   }, [updateInventory]);
 
   const processPurchase = useCallback(async (item) => {
