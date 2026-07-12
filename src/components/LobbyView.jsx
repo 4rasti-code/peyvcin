@@ -18,6 +18,7 @@ import LuckyWheelIcon from './LuckyWheelIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
+import PublicProfileModal from './PublicProfileModal';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 const LobbyView = memo(({
@@ -35,6 +36,7 @@ const LobbyView = memo(({
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
   const [loadingOnline, setLoadingOnline] = useState(false);
@@ -180,15 +182,34 @@ const LobbyView = memo(({
           const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id);
           
           if (onlineIds.length > 0) {
-            const { data, error } = await supabase
-              .from('profiles')
-              .select('id, nickname, avatar_url, xp')
-              .in('id', onlineIds)
-              .neq('nickname', 'Admin_4rasti')
-              .limit(50);
+            const [profilesRes, friendsRes] = await Promise.all([
+              supabase
+                .from('profiles')
+                .select('id, nickname, avatar_url, xp')
+                .in('id', onlineIds)
+                .neq('nickname', 'Admin_4rasti')
+                .limit(50),
+              supabase
+                .from('friendships')
+                .select('user_id, friend_id')
+                .eq('status', 'accepted')
+                .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`)
+            ]);
               
-            if (!error && data) {
-              setOnlineProfiles(data);
+            if (!profilesRes.error && profilesRes.data) {
+              const friendIds = new Set();
+              if (friendsRes.data) {
+                friendsRes.data.forEach(f => {
+                  friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
+                });
+              }
+              
+              const profilesWithFriendStatus = profilesRes.data.map(p => ({
+                ...p,
+                isFriend: friendIds.has(p.id)
+              }));
+              
+              setOnlineProfiles(profilesWithFriendStatus);
             }
           } else {
             setOnlineProfiles([]);
@@ -266,6 +287,54 @@ const LobbyView = memo(({
     whileHover: { scale: 1.02 },
     whileTap: { scale: 0.98 },
     transition: { type: "spring", stiffness: 400, damping: 17 }
+  };
+
+  const renderProfileRow = (profile, index) => {
+    const isSent = sentInvites.has(profile.id);
+    return (
+      <div key={`${profile.id}-${index}`} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
+        <div 
+          className="flex items-center gap-3 cursor-pointer flex-1 mr-2"
+          onClick={() => {
+            triggerHaptic(10);
+            setSelectedProfile(profile);
+          }}
+        >
+          <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
+            <Avatar src={profile.avatar_url} size="full" border={false} />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-sm font-bold text-mono-900 dark:text-white leading-tight">
+              {profile.nickname || 'یاریکەر'}
+            </span>
+            {profile.xp !== undefined && (
+              <span className="text-[10px] font-medium text-mono-500 dark:text-mono-400">
+                ئاستی {getLevelFromXP(profile.xp)}
+              </span>
+            )}
+          </div>
+        </div>
+        <button
+          onClick={() => handleSendInviteToUser(profile.id)}
+          disabled={isSent}
+          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center gap-1 ${
+            isSent 
+              ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default' 
+              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+          }`}
+        >
+          {isSent ? (
+            <>
+              <span className="material-symbols-outlined text-[14px]">check</span>
+              نارد
+            </>
+          ) : (
+            'داخوازی'
+          )}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -551,47 +620,20 @@ const LobbyView = memo(({
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
                     ) : onlineProfiles.length > 0 ? (
-                      onlineProfiles.map((profile, index) => {
-                        const isSent = sentInvites.has(profile.id);
-                        return (
-                          <div key={`${profile.id}-${index}`} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
-                                <Avatar src={profile.avatar_url} size="full" border={false} />
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
-                              </div>
-                              <div className="flex flex-col items-start">
-                                <span className="text-sm font-bold text-mono-900 dark:text-white leading-tight">
-                                  {profile.nickname || 'یاریزان'}
-                                </span>
-                                {profile.xp !== undefined && (
-                                  <span className="text-[10px] font-medium text-mono-500 dark:text-mono-400">
-                                    ئاستێ {getLevelFromXP(profile.xp)}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => handleSendInviteToUser(profile.id)}
-                              disabled={isSent}
-                              className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center gap-1 ${
-                                isSent 
-                                  ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default' 
-                                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-                              }`}
-                            >
-                              {isSent ? (
-                                <>
-                                  <span className="material-symbols-outlined text-[14px]">check</span>
-                                  هنارت
-                                </>
-                              ) : (
-                                'داخوازی'
-                              )}
-                            </button>
-                          </div>
-                        );
-                      })
+                      <>
+                        {onlineProfiles.some(p => p.isFriend) && (
+                          <>
+                            <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
+                            {onlineProfiles.filter(p => p.isFriend).map(renderProfileRow)}
+                          </>
+                        )}
+                        {onlineProfiles.some(p => !p.isFriend) && (
+                          <>
+                            <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${onlineProfiles.some(p => p.isFriend) ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
+                            {onlineProfiles.filter(p => !p.isFriend).map(renderProfileRow)}
+                          </>
+                        )}
+                      </>
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-center px-4">
                         <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
@@ -726,6 +768,15 @@ const LobbyView = memo(({
 
       <LuckyWheelModal isOpen={showLuckyWheel} onClose={() => setShowLuckyWheel(false)} />
       <MysteryBoxModal isOpen={showMysteryBox} onClose={() => setShowMysteryBox(false)} />
+      
+      <AnimatePresence>
+        {selectedProfile && (
+          <PublicProfileModal
+            profile={selectedProfile}
+            onClose={() => setSelectedProfile(null)}
+          />
+        )}
+      </AnimatePresence>
     </Motion.div>
   );
 });

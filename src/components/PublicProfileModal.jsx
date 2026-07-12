@@ -60,8 +60,7 @@ export default function PublicProfileModal({
       setIsMe(isActuallyMe);
 
       const queries = [
-        supabase.from('profiles').select('*').eq('id', profile.id).single(),
-        supabase.from('player_stats').select('guess_distribution').eq('user_id', profile.id).maybeSingle()
+        supabase.from('profiles').select('*').eq('id', profile.id).single()
       ];
 
       if (currentUserId && !isActuallyMe) {
@@ -74,14 +73,14 @@ export default function PublicProfileModal({
       const results = await Promise.all(queries);
 
       const { data } = results[0];
-      if (data) setFullData(data);
-
-      const { data: statsData } = results[1];
-      if (statsData) setPlayerStats(statsData.guess_distribution);
+      if (data) {
+        setFullData(data);
+        setPlayerStats(data.guess_distribution);
+      }
 
       // 3. Check Relationship if not same user
       if (currentUserId && !isActuallyMe) {
-        const { data: friendship } = results[2];
+        const { data: friendship } = results[1];
         if (friendship) {
           if (friendship.status === 'accepted') {
             setRelStatus('friend');
@@ -94,7 +93,7 @@ export default function PublicProfileModal({
         }
 
         // 4. Check Block Status
-        const blockResult = results[3];
+        const blockResult = results[2];
         if (blockResult.error) {
           console.warn("Block table access restricted (RLS):", blockResult.error.message);
           setInternalBlocked(false);
