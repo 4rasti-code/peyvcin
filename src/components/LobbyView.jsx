@@ -327,7 +327,7 @@ const LobbyView = memo(({
           {isSent ? (
             <>
               <span className="material-symbols-outlined text-[14px]">check</span>
-              نارد
+              چوو
             </>
           ) : (
             'داخوازی'
