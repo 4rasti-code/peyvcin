@@ -692,29 +692,33 @@ export const GameProvider = ({ children }) => {
         const currentInventory = profileData?.inventory || { owned_avatars: ["default"], unlocked_themes: ["default"] };
         const newInventory = { ...currentInventory, solved_words: nextSolvedWords };
 
-        await supabase
-          .from('profiles')
-          .update({
+        const payload = {
             statistics: updatedStats,
             guess_distribution: dbGuessDist,
-            games_played: (profileData?.games_played || 0) + 1,
-            games_won: (profileData?.games_won || 0) + (isWin ? 1 : 0),
-            pvp_wins: (profileData?.pvp_wins || 0) + (isPvPWin ? 1 : 0),
-            total_words_found: (profileData?.total_words_found || 0) + wordsToAdd,
-            longest_word_length: newLongestWord,
-            fastest_solve_ms: newFastestSolve,
-            flawless_wins: (profileData?.flawless_wins || 0) + (isFlawless ? 1 : 0),
-            fever_highscore: newFeverHighscore,
-            total_active_days: (profileData?.total_active_days || 0) + activeDaysIncrement,
+            games_played: Number(profileData?.games_played || 0) + 1,
+            games_won: Number(profileData?.games_won || 0) + (isWin ? 1 : 0),
+            pvp_wins: Number(profileData?.pvp_wins || 0) + (isPvPWin ? 1 : 0),
+            total_words_found: Number(profileData?.total_words_found || 0) + Number(wordsToAdd || 0),
+            longest_word_length: Number(newLongestWord || 0),
+            fastest_solve_ms: Number(newFastestSolve || 0),
+            flawless_wins: Number(profileData?.flawless_wins || 0) + (isFlawless ? 1 : 0),
+            fever_highscore: Number(newFeverHighscore || 0),
+            total_active_days: Number(profileData?.total_active_days || 0) + activeDaysIncrement,
             last_active_date: todayStr,
-            current_streak: newCurrentStreak,
-            max_streak: newMaxStreak,
+            current_streak: Number(newCurrentStreak || 0),
+            max_streak: Number(newMaxStreak || 0),
             mode_play_counts: {
               ...currentModePlayCounts,
-              [mode]: (currentModePlayCounts[mode] || 0) + 1
+              [mode]: Number(currentModePlayCounts[mode] || 0) + 1
             },
             inventory: newInventory
-          })
+        };
+
+        console.log("[DEBUG] Supabase Profile Update Payload:", payload);
+
+        await supabase
+          .from('profiles')
+          .update(payload)
           .eq('id', currentUser.id);
       } catch (dbErr) {
         console.warn("Direct DB stats update failed:", dbErr.message);
