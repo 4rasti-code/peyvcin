@@ -409,11 +409,19 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       >
                         {claimedDayInfo?.isGrand ? (
-                          <DinarIcon size={120} className="block mx-auto overflow-visible filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]" />
+                          <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
+                            <SkipIcon size={70} />
+                            <DinarIcon size={90} />
+                            <FilsIcon size={70} />
+                          </div>
                         ) : claimedDayInfo?.type === 'fils' ? (
                           <FilsIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(250,204,21,0.5)]" />
                         ) : claimedDayInfo?.type === 'derhem' ? (
                           <DerhemIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(203,213,225,0.4)]" />
+                        ) : claimedDayInfo?.type === 'spinTicket' ? (
+                          <SpinTicketIcon size={120} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(16,185,129,0.5)]" />
+                        ) : claimedDayInfo?.type === 'mystery_box' ? (
+                          <MysteryBoxIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(139,92,246,0.5)]" />
                         ) : claimedDayInfo?.icon === 'lightbulb' ? (
                           <HintIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (

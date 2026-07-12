@@ -4,6 +4,7 @@ import { useUser } from './AuthContext';
 import { 
   playPopSfx, 
   playNotifSfx, 
+  playInviteSfx,
   playMessageSfx,
   playMessageSentSfx,
   playVictorySfx,
@@ -67,6 +68,7 @@ export const AudioProvider = ({ children }) => {
   const playPopSound = useCallback((bypass = false) => playPopSfx(appSoundsEnabled, bypass), [appSoundsEnabled]);
   const playHeartbeatSound = useCallback(() => playHeartbeatSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playNotifSound = useCallback(() => playNotifSfx(appSoundsEnabled), [appSoundsEnabled]);
+  const playInviteSound = useCallback(() => playInviteSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playMessageSound = useCallback(() => playMessageSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playMessageSentSound = useCallback(() => playMessageSentSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playVictorySound = useCallback(() => playVictorySfx(appSoundsEnabled), [appSoundsEnabled]);
@@ -111,7 +113,7 @@ export const AudioProvider = ({ children }) => {
 
   const value = useMemo(() => ({
     appSfxVolume, setAppSfxVolume, bgMusicVolume, setBgMusicVolume, appSoundsEnabled,
-    playPopSound, playNotifSound, playMessageSound, playMessageSentSound,
+    playPopSound, playNotifSound, playInviteSound, playMessageSound, playMessageSentSound,
     playVictorySound, playRewardSound, playPurchaseSound, playBoosterSound,
     playBubblePopSound, playSettingsOpenSound, playSettingsCloseSound,
     playTabSound, playAlertSound, playBackSound, playSaveSound, playStartGameSound,
@@ -121,7 +123,7 @@ export const AudioProvider = ({ children }) => {
     playDailyOpenSfx, playDailyClaimSfx,
     playNoberaSound, playPalawanSound, playExpertSound, playMamostaSound, playShanaziKurdistanSound, playShanaziJihaniSound
   }), [
-    appSfxVolume, bgMusicVolume, appSoundsEnabled, playPopSound, playNotifSound, 
+    appSfxVolume, bgMusicVolume, appSoundsEnabled, playPopSound, playNotifSound, playInviteSound, 
     playMessageSound, playMessageSentSound, playVictorySound, playRewardSound, 
     playPurchaseSound, playBoosterSound, playBubblePopSound, playSettingsOpenSound, 
     playSettingsCloseSound, playTabSound, playAlertSound, playBackSound, playSaveSound, 

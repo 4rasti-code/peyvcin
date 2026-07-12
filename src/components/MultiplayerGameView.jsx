@@ -10,6 +10,7 @@ import useGameLogic from '../hooks/useGameLogic';
 import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
 import RoundIntro from './RoundIntro';
+import MultiplayerReactions from './MultiplayerReactions';
 import { toKuDigits } from '../utils/formatters';
 
 export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay: _onOpenHowToPlay }) {
@@ -36,7 +37,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     broadcastLiveAction,
     opponentLiveStatuses,
     opponentLiveCursor,
-    setIsGameBoardMounted
+    setIsGameBoardMounted,
+    myReaction,
+    opponentReaction,
+    submitTimeout
   } = useMultiplayer();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
@@ -44,6 +48,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [showCinematicOverlay, setShowCinematicOverlay] = React.useState(true);
   const [countdown, setCountdown] = React.useState(5);
+  const [pressureTimer, setPressureTimer] = React.useState(null);
 
   const { user, userNickname, userAvatar } = useUser();
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
@@ -137,6 +142,41 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     },
     isActive: multiplayerState === 'playing'
   });
+
+  // --- PRESSURE TIMER LOGIC ---
+  const iHaveFailed = guesses.length >= 3;
+  const opponentHasFailed = activeMatch?.[isPlayer1 ? 'p2_failed' : 'p1_failed'];
+  
+  useEffect(() => {
+    let timeoutId;
+    if (multiplayerState !== 'playing' || isRoundWinner) {
+      timeoutId = setTimeout(() => setPressureTimer(null), 0);
+      return () => clearTimeout(timeoutId);
+    }
+    if ((iHaveFailed && !opponentHasFailed) || (opponentHasFailed && !iHaveFailed)) {
+      timeoutId = setTimeout(() => setPressureTimer(prev => prev === null ? 25 : prev), 0);
+    } else {
+      timeoutId = setTimeout(() => setPressureTimer(null), 0);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [iHaveFailed, opponentHasFailed, multiplayerState, isRoundWinner]);
+
+  useEffect(() => {
+    if (pressureTimer === null) return;
+    if (pressureTimer <= 0) {
+       if (pressureTimer === 0) {
+         if (opponentHasFailed && !iHaveFailed) {
+           submitFailure();
+         } else if (iHaveFailed && !opponentHasFailed) {
+           submitTimeout();
+         }
+         setTimeout(() => setPressureTimer(-1), 0);
+       }
+       return;
+    }
+    const interval = setInterval(() => setPressureTimer(prev => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [pressureTimer, opponentHasFailed, iHaveFailed, submitFailure, submitTimeout]);
 
   // 1.5 MASKED LIVE SYNC BROADCASTER
   useEffect(() => {
@@ -343,6 +383,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       {/* 1. SYMMETRIC BATTLEFIELD */}
       <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+52px)]" dir="rtl">
 
+        {/* PRESSURE WARNING MOVED TO AVATARS */}
+
         {/* RIDDLE DISPLAY */}
         <div className={`w-full h-12 sm:h-14 flex flex-col items-center justify-center px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
           <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text w-full`}>
@@ -351,10 +393,41 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         </div>
 
         {/* TOP HALF: YOUR GRID */}
-        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-1 bg-white/2">
-          <div className="flex items-center gap-2 opacity-90 mb-1">
-            <Avatar src={userAvatar} size="sm" />
-            <span className="text-xs sm:text-sm font-black text-blue-400 uppercase">{userNickname}</span>
+        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
+          <div className={`flex items-center gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm`}>
+            <div className="relative flex items-center justify-center">
+              {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
+                <div className="absolute -inset-1.5 pointer-events-none z-50">
+                  <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
+                    <circle cx="26" cy="26" r="24" fill="none" stroke="rgba(239, 68, 68, 0.2)" strokeWidth="3" />
+                    <circle cx="26" cy="26" r="24" fill="none" stroke="#ef4444" strokeWidth="3"
+                      strokeDasharray="150.8"
+                      strokeDashoffset={150.8 - (pressureTimer / 25) * 150.8}
+                      strokeLinecap="round"
+                      className="transition-all duration-1000 ease-linear"
+                    />
+                  </svg>
+                </div>
+              )}
+              <Avatar src={userAvatar} size="sm" />
+            </div>
+            <AnimatePresence mode="popLayout">
+              {myReaction && (
+                <Motion.div
+                  key={`my-${myReaction}`}
+                  initial={{ opacity: 0, scale: 0.5, x: -10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.8, type: "spring" }}
+                  className="absolute right-[-45px] top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                >
+                  <div className={`relative px-2 py-1.5 ${isDark ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center`}>
+                    <span className="text-[22px] leading-none">{myReaction}</span>
+                  </div>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase`}>{userNickname}</span>
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
             <Grid
@@ -372,28 +445,28 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         </div>
 
         {/* CENTER VS BAR: THE SCORES & ROUND */}
-        <div className="shrink-0 flex items-center justify-center h-10 w-full z-20 relative">
+        <div className="shrink-0 flex items-center justify-center h-0 w-full z-20 relative overflow-visible">
+          <MultiplayerReactions />
           {/* Background Horizontal Line */}
           <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-${isDark ? 'white/10' : 'slate-300/60'} to-transparent h-px w-full`} />
 
-          {/* Score & Round Pill */}
-          <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md px-4 py-1.5 rounded-md border relative z-10`}>
-            <div className="flex items-center justify-center min-w-[24px]">
-              <span className={`text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} leading-none tabular-nums`}>
+          {/* Score & Round Elements */}
+          <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md p-2 rounded-md border relative z-10`}>
+            {/* Player Score Box (Right in RTL) */}
+            <div className={`flex items-center justify-center px-4 py-1.5 ${isDark ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-500 text-white border-blue-600'} border rounded shadow-sm min-w-[44px]`}>
+              <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
               </span>
             </div>
 
-            <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
-
-            <div className={`text-sm font-black ${isDark ? 'text-white/60' : 'text-slate-600'} uppercase px-1`}>
+            {/* Round Text (Center, sitting on the unified background) */}
+            <div className={`text-base font-black ${isDark ? 'text-white/80' : 'text-slate-700'} uppercase px-2`}>
               گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
 
-            <div className={`w-px h-4 ${isDark ? 'bg-white/10' : 'bg-slate-300/80'}`} />
-
-            <div className="flex items-center justify-center min-w-[24px]">
-              <span className={`text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} leading-none tabular-nums`}>
+            {/* Opponent Score Box (Left in RTL) */}
+            <div className={`flex items-center justify-center px-4 py-1.5 ${isDark ? 'bg-red-600 text-white border-red-500' : 'bg-red-500 text-white border-red-600'} border rounded shadow-sm min-w-[44px]`}>
+              <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p2 : scores?.p1)}
               </span>
             </div>
@@ -401,7 +474,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         </div>
 
         {/* BOTTOM HALF: OPPONENT GRID */}
-        <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-1 bg-black/10">
+        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
             <Grid
               gridId="opponent"
@@ -422,31 +495,47 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               isDark={isDark}
             />
           </div>
-          <div className="flex items-center gap-2 opacity-90 mt-1">
-            <span className="text-xs sm:text-sm font-black text-red-400 uppercase">{opponent?.nickname || 'چاڤەڕێ'}</span>
-            <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+          <div className={`flex items-center gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm`}>
+            <AnimatePresence mode="popLayout">
+              {opponentReaction && (
+                <Motion.div
+                  key={`opp-${opponentReaction}`}
+                  initial={{ opacity: 0, scale: 0.5, x: 10 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.8, type: "spring" }}
+                  className="absolute left-[-45px] top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                >
+                  <div className={`relative px-2 py-1.5 ${isDark ? 'bg-red-500/20 border-red-500/30' : 'bg-red-50 border-red-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center`}>
+                    <span className="text-[22px] leading-none">{opponentReaction}</span>
+                  </div>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
+            <div className="relative flex items-center justify-center">
+              {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
+                <div className="absolute -inset-1.5 pointer-events-none z-50">
+                  <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
+                    <circle cx="26" cy="26" r="24" fill="none" stroke="rgba(239, 68, 68, 0.2)" strokeWidth="3" />
+                    <circle cx="26" cy="26" r="24" fill="none" stroke="#ef4444" strokeWidth="3"
+                      strokeDasharray="150.8"
+                      strokeDashoffset={150.8 - (pressureTimer / 25) * 150.8}
+                      strokeLinecap="round"
+                      className="transition-all duration-1000 ease-linear"
+                    />
+                  </svg>
+                </div>
+              )}
+              <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+            </div>
           </div>
         </div>
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
       <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
-        {/* WAITING FOR OPPONENT OVERLAY */}
-        <AnimatePresence>
-          {guesses.length >= 3 && multiplayerState === 'playing' && !isRoundWinner && (
-            <Motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="absolute -top-12 left-0 right-0 flex justify-center pointer-events-none"
-            >
-              <div className={`backdrop-blur-md px-4 py-2 rounded-full text-xs font-noto-sans-arabic flex items-center gap-2 shadow-lg border ${isDark ? 'bg-black/80 border-white/10 text-white/90' : 'bg-white/90 border-slate-200 text-slate-800'}`}>
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                <span>چاڤەڕێی یاریزانێ بەرامبەربە...</span>
-              </div>
-            </Motion.div>
-          )}
-        </AnimatePresence>
+        {/* WAITING FOR OPPONENT OVERLAY MOVED TO AVATAR */}
 
         <Keyboard
           onKey={onKey}

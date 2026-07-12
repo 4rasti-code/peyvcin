@@ -42,6 +42,7 @@ const SFX_PATHS = {
   SHANAZI_KURDISTAN: '/Sanazya_Kurdistane.mp3',
   SHANAZI_JIHANI: '/Shanazya_cihane.mp3',
   HEARTBEAT: '/heartbeat.mp3',
+  INVITE: '/Havrky_invite.mp3',
 };
 
 const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
@@ -426,6 +427,11 @@ export const playPopSfx = (enabled = true) => {
 export const playNotificationSfx = (enabled = true) => {
   if (!enabled) return;
   engine.play('NOTIFICATION');
+};
+
+export const playInviteSfx = (enabled = true) => {
+  if (!enabled) return;
+  engine.play('INVITE');
 };
 
 export const playSettingsOpenSfx = (enabled = true) => {

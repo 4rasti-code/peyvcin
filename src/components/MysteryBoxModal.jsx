@@ -13,12 +13,12 @@ import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTi
 
 const MYSTERY_REWARDS = [
   { id: 0, type: 'dinar', amount: 1, label: '١ دینار', weight: 2 },
-  { id: 1, type: 'derhem', amount: 5, label: '٥ دەرهەم', weight: 5 },
-  { id: 2, type: 'spinTicket', amount: 1, label: '١ بلێتا چەرخی', weight: 1 },
-  { id: 3, type: 'skip', amount: 1, label: '١ دەربازبوون', weight: 1 },
-  { id: 4, type: 'hint', amount: 1, label: '١ ھاریکاری', weight: 1 },
-  { id: 5, type: 'magnet', amount: 2, label: '٢ موگناتیس', weight: 2 },
-  { id: 6, type: 'fils', amount: 500, label: '٥٠٠ فلس', weight: 88 },
+  { id: 1, type: 'derhem', amount: 5, label: '٥ دەرهەم', weight: 10 },
+  { id: 2, type: 'spinTicket', amount: 1, label: '١ بلێتا چەرخی', weight: 8 },
+  { id: 3, type: 'skip', amount: 1, label: '١ دەربازبوون', weight: 10 },
+  { id: 4, type: 'hint', amount: 1, label: '١ ھاریکاری', weight: 15 },
+  { id: 5, type: 'magnet', amount: 2, label: '٢ موگناتیس', weight: 15 },
+  { id: 6, type: 'fils', amount: 500, label: '٥٠٠ فلس', weight: 40 },
 ];
 
 export default function MysteryBoxModal({ isOpen, onClose }) {

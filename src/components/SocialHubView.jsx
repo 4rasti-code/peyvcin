@@ -423,6 +423,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
         <div className={`flex items-center gap-1.5 mb-1 px-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
           {(() => {
             const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
+            const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
             const userLvl = getLevelData(userXp).level;
             const msgTier = getLevelTier(userLvl);
             
@@ -437,12 +438,12 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                 style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: m.user_avatar, xp: userXp });
+                  onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: userAvatarUrl, xp: userXp });
                 }}
               >
-                {m.user_avatar && m.user_avatar !== 'default' ? (
+                {userAvatarUrl && userAvatarUrl !== 'default' ? (
                   <div className="w-[24px] h-[24px] rounded-full overflow-hidden border border-black/10 bg-white">
-                    <img src={m.user_avatar} alt="Avatar" className="w-full h-full object-cover block" />
+                    <img src={userAvatarUrl} alt="Avatar" className="w-full h-full object-cover block" />
                   </div>
                 ) : (
                   <div className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">

@@ -29,7 +29,7 @@ const AchievementsView = ({ profileData, onViewChange }) => {
       {/* Header */}
       <div className="w-full max-w-lg flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-100 dark:border-mono-800/30">
         <button 
-          onClick={() => { triggerHaptic(10); playSettingsCloseSound(); onViewChange('lobby'); }}
+          onClick={() => { triggerHaptic(10); playSettingsCloseSound(); onViewChange('profile'); }}
           className="w-10 h-10 rounded-[4px] bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
         >
           <span className="material-symbols-outlined">arrow_forward</span>

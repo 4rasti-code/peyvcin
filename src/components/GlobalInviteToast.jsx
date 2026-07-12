@@ -9,7 +9,7 @@ import Avatar from './Avatar';
 
 const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
   const { user } = useUser();
-  const { playNotifSound } = useAudio();
+  const { playInviteSound } = useAudio();
   const { joinPrivateMatch, multiplayerState } = useMultiplayer();
   
   const currentViewRef = useRef(currentView);
@@ -73,7 +73,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
           timestamp: Date.now()
         });
         
-        playNotifSound();
+        playInviteSound();
         triggerHaptic(10);
         
         // Auto-dismiss after 14 seconds
@@ -100,7 +100,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
       supabase.removeChannel(channel);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [user?.id, playNotifSound]);
+  }, [user?.id, playInviteSound]);
 
   useEffect(() => {
     if (cancelAlert) {

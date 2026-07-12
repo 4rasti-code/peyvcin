@@ -63,22 +63,25 @@ const UpdateNotesModal = () => {
                      {/* Scrollable Content */}
                      <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           💬 چارەسەرکرنا کێشەیا نیشانا سۆر ل سەر ئایکۆنێ چاتێ و باشترکرنا سیستەمێ ئاگەهدارییان.
+                           🚀 چارەسەرکرنا هەمی گیربوون و ئاریشەیێن یاریێ دەمێ ئینتەرنێت دهێتە بڕین.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           👥 زێدەکرنا ژمارەیا یاریزانێن سەرهێل (Online) ل سەر کارتی مۆدێ هەڤڕکی ب شێوەیەکێ زیندوو.
+                           🔊 زێدەکرنا چەند دەنگێن نوی و چارەسەرکرنا ئاریشەیا هندەک دەنگان د یاریێ دا.
+                        </li>
+                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
+                           🎨 باشترکرنا دیزاینێ مۆدێ هەڤڕکی ب ڕەنگەکێ جوانتر، زێدەکرنا ڕیئەکشنان (Reactions)، و گونجاندنا شاشەیا لێگەڕیانێ دگەل مۆدێ رۆن و تاری.
+                        </li>
+                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
+                           ⌨️ چارەسەرکرنا ئاریشەیا ڕاوەستانا کیبۆردێ یاریێ دەمێ یاریزان دچوو د ناڤ مۆدێ هەڤڕکی دا.
+                        </li>
+                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
+                           👥 زێدەکرنا هژمارا یاریزانێن سەرهێل (Online) ل سەر کارتا مۆدێ هەڤڕکی ب ڕەنگەکێ زیندی.
+                        </li>
+                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
+                           💬 چارەسەرکرنا ئاریشەیا نیشانا سۆر ل سەر ئایکۆنا چاتێ و باشترکرنا سیستەمێ ئاگەهداریان.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
                            📱 گونجاندنا یاریێ دگەل سیستەمێ PWA دا کو ل سەر مۆبایلێ وەکی ئەپەکێ سەربەخۆ بێی وێبگەڕ کار بکەت.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🎨 باشترکرنا ڕەنگێن داخوازنامەیان (Invites) و گونجاندنا شاشەیا لێگەڕیانێ دگەل مۆدێ ڕووناک و تاریک.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           ✨ کەمکرن و جوانترکرنا قریسکێن ئاسنی ل کاتی پێکدادانا شمشێران.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🤖 نیشاندانا لۆگۆیێ فەرمی یێ بۆتێ پەیڤۆک دەمێ نامە و ئاگەهدارییان دهنێریت.
                         </li>
                      </ul>
 

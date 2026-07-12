@@ -126,6 +126,32 @@ BEGIN
                 WHERE id = p_match_id;
             END IF;
         END IF;
+
+    -- ==========================================
+    -- ACTION: TIMEOUT (Force Opponent to Fail)
+    -- ==========================================
+    ELSIF p_action = 'TIMEOUT' THEN
+        -- Only a player who has ALREADY failed can force a timeout on the OTHER player
+        IF v_is_p1 AND NOT COALESCE(v_match.p1_failed, false) THEN
+            RETURN;
+        END IF;
+        IF NOT v_is_p1 AND NOT COALESCE(v_match.p2_failed, false) THEN
+            RETURN;
+        END IF;
+
+        -- Both players have now effectively failed -> It's a draw, advance the round
+        v_score_diff := abs(v_new_p1_score - v_new_p2_score);
+        v_is_match_end := (v_score_diff >= 2) OR (v_new_index + 1 >= v_total_words);
+
+        UPDATE online_matches SET 
+            p1_failed = false,
+            p2_failed = false,
+            p1_colors = '[]'::jsonb,
+            p2_colors = '[]'::jsonb,
+            status = CASE WHEN v_is_match_end THEN 'finished' ELSE 'playing' END,
+            current_word_index = CASE WHEN v_is_match_end THEN v_new_index ELSE v_new_index + 1 END
+        WHERE id = p_match_id;
+        
     END IF;
 END;
 $$;

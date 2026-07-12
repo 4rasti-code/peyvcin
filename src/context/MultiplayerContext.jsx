@@ -49,7 +49,7 @@ export const MultiplayerProvider = ({ children }) => {
   const setActiveMatchGuarded = useCallback((next) => {
     setActiveMatch(prev => {
        if (!prev && !next) return null;
-       if (prev && next && prev.id === next.id && prev.status === next.status && prev.current_word_index === next.current_word_index && prev.p1_score === next.p1_score && prev.p2_score === next.p2_score) return prev;
+       if (prev && next && prev.id === next.id && prev.status === next.status && prev.current_word_index === next.current_word_index && prev.p1_score === next.p1_score && prev.p2_score === next.p2_score && prev.p1_failed === next.p1_failed && prev.p2_failed === next.p2_failed) return prev;
        return next;
     });
   }, []);
@@ -65,6 +65,10 @@ export const MultiplayerProvider = ({ children }) => {
   const countdownIntervalRef = useRef(null);
   const [opponentLiveStatuses, setOpponentLiveStatuses] = useState([]);
   const opponentLiveCursor = useMotionValue(0);
+  const [opponentReaction, setOpponentReaction] = useState(null);
+  const reactionTimeoutRef = useRef(null);
+  const [myReaction, setMyReaction] = useState(null);
+  const myReactionTimeoutRef = useRef(null);
 
   const stateRef = useRef(multiplayerState);
   const wordIndexRef = useRef(currentWordIndex);
@@ -158,6 +162,23 @@ export const MultiplayerProvider = ({ children }) => {
     });
   }, [user?.id]);
 
+  const broadcastReaction = useCallback((emoji) => {
+    if (!channelRef.current || !user?.id) return;
+    
+    // Show locally immediately
+    setMyReaction(emoji);
+    if (myReactionTimeoutRef.current) clearTimeout(myReactionTimeoutRef.current);
+    myReactionTimeoutRef.current = setTimeout(() => setMyReaction(null), 2500);
+
+    if (channelRef.current.state !== 'joined' && channelRef.current.state !== 'SUBSCRIBED') return;
+    
+    channelRef.current.send({
+      type: 'broadcast',
+      event: 'GAME_REACTION',
+      payload: { senderId: user.id, emoji }
+    });
+  }, [user?.id]);
+
   const submitGuess = useCallback(async (colors, isWin) => {
     if (!matchId || matchId === 'null' || matchId === 'undefined' || !activeMatch) return;
     broadcastGuess(colors, isWin);
@@ -211,6 +232,23 @@ export const MultiplayerProvider = ({ children }) => {
 
     triggerHaptic([100, 50, 100]);
   }, [matchId, activeMatch, broadcastLiveAction, user?.id]);
+
+  const submitTimeout = useCallback(async () => {
+    if (!matchId || matchId === 'null' || matchId === 'undefined' || !activeMatch) return;
+    
+    const currentIdx = activeMatch.current_word_index || 0;
+    const payload = {
+      p_match_id: String(matchId),
+      p_user_id: String(user?.id),
+      p_expected_round: Number(currentIdx),
+      p_action: 'TIMEOUT'
+    };
+
+    const { error } = await supabase.rpc('submit_match_guess', payload);
+    if (error) {
+      console.error('[Multiplayer] submitTimeout RPC Error:', error);
+    }
+  }, [matchId, activeMatch, user?.id]);
 
   const triggerForfeitVictory = useCallback(async () => {
     const mId = matchId || matchIdRef.current;
@@ -543,6 +581,20 @@ export const MultiplayerProvider = ({ children }) => {
           if (user?.id && data.senderId && data.senderId !== user.id) {
             setOpponentLiveStatuses(data.statuses || []);
             opponentLiveCursor.set(data.cursorIndex || 0);
+          }
+        }
+      )
+      .on(
+        'broadcast',
+        { event: 'GAME_REACTION' },
+        (payload) => {
+          const data = payload.payload || payload;
+          if (user?.id && data.senderId && data.senderId !== user.id && data.emoji) {
+            setOpponentReaction(data.emoji);
+            if (reactionTimeoutRef.current) clearTimeout(reactionTimeoutRef.current);
+            reactionTimeoutRef.current = setTimeout(() => {
+              setOpponentReaction(null);
+            }, 2500);
           }
         }
       )
@@ -1233,6 +1285,7 @@ export const MultiplayerProvider = ({ children }) => {
     cancelMatch,
     submitGuess,
     submitFailure,
+    submitTimeout,
     broadcastGuess,
     opponentGuesses,
     scores,
@@ -1252,19 +1305,23 @@ export const MultiplayerProvider = ({ children }) => {
     opponentLiveStatuses,
     opponentLiveCursor,
     isForfeitWin,
+    opponentReaction,
+    myReaction,
+    broadcastReaction,
     hostAcceptJoiner,
     isGameBoardMounted,
     setIsGameBoardMounted,
     isOpponentBackgroundReady
   }), [
     multiplayerState, MatchmakingTime, activeMatch, opponent, setMultiplayerState,
-    startMatchmaking, createPrivateMatch, joinPrivateMatch, cancelMatch, submitGuess, submitFailure, broadcastGuess,
+    startMatchmaking, createPrivateMatch, joinPrivateMatch, cancelMatch, submitGuess, submitFailure, submitTimeout, broadcastGuess,
     opponentGuesses, scores, currentWordIndex, isRoundWinner, MatchResultTrigger,
     LastMatchResult, MatchReward, ResetMatchResultTrigger, winnerNickname,
     roundMessage, fetchOpponentProfile, forfeitStatus, forfeitCountdown,
     triggerForfeitVictory, broadcastLiveAction, opponentLiveStatuses,
     opponentLiveCursor, isForfeitWin, hostAcceptJoiner,
-    isGameBoardMounted, isOpponentBackgroundReady
+    isGameBoardMounted, isOpponentBackgroundReady,
+    opponentReaction, myReaction, broadcastReaction
   ]);
 
   return (
