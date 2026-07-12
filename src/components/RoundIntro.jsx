@@ -5,7 +5,7 @@ import { playSwordComboSfx, playWhooshSfx } from '../utils/audio';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 
-export default function RoundIntro({ opponent, userAvatar, userNickname, userLevel, currentRound, roundMessage }) {
+export default function RoundIntro({ opponent, userAvatar, userNickname, userLevel, currentRound, roundMessage, previousWord }) {
   // Localization helper
   const getRoundOrdinal = (idx) => {
     const ordinals = ['ئێکێ', 'دوویێ', 'سێیێ'];
@@ -13,7 +13,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
     return toKuDigits(idx + 1);
   };
 
-  // Trigger sounds on start
+  // Trigger sounds on start and exit
   useEffect(() => {
     if (roundMessage) {
       playWhooshSfx();
@@ -21,7 +21,15 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
         playSwordComboSfx();
         triggerHaptic([100, 100, 100]);
       }, 500);
-      return () => clearTimeout(sfxTimeout);
+      
+      return () => {
+        clearTimeout(sfxTimeout);
+        // Play sounds on exit (when roundMessage becomes false)
+        playWhooshSfx();
+        setTimeout(() => {
+          playSwordComboSfx();
+        }, 300);
+      };
     }
   }, [roundMessage]);
 
@@ -30,165 +38,159 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
       {roundMessage && (
         <Motion.div
           key="diagonal-arcade-intro"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-2000 flex flex-col items-center justify-center overflow-hidden bg-[#0f0431]"
+          className="fixed inset-0 z-2000 overflow-hidden pointer-events-none"
         >
-          {/* 1. ARCADE BACKGROUND GRID */}
-          <div className="absolute inset-0 pointer-events-none opacity-30">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,58,237,0.3)_0%,transparent_70%)]" />
-            <div 
-              className="absolute inset-0"
-              style={{
-                backgroundImage: `linear-gradient(rgba(124,58,237,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.2) 1px, transparent 1px)`,
-                backgroundSize: '40px 40px',
-                transform: 'skewY(-5deg) scale(1.5)'
-              }}
-            />
-          </div>
-
-          {/* 2. TOP BADGE - "هەڤڕکی" */}
+          {/* TOP HALF (RED) + OPPONENT */}
           <Motion.div
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
-            className="absolute top-10 z-50 px-6"
+            initial={{ y: "-100%" }}
+            animate={{ y: "0%" }}
+            exit={{ y: "-100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute top-0 left-0 w-full h-1/2 bg-red-600 z-10 flex flex-col items-center justify-center pointer-events-auto"
           >
-            <div className="relative">
-              <div className="px-12 py-3 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 shadow-[0_0_50px_rgba(124,58,237,0.3)]">
-                <span className="text-white font-rabar font-black text-3xl sm:text-4xl uppercase tracking-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">
-                  ھەڤڕکی
-                </span>
-              </div>
-              {/* Animated Glow Border */}
-              <div className="absolute -inset-[2px] rounded-full bg-linear-to-r from-cyan-500 via-purple-500 to-red-500 opacity-50 blur-[2px] -z-10 animate-pulse" />
-            </div>
-          </Motion.div>
-
-          {/* 3. DIAGONAL ENERGY BEAM */}
-          <Motion.div
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: "circOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[6px] bg-linear-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_40px_rgba(251,191,36,0.9)] z-10 origin-center -rotate-35"
-          />
-          
-          <Motion.div
-            animate={{ x: ['100%', '-100%'] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[12px] bg-white/60 blur-md z-10 -rotate-35 pointer-events-none"
-          />
-
-          {/* 4. PLAYER CONTENT (DIAGONAL) */}
-          <div className="absolute inset-0 w-full h-full z-20 max-w-5xl mx-auto overflow-hidden">
-            
-            {/* OPPONENT - TOP RIGHT (RTL) */}
-            <div className="absolute top-24 sm:top-32 right-8 sm:right-16 md:right-32">
-              <Motion.div
-                initial={{ x: -200, y: -200, opacity: 0, scale: 0.3 }}
-                animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
-                className="flex flex-col items-center gap-4"
-              >
-                <div className="relative">
-                  {/* Outer Circular Glow Container */}
-                  <div className="relative p-2 rounded-full bg-linear-to-br from-red-600 via-orange-500 to-red-900 shadow-[0_0_60px_rgba(220,38,38,0.5)]">
+            {/* OPPONENT INFO */}
+            <Motion.div
+              initial={{ y: -50, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <div className="relative w-[160px] h-[196px] flex justify-center">
+                {/* SVG Pin Pointing DOWN */}
+                <svg viewBox="-5 -5 110 135" preserveAspectRatio="none" className="absolute inset-0 w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]">
+                  <path 
+                    d="M 50 120 L 15.6 78.9 A 45 45 0 1 1 84.4 78.9 Z" 
+                    fill="#ef4444" 
+                    stroke="#fca5a5" 
+                    strokeWidth="3" 
+                    strokeLinejoin="round" 
+                  />
+                </svg>
+                
+                <div 
+                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center"
+                  style={{ top: '40.74%' }}
+                >
+                  <div className="relative p-1 rounded-full bg-linear-to-br from-red-500 to-red-700 shadow-xl">
                     <Avatar 
                       src={opponent?.avatar_url} 
                       size="xl" 
-                      className="border-4 border-white/30 rounded-full" 
+                      className="border-4 border-white/20 rounded-full" 
                       border={false} 
                       level={opponent?.level} 
                     />
                   </div>
-                  {/* Identity Label */}
-                  <div className="absolute -bottom-3 -right-3 bg-red-600 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
+                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-red-700 text-white font-black px-5 py-1 rounded-full text-[13px] shadow-xl z-30 border border-white/30 whitespace-nowrap">
                     ھەڤڕک
                   </div>
                 </div>
-                <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
-                  {opponent?.nickname || 'ھەڤڕک'}
-                </span>
-              </Motion.div>
-            </div>
-
-            {/* VS CENTER */}
-            <Motion.div
-              initial={{ scale: 0, opacity: 0, rotate: 90, filter: 'blur(20px)' }}
-              animate={{ scale: 1, opacity: 1, rotate: 0, filter: 'blur(0px)' }}
-              transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.8 }}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 -mt-8"
-            >
-              <div className="relative group flex items-center justify-center">
-                {/* Intense Central Flare */}
-                <Motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0.9, 0.6] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute -inset-16 bg-linear-to-r from-amber-600 to-orange-600 rounded-full blur-[60px] mix-blend-screen"
-                />
-                <h1 className="text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none translate-x-4 sm:translate-x-8
-                  bg-linear-to-b from-yellow-300 via-yellow-400 to-orange-600 bg-clip-text text-transparent
-                  drop-shadow-[0_0_50px_rgba(251,191,36,1)] filter brightness-125">
-                  و
-                </h1>
-                {/* Ghost Text for Depth */}
-                <h1 className="absolute text-9xl sm:text-[13rem] font-black italic tracking-tighter select-none translate-x-5 sm:translate-x-9
-                  text-white/20 blur-[3px] translate-y-1 -z-10">
-                  و
-                </h1>
               </div>
+              <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-md font-rabar mt-1">
+                {opponent?.nickname || 'ھەڤڕک'}
+              </span>
             </Motion.div>
+          </Motion.div>
 
-            {/* YOU - BOTTOM LEFT (RTL) */}
-            <div className="absolute bottom-24 sm:bottom-32 left-8 sm:left-16 md:left-32">
-              <Motion.div
-                initial={{ x: 200, y: 200, opacity: 0, scale: 0.3 }}
-                animate={{ x: 0, y: 0, opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 120, damping: 15, delay: 0.4 }}
-                className="flex flex-col items-center gap-4"
-              >
-                <div className="relative">
-                  {/* Outer Circular Glow Container */}
-                  <div className="relative p-2 rounded-full bg-linear-to-br from-cyan-400 via-blue-500 to-blue-900 shadow-[0_0_60px_rgba(34,211,238,0.5)]">
+          {/* BOTTOM HALF (BLUE) + YOU */}
+          <Motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: "0%" }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="absolute bottom-0 left-0 w-full h-1/2 bg-blue-600 z-10 flex flex-col items-center justify-center pointer-events-auto"
+          >
+            {/* YOU INFO */}
+            <Motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <div className="relative w-[160px] h-[196px] flex justify-center">
+                {/* SVG Pin Pointing UP */}
+                <svg viewBox="-5 -5 110 135" preserveAspectRatio="none" className="absolute inset-0 w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]">
+                  <path 
+                    d="M 50 5 L 84.4 46.1 A 45 45 0 1 1 15.6 46.1 Z" 
+                    fill="#3b82f6" 
+                    stroke="#93c5fd" 
+                    strokeWidth="3" 
+                    strokeLinejoin="round" 
+                  />
+                </svg>
+                
+                <div 
+                  className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center"
+                  style={{ top: '59.26%' }}
+                >
+                  <div className="relative p-1 rounded-full bg-linear-to-br from-blue-500 to-blue-700 shadow-xl">
                     <Avatar 
                       src={userAvatar} 
                       size="xl" 
-                      className="border-4 border-white/30 rounded-full" 
+                      className="border-4 border-white/20 rounded-full" 
                       border={false} 
                       level={userLevel} 
                     />
                   </div>
-                  {/* Identity Label */}
-                  <div className="absolute -bottom-3 -left-3 bg-cyan-500 text-white font-black px-4 py-1.5 rounded-full text-sm shadow-2xl z-30 border-2 border-white/20">
+                  <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-blue-700 text-white font-black px-5 py-1 rounded-full text-[13px] shadow-xl z-30 border border-white/30 whitespace-nowrap">
                     تۆ
                   </div>
                 </div>
-                <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)] font-rabar">
-                  {userNickname}
-                </span>
-              </Motion.div>
-            </div>
+              </div>
+              <span className="text-white font-black text-xl sm:text-2xl tracking-normal drop-shadow-md font-rabar mt-1">
+                {userNickname}
+              </span>
+            </Motion.div>
+          </Motion.div>
 
-          </div>
-
-          {/* 5. ROUND TEXT (Sleek Bottom Bar) */}
-          <Motion.div
-            initial={{ opacity: 0, x: 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20, delay: 1.2 }}
-            className="absolute bottom-12 sm:bottom-16 right-8 sm:right-16 md:right-32 z-50 text-right"
+          {/* ARCADE GRID OVERLAY (Optional) */}
+          <Motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.2 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 pointer-events-none z-20"
           >
-            <div className="flex flex-col items-end">
-              <h2 className="text-2xl sm:text-3xl font-black text-white font-rabar uppercase tracking-normal drop-shadow-2xl">
-                {/* CORE TIE MESSAGE: DO NOT REMOVE */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1)_0%,transparent_70%)]" />
+            <div 
+              className="absolute inset-0"
+              style={{
+                backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+                backgroundSize: '40px 40px',
+                transform: 'skewY(-5deg) scale(1.5)'
+              }}
+            />
+          </Motion.div>
+
+          {/* VS CENTER (CLEAN FULL-WIDTH CARD) */}
+          <Motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25, delay: 0.4 }}
+            className="absolute top-1/2 left-0 w-full -translate-y-1/2 z-50 flex flex-col items-center justify-center pointer-events-auto shadow-2xl bg-mono-100 dark:bg-[#1a1f2e] border-y-[3px] border-mono-200 dark:border-mono-800"
+          >
+            <div className="w-full px-6 py-8 flex flex-col items-center justify-center text-center">
+              <h2 className="text-2xl sm:text-3xl font-black text-mono-900 dark:text-white font-rabar uppercase tracking-wide text-center flex flex-wrap justify-center items-center gap-2">
                 {roundMessage === 'ROUND_DRAW' ? (
-                  <>یەکسانبوون! <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">گەڕا نووی</span></>
+                  <>یەکسانبوون! <span className="text-amber-500">گەڕا نووی</span></>
                 ) : (
-                  <>گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-400 underline underline-offset-8 decoration-amber-500/50">دەستپێکر</span></>
+                  <>گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-500">دەستپێکر</span></>
                 )}
               </h2>
-              <div className="mt-4 w-32 h-1 bg-linear-to-r from-transparent via-amber-500 to-transparent rounded-full opacity-50" />
+              
+              {/* Previous Round Answer */}
+              {previousWord && (
+                <Motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8, duration: 0.4 }}
+                  className="mt-4 flex flex-col items-center justify-center border-t border-mono-200 dark:border-mono-800 pt-4 w-full max-w-sm"
+                >
+                  <span className="text-sm sm:text-base font-rabar text-mono-500 dark:text-mono-400 mb-1 text-center font-bold">بەرسڤا گەڕا پێشتر:</span>
+                  <span className="text-3xl sm:text-4xl font-black font-rabar text-green-500 tracking-widest text-center">
+                    {previousWord}
+                  </span>
+                </Motion.div>
+              )}
             </div>
           </Motion.div>
 
@@ -197,4 +199,3 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
     </AnimatePresence>
   );
 }
-

@@ -19,6 +19,7 @@ import MysteryBoxIcon from './MysteryBoxIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import { supabase } from '../lib/supabase';
+import { toKuDigits } from '../utils/formatters';
 const LobbyView = memo(({
   onStartClassic,
   onStartMamak,
@@ -44,7 +45,7 @@ const LobbyView = memo(({
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
-  const { user, userNickname, userAvatar, onlineUsers, profileData } = useUser();
+  const { user, userNickname, userAvatar, onlineUsers, onlineCount, profileData } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
   
@@ -356,18 +357,39 @@ const LobbyView = memo(({
                 setInviteStep('select');
               }}
               {...bentoMotionProps}
-              className="w-full relative h-28 rounded-[6px] overflow-hidden bg-linear-to-r from-[#ff6b00] to-[#e65c00] shadow-[0_5px_0_#cc5200] border-none mb-1"
+              className="w-full relative h-28 rounded-[6px] border-none mb-1 group bg-transparent"
             >
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
-              <div className="relative z-10 flex items-center justify-between px-8 h-full">
-                <div className="flex flex-col items-start text-right">
-                  <h3 className="text-2xl font-black font-heading text-white">ھەڤڕکی</h3>
-                  <span className="text-[11px] font-black font-noto-sans-arabic text-orange-100/80 leading-none">سەرهێڵ</span>
-                </div>
-                <div className="flex items-center justify-center relative">
-                  <div className="transition-all duration-300 ease-out">
-                    <ClashingSwords className="w-14 h-14 drop-shadow-md text-white/90 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3" />
+              {/* 3D Split Shadow Layer */}
+              <div 
+                className="absolute inset-0 rounded-[6px] translate-y-[5px]"
+                style={{ background: 'linear-gradient(90deg, #1d4ed8 50%, #b91c1c 50%)' }}
+              />
+              
+              {/* Main Button Content Layer */}
+              <div className="absolute inset-0 rounded-[6px] overflow-hidden">
+                <div 
+                  className="absolute inset-0"
+                  style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }} 
+                />
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+                <div className="relative z-10 grid grid-cols-2 h-full">
+                  <div className="flex items-center justify-center">
+                    <div className="flex flex-col items-center text-center">
+                      <h3 className="text-3xl font-black font-heading text-white drop-shadow-md">ھەڤڕکی</h3>
+                    </div>
                   </div>
+                  <div className="flex items-center justify-center relative">
+                    <div className="transition-all duration-300 ease-out">
+                      <ClashingSwords className="w-14 h-14 drop-shadow-md text-white/90 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-1.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/20 hover:bg-black/40 transition-colors backdrop-blur-md px-2 py-0.5 rounded-[4px] border border-white/10 shadow-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_6px_#4ade80] animate-pulse"></span>
+                  <span className="text-[10px] font-bold text-white/95 mt-0.5" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                    {toKuDigits(onlineCount || 1)} سەرهێل
+                  </span>
                 </div>
               </div>
             </Motion.button>
@@ -485,7 +507,7 @@ const LobbyView = memo(({
                         setShowMultiplayerModal(false);
                         onStartMultiplayer();
                       }}
-                      className="w-full py-4 rounded-md bg-linear-to-r from-[#ff6b00] to-[#e65c00] hover:brightness-110 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
+                      className="w-full py-4 rounded-md bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
                     >
                       <span className="material-symbols-outlined">public</span>
                       لێگەڕیانا گشتی
@@ -602,28 +624,34 @@ const LobbyView = memo(({
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="fixed inset-0 z-999 flex flex-col items-center justify-between bg-black pb-20 pt-12 px-4"
+            className="fixed inset-0 z-999 flex flex-col items-center justify-between bg-mono-50/95 dark:bg-black/95 backdrop-blur-3xl pb-20 pt-12 px-4"
           >
             {/* Top Right Close Button (Hide during match_starting) */}
             {multiplayerState === 'private_lobby' && (
               <button 
                 onClick={handleHostCancelInvite}
-                className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-mono-800 text-mono-400 hover:text-white flex items-center justify-center transition-colors shadow-lg"
+                className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-white dark:bg-mono-800 text-mono-400 hover:text-mono-900 dark:hover:text-white flex items-center justify-center transition-colors shadow-lg border border-mono-200 dark:border-transparent"
               >
                 <span className="material-symbols-outlined font-black text-2xl">close</span>
               </button>
             )}
 
-            {/* Top Center: Target User (Red Neon) */}
+            {/* Top Center: Opponent */}
             <div className="flex flex-col items-center mt-12">
-              <div className="w-24 h-24 rounded-full bg-mono-800 overflow-hidden shadow-[0_0_25px_rgba(239,68,68,0.6)] border-2 border-red-500 mb-4 flex items-center justify-center relative">
+              <div className={`w-24 h-24 rounded-full bg-white dark:bg-mono-800 overflow-hidden border-2 mb-4 flex items-center justify-center relative ${
+                (!activeMatch || activeMatch?.host_id === user?.id) 
+                  ? 'shadow-[0_0_25px_rgba(239,68,68,0.6)] border-red-500' 
+                  : 'shadow-[0_0_25px_rgba(59,130,246,0.6)] border-blue-500'
+              }`}>
                 {(invitedUserProfile?.avatar_url || opponent?.avatar_url) ? (
                   <Avatar src={invitedUserProfile?.avatar_url || opponent?.avatar_url} size="full" border={false} />
                 ) : (
-                  <span className="material-symbols-outlined text-4xl text-red-400">person</span>
+                  <span className={`material-symbols-outlined text-4xl ${
+                    (!activeMatch || activeMatch?.host_id === user?.id) ? 'text-red-400' : 'text-blue-400'
+                  }`}>person</span>
                 )}
               </div>
-              <p className="text-white font-black text-lg drop-shadow-md">
+              <p className="text-mono-900 dark:text-white font-black text-lg drop-shadow-sm dark:drop-shadow-md">
                 {invitedUserProfile?.nickname || opponent?.nickname || 'یاریزان'}
               </p>
             </div>
@@ -632,29 +660,35 @@ const LobbyView = memo(({
             <div className="flex flex-col items-center justify-center flex-1">
               {multiplayerState === 'match_starting' ? (
                 <>
-                  <span className="material-symbols-outlined animate-spin text-[64px] text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] mb-4">progress_activity</span>
-                  <p className="text-mono-300 font-bold text-sm mt-2 animate-pulse">ئامادەکرنا تابلۆیا یاریێ...</p>
+                  <span className="material-symbols-outlined animate-spin text-[64px] text-primary dark:text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] mb-4">progress_activity</span>
+                  <p className="text-mono-500 dark:text-mono-300 font-bold text-sm mt-2 animate-pulse">ئامادەکرنا تابلۆیا یاریێ...</p>
                 </>
               ) : (
                 <>
-                  <div className="text-[64px] font-black text-white font-mono drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] tracking-wider">
+                  <div className="text-[64px] font-black text-mono-900 dark:text-white font-mono drop-shadow-[0_0_15px_rgba(255,255,255,0.4)] tracking-wider">
                     00:{inviteTimeLeft.toString().padStart(2, '0')}
                   </div>
-                  <p className="text-mono-300 font-bold text-sm mt-2 animate-pulse">چاڤەڕێی بەرسڤێیە...</p>
+                  <p className="text-mono-500 dark:text-mono-300 font-bold text-sm mt-2 animate-pulse">چاڤەڕێی بەرسڤێیە...</p>
                 </>
               )}
             </div>
 
-            {/* Bottom Center: Host User (Blue Neon) */}
+            {/* Bottom Center: Current User */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-24 h-24 rounded-full bg-mono-800 overflow-hidden shadow-[0_0_25px_rgba(59,130,246,0.6)] border-2 border-blue-500 mb-4 flex items-center justify-center relative">
+              <div className={`w-24 h-24 rounded-full bg-white dark:bg-mono-800 overflow-hidden border-2 mb-4 flex items-center justify-center relative ${
+                (!activeMatch || activeMatch?.host_id === user?.id) 
+                  ? 'shadow-[0_0_25px_rgba(59,130,246,0.6)] border-blue-500' 
+                  : 'shadow-[0_0_25px_rgba(239,68,68,0.6)] border-red-500'
+              }`}>
                 {profileData?.avatar_url || user?.user_metadata?.avatar_url ? (
                   <Avatar src={profileData?.avatar_url || user?.user_metadata?.avatar_url} size="full" border={false} />
                 ) : (
-                  <span className="material-symbols-outlined text-4xl text-blue-400">person</span>
+                  <span className={`material-symbols-outlined text-4xl ${
+                    (!activeMatch || activeMatch?.host_id === user?.id) ? 'text-blue-400' : 'text-red-400'
+                  }`}>person</span>
                 )}
               </div>
-              <p className="text-white font-black text-lg drop-shadow-md">{userNickname}</p>
+              <p className="text-mono-900 dark:text-white font-black text-lg drop-shadow-sm dark:drop-shadow-md">{userNickname}</p>
             </div>
           </Motion.div>
         )}

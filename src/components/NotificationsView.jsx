@@ -50,7 +50,14 @@ export default function NotificationsView({
         className="flex items-center gap-3 p-3 rounded-md cursor-pointer hover:bg-mono-100 dark:hover:bg-white/5 transition-colors border border-transparent hover:border-mono-200 dark:hover:border-white/5 bg-mono-50 dark:bg-white/2 mb-1.5"
       >
         <div className="w-10 h-10 shrink-0 relative flex items-center justify-center">
-          <Avatar src={item.user_avatar} size="sm" />
+          {item.user_nickname?.includes('Peyvok') || item.user_nickname?.includes('پەیڤۆک') || item.sender_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
+              <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
+              <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+            </div>
+          ) : (
+            <Avatar src={item.user_avatar} size="sm" />
+          )}
           <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-md border-2 border-mono-white dark:border-black ${
             item.type === 'message' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'
           }`}>

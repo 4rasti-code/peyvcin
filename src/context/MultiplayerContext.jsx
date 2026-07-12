@@ -138,6 +138,7 @@ export const MultiplayerProvider = ({ children }) => {
 
   const broadcastGuess = useCallback((colors, isWin = false) => {
     if (!channelRef.current || !user?.id) return;
+    if (channelRef.current.state !== 'joined' && channelRef.current.state !== 'SUBSCRIBED') return;
 
     channelRef.current.send({
       type: 'broadcast',
@@ -148,6 +149,7 @@ export const MultiplayerProvider = ({ children }) => {
 
   const broadcastLiveAction = useCallback((statuses, cursorIndex) => {
     if (!channelRef.current || !user?.id) return;
+    if (channelRef.current.state !== 'joined' && channelRef.current.state !== 'SUBSCRIBED') return;
     
     channelRef.current.send({
       type: 'broadcast',
@@ -163,52 +165,24 @@ export const MultiplayerProvider = ({ children }) => {
     // Clear live feedback upon submission
     broadcastLiveAction([], 0);
 
-    const isP1 = activeMatch.player1_id === user.id;
+    const action = isWin ? 'WIN' : 'GUESS';
+    const currentIdx = activeMatch.current_word_index || 0;
 
-    // PERSIST NORMAL GUESS (Ghost Grid Support)
-    if (!isWin) {
-      const currentColors = isP1 ? (activeMatch.p1_colors || []) : (activeMatch.p2_colors || []);
-      const updatedColors = [...currentColors, colors];
-      await supabase.from('online_matches')
-        .update({ [isP1 ? 'p1_colors' : 'p2_colors']: updatedColors })
-        .eq('id', matchId);
+    const payload = {
+      p_match_id: String(matchId),
+      p_user_id: String(user?.id),
+      p_expected_round: Number(currentIdx),
+      p_action: String(action),
+      p_colors: colors
+    };
+
+    const { error } = await supabase.rpc('submit_match_guess', payload);
+    
+    if (error) {
+      console.error('[Multiplayer] submitGuess RPC Error:', error, 'Payload:', payload);
     }
 
     if (isWin) {
-      const p1Score = activeMatch.p1_score || 0;
-      const p2Score = activeMatch.p2_score || 0;
-      const myNewScore = isP1 ? p1Score + 1 : p2Score + 1;
-      const currentIdx = activeMatch.current_word_index || 0;
-      
-      broadcastLiveAction([], 0);
-      
-      // 1. Prepare update data for immediate advancement
-      const scoreDiff = Math.abs(myNewScore - (isP1 ? p2Score : p1Score));
-      const totalWords = activeMatch.words?.length || 5;
-      
-      // VICTORY CONDITION: Lead by 2 points OR reach the end of words
-      const isWinByLead = scoreDiff >= 2;
-      const isWordsExhausted = (currentIdx + 1 >= totalWords);
-      const isMatchEnd = isWinByLead || isWordsExhausted;
-      
-      const updateData = {
-        [isP1 ? 'p1_score' : 'p2_score']: myNewScore,
-        p1_failed: false,
-        p2_failed: false,
-        p1_colors: [],
-        p2_colors: []
-      };
-
-      if (isMatchEnd) {
-        updateData.status = 'finished';
-      } else {
-        updateData.current_word_index = currentIdx + 1;
-      }
-
-      // 2. ADVANCE BOTH IMMEDIATELY (No delay for Win path as requested)
-      await supabase.from('online_matches').update(updateData).eq('id', activeMatch.id);
-
-      setIsRoundWinner(true);
       setWinnerNickname(userNickname);
       triggerHaptic([50, 50, 100]);
     }
@@ -217,42 +191,24 @@ export const MultiplayerProvider = ({ children }) => {
   const submitFailure = useCallback(async () => {
     if (!matchId || matchId === 'null' || matchId === 'undefined' || !activeMatch) return;
     broadcastLiveAction([], 0);
-    const isP1 = activeMatch.player1_id === user?.id;
-    const currentIdx = activeMatch.current_word_index || 0;
-    const p1Score = activeMatch.p1_score || 0;
-    const p2Score = activeMatch.p2_score || 0;
     
-    const updates = { 
-      [isP1 ? 'p1_colors' : 'p2_colors']: [...(isP1 ? activeMatch.p1_colors : activeMatch.p2_colors || []), ["#334155","#334155","#334155","#334155","#334155"]],
-      [isP1 ? 'p1_failed' : 'p2_failed']: true
+    const currentIdx = activeMatch.current_word_index || 0;
+    const failureColors = ["#334155", "#334155", "#334155", "#334155", "#334155"];
+
+    const payload = {
+      p_match_id: String(matchId),
+      p_user_id: String(user?.id),
+      p_expected_round: Number(currentIdx),
+      p_action: 'FAIL',
+      p_colors: failureColors
     };
 
-    // 1. Mark myself as failed
-    await supabase.from('online_matches').update(updates).eq('id', matchId);
-
-    // 2. FUNDAMENTAL CHECK: Fetch latest opponent state
-    const { data: latest } = await supabase.from('online_matches').select('*').eq('id', activeMatch.id).maybeSingle();
-    if (latest) {
-      const otherWonRound = isP1 ? (latest.p2_score > p2Score) : (latest.p1_score > p1Score);
-      const otherIsDone = isP1 ? (latest.p2_failed || otherWonRound) : (latest.p1_failed || otherWonRound);
-
-      if (otherIsDone) {
-        const scoreDiff = Math.abs(latest.p1_score - latest.p2_score);
-        const isMatchEnd = scoreDiff >= 2 || (currentIdx + 1 >= (latest.words?.length || 5));
-        
-        const nextRoundData = {
-          current_word_index: currentIdx + 1,
-          p1_failed: false,
-          p2_failed: false,
-          p1_colors: [],
-          p2_colors: []
-        };
-        if (isMatchEnd) nextRoundData.status = 'finished';
-
-        // ADVANCE BOTH IMMEDIATELY (No delay as requested)
-        await supabase.from('online_matches').update(nextRoundData).eq('id', activeMatch.id);
-      }
+    const { error } = await supabase.rpc('submit_match_guess', payload);
+    
+    if (error) {
+      console.error('[Multiplayer] submitFailure RPC Error:', error, 'Payload:', payload);
     }
+
     triggerHaptic([100, 50, 100]);
   }, [matchId, activeMatch, broadcastLiveAction, user?.id]);
 
@@ -394,13 +350,15 @@ export const MultiplayerProvider = ({ children }) => {
       // Broadcast cancellation to opponent before disconnecting, ONLY if we haven't started playing.
       // If we are playing, the DB update to 'finished' will trigger the Victory card for them.
       if (!wasPlaying) {
-        channelRef.current.send({
-          type: 'broadcast',
-          event: 'MATCH_CANCELLED'
-        }).catch(err => console.warn('[Multiplayer] Failed to send cancel broadcast:', err));
+        if (channelRef.current.state === 'joined' || channelRef.current.state === 'SUBSCRIBED') {
+          channelRef.current.send({
+            type: 'broadcast',
+            event: 'MATCH_CANCELLED'
+          }).catch(err => console.warn('[Multiplayer] Failed to send cancel broadcast:', err));
+        }
       }
       
-      supabase.removeChannel(channelRef.current);
+      await supabase.removeChannel(channelRef.current);
       channelRef.current = null;
     }
 
@@ -450,6 +408,7 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponentGuesses([]);
     setScores({ p1: 0, p2: 0 });
     setCurrentWordIndex(0);
+    setIsRoundWinner(false);
     setMatchResultTrigger(0);
     setLastMatchResult(null);
     setMatchReward(null);
@@ -595,7 +554,9 @@ export const MultiplayerProvider = ({ children }) => {
           const isHost = stateRef.current === 'private_lobby';
           if (isHost) {
             console.log('[Multiplayer] Receiver is fully ready. Syncing match start...');
-            channel.send({ type: 'broadcast', event: 'START_MATCH_TIMER' });
+            if (channel.state === 'joined' || channel.state === 'SUBSCRIBED') {
+              channel.send({ type: 'broadcast', event: 'START_MATCH_TIMER' });
+            }
             setMultiplayerStateGuarded('match_starting');
           }
         }
@@ -669,7 +630,9 @@ export const MultiplayerProvider = ({ children }) => {
           const isJoiner = stateRef.current === 'joining' || stateRef.current === 'syncing';
           if (isJoiner) {
             console.log('[Multiplayer] Joiner fully subscribed. Sending I_AM_READY broadcast...');
-            channel.send({ type: 'broadcast', event: 'I_AM_READY' });
+            if (channel.state === 'joined' || channel.state === 'SUBSCRIBED') {
+              channel.send({ type: 'broadcast', event: 'I_AM_READY' });
+            }
           }
 
           channelRef.current = channel;
@@ -775,11 +738,12 @@ export const MultiplayerProvider = ({ children }) => {
     verifyAndStart();
   }, [activeMatch, opponent, user?.id, setMultiplayerStateGuarded, setOpponentGuarded, setActiveMatchGuarded]);
 
-  // 3.4 LOCAL BACKGROUND READY BROADCAST
   useEffect(() => {
     if (isGameBoardMounted) {
       console.log('[Multiplayer] Local background is 100% ready. Broadcasting to opponent...');
-      channelRef.current?.send({ type: 'broadcast', event: 'CLIENT_BACKGROUND_READY' });
+      if (channelRef.current && (channelRef.current.state === 'joined' || channelRef.current.state === 'SUBSCRIBED')) {
+        channelRef.current.send({ type: 'broadcast', event: 'CLIENT_BACKGROUND_READY' });
+      }
     }
   }, [isGameBoardMounted, multiplayerState]);
 

@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import Avatar from './Avatar';
 import { triggerHaptic } from '../utils/haptics';
-import { playSuccessSfx, playRewardSfx } from '../utils/audio';
+import { playSuccessSfx, playRewardSfx, playDefeatSfx } from '../utils/audio';
 import { toKuDigits } from '../utils/formatters';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
@@ -74,22 +74,27 @@ const BattleResultOverlay = ({
   useEffect(() => {
     let timeoutId;
 
-    if (isVisible && result === 'victory' && !hasTriggeredRef.current) {
+    if (isVisible && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       triggerHaptic(200);
-      playSuccessSfx();
-      playRewardSfx();
-      
-      const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
-      timeoutId = setTimeout(() => {
-        confetti({
-          particleCount: 120,
-          spread: 60,
-          origin: { x: 0.5, y: 0.6 },
-          colors: colors,
-          zIndex: 3000
-        });
-      }, 300);
+
+      if (result === 'victory') {
+        playSuccessSfx();
+        playRewardSfx();
+        
+        const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
+        timeoutId = setTimeout(() => {
+          confetti({
+            particleCount: 120,
+            spread: 60,
+            origin: { x: 0.5, y: 0.6 },
+            colors: colors,
+            zIndex: 3000
+          });
+        }, 300);
+      } else if (result === 'defeat') {
+        playDefeatSfx();
+      }
     } else if (!isVisible) {
       // Reset when closed so it can trigger next time
       hasTriggeredRef.current = false;

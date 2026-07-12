@@ -231,9 +231,14 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
   }
 
   return (
-    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-[280px] xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 bg-linear-to-br from-[#ff7a1f] via-[#e65c00] to-[#b34700] shadow-[0_3px_0_#8c3800,0_5px_15px_rgba(230,92,0,0.3)] border border-[#ff8c42]/30 relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
+    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-[280px] xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 shadow-[0_3px_0_#0f172a,0_5px_15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
+      <div 
+        className="absolute inset-0 z-0"
+        style={{ background: 'linear-gradient(90deg, #dc2626 50%, #2563eb 50%)' }} 
+      />
+      
       {/* Radial Light */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.3),transparent_70%)] pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.3),transparent_70%)] pointer-events-none z-0 mix-blend-overlay" />
       
       {/* Premium Crossed Swords Pattern */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay z-0" xmlns="http://www.w3.org/2000/svg">
@@ -260,7 +265,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
       {/* Edge Highlights */}
       <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/50 to-transparent z-10" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-black/40 to-transparent z-10" />
-      <div className="text-[10px] font-black text-center text-white mb-0.5 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ ⚔️</div>
+      <div className="text-[10px] font-black text-center text-white mb-0.5 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ</div>
 
       <div className="flex items-center justify-between w-full gap-2 relative z-10 my-1">
         {/* P1 */}
@@ -700,12 +705,19 @@ export default function SocialHubView({
   }, [messages, chatMessages, activeReactionModal?.message]);
 
   useEffect(() => {
+    if (!isVisible) {
+      window.activeChatTab = null;
+      return;
+    }
+
     activeTabRef.current = activeTab;
     window.activeChatTab = activeTab;
     localStorage.setItem('activeChatTab', activeTab);
 
     if (activeTab === 'global') {
-      localStorage.setItem('lastOpenedGlobalChatTime', new Date().toISOString());
+      const now = new Date().toISOString();
+      localStorage.setItem('lastOpenedGlobalChatTime', now);
+      localStorage.setItem('last_seen_global_chat', now);
       window.dispatchEvent(new CustomEvent('globalChatOpened'));
       window.dispatchEvent(new Event('clear_global_notifs'));
       setNewGlobalCount(0);
@@ -713,9 +725,8 @@ export default function SocialHubView({
 
     return () => {
       window.activeChatTab = null;
-      localStorage.removeItem('activeChatTab');
     };
-  }, [activeTab]);
+  }, [activeTab, isVisible]);
 
   useEffect(() => {
     const handleForceClose = () => {

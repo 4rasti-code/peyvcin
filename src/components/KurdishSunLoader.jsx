@@ -16,7 +16,7 @@ const KurdishSunLoader = ({ size = 80, color = "#FFD700", progress = 0 }) => {
           className="drop-shadow-[0_0_20px_rgba(255,215,0,0.5)] z-10"
         >
           {/* Central Disk */}
-          <circle cx="50" cy="50" r="18" fill={color} />
+          <circle cx="50" cy="50" r="21" fill={color} />
 
           {/* 21 Rays of the Kurdish Sun */}
           {Array.from({ length: 21 }).map((_, i) => {

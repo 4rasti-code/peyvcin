@@ -163,32 +163,44 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="fixed top-0 left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
           >
-            <div className="bg-mono-100 dark:bg-mono-900 rounded p-4 shadow-2xl border border-mono-200 dark:border-mono-800 pointer-events-auto max-w-sm w-full flex flex-col gap-3 relative overflow-hidden">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0 border border-blue-500/20 relative overflow-hidden">
+            <div className="rounded p-4 shadow-[0_10px_25px_rgba(0,0,0,0.5)] border-none pointer-events-auto max-w-sm w-full flex flex-col gap-3 relative overflow-hidden bg-blue-600">
+              <div 
+                className="absolute inset-0 bg-red-600 z-0"
+                style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }} 
+              />
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay z-0" />
+              
+              <div className="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-black/60 to-transparent z-0 pointer-events-none" />
+              
+              <div className="relative z-10 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20 relative overflow-hidden shadow-sm">
                   {invite.hostAvatar ? (
                     <Avatar src={invite.hostAvatar} size="full" border={false} />
                   ) : (
-                    <span className="material-symbols-outlined text-blue-500">swords</span>
+                    <span className="material-symbols-outlined text-white">swords</span>
                   )}
                 </div>
-                <p className="text-sm font-bold text-mono-900 dark:text-white leading-tight">
-                  <span className="text-blue-600 dark:text-blue-400 font-black">{invite.hostName}</span> داخوازا یارییەکا هەڤڕکی ژ تە دکەت! ⚔️
+                <p className="text-[13px] font-bold text-white leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  <span className="text-white font-black">{invite.hostName}</span> داخوازا یارییەکا هەڤڕکی ژ تە دکەت!
                 </p>
               </div>
               
-              <div className="flex gap-2 mt-1">
+              <div className="relative z-10 flex gap-8 mt-2">
                 <button 
                   onClick={handleDecline}
-                  className="flex-1 py-2.5 rounded bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-xs hover:bg-mono-300 dark:hover:bg-mono-700 transition-colors"
+                  className="flex-1 py-2 rounded-sm bg-white/15 hover:bg-white/25 border border-white/20 transition-colors shadow-sm"
                 >
-                  رەتکرن
+                  <div className="text-white font-bold text-xs flex items-center justify-center">
+                    رەتکرن
+                  </div>
                 </button>
                 <button 
                   onClick={handleAccept}
-                  className="flex-1 py-2.5 rounded bg-green-500 hover:bg-green-600 text-white font-bold text-xs shadow-md shadow-green-500/20 transition-colors"
+                  className="flex-1 py-2 rounded-sm bg-white shadow-md hover:bg-blue-50 transition-colors"
                 >
-                  قەبوولکرن
+                  <div className="text-blue-700 font-black text-xs flex items-center justify-center">
+                    قەبوولکرن
+                  </div>
                 </button>
               </div>
               
@@ -197,7 +209,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
                 initial={{ width: "100%" }}
                 animate={{ width: "0%" }}
                 transition={{ duration: 15, ease: "linear" }}
-                className="absolute bottom-0 left-0 h-1 bg-blue-500 opacity-80"
+                className="absolute bottom-0 left-0 h-1 bg-white opacity-80 z-20"
               />
             </div>
           </Motion.div>
@@ -223,7 +235,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
                 <span className="material-symbols-outlined text-red-500 text-2xl">error</span>
               </div>
               <p className="text-sm font-bold text-mono-900 dark:text-white leading-relaxed">
-                داخوازنامە ژ لایێ <span className="text-blue-600 dark:text-blue-400 mx-1">{cancelAlert}</span> ڤە هاتە هەلوەشاندن
+                داخوازنامە ژ لایێ <span className="text-red-500 dark:text-red-400 mx-1">{cancelAlert}</span> ڤە هاتە هەلوەشاندن
               </p>
             </Motion.div>
           </Motion.div>

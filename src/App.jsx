@@ -1101,10 +1101,10 @@ export default function App() {
         { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' },
         (payload) => {
           if (payload.new.user_id !== user.id) {
-            const activeTab = window.activeChatTab || localStorage.getItem('activeChatTab');
-            const view = window.location.pathname.replace('/', '') || 'lobby';
-            if (view === 'social_hub' && activeTab === 'global') {
-              localStorage.setItem('lastOpenedGlobalChatTime', new Date().toISOString());
+            if (window.activeChatTab === 'global') {
+              const now = new Date().toISOString();
+              localStorage.setItem('lastOpenedGlobalChatTime', now);
+              localStorage.setItem('last_seen_global_chat', now);
             } else {
               setHasUnreadGlobalMessage(true);
             }
@@ -1503,8 +1503,10 @@ export default function App() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'friendships', filter: `friend_id=eq.${user.id}` }, () => fetchCounts())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
         if (payload.new.user_id !== user.id) {
-          if (window.location.pathname.includes('social_hub') && localStorage.getItem('activeChatTab') === 'global') {
-             localStorage.setItem('last_seen_global_chat', new Date().toISOString());
+          if (window.activeChatTab === 'global') {
+             const now = new Date().toISOString();
+             localStorage.setItem('last_seen_global_chat', now);
+             localStorage.setItem('lastOpenedGlobalChatTime', now);
           } else {
              setSocialNotifications(prev => ({ ...prev, unreadGlobal: (prev.unreadGlobal || 0) + 1 }));
           }
