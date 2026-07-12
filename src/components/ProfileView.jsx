@@ -388,7 +388,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      <div
                         className="w-12 h-12 flex items-center justify-center shrink-0"
                      >
-                        <bestMedal.IconComponent className={`w-10 h-10 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} isBadge={true} />
+                        <bestMedal.IconComponent className={`w-10 h-10 ${!isBestUnlocked ? 'brightness-90 contrast-125' : 'drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]'}`} disabled={!isBestUnlocked} isBadge={true} />
                      </div>
 
                      {/* Center: Name */}
@@ -397,7 +397,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                            className="text-[22px] font-black font-rabar leading-tight truncate w-full text-center transition-all duration-500"
                            style={{ color: tier.stop1 }}
                         >
-                           {userNickname || 'یاریکەر'}
+                           {userNickname || 'بێناڤ'}
                         </h3>
                      </div>
 

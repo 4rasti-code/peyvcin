@@ -62,7 +62,7 @@ export default function RewardClaimAnimation({ medal, onClose }) {
           <h2 className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-200 to-yellow-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] font-rabar">
             دەستکەفتەکا نوی!
           </h2>
-          <p className="text-yellow-100/80 text-lg mt-2 tracking-widest">{medal.name}</p>
+          <p className="text-yellow-100/80 text-lg mt-2">{medal.name}</p>
         </Motion.div>
 
         {/* The Medal Icon Drop (Like PUBG) */}

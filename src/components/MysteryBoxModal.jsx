@@ -48,7 +48,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
           .select('mystery_boxes_count, last_mystery_box_date')
           .eq('id', user.id)
           .single();
-          
+
         if (error) throw error;
         setBoxCount(data?.mystery_boxes_count || 0);
 
@@ -59,7 +59,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
           const now = new Date();
           const diffMs = now - lastOpen;
           const hours24 = 24 * 60 * 60 * 1000;
-          
+
           if (diffMs >= hours24) {
             setCanOpenFree(true);
           } else {
@@ -73,7 +73,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
         setLoadingCheck(false);
       }
     };
-    
+
     fetchStatus();
 
     return () => {
@@ -98,12 +98,12 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
       setTimeLeftStr(toKuDigits(`${hStr}:${mStr}:${sStr}`));
     };
-    
+
     let currentDiff = initialDiffMs;
     updateTimer(currentDiff);
-    
+
     if (timerRef.current) clearInterval(timerRef.current);
-    
+
     timerRef.current = setInterval(() => {
       currentDiff -= 1000;
       updateTimer(currentDiff);
@@ -132,7 +132,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
   const handleOpen = async () => {
     if (!canActuallyOpen || isOpening || loadingCheck || isLidOpen) return;
-    
+
     const usingBoxTicket = !canOpenFree && isBoxAvailable;
 
     playChestCreakSfx();
@@ -178,7 +178,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
         setCanOpenFree(false);
         startCountdown(24 * 60 * 60 * 1000);
       }
-      
+
       // Update Database
       try {
         if (usingBoxTicket) {
@@ -261,9 +261,9 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
               <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canOpenFree && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-2'} relative z-10 drop-shadow-md uppercase`}>سندۆقا نهێنی</h2>
 
-            {!canOpenFree && !loadingCheck && timeLeftStr && (
-              <span className="font-black text-xl text-fuchsia-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
-            )}
+              {!canOpenFree && !loadingCheck && timeLeftStr && (
+                <span className="font-black text-xl text-fuchsia-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
+              )}
 
               {!showReward && (
                 <div className="fixed top-6 left-6 flex items-center gap-2 h-11 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-4 shadow-xl border border-mono-200 dark:border-white/10 z-50">
@@ -302,7 +302,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                   onClick={canActuallyOpen && !isOpening && !isLidOpen ? handleOpen : undefined}
                   whileTap={canActuallyOpen && !isOpening ? { scale: 0.95 } : {}}
                 >
-                  <MysteryBoxIcon isIdleAnimated={canActuallyOpen && !isOpening} isOpen={isLidOpen} className={`w-full h-full drop-shadow-[0_15px_25px_rgba(168,85,247,0.4)] ${!canActuallyOpen && !isOpening ? 'grayscale opacity-40' : ''}`} />
+                  <MysteryBoxIcon isIdleAnimated={canActuallyOpen && !isOpening} isOpen={isLidOpen} className={`w-full h-full ${!canActuallyOpen && !isOpening ? 'grayscale opacity-40' : 'drop-shadow-[0_15px_25px_rgba(168,85,247,0.4)]'}`} />
                 </Motion.div>
 
                 {/* Reward Icon floating out of chest */}
@@ -334,20 +334,20 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                           className="relative flex items-center justify-center z-10"
                         >
-                          {wonReward.type === 'fils' ? <FilsIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                            wonReward.type === 'derhem' ? <DerhemIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                              wonReward.type === 'dinar' ? <DinarIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                                wonReward.type === 'hint' ? <HintIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                                  wonReward.type === 'skip' ? <SkipIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                                    wonReward.type === 'magnet' ? <MagnetIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> :
-                                      wonReward.type === 'spinTicket' ? <SpinTicketIcon size={80} className="filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]" /> : null}
+                          {wonReward.type === 'fils' ? <FilsIcon size={80} /> :
+                            wonReward.type === 'derhem' ? <DerhemIcon size={80} /> :
+                              wonReward.type === 'dinar' ? <DinarIcon size={80} /> :
+                                wonReward.type === 'hint' ? <HintIcon size={80} /> :
+                                  wonReward.type === 'skip' ? <SkipIcon size={80} /> :
+                                    wonReward.type === 'magnet' ? <MagnetIcon size={80} /> :
+                                      wonReward.type === 'spinTicket' ? <SpinTicketIcon size={80} /> : null}
                         </Motion.div>
                       </div>
 
                       {/* Elegant Clean Typography with Purple Glow Behind It */}
                       <div className="relative mt-6">
                         <div className="absolute -inset-4 bg-purple-600 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
-                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] tracking-wide whitespace-nowrap relative z-10">
+                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
                           {wonReward.label}
                         </p>
                       </div>

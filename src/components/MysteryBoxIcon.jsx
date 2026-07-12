@@ -62,6 +62,11 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
             <stop offset="60%" stopColor="#FFA000" stopOpacity="0.3" />
             <stop offset="100%" stopColor="#FFA000" stopOpacity="0" />
           </radialGradient>
+          <radialGradient id="boxOpenGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fdf4ff" stopOpacity="0.9" />
+            <stop offset="30%" stopColor="#d946ef" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#d946ef" stopOpacity="0" />
+          </radialGradient>
           <path id="magicStar" d="M 0 -8 L 2 -2 L 8 0 L 2 2 L 0 8 L -2 2 L -8 0 L -2 -2 Z" fill="#FFF59D" />
         </defs>
 
@@ -100,9 +105,8 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
           {/* ======================================= */}
           <path d="M 15 50 C 15 30, 85 30, 85 50 L 15 50 Z" fill="#2b1408" />
           
-          {/* Magic Glow inside */}
-          <ellipse cx="50" cy="40" rx="35" ry="12" fill="#d946ef" filter="blur(6px)" className={`chest-inside-glow ${isOpen ? 'open' : ''}`} />
-          <ellipse cx="50" cy="40" rx="20" ry="6" fill="#fdf4ff" filter="blur(3px)" className={`chest-inside-glow ${isOpen ? 'open' : ''}`} />
+          {/* Magic Glow inside (Using radialGradient instead of filter=blur to fix iOS/WebKit rendering bugs) */}
+          <ellipse cx="50" cy="40" rx="35" ry="12" fill="url(#boxOpenGlow)" className={`chest-inside-glow ${isOpen ? 'open' : ''}`} />
 
           {/* ======================================= */}
           {/* BASE (Bottom Rectangle) */}

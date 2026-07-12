@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { toKuDigits } from '../utils/formatters';
 import { useAudio } from '../context/AudioContext';
@@ -14,32 +14,6 @@ const gameModes = [
 export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic', isDark = true, showTabs = true }) {
   const [activeTab, setActiveTab] = useState(initialMode);
   const { playTabSound } = useAudio();
-  const scrollRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
 
   useEffect(() => {
     if (isOpen) {
@@ -522,19 +496,12 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
           {/* Scrollable Tabs - Conditional */}
           {showTabs && (
             <div className="space-y-3">
-              <div 
-                ref={scrollRef}
-                onMouseDown={handleMouseDown}
-                onMouseLeave={handleMouseLeave}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-                className={`flex overflow-x-auto no-scrollbar gap-2 py-2 px-4 scroll-smooth ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-              >
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 py-2 px-1">
                 {gameModes.map(mode => (
                   <button
                     key={mode.id}
                     onClick={() => { setActiveTab(mode.id); playTabSound(); }}
-                    className={`shrink-0 px-6 py-2.5 rounded-[5px] text-sm font-bold transition-all
+                    className={`px-3 sm:px-4 py-2 rounded-[5px] text-[12px] sm:text-[13px] font-bold transition-all
                       ${activeTab === mode.id
                         ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
                         : (isDark ? 'bg-white/5 text-white/40 hover:bg-white/10' : 'bg-slate-50 text-slate-500 hover:bg-slate-100')}`}

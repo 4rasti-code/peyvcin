@@ -54,20 +54,31 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
   const { level: userLevel } = useGame();
 
+  const tickAudioRef = React.useRef(null);
+
   useEffect(() => {
     if (!showCinematicOverlay || multiplayerState !== 'playing') return;
 
-    const tickAudio = new Audio('/Cartoon-timer-ticking-tick-tock-countdown.mp3');
-    tickAudio.volume = 0.25;
-    tickAudio.play().catch(e => console.warn("Failed to play tick audio:", e));
+    if (!tickAudioRef.current) {
+      tickAudioRef.current = new Audio('/Cartoon-timer-ticking-tick-tock-countdown.mp3');
+      tickAudioRef.current.volume = 0.25;
+    }
+    
+    tickAudioRef.current.currentTime = 0;
+    const playPromise = tickAudioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(e => console.warn("Failed to play tick audio:", e));
+    }
 
     const interval = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
           clearInterval(interval);
           setShowCinematicOverlay(false);
-          tickAudio.pause();
-          tickAudio.currentTime = 0;
+          if (tickAudioRef.current) {
+            tickAudioRef.current.pause();
+            tickAudioRef.current.currentTime = 0;
+          }
           playStartSound();
           return 0;
         }
@@ -77,8 +88,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
     return () => {
       clearInterval(interval);
-      tickAudio.pause();
-      tickAudio.currentTime = 0;
+      if (tickAudioRef.current) {
+        tickAudioRef.current.pause();
+      }
     };
   }, [showCinematicOverlay, multiplayerState, playStartSound]);
 

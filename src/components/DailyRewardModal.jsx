@@ -36,12 +36,12 @@ const AdvancedSparkle = ({ className, delaySec }) => (
 
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
-  { day: 2, label: '١ ھاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
-  { day: 3, label: '١ پلێتا چەرخی', type: 'spinTicket', reward: { spinTicketCount: 1 }, color: '#10b981' },
-  { day: 4, label: '٣ دەرھەم', type: 'derhem', reward: { derhem: 3 }, color: '#A0A0A0' },
-  { day: 5, label: '١ موگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#f43f5e' },
+  { day: 2, label: '١ هاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
+  { day: 3, label: '١ بلیتێ سپینێ', type: 'spinTicket', reward: { spinTicketCount: 1 }, color: '#10b981' },
+  { day: 4, label: '٣ دەرهەم', type: 'derhem', reward: { derhem: 3 }, color: '#A0A0A0' },
+  { day: 5, label: '١ مۆگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#f43f5e' },
   { day: 6, label: '١ سندۆقا نەدیار', type: 'mystery_box', reward: { mystery_boxes_count: 1 }, color: '#8b5cf6' },
-  { day: 7, label: '١ سکیپ + ١ دینار', type: 'grand', reward: { skipCount: 1, dinar: 1, fils: 200 }, color: '#FFD700', isGrand: true }
+  { day: 7, label: '٢٠٠ فلس + ١ سکیپ + ١ دینار', type: 'grand', reward: { skipCount: 1, dinar: 1, fils: 200 }, color: '#FFD700', isGrand: true }
 ];
 
 // COLOR MAP FOR DAYS MATCHING SCREENSHOT
@@ -172,7 +172,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
           confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
         }, 100);
       } else {
-        const errorMsg = result?.error || "خەلات ناهێتە وەرگرتن، دبیت تو یێ ل هیڤیا دەمێ نوو بی.";
+        const errorMsg = result?.error || "خەلات ناهێتە وەرگرتن، دبیت تو یێ ل هیڤیا دەمێ نوی بی.";
         if (errorMsg.toLowerCase().includes('already claimed') || errorMsg.includes('claimed today') || errorMsg.includes('بەری نوکە')) {
           setServerReportedClaimed(true);
         } else {
@@ -332,7 +332,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       )}
 
                       {/* Lower Day Label Section */}
-                      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center text-white font-black z-10 tracking-wide drop-shadow-sm rounded-b-[14px]
+                      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center text-white font-black z-10 drop-shadow-sm rounded-b-[14px]
                         ${isDay7 ? 'h-8 sm:h-10 text-[14px] sm:text-[16px]' : 'h-7 sm:h-10 text-[12px] sm:text-[14px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
@@ -409,23 +409,23 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                       >
                         {claimedDayInfo?.isGrand ? (
-                          <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible filter drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
-                            <SkipIcon size={70} />
-                            <DinarIcon size={90} />
-                            <FilsIcon size={70} />
+                          <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible">
+                            <SkipIcon size={100} />
+                            <DinarIcon size={120} />
+                            <FilsIcon size={100} />
                           </div>
                         ) : claimedDayInfo?.type === 'fils' ? (
-                          <FilsIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(250,204,21,0.5)]" />
+                          <FilsIcon size={110} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.type === 'derhem' ? (
-                          <DerhemIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(203,213,225,0.4)]" />
+                          <DerhemIcon size={110} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.type === 'spinTicket' ? (
-                          <SpinTicketIcon size={120} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(16,185,129,0.5)]" />
+                          <SpinTicketIcon size={120} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.type === 'mystery_box' ? (
-                          <MysteryBoxIcon size={110} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(139,92,246,0.5)]" />
+                          <MysteryBoxIcon size={110} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.icon === 'lightbulb' ? (
-                          <HintIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(251,191,36,0.6)]" />
+                          <HintIcon size={120} animate={true} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
-                          <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible filter drop-shadow-[0_0_25px_rgba(239,68,68,0.5)]" />
+                          <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible" />
                         ) : (
                           <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
                             {claimedDayInfo?.icon || 'redeem'}
@@ -440,7 +440,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       initial={{ scale: 0, y: 20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
-                      className="mt-6 text-mono-900 dark:text-white font-black text-4xl relative z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+                      className="mt-6 text-mono-900 dark:text-white font-black text-3xl relative z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
                     >
                       {claimedDayInfo?.label}
                     </Motion.div>

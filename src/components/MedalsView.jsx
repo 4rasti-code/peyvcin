@@ -46,7 +46,7 @@ export default function MedalsView({ onViewChange }) {
                <span className="material-symbols-outlined">arrow_forward</span>
             </button>
             <div className="flex flex-col items-center">
-               <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase tracking-wider drop-shadow-sm dark:drop-shadow-md">پلە</h2>
+               <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase drop-shadow-sm dark:drop-shadow-md">پلە</h2>
             </div>
             <div className="w-10" />
          </div>

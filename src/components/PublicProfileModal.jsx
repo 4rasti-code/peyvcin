@@ -441,7 +441,7 @@ export default function PublicProfileModal({
                   <div 
                     className="absolute -top-1 -left-1 w-10 h-10 flex items-center justify-center z-50 transition-transform hover:scale-110"
                   >
-                    <bestMedal.IconComponent className={`w-9 h-9 drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)] ${!isBestUnlocked ? 'brightness-90 contrast-125' : ''}`} disabled={!isBestUnlocked} isBadge={true} />
+                    <bestMedal.IconComponent className={`w-9 h-9 ${!isBestUnlocked ? 'brightness-90 contrast-125' : 'drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]'}`} disabled={!isBestUnlocked} isBadge={true} />
                   </div>
                 )}
 

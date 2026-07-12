@@ -24,7 +24,7 @@ export const fetchUserProfile = async (userId) => {
 export const fetchLeaderboard = async (limit = 100) => {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, nickname, avatar_url, level, xp, city, country_code, is_kurdistan, fils, derhem, dinar, daily_streak')
+    .select('id, nickname, avatar_url, level, xp, country_code, is_kurdistan, fils, derhem, dinar, daily_streak')
     .order('level', { ascending: false })
     .order('xp', { ascending: false })
     .limit(limit);
@@ -50,7 +50,7 @@ export const sendGlobalMessage = async (userId, nickname, content) => {
     .insert([{ 
       content, 
       user_id: userId, 
-      user_nickname: nickname || 'یاریکەر',
+      user_nickname: nickname || 'بێناڤ',
       receiver_id: null // Explicitly global
     }]);
   return { data, error };

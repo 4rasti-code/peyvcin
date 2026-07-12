@@ -461,7 +461,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     className={`text-[11px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''}`}
                     style={m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' ? { color: msgTier.stop1 } : {}}
                   >
-                    {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'یاریکەر')}
+                    {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
                   </span>
                   {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
                     <div className="relative w-[13px] h-[15px] flex items-center justify-center shrink-0">
@@ -573,7 +573,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                       {users.map(u => {
                         const id = typeof u === 'string' ? u : u.id;
                         const uName = typeof u !== 'string' ? u.name : null;
-                        return reactionUsers[id]?.nickname || (uName !== 'یاریکەر' ? uName : null) || 'یاریکەر';
+                        return reactionUsers[id]?.nickname || (uName !== 'بێناڤ' ? uName : null) || 'بێناڤ';
                       }).join('، ')}
                       <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-mono-900 dark:border-t-mono-100"></div>
                     </div>
@@ -1288,7 +1288,7 @@ export default function SocialHubView({
         const users = [...(reactions[emoji] || [])];
         const idx = users.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
         if (idx > -1) users.splice(idx, 1);
-        else users.push({ id: user?.id, name: userNickname || 'یاریکەر' });
+        else users.push({ id: user?.id, name: userNickname || 'بێناڤ' });
 
         if (users.length === 0) delete reactions[emoji];
         else reactions[emoji] = users;
@@ -1321,7 +1321,7 @@ export default function SocialHubView({
       const userIndex = users.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
 
       if (userIndex > -1) users.splice(userIndex, 1);
-      else users.push({ id: user?.id, name: user?.nickname || 'یاریکەر' });
+      else users.push({ id: user?.id, name: user?.nickname || 'بێناڤ' });
 
       if (users.length === 0) delete reactions[emoji];
       else reactions[emoji] = users;
@@ -1908,7 +1908,7 @@ export default function SocialHubView({
                     const id = typeof u === 'string' ? u : u.id;
                     const reactionData = reactionUsers[id];
                     const uName = typeof u !== 'string' ? u.name : null;
-                    const name = reactionData?.nickname || (uName !== 'یاریکەر' ? uName : null) || 'یاریکەر';
+                    const name = reactionData?.nickname || (uName !== 'بێناڤ' ? uName : null) || 'بێناڤ';
                     const avatarUrl = reactionData?.avatar_url;
 
                     const isMeReaction = id === user?.id;

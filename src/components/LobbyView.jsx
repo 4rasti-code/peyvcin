@@ -303,7 +303,7 @@ const LobbyView = memo(({
                  className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <ClipboardIcon className="w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md" />
+                   <ClipboardIcon className={`w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                    
                    {isDailyAvailable && (
                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-md z-20 animate-pulse" />
@@ -324,7 +324,7 @@ const LobbyView = memo(({
                  className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className="w-[48px] h-[48px] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md transition-transform duration-300 hover:scale-110" />
+                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-[48px] h-[48px] transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                  </div>
                </button>
 
@@ -340,7 +340,7 @@ const LobbyView = memo(({
                  className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className="w-[58px] h-[58px] drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md transition-transform duration-300 hover:scale-[1.10]" />
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-[58px] h-[58px] transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                  </div>
                </button>
             </div>

@@ -132,7 +132,7 @@ export default function AchievementToastManager() {
                className="mt-6 flex flex-col items-center"
             >
               <p className={`text-sm sm:text-base font-black mb-1 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] uppercase ${currentToast.color}`}>
-                دەستکەفتێ نووی!
+                دەستکەفتێ نوی!
               </p>
               <h3 className="text-3xl sm:text-5xl font-black text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] text-center">
                 {currentToast.name}

@@ -329,7 +329,7 @@ export default function FriendsList({
               id="player-search"
               name="player-search"
               aria-label="Search for players"
-              placeholder="گەڕیان ل ھەڤالێن نوو..."
+              placeholder="گەڕیان ل ھەڤالێن نوی..."
               value={searchQuery}
               onChange={(e) => handleSearchPlayers(e.target.value)}
               className="w-full bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md py-3.5 pr-11 pl-4 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 outline-none transition-all duration-300 text-mono-900 dark:text-mono-50"

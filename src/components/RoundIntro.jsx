@@ -169,9 +169,9 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
             className="absolute top-1/2 left-0 w-full -translate-y-1/2 z-50 flex flex-col items-center justify-center pointer-events-auto shadow-2xl bg-mono-100 dark:bg-[#1a1f2e] border-y-[3px] border-mono-200 dark:border-mono-800"
           >
             <div className="w-full px-6 py-8 flex flex-col items-center justify-center text-center">
-              <h2 className="text-2xl sm:text-3xl font-black text-mono-900 dark:text-white font-rabar uppercase tracking-wide text-center flex flex-wrap justify-center items-center gap-2">
+              <h2 className="text-2xl sm:text-3xl font-black text-mono-900 dark:text-white font-rabar uppercase text-center flex flex-wrap justify-center items-center gap-2">
                 {roundMessage === 'ROUND_DRAW' ? (
-                  <>یەکسانبوون! <span className="text-amber-500">گەڕا نووی</span></>
+                  <>یەکسانبوون! <span className="text-amber-500">گەڕا نوی</span></>
                 ) : (
                   <>گەڕا {getRoundOrdinal(currentRound)} <span className="text-amber-500">دەستپێکر</span></>
                 )}
@@ -186,7 +186,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userLev
                   className="mt-4 flex flex-col items-center justify-center border-t border-mono-200 dark:border-mono-800 pt-4 w-full max-w-sm"
                 >
                   <span className="text-sm sm:text-base font-rabar text-mono-500 dark:text-mono-400 mb-1 text-center font-bold">بەرسڤا گەڕا پێشتر:</span>
-                  <span className="text-3xl sm:text-4xl font-black font-rabar text-green-500 tracking-widest text-center">
+                  <span className="text-3xl sm:text-4xl font-black font-rabar text-green-500 text-center">
                     {previousWord}
                   </span>
                 </Motion.div>

@@ -96,7 +96,14 @@ export const AuthProvider = ({ children }) => {
 
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select(`
+          id, nickname, avatar_url, fils, derhem, dinar, xp,
+          is_kurdistan, country_code,
+          last_nickname_update, haptic_enabled, magnets, hints, skips,
+          inventory, claimed_medals, daily_streak, reward_streak, last_reward_claimed_at,
+          last_streak_at, last_notified_level,
+          statistics, solved_words, onboarded
+        `)
         .eq('id', activeUserId)
         .single();
 
@@ -113,18 +120,29 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
-          // Generate a guaranteed safe nickname (8-15 chars, no spaces) to pass DB constraints
-          let rawName = currentUser?.user_metadata?.nickname ||
-            currentUser?.user_metadata?.username ||
-            currentUser?.user_metadata?.full_name ||
-            'user';
+            // Extract base nickname from metadata
+            let rawName = currentUser?.user_metadata?.nickname ||
+              currentUser?.user_metadata?.username ||
+              currentUser?.user_metadata?.full_name ||
+              '';
+              
+            let nickname = '';
             
-          // Remove spaces and invalid characters, keep only alphanumeric
-          rawName = rawName.replace(/[^a-zA-Z0-9]/g, '');
-          if (rawName.length < 4) rawName = 'user';
-          rawName = rawName.substring(0, 8); // Max 8 chars for base
-          
-          let nickname = `${rawName}_${Math.floor(1000 + Math.random() * 9000)}`;
+            if (!rawName || rawName.trim() === '') {
+              // If no name is provided, fetch a sequential guest name from the database
+              const { data: seqName } = await supabase.rpc('get_next_guest_name');
+              nickname = seqName || `بێناڤ_${Math.floor(1000 + Math.random() * 9000)}`;
+            } else {
+              // Remove spaces, allow alphanumeric and Kurdish/Arabic characters
+              rawName = rawName.replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
+              if (rawName.length < 3) {
+                const { data: seqName } = await supabase.rpc('get_next_guest_name');
+                nickname = seqName || `بێناڤ_${Math.floor(1000 + Math.random() * 9000)}`;
+              } else {
+                rawName = rawName.substring(0, 10);
+                nickname = `${rawName}_${Math.floor(1000 + Math.random() * 9000)}`;
+              }
+            }
 
           // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
           // We wrap this in a loop to handle nickname conflicts client-side too
@@ -198,6 +216,10 @@ export const AuthProvider = ({ children }) => {
 
   // Helper to process profile data consistently
   const handleProfileData = (data, onProfileLoaded) => {
+    // ENFORCE NO SPACES RULE: If existing user has a space in their nickname, force onboarding
+    if (data.nickname && data.nickname.includes(' ')) {
+      data.onboarded = false;
+    }
     setUserNickname(prev => prev !== data.nickname ? (data.nickname || 'یاریزان') : prev);
     setUserAvatar(prev => prev !== data.avatar_url ? (data.avatar_url || 'default') : prev);
     setCity(prev => prev !== data.city ? (data.city || '') : prev);

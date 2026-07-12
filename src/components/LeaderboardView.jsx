@@ -723,7 +723,7 @@ export default function LeaderboardView({ onOpenChat }) {
                   <button
                     onClick={() => { triggerHaptic(10); fetchData(true); }}
                     disabled={loadingMore}
-                    className="flex items-center gap-2 bg-mono-100 dark:bg-mono-800 hover:bg-mono-200 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-300 px-6 py-2.5 rounded-full font-black text-sm tracking-wide transition-all active:scale-95 border border-mono-200 dark:border-mono-700 shadow-sm disabled:opacity-50 disabled:active:scale-100"
+                    className="flex items-center gap-2 bg-mono-100 dark:bg-mono-800 hover:bg-mono-200 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-300 px-6 py-2.5 rounded-full font-black text-sm transition-all active:scale-95 border border-mono-200 dark:border-mono-700 shadow-sm disabled:opacity-50 disabled:active:scale-100"
                   >
                     {loadingMore ? (
                       <>

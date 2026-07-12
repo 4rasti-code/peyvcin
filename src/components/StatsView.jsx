@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 import { toKuDigits } from '../utils/formatters';
@@ -22,13 +22,13 @@ const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId })
       {Object.entries(dist).map(([key, value]) => {
         let label = toKuDigits(key);
         if (modeId === 'battle') {
-          if (key === '1') label = toKuDigits('3') + '-' + toKuDigits('0');
-          if (key === '2') label = toKuDigits('3') + '-' + toKuDigits('1');
-          if (key === '3') label = toKuDigits('3') + '-' + toKuDigits('2');
+          if (key === '1') label = 'سەرکەفتن';
+          if (key === '2') label = 'سەرنەکەفتن';
+          if (key === '3') label = 'یەکسان';
         }
         return (
           <div key={key} className="flex items-center gap-4">
-            <span className={`text-[11px] font-black text-mono-400 tabular-nums text-left ${modeId === 'battle' ? 'w-5' : 'w-3'}`}>{label}</span>
+            <span className={`text-[11px] font-black text-mono-400 text-left ${modeId === 'battle' ? 'w-16' : 'w-3 tabular-nums'}`}>{label}</span>
             <div className="flex-1 h-6 bg-mono-100/50 dark:bg-mono-800/40 rounded-[4px] overflow-hidden relative border border-mono-200/30 dark:border-mono-700/20">
             <Motion.div 
                 initial={{ width: 0 }}
@@ -54,15 +54,13 @@ export default function StatsView({
 }) {
 
   const { playSettingsCloseSound } = useAudio();
-  const [profile] = useState(profileData);
-
   // Core Stats
   const stats = {
-    played: profile?.games_played || 0,
-    won: profile?.games_won || 0,
-    currentStreak: profile?.current_streak || 0,
-    maxStreak: profile?.max_streak || 0,
-    rawDistribution: playerStats || profile?.guess_distribution || {}
+    played: profileData?.games_played || 0,
+    won: profileData?.games_won || 0,
+    currentStreak: profileData?.current_streak || 0,
+    maxStreak: profileData?.max_streak || 0,
+    rawDistribution: playerStats || profileData?.guess_distribution || {}
   };
 
   // Advanced Stats
@@ -228,14 +226,25 @@ export default function StatsView({
             
             {modeConfigs.map((mode) => {
               const dist = {};
-              for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
               
-              const modeData = stats.rawDistribution[mode.id] || {};
-              const rawModeDist = modeData.guess_distribution || modeData || {};
+              if (mode.id === 'battle') {
+                const wins = advancedStats.pvpWins || 0;
+                const played = advancedStats.modePlayCounts?.['battle'] || 0;
+                const losses = Math.max(0, played - wins);
+                
+                dist['1'] = wins;
+                dist['2'] = losses;
+                dist['3'] = 0;
+              } else {
+                for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
+                
+                const modeData = stats.rawDistribution[mode.id] || {};
+                const rawModeDist = modeData.guess_distribution || modeData || {};
 
-              Object.entries(rawModeDist).forEach(([key, val]) => {
-                if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
-              });
+                Object.entries(rawModeDist).forEach(([key, val]) => {
+                  if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
+                });
+              }
               const maxValue = Math.max(...Object.values(dist), 1);
 
               return (

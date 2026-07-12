@@ -261,6 +261,17 @@ export const GameProvider = ({ children }) => {
         if (profileData.inventory) {
           setInventory(prev => JSON.stringify(prev) !== JSON.stringify(profileData.inventory) ? profileData.inventory : prev);
         }
+
+        const remoteMedals = Array.isArray(profileData.claimed_medals) ? profileData.claimed_medals : [];
+        setClaimedMedals(prev => {
+          const local = Array.isArray(prev) ? prev : [];
+          const merged = [...new Set([...local, ...remoteMedals])];
+          if (JSON.stringify(local) !== JSON.stringify(merged)) {
+            localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
+            return merged;
+          }
+          return prev;
+        });
         
         // --- HYBRID LEVEL RECALIBRATION ---
         // Ignore the level stored in DB if it's inconsistent with the new Hardcore math
@@ -322,6 +333,19 @@ export const GameProvider = ({ children }) => {
           if (data.magnets !== undefined) setMagnetCount(prev => prev !== data.magnets ? data.magnets : prev);
           if (data.hints !== undefined) setHintCount(prev => prev !== data.hints ? data.hints : prev);
           if (data.skips !== undefined) setSkipCount(prev => prev !== data.skips ? data.skips : prev);
+
+          if (data.claimed_medals !== undefined) {
+             setClaimedMedals(prev => {
+                const local = Array.isArray(prev) ? prev : [];
+                const remote = Array.isArray(data.claimed_medals) ? data.claimed_medals : [];
+                const merged = [...new Set([...local, ...remote])];
+                if (JSON.stringify(local) !== JSON.stringify(merged)) {
+                  localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
+                  return merged;
+                }
+                return prev;
+             });
+          }
 
           // Deep merge for inventory/stats
           if (data.inventory) {
@@ -448,11 +472,13 @@ export const GameProvider = ({ children }) => {
       try {
         const { error } = await supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id });
         if (error) {
-           console.warn('claim_medal rpc failed:', error);
+           console.warn('claim_medal rpc failed, falling back:', error);
+           await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id);
         }
       } catch (err) {
          // Silently catch missing RPC or network errors without crashing the app
-         console.warn('claim_medal rpc error:', err);
+         console.warn('claim_medal rpc error, falling back:', err);
+         await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id);
       }
     }
   }, [updateInventory]);
@@ -630,7 +656,9 @@ export const GameProvider = ({ children }) => {
         p_solve_time_ms: additionalData.durationMs || 0
       });
 
-      if (error) throw error;
+      if (error) {
+         console.warn("RPC sync_profile_progression failed, falling back to direct update:", error);
+      }
 
       // --- DIRECT DATABASE SYNC (BACKUP) ---
       try {
@@ -661,6 +689,9 @@ export const GameProvider = ({ children }) => {
         const newCurrentStreak = isWin ? (profileData?.current_streak || 0) + 1 : 0;
         const newMaxStreak = Math.max(profileData?.max_streak || 0, newCurrentStreak);
 
+        const currentInventory = profileData?.inventory || { owned_avatars: ["default"], unlocked_themes: ["default"] };
+        const newInventory = { ...currentInventory, solved_words: nextSolvedWords };
+
         await supabase
           .from('profiles')
           .update({
@@ -681,7 +712,8 @@ export const GameProvider = ({ children }) => {
             mode_play_counts: {
               ...currentModePlayCounts,
               [mode]: (currentModePlayCounts[mode] || 0) + 1
-            }
+            },
+            inventory: newInventory
           })
           .eq('id', currentUser.id);
       } catch (dbErr) {
@@ -703,6 +735,16 @@ export const GameProvider = ({ children }) => {
           awards: currentAward, 
           bahdiniMsg: `سەرکەفتنەکا نوی! ✨ (پاراستی)` 
         };
+      } else {
+        await syncProfile(currentUser.id);
+        refreshRank(newLocalXP, true);
+        
+        return { 
+          xpAdded: xpToAdd, 
+          newLevel: newLevel, 
+          awards: currentAward, 
+          bahdiniMsg: `سەرکەفتنەکا نوی! ✨ (پاراستی)` 
+        };
       }
     } catch (err) { 
       console.error("Secured Sync Failed:", err.message); 
@@ -710,8 +752,7 @@ export const GameProvider = ({ children }) => {
     } finally {
       isSyncingProgressionRef.current = false;
     }
-    return null;
-  }, [refreshRank, syncProfile, profileData?.games_played, profileData?.games_won, profileData?.fastest_solve_ms, profileData?.fever_highscore, profileData?.flawless_wins, profileData?.last_active_date, profileData?.longest_word_length, profileData?.mode_play_counts, profileData?.pvp_wins, profileData?.total_active_days, profileData?.total_words_found, profileData?.current_streak, profileData?.max_streak]);
+  }, [refreshRank, syncProfile, profileData?.games_played, profileData?.games_won, profileData?.fastest_solve_ms, profileData?.fever_highscore, profileData?.flawless_wins, profileData?.last_active_date, profileData?.longest_word_length, profileData?.mode_play_counts, profileData?.pvp_wins, profileData?.total_active_days, profileData?.total_words_found, profileData?.current_streak, profileData?.max_streak, profileData?.inventory]);
 
   const addXP = useCallback((amount) => { if (amount) setCurrentXP(prev => prev + amount); }, []);
 

@@ -107,9 +107,9 @@ class GameErrorBoundary extends React.Component {
         <div className="flex flex-col items-center justify-center h-screen bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 p-8 text-center" style={{ fontFamily: 'Rabar, sans-serif' }}>
           <div className="bg-red-500/10 border-2 border-red-500/30 p-10 rounded-3xl shadow-2xl max-w-lg backdrop-blur-xl animate-in zoom-in-95">
             <h2 className="text-4xl font-black mb-6 text-red-500">ئاریشەیەک چێ بوو!</h2>
-            <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. هێڤییە دووبارە پەیجێ نوو بکە یان ڤەگەڕە لابیێ.</p>
+            <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. هێڤییە دووبارە پەیجێ نوی بکە یان ڤەگەڕە لابیێ.</p>
             <div className="flex flex-col gap-4">
-              <button onClick={() => window.location.reload()} className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">نووکرنا پەیجێ</button>
+              <button onClick={() => window.location.reload()} className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">نویکرنا پەیجێ</button>
               <button onClick={() => window.location.href = '/'} className="bg-white/5 border border-white/10 text-white/60 px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all">ڤەگەڕ بۆ سەرەکی</button>
             </div>
           </div>
@@ -307,7 +307,7 @@ export default function App() {
       const sendWelcomeMessage = async () => {
         try {
           const { error } = await supabase.from('messages').insert([{
-            content: "سڵاڤ و رێز... ب خێرهاتی بۆ یاریا پەیڤۆک 🧩\n\nمە دڤیا ب ڕێکا ڤێ نامەیێ، هەم ب گەرمی خێرهاتنا تە بکەین و هەم ژی ب شانازی ڤە پێزانینەکا گرنگ بگەهینینە تە. 'پەیڤۆک' یارییەکا کوردی یا رەسەنە، کو ب تەمامی ب دەستێ گەشەپێدەرێن کورد هاتییە دروستکرن و ب ڕەنگەکێ راستەوخۆ گرێدایی زمان و کلتورێ مە یێ دەوڵەمەندە.\n\nیارییا مە نۆکە د قۆناغا تاقیکرنێ (Beta) دایە، و پرۆسەیا دروستکرنا وێ هێشتا یا د بەردەوامە. تیمێ مە ب بەردەوامی کار دکەت بۆ زێدەکرنا پەیڤێن کوردی یێن نووتر و بەرفرەهتر، دگەل چارەسەرکرنا هەر ئاریشەیەکا تەکنیکی کو بهێتە پێش. ژبەر هندێ، ئەگەر تو تووشی هەر ئاریشەیەکێ ببی، قۆناغەکا دەمییە و ئەم کار ل سەر دکەین.\n\nل ڤان نێزیکان، 'پەیڤۆک' دێ ب شێوەیەکێ فەرمی وەک ئەپلیکەیشن بۆ ئەندرۆید (Android) و ئایئۆئێس (iOS) بەردەست بیت!\n\nپشکدارییا تە د ڤێ قۆناغێ دا بۆ مە گەلەک یا گرنگە. تو ئێک ژ بکارهێنەرێن مە یێن دەستپێکێی، و پشتەڤانییا تە دێ هاریکارییا مە کەت بۆ پێشخستنا یاریێ، دا کو ببیتە باشترین یارییا هزری ب زمانێ کوردی/بەهدینی.\n\nزۆر سوپاس بۆ باوەری و پشتەڤانییا تە. \nـ دگەل رێزێن تیما گەشەپێدەرێن \"پەیڤۆک\"",
+            content: "سڵاڤ و رێز... ب خێرهاتی بۆ یاریا پەیڤۆک 🧩\n\nمە دڤیا ب ڕێکا ڤێ نامەیێ، هەم ب گەرمی خێرهاتنا تە بکەین و هەم ژی ب شانازی ڤە پێزانینەکا گرنگ بگەهینینە تە. 'پەیڤۆک' یارییەکا کوردی یا رەسەنە، کو ب تەمامی ب دەستێ گەشەپێدەرێن کورد هاتییە دروستکرن و ب ڕەنگەکێ راستەوخۆ گرێدایی زمان و کلتورێ مە یێ دەوڵەمەندە.\n\nیارییا مە نۆکە د قۆناغا تاقیکرنێ (Beta) دایە، و پرۆسەیا دروستکرنا وێ هێشتا یا د بەردەوامە. تیمێ مە ب بەردەوامی کار دکەت بۆ زێدەکرنا پەیڤێن کوردی یێن نویتر و بەرفرەهتر، دگەل چارەسەرکرنا هەر ئاریشەیەکا تەکنیکی کو بهێتە پێش. ژبەر هندێ، ئەگەر تو تووشی هەر ئاریشەیەکێ ببی، قۆناغەکا دەمییە و ئەم کار ل سەر دکەین.\n\nل ڤان نێزیکان، 'پەیڤۆک' دێ ب شێوەیەکێ فەرمی وەک ئەپلیکەیشن بۆ ئەندرۆید (Android) و ئایئۆئێس (iOS) بەردەست بیت!\n\nپشکدارییا تە د ڤێ قۆناغێ دا بۆ مە گەلەک یا گرنگە. تو ئێک ژ بکارهێنەرێن مە یێن دەستپێکێی، و پشتەڤانییا تە دێ هاریکارییا مە کەت بۆ پێشخستنا یاریێ، دا کو ببیتە باشترین یارییا هزری ب زمانێ کوردی/بەهدینی.\n\nزۆر سوپاس بۆ باوەری و پشتەڤانییا تە. \nـ دگەل رێزێن تیما گەشەپێدەرێن \"پەیڤۆک\"",
             user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
             user_nickname: 'پەیڤۆک',
             receiver_id: user.id,
@@ -809,11 +809,11 @@ export default function App() {
   const handleShareToGlobal = useCallback(async (text) => {
     if (!user) return false;
     try {
-      const { error } = await supabase.from('messages').insert({
+      const { error } = await supabase.from('messages').insert([{
         user_id: user.id,
         user_nickname: userNickname || 'یاریزان',
         content: text
-      });
+      }]);
       if (error) throw error;
       return true;
     } catch (err) {
@@ -1440,7 +1440,7 @@ export default function App() {
           dbId: m.id,
           type: 'message',
           sender_id: m.user_id,
-          user_nickname: sender?.nickname || m.user_nickname || 'یاریکەر',
+          user_nickname: sender?.nickname || m.user_nickname || 'بێناڤ',
           user_avatar: sender?.avatar_url || 'default',
           created_at: m.created_at
         };
@@ -1453,7 +1453,7 @@ export default function App() {
           dbId: r.id,
           type: 'friend',
           sender_id: r.user_id,
-          user_nickname: sender?.nickname || 'یاریکەر',
+          user_nickname: sender?.nickname || 'بێناڤ',
           user_avatar: sender?.avatar_url || 'default',
           created_at: r.created_at
         };
@@ -1648,7 +1648,7 @@ export default function App() {
               })()
             }
             isDark={isSystemDark}
-            onOpenHowToPlay={(mode) => handleOpenHowToPlay(mode, false)}
+            onOpenHowToPlay={(mode) => handleOpenHowToPlay(mode, mode ? false : true)}
             onHint={handleHint}
             onMagnet={handleMagnet}
             onSkip={handleSkip}
