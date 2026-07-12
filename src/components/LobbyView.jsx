@@ -773,6 +773,7 @@ const LobbyView = memo(({
         {selectedProfile && (
           <PublicProfileModal
             profile={selectedProfile}
+            currentUser={user}
             onClose={() => setSelectedProfile(null)}
           />
         )}
