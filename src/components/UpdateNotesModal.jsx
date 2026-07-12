@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const UPDATE_VERSION = 'v2.3.0'; // Change this string to force the modal to show again for all users
+const UPDATE_VERSION = 'v2.4.0'; // Change this string to force the modal to show again for all users
 
 const UpdateNotesModal = () => {
    const [isVisible, setIsVisible] = useState(false);
@@ -63,22 +63,22 @@ const UpdateNotesModal = () => {
                      {/* Scrollable Content */}
                      <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🏅 مەرجان بجهبینە و گەلەک پلە و باجێن تایبەت ب دەستڤە بینە!
+                           💬 چارەسەرکرنا کێشەیا نیشانا سۆر ل سەر ئایکۆنێ چاتێ و باشترکرنا سیستەمێ ئاگەهدارییان.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🏆 شاشەیەکا نوی بۆ دیتنا هەمی مەدالیا و دەستکەڤتێن تە ب ڕەنگەکێ جوان.
+                           👥 زێدەکرنا ژمارەیا یاریزانێن سەرهێل (Online) ل سەر کارتی مۆدێ هەڤڕکی ب شێوەیەکێ زیندوو.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🎬 ئەنیمەیشنێ 3D و لڤینا مۆبایلێ دەمێ تو مەدالیایەکا نوی وەردگری.
+                           📱 گونجاندنا یاریێ دگەل سیستەمێ PWA دا کو ل سەر مۆبایلێ وەکی ئەپەکێ سەربەخۆ بێی وێبگەڕ کار بکەت.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           ✨ چێکرنا باجێن ب کوالێتیەکا بلند (وەکی سەرەتایی، پەهلەوان، شارەزا، مامۆستا، شانازیا کوردستانێ، شاهێ پەیڤان) دگەل دەنگەکێ تایبەت و جیاواز بۆ هەر ئێک ژ وان دەمێ وەردگری!
+                           🎨 باشترکرنا ڕەنگێن داخوازنامەیان (Invites) و گونجاندنا شاشەیا لێگەڕیانێ دگەل مۆدێ ڕووناک و تاریک.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           👀 ژ نۆکە و پێڤە، مەزنترین مەدالیایا تە دێ ل سەر پرۆفایلێ تە یێ گشتی دیار بیت!
+                           ✨ کەمکرن و جوانترکرنا قریسکێن ئاسنی ل کاتی پێکدادانا شمشێران.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           ⚡ چارەسەرکرنا هندەک ئاریشەیێن بچویک و ڕێکخستنا بەرپەڕێ پرۆفایلی.
+                           🤖 نیشاندانا لۆگۆیێ فەرمی یێ بۆتێ پەیڤۆک دەمێ نامە و ئاگەهدارییان دهنێریت.
                         </li>
                      </ul>
 
