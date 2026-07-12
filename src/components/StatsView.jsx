@@ -227,26 +227,35 @@ export default function StatsView({
                 
                 return (
                   <Motion.div key={mode.id} variants={itemVariants}>
-                    <div className="bg-mono-white dark:bg-mono-900/30 rounded-[6px] border border-mono-200 dark:border-mono-800 p-5 backdrop-blur-sm transition-all duration-300">
-                      <div className="flex items-center gap-3 mb-5">
-                        <span className={`material-symbols-outlined ${mode.textColor} text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
-                        <h4 className="text-[11px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar">ئامارێن: {mode.name}</h4>
+                    <div className="bg-[#020617] rounded-[12px] border border-slate-800 p-5 shadow-xl relative overflow-hidden transition-all duration-300">
+                      {/* Background subtle glow effect */}
+                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                      <div className="relative z-10 flex items-center gap-3 mb-6">
+                        <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]">
+                          <span className={`material-symbols-outlined text-orange-400 text-xl drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
+                        </div>
+                        <h4 className="text-[12px] font-black text-white uppercase font-rabar tracking-wider drop-shadow-md">ئامارێن: {mode.name}</h4>
                       </div>
                       
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-green-50 dark:bg-green-500/10 border border-green-200/60 dark:border-green-500/20">
-                          <span className="text-2xl font-black text-green-600 dark:text-green-400 tabular-nums mb-1 leading-none">{toKuDigits(wins)}</span>
-                          <span className="text-[10px] font-bold text-green-700/80 dark:text-green-400/80 uppercase">سەرکەفتن</span>
+                      <div className="relative z-10 flex items-center justify-between gap-3">
+                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-blue-950/40 border border-blue-500/30 shadow-[inset_0_0_20px_rgba(59,130,246,0.15)] relative overflow-hidden group hover:border-blue-500/50 hover:shadow-[inset_0_0_25px_rgba(59,130,246,0.25)] transition-all">
+                          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="text-3xl font-black text-blue-400 tabular-nums mb-1 leading-none drop-shadow-[0_0_12px_rgba(96,165,250,0.6)]">{toKuDigits(wins)}</span>
+                          <span className="text-[10px] font-black text-blue-300/80 uppercase tracking-widest mt-1">سەرکەفتن</span>
                         </div>
                         
-                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-mono-100 dark:bg-mono-800/60 border border-mono-200 dark:border-mono-700">
-                          <span className="text-2xl font-black text-mono-600 dark:text-mono-300 tabular-nums mb-1 leading-none">{toKuDigits(draws)}</span>
-                          <span className="text-[10px] font-bold text-mono-500 dark:text-mono-400 uppercase">یەکسانبوون</span>
+                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-slate-900/60 border border-slate-700/80 shadow-[inset_0_0_20px_rgba(148,163,184,0.05)] relative overflow-hidden group hover:border-slate-600 hover:shadow-[inset_0_0_25px_rgba(148,163,184,0.1)] transition-all">
+                          <div className="absolute inset-0 bg-gradient-to-b from-slate-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="text-3xl font-black text-slate-300 tabular-nums mb-1 leading-none drop-shadow-[0_0_10px_rgba(203,213,225,0.4)]">{toKuDigits(draws)}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">یەکسانبوون</span>
                         </div>
 
-                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-red-50 dark:bg-red-500/10 border border-red-200/60 dark:border-red-500/20">
-                          <span className="text-2xl font-black text-red-600 dark:text-red-400 tabular-nums mb-1 leading-none">{toKuDigits(losses)}</span>
-                          <span className="text-[10px] font-bold text-red-700/80 dark:text-red-400/80 uppercase">سەرنەکەفتن</span>
+                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-red-950/40 border border-red-500/30 shadow-[inset_0_0_20px_rgba(239,68,68,0.15)] relative overflow-hidden group hover:border-red-500/50 hover:shadow-[inset_0_0_25px_rgba(239,68,68,0.25)] transition-all">
+                          <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="text-3xl font-black text-red-400 tabular-nums mb-1 leading-none drop-shadow-[0_0_12px_rgba(248,113,113,0.6)]">{toKuDigits(losses)}</span>
+                          <span className="text-[10px] font-black text-red-300/80 uppercase tracking-widest mt-1">سەرنەکەفتن</span>
                         </div>
                       </div>
                     </div>
