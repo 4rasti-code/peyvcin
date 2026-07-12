@@ -896,6 +896,10 @@ export const MultiplayerProvider = ({ children }) => {
           syncProgressToDatabase(10, 'battle_draw', { isWin: false }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
+        } else if (result === 'defeat') {
+          syncProgressToDatabase(10, 'battle_loss', { isWin: false }).then(rewardData => {
+            if (rewardData) setMatchReward(rewardData);
+          });
         }
       }
     }

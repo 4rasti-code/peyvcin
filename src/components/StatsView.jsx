@@ -24,7 +24,7 @@ const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId })
         if (modeId === 'battle') {
           if (key === '1') label = 'سەرکەفتن';
           if (key === '2') label = 'سەرنەکەفتن';
-          if (key === '3') label = 'یەکسان';
+          if (key === '3') label = 'یەکسانبوون';
         }
         return (
           <div key={key} className="flex items-center gap-4">
@@ -229,12 +229,12 @@ export default function StatsView({
               
               if (mode.id === 'battle') {
                 const wins = advancedStats.pvpWins || 0;
-                const played = advancedStats.modePlayCounts?.['battle'] || 0;
-                const losses = Math.max(0, played - wins);
+                const losses = advancedStats.modePlayCounts?.['battle_loss'] || 0;
+                const draws = advancedStats.modePlayCounts?.['battle_draw'] || 0;
                 
                 dist['1'] = wins;
                 dist['2'] = losses;
-                dist['3'] = 0;
+                dist['3'] = draws;
               } else {
                 for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
                 
