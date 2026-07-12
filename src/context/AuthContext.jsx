@@ -104,12 +104,11 @@ export const AuthProvider = ({ children }) => {
           last_streak_at, last_notified_level,
           statistics, solved_words, onboarded
         `)
-        .eq('id', activeUserId)
-        .single();
+        .eq('id', activeUserId);
 
-      if (error) {
-        // PostgREST returns 406 (Not Acceptable) when .single() finds 0 rows with the specific Accept header
-        if (error.code === 'PGRST116' || error.status === 406) {
+      if (error || !data || data.length === 0) {
+        // If it's empty, we need to create it
+        if (!data || data.length === 0 || error?.code === 'PGRST116' || error?.status === 406) {
           console.warn("[AuthContext] No profile found. Attempting client-side self-heal for:", activeUserId);
 
           let currentUser = authStateRef.current.user;
@@ -156,9 +155,10 @@ export const AuthProvider = ({ children }) => {
           let triggerProfile = null;
           for (let i = 0; i < 6; i++) {
             await new Promise(res => setTimeout(res, 500));
-            const { data: retryData } = await supabase.from('profiles').select().eq('id', activeUserId).single();
-            if (retryData) {
-              triggerProfile = retryData;
+            // Removed .single() to prevent 406 Not Acceptable red console errors during polling
+            const { data: retryData } = await supabase.from('profiles').select().eq('id', activeUserId);
+            if (retryData && retryData.length > 0) {
+              triggerProfile = retryData[0];
               break;
             }
           }
@@ -204,10 +204,10 @@ export const AuthProvider = ({ children }) => {
             lastError = insertError;
             if (insertError.code === '23505') { // Unique constraint violation
               // Check if the trigger finished in the background and the profile now exists
-              const { data: existingCheck } = await supabase.from('profiles').select().eq('id', activeUserId).single();
-              if (existingCheck) {
+              const { data: existingCheck } = await supabase.from('profiles').select().eq('id', activeUserId);
+              if (existingCheck && existingCheck.length > 0) {
                 console.log("[AuthContext] Profile actually exists (trigger finished). Self-heal aborted.");
-                return handleProfileData(existingCheck, onProfileLoaded);
+                return handleProfileData(existingCheck[0], onProfileLoaded);
               }
               attempts++;
               nickname = `${nickname}_${Math.floor(Math.random() * 1000)}`;
@@ -221,18 +221,19 @@ export const AuthProvider = ({ children }) => {
           // Fallback: If we couldn't insert (e.g. RLS blocked us) but we are authenticated,
           // let's try ONE LAST TIME to fetch in case the trigger was just incredibly slow.
           await new Promise(res => setTimeout(res, 2000));
-          const { data: finalAttempt } = await supabase.from('profiles').select().eq('id', activeUserId).single();
-          if (finalAttempt) {
+          const { data: finalAttempt } = await supabase.from('profiles').select().eq('id', activeUserId);
+          if (finalAttempt && finalAttempt.length > 0) {
             console.log("[AuthContext] Profile finally found after self-heal failed!");
-            return handleProfileData(finalAttempt, onProfileLoaded);
+            return handleProfileData(finalAttempt[0], onProfileLoaded);
           }
 
           throw lastError;
         }
         throw error;
       }
-      if (data) {
-        return handleProfileData(data, onProfileLoaded);
+      if (data && data.length > 0) {
+        // Normal success from initial fetch
+        return handleProfileData(data[0], onProfileLoaded);
       }
     } catch (err) {
       console.warn("[AuthContext] Sync Note:", err.message);
