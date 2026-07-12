@@ -150,8 +150,25 @@ export const AuthProvider = ({ children }) => {
                 nickname = `${rawName}_${Math.floor(1000 + Math.random() * 9000)}`;
               }
             }
+            
+          // WAIT FOR TRIGGER FIX: Since Supabase triggers handle profile creation in the background,
+          // the frontend might query too early. Let's poll for 3 seconds before attempting a manual insert.
+          let triggerProfile = null;
+          for (let i = 0; i < 6; i++) {
+            await new Promise(res => setTimeout(res, 500));
+            const { data: retryData } = await supabase.from('profiles').select().eq('id', activeUserId).single();
+            if (retryData) {
+              triggerProfile = retryData;
+              break;
+            }
+          }
+          
+          if (triggerProfile) {
+            console.log("[AuthContext] Profile found after polling! Trigger succeeded.");
+            return handleProfileData(triggerProfile, onProfileLoaded);
+          }
 
-          // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing
+          // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing (fallback if trigger failed)
           // We wrap this in a loop to handle nickname conflicts client-side too
           let success = false;
           let attempts = 0;
@@ -201,21 +218,13 @@ export const AuthProvider = ({ children }) => {
 
           console.error("[AuthContext] Self-heal failed:", lastError?.message, lastError?.code);
           
-          // GHOST SESSION FIX: If the user was deleted from the database but the local session remains,
-          // the self-heal insert will fail with a foreign key constraint violation (code 23503).
-          if (lastError?.code === '23503' || lastError?.message?.includes('foreign key constraint')) {
-            console.warn("[AuthContext] Ghost session detected (user deleted from DB). Forcing sign-out.");
-            await supabase.auth.signOut();
-            setUser(null);
-            return;
-          }
-          
-          // RLS FAILURE FIX: If Supabase denies the INSERT because of missing policies, kick out to prevent loader hang
-          if (lastError?.code === '42501' || lastError?.message?.includes('row-level security')) {
-            console.error("[AuthContext] Missing RLS INSERT policy for profiles! Forcing sign-out.");
-            await supabase.auth.signOut();
-            setUser(null);
-            return;
+          // Fallback: If we couldn't insert (e.g. RLS blocked us) but we are authenticated,
+          // let's try ONE LAST TIME to fetch in case the trigger was just incredibly slow.
+          await new Promise(res => setTimeout(res, 2000));
+          const { data: finalAttempt } = await supabase.from('profiles').select().eq('id', activeUserId).single();
+          if (finalAttempt) {
+            console.log("[AuthContext] Profile finally found after self-heal failed!");
+            return handleProfileData(finalAttempt, onProfileLoaded);
           }
 
           throw lastError;
