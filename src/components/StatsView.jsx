@@ -240,7 +240,7 @@ export default function StatsView({
                             <span className="text-[11px] font-black uppercase mt-1">سەرکەفتن</span>
                           </div>
                           <span className="text-3xl font-black tabular-nums z-10 leading-none">{toKuDigits(wins)}</span>
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                          <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
                         </div>
                         
                         <div className="w-[85px] flex flex-col items-center justify-center rounded-[8px] bg-slate-400 dark:bg-slate-600 text-white shadow-sm overflow-hidden relative">
@@ -249,7 +249,7 @@ export default function StatsView({
                             <span className="text-[9px] font-black uppercase mt-1 text-white/90">یەکسانبوون</span>
                           </div>
                           <span className="text-xl font-black tabular-nums z-10 leading-none">{toKuDigits(draws)}</span>
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                          <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
                         </div>
 
                         <div className="flex-1 flex flex-col items-center justify-center rounded-[8px] bg-[#DC2626] text-white shadow-sm overflow-hidden relative">
@@ -258,7 +258,7 @@ export default function StatsView({
                             <span className="text-[11px] font-black uppercase mt-1">سەرنەکەفتن</span>
                           </div>
                           <span className="text-3xl font-black tabular-nums z-10 leading-none">{toKuDigits(losses)}</span>
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                          <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
                         </div>
                       </div>
                     </div>
