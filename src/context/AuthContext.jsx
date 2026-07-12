@@ -137,16 +137,19 @@ export const AuthProvider = ({ children }) => {
             if (!rawName || rawName.trim() === '') {
               // If no name is provided, fetch a sequential guest name from the database
               const { data: seqName } = await supabase.rpc('get_next_guest_name');
-              nickname = seqName || `بێناڤ_${Math.floor(1000 + Math.random() * 9000)}`;
+              const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
+              nickname = `بێناڤ_${seqNum}`;
             } else {
               // Remove spaces, allow alphanumeric and Kurdish/Arabic characters
               rawName = rawName.replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
               if (rawName.length < 3) {
                 const { data: seqName } = await supabase.rpc('get_next_guest_name');
-                nickname = seqName || `بێناڤ_${Math.floor(1000 + Math.random() * 9000)}`;
+                const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
+                nickname = `بێناڤ_${seqNum}`;
               } else {
                 rawName = rawName.substring(0, 10);
-                nickname = `${rawName}_${Math.floor(1000 + Math.random() * 9000)}`;
+                // Try exactly as the name is first!
+                nickname = rawName;
               }
             }
             
@@ -175,7 +178,7 @@ export const AuthProvider = ({ children }) => {
           let lastError = null;
 
           while (!success && attempts < 3) {
-            const currentNickname = attempts === 0 ? nickname : `${nickname.substring(0, 8)}_${Math.floor(1000 + Math.random() * 9000)}`;
+            const currentNickname = attempts === 0 ? nickname : `${nickname.substring(0, 8)}_${attempts}`;
 
             const { data: newData, error: insertError } = await supabase
               .from('profiles')
@@ -210,7 +213,9 @@ export const AuthProvider = ({ children }) => {
                 return handleProfileData(existingCheck[0], onProfileLoaded);
               }
               attempts++;
-              nickname = `${nickname}_${Math.floor(Math.random() * 1000)}`;
+              const { data: seqName } = await supabase.rpc('get_next_guest_name');
+              const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
+              nickname = `${nickname.substring(0, 8)}_${seqNum}`;
             } else {
               break; // Other error, don't retry
             }
