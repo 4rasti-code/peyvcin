@@ -179,6 +179,12 @@ export const AuthProvider = ({ children }) => {
 
             lastError = insertError;
             if (insertError.code === '23505') { // Unique constraint violation
+              // Check if the trigger finished in the background and the profile now exists
+              const { data: existingCheck } = await supabase.from('profiles').select().eq('id', activeUserId).single();
+              if (existingCheck) {
+                console.log("[AuthContext] Profile actually exists (trigger finished). Self-heal aborted.");
+                return handleProfileData(existingCheck, onProfileLoaded);
+              }
               attempts++;
               nickname = `${nickname}_${Math.floor(Math.random() * 1000)}`;
             } else {
@@ -186,12 +192,20 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
-          console.error("[AuthContext] Self-heal failed:", lastError?.message);
+          console.error("[AuthContext] Self-heal failed:", lastError?.message, lastError?.code);
           
           // GHOST SESSION FIX: If the user was deleted from the database but the local session remains,
           // the self-heal insert will fail with a foreign key constraint violation (code 23503).
           if (lastError?.code === '23503' || lastError?.message?.includes('foreign key constraint')) {
             console.warn("[AuthContext] Ghost session detected (user deleted from DB). Forcing sign-out.");
+            await supabase.auth.signOut();
+            setUser(null);
+            return;
+          }
+          
+          // RLS FAILURE FIX: If Supabase denies the INSERT because of missing policies, kick out to prevent loader hang
+          if (lastError?.code === '42501' || lastError?.message?.includes('row-level security')) {
+            console.error("[AuthContext] Missing RLS INSERT policy for profiles! Forcing sign-out.");
             await supabase.auth.signOut();
             setUser(null);
             return;
