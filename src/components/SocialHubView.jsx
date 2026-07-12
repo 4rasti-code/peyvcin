@@ -1279,7 +1279,7 @@ export default function SocialHubView({
   const handleReact = async (msgId, emoji, isPrivate = false) => {
     if (!user?.id) return;
     triggerHaptic(10);
-    const table = isPrivate ? 'private_messages' : 'messages';
+    const table = 'messages';
 
     // Optimistic UI update
     const updateLocalState = (prev) => prev.map(m => {
