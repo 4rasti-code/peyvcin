@@ -606,7 +606,7 @@ const LobbyView = memo(({
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
                     <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex-1 flex items-center justify-center gap-2 mr-4">
-                      یاریزانێن سەرهێل
+                      یاریزانێن سەرهێل {onlineProfiles.length > 0 && <span className="text-sm text-mono-500 dark:text-mono-400">({onlineProfiles.length})</span>}
                       {loadingOnline && onlineProfiles.length > 0 && (
                         <span className="material-symbols-outlined animate-spin text-sm text-blue-500">sync</span>
                       )}
