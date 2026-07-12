@@ -54,9 +54,9 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
 };
 
 export default function OnboardingView() {
-    const { completeOnboarding, user } = useUser();
+    const { completeOnboarding, user, userNickname } = useUser();
     const { playTabSound } = useAudio();
-    const [nickname, setNickname] = useState('');
+    const [nickname, setNickname] = useState(userNickname || '');
     const [availability, setAvailability] = useState(null); // 'checking', 'available', 'taken', 'invalid'
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
