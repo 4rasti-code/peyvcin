@@ -295,15 +295,21 @@ export const AuthProvider = ({ children }) => {
 
     console.log("[AuthContext] Initializing...");
     const initializeAuth = async () => {
+      // Immediate check for OAuth redirect tokens, PKCE codes, or recovery tokens in the URL
+      const hasToken = (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'))) ||
+        (window.location.search && (window.location.search.includes('code=') || window.location.search.includes('error=')));
+
       // Global safety timeout to prevent getting stuck on the sun loader forever
+      // Give OAuth redirects much more time (8s) to complete the network exchange
+      const timeoutDuration = hasToken ? 8000 : 2000;
       const safetyTimeout = setTimeout(() => {
         if (loadingAuth) {
-          console.warn("[AuthContext] Safety timeout reached! Forcing ready state.");
+          console.warn(`[AuthContext] Safety timeout (${timeoutDuration}ms) reached! Forcing ready state.`);
           setAuthProgress(100);
           setLoadingAuth(false);
           setLoading(false);
         }
-      }, 2000); // Reduced to 2s for even faster fallback
+      }, timeoutDuration);
 
       try {
         setAuthProgress(15);
@@ -321,10 +327,6 @@ export const AuthProvider = ({ children }) => {
 
         console.log("[AuthContext] Checking session...");
         setAuthProgress(30);
-
-        // Immediate check for OAuth redirect tokens, PKCE codes, or recovery tokens in the URL
-        const hasToken = (window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'))) ||
-          (window.location.search && (window.location.search.includes('code=') || window.location.search.includes('error=')));
 
         if (hasToken) {
           console.log("[AuthContext] Auth token/code detected in URL, adding delay for Supabase processing...");
