@@ -21,11 +21,6 @@ const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId })
     <div className="space-y-3">
       {Object.entries(dist).map(([key, value]) => {
         let label = toKuDigits(key);
-        if (modeId === 'battle') {
-          if (key === '1') label = 'سەرکەفتن';
-          if (key === '2') label = 'سەرنەکەفتن';
-          if (key === '3') label = 'یەکسانبوون';
-        }
         return (
           <div key={key} className="flex items-center gap-4">
             <span className={`text-[11px] font-black text-mono-400 text-left ${modeId === 'battle' ? 'w-16' : 'w-3 tabular-nums'}`}>{label}</span>
@@ -225,26 +220,50 @@ export default function StatsView({
             </div>
             
             {modeConfigs.map((mode) => {
-              const dist = {};
-              
               if (mode.id === 'battle') {
                 const wins = advancedStats.pvpWins || 0;
                 const losses = advancedStats.modePlayCounts?.['battle_loss'] || 0;
                 const draws = advancedStats.modePlayCounts?.['battle_draw'] || 0;
                 
-                dist['1'] = wins;
-                dist['2'] = losses;
-                dist['3'] = draws;
-              } else {
-                for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
-                
-                const modeData = stats.rawDistribution[mode.id] || {};
-                const rawModeDist = modeData.guess_distribution || modeData || {};
+                return (
+                  <Motion.div key={mode.id} variants={itemVariants}>
+                    <div className="bg-mono-white dark:bg-mono-900/30 rounded-[6px] border border-mono-200 dark:border-mono-800 p-5 backdrop-blur-sm transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-5">
+                        <span className={`material-symbols-outlined ${mode.textColor} text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
+                        <h4 className="text-[11px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar">ئامارێن: {mode.name}</h4>
+                      </div>
+                      
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-green-50 dark:bg-green-500/10 border border-green-200/60 dark:border-green-500/20">
+                          <span className="text-2xl font-black text-green-600 dark:text-green-400 tabular-nums mb-1 leading-none">{toKuDigits(wins)}</span>
+                          <span className="text-[10px] font-bold text-green-700/80 dark:text-green-400/80 uppercase">سەرکەفتن</span>
+                        </div>
+                        
+                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-mono-100 dark:bg-mono-800/60 border border-mono-200 dark:border-mono-700">
+                          <span className="text-2xl font-black text-mono-600 dark:text-mono-300 tabular-nums mb-1 leading-none">{toKuDigits(draws)}</span>
+                          <span className="text-[10px] font-bold text-mono-500 dark:text-mono-400 uppercase">یەکسانبوون</span>
+                        </div>
 
-                Object.entries(rawModeDist).forEach(([key, val]) => {
-                  if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
-                });
+                        <div className="flex-1 flex flex-col items-center justify-center py-4 px-2 rounded-[8px] bg-red-50 dark:bg-red-500/10 border border-red-200/60 dark:border-red-500/20">
+                          <span className="text-2xl font-black text-red-600 dark:text-red-400 tabular-nums mb-1 leading-none">{toKuDigits(losses)}</span>
+                          <span className="text-[10px] font-bold text-red-700/80 dark:text-red-400/80 uppercase">سەرنەکەفتن</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Motion.div>
+                );
               }
+              
+              const dist = {};
+              for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
+              
+              const modeData = stats.rawDistribution[mode.id] || {};
+              const rawModeDist = modeData.guess_distribution || modeData || {};
+
+              Object.entries(rawModeDist).forEach(([key, val]) => {
+                if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
+              });
+              
               const maxValue = Math.max(...Object.values(dist), 1);
 
               return (
