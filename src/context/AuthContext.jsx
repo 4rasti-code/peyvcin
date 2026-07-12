@@ -120,11 +120,18 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
-            // Extract base nickname from metadata
+            // Extract base nickname from metadata, handling both Google and Discord formats safely
             let rawName = currentUser?.user_metadata?.nickname ||
               currentUser?.user_metadata?.username ||
+              currentUser?.user_metadata?.global_name ||
               currentUser?.user_metadata?.full_name ||
+              currentUser?.user_metadata?.name ||
               '';
+              
+            // Extract avatar URL if provided by OAuth provider
+            let extractedAvatar = currentUser?.user_metadata?.avatar_url ||
+              currentUser?.user_metadata?.picture ||
+              'default';
               
             let nickname = '';
             
@@ -159,7 +166,7 @@ export const AuthProvider = ({ children }) => {
                 id: activeUserId,
                 nickname: currentNickname,
                 onboarded: false, // Force false for social signups
-                avatar_url: 'default',
+                avatar_url: extractedAvatar,
                 fils: 100,
                 derhem: 10,
                 dinar: 5,
