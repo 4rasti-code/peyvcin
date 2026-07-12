@@ -227,35 +227,38 @@ export default function StatsView({
                 
                 return (
                   <Motion.div key={mode.id} variants={itemVariants}>
-                    <div className="bg-[#020617] rounded-[12px] border border-slate-800 p-5 shadow-xl relative overflow-hidden transition-all duration-300">
-                      {/* Background subtle glow effect */}
-                      <div className="absolute -top-10 -right-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-                      <div className="relative z-10 flex items-center gap-3 mb-6">
-                        <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.2)]">
-                          <span className={`material-symbols-outlined text-orange-400 text-xl drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
-                        </div>
-                        <h4 className="text-[12px] font-black text-white uppercase font-rabar tracking-wider drop-shadow-md">ئامارێن: {mode.name}</h4>
+                    <div className="bg-mono-white dark:bg-mono-900/30 rounded-[12px] border border-mono-200 dark:border-mono-800 p-4 transition-all duration-300">
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <span className={`material-symbols-outlined text-orange-500 text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
+                        <h4 className="text-[14px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar drop-shadow-sm">ئامارێن: {mode.name}</h4>
                       </div>
                       
-                      <div className="relative z-10 flex items-center justify-between gap-3">
-                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-blue-950/40 border border-blue-500/30 shadow-[inset_0_0_20px_rgba(59,130,246,0.15)] relative overflow-hidden group hover:border-blue-500/50 hover:shadow-[inset_0_0_25px_rgba(59,130,246,0.25)] transition-all">
-                          <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <span className="text-3xl font-black text-blue-400 tabular-nums mb-1 leading-none drop-shadow-[0_0_12px_rgba(96,165,250,0.6)]">{toKuDigits(wins)}</span>
-                          <span className="text-[10px] font-black text-blue-300/80 uppercase tracking-widest mt-1">سەرکەفتن</span>
+                      <div className="flex items-stretch justify-center gap-2 h-24">
+                        <div className="flex-1 flex flex-col items-center justify-center rounded-[8px] bg-[#2563EB] text-white shadow-sm overflow-hidden relative">
+                          <div className="flex items-center gap-1.5 mb-1 z-10">
+                            <div className="w-1.5 h-1.5 bg-white rotate-45"></div>
+                            <span className="text-[11px] font-black uppercase mt-1">سەرکەفتن</span>
+                          </div>
+                          <span className="text-3xl font-black tabular-nums z-10 leading-none">{toKuDigits(wins)}</span>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                         </div>
                         
-                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-slate-900/60 border border-slate-700/80 shadow-[inset_0_0_20px_rgba(148,163,184,0.05)] relative overflow-hidden group hover:border-slate-600 hover:shadow-[inset_0_0_25px_rgba(148,163,184,0.1)] transition-all">
-                          <div className="absolute inset-0 bg-gradient-to-b from-slate-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <span className="text-3xl font-black text-slate-300 tabular-nums mb-1 leading-none drop-shadow-[0_0_10px_rgba(203,213,225,0.4)]">{toKuDigits(draws)}</span>
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">یەکسانبوون</span>
+                        <div className="w-[85px] flex flex-col items-center justify-center rounded-[8px] bg-slate-400 dark:bg-slate-600 text-white shadow-sm overflow-hidden relative">
+                          <div className="flex items-center gap-1.5 mb-1 z-10">
+                            <div className="w-1 h-1 bg-white/80 rotate-45"></div>
+                            <span className="text-[9px] font-black uppercase mt-1 text-white/90">یەکسانبوون</span>
+                          </div>
+                          <span className="text-xl font-black tabular-nums z-10 leading-none">{toKuDigits(draws)}</span>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                         </div>
 
-                        <div className="flex-1 flex flex-col items-center justify-center py-5 px-2 rounded-[10px] bg-red-950/40 border border-red-500/30 shadow-[inset_0_0_20px_rgba(239,68,68,0.15)] relative overflow-hidden group hover:border-red-500/50 hover:shadow-[inset_0_0_25px_rgba(239,68,68,0.25)] transition-all">
-                          <div className="absolute inset-0 bg-gradient-to-b from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                          <span className="text-3xl font-black text-red-400 tabular-nums mb-1 leading-none drop-shadow-[0_0_12px_rgba(248,113,113,0.6)]">{toKuDigits(losses)}</span>
-                          <span className="text-[10px] font-black text-red-300/80 uppercase tracking-widest mt-1">سەرنەکەفتن</span>
+                        <div className="flex-1 flex flex-col items-center justify-center rounded-[8px] bg-[#DC2626] text-white shadow-sm overflow-hidden relative">
+                          <div className="flex items-center gap-1.5 mb-1 z-10">
+                            <div className="w-1.5 h-1.5 bg-white rotate-45"></div>
+                            <span className="text-[11px] font-black uppercase mt-1">سەرنەکەفتن</span>
+                          </div>
+                          <span className="text-3xl font-black tabular-nums z-10 leading-none">{toKuDigits(losses)}</span>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                         </div>
                       </div>
                     </div>
