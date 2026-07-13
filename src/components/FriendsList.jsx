@@ -307,7 +307,7 @@ export default function FriendsList({
       </div>
 
       {/* Invite Friends Banner */}
-      <div className="mx-4 mb-4 p-3.5 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex items-center justify-between shadow-sm">
+      <div className="w-full mb-4 p-3.5 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex items-center justify-between shadow-sm shrink-0">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-md bg-green-100/50 dark:bg-green-900/30 flex items-center justify-center border border-green-200/50 dark:border-green-800/30">
             <span className="material-symbols-outlined text-[18px] text-green-600 dark:text-green-400 font-bold">person_add</span>
@@ -321,8 +321,8 @@ export default function FriendsList({
       </div>
 
       {activeTab === 'search' && (
-        <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div className="relative group">
+        <div className="flex-1 flex flex-col min-h-0 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="relative group shrink-0">
             <span className="material-symbols-outlined absolute right-3 top-3.5 text-mono-500">search</span>
             <input
               type="text"
@@ -338,7 +338,7 @@ export default function FriendsList({
           </div>
 
       {searchResults.length > 0 && (
-        <div className="mt-4 space-y-3 p-3 bg-mono-50 dark:bg-mono-900/50 rounded-md border border-mono-200 dark:border-mono-800">
+        <div className="flex-1 overflow-y-auto no-scrollbar mt-4 space-y-3 p-3 bg-mono-50 dark:bg-mono-900/50 rounded-md border border-mono-200 dark:border-mono-800 pb-28">
           <h3 className="text-[10px] font-black uppercase text-mono-500 px-1">ئەنجامێن ئەڤێ ھاتینە دیتن</h3>
           {searchResults.map(res => {
             const isFriend = friends.some(f => f.friend?.id === res.id);
@@ -381,9 +381,9 @@ export default function FriendsList({
       )}
 
       {activeTab === 'friends' && (
-        <div className="flex flex-col animate-in fade-in slide-in-from-bottom-2 duration-300">
+        <div className="flex-1 overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2 duration-300 pb-28">
       {pendingRequests.length > 0 && (
-        <div className="mt-6 space-y-3">
+        <div className="mb-6 space-y-3">
           <h3 className="text-[10px] font-black uppercase text-mono-500 px-2">داخوازێن ھەڤالینیێ</h3>
           {pendingRequests.map(req => (
             <div key={req.id} className="flex items-center gap-3 p-3 bg-mono-white dark:bg-mono-900 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm transition-colors duration-300">
@@ -397,7 +397,7 @@ export default function FriendsList({
         </div>
       )}
 
-      <div className="mt-6 space-y-3 pb-28">
+      <div className="space-y-3">
         {pendingRequests.length > 0 && <div className="w-full h-px bg-mono-200 dark:bg-mono-800 my-2" />}
         {friends.length === 0 ? (
           <div className="text-center py-6 text-mono-400 text-sm font-bold opacity-70">

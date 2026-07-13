@@ -727,7 +727,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      </button>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-4 no-scrollbar">
+                  <div className="flex-1 flex flex-col overflow-hidden p-4 relative">
                      <FriendsList
                         onOpenChat={(player) => {
                            setIsFriendsModalOpen(false);
