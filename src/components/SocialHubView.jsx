@@ -1035,7 +1035,7 @@ export default function SocialHubView({
       supabase.removeChannel(privateMsgSub);
       supabase.removeChannel(typingChannel);
     };
-  }, [user?.id, fetchPrivateConversations, playNotifSound]);
+  }, [user?.id, fetchPrivateConversations, playNotifSound, _playMessageSound]);
 
   useEffect(() => {
     const controller = new AbortController();
