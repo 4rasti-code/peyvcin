@@ -110,7 +110,11 @@ class SoundEngine {
         const path = SFX_PATHS[key];
         if (path) {
           const buffer = await this.loadBuffer(path);
-          if (buffer) this.buffers[key] = buffer;
+          if (buffer) {
+            this.buffers[key] = buffer;
+          } else {
+            this.buffers[key] = 'fallback';
+          }
         }
       });
       
@@ -139,7 +143,9 @@ class SoundEngine {
         const decodedData = await this.context.decodeAudioData(arrayBuffer);
         return decodedData;
       } catch (e) {
-        console.error(`❌ [AudioEngine] Failed to load SFX: ${url}`, e);
+        if (!url.includes('open_setting') && !url.includes('close_setting')) {
+          console.error(`❌ [AudioEngine] Failed to load SFX: ${url}`, e);
+        }
         return null;
       } finally {
         delete this.loadingBuffers[url];
