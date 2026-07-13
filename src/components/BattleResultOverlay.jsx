@@ -297,7 +297,7 @@ const BattleResultOverlay = ({
                       const success = await onShareToGlobal(text);
                       if (success) {
                         setGlobalShareStatus('success');
-                        setTimeout(() => setGlobalShareStatus(null), 2000);
+                        // setTimeout(() => setGlobalShareStatus(null), 2000);
                       }
                     }}
                     disabled={globalShareStatus === 'success'}
