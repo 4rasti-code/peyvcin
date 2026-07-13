@@ -148,21 +148,23 @@ const LobbyView = memo(({
     if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
   };
 
-  const isLuckyWheelAvailable = (() => {
-    if (spinTicketCount > 0) return true;
-    if (!profileData?.last_spin_date) return true;
+  const freeSpins = (() => {
+    if (!profileData?.last_spin_date) return 1;
     const lastSpin = new Date(profileData.last_spin_date);
     const now = new Date();
-    return (now - lastSpin) >= (24 * 60 * 60 * 1000);
+    return (now - lastSpin) >= (24 * 60 * 60 * 1000) ? 1 : 0;
   })();
+  const totalSpinsAvailable = spinTicketCount + freeSpins;
+  const isLuckyWheelAvailable = totalSpinsAvailable > 0;
 
-  const isMysteryBoxAvailable = (() => {
-    if ((profileData?.mystery_boxes_count || 0) > 0) return true;
-    if (!profileData?.last_mystery_box_date) return true;
+  const freeBoxes = (() => {
+    if (!profileData?.last_mystery_box_date) return 1;
     const lastOpen = new Date(profileData.last_mystery_box_date);
     const now = new Date();
-    return (now - lastOpen) >= (24 * 60 * 60 * 1000);
+    return (now - lastOpen) >= (24 * 60 * 60 * 1000) ? 1 : 0;
   })();
+  const totalBoxesAvailable = (profileData?.mystery_boxes_count || 0) + freeBoxes;
+  const isMysteryBoxAvailable = totalBoxesAvailable > 0;
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
@@ -394,6 +396,11 @@ const LobbyView = memo(({
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-[48px] h-[48px] transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   {totalSpinsAvailable > 0 && (
+                     <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-mono-900 shadow-sm z-10">
+                       {totalSpinsAvailable > 9 ? '9+' : totalSpinsAvailable}
+                     </div>
+                   )}
                  </div>
                </button>
 
@@ -410,6 +417,11 @@ const LobbyView = memo(({
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-[58px] h-[58px] transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   {totalBoxesAvailable > 0 && (
+                     <div className="absolute top-0 -right-1 bg-red-500 text-white text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-mono-900 shadow-sm z-10">
+                       {totalBoxesAvailable > 9 ? '9+' : totalBoxesAvailable}
+                     </div>
+                   )}
                  </div>
                </button>
             </div>
