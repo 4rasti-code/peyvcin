@@ -8,7 +8,7 @@ const SFX_PATHS = {
   POP: '/pop.mp3',
   NOTIFICATION: '/ui_sfx_notification.wav',
   SETTINGS_OPEN: '/open_setting.mp3',
-  SETTINGS_CLOSE: '/ui_sfx_menu_close.wav',
+  SETTINGS_CLOSE: '/close_setting.mp3',
   ALERT: '/ui_sfx_alert.wav',
   START_GAME: '/ui_sfx_start_button.wav',
   BACK: '/ui_sfx_menu_close.wav',
