@@ -372,14 +372,10 @@ const LobbyView = memo(({
                     triggerHaptic(15); 
                     onDailyRewardClick?.(); 
                  }}
-                 className={`relative flex items-center justify-center p-1 group transition-all duration-300 ${!isDailyAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className="relative flex items-center justify-center p-1 cursor-pointer transition-all duration-300 group"
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <ClipboardIcon className={`w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
-                   
-                   {isDailyAvailable && (
-                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-md z-20 animate-pulse" />
-                   )}
                  </div>
                </Motion.button>
 
@@ -393,15 +389,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowLuckyWheel(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className="relative flex items-center justify-center p-1 cursor-pointer"
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-[48px] h-[48px] transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
-                   {totalSpinsAvailable > 0 && (
-                     <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-mono-900 shadow-sm z-10">
-                       {totalSpinsAvailable > 9 ? '9+' : totalSpinsAvailable}
-                     </div>
-                   )}
                  </div>
                </button>
 
@@ -414,15 +405,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowMysteryBox(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className="relative flex items-center justify-center p-1 cursor-pointer"
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-[58px] h-[58px] transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
-                   {totalBoxesAvailable > 0 && (
-                     <div className="absolute top-0 -right-1 bg-red-500 text-white text-[11px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-white dark:border-mono-900 shadow-sm z-10">
-                       {totalBoxesAvailable > 9 ? '9+' : totalBoxesAvailable}
-                     </div>
-                   )}
                  </div>
                </button>
             </div>
