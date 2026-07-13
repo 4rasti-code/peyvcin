@@ -579,13 +579,16 @@ export default function App() {
     if (currentCount > prevNotifCount.current) {
       const latest = notificationsList[0];
       if (latest && latest.type === 'message') {
-        playMessageSound();
+        const isGameOn = currentView === 'game' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'playing' || multiplayerState === 'match_starting';
+        if (!isGameOn) {
+          playMessageSound();
+        }
       } else {
         playNotifSound();
       }
     }
     prevNotifCount.current = currentCount;
-  }, [notificationsList, playNotifSound, playMessageSound]);
+  }, [notificationsList, playNotifSound, playMessageSound, currentView, multiplayerState]);
 
 
   // --- CORE GAME ENGINE (Unified) ---
