@@ -397,7 +397,7 @@ export default function FriendsList({
         </div>
       )}
 
-      <div className="mt-6 space-y-3 pb-8">
+      <div className="mt-6 space-y-3 pb-28">
         {pendingRequests.length > 0 && <div className="w-full h-px bg-mono-200 dark:bg-mono-800 my-2" />}
         {friends.length === 0 ? (
           <div className="text-center py-6 text-mono-400 text-sm font-bold opacity-70">
