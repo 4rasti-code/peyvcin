@@ -7,8 +7,8 @@ const SFX_PATHS = {
   CLICK: '/click.mp3',
   POP: '/pop.mp3',
   NOTIFICATION: '/ui_sfx_notification.wav',
-  SETTINGS_OPEN: '/open_setting.mp3',
-  SETTINGS_CLOSE: '/close_setting.mp3',
+  SETTINGS_OPEN: '/ui_sfx_menu_open.wav',
+  SETTINGS_CLOSE: '/ui_sfx_menu_close.wav',
   ALERT: '/ui_sfx_alert.wav',
   START_GAME: '/ui_sfx_start_button.wav',
   BACK: '/ui_sfx_menu_close.wav',
@@ -110,11 +110,7 @@ class SoundEngine {
         const path = SFX_PATHS[key];
         if (path) {
           const buffer = await this.loadBuffer(path);
-          if (buffer) {
-            this.buffers[key] = buffer;
-          } else {
-            this.buffers[key] = 'fallback';
-          }
+          if (buffer) this.buffers[key] = buffer;
         }
       });
       
@@ -143,9 +139,7 @@ class SoundEngine {
         const decodedData = await this.context.decodeAudioData(arrayBuffer);
         return decodedData;
       } catch (e) {
-        if (!url.includes('open_setting') && !url.includes('close_setting')) {
-          console.error(`❌ [AudioEngine] Failed to load SFX: ${url}`, e);
-        }
+        console.error(`❌ [AudioEngine] Failed to load SFX: ${url}`, e);
         return null;
       } finally {
         delete this.loadingBuffers[url];
@@ -239,20 +233,8 @@ class SoundEngine {
       if (buffer) {
         this.buffers[key] = buffer;
       } else {
-        this.buffers[key] = 'fallback';
+        return;
       }
-    }
-
-    if (this.buffers[key] === 'fallback') {
-      console.warn(`[AudioEngine] Using HTML5 Audio fallback for ${key}`);
-      const path = SFX_PATHS[key];
-      const audio = new Audio(path);
-      let baseVolume = options.volume || 1.0;
-      if (key === 'CLICK') baseVolume *= 0.3;
-      if (key === 'POP') baseVolume *= 0.45;
-      audio.volume = Math.min(1.0, Math.max(0.0, baseVolume * this.masterVolume));
-      audio.play().catch(e => console.error("HTML5 Audio fallback failed", e));
-      return;
     }
 
     if (this.context.state === 'suspended') {
