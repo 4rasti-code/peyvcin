@@ -617,9 +617,9 @@ export default function PublicProfileModal({
                     <span className="material-symbols-outlined text-lg">close</span>
                   </button>
                 </div>
-              ) : relStatus === 'friend' || isBot ? (
+              ) : (relStatus === 'friend' || isBot) && onOpenChat ? (
                 <button
-                  onClick={() => { triggerHaptic(20); onOpenChat(displayData || profile); }}
+                  onClick={() => { triggerHaptic(20); if (onOpenChat) onOpenChat(displayData || profile); }}
                   className="w-full py-2.5 rounded-md bg-primary text-slate-950 font-black text-sm hover:bg-emerald-400 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm"
                 >
                   <span>نامەیێ بھنێرە</span>

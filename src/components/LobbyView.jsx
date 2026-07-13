@@ -30,7 +30,8 @@ const LobbyView = memo(({
   onDailyRewardClick,
   _dailyStreak,
   _notificationCount = 0,
-  _onOpenHowToPlay
+  _onOpenHowToPlay,
+  onOpenChat
 }) => {
   const bgRef = useRef(null);
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
@@ -787,6 +788,10 @@ const LobbyView = memo(({
             profile={selectedProfile}
             currentUser={user}
             onClose={() => setSelectedProfile(null)}
+            onOpenChat={(player) => {
+              setSelectedProfile(null);
+              if (onOpenChat) onOpenChat(player);
+            }}
           />
         )}
       </AnimatePresence>

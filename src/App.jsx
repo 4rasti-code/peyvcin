@@ -1735,6 +1735,7 @@ export default function App() {
                   startMatchmaking();
                 }}
                 onOpenHowToPlay={handleOpenHowToPlay}
+                onOpenChat={handleOpenChat}
               />
               
               {/* ADMIN PANEL BUTTON (Only visible to the specific admin email) */}
