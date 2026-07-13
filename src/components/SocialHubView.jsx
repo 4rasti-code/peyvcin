@@ -968,7 +968,7 @@ export default function SocialHubView({
         const newMsg = payload.new;
         if (newMsg.user_id !== currentUserId) {
           const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === newMsg.user_id;
-          if (!isCurrentlyViewingChat) playNotifSound();
+          if (isCurrentlyViewingChat) _playMessageSound();
         }
 
         if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {

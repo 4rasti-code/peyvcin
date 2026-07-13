@@ -31,7 +31,7 @@ const SFX_PATHS = {
   SWORD_SLASH: '/gargamel10-sword-slashing-game-sound-effect-2-379229.mp3',
   WHOOSH: '/lordsonny-whoosh-cinematic-161021.mp3',
   MESSAGE_SENT: '/sending_message.mp3',
-  MESSAGE_RECEIVED: '/Positive-message-notification.wav',
+  MESSAGE_RECEIVED: '/Privet_message.wav',
   RIGHT_LETTER: '/rightletter.mp3',
   WRONG_PLACE: '/right-letter-wrong-place_GwCJf57j.mp3',
   DEFEAT: '/defeat.mp3',
