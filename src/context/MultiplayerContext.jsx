@@ -885,19 +885,20 @@ export const MultiplayerProvider = ({ children }) => {
         if (result === 'victory') {
           const isFlawless = myScore === 3 && oppScore === 0;
           const attemptsVal = isFlawless ? 1 : (oppScore === 1 ? 2 : 3);
-          syncProgressToDatabase(10, 'battle', { 
+          syncProgressToDatabase(5, 'battle', { 
             isPvPFlawless: isFlawless,
             isWin: true,
-            attempts: attemptsVal 
+            attempts: attemptsVal,
+            wordsFound: myScore
           }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         } else if (result === 'draw') {
-          syncProgressToDatabase(10, 'battle_draw', { isWin: false }).then(rewardData => {
+          syncProgressToDatabase(5, 'battle_draw', { isWin: false, wordsFound: myScore }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         } else if (result === 'defeat') {
-          syncProgressToDatabase(10, 'battle_loss', { isWin: false }).then(rewardData => {
+          syncProgressToDatabase(5, 'battle_loss', { isWin: false, wordsFound: myScore }).then(rewardData => {
             if (rewardData) setMatchReward(rewardData);
           });
         }

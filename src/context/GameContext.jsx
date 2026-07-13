@@ -653,7 +653,8 @@ export const GameProvider = ({ children }) => {
         p_is_riddle_no_skip: (mode === 'mamak' && additionalData.hintsUsed === 0),
         p_is_pvp_flawless: additionalData.isPvPFlawless || false,
         p_word_length: lettersCount || 0,
-        p_solve_time_ms: additionalData.durationMs || 0
+        p_solve_time_ms: additionalData.durationMs || 0,
+        p_words_found: additionalData.wordsFound || 1
       });
 
       if (error) {

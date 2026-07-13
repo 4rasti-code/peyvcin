@@ -372,7 +372,7 @@ const LobbyView = memo(({
                     triggerHaptic(15); 
                     onDailyRewardClick?.(); 
                  }}
-                 className="relative flex items-center justify-center p-1 cursor-pointer transition-all duration-300 group"
+                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group ${!isDailyAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <ClipboardIcon className={`w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
@@ -389,7 +389,7 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowLuckyWheel(true);
                  }}
-                 className="relative flex items-center justify-center p-1 cursor-pointer"
+                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-[48px] h-[48px] transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
@@ -405,7 +405,7 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowMysteryBox(true);
                  }}
-                 className="relative flex items-center justify-center p-1 cursor-pointer"
+                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-[58px] h-[58px] transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
