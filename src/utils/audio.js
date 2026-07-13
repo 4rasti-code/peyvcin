@@ -233,8 +233,20 @@ class SoundEngine {
       if (buffer) {
         this.buffers[key] = buffer;
       } else {
-        return;
+        this.buffers[key] = 'fallback';
       }
+    }
+
+    if (this.buffers[key] === 'fallback') {
+      console.warn(`[AudioEngine] Using HTML5 Audio fallback for ${key}`);
+      const path = SFX_PATHS[key];
+      const audio = new Audio(path);
+      let baseVolume = options.volume || 1.0;
+      if (key === 'CLICK') baseVolume *= 0.3;
+      if (key === 'POP') baseVolume *= 0.45;
+      audio.volume = Math.min(1.0, Math.max(0.0, baseVolume * this.masterVolume));
+      audio.play().catch(e => console.error("HTML5 Audio fallback failed", e));
+      return;
     }
 
     if (this.context.state === 'suspended') {
