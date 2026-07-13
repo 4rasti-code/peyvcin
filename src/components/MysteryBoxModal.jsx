@@ -22,7 +22,7 @@ const MYSTERY_REWARDS = [
 ];
 
 export default function MysteryBoxModal({ isOpen, onClose }) {
-  const { user } = useUser();
+  const { user, syncProfile } = useUser();
   const { updateInventory } = useGame();
 
   const [boxCount, setBoxCount] = useState(0);
@@ -192,6 +192,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
             .update({ last_mystery_box_date: new Date().toISOString() })
             .eq('id', user.id);
         }
+        syncProfile(user.id, null, true);
       } catch (err) {
         console.error("Failed to update status:", err);
       }

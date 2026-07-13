@@ -14,7 +14,7 @@ import { FilsIcon, HintIcon, DerhemIcon, SkipIcon, MagnetIcon, DinarIcon, SpinTi
 import MysteryBoxIcon from './MysteryBoxIcon';
 
 export default function LuckyWheelModal({ isOpen, onClose }) {
-  const { user } = useUser();
+  const { user, syncProfile } = useUser();
   const { updateInventory, spinTicketCount } = useGame();
   
   const [canSpin, setCanSpin] = useState(false);
@@ -208,6 +208,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             .from('profiles')
             .update({ last_spin_date: new Date().toISOString() })
             .eq('id', user.id);
+          syncProfile(user.id, null, true);
         } catch (err) {
           console.error("Failed to update spin date:", err);
         }
