@@ -1595,6 +1595,23 @@ export default function App() {
   // --- CRITICAL AUTH GUARD (Flicker Fix) ---
   // Shows loader if auth is initializing, game assets are loading, fonts are loading,
   // or if we have no user but haven't yet redirected to the auth screen.
+  
+  let displayProgress = authProgress;
+  let customStatus = null;
+
+  if (authProgress >= 90) {
+    if (!isFontsLoaded) {
+      displayProgress = 90;
+      customStatus = 'داگرتنا فۆنتێن جوانیێ...';
+    } else if (isGameLoading) {
+      displayProgress = 95;
+      customStatus = 'ئامادەکرنا پەنجەرەیا یاریێ...';
+    } else if (loadingAuth) {
+      displayProgress = 98;
+      customStatus = 'دوماهیک پشکنین...';
+    }
+  }
+
   if (loadingAuth || isGameLoading || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView))) return (
     <div className="h-dvh flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6">
       <div className="flex flex-col items-center gap-4">
@@ -1602,8 +1619,8 @@ export default function App() {
         <img src="/Peyvok-logo-02.png" className="h-20 w-auto hidden dark:block animate-pulse" alt="Peyvok" />
       </div>
       <KurdishSunLoader 
-        progress={authProgress} 
-        statusText={(!isFontsLoaded && authProgress >= 99) ? 'داگرتنا فۆنتێن جوانیێ...' : null} 
+        progress={displayProgress} 
+        statusText={customStatus} 
       />
     </div>
   );
