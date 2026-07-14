@@ -868,6 +868,7 @@ body,
   display: flex;
   flex-direction: column;
   background: linear-gradient(to top, rgba(15, 23, 42, 0.8), transparent);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .main-content-scroll {
