@@ -1829,7 +1829,7 @@ export default function App() {
             </div>
           )}
 
-          <Suspense fallback={<KurdishSunLoader />}>
+          <Suspense fallback={['social_hub', 'leaderboard', 'store', 'stats', 'achievements', 'medals', 'dictionary', 'profile', 'admin_panel'].includes(currentView) ? <KurdishSunLoader /> : null}>
             {user?.id && (
               <>
                 <div className={currentView === 'social_hub' ? 'contents' : 'hidden'}>
