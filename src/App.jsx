@@ -1598,7 +1598,7 @@ export default function App() {
   );
 
   return (
-    <div className="flex-1 flex flex-col w-full min-h-screen items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+    <div className="absolute inset-0 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
@@ -1801,7 +1801,7 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full z-50 mt-auto px-2 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
+              <div className={`shrink-0 w-full z-50 mt-auto px-2 pt-3 pb-5 ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}

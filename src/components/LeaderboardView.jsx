@@ -746,7 +746,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
       {/* Sticky Bottom "Me" Bar */}
       {userId && trueRank && !loading && !error && view === 'global' && (
-        <div className="fixed bottom-[calc(88px+env(safe-area-inset-bottom))] left-0 right-0 z-40 px-4 md:px-6 pointer-events-none drop-shadow-xl" dir="rtl">
+        <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 md:px-6 pointer-events-none drop-shadow-xl" dir="rtl">
           <Motion.div 
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -787,7 +787,7 @@ export default function LeaderboardView({ onOpenChat }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
             onClick={scrollToTop}
-            className="fixed bottom-[calc(148px+env(safe-area-inset-bottom))] left-4 md:left-8 z-50 w-12 h-12 bg-mono-900 dark:bg-white text-white dark:text-mono-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all border border-white/10 dark:border-black/10"
+            className="fixed bottom-[148px] left-4 md:left-8 z-50 w-12 h-12 bg-mono-900 dark:bg-white text-white dark:text-mono-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all border border-white/10 dark:border-black/10"
             title="بۆ سەرەوە"
           >
             <span className="material-symbols-outlined text-[24px]">keyboard_arrow_up</span>
