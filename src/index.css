@@ -1285,6 +1285,11 @@ input[type="range"]:active::-moz-range-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* --- TEMPORARY DEBUGGING COLORS --- */
+html { background-color: red !important; }
+body { background-color: blue !important; }
+#root { background-color: green !important; }
+
 /* 🚨 GLOBAL LAYOUT BUG: App-Wide Bottom Gap & Background Clipping 🚨 */
 html, body, #root {
   position: absolute;

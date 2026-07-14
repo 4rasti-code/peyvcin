@@ -1,7 +1,7 @@
 /* global importScripts */
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'peyvchin-v13';
+const CACHE_NAME = 'peyvchin-v14';
 const ASSETS = [
   '/',
   '/index.html',
