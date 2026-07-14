@@ -3,7 +3,7 @@
   "short_name": "Peyvok",
   "description": "Kurdish Word Game - یارییا پەیڤۆک",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#000000",
