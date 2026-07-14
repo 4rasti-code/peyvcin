@@ -173,6 +173,14 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [isFontsLoaded, setIsFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    document.fonts.ready.then(() => {
+      setIsFontsLoaded(true);
+    });
+  }, []);
+
   // 0. CORE CONTEXT HOOKS: Must be at the top to avoid ReferenceErrors
   const {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
@@ -1585,9 +1593,9 @@ export default function App() {
   };
 
   // --- CRITICAL AUTH GUARD (Flicker Fix) ---
-  // Shows loader if auth is initializing, game assets are loading,
+  // Shows loader if auth is initializing, game assets are loading, fonts are loading,
   // or if we have no user but haven't yet redirected to the auth screen.
-  if (loadingAuth || isGameLoading || (!user && !['auth', 'lobby', 'game'].includes(currentView))) return (
+  if (loadingAuth || isGameLoading || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView))) return (
     <div className="h-dvh flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6">
       <div className="flex flex-col items-center gap-4">
         <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
