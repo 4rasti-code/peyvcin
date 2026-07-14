@@ -1285,22 +1285,25 @@ input[type="range"]:active::-moz-range-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* --- TEMPORARY DEBUGGING COLORS --- */
-html { background-color: red !important; }
-body { background-color: blue !important; }
-#root { background-color: green !important; }
-
 /* 🚨 GLOBAL LAYOUT BUG: App-Wide Bottom Gap & Background Clipping 🚨 */
-html, body, #root {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
+html, body {
   height: 100%;
-  overflow: hidden;
+  min-height: -webkit-fill-available;
   margin: 0;
   padding: 0;
-  background-color: #000000; /* Prevent white flashes */
+  overflow: hidden;
+  background-color: #000000;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex: 1; /* This forces #root to stretch and kill the blue gap */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
 }
