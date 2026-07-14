@@ -1285,25 +1285,17 @@ input[type="range"]:active::-moz-range-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* 🚨 GLOBAL LAYOUT BUG: App-Wide Bottom Gap & Background Clipping 🚨 */
-html, body {
-  height: 100%;
-  min-height: -webkit-fill-available;
+/* 🚨 THE NUCLEAR OPTION: iOS PWA Absolute Anchoring 🚨 */
+html, body, #root {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background-color: #000000;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-}
-
-#root {
-  flex: 1; /* This forces #root to stretch and kill the blue gap */
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  overflow: hidden;
+  background-color: #000000; /* Fallback to hide white flashes */
 }
