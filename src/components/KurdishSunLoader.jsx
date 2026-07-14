@@ -1,7 +1,20 @@
 import React from 'react';
 import { motion as Motion } from 'framer-motion';
 
-const KurdishSunLoader = ({ size = 80, color = "#FFD700", progress = 0 }) => {
+const KurdishSunLoader = ({ size = 80, color = "#FFD700", progress = 0, statusText = null }) => {
+  // Generate dynamic Kurdish status text if none is provided
+  const getStatusText = (p) => {
+    if (statusText) return statusText;
+    if (p < 20) return 'گرێدان ب سێرڤەران...';
+    if (p < 40) return 'پشکنینا داتایێن یاریزانان...';
+    if (p < 60) return 'بارکرنا تابلۆیا یاریێ...';
+    if (p < 80) return 'ئامادەکرنا فۆنت و دیزاینان...';
+    if (p < 99) return 'کۆتایی پێئینان...';
+    return 'ئامادەیە!';
+  };
+
+  const currentStatus = getStatusText(progress);
+
   return (
     <div className="flex flex-col items-center justify-center p-8 gap-10">
       {/* The Sun Container with Glow */}
@@ -72,12 +85,12 @@ const KurdishSunLoader = ({ size = 80, color = "#FFD700", progress = 0 }) => {
             
             {/* Subtle sub-text based on progress */}
             <Motion.span 
-                key={progress > 60 ? 'syncing' : 'connecting'}
+                key={currentStatus}
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 0.5, y: 0 }}
-                className="text-[9px] text-slate-400 font-medium uppercase"
+                className="text-[10px] font-bold text-slate-400 font-rabar drop-shadow-sm"
             >
-                {progress < 40 ? 'Connecting to Server' : progress < 80 ? 'Syncing Profile' : 'Finalizing'}
+                {currentStatus}
             </Motion.span>
         </div>
       </div>

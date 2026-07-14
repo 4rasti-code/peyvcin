@@ -1601,7 +1601,10 @@ export default function App() {
         <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
         <img src="/Peyvok-logo-02.png" className="h-20 w-auto hidden dark:block animate-pulse" alt="Peyvok" />
       </div>
-      <KurdishSunLoader progress={authProgress} />
+      <KurdishSunLoader 
+        progress={authProgress} 
+        statusText={(!isFontsLoaded && authProgress >= 99) ? 'داگرتنا فۆنتێن جوانیێ...' : null} 
+      />
     </div>
   );
 
