@@ -1598,7 +1598,7 @@ export default function App() {
   );
 
   return (
-    <div className="flex-1 flex flex-col w-full min-h-[100dvh] items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+    <div className="flex-1 flex flex-col w-full min-h-screen items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>

@@ -1288,8 +1288,6 @@ input[type="range"]:active::-moz-range-thumb {
 /* 🚨 CLEAN iOS PWA FULLSCREEN 🚨 */
 html, body {
   min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: 100dvh;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -1297,7 +1295,6 @@ html, body {
 
 #root {
   min-height: 100vh;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   width: 100%;
