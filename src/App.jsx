@@ -1612,21 +1612,31 @@ export default function App() {
     }
   }
 
-  if (loadingAuth || isGameLoading || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView))) return (
-    <div className="h-dvh flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6">
-      <div className="flex flex-col items-center gap-4">
-        <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
-        <img src="/Peyvok-logo-02.png" className="h-20 w-auto hidden dark:block animate-pulse" alt="Peyvok" />
-      </div>
-      <KurdishSunLoader 
-        progress={displayProgress} 
-        statusText={customStatus} 
-      />
-    </div>
-  );
+  const isLoadingScreenVisible = loadingAuth || isGameLoading || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView));
 
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+      
+      {/* GLOBAL LOADING OVERLAY */}
+      <AnimatePresence>
+        {isLoadingScreenVisible && (
+          <Motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6"
+          >
+            <div className="flex flex-col items-center gap-4">
+              <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
+              <img src="/Peyvok-logo-02.png" className="h-20 w-auto hidden dark:block animate-pulse" alt="Peyvok" />
+            </div>
+            <KurdishSunLoader 
+              progress={displayProgress} 
+              statusText={customStatus} 
+            />
+          </Motion.div>
+        )}
+      </AnimatePresence>
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
