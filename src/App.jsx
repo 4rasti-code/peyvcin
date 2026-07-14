@@ -1624,7 +1624,7 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6"
+            className="fixed inset-0 z-99999 flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6"
           >
             <div className="flex flex-col items-center gap-4">
               <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
