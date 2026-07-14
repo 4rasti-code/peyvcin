@@ -1598,7 +1598,7 @@ export default function App() {
   );
 
   return (
-    <div className="flex flex-col h-[100dvh] min-h-[100dvh] w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+    <div className="flex flex-col h-[100dvh] overflow-hidden w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
@@ -1754,7 +1754,7 @@ export default function App() {
             </>
           )}
 
-          {currentView === 'game' && gameMode !== 'multiplayer' && (
+          {currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) && (
             <div className="flex-1 flex flex-col overflow-hidden relative h-full">
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar">
@@ -1801,7 +1801,7 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full z-50 p-3 ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} pb-[env(safe-area-inset-bottom)] transition-colors duration-500`}>
+              <div className={`shrink-0 w-full z-50 px-3 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}

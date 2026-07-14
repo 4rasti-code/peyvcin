@@ -102,6 +102,7 @@ export const AuthProvider = ({ children }) => {
           last_nickname_update, haptic_enabled, magnets, hints, skips,
           inventory, claimed_medals, daily_streak, reward_streak, last_reward_claimed_at,
           last_streak_at, last_notified_level,
+          last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
           statistics, solved_words, onboarded
         `)
         .eq('id', activeUserId);

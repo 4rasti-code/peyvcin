@@ -650,6 +650,7 @@ export const GameProvider = ({ children }) => {
         p_is_win: additionalData.isWin !== undefined ? additionalData.isWin : true,
         p_attempts: additionalData.attempts || 0,
         p_is_flawless: (additionalData.hintsUsed === 0 && additionalData.magnetsUsed === 0),
+        p_is_secret_win: false,
         p_is_riddle_no_skip: (mode === 'mamak' && additionalData.hintsUsed === 0),
         p_is_pvp_flawless: additionalData.isPvPFlawless || false,
         p_word_length: lettersCount || 0,
@@ -795,9 +796,16 @@ export const GameProvider = ({ children }) => {
         p_level: newLevel,
         p_solved_words: gameStateRef.current.solvedWords,
         p_mode: 'penalty',
-        p_is_win: false,
         p_score: 0,
-        p_attempts: 0
+        p_is_win: false,
+        p_attempts: 0,
+        p_is_flawless: false,
+        p_is_secret_win: false,
+        p_is_riddle_no_skip: false,
+        p_is_pvp_flawless: false,
+        p_word_length: 0,
+        p_solve_time_ms: 0,
+        p_words_found: 0
       });
       await syncProfile(currentUser.id);
     } catch (err) {

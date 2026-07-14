@@ -22,16 +22,25 @@ import PublicProfileModal from './PublicProfileModal';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 
-const CooldownTimerOverlay = ({ targetDate }) => {
+const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
   const [timeLeft, setTimeLeft] = useState('');
 
   useEffect(() => {
     if (!targetDate) return;
-    const target = new Date(targetDate);
-    const end = new Date(target.getTime() + 24 * 60 * 60 * 1000);
     
     const update = () => {
       const now = new Date();
+      let end;
+      
+      if (isMidnightReset) {
+        // Calculate time until next midnight local time
+        end = new Date(now);
+        end.setHours(24, 0, 0, 0);
+      } else {
+        const target = new Date(targetDate);
+        end = new Date(target.getTime() + 24 * 60 * 60 * 1000);
+      }
+      
       const diff = end - now;
       if (diff <= 0) {
         setTimeLeft('');
@@ -46,7 +55,7 @@ const CooldownTimerOverlay = ({ targetDate }) => {
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
-  }, [targetDate]);
+  }, [targetDate, isMidnightReset]);
 
   if (!timeLeft) return null;
   return (
@@ -408,10 +417,11 @@ const LobbyView = memo(({
                     triggerHaptic(15); 
                     onDailyRewardClick?.(); 
                  }}
-                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group ${!isDailyAvailable ? 'grayscale opacity-90 dark:opacity-70 hover:grayscale-0 hover:opacity-100 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group ${!isDailyAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-[58px] h-[58px]">
                    <ClipboardIcon className={`w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
                  </div>
                </Motion.button>
 
