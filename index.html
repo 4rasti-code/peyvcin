@@ -173,6 +173,15 @@
   <link rel="apple-touch-icon" media="(prefers-color-scheme: light)" href="/Peyvok-logo-01.png" />
   <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="/Peyvok-logo-02.png" />
   <title>Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game</title>
+  <script>
+    // iOS PWA Height Fix
+    const setAppHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+    setAppHeight();
+  </script>
 </head>
 
 <body
