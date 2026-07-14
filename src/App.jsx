@@ -1584,23 +1584,6 @@ export default function App() {
     setIsHowToPlayOpen(false);
   };
 
-  useEffect(() => {
-    // Bruteforce the root HTML and BODY background to black to hide the white gap
-    document.documentElement.style.setProperty('background-color', '#000000', 'important');
-    document.body.style.setProperty('background-color', '#000000', 'important');
-    
-    // Bruteforce exact height calculation
-    const fixHeight = () => {
-      document.documentElement.style.setProperty('height', `${window.innerHeight}px`, 'important');
-      document.body.style.setProperty('height', `${window.innerHeight}px`, 'important');
-    };
-    
-    window.addEventListener('resize', fixHeight);
-    fixHeight();
-    
-    return () => window.removeEventListener('resize', fixHeight);
-  }, []);
-
   // --- CRITICAL AUTH GUARD (Flicker Fix) ---
   // Shows loader if auth is initializing, game assets are loading,
   // or if we have no user but haven't yet redirected to the auth screen.
@@ -1615,7 +1598,7 @@ export default function App() {
   );
 
   return (
-    <div className="absolute inset-0 min-h-[100dvh] bg-black flex flex-col w-full items-center justify-start text-mono-900 dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+    <div className="flex-1 flex flex-col w-full min-h-[100dvh] items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
