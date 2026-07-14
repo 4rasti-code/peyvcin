@@ -38,7 +38,7 @@ export default function MedalsView({ onViewChange }) {
          <div className="absolute inset-0 noise-grain opacity-[0.03] dark:opacity-5 pointer-events-none" />
 
          {/* Header */}
-         <div className="w-full flex items-center justify-between px-6 py-4 sticky top-0 z-50 bg-white/90 dark:bg-[#0a0a0c]/90 backdrop-blur-xl border-b border-mono-200 dark:border-[#2a2a35] shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+         <div className="w-full flex items-center justify-between px-6 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 sticky top-0 z-50 bg-white/90 dark:bg-[#0a0a0c]/90 backdrop-blur-xl border-b border-mono-200 dark:border-[#2a2a35] shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
             <button
                onClick={() => { triggerHaptic(10); if (playSettingsCloseSound) playSettingsCloseSound(); onViewChange('profile'); }}
                className="w-10 h-10 rounded-[8px] bg-mono-100 dark:bg-[#1a1a24] border border-mono-200 dark:border-[#2a2a35] flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-[#2a2a35] transition-all active:scale-90 shadow-inner"

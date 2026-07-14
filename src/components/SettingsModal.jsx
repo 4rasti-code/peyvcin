@@ -71,7 +71,7 @@ function SettingsModal({
                      dir="rtl"
                   >
                      {/* Compact Header */}
-                     <div className="p-6 pt-12 sm:pt-8 pb-4 flex items-center justify-end shrink-0">
+                     <div className="p-6 pt-[calc(env(safe-area-inset-top)+16px)] sm:pt-[calc(env(safe-area-inset-top)+16px)] pb-4 flex items-center justify-end shrink-0">
                         <button
                            onClick={onClose}
                            className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/5 flex items-center justify-center text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white transition-all active:scale-90 border border-mono-100 dark:border-white/10"

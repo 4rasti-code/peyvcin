@@ -244,18 +244,29 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
             className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
             style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
           >
+            {/* Close Button Top Right */}
+            {!isOpening && !showReward && (
+              <button onClick={() => { playBackSfx(); handleClose(); }} className="fixed top-[calc(env(safe-area-inset-top)+24px)] right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            )}
+
+            {!showReward && (
+              <div className="fixed top-[calc(env(safe-area-inset-top)+24px)] left-6 flex items-center gap-2 h-11 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-4 shadow-xl border border-mono-200 dark:border-white/10 z-50">
+                <span className="text-[19px] font-black text-mono-900 dark:text-white font-sans mt-px">
+                  {toKuDigits(boxCount)}
+                </span>
+                <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
+                <MysteryBoxIcon isOpen={false} className="w-[24px] h-[24px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+              </div>
+            )}
+
             <Motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               className="w-full max-w-sm relative p-6 flex flex-col items-center"
             >
-              {/* Close Button Top Right */}
-              {!isOpening && !showReward && (
-                <button onClick={() => { playBackSfx(); handleClose(); }} className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
-                  <span className="material-symbols-outlined text-[18px]">close</span>
-                </button>
-              )}
 
               {/* Ambient Glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-fuchsia-500/20 blur-[80px] rounded-full pointer-events-none" />
@@ -264,16 +275,6 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
               {!canOpenFree && !loadingCheck && timeLeftStr && (
                 <span className="font-black text-xl text-fuchsia-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
-              )}
-
-              {!showReward && (
-                <div className="fixed top-6 left-6 flex items-center gap-2 h-11 bg-mono-100 dark:bg-white/10 backdrop-blur-md rounded-md px-4 shadow-xl border border-mono-200 dark:border-white/10 z-50">
-                  <span className="text-[19px] font-black text-mono-900 dark:text-white font-sans mt-px">
-                    {toKuDigits(boxCount)}
-                  </span>
-                  <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
-                  <MysteryBoxIcon isOpen={false} className="w-[24px] h-[24px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
-                </div>
               )}
 
 

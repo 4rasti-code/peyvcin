@@ -204,7 +204,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
             {/* Screen-level Close Button */}
             <button 
               onClick={() => { playBackSfx(); handleClose(); }} 
-              className="fixed top-6 right-6 w-11 h-11 rounded-md bg-mono-500/10 dark:bg-white/10 backdrop-blur-md border border-mono-500/10 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/70 hover:text-mono-900 dark:hover:text-white hover:bg-mono-500/20 dark:hover:bg-white/20 transition-all z-110"
+              className="fixed top-[calc(env(safe-area-inset-top)+24px)] right-6 w-11 h-11 rounded-md bg-mono-500/10 dark:bg-white/10 backdrop-blur-md border border-mono-500/10 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/70 hover:text-mono-900 dark:hover:text-white hover:bg-mono-500/20 dark:hover:bg-white/20 transition-all z-110"
             >
               <span className="material-symbols-outlined text-[24px]">close</span>
             </button>

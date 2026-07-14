@@ -602,11 +602,11 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
     return (
         <div
             onClick={handleBackgroundClick}
-            className="flex-1 w-full h-full flex flex-col items-center justify-center overflow-y-auto sm:overflow-hidden no-scrollbar p-4 animate-in fade-in duration-500 relative isolate auth-view-container bg-mono-white dark:bg-black transition-colors"
+            className="flex-1 w-full h-full flex flex-col items-center overflow-y-auto sm:overflow-hidden no-scrollbar p-4 animate-in fade-in duration-500 relative isolate auth-view-container bg-mono-white dark:bg-black transition-colors"
         >
             <FloatingLetterBackground ref={bgRef} baseOpacity={0.25} />
 
-            <div className="w-full max-w-[360px] sm:max-w-[380px] flex flex-col items-center relative z-20 shrink-0 mb-4">
+            <div className="w-full max-w-[360px] sm:max-w-[380px] flex flex-col items-center relative z-20 shrink-0 my-auto">
                 <Motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}

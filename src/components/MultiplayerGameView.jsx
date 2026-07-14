@@ -546,7 +546,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} pb-[max(env(safe-area-inset-bottom),16px)] m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
+      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} pb-[env(safe-area-inset-bottom)] border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
         {/* WAITING FOR OPPONENT OVERLAY MOVED TO AVATAR */}
 
         <Keyboard

@@ -244,7 +244,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] z-60 px-6 pt-12 sm:pt-6 flex justify-between items-start pointer-events-none" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+16px)] sm:pt-[calc(env(safe-area-inset-top)+16px)] flex justify-between items-start pointer-events-none" dir="ltr">
                   {/* Left: Settings Icon */}
                   <div className="relative pointer-events-auto mt-[-6px]">
                      <Motion.button
@@ -712,19 +712,16 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   className="bg-mono-white dark:bg-black w-full h-full max-w-md mx-auto shadow-2xl flex flex-col overflow-hidden relative z-10"
                >
-                  <div className="p-4 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 shrink-0">
-                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center border border-emerald-500/30 text-emerald-500">
-                           <span className="material-symbols-outlined font-bold">group</span>
-                        </div>
+                  <div className="pt-[env(safe-area-inset-top)] bg-mono-50 dark:bg-mono-900/50 border-b border-mono-200 dark:border-mono-800 shrink-0">
+                     <div className="relative h-16 flex items-center justify-center px-4">
+                        <button
+                           onPointerDown={() => setIsFriendsModalOpen(false)}
+                           className="absolute right-4 w-10 h-10 flex items-center justify-center rounded-2xl text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all active:scale-95 border border-transparent hover:border-mono-300 dark:hover:border-mono-700"
+                        >
+                           <span className="material-symbols-outlined">close</span>
+                        </button>
                         <h3 className="text-mono-900 dark:text-white font-black font-rabar text-lg">لیستا ھەڤالان</h3>
                      </div>
-                     <button
-                        onPointerDown={() => setIsFriendsModalOpen(false)}
-                        className="w-10 h-10 flex items-center justify-center rounded-2xl text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all active:scale-95 border border-transparent hover:border-mono-300 dark:hover:border-mono-700"
-                     >
-                        <span className="material-symbols-outlined">close</span>
-                     </button>
                   </div>
 
                   <div className="flex-1 flex flex-col overflow-hidden p-4 relative">
