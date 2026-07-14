@@ -14,7 +14,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
   return (
     <LayoutGroup>
       {/* 🚨 THE FIX IS HERE: Reverted back to the stable 'sticky min-h-[80px]' layout from 2 months ago 🚨 */}
-      <nav className="sticky bottom-0 w-full z-40 min-h-[80px] pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 bg-mono-white dark:bg-black border-t border-mono-200 dark:border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
+      <nav className="sticky bottom-0 w-full z-40 min-h-[80px] pb-[max(14px,env(safe-area-inset-bottom))] pt-2 bg-mono-white dark:bg-black border-t border-mono-200 dark:border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
         {tabs.map((tab) => {
           const isActive = currentView === tab.id;
           const isSettings = tab.id === 'settings';
