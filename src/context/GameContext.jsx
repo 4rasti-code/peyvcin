@@ -145,7 +145,7 @@ export const GameProvider = ({ children }) => {
       lastXPRef.current = val;
       
       // 1. Get count of players with strictly more XP
-      let query = supabase.from('profiles').select('id', { count: 'estimated', head: true }).gt('xp', val).neq('nickname', 'Admin_4rasti');
+      let query = supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', val).neq('nickname', 'Admin_4rasti');
       if (signal) query = query.abortSignal(signal);
       const { count, error } = await query;
       
