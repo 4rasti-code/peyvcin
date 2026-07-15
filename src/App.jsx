@@ -21,6 +21,7 @@ import { gameWordLists, allWordsWithCategories } from './data/wordList';
 import { STATUS } from './data/constants';
 import { getLocalDateString as _getLocalDateString } from './utils/formatters';
 import KurdishSunLoader from './components/KurdishSunLoader';
+import ClassicIcon from './components/ClassicIcon';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatus';
@@ -186,7 +187,7 @@ export default function App() {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
     userNickname, userAvatar, userAvatar: equippedAvatar, city, isInKurdistan, countryCode,
     ownedAvatars, unlockedThemes: _unlockedThemes, currentTheme,
-    updateProfile, profileData
+    updateProfile, profileData, syncProfile
   } = useUser();
 
   const {
@@ -216,7 +217,8 @@ export default function App() {
     initializeStatsInDB,
     loading: isGameLoading,
     resetBoard: _resetContextBoard,
-    hasUnclaimedMedals
+    hasUnclaimedMedals,
+    syncStatus
   } = useGame();
 
   // --- ONESIGNAL NOTIFICATION ENGINE ---
@@ -256,7 +258,7 @@ export default function App() {
   // --- ONESIGNAL IDENTITY SYNC ---
   useEffect(() => {
     if (window.location.hostname === 'localhost') return;
-    
+
     if (user?.id) {
       OneSignal.login(user.id).catch(err => console.warn("🔔 [OneSignal] Login Error:", err));
     } else {
@@ -267,13 +269,13 @@ export default function App() {
   // --- GUEST LEVEL 5 PROGRESSION TRIGGER ---
   useEffect(() => {
     if (!user || !user.is_anonymous || !profileData || typeof profileData.xp !== 'number') return;
-    
+
     const xpThreshold = getTotalXPForLevel(5);
     const hasBeenNotified = localStorage.getItem('guest_level5_notified') === 'true';
 
     if (profileData.xp >= xpThreshold && !hasBeenNotified) {
       console.log("[Progression] Guest reached Level 5. Sending automated system message.");
-      
+
       // Optimistically set the flag to prevent duplicate messages from race conditions
       localStorage.setItem('guest_level5_notified', 'true');
 
@@ -308,7 +310,7 @@ export default function App() {
 
     if (!hasBeenWelcomed) {
       console.log("[Welcome] First login detected. Sending automated welcome message.");
-      
+
       // Optimistically set the flag to prevent duplicate messages from race conditions
       localStorage.setItem('beta_welcome_sent', 'true');
 
@@ -420,7 +422,7 @@ export default function App() {
   }, [currentView, navigate, location.pathname]);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
+
   const [isDailyRewardOpen, setIsDailyRewardOpen] = useState(false);
   const [isHowToPlayOpen, setIsHowToPlayOpen] = useState(false);
   const [howToPlayMode, setHowToPlayMode] = useState('classic');
@@ -980,11 +982,11 @@ export default function App() {
           // If the user is currently viewing this exact chat, do not show toast
           const currentActiveChatId = window.activeChatId || localStorage.getItem('activeChatId');
           const currentActiveTab = window.activeChatTab || localStorage.getItem('activeChatTab');
-          
+
           if (currentActiveTab === 'private' && currentActiveChatId && String(currentActiveChatId) === String(payload.new.user_id)) {
             return;
           }
-          
+
           let senderName = 'کەسەک';
           let avatarUrl = null;
           try {
@@ -1201,7 +1203,7 @@ export default function App() {
   useEffect(() => {
     // Multiplayer handles its own delayed start sound in MultiplayerGameView
     const isSinglePlayer = gameMode !== 'multiplayer' && multiplayerState === 'idle';
-    
+
     if (currentView === 'game' && isSinglePlayer) {
       try {
         playStartGameSound();
@@ -1318,10 +1320,10 @@ export default function App() {
 
   const executeForfeitConfirmed = useCallback(() => {
     const penalty = getRewardForMode(gameMode);
-    
+
     // Deduct penalty and sync to DB
     applyPenalty(penalty.xp, penalty.amount, penalty.type);
-    
+
     setIsForfeitConfirmOpen(false);
     setCurrentView('lobby');
     setCategory('');
@@ -1343,21 +1345,21 @@ export default function App() {
           setLastSolvedWord(targetWord);
           setFeverStreak(0);
           setIsDefeat(true); // Lock the board
-          
+
           // Apply Timeout Penalty
           const timeoutFils = 50;
           const timeoutXP = 25;
-          
+
           setDefeatBreakdown({
             base: timeoutFils,
             mistakes: 0,
             total: timeoutFils,
             xp: timeoutXP
           });
-          
+
           setWordFeverResultType('fail');
           setIsWordFeverResultVisible(true);
-          
+
           applyPenalty(timeoutXP, timeoutFils, 'fils');
         });
       }
@@ -1371,7 +1373,7 @@ export default function App() {
       if (timeLeft <= 10 && timeLeft > 0) {
         // Play the heartbeat using the Web Audio API Engine for zero latency and perfect sync
         playHeartbeatSound();
-        
+
         // Add a slight haptic feedback for mobile users to increase tension
         if (window.Telegram?.WebApp?.HapticFeedback) {
           window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
@@ -1488,9 +1490,9 @@ export default function App() {
       const combined = [...msgList, ...reqList].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       setNotificationsList(combined);
-      setSocialNotifications({ 
-        unreadMessages: msgList.length, 
-        pendingRequests: reqList.length, 
+      setSocialNotifications({
+        unreadMessages: msgList.length,
+        pendingRequests: reqList.length,
         unreadGlobal: globalCount || 0,
         unreadBotGlobal: botGlobalCount || 0
       });
@@ -1515,18 +1517,18 @@ export default function App() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
         if (payload.new.user_id !== user.id) {
           if (window.activeChatTab === 'global') {
-             const now = new Date().toISOString();
-             localStorage.setItem('last_seen_global_chat', now);
-             localStorage.setItem('lastOpenedGlobalChatTime', now);
+            const now = new Date().toISOString();
+            localStorage.setItem('last_seen_global_chat', now);
+            localStorage.setItem('lastOpenedGlobalChatTime', now);
           } else {
-             setSocialNotifications(prev => ({ ...prev, unreadGlobal: (prev.unreadGlobal || 0) + 1 }));
+            setSocialNotifications(prev => ({ ...prev, unreadGlobal: (prev.unreadGlobal || 0) + 1 }));
           }
         }
       })
       .subscribe();
 
-    return () => { 
-      supabase.removeChannel(socialChannel); 
+    return () => {
+      supabase.removeChannel(socialChannel);
       window.removeEventListener('clear_global_notifs', handleClearGlobal);
     };
   }, [user?.id]);
@@ -1553,9 +1555,9 @@ export default function App() {
       setInitialSocialTab('private');
       navigateTo('social_hub');
     } else if (item.type === 'friend') {
-        setOpenFriendsFromNotif(true);
-        navigateTo('profile');
-      } else {
+      setOpenFriendsFromNotif(true);
+      navigateTo('profile');
+    } else {
       setInitialSocialTab('global');
       navigateTo('social_hub');
     }
@@ -1595,45 +1597,56 @@ export default function App() {
   // --- CRITICAL AUTH GUARD (Flicker Fix) ---
   // Shows loader if auth is initializing, game assets are loading, fonts are loading,
   // or if we have no user but haven't yet redirected to the auth screen.
-  
+
   let displayProgress = authProgress;
   let customStatus = null;
 
+  // Rely on the presence of profileData (which is now guaranteed to be populated even on error)
+  const isSyncingProfile = !!user && !profileData;
+
   if (authProgress >= 90) {
-    if (!isFontsLoaded) {
-      displayProgress = 90;
+    if (isGameLoading || isSyncingProfile) {
+      displayProgress = 92;
+      customStatus = syncStatus || 'هەڤکێشکرنا داتایان...';
+    } else if (!isFontsLoaded) {
+      displayProgress = 97;
       customStatus = 'داگرتنا فۆنتێن جوانیێ...';
-    } else if (isGameLoading) {
-      displayProgress = 95;
-      customStatus = 'ئامادەکرنا پەنجەرەیا یاریێ...';
     } else if (loadingAuth) {
-      displayProgress = 98;
+      displayProgress = 99;
       customStatus = 'دوماهیک پشکنین...';
     }
   }
 
-  const isLoadingScreenVisible = loadingAuth || isGameLoading || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView));
+  const isActivelyLoading = loadingAuth || isGameLoading || isSyncingProfile || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView));
+  // Keep the loading screen visible until the progress bar visually reaches 100% for logged-in users
+  const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
     <div className="flex-1 flex flex-col w-full min-h-screen items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
-      
+
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>
         {isLoadingScreenVisible && (
-          <Motion.div 
+          <Motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 z-99999 flex flex-col items-center justify-center bg-mono-white dark:bg-black transition-colors duration-500 gap-6"
+            className="fixed inset-0 flex flex-col items-center justify-center bg-linear-to-b from-mono-50 to-mono-200 dark:from-mono-950 dark:to-black transition-colors duration-500 gap-8 overflow-hidden"
+            style={{ zIndex: 99999 }}
           >
-            <div className="flex flex-col items-center gap-4">
-              <img src="/Peyvok-logo-01.png" className="h-20 w-auto block dark:hidden animate-pulse" alt="Peyvok" />
-              <img src="/Peyvok-logo-02.png" className="h-20 w-auto hidden dark:block animate-pulse" alt="Peyvok" />
+            {/* Background Premium Glow Orbs */}
+            <div className="absolute top-[10%] left-[10%] w-96 h-96 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+            <div className="flex flex-col items-center min-h-[100px] justify-center relative z-10">
+              <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
             </div>
-            <KurdishSunLoader 
-              progress={displayProgress} 
-              statusText={customStatus} 
-            />
+            <div className="relative z-10">
+              <KurdishSunLoader
+                progress={displayProgress}
+                statusText={customStatus}
+              />
+            </div>
           </Motion.div>
         )}
       </AnimatePresence>
@@ -1709,6 +1722,7 @@ export default function App() {
                 setUser(u);
                 setIsRecoveringPassword(false);
                 setIsVerifyingSignup(false);
+                syncProfile(u.id); // Explicitly sync profile on manual login
                 // Small delay to allow state sync before navigating to lobby
                 setTimeout(() => setCurrentView('lobby'), 300);
               }}
@@ -1778,7 +1792,7 @@ export default function App() {
                 onOpenHowToPlay={handleOpenHowToPlay}
                 onOpenChat={handleOpenChat}
               />
-              
+
               {/* ADMIN PANEL BUTTON (Only visible to the specific admin email) */}
               {user?.email === '4rasti@gmail.com' && (
                 <button
@@ -1951,8 +1965,8 @@ export default function App() {
                 </div>
                 <div className={currentView === 'profile' ? 'contents' : 'hidden'}>
                   <ProfileView
-                      initialFriendsModalOpen={openFriendsFromNotif}
-                      onFriendsModalConsumed={() => setOpenFriendsFromNotif(false)}
+                    initialFriendsModalOpen={openFriendsFromNotif}
+                    onFriendsModalConsumed={() => setOpenFriendsFromNotif(false)}
                     onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
                     onViewChange={(view) => { playSettingsOpenSound(); setCurrentView(view); }}
                     onOpenChat={handleOpenChat}
@@ -2201,13 +2215,13 @@ export default function App() {
         <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} setCurrentView={setCurrentView} />
 
         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
-        <UpgradeAccountModal 
-          isOpen={user?.is_anonymous && level >= 5 && !isUpgradeModalDismissed} 
+        <UpgradeAccountModal
+          isOpen={user?.is_anonymous && level >= 5 && !isUpgradeModalDismissed}
           onClose={() => setIsUpgradeModalDismissed(true)}
           onSuccess={() => {
             // The profile updates will automatically reflect due to AuthContext listeners
             console.log("Guest account upgraded successfully!");
-          }} 
+          }}
         />
 
         {/* 5. MULTIPLAYER MATCHMAKING OVERLAY */}
@@ -2353,7 +2367,7 @@ export default function App() {
 
                 <div className="relative z-10 flex flex-col items-center gap-3">
                   <h2 className="text-base font-bold text-mono-900 dark:text-white mt-2">ئەرێ دێ دەرکەڤی؟</h2>
-                  
+
                   <div className="flex items-center justify-center gap-3 py-2 px-4 bg-mono-50 dark:bg-black/40 rounded-md border border-mono-100 dark:border-white/5 w-full">
                     <span className="flex items-center gap-1.5 text-base font-bold text-red-500" dir="ltr">
                       -{getRewardForMode(gameMode).amount}
@@ -2402,7 +2416,7 @@ export default function App() {
         {/* TEMPORARY MEDALS PREVIEW */}
         <Suspense fallback={null}>
           <AnimatePresence>
-            
+
           </AnimatePresence>
         </Suspense>
 

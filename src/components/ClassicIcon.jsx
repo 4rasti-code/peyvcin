@@ -16,7 +16,7 @@ const STARS = [
   { x: 15, y: 14, delay: '0.5s' }, // From ک
 ];
 
-export default function ClassicIcon({ className = "w-16 h-16" }) {
+export default function ClassicIcon({ className = "w-16 h-16", continuous = false }) {
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
       <style>
@@ -39,6 +39,20 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
             95% { transform: scale(0.5) rotate(120deg); opacity: 0; }
             100% { opacity: 0; }
           }
+          
+          /* Continuous Loop Animations for Loading Screen */
+          @keyframes wordle-jump-continuous {
+            0% { transform: translateY(0) rotate(calc(var(--base-rot) * 1deg)); }
+            20% { transform: translateY(-14px) rotate(calc(var(--base-rot) * 1deg - 8deg)); }
+            40% { transform: translateY(2px) rotate(calc(var(--base-rot) * 1deg + 3deg)); }
+            55%, 100% { transform: translateY(0) rotate(calc(var(--base-rot) * 1deg)); }
+          }
+          @keyframes star-burst-continuous {
+            0%, 30% { transform: scale(0) rotate(0deg); opacity: 0; }
+            35% { transform: scale(1.5) rotate(45deg); opacity: 1; }
+            55% { transform: scale(0.5) rotate(120deg); opacity: 0; }
+            100% { opacity: 0; }
+          }
         `}
       </style>
 
@@ -50,7 +64,9 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
               key={i}
               style={{ 
                 '--base-rot': t.rot, 
-                animation: `wordle-jump 5s infinite ${t.delay} ease-in-out`,
+                animation: continuous 
+                  ? `wordle-jump-continuous 2s infinite ${t.delay} ease-in-out`
+                  : `wordle-jump 5s infinite ${t.delay} ease-in-out`,
                 transformOrigin: `${t.x + 13}px ${t.y + 14}px`
               }}
             >
@@ -84,7 +100,9 @@ export default function ClassicIcon({ className = "w-16 h-16" }) {
                 d="M 0 -6 L 1.5 -2 L 6 -2 L 2.5 1 L 4 5.5 L 0 3 L -4 5.5 L -2.5 1 L -6 -2 L -1.5 -2 Z"
                 fill="#fde047"
                 style={{
-                  animation: `star-burst 5s infinite ${s.delay} ease-out`,
+                  animation: continuous
+                    ? `star-burst-continuous 2s infinite ${s.delay} ease-out`
+                    : `star-burst 5s infinite ${s.delay} ease-out`,
                   transformOrigin: '0 0',
                   filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))'
                 }}

@@ -30,6 +30,7 @@ export const GameProvider = ({ children }) => {
   const [_userRank, setUserRank] = useState(1);
   const [inventory, setInventory] = useState({ badges: [] });
   const [loading, setLoading] = useState(true);
+  const [syncStatus, setSyncStatus] = useState('');
   const claimRef = useRef(false);
 
   const [claimedMedals, setClaimedMedals] = useState(() => {
@@ -174,121 +175,130 @@ export const GameProvider = ({ children }) => {
     }
   }, []); // Stable: uses refs for values
 
+  // Aggressive loading lock: prevent gaps between AuthContext sync and GameContext sync
+  useEffect(() => {
+    if (user && !profileData) {
+      setLoading(true);
+      setSyncStatus('هێنان و پشکنینا پرۆفایلێ...');
+    }
+  }, [user, profileData]);
+
   // Track initialization: Moved below refreshRank to avoid TDZ (Temporal Dead Zone) error
   useEffect(() => {
     const controller = new AbortController();
-    if (!loadingAuth && profileData) {
-      // If we have profile data, apply it to local states ONLY IF it changed meaningfully
-      // Use a stringified comparison for a stable "deep" check on the profile object
-      // Use a more stable signature to prevent loops. We only apply if values change.
-      const profileSignature = `${profileData.xp}-${profileData.fils}-${profileData.derhem}-${profileData.dinar}-${profileData.magnets}-${profileData.hints}-${profileData.skips}`;
-      
-      if (profileSignature !== lastAppliedProfileRef.current) {
-        console.log("[GameContext] Applying profile progression sync...");
-        lastAppliedProfileRef.current = profileSignature;
+    
+    const applyProfileData = async () => {
+      if (!loadingAuth && profileData) {
+        // If we have profile data, apply it to local states ONLY IF it changed meaningfully
+        const profileSignature = `${profileData.xp}-${profileData.fils}-${profileData.derhem}-${profileData.dinar}-${profileData.magnets}-${profileData.hints}-${profileData.skips}`;
         
-        // Safety: If local XP is greater than remote XP, force a sync to prevent data loss.
-        // Otherwise, only apply the remote XP if it's higher than the local XP.
-        const remoteXP = Number(profileData.xp || 0);
-        setCurrentXP(prev => {
-          if (prev > remoteXP) {
-            console.log(`[GameContext] Local XP (${prev}) > Remote XP (${remoteXP}). Triggering force sync.`);
-            supabase.rpc('merge_profile_progress', {
-              p_xp: prev,
-              p_fils: getInitial('peyvchin_fils', 500),
-              p_derhem: getInitial('peyvchin_derhem', 10),
-              p_dinar: getInitial('peyvchin_dinar', 5)
-            }).then(({error}) => {
-               if(error) console.error("Force sync failed:", error);
-               else console.log("Force sync successful.");
-            });
-            return prev;
-          }
-          return (prev === 0 || remoteXP > prev) ? remoteXP : prev;
-        });
-        
-        const serverNotifiedLevel = profileData.last_notified_level;
-        const currentLevelFromXP = getLevelFromXP(remoteXP);
-        setLastNotifiedLevel(prev => {
-          if (serverNotifiedLevel !== undefined) return Math.max(prev, serverNotifiedLevel);
-          // If no server record, initialize to current level to prevent "catch-up" spam
-          return Math.max(prev, currentLevelFromXP);
-        });
-        setFils(prev => {
-          const next = profileData.fils ?? 500;
-          return prev !== next ? next : prev;
-        });
-        setDerhem(prev => {
-          const next = profileData.derhem ?? 10;
-          return prev !== next ? next : prev;
-        });
-        setDinar(prev => {
-          const next = profileData.dinar ?? 5;
-          return prev !== next ? next : prev;
-        });
-        setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
-        setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
-        setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
-        // Fallback reading from old JSON inventory in case the new column hasn't been populated yet
-        if (profileData.spin_tickets !== undefined && profileData.spin_tickets !== null) {
-          setSpinTicketCount(prev => prev !== profileData.spin_tickets ? profileData.spin_tickets : prev);
-        } else if (profileData.inventory?.spinTickets !== undefined) {
-          setSpinTicketCount(prev => prev !== profileData.inventory.spinTickets ? profileData.inventory.spinTickets : prev);
-        }
-        setDailyStreak(prev => prev !== (profileData.daily_streak || 0) ? (profileData.daily_streak || 0) : prev);
-        setLastStreakAt(prev => prev !== profileData.last_streak_at ? profileData.last_streak_at : prev);
-        setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
-        setLastRewardClaimedAt(prev => prev !== profileData.last_reward_claimed_at ? profileData.last_reward_claimed_at : prev);
-        
-        // --- CONSOLIDATED SOLVED WORDS SYNC (MERGE STRATEGY) ---
-        const remoteWords = Array.isArray(profileData.solved_words) ? profileData.solved_words : [];
-        const inventoryWords = (profileData.inventory && Array.isArray(profileData.inventory.solved_words)) 
-          ? profileData.inventory.solved_words 
-          : [];
-        
-        setSolvedWords(prev => {
-          const local = Array.isArray(prev) ? prev : [];
-          // Merge local, remote, and inventory words to prevent any data loss
-          const merged = [...new Set([...local, ...remoteWords, ...inventoryWords])];
+        if (profileSignature !== lastAppliedProfileRef.current) {
+          setLoading(true); // <--- Keep the loader on screen!
+          console.log("[GameContext] Applying profile progression sync...");
+          lastAppliedProfileRef.current = profileSignature;
           
-          if (JSON.stringify(local) !== JSON.stringify(merged)) {
-            localStorage.setItem('peyvchin_solved_words', JSON.stringify(merged));
-            return merged;
+          setSyncStatus('سینککرنا داتایێن یاریزانان...');
+          
+          // Safety: If local XP is greater than remote XP, force a sync to prevent data loss.
+          // Otherwise, only apply the remote XP if it's higher than the local XP.
+          const remoteXP = Number(profileData.xp || 0);
+          setCurrentXP(prev => {
+            if (prev > remoteXP) {
+              console.log(`[GameContext] Local XP (${prev}) > Remote XP (${remoteXP}). Triggering force sync.`);
+              supabase.rpc('merge_profile_progress', {
+                p_xp: prev,
+                p_fils: getInitial('peyvchin_fils', 500),
+                p_derhem: getInitial('peyvchin_derhem', 10),
+                p_dinar: getInitial('peyvchin_dinar', 5)
+              }).then(({error}) => {
+                 if(error) console.error("Force sync failed:", error);
+                 else console.log("Force sync successful.");
+              });
+              return prev;
+            }
+            return (prev === 0 || remoteXP > prev) ? remoteXP : prev;
+          });
+          
+          const serverNotifiedLevel = profileData.last_notified_level;
+          const currentLevelFromXP = getLevelFromXP(remoteXP);
+          setLastNotifiedLevel(prev => {
+            if (serverNotifiedLevel !== undefined) return Math.max(prev, serverNotifiedLevel);
+            // If no server record, initialize to current level to prevent "catch-up" spam
+            return Math.max(prev, currentLevelFromXP);
+          });
+          setFils(prev => {
+            const next = profileData.fils ?? 500;
+            return prev !== next ? next : prev;
+          });
+          setDerhem(prev => {
+            const next = profileData.derhem ?? 10;
+            return prev !== next ? next : prev;
+          });
+          setDinar(prev => {
+            const next = profileData.dinar ?? 5;
+            return prev !== next ? next : prev;
+          });
+          setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
+          setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
+          setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
+          // Fallback reading from old JSON inventory in case the new column hasn't been populated yet
+          if (profileData.spin_tickets !== undefined && profileData.spin_tickets !== null) {
+            setSpinTicketCount(prev => prev !== profileData.spin_tickets ? profileData.spin_tickets : prev);
+          } else if (profileData.inventory?.spinTickets !== undefined) {
+            setSpinTicketCount(prev => prev !== profileData.inventory.spinTickets ? profileData.inventory.spinTickets : prev);
           }
-          return prev;
-        });
-        
-        if (profileData.inventory) {
-          setInventory(prev => JSON.stringify(prev) !== JSON.stringify(profileData.inventory) ? profileData.inventory : prev);
-        }
-
-        const remoteMedals = Array.isArray(profileData.claimed_medals) ? profileData.claimed_medals : [];
-        setClaimedMedals(prev => {
-          const local = Array.isArray(prev) ? prev : [];
-          const merged = [...new Set([...local, ...remoteMedals])];
-          if (JSON.stringify(local) !== JSON.stringify(merged)) {
-            localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
-            return merged;
+          setDailyStreak(prev => prev !== (profileData.daily_streak || 0) ? (profileData.daily_streak || 0) : prev);
+          setLastStreakAt(prev => prev !== profileData.last_streak_at ? profileData.last_streak_at : prev);
+          setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
+          setLastRewardClaimedAt(prev => prev !== profileData.last_reward_claimed_at ? profileData.last_reward_claimed_at : prev);
+          
+          // --- CONSOLIDATED SOLVED WORDS SYNC (MERGE STRATEGY) ---
+          const remoteWords = Array.isArray(profileData.solved_words) ? profileData.solved_words : [];
+          const inventoryWords = (profileData.inventory && Array.isArray(profileData.inventory.solved_words)) 
+            ? profileData.inventory.solved_words 
+            : [];
+          
+          setSolvedWords(prev => {
+            const local = Array.isArray(prev) ? prev : [];
+            // Merge local, remote, and inventory words to prevent any data loss
+            const merged = [...new Set([...local, ...remoteWords, ...inventoryWords])];
+            
+            if (JSON.stringify(local) !== JSON.stringify(merged)) {
+              localStorage.setItem('peyvchin_solved_words', JSON.stringify(merged));
+              return merged;
+            }
+            return prev;
+          });
+          
+          if (profileData.inventory) {
+            setInventory(prev => JSON.stringify(prev) !== JSON.stringify(profileData.inventory) ? profileData.inventory : prev);
           }
-          return prev;
-        });
-        
-        // --- HYBRID LEVEL RECALIBRATION ---
-        // Ignore the level stored in DB if it's inconsistent with the new Hardcore math
-        
-        // If we needed to set state for the profile object, it would happen here based on the instructions
-        // Assuming the logic intended is to ensure the UI uses the recalculated level
-        
-        // Performance Fix: Defer rank calculation so it doesn't block the initial app render
-        setTimeout(() => {
+  
+          const remoteMedals = Array.isArray(profileData.claimed_medals) ? profileData.claimed_medals : [];
+          setClaimedMedals(prev => {
+            const local = Array.isArray(prev) ? prev : [];
+            const merged = [...new Set([...local, ...remoteMedals])];
+            if (JSON.stringify(local) !== JSON.stringify(merged)) {
+              localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
+              return merged;
+            }
+            return prev;
+          });
+          
+          setSyncStatus('پشکنینا ڕیزبەندییا تە...');
+          // Run rank calculation in background so it doesn't freeze the loading screen
           refreshRank(remoteXP, true, controller.signal);
-        }, 100);
+        }
+        
+        setSyncStatus('کۆتایی پێئینان...');
+        setLoading(false);
+      } else if (!loadingAuth && !profileData) {
+        setLoading(false);
       }
-      
-      setLoading(false);
-    } else if (!loadingAuth && !profileData) {
-      setLoading(false);
-    }
+    };
+
+    applyProfileData();
+
     return () => controller.abort();
   }, [loadingAuth, profileData, refreshRank]);
 
@@ -988,14 +998,15 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
       await syncProfile();
       return { success: true };
     },
-    loading
+    loading,
+    syncStatus
   }), [
     level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
     dailyStreak, rewardStreak, lastRewardClaimedAt, claimDailyReward,
     inventory, magnetCount, hintCount, skipCount, spinTicketCount, solvedWords, playerStats,
     _userRank, updateInventory, syncProgressToDatabase, applyPenalty, processPurchase, refreshRank, loading,
     syncProfile, lastNotifiedLevel, progressPercent, setNotifiedLevelDB, lastStreakAt,
-    claimedMedals, claimMedal, hasUnclaimedMedals, unclaimedMedalsList
+    claimedMedals, claimMedal, hasUnclaimedMedals, unclaimedMedalsList, syncStatus
   ]);
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

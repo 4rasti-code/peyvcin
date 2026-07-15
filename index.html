@@ -5,10 +5,12 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" media="(prefers-color-scheme: light)" href="/Peyvok-logo-01.png" />
   <link rel="icon" type="image/png" media="(prefers-color-scheme: dark)" href="/Peyvok-logo-02.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
   <script>
-    (function() {
+    window.__SPLASH_START_TIME__ = Date.now();
+    (function () {
       try {
         var theme = localStorage.getItem('theme');
         if (theme === 'light' || (!theme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
@@ -18,7 +20,7 @@
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
         }
-      } catch (e) {}
+      } catch (e) { }
     })();
   </script>
 
@@ -52,7 +54,7 @@
       background-color: #000000 !important;
       background: #000000 !important;
     }
-    
+
     html.light,
     html.light body {
       background-color: #f8fafc !important;
@@ -67,68 +69,101 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background-color: #000000;
+      background: linear-gradient(to bottom, #0A0A0A, #000000);
       z-index: 99999;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
     }
 
     html.light #splash-screen {
-      background-color: #f8fafc;
+      background: linear-gradient(to bottom, #FAFAFA, #E5E5E5);
     }
 
-    .splash-sun-container {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      animation: splash-spin 20s linear infinite;
+    .splash-orb-1 {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 384px;
+      height: 384px;
+      background-color: rgba(234, 179, 8, 0.2);
+      border-radius: 9999px;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
     }
 
-    @keyframes splash-spin {
+    html.light .splash-orb-1 {
+      background-color: rgba(234, 179, 8, 0.1);
+    }
+
+    .splash-orb-2 {
+      position: absolute;
+      bottom: 10%;
+      right: 10%;
+      width: 384px;
+      height: 384px;
+      background-color: rgba(16, 185, 129, 0.1);
+      border-radius: 9999px;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .splash-classic-icon {
+      width: 256px;
+      height: 96px;
+      filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.25));
+      overflow: visible;
+    }
+
+    @keyframes wordle-jump-splash {
+      0% {
+        transform: translateY(0) rotate(calc(var(--base-rot) * 1deg));
+      }
+
+      20% {
+        transform: translateY(-14px) rotate(calc(var(--base-rot) * 1deg - 8deg));
+      }
+
+      40% {
+        transform: translateY(2px) rotate(calc(var(--base-rot) * 1deg + 3deg));
+      }
+
+      55%,
       100% {
-        transform: rotate(360deg);
+        transform: translateY(0) rotate(calc(var(--base-rot) * 1deg));
       }
     }
 
-    .splash-sun-core {
-      position: absolute;
-      width: 44px;
-      height: 44px;
-      background-color: #FFD700;
-      border-radius: 50%;
-      z-index: 2;
-    }
-
-    .splash-sun-ray {
-      position: absolute;
-      width: 8px;
-      height: 18px;
-      background-color: #FFD700;
-      top: 0;
-      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-      transform-origin: 50% 40px;
-      animation: splash-pulse-ray 2s ease-in-out infinite;
-    }
-
-    @keyframes splash-pulse-ray {
+    @keyframes star-burst-splash {
 
       0%,
-      100% {
-        opacity: 0.8;
+      30% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
       }
 
-      50% {
+      35% {
+        transform: scale(1.5) rotate(45deg);
         opacity: 1;
+      }
+
+      55% {
+        transform: scale(0.5) rotate(120deg);
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 0;
       }
     }
 
     .splash-text {
-      margin-top: 40px;
-      font-size: 14px;
-      font-weight: 900;
-      color: #eab308;
+      margin-top: 0px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ca8a04;
+      text-transform: uppercase;
       letter-spacing: 1px;
       animation: splash-pulse-text 1.5s ease-in-out infinite;
     }
@@ -148,8 +183,7 @@
 
   <meta name="description"
     content="Play Peyvok (پەیڤۆک), the most fun and challenging Kurdish word puzzle game. Train your brain and find the hidden words!" />
-  <meta name="keywords"
-    content="peyvok, peyvok game, پەیڤۆک, یارییا پەیڤۆک, kurdish word game, kurdish game" />
+  <meta name="keywords" content="peyvok, peyvok game, پەیڤۆک, یارییا پەیڤۆک, kurdish word game, kurdish game" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
@@ -182,29 +216,102 @@
   </script>
 </head>
 
-<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
+<body
+  class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
 
   <div id="root">
     <!-- NATIVE INSTANT SPLASH SCREEN (Replaced by React on load) -->
-    <div id="splash-screen">
-      <div class="splash-sun-container" id="splash-sun">
-        <div class="splash-sun-core"></div>
-        <script>
-          const sun = document.getElementById('splash-sun');
-          for (let i = 0; i < 21; i++) {
-            const ray = document.createElement('div');
-            ray.className = 'splash-sun-ray';
-            ray.style.transform = `rotate(${i * (360 / 21)}deg)`;
-            ray.style.animationDelay = `${i * 0.1}s`;
-            sun.appendChild(ray);
-          }
-        </script>
+    <div id="splash-screen" style="gap: 32px;">
+      <div class="splash-orb-1"></div>
+      <div class="splash-orb-2"></div>
+      <div
+        style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; position: relative; z-index: 10;">
+        <svg viewBox="0 0 180 50" class="splash-classic-icon" xmlns="http://www.w3.org/2000/svg">
+          <g
+            style="--base-rot: -3; animation: wordle-jump-splash 2s infinite 0s ease-in-out; transform-origin: 165px 28px;">
+            <rect x="152" y="16" width="26" height="28" rx="6" fill="#ca8a04" />
+            <rect x="152" y="14" width="26" height="26" rx="6" fill="#eab308" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="165" y="28" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">ی</text>
+          </g>
+          <g
+            style="--base-rot: 2; animation: wordle-jump-splash 2s infinite 0.1s ease-in-out; transform-origin: 135px 30px;">
+            <rect x="122" y="18" width="26" height="28" rx="6" fill="#4b5563" />
+            <rect x="122" y="16" width="26" height="26" rx="6" fill="#6b7280" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="135" y="30" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">م</text>
+          </g>
+          <g
+            style="--base-rot: -4; animation: wordle-jump-splash 2s infinite 0.2s ease-in-out; transform-origin: 105px 27px;">
+            <rect x="92" y="15" width="26" height="28" rx="6" fill="#ca8a04" />
+            <rect x="92" y="13" width="26" height="26" rx="6" fill="#eab308" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="105" y="27" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">پ</text>
+          </g>
+          <g
+            style="--base-rot: 3; animation: wordle-jump-splash 2s infinite 0.3s ease-in-out; transform-origin: 75px 29px;">
+            <rect x="62" y="17" width="26" height="28" rx="6" fill="#16a34a" />
+            <rect x="62" y="15" width="26" height="26" rx="6" fill="#22c55e" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="75" y="29" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">ڤ</text>
+          </g>
+          <g
+            style="--base-rot: -2; animation: wordle-jump-splash 2s infinite 0.4s ease-in-out; transform-origin: 45px 31px;">
+            <rect x="32" y="19" width="26" height="28" rx="6" fill="#16a34a" />
+            <rect x="32" y="17" width="26" height="26" rx="6" fill="#22c55e" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="45" y="31" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">ۆ</text>
+          </g>
+          <g
+            style="--base-rot: 4; animation: wordle-jump-splash 2s infinite 0.5s ease-in-out; transform-origin: 15px 28px;">
+            <rect x="2" y="16" width="26" height="28" rx="6" fill="#16a34a" />
+            <rect x="2" y="14" width="26" height="26" rx="6" fill="#22c55e" stroke="#ffffff" stroke-width="0.5"
+              stroke-opacity="0.9" />
+            <text x="15" y="28" fill="#ffffff" font-size="15" font-weight="900" font-family="sans-serif"
+              text-anchor="middle" alignment-baseline="middle" style="text-shadow: 0px 2px 3px rgba(0,0,0,0.3)">ک</text>
+          </g>
+          <g style="transform: translate(75px, 15px);">
+            <path d="M 0 -6 L 1.5 -2 L 6 -2 L 2.5 1 L 4 5.5 L 0 3 L -4 5.5 L -2.5 1 L -6 -2 L -1.5 -2 Z" fill="#fde047"
+              style="animation: star-burst-splash 2s infinite 0.3s ease-out; transform-origin: 0 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));" />
+          </g>
+          <g style="transform: translate(45px, 17px);">
+            <path d="M 0 -6 L 1.5 -2 L 6 -2 L 2.5 1 L 4 5.5 L 0 3 L -4 5.5 L -2.5 1 L -6 -2 L -1.5 -2 Z" fill="#fde047"
+              style="animation: star-burst-splash 2s infinite 0.4s ease-out; transform-origin: 0 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));" />
+          </g>
+          <g style="transform: translate(15px, 14px);">
+            <path d="M 0 -6 L 1.5 -2 L 6 -2 L 2.5 1 L 4 5.5 L 0 3 L -4 5.5 L -2.5 1 L -6 -2 L -1.5 -2 Z" fill="#fde047"
+              style="animation: star-burst-splash 2s infinite 0.5s ease-out; transform-origin: 0 0; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));" />
+          </g>
+        </svg>
       </div>
-      <div class="splash-text" dir="rtl">چاڤەڕێبە...</div>
+
+      <div
+        style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; z-index: 10;">
+        <div
+          style="display: flex; width: 100%; align-items: center; justify-content: space-between; padding-left: 8px; padding-right: 8px; margin-bottom: 12px; position: relative;">
+          <span class="splash-text" dir="rtl" style="visibility: hidden;">چاڤەڕێبە...</span>
+          <span style="font-size: 24px; font-weight: 900; color: #eab308; font-family: monospace; letter-spacing: 0; visibility: hidden;"
+            dir="ltr">٠٪</span>
+          <div style="position: absolute; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none;">
+            <span class="splash-text" dir="rtl">نویکرن...</span>
+          </div>
+        </div>
+        <div
+          style="width: 100%; height: 16px; background-color: rgba(255,255,255,0.05); border-radius: 9999px; padding: 2px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); visibility: hidden;">
+        </div>
+        <div style="height: 24px; margin-top: 12px;"></div>
+      </div>
     </div>
   </div>
 
   <script type="module" src="/src/main.jsx"></script>
 </body>
+
+</html>
 
 </html>

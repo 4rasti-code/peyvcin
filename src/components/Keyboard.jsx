@@ -46,7 +46,7 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true }) => {
    const getTextTranslateY = () => {
       const highKeys = ['و', 'ۆ', 'ر', 'ڕ', 'ز', 'ژ', 'خ', 'چ', 'ج', 'ح', 'ع', 'غ', 'س', 'ش', 'ی', 'ێ', 'ن', 'م'];
       const lowKeys = ['گ', 'ف', 'ڤ', 'ک', 'ڵ', 'ل', 'ق'];
-      
+
       if (highKeys.includes(k)) return '-translate-y-[3px]';
       if (lowKeys.includes(k)) return 'translate-y-[3px]';
       return '-translate-y-[1px]';
@@ -112,7 +112,7 @@ const Keyboard = memo(({
    }, [onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState]);
 
    return (
-      <div className={`flex flex-col gap-2 w-full px-1.5 pb-[max(0.25rem,env(safe-area-inset-bottom))] box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
+      <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
 
          {!hidePowerups && (
             <div className="md:hidden">

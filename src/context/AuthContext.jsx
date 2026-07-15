@@ -16,11 +16,9 @@ export const AuthProvider = ({ children }) => {
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
-    if (!loadingAuth) return;
-
     const interval = setInterval(() => {
       setVisualProgress(prev => {
-        if (prev >= 100) return 100;
+        if (prev === authProgress) return prev;
         const diff = authProgress - prev;
         let next;
         if (diff > 0) {
@@ -28,12 +26,12 @@ export const AuthProvider = ({ children }) => {
         } else {
           next = prev + (prev < 90 ? 0.2 : 0.05);
         }
-        return next > 100 ? 100 : next;
+        return next > authProgress ? authProgress : next;
       });
     }, 50);
 
     return () => clearInterval(interval);
-  }, [authProgress, loadingAuth]);
+  }, [authProgress]);
 
   const [userNickname, setUserNickname] = useState('یاریزان');
   const [userAvatar, setUserAvatar] = useState('default');
@@ -70,6 +68,39 @@ export const AuthProvider = ({ children }) => {
   const isSyncingRef = useRef(false);
   const lastSyncTimeRef = useRef(0);
 
+  const syncProfileExtended = useCallback(async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          inventory, claimed_medals, last_notified_level,
+          statistics, solved_words
+        `)
+        .eq('id', userId);
+
+      if (!error && data && data.length > 0) {
+        const extendedData = data[0];
+        
+        // Merge safely into local states
+        if (extendedData.inventory !== undefined) {
+          setOwnedAvatars(prev => {
+            const next = Array.isArray(extendedData.inventory?.owned_avatars) ? extendedData.inventory.owned_avatars : ['default'];
+            return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
+          });
+        }
+
+        setProfileData(prev => {
+          if (!prev) return extendedData;
+          const merged = { ...prev, ...extendedData };
+          localStorage.setItem('peyvchin_cached_profile', JSON.stringify(merged));
+          return merged;
+        });
+      }
+    } catch (err) {
+      console.warn("[AuthContext] Extended sync failed:", err.message);
+    }
+  }, []);
+
   const syncProfile = useCallback(async (userId, onProfileLoaded, force = false) => {
     const activeUserId = userId || authStateRef.current.user?.id;
     if (!activeUserId || activeUserId === 'undefined' || typeof activeUserId !== 'string' || activeUserId.length < 5) return;
@@ -92,20 +123,23 @@ export const AuthProvider = ({ children }) => {
       // Lock immediately
       isProfileLoaded.current = true;
 
-      console.log("[AuthContext] Fetching profile for:", activeUserId);
+      console.log("[AuthContext] Fetching core profile for:", activeUserId);
+      setAuthProgress(45);
 
+      // FAST FETCH: Only fetch the bare minimum needed to enter the lobby + Daily Rewards
       const { data, error } = await supabase
         .from('profiles')
         .select(`
           id, nickname, avatar_url, fils, derhem, dinar, xp,
           is_kurdistan, country_code,
           last_nickname_update, haptic_enabled, magnets, hints, skips,
-          inventory, claimed_medals, daily_streak, reward_streak, last_reward_claimed_at,
-          last_streak_at, last_notified_level,
-          last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
-          statistics, solved_words, onboarded
+          onboarded,
+          daily_streak, reward_streak, last_reward_claimed_at, last_streak_at,
+          last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets
         `)
         .eq('id', activeUserId);
+
+      setAuthProgress(75);
 
       if (error || !data || data.length === 0) {
         // If it's empty, we need to create it
@@ -148,108 +182,71 @@ export const AuthProvider = ({ children }) => {
                 const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
                 nickname = `بێناڤ_${seqNum}`;
               } else {
-                rawName = rawName.substring(0, 10);
-                // Try exactly as the name is first!
                 nickname = rawName;
               }
             }
             
-          // WAIT FOR TRIGGER FIX: Since Supabase triggers handle profile creation in the background,
-          // the frontend might query too early. Let's poll for 3 seconds before attempting a manual insert.
-          let triggerProfile = null;
-          for (let i = 0; i < 6; i++) {
-            await new Promise(res => setTimeout(res, 500));
-            // Removed .single() to prevent 406 Not Acceptable red console errors during polling
-            const { data: retryData } = await supabase.from('profiles').select().eq('id', activeUserId);
-            if (retryData && retryData.length > 0) {
-              triggerProfile = retryData[0];
-              break;
-            }
-          }
-          
-          if (triggerProfile) {
-            console.log("[AuthContext] Profile found after polling! Trigger succeeded.");
-            return handleProfileData(triggerProfile, onProfileLoaded);
-          }
+          const maxRetries = 5;
+          let retryCount = 0;
+          let profileCreated = false;
 
-          // ATTEMPT SELF-HEAL: Create a basic profile record if it's missing (fallback if trigger failed)
-          // We wrap this in a loop to handle nickname conflicts client-side too
-          let success = false;
-          let attempts = 0;
-          let lastError = null;
-
-          while (!success && attempts < 3) {
-            const currentNickname = attempts === 0 ? nickname : `${nickname.substring(0, 8)}_${attempts}`;
-
-            const { data: newData, error: insertError } = await supabase
-              .from('profiles')
-              .insert([{
-                id: activeUserId,
-                nickname: currentNickname,
-                onboarded: false, // Force false for social signups
-                avatar_url: extractedAvatar,
-                fils: 100,
-                derhem: 10,
-                dinar: 5,
-                magnets: 3,
-                hints: 3,
-                skips: 3,
-                inventory: { owned_avatars: ["default"], unlocked_themes: ["default"], solved_words: [] },
-                haptic_enabled: true
-              }])
-              .select()
-              .single();
-
-            if (!insertError) {
-              console.log("[AuthContext] Self-heal successful with nickname:", currentNickname);
-              return handleProfileData(newData, onProfileLoaded);
+          while (retryCount < maxRetries && !profileCreated) {
+            setAuthProgress(75 + retryCount * 2);
+            await new Promise(res => setTimeout(res, 200));
+            const { data: checkData } = await supabase.from('profiles').select('id, nickname, avatar_url, fils, xp, onboarded').eq('id', activeUserId);
+            
+            if (checkData && checkData.length > 0) {
+               console.log("[AuthContext] Profile materialized during retry!");
+               profileCreated = true;
+               return handleProfileData(checkData[0], onProfileLoaded);
             }
 
-            lastError = insertError;
-            if (insertError.code === '23505') { // Unique constraint violation
-              // Check if the trigger finished in the background and the profile now exists
-              const { data: existingCheck } = await supabase.from('profiles').select().eq('id', activeUserId);
-              if (existingCheck && existingCheck.length > 0) {
-                console.log("[AuthContext] Profile actually exists (trigger finished). Self-heal aborted.");
-                return handleProfileData(existingCheck[0], onProfileLoaded);
-              }
-              attempts++;
-              const { data: seqName } = await supabase.rpc('get_next_guest_name');
-              const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
-              nickname = `${nickname.substring(0, 8)}_${seqNum}`;
+            console.log(`[AuthContext] Self-heal attempt ${retryCount + 1}/${maxRetries}... Inserting fallback profile.`);
+            const { data: insertData, error: insertError } = await supabase.from('profiles').insert([{
+              id: activeUserId,
+              nickname: nickname,
+              avatar_url: extractedAvatar,
+              country_code: 'IQ',
+              is_kurdistan: true,
+              fils: 500,
+              derhem: 10,
+              dinar: 5,
+              onboarded: false
+            }]).select();
+
+            if (!insertError && insertData && insertData.length > 0) {
+               console.log("[AuthContext] Self-heal created profile.");
+               profileCreated = true;
+               return handleProfileData(insertData[0], onProfileLoaded);
             } else {
-              break; // Other error, don't retry
+               console.warn("[AuthContext] Insert failed:", insertError);
             }
+            retryCount++;
           }
 
-          console.error("[AuthContext] Self-heal failed:", lastError?.message, lastError?.code);
-          
-          // Fallback: If we couldn't insert (e.g. RLS blocked us) but we are authenticated,
-          // let's try ONE LAST TIME to fetch in case the trigger was just incredibly slow.
-          await new Promise(res => setTimeout(res, 2000));
-          const { data: finalAttempt } = await supabase.from('profiles').select().eq('id', activeUserId);
-          if (finalAttempt && finalAttempt.length > 0) {
-            console.log("[AuthContext] Profile finally found after self-heal failed!");
-            return handleProfileData(finalAttempt[0], onProfileLoaded);
+          if (!profileCreated) {
+             throw new Error("Failed to heal profile after 3 attempts.");
           }
-
-          throw lastError;
+        } else {
+          throw error;
         }
-        throw error;
-      }
-      if (data && data.length > 0) {
-        // Normal success from initial fetch
-        return handleProfileData(data[0], onProfileLoaded);
+      } else {
+        console.log("[AuthContext] Profile core fetch successful.");
+        handleProfileData(data[0], onProfileLoaded);
+        // Start the extended sync in the background so it doesn't hold up the loading screen
+        syncProfileExtended(activeUserId);
       }
     } catch (err) {
       console.warn("[AuthContext] Sync Note:", err.message);
       if (err.message !== "Sync timed out") isProfileLoaded.current = false;
+      // Release aggressive lock by populating an empty profile so the user can play offline/default
+      setProfileData({});
     } finally {
       isSyncingRef.current = false;
       setLoadingAuth(false);
       setLoading(false);
     }
-  }, []);
+  }, [syncProfileExtended]);
 
   // Helper to process profile data consistently
   const handleProfileData = (data, onProfileLoaded) => {
@@ -257,38 +254,39 @@ export const AuthProvider = ({ children }) => {
     if (data.nickname && data.nickname.includes(' ')) {
       data.onboarded = false;
     }
-    setUserNickname(prev => prev !== data.nickname ? (data.nickname || 'یاریزان') : prev);
-    setUserAvatar(prev => prev !== data.avatar_url ? (data.avatar_url || 'default') : prev);
-    setCity(prev => prev !== data.city ? (data.city || '') : prev);
-    setIsInKurdistan(prev => prev !== data.is_kurdistan ? (data.is_kurdistan ?? true) : prev);
-    setCountryCode(prev => prev !== data.country_code ? (data.country_code || 'IQ') : prev);
+    if (data.nickname !== undefined) setUserNickname(prev => prev !== data.nickname ? (data.nickname || 'یاریزان') : prev);
+    if (data.avatar_url !== undefined) setUserAvatar(prev => prev !== data.avatar_url ? (data.avatar_url || 'default') : prev);
+    if (data.city !== undefined) setCity(prev => prev !== data.city ? (data.city || '') : prev);
+    if (data.is_kurdistan !== undefined) setIsInKurdistan(prev => prev !== data.is_kurdistan ? (data.is_kurdistan ?? true) : prev);
+    if (data.country_code !== undefined) setCountryCode(prev => prev !== data.country_code ? (data.country_code || 'IQ') : prev);
 
     if (data.last_nickname_update) {
       setLastNicknameUpdate(data.last_nickname_update);
     }
 
-    setOwnedAvatars(prev => {
-      const next = Array.isArray(data.inventory?.owned_avatars) ? data.inventory.owned_avatars : ['default'];
-      return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
-    });
+    if (data.inventory !== undefined) {
+      setOwnedAvatars(prev => {
+        const next = Array.isArray(data.inventory?.owned_avatars) ? data.inventory.owned_avatars : ['default'];
+        return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
+      });
+    }
 
-    const haptic = data.haptic_enabled ?? true;
-    setHapticEnabled(prev => {
-      if (prev !== haptic) {
-        localStorage.setItem('peyvchin_haptic_enabled', haptic.toString());
-        return haptic;
-      }
-      return prev;
-    });
-
-    localStorage.setItem('peyvchin_cached_profile', JSON.stringify(data));
-
-    setProfileData(prev => {
-      if (!prev && !data) return null;
-      if (prev && data && prev.xp === data.xp && prev.fils === data.fils && prev.updated_at === data.updated_at) {
+    if (data.haptic_enabled !== undefined) {
+      const haptic = data.haptic_enabled ?? true;
+      setHapticEnabled(prev => {
+        if (prev !== haptic) {
+          localStorage.setItem('peyvchin_haptic_enabled', haptic.toString());
+          return haptic;
+        }
         return prev;
-      }
-      return data;
+      });
+    }
+
+    // Create a safe merge
+    setProfileData(prev => {
+      const nextData = prev ? { ...prev, ...data } : data;
+      localStorage.setItem('peyvchin_cached_profile', JSON.stringify(nextData));
+      return nextData;
     });
 
     if (onProfileLoaded) onProfileLoaded(data);
@@ -309,8 +307,9 @@ export const AuthProvider = ({ children }) => {
       // Global safety timeout to prevent getting stuck on the sun loader forever
       // Give OAuth redirects much more time (8s) to complete the network exchange
       const timeoutDuration = hasToken ? 8000 : 2000;
+      let hasFinished = false;
       const safetyTimeout = setTimeout(() => {
-        if (loadingAuth) {
+        if (!hasFinished) {
           console.warn(`[AuthContext] Safety timeout (${timeoutDuration}ms) reached! Forcing ready state.`);
           setAuthProgress(100);
           setLoadingAuth(false);
@@ -369,6 +368,7 @@ export const AuthProvider = ({ children }) => {
       } catch (err) {
         console.log("[AuthContext] [Notice] Auth check deferred:", err.message);
       } finally {
+        hasFinished = true;
         clearTimeout(safetyTimeout);
         setAuthProgress(100);
         setTimeout(() => {
@@ -393,6 +393,8 @@ export const AuthProvider = ({ children }) => {
       if (newUser) {
         if (!isProfileLoaded.current) {
           console.log("[AuthContext] User detected via event, syncing profile...");
+          setLoadingAuth(true);
+          setAuthProgress(30);
           syncProfile(newUser.id);
         }
       } else {
@@ -405,7 +407,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [syncProfile, loadingAuth]);
+  }, [syncProfile]);
 
   // NEW: Real-time Profile Listener to keep profileData synced everywhere
   useEffect(() => {
