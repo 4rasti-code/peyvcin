@@ -21,7 +21,7 @@ const KurdishSunLoader = ({ progress = 0, statusText = null }) => {
       <div className="w-80 flex flex-col items-center gap-2">
         {/* Status Text & Percentage Layout */}
         <div className="flex w-full items-center justify-between px-2">
-            <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500/90 uppercase font-rabar tracking-wider">
+            <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500/90 uppercase font-rabar">
                 چاڤەڕێبە...
             </span>
             <span className="text-xl font-black text-yellow-500 tabular-nums font-mono drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" dir="ltr">
@@ -46,7 +46,7 @@ const KurdishSunLoader = ({ progress = 0, statusText = null }) => {
               key={currentStatus}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 0.5, y: 0 }}
-              className="text-xs text-mono-500 dark:text-mono-400 font-medium font-vazirmatn uppercase tracking-wide"
+              className="text-xs text-mono-500 dark:text-mono-400 font-medium font-vazirmatn uppercase"
             >
               {currentStatus}
             </Motion.span>

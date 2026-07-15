@@ -243,6 +243,7 @@ export const AuthProvider = ({ children }) => {
       setProfileData({});
     } finally {
       isSyncingRef.current = false;
+      setAuthProgress(100);
       setLoadingAuth(false);
       setLoading(false);
     }
