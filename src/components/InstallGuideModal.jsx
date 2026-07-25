@@ -99,8 +99,8 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="bg-blue-900/30 text-blue-200 border border-blue-700 p-3 rounded-lg text-[13px] mb-4 text-right leading-relaxed font-rabar">
-                    تێبینی: بۆ زێدەکرنا یاریێ، پێدڤییە تو ب ڕێکا وێبگەڕێ (Safari) یاریێ ڤەکەی. ئەگەر تو نۆکە د ناڤ تیکتۆک یان ئینستاگرامێ دا یی، لینکێ یاریێ (peyvok.com) کۆپی بکە و ل سەفاری ڤەکە.
+                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
+                    تێبینی: بۆ زێدەکرنا یاریێ، پێدڤییە تو ب ڕێکا وێبگەڕێ (Safari) یاریێ ڤەکەی. ئەگەر تو نۆکە د ناڤ تیکتۆک یان ئینستاگرامێ دا یی، لینکێ یاریێ (peyvokgame.com) کۆپی بکە و ل سەفاری ڤەکە.
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
@@ -137,8 +137,8 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="bg-blue-900/30 text-blue-200 border border-blue-700 p-3 rounded-lg text-[13px] mb-4 text-right leading-relaxed font-rabar">
-                    تێبینی: بۆ زێدەکرنا یاریێ، پێدڤییە تو ب ڕێکا وێبگەڕێ (Google Chrome) یاریێ ڤەکەی. لینکێ یاریێ (peyvok.com) کۆپی بکە و ل کرۆم ڤەکە.
+                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
+                    تێبینی: بۆ زێدەکرنا یاریێ، پێدڤییە تو ب ڕێکا وێبگەڕێ (Google Chrome) یاریێ ڤەکەی. لینکێ یاریێ (peyvokgame.com) کۆپی بکە و ل کرۆم ڤەکە.
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
@@ -175,8 +175,8 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="bg-blue-900/30 text-blue-200 border border-blue-700 p-3 rounded-lg text-[13px] mb-4 text-right leading-relaxed font-rabar">
-                    تێبینی: بۆ باشترین ئەزموون، یاریێ ب ڕێکا (Google Chrome) یان (Edge) ڤەکە ل سەر لینکێ (peyvok.com).
+                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
+                    تێبینی: بۆ باشترین ئەزموون، یاریێ ب ڕێکا (Google Chrome) یان (Edge) ڤەکە ل سەر لینکێ (peyvokgame.com).
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
