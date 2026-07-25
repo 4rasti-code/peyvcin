@@ -20,6 +20,7 @@ import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
+import InstallGuideModal from './InstallGuideModal';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 
@@ -84,6 +85,7 @@ const LobbyView = memo(({
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
@@ -403,7 +405,21 @@ const LobbyView = memo(({
       <div className="relative z-10">
         
         {/* Action Buttons Row */}
-        <div className="flex justify-center items-center gap-2 w-full mb-3 -mt-3">
+        <div className="flex flex-wrap justify-center items-center gap-2 w-full mb-3 -mt-3">
+          
+          {/* Install Button */}
+          <Motion.button
+             initial={{ opacity: 0, y: -10 }}
+             animate={{ opacity: 1, y: 0 }}
+             onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
+             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-sky-500 shadow-[0_1.5px_0_#0284c7] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+          >
+             <div className="flex items-center gap-1 relative z-10">
+                <span className="material-symbols-outlined text-white text-[13px]">download</span>
+                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">دابەزاندنا یاریێ</span>
+             </div>
+          </Motion.button>
+
           {/* Report Button */}
           <Motion.button
              initial={{ opacity: 0, y: -10 }}
@@ -874,6 +890,10 @@ const LobbyView = memo(({
             user={user}
           />
         )}
+        <InstallGuideModal
+          isOpen={isInstallModalOpen}
+          onClose={() => setIsInstallModalOpen(false)}
+        />
       </AnimatePresence>
     </Motion.div>
   );
