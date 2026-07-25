@@ -100,7 +100,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   className="space-y-6"
                 >
                   <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
-                    دا کو یاری وەکو ئەپلکەیشنەکێ ل سەر شاشا مۆبایلا تە دیار بیت لینکێ یاریێ بۆ ئایفۆنێ د براوەسەرێ سەفاریدا ڤەکە.
+                    تێبینی: دا کو یاری وەکو ئەپلکەیشنەکێ ل سەر شاشا مۆبایلا تە دیار بیت لینکێ یاریێ بۆ ئایفۆنێ د براوەسەرێ سەفاریدا ڤەکە. و خال ب خال ل خوارێ لجیبەجێ بکە.
                   </div>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
