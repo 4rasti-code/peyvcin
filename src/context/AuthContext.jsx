@@ -447,9 +447,12 @@ export const AuthProvider = ({ children }) => {
   // NEW: Global App Presence Tracking
   useEffect(() => {
     if (!user?.id) return;
+    
+    const isAdmin = user?.email === '4rasti@gmail.com';
 
     // Heartbeat to update `updated_at` in profiles table so friends see us as online
     const pingPresence = async () => {
+      if (isAdmin) return;
       try {
         await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
       } catch (e) {
@@ -480,7 +483,9 @@ export const AuthProvider = ({ children }) => {
       }
     }).subscribe(async (status) => {
       if (status === 'SUBSCRIBED' && isMounted) {
-        await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+        if (!isAdmin) {
+          await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+        }
       }
     });
 
@@ -490,7 +495,7 @@ export const AuthProvider = ({ children }) => {
       presenceChannel.untrack();
       supabase.removeChannel(presenceChannel);
     };
-  }, [user?.id]);
+  }, [user?.id, user?.email]);
 
   const completeOnboarding = useCallback(async (nickname) => {
     if (!user?.id) return { success: false, error: "Must be logged in" };
