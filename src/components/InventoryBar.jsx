@@ -23,7 +23,7 @@ const InventoryBar = ({
 
   return (
     <div className={`flex items-center justify-center min-h-[56px] py-2 w-full ${className}`}>
-      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-8 py-1 px-1 sm:px-4 h-auto">
+      <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 py-1 px-1 sm:px-4 h-auto">
         
         {/* Hint Item */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
