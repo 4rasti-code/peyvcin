@@ -146,7 +146,7 @@ export const GameProvider = ({ children }) => {
       lastXPRef.current = val;
       
       // 1. Get count of players with strictly more XP
-      let query = supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', val).neq('nickname', 'Admin_4rasti');
+      let query = supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('xp', val).neq('nickname', 'Admin_4rasti').neq('nickname', 'ADMIN_PEYVOK').neq('nickname', 'پەیڤۆک').neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
       if (signal) query = query.abortSignal(signal);
       const { count, error } = await query;
       
@@ -160,7 +160,7 @@ export const GameProvider = ({ children }) => {
             const { count: tieCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
                .eq('xp', val)
                .lt('updated_at', myProfile.updated_at)
-               .neq('nickname', 'Admin_4rasti');
+               .neq('nickname', 'Admin_4rasti').neq('nickname', 'ADMIN_PEYVOK').neq('nickname', 'پەیڤۆک').neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
             finalRank += (tieCount || 0);
          }
       }

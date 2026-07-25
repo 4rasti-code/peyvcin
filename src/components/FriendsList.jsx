@@ -170,7 +170,7 @@ export default function FriendsList({
           queryBuilder = queryBuilder.ilike('nickname', `${query}%`);
         }
         
-        queryBuilder = queryBuilder.neq('nickname', 'Admin_4rasti').neq('id', user.id).limit(40);
+        queryBuilder = queryBuilder.neq('nickname', 'Admin_4rasti').neq('nickname', 'ADMIN_PEYVOK').neq('nickname', 'پەیڤۆک').neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1').neq('id', user.id).limit(40);
         
         const { data, error } = await queryBuilder;
         if (error) throw error;

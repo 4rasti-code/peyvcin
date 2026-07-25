@@ -155,6 +155,8 @@ export default function LeaderboardView({ onOpenChat }) {
           .from('profiles')
           .select('*')
           .neq('nickname', 'Admin_4rasti')
+          .neq('nickname', 'ADMIN_PEYVOK')
+          .neq('nickname', 'پەیڤۆک')
           .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
           .order('xp', { ascending: false })
           .order('updated_at', { ascending: true })
@@ -238,7 +240,11 @@ export default function LeaderboardView({ onOpenChat }) {
   useEffect(() => {
     let isMounted = true;
     const fetchStats = async () => {
-      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('nickname', 'Admin_4rasti').neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
+      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true })
+        .neq('nickname', 'Admin_4rasti')
+        .neq('nickname', 'ADMIN_PEYVOK')
+        .neq('nickname', 'پەیڤۆک')
+        .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
       if (isMounted && count !== null) setTotalPlayersCount(count);
     };
     fetchStats();

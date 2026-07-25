@@ -509,7 +509,7 @@ export default function PublicProfileModal({
           )}
 
           {/* Social Action Icons Row */}
-          {!isMe && !isBot && displayData?.nickname !== 'Admin_4rasti' && (
+          {!isMe && !isBot && displayData?.nickname !== 'Admin_4rasti' && displayData?.nickname !== 'ADMIN_PEYVOK' && displayData?.nickname !== 'پەیڤۆک' && (
             <div className="flex items-center justify-center gap-3 mt-4 pt-1">
               {/* Friend Action */}
               {relStatus === 'friend' && !effectiveIsBlocked && (
