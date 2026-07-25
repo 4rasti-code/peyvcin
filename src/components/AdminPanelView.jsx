@@ -157,7 +157,7 @@ const AdminPanelView = ({ onBack }) => {
       triggerHaptic(10);
       const { error } = await supabase
         .from('reported_messages')
-        .update({ status: 'resolved' })
+        .delete()
         .eq('id', reportId);
 
       if (error) throw error;
@@ -170,15 +170,31 @@ const AdminPanelView = ({ onBack }) => {
   const handleMarkBugResolved = async (reportId) => {
     try {
       triggerHaptic(10);
+      const report = bugReports.find(r => r.id === reportId);
+      
+      // 1. Delete associated images from storage
+      if (report && report.image_url) {
+        const urls = report.image_url.split(',');
+        const fileNames = urls.map(url => {
+          const parts = url.split('report_images/');
+          return parts.length > 1 ? parts[1] : null;
+        }).filter(Boolean);
+        
+        if (fileNames.length > 0) {
+          await supabase.storage.from('report_images').remove(fileNames);
+        }
+      }
+
+      // 2. Delete the report from the database
       const { error } = await supabase
         .from('user_reports')
-        .update({ status: 'resolved' })
+        .delete()
         .eq('id', reportId);
 
       if (error) throw error;
       setBugReports(prev => prev.filter(r => r.id !== reportId));
     } catch (err) {
-      console.error("Error marking bug resolved:", err);
+      console.error("Error deleting report:", err);
     }
   };
 
