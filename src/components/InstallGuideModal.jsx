@@ -105,7 +105,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px]">١</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">د ناڤ سەفاری دا، ل خوارێ شاشەیێ ل سەر ئایکۆنا (Share) کلیک بکە.</p>
+                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">ل سەر ئایکۆنا سێ خالان (...) کلیک بکە.</p>
                     </div>
                     <img 
                       src="/guides/ios-step1.jpg" 
@@ -117,11 +117,35 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px]">٢</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">لێ بگەڕە و هەڵبژاردەیا <span className="text-blue-500 dark:text-blue-400">Add to Home Screen</span> هەڵبژێرە.</p>
+                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">هەڵبژاردەیا <span className="text-blue-500 dark:text-blue-400">(Share)</span> هەڵبژێرە.</p>
                     </div>
                     <img 
                       src="/guides/ios-step2.jpg" 
                       alt="iOS Step 2" 
+                      className="w-full h-auto object-contain bg-mono-200 dark:bg-mono-800 rounded-xl min-h-[150px] shadow-sm border border-mono-200 dark:border-white/10" 
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px]">٣</div>
+                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">لێ بگەڕە و ل سەر <span className="text-blue-500 dark:text-blue-400">(View More)</span> کلیک بکە.</p>
+                    </div>
+                    <img 
+                      src="/guides/ios-step3.jpg" 
+                      alt="iOS Step 3" 
+                      className="w-full h-auto object-contain bg-mono-200 dark:bg-mono-800 rounded-xl min-h-[150px] shadow-sm border border-mono-200 dark:border-white/10" 
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px]">٤</div>
+                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">هەڵبژاردەیا <span className="text-blue-500 dark:text-blue-400">(Add to Home Screen)</span> هەڵبژێرە.</p>
+                    </div>
+                    <img 
+                      src="/guides/ios-step4.jpg" 
+                      alt="iOS Step 4" 
                       className="w-full h-auto object-contain bg-mono-200 dark:bg-mono-800 rounded-xl min-h-[150px] shadow-sm border border-mono-200 dark:border-white/10" 
                     />
                   </div>
