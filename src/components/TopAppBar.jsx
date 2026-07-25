@@ -138,20 +138,8 @@ export default function TopAppBar({
             </div>
           ) : (
             <div className="flex items-center gap-1 relative h-full">
-              {currentView === 'lobby' && (
-                <Motion.button
-                  whileHover={{ scale: 1.05, y: -1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => { triggerHaptic(10); if(onPlaySound) onPlaySound(); onOpenHowToPlay?.(); }}
-                  className="h-8 px-2.5 bg-[#8b5cf6] shadow-[0_2px_0_#6d28d9] hover:brightness-110 rounded-[5px] flex items-center justify-center gap-1 group transition-all border-none ml-2"
-                >
-                  <span className="material-symbols-outlined text-white text-[15px] group-hover:scale-110 transition-transform">
-                    help
-                  </span>
-                  <span className="text-[10px] font-black font-rabar text-white uppercase mt-0.5">فێرکاری</span>
-                </Motion.button>
-              )}
               
+
               {(currentView === 'leaderboard' || currentView === 'profile') && (
                 <Motion.button
                   whileHover={{ scale: 1.1 }}

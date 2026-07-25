@@ -76,7 +76,7 @@ const LobbyView = memo(({
   onDailyRewardClick,
   _dailyStreak,
   _notificationCount = 0,
-  _onOpenHowToPlay,
+  onOpenHowToPlay,
   onOpenChat
 }) => {
   const bgRef = useRef(null);
@@ -229,7 +229,8 @@ const LobbyView = memo(({
         setLoadingOnline(true);
         try {
           const { supabase } = await import('../lib/supabase');
-          const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id);
+          const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
+          const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
           
           if (onlineIds.length > 0) {
             const [profilesRes, friendsRes] = await Promise.all([
@@ -397,22 +398,34 @@ const LobbyView = memo(({
     >
       <div className="relative z-10">
         
-        {/* Report / Feedback Wide Card */}
-        <Motion.button
-           initial={{ opacity: 0, y: -10 }}
-           animate={{ opacity: 1, y: 0 }}
-           whileHover={{ scale: 1.01 }}
-           onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-           className="w-full relative h-12 rounded-[8px] bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 shadow-[0_4px_0_#fcd34d] dark:shadow-[0_4px_0_#78350f] border border-amber-200 dark:border-amber-700/30 mb-4 flex items-center justify-between px-4 transition-transform active:translate-y-1 active:shadow-none overflow-hidden group"
-        >
-           <div className="flex items-center gap-3 relative z-10">
-              <div className="bg-amber-100 dark:bg-amber-500/20 w-7 h-7 rounded flex items-center justify-center group-active:scale-95 transition-transform">
-                <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[18px]">campaign</span>
-              </div>
-              <span className="font-black font-rabar text-amber-800 dark:text-amber-200 text-[13px] mt-0.5">ئاریشە و پێشنیار</span>
-           </div>
-           <span className="material-symbols-outlined text-amber-400 dark:text-amber-600/70 text-lg relative z-10">chevron_left</span>
-        </Motion.button>
+        {/* Action Buttons Row */}
+        <div className="flex justify-center items-center gap-2 w-full mb-3 -mt-3">
+          {/* Report Button */}
+          <Motion.button
+             initial={{ opacity: 0, y: -10 }}
+             animate={{ opacity: 1, y: 0 }}
+             onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
+             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-amber-500 shadow-[0_1.5px_0_#d97706] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+          >
+             <div className="flex items-center gap-1 relative z-10">
+                <span className="material-symbols-outlined text-white text-[13px]">campaign</span>
+                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">ئاریشە و پێشنیار</span>
+             </div>
+          </Motion.button>
+
+          {/* Tutorial Button */}
+          <Motion.button
+             initial={{ opacity: 0, y: -10 }}
+             animate={{ opacity: 1, y: 0 }}
+             onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
+             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-[#8b5cf6] shadow-[0_1.5px_0_#6d28d9] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+          >
+             <div className="flex items-center gap-1 relative z-10">
+                <span className="material-symbols-outlined text-white text-[13px]">help</span>
+                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">فێرکاری</span>
+             </div>
+          </Motion.button>
+        </div>
 
         <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
           <div className="flex items-center justify-center w-full mt-2 mb-2">

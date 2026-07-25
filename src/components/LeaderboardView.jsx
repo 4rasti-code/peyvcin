@@ -155,6 +155,7 @@ export default function LeaderboardView({ onOpenChat }) {
           .from('profiles')
           .select('*')
           .neq('nickname', 'Admin_4rasti')
+          .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
           .order('xp', { ascending: false })
           .order('updated_at', { ascending: true })
           .range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1);
@@ -237,7 +238,7 @@ export default function LeaderboardView({ onOpenChat }) {
   useEffect(() => {
     let isMounted = true;
     const fetchStats = async () => {
-      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('nickname', 'Admin_4rasti');
+      const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('nickname', 'Admin_4rasti').neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
       if (isMounted && count !== null) setTotalPlayersCount(count);
     };
     fetchStats();
@@ -277,7 +278,8 @@ export default function LeaderboardView({ onOpenChat }) {
              .from('profiles')
              .select('id', { count: 'exact', head: true })
              .gt('xp', userXP)
-             .neq('nickname', 'Admin_4rasti');
+             .neq('nickname', 'Admin_4rasti')
+             .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
              
            // Query 2: same XP but older (better) updated_at
            let countSame = 0;
@@ -293,7 +295,8 @@ export default function LeaderboardView({ onOpenChat }) {
                .select('id', { count: 'exact', head: true })
                .eq('xp', userXP)
                .lt('updated_at', formattedDate)
-               .neq('nickname', 'Admin_4rasti');
+               .neq('nickname', 'Admin_4rasti')
+               .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1');
              countSame = count || 0;
            }
 

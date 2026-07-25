@@ -304,7 +304,7 @@ export default function App() {
 
   // --- BETA WELCOME MESSAGE TRIGGER ---
   useEffect(() => {
-    if (!user || !user.id) return;
+    if (!user || !user.id || !profileData || !profileData.id) return;
 
     const hasBeenWelcomed = localStorage.getItem('beta_welcome_sent') === 'true';
 
@@ -335,7 +335,7 @@ export default function App() {
 
       sendWelcomeMessage();
     }
-  }, [user]);
+  }, [user, profileData]);
 
   // 1. INITIALIZE VIEW FROM URL
   const [currentView, setCurrentView] = useState(() => {
