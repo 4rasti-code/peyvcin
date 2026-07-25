@@ -32,21 +32,60 @@ const AdminPanelView = ({ onBack }) => {
         return;
       }
 
-      const userIds = [...new Set(reportsData.map(r => r.reporter_id))];
+      const messageIds = [...new Set(reportsData.map(r => r.message_id).filter(id => id))];
+      
+      let chatContentMap = {};
+      let allUserIds = [...new Set(reportsData.map(r => r.reporter_id))];
+
+      if (messageIds.length > 0) {
+        // Fetch from private chats
+        const { data: privateData } = await supabase
+          .from('private_chats')
+          .select('id, content, sender_id')
+          .in('id', messageIds);
+        
+        if (privateData) {
+          privateData.forEach(c => {
+            chatContentMap[c.id] = c;
+            allUserIds.push(c.sender_id);
+          });
+        }
+
+        // Fetch from public chats (if any)
+        const { data: publicData } = await supabase
+          .from('public_chat')
+          .select('id, message, user_id')
+          .in('id', messageIds);
+
+        if (publicData) {
+          publicData.forEach(c => {
+            chatContentMap[c.id] = { id: c.id, content: c.message, sender_id: c.user_id };
+            allUserIds.push(c.user_id);
+          });
+        }
+      }
+
+      const uniqueUserIds = [...new Set(allUserIds.filter(id => id))];
+
       const { data: profilesData } = await supabase
         .from('profiles')
         .select('id, nickname')
-        .in('id', userIds);
+        .in('id', uniqueUserIds);
 
       const profileMap = {};
       if (profilesData) {
         profilesData.forEach(p => profileMap[p.id] = p);
       }
 
-      const merged = reportsData.map(r => ({
-        ...r,
-        profile: profileMap[r.reporter_id] || { nickname: 'نەناسراو' }
-      }));
+      const merged = reportsData.map(r => {
+        const chatData = chatContentMap[r.message_id];
+        return {
+          ...r,
+          profile: profileMap[r.reporter_id] || { nickname: 'نەناسراو' },
+          reportedContent: chatData ? chatData.content : null,
+          reportedUser: chatData ? (profileMap[chatData.sender_id] || { nickname: 'نەناسراو' }) : null
+        };
+      });
 
       setMsgReports(merged);
     } catch (err) {
@@ -284,8 +323,26 @@ const AdminPanelView = ({ onBack }) => {
                     </div>
                   </div>
 
-                  <div className="bg-mono-50 dark:bg-black/20 p-3 rounded-lg text-sm text-mono-800 dark:text-mono-200 border border-mono-100 dark:border-white/5 whitespace-pre-wrap">
-                    {displayReason || 'بێ هۆکار'}
+                  <div className="bg-mono-50 dark:bg-black/20 p-3.5 rounded-xl text-sm text-mono-800 dark:text-mono-200 border border-mono-100 dark:border-white/5 whitespace-pre-wrap leading-relaxed shadow-inner">
+                    {report.reportedContent ? (
+                      <div className="flex flex-col gap-2">
+                        <div className="bg-white dark:bg-[#2C2C2E] p-3 rounded-lg border border-mono-200 dark:border-white/10 shadow-sm relative">
+                          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-md">دەقێ سکاڵا لێکری</span>
+                          <div className="font-bold text-primary mb-1 text-xs">{report.reportedUser?.nickname}:</div>
+                          <div className="text-mono-900 dark:text-mono-100">{report.reportedContent}</div>
+                        </div>
+                        {displayReason && displayReason !== 'بێ هۆکار' && (
+                          <div className="mt-1 text-xs text-mono-500 flex items-start gap-1 bg-mono-100 dark:bg-black/30 p-2 rounded-md">
+                            <span className="material-symbols-outlined text-[14px]">info</span>
+                            <span>هۆکار: {displayReason}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-mono-500 italic">
+                        {displayReason || 'بێ هۆکار'}
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-2 mt-2">
