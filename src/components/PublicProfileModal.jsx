@@ -110,7 +110,7 @@ export default function PublicProfileModal({
   if (!profile) return null;
 
   const baseData = fullData || profile;
-  const isBot = baseData?.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
+  const isBot = baseData?.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' || baseData?.id === '66bbf4d5-333a-4748-8529-ecd5bae9f3a4';
   
   // Exponential Progress Logic (Standardized)
   const levelData = isBot ? { level: 99, progressPercent: 100, nextLevelBase: 999999 } : getLevelData(baseData.xp || 0);
