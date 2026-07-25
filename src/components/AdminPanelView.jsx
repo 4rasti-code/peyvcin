@@ -5,7 +5,7 @@ import { triggerHaptic } from '../utils/haptics';
 
 const AdminPanelView = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState('messages'); // 'messages' or 'bugs'
-  
+
   // State for Message Reports
   const [msgReports, setMsgReports] = useState([]);
   const [replyTexts, setReplyTexts] = useState({});
@@ -13,7 +13,7 @@ const AdminPanelView = ({ onBack }) => {
 
   // State for Bug Reports
   const [bugReports, setBugReports] = useState([]);
-  
+
   const [loading, setLoading] = useState(true);
 
   const fetchMsgReports = useCallback(async () => {
@@ -33,7 +33,7 @@ const AdminPanelView = ({ onBack }) => {
       }
 
       const messageIds = [...new Set(reportsData.map(r => r.message_id).filter(id => id))];
-      
+
       let chatContentMap = {};
       let allUserIds = [...new Set(reportsData.map(r => r.reporter_id))];
 
@@ -43,7 +43,7 @@ const AdminPanelView = ({ onBack }) => {
           .from('messages')
           .select('id, content, user_id')
           .in('id', messageIds);
-        
+
         if (messagesData) {
           messagesData.forEach(c => {
             chatContentMap[c.id] = { id: c.id, content: c.content, sender_id: c.user_id };
@@ -197,7 +197,7 @@ const AdminPanelView = ({ onBack }) => {
     try {
       triggerHaptic(10);
       const report = bugReports.find(r => r.id === reportId);
-      
+
       // 1. Delete associated images from storage
       if (report && report.image_url) {
         const urls = report.image_url.split(',');
@@ -205,7 +205,7 @@ const AdminPanelView = ({ onBack }) => {
           const parts = url.split('report_images/');
           return parts.length > 1 ? parts[1] : null;
         }).filter(Boolean);
-        
+
         if (fileNames.length > 0) {
           await supabase.storage.from('report_images').remove(fileNames);
         }
@@ -229,7 +229,7 @@ const AdminPanelView = ({ onBack }) => {
       {/* Header */}
       <div className="w-full h-14 bg-white dark:bg-[#1C1C1E] border-b border-mono-200 dark:border-white/10 flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-3">
-          <button 
+          <button
             onClick={() => { triggerHaptic(10); onBack(); }}
             className="w-8 h-8 rounded-full bg-mono-100 dark:bg-white/10 flex items-center justify-center text-mono-700 dark:text-white/70 active:scale-95"
           >
@@ -237,7 +237,7 @@ const AdminPanelView = ({ onBack }) => {
           </button>
           <h1 className="font-bold text-lg text-mono-900 dark:text-white">پەنێڵی ئەدمین (پەیڤۆک)</h1>
         </div>
-        <button 
+        <button
           onClick={fetchData}
           className="w-8 h-8 flex items-center justify-center text-primary active:scale-95"
         >
@@ -281,7 +281,7 @@ const AdminPanelView = ({ onBack }) => {
               const displayReason = isBotMessage ? report.reason.replace('[نامەیا بۆتی]: ', '') : report.reason;
 
               return (
-                <Motion.div 
+                <Motion.div
                   key={report.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -372,7 +372,7 @@ const AdminPanelView = ({ onBack }) => {
             </div>
           ) : (
             bugReports.map(report => (
-              <Motion.div 
+              <Motion.div
                 key={report.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
