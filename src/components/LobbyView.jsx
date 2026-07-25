@@ -401,14 +401,17 @@ const LobbyView = memo(({
         <Motion.button
            initial={{ opacity: 0, y: -10 }}
            animate={{ opacity: 1, y: 0 }}
+           whileHover={{ scale: 1.01 }}
            onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-           className="w-full relative h-12 rounded-[6px] bg-mono-200 dark:bg-[#1a1a1c] shadow-[0_4px_0_#e5e5e5] dark:shadow-[0_4px_0_#111113] border border-mono-300 dark:border-white/5 mb-4 flex items-center justify-between px-4 transition-transform active:translate-y-1 active:shadow-none"
+           className="w-full relative h-12 rounded-[8px] bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 shadow-[0_4px_0_#fcd34d] dark:shadow-[0_4px_0_#78350f] border border-amber-200 dark:border-amber-700/30 mb-4 flex items-center justify-between px-4 transition-transform active:translate-y-1 active:shadow-none overflow-hidden group"
         >
-           <div className="flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-mono-700 dark:text-mono-400 text-[20px]">campaign</span>
-              <span className="font-black font-rabar text-mono-900 dark:text-white text-[13px] mt-0.5">ئاریشە و پێشنیار</span>
+           <div className="flex items-center gap-3 relative z-10">
+              <div className="bg-amber-100 dark:bg-amber-500/20 w-7 h-7 rounded flex items-center justify-center group-active:scale-95 transition-transform">
+                <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[18px]">campaign</span>
+              </div>
+              <span className="font-black font-rabar text-amber-800 dark:text-amber-200 text-[13px] mt-0.5">ئاریشە و پێشنیار</span>
            </div>
-           <span className="material-symbols-outlined text-mono-400 dark:text-mono-600 text-lg">chevron_left</span>
+           <span className="material-symbols-outlined text-amber-400 dark:text-amber-600/70 text-lg relative z-10">chevron_left</span>
         </Motion.button>
 
         <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
