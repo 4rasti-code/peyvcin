@@ -259,7 +259,7 @@ const AdminPanelView = ({ onBack }) => {
                   key={report.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full overflow-hidden relative"
+                  className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full shrink-0 overflow-hidden relative"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -332,7 +332,7 @@ const AdminPanelView = ({ onBack }) => {
                 key={report.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full overflow-hidden relative"
+                className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full shrink-0 overflow-hidden relative"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
@@ -362,11 +362,11 @@ const AdminPanelView = ({ onBack }) => {
                 </div>
 
                 {report.image_url && (
-                  <div className="flex gap-3 overflow-x-auto pb-2 mt-2 snap-x hide-scrollbar">
+                  <div className="flex gap-3 overflow-x-auto pb-2 mt-2 snap-x hide-scrollbar w-full">
                     {report.image_url.split(',').map((url, i) => (
-                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block shrink-0 h-48 sm:h-64 w-max rounded-xl overflow-hidden border border-mono-200 dark:border-white/10 relative group bg-mono-100 dark:bg-black/40 snap-start shadow-sm transition-all hover:border-primary/50 p-1">
-                        <img src={url} alt={`Screenshot ${i + 1}`} className="h-full w-auto object-contain rounded-lg transition-transform duration-300 group-hover:scale-[1.02]" />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-xl">
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0 relative group snap-start transition-all">
+                        <img src={url} alt={`Screenshot ${i + 1}`} className="h-48 sm:h-64 w-auto object-contain rounded-xl border border-mono-200 dark:border-white/10 bg-mono-100 dark:bg-black/40 shadow-sm" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white rounded-xl pointer-events-none">
                           <span className="material-symbols-outlined text-3xl drop-shadow-md">zoom_in</span>
                         </div>
                       </a>
