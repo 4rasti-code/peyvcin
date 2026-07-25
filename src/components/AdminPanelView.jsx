@@ -38,28 +38,15 @@ const AdminPanelView = ({ onBack }) => {
       let allUserIds = [...new Set(reportsData.map(r => r.reporter_id))];
 
       if (messageIds.length > 0) {
-        // Fetch from private chats
-        const { data: privateData } = await supabase
-          .from('private_chats')
-          .select('id, content, sender_id')
+        // Fetch from messages
+        const { data: messagesData } = await supabase
+          .from('messages')
+          .select('id, content, user_id')
           .in('id', messageIds);
         
-        if (privateData) {
-          privateData.forEach(c => {
-            chatContentMap[c.id] = c;
-            allUserIds.push(c.sender_id);
-          });
-        }
-
-        // Fetch from public chats (if any)
-        const { data: publicData } = await supabase
-          .from('public_chat')
-          .select('id, message, user_id')
-          .in('id', messageIds);
-
-        if (publicData) {
-          publicData.forEach(c => {
-            chatContentMap[c.id] = { id: c.id, content: c.message, sender_id: c.user_id };
+        if (messagesData) {
+          messagesData.forEach(c => {
+            chatContentMap[c.id] = { id: c.id, content: c.content, sender_id: c.user_id };
             allUserIds.push(c.user_id);
           });
         }
