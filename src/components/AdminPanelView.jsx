@@ -259,7 +259,7 @@ const AdminPanelView = ({ onBack }) => {
                   key={report.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3"
+                  className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full overflow-hidden relative"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -332,7 +332,7 @@ const AdminPanelView = ({ onBack }) => {
                 key={report.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3"
+                className="bg-white dark:bg-[#1C1C1E] rounded-xl border border-mono-200 dark:border-white/10 p-4 shadow-sm flex flex-col gap-3 w-full overflow-hidden relative"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
