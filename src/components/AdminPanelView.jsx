@@ -365,7 +365,7 @@ const AdminPanelView = ({ onBack }) => {
                   <div className="flex gap-2 overflow-x-auto pb-2 mt-2 snap-x">
                     {report.image_url.split(',').map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block shrink-0 w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden border border-mono-200 dark:border-white/10 relative group bg-black/5 dark:bg-white/5 snap-start">
-                        <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        <img src={url} alt={`Screenshot ${i + 1}`} className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
                           <span className="material-symbols-outlined text-2xl sm:text-3xl">open_in_new</span>
                         </div>
