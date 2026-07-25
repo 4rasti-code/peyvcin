@@ -3,19 +3,20 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 
 const InstallGuideModal = ({ isOpen, onClose }) => {
-  const [deviceType, setDeviceType] = useState('unknown');
+  const [deviceType] = useState(() => {
+    if (typeof window === 'undefined') return 'unknown';
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+      return 'ios';
+    } else if (/android/i.test(ua)) {
+      return 'android';
+    }
+    return 'desktop';
+  });
 
   useEffect(() => {
     if (isOpen) {
       triggerHaptic(50);
-      const ua = navigator.userAgent || navigator.vendor || window.opera;
-      if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-        setDeviceType('ios');
-      } else if (/android/i.test(ua)) {
-        setDeviceType('android');
-      } else {
-        setDeviceType('desktop');
-      }
     }
   }, [isOpen]);
 
