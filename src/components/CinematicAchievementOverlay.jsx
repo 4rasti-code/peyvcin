@@ -151,13 +151,14 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
       </div>
 
       {/* Achievement Name */}
-      <motion.h2
-        initial={{ scale: 0.5, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0, transition: { delay: 0.4, type: "spring", stiffness: 200 } }}
-        className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-300 to-yellow-600 mt-16 sm:mt-20 drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)] z-10 text-center py-2 leading-relaxed"
+      <motion.h3
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1, type: "spring", damping: 15 }}
+        className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-300 to-yellow-600 mt-16 sm:mt-20 z-10 text-center py-2 leading-relaxed"
       >
         {title}
-      </motion.h2>
+      </motion.h3>
 
       {/* Continue Button */}
       <motion.button

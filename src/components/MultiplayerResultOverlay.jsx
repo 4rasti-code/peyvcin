@@ -50,7 +50,7 @@ export default function MultiplayerResultOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-1000 flex items-center justify-center p-6 bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
+        className="fixed inset-0 z-1000 flex items-center justify-center p-3 sm:p-6 bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
       >
         {/* Cinematic Backdrop Glow */}
         {/* Removed Glow */}
@@ -59,7 +59,7 @@ export default function MultiplayerResultOverlay({
           initial={{ scale: 0.9, y: 20, opacity: 0 }}
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.9, y: 20, opacity: 0 }}
-          className="relative w-full max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-xl p-8 overflow-hidden transition-colors duration-500 shadow-2xl"
+          className="relative w-full max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-xl p-4 sm:p-8 modal-zoom-fit transition-colors duration-500 shadow-2xl"
         >
           {/* Close/Exit Button */}
           <button

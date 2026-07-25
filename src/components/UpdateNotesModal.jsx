@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const UPDATE_VERSION = 'v2.4.0'; // Change this string to force the modal to show again for all users
+const UPDATE_VERSION = 'v2.5.0'; // Change this string to force the modal to show again for all users
 
 const UpdateNotesModal = () => {
    const [isVisible, setIsVisible] = useState(false);
@@ -63,25 +63,19 @@ const UpdateNotesModal = () => {
                      {/* Scrollable Content */}
                      <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🚀 چارەسەرکرنا هەمی گیربوون و ئاریشەیێن یاریێ دەمێ ئینتەرنێت دهێتە بڕین.
+                           🌟 <b className="text-mono-900 dark:text-white">سیستەمێ ڕاپۆرتان:</b> نۆکە ل ناڤ لۆبیێ، تو دشێی ب ساناهی گازندە و پێشنیارێن خۆ ڕاستەوخۆ بۆ مە بهنێری ل گەل هەلبژارتنا ٥ وێنەیان ب ئێکجار!
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🔊 زێدەکرنا چەند دەنگێن نوی و چارەسەرکرنا ئاریشەیا هندەک دەنگان د یاریێ دا.
+                           💬 <b className="text-mono-900 dark:text-white">ئاریشەیا چاتێ:</b> ئەو ئاریشەیا کو نامەیێن کەڤن یێن چاتێ پشتی ژێبرنێ ڤەدگەڕیان، ب تەمامی هاتە چارەسەرکرن.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🎨 باشترکرنا دیزاینێ مۆدێ هەڤڕکی ب ڕەنگەکێ جوانتر، زێدەکرنا ڕیئەکشنان (Reactions)، و گونجاندنا شاشەیا لێگەڕیانێ دگەل مۆدێ رۆن و تاری.
+                           ✍️ <b className="text-mono-900 dark:text-white">ئاریشەیا فۆنتێ:</b> ئەو پەیڤێن کو پیتێن وان ل هندەک شاشەیان پچڕ پچڕ و ژێکڤەبووی دیار دبوون، هاتنە دروستکرن.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           ⌨️ چارەسەرکرنا ئاریشەیا ڕاوەستانا کیبۆردێ یاریێ دەمێ یاریزان دچوو د ناڤ مۆدێ هەڤڕکی دا.
+                           📱 <b className="text-mono-900 dark:text-white">دیزاینا شاشەیان:</b> دیزاین و دوکمەیێن یاریێ نۆکە ب دروستی ل گەل شاشەیێن هەمی مۆبایلان دگونجن، بێی کو شاشە ل سەر مۆبایلێن بچیک بلڤیت و تە بێزار بکەت.
                         </li>
                         <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           👥 زێدەکرنا هژمارا یاریزانێن سەرهێل (Online) ل سەر کارتا مۆدێ هەڤڕکی ب ڕەنگەکێ زیندی.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           💬 چارەسەرکرنا ئاریشەیا نیشانا سۆر ل سەر ئایکۆنا چاتێ و باشترکرنا سیستەمێ ئاگەهداریان.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           📱 گونجاندنا یاریێ دگەل سیستەمێ PWA دا کو ل سەر مۆبایلێ وەکی ئەپەکێ سەربەخۆ بێی وێبگەڕ کار بکەت.
+                           🛠️ <b className="text-mono-900 dark:text-white">باشترکرنا یاریێ:</b> ل گەل چەندین چارەسەریێن دی یێن بچیک بۆ نەهێلانا گیربوونان و خێراترکرنا کارکرنا یاریێ ب گشتی!
                         </li>
                      </ul>
 

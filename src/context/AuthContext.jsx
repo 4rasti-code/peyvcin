@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
 
       if (!error && data && data.length > 0) {
         const extendedData = data[0];
-        
+
         // Merge safely into local states
         if (extendedData.inventory !== undefined) {
           setOwnedAvatars(prev => {
@@ -116,15 +116,16 @@ export const AuthProvider = ({ children }) => {
       return;
     }
 
+    const isInitialLoad = !isProfileLoaded.current;
+
     try {
       isSyncingRef.current = true;
       lastSyncTimeRef.current = now;
-
       // Lock immediately
       isProfileLoaded.current = true;
 
       console.log("[AuthContext] Fetching core profile for:", activeUserId);
-      setAuthProgress(45);
+      if (isInitialLoad) setAuthProgress(45);
 
       // FAST FETCH: Only fetch the bare minimum needed to enter the lobby + Daily Rewards
       const { data, error } = await supabase
@@ -139,7 +140,7 @@ export const AuthProvider = ({ children }) => {
         `)
         .eq('id', activeUserId);
 
-      setAuthProgress(75);
+      if (isInitialLoad) setAuthProgress(75);
 
       if (error || !data || data.length === 0) {
         // If it's empty, we need to create it
@@ -154,51 +155,51 @@ export const AuthProvider = ({ children }) => {
             }
           }
 
-            // Extract base nickname from metadata, handling both Google and Discord formats safely
-            let rawName = currentUser?.user_metadata?.nickname ||
-              currentUser?.user_metadata?.username ||
-              currentUser?.user_metadata?.global_name ||
-              currentUser?.user_metadata?.full_name ||
-              currentUser?.user_metadata?.name ||
-              '';
-              
-            // Extract avatar URL if provided by OAuth provider
-            let extractedAvatar = currentUser?.user_metadata?.avatar_url ||
-              currentUser?.user_metadata?.picture ||
-              'default';
-              
-            let nickname = '';
-            
-            if (!rawName || rawName.trim() === '') {
-              // If no name is provided, fetch a sequential guest name from the database
+          // Extract base nickname from metadata, handling both Google and Discord formats safely
+          let rawName = currentUser?.user_metadata?.nickname ||
+            currentUser?.user_metadata?.username ||
+            currentUser?.user_metadata?.global_name ||
+            currentUser?.user_metadata?.full_name ||
+            currentUser?.user_metadata?.name ||
+            '';
+
+          // Extract avatar URL if provided by OAuth provider
+          let extractedAvatar = currentUser?.user_metadata?.avatar_url ||
+            currentUser?.user_metadata?.picture ||
+            'default';
+
+          let nickname = '';
+
+          if (!rawName || rawName.trim() === '') {
+            // If no name is provided, fetch a sequential guest name from the database
+            const { data: seqName } = await supabase.rpc('get_next_guest_name');
+            const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
+            nickname = `بێناڤ_${seqNum}`;
+          } else {
+            // Remove spaces, allow alphanumeric and Kurdish/Arabic characters
+            rawName = rawName.replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
+            if (rawName.length < 3) {
               const { data: seqName } = await supabase.rpc('get_next_guest_name');
               const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
               nickname = `بێناڤ_${seqNum}`;
             } else {
-              // Remove spaces, allow alphanumeric and Kurdish/Arabic characters
-              rawName = rawName.replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
-              if (rawName.length < 3) {
-                const { data: seqName } = await supabase.rpc('get_next_guest_name');
-                const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
-                nickname = `بێناڤ_${seqNum}`;
-              } else {
-                nickname = rawName;
-              }
+              nickname = rawName;
             }
-            
+          }
+
           const maxRetries = 5;
           let retryCount = 0;
           let profileCreated = false;
 
           while (retryCount < maxRetries && !profileCreated) {
-            setAuthProgress(75 + retryCount * 2);
+            if (isInitialLoad) setAuthProgress(75 + retryCount * 2);
             await new Promise(res => setTimeout(res, 200));
             const { data: checkData } = await supabase.from('profiles').select('id, nickname, avatar_url, fils, xp, onboarded').eq('id', activeUserId);
-            
+
             if (checkData && checkData.length > 0) {
-               console.log("[AuthContext] Profile materialized during retry!");
-               profileCreated = true;
-               return handleProfileData(checkData[0], onProfileLoaded);
+              console.log("[AuthContext] Profile materialized during retry!");
+              profileCreated = true;
+              return handleProfileData(checkData[0], onProfileLoaded);
             }
 
             console.log(`[AuthContext] Self-heal attempt ${retryCount + 1}/${maxRetries}... Inserting fallback profile.`);
@@ -215,17 +216,17 @@ export const AuthProvider = ({ children }) => {
             }]).select();
 
             if (!insertError && insertData && insertData.length > 0) {
-               console.log("[AuthContext] Self-heal created profile.");
-               profileCreated = true;
-               return handleProfileData(insertData[0], onProfileLoaded);
+              console.log("[AuthContext] Self-heal created profile.");
+              profileCreated = true;
+              return handleProfileData(insertData[0], onProfileLoaded);
             } else {
-               console.warn("[AuthContext] Insert failed:", insertError);
+              console.warn("[AuthContext] Insert failed:", insertError);
             }
             retryCount++;
           }
 
           if (!profileCreated) {
-             throw new Error("Failed to heal profile after 3 attempts.");
+            throw new Error("Failed to heal profile after 3 attempts.");
           }
         } else {
           throw error;
@@ -243,9 +244,11 @@ export const AuthProvider = ({ children }) => {
       setProfileData({});
     } finally {
       isSyncingRef.current = false;
-      setAuthProgress(100);
-      setLoadingAuth(false);
-      setLoading(false);
+      if (isInitialLoad) {
+        setAuthProgress(100);
+        setLoadingAuth(false);
+        setLoading(false);
+      }
     }
   }, [syncProfileExtended]);
 

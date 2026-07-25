@@ -1299,3 +1299,13 @@ html, body {
   flex-direction: column;
   width: 100%;
 }
+
+@media (max-height: 800px) {
+  .modal-zoom-fit { zoom: 0.9; }
+}
+@media (max-height: 700px) {
+  .modal-zoom-fit { zoom: 0.8; }
+}
+@media (max-height: 600px) {
+  .modal-zoom-fit { zoom: 0.65; }
+}

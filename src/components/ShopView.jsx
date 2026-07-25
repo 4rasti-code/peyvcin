@@ -36,9 +36,9 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   const dynamicClass = getDynamicStyles(item.id);
 
   return (
-    <div className="flex items-stretch gap-3 w-full">
+    <div className="flex items-stretch gap-2 sm:gap-3 w-full">
       {/* Info Card (Right Side in RTL) */}
-      <div className={`flex-1 relative px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-3 overflow-visible transition-all mb-1`}>
+      <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1`}>
         <div className="w-[44px] h-[44px] rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/30">
           {item.id === 'hint_pack' ? (
             <HintIcon className="w-7 h-7 drop-shadow-md" />
@@ -67,7 +67,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
             triggerHaptic([50, 30, 50]);
           }
         }}
-        className={`group shrink-0 w-[95px] flex items-center justify-center gap-2 px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
+        className={`group shrink-0 w-[85px] sm:w-[95px] flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
       >
         <div className="flex flex-col items-center leading-none relative z-10">
           <span className="text-[17px] font-black text-white drop-shadow-sm">{toKuDigits(item.price || 0)}</span>
@@ -126,8 +126,7 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
       className="flex-1 w-full bg-mono-white dark:bg-black px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
     >
 
-      
-      <div className="relative z-20 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-6 shadow-sm overflow-hidden group transition-colors duration-300">
+      <div className="relative z-20 shrink-0 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-6 shadow-sm overflow-hidden group transition-colors duration-300">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-50" />
         <div className="relative z-10 flex flex-col items-center">
           <InventoryBar 
@@ -135,7 +134,7 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
             hintCount={hintCount} 
             skipCount={skipCount}
             isShop={true}
-            className="scale-110"
+            className="scale-100 sm:scale-110"
           />
         </div>
       </div>

@@ -120,7 +120,7 @@ const BattleResultOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-md p-6"
+          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-6"
         >
 
           <Motion.div
@@ -132,7 +132,7 @@ const BattleResultOverlay = ({
               : isDefeat
                 ? 'border-red-500/20 dark:border-red-500/30'
                 : 'border-blue-500/20 dark:border-blue-500/30'
-              } rounded-md p-8 flex flex-col items-center gap-6 relative overflow-hidden transition-colors duration-500 shadow-2xl`}
+              } rounded-md p-4 sm:p-8 flex flex-col items-center gap-6 relative modal-zoom-fit transition-colors duration-500 shadow-2xl`}
           >
             {/* Status Icon */}
 
@@ -242,10 +242,10 @@ const BattleResultOverlay = ({
             <div className="w-full flex flex-col gap-3">
               <button
                 onClick={() => { onNext(); }}
-                className={`w-full h-12 bg-transparent text-mono-900 dark:text-mono-white font-black text-lg active:scale-95 transition-all flex items-center justify-center gap-3 group`}
+                className="w-full h-12 bg-mono-100 dark:bg-white/10 hover:bg-mono-200 dark:hover:bg-white/20 text-mono-900 dark:text-white font-black text-lg rounded-md border border-mono-200 dark:border-white/10 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-3 group"
               >
                 ڤەگەڕە
-                <span className="material-symbols-outlined group-hover:translate-x-[-4px] transition-transform">arrow_back</span>
+                <span className="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
               </button>
 
               <div className="flex items-center gap-2 w-full mt-2">
@@ -266,7 +266,7 @@ const BattleResultOverlay = ({
                       setTimeout(() => setShareStatus(null), 2000);
                     }
                   }}
-                  className="flex-1 h-9 bg-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors"
+                  className="flex-1 h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-sm"
                 >
                   <span className="material-symbols-outlined text-base">
                     {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
@@ -301,7 +301,7 @@ const BattleResultOverlay = ({
                       }
                     }}
                     disabled={globalShareStatus === 'success'}
-                    className="flex-1 h-9 bg-blue-600/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                    className="flex-1 h-9 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 shadow-sm"
                   >
                     <span className="material-symbols-outlined text-base">
                       {globalShareStatus === 'success' ? 'check_circle' : 'forum'}

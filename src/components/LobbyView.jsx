@@ -19,6 +19,7 @@ import MysteryBoxIcon from './MysteryBoxIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
+import ReportModal from './ReportModal';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 
@@ -82,6 +83,7 @@ const LobbyView = memo(({
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
@@ -395,6 +397,20 @@ const LobbyView = memo(({
     >
       <div className="relative z-10">
         
+        {/* Report / Feedback Wide Card */}
+        <Motion.button
+           initial={{ opacity: 0, y: -10 }}
+           animate={{ opacity: 1, y: 0 }}
+           onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
+           className="w-full relative h-12 rounded-[6px] bg-mono-200 dark:bg-[#1a1a1c] shadow-[0_4px_0_#e5e5e5] dark:shadow-[0_4px_0_#111113] border border-mono-300 dark:border-white/5 mb-4 flex items-center justify-between px-4 transition-transform active:translate-y-1 active:shadow-none"
+        >
+           <div className="flex items-center gap-2.5">
+              <span className="material-symbols-outlined text-mono-700 dark:text-mono-400 text-[20px]">campaign</span>
+              <span className="font-black font-rabar text-mono-900 dark:text-white text-[13px] mt-0.5">ئاریشە و پێشنیار</span>
+           </div>
+           <span className="material-symbols-outlined text-mono-400 dark:text-mono-600 text-lg">chevron_left</span>
+        </Motion.button>
+
         <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
           <div className="flex items-center justify-center w-full mt-2 mb-2">
             {/* Centered Daily Rewards Group */}
@@ -826,6 +842,16 @@ const LobbyView = memo(({
               setSelectedProfile(null);
               if (onOpenChat) onOpenChat(player);
             }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isReportModalOpen && (
+          <ReportModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            user={user}
           />
         )}
       </AnimatePresence>

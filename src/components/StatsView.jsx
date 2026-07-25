@@ -49,26 +49,61 @@ export default function StatsView({
 }) {
 
   const { playSettingsCloseSound } = useAudio();
-  // Core Stats
-  const stats = {
-    played: profileData?.games_played || 0,
-    won: profileData?.games_won || 0,
-    currentStreak: profileData?.current_streak || 0,
-    maxStreak: profileData?.max_streak || 0,
-    rawDistribution: playerStats || profileData?.guess_distribution || {}
-  };
+  // --- LEGACY FALLBACK FOR PUBLIC VIEWING ---
+  const { legacyStats, advancedLegacyStats } = useMemo(() => {
+    let played = profileData?.games_played || 0;
+    let won = profileData?.games_won || 0;
+    let totalWords = profileData?.total_words_found || 0;
+    let rawDist = playerStats || profileData?.guess_distribution || profileData?.statistics || {};
 
-  // Advanced Stats
-  const advancedStats = {
-    pvpWins: profileData?.pvp_wins || 0,
-    totalWords: profileData?.total_words_found || 0,
-    longestWord: profileData?.longest_word_length || 0,
-    fastestSolve: profileData?.fastest_solve_ms || 0,
-    flawlessWins: profileData?.flawless_wins || 0,
-    totalActiveDays: profileData?.total_active_days || 0,
-    feverHighscore: profileData?.fever_highscore || 0,
-    modePlayCounts: profileData?.mode_play_counts || {}
-  };
+    const oldStats = profileData?.inventory?.stats || profileData?.statistics;
+    
+    if (oldStats) {
+      let legacyWon = 0;
+      let legacyPlayed = 0;
+      Object.values(oldStats).forEach(m => {
+         legacyWon += (Number(m.solvedCount) || 0);
+         legacyPlayed += (Number(m.playedCount) || Number(m.solvedCount) || 0);
+      });
+      
+      // If legacy wins are higher, it means the DB hasn't been migrated yet for this user
+      if (legacyWon > won) {
+         won = Math.max(won, legacyWon);
+         played = Math.max(played, legacyPlayed, legacyWon);
+         
+         const inventoryWordsCount = Array.isArray(profileData?.inventory?.solved_words) ? profileData.inventory.solved_words.length : 0;
+         const remoteWordsCount = Array.isArray(profileData?.solved_words) ? profileData.solved_words.length : 0;
+         totalWords = Math.max(totalWords, inventoryWordsCount, remoteWordsCount, legacyWon);
+         
+         if (Object.keys(rawDist).length === 0) {
+           rawDist = oldStats;
+         }
+      }
+    }
+    
+    return {
+      legacyStats: {
+        played,
+        won,
+        currentStreak: profileData?.current_streak || 0,
+        maxStreak: profileData?.max_streak || 0,
+        rawDistribution: rawDist
+      },
+      advancedLegacyStats: {
+        pvpWins: Math.max(profileData?.pvp_wins || 0, oldStats?.battle?.solvedCount || 0),
+        totalWords,
+        longestWord: profileData?.longest_word_length || 0,
+        fastestSolve: profileData?.fastest_solve_ms || 0,
+        flawlessWins: profileData?.flawless_wins || 0,
+        totalActiveDays: profileData?.total_active_days || 0,
+        feverHighscore: Math.max(profileData?.fever_highscore || 0, oldStats?.word_fever?.bestScore || 0),
+        modePlayCounts: profileData?.mode_play_counts || {}
+      }
+    };
+  }, [profileData, playerStats]);
+
+  const stats = legacyStats;
+  const advancedStats = advancedLegacyStats;
 
   const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
 

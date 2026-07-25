@@ -8,6 +8,7 @@ import { useUser } from '../context/AuthContext';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import DataDeletion from './DataDeletion';
+import ReportModal from './ReportModal';
 import { playBackSfx } from '../utils/audio';
 import { supabase } from '../lib/supabase';
 
@@ -28,6 +29,7 @@ function SettingsModal({
    const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
    const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
    const [isBlockedModalOpen, setIsBlockedModalOpen] = React.useState(false);
+   const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
    const [activePolicyModal, setActivePolicyModal] = React.useState(null);
    const { user, handleToggleBlock } = useUser();
 
@@ -166,7 +168,7 @@ function SettingsModal({
                               </div>
                               <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); window.location.href = 'mailto:support@peyvok.com'; }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                           <button onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
                               <div className="flex items-center gap-3">
                                  <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">feedback</span>
                                  <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">فیدباک</span>
@@ -206,7 +208,7 @@ function SettingsModal({
                         </button>
 
                         <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
-                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.4.0</p>
+                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.5.0</p>
                         </div>
                      </div>
                   </Motion.div>
@@ -255,7 +257,7 @@ function SettingsModal({
                   >
                      <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا ڤێ هژمارێ؟</h3>
                      <p className="text-[11px] font-bold text-center text-mono-500 dark:text-white/50 mb-5 leading-relaxed">
-                        ئەگەر ڤێ کردارێ ئەنجام بدەی، هەمی داتا و پێشکەفتنێن تە دێ ب یەکجاری هێنە ژێبرن و ڤەگەڕاندن تێدا نینە.
+                        ئەگەر ڤێ کردارێ ئەنجام بدەی, هەمی داتا و پێشکەفتنێن تە دێ ب یەکجاری هێنە ژێبرن و ڤەگەڕاندن تێدا نینە.
                      </p>
                      <div className="flex gap-2.5 w-full">
                         <button
@@ -273,6 +275,17 @@ function SettingsModal({
                      </div>
                   </Motion.div>
                </Motion.div>
+            )}
+         </AnimatePresence>
+
+         {/* Report Bug/Suggestion Modal */}
+         <AnimatePresence>
+            {isReportModalOpen && (
+               <ReportModal
+                  isOpen={isReportModalOpen}
+                  onClose={() => setIsReportModalOpen(false)}
+                  user={user}
+               />
             )}
          </AnimatePresence>
       </>

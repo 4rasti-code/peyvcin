@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
 import { safeJSONParse } from '../utils/safeParse';
+import { allWordsMaster } from '../data/wordList';
 import { MEDALS } from '../constants/medals';
 
 const GameContext = createContext();
@@ -104,9 +105,9 @@ export const GameProvider = ({ children }) => {
 
   // Sync statistics from profileData when it loads
   useEffect(() => {
-    if (profileData?.statistics) {
+    const serverStats = profileData?.statistics || profileData?.inventory?.stats;
+    if (serverStats) {
       setPlayerStats(prev => {
-        const serverStats = profileData.statistics;
         const merged = { ...prev };
         let hasChanged = false;
 
@@ -193,10 +194,10 @@ export const GameProvider = ({ children }) => {
         const profileSignature = `${profileData.xp}-${profileData.fils}-${profileData.derhem}-${profileData.dinar}-${profileData.magnets}-${profileData.hints}-${profileData.skips}`;
         
         if (profileSignature !== lastAppliedProfileRef.current) {
-          setLoading(true); // <--- Keep the loader on screen!
           console.log("[GameContext] Applying profile progression sync...");
           lastAppliedProfileRef.current = profileSignature;
           
+          // Silently sync without blocking UI
           setSyncStatus('سینککرنا داتایێن یاریزانان...');
           
           // Safety: If local XP is greater than remote XP, force a sync to prevent data loss.
@@ -254,9 +255,15 @@ export const GameProvider = ({ children }) => {
           
           // --- CONSOLIDATED SOLVED WORDS SYNC (MERGE STRATEGY) ---
           const remoteWords = Array.isArray(profileData.solved_words) ? profileData.solved_words : [];
-          const inventoryWords = (profileData.inventory && Array.isArray(profileData.inventory.solved_words)) 
-            ? profileData.inventory.solved_words 
-            : [];
+          
+          let inventoryWords = [];
+          if (profileData.inventory?.solved_words) {
+            if (Array.isArray(profileData.inventory.solved_words)) {
+              inventoryWords = profileData.inventory.solved_words;
+            } else if (typeof profileData.inventory.solved_words === 'string') {
+              try { inventoryWords = JSON.parse(profileData.inventory.solved_words); } catch (_e) { /* ignore */ }
+            }
+          }
           
           setSolvedWords(prev => {
             const local = Array.isArray(prev) ? prev : [];
@@ -265,9 +272,59 @@ export const GameProvider = ({ children }) => {
             
             if (JSON.stringify(local) !== JSON.stringify(merged)) {
               localStorage.setItem('peyvchin_solved_words', JSON.stringify(merged));
-              return merged;
             }
-            return prev;
+            
+            // --- AUTO-MIGRATE LEGACY STATS TO NEW COLUMNS ---
+            const legacyStats = profileData.inventory?.stats;
+            if (legacyStats) {
+              let legacyGamesWon = 0;
+              let legacyGamesPlayed = 0;
+              let legacyFeverHigh = legacyStats.word_fever?.bestScore || 0;
+              
+              Object.values(legacyStats).forEach(m => {
+                legacyGamesWon += (Number(m.solvedCount) || 0);
+                legacyGamesPlayed += (Number(m.playedCount) || Number(m.solvedCount) || 0);
+              });
+
+              // If legacy stats have significantly more wins than the new columns, trigger rescue
+              if (legacyGamesWon > (profileData.games_won || 0) + 5) {
+                 console.log("[GameContext] 🚨 MIGRATING LEGACY STATS to top-level columns!");
+                 const realGamesPlayed = Math.max(legacyGamesPlayed, legacyGamesWon, profileData.games_played || 0);
+                 const realGamesWon = Math.max(legacyGamesWon, profileData.games_won || 0);
+                 const maxWords = Math.max(merged.length, profileData.total_words_found || 0, realGamesWon);
+                 const legacyPvpWins = legacyStats.battle?.solvedCount || 0;
+                 
+                 let finalWordsToSave = merged;
+                 
+                 // --- AUTO-FILL DICTIONARY RESCUE ---
+                 // If they won more games than they have words (due to past data wipe), 
+                 // randomly inject valid words so their dictionary matches their stats.
+                 if (maxWords > merged.length) {
+                   console.log(`[GameContext] 🚨 Auto-filling dictionary. Missing ${maxWords - merged.length} words.`);
+                   const missingCount = maxWords - merged.length;
+                   const availableWords = allWordsMaster.map(item => item.word).filter(w => !merged.includes(w));
+                   const randomlySelected = availableWords.sort(() => 0.5 - Math.random()).slice(0, missingCount);
+                   finalWordsToSave = [...merged, ...randomlySelected];
+                   setSolvedWords(finalWordsToSave);
+                   localStorage.setItem('peyvchin_solved_words', JSON.stringify(finalWordsToSave));
+                 }
+
+                 supabase.from('profiles').update({
+                   games_played: realGamesPlayed,
+                   games_won: realGamesWon,
+                   pvp_wins: Math.max(profileData.pvp_wins || 0, legacyPvpWins),
+                   total_words_found: maxWords,
+                   fever_highscore: Math.max(legacyFeverHigh, profileData.fever_highscore || 0),
+                   solved_words: finalWordsToSave,
+                   statistics: legacyStats
+                 }).eq('id', user.id).then(({error}) => {
+                   if(error) console.error("Legacy migration failed:", error);
+                   else console.log("Legacy migration successful.");
+                 });
+              }
+            }
+            
+            return merged;
           });
           
           if (profileData.inventory) {
@@ -300,7 +357,7 @@ export const GameProvider = ({ children }) => {
     applyProfileData();
 
     return () => controller.abort();
-  }, [loadingAuth, profileData, refreshRank]);
+  }, [loadingAuth, profileData, refreshRank, user]);
 
   // REAL-TIME SUBSCRIPTION: Listen for profile changes from Supabase (HARDENED)
   useEffect(() => {

@@ -49,6 +49,23 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const [showCinematicOverlay, setShowCinematicOverlay] = React.useState(true);
   const [countdown, setCountdown] = React.useState(5);
   const [pressureTimer, setPressureTimer] = React.useState(null);
+  const topGridWrapperRef = React.useRef(null);
+  const [gridWidth, setGridWidth] = React.useState('264px');
+
+  React.useEffect(() => {
+    if (!topGridWrapperRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const innerGrid = entry.target.querySelector('.mx-auto');
+        if (innerGrid) {
+          const width = innerGrid.getBoundingClientRect().width;
+          if (width > 0) setGridWidth(`${width}px`);
+        }
+      }
+    });
+    observer.observe(topGridWrapperRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const { user, userNickname, userAvatar } = useUser();
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
@@ -271,7 +288,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               transition={{ duration: 1.5, repeat: Infinity }}
               className="absolute w-40 h-40 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"
             />
-            <span className="relative font-black text-7xl sm:text-8xl italic bg-linear-to-b from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(245,158,11,0.8)] select-none">
+            <span className="relative font-black text-7xl sm:text-8xl italic bg-linear-to-b from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent select-none">
               و
             </span>
           </div>
@@ -332,13 +349,22 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </style>
 
       {/* 0. ACTION TOP BAR */}
-      <div className="absolute top-0 left-0 right-0 z-400 pt-[env(safe-area-inset-top)] px-4 h-14 flex items-center justify-between pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-400 pt-[calc(env(safe-area-inset-top)+0.5rem)] px-4 h-[calc(env(safe-area-inset-top)+3.5rem)] flex items-start justify-between pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto relative">
           <button
             onClick={() => { playPopSound(); setIsMenuOpen(true); }}
-            className={`w-10 h-10 flex items-center justify-center rounded-md transition-all ${isDark ? 'bg-black/60 text-white/80 hover:bg-black/80' : 'bg-white/80 text-slate-700 hover:bg-white'} backdrop-blur-md shadow-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}`}
+            className={`flex items-center justify-center rounded-md transition-all ${isDark ? 'bg-black/60 text-white/80 hover:bg-black/80' : 'bg-white/80 text-slate-700 hover:bg-white'} backdrop-blur-md shadow-lg border ${isDark ? 'border-white/10' : 'border-slate-200'}`}
+            style={{
+              width: 'clamp(32px, 8vw, 44px)',
+              height: 'clamp(32px, 8vw, 44px)'
+            }}
           >
-            <span className="material-symbols-outlined text-[20px]">menu</span>
+            <span 
+              className="material-symbols-outlined"
+              style={{ fontSize: 'clamp(18px, 4vw, 24px)' }}
+            >
+              menu
+            </span>
           </button>
 
           <AnimatePresence>
@@ -393,20 +419,23 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </div>
 
       {/* 1. SYMMETRIC BATTLEFIELD */}
-      <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+52px)]" dir="rtl">
+      <div className="battlefield-container no-scrollbar pt-[calc(env(safe-area-inset-top)+clamp(44px,8vw+12px,56px))]" dir="rtl">
 
         {/* PRESSURE WARNING MOVED TO AVATARS */}
 
         {/* RIDDLE DISPLAY */}
-        <div className={`w-full h-12 sm:h-14 flex flex-col items-center justify-center px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
+        <div className={`w-full h-12 flex flex-col items-center justify-center px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
           <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text w-full`}>
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
         </div>
 
         {/* TOP HALF: YOUR GRID */}
-        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
-          <div className={`flex items-center gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm`}>
+        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pb-6 sm:pb-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
+          <div 
+            className={`flex items-center justify-between gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
+            style={{ width: gridWidth }}
+          >
             <div className="relative flex items-center justify-center">
               {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
@@ -441,7 +470,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             </AnimatePresence>
             <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase`}>{userNickname}</span>
           </div>
-          <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
+          <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
             <Grid
               gridId="player"
               guesses={guesses}
@@ -463,21 +492,26 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
           <div className={`absolute inset-x-0 top-1/2 -translate-y-1/2 bg-linear-to-r from-transparent via-${isDark ? 'white/10' : 'slate-300/60'} to-transparent h-px w-full`} />
 
           {/* Score & Round Elements */}
-          <div className={`flex items-center gap-4 ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md p-2 rounded-md border relative z-10`}>
+          <div 
+            className={`flex items-center justify-between ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md p-1.5 rounded-md border relative z-10 transition-all duration-300 ease-out`}
+            style={{ 
+              width: gridWidth
+            }}
+          >
             {/* Player Score Box (Right in RTL) */}
-            <div className={`flex items-center justify-center px-4 py-1.5 ${isDark ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-500 text-white border-blue-600'} border rounded shadow-sm min-w-[44px]`}>
+            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-500 text-white border-blue-600'} border rounded shadow-sm min-w-[36px] sm:min-w-[44px]`}>
               <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
               </span>
             </div>
 
             {/* Round Text (Center, sitting on the unified background) */}
-            <div className={`text-base font-black ${isDark ? 'text-white/80' : 'text-slate-700'} uppercase px-2`}>
+            <div className={`text-[13px] sm:text-base font-black ${isDark ? 'text-white/80' : 'text-slate-700'} uppercase px-1 sm:px-2 whitespace-nowrap`}>
               گەڕ {toKuDigits((currentRound || 0) + 1)}
             </div>
 
             {/* Opponent Score Box (Left in RTL) */}
-            <div className={`flex items-center justify-center px-4 py-1.5 ${isDark ? 'bg-red-600 text-white border-red-500' : 'bg-red-500 text-white border-red-600'} border rounded shadow-sm min-w-[44px]`}>
+            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-red-600 text-white border-red-500' : 'bg-red-500 text-white border-red-600'} border rounded shadow-sm min-w-[36px] sm:min-w-[44px]`}>
               <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p2 : scores?.p1)}
               </span>
@@ -486,7 +520,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         </div>
 
         {/* BOTTOM HALF: OPPONENT GRID */}
-        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
+        <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pt-6 sm:pt-1 ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
             <Grid
               gridId="opponent"
@@ -507,7 +541,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               isDark={isDark}
             />
           </div>
-          <div className={`flex items-center gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm`}>
+          <div 
+            className={`flex items-center justify-between gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
+            style={{ width: gridWidth }}
+          >
             <AnimatePresence mode="popLayout">
               {opponentReaction && (
                 <Motion.div
@@ -546,7 +583,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className={`shrink-0 w-full z-50 p-2 ${isDark ? 'bg-black/40' : 'bg-mono-50'} m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
+      <div className={`shrink-0 w-full z-50 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isDark ? 'bg-black/40' : 'bg-mono-50'} m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
         {/* WAITING FOR OPPONENT OVERLAY MOVED TO AVATAR */}
 
         <Keyboard

@@ -22,11 +22,11 @@ const InventoryBar = ({
   const sepColor = "bg-mono-200 dark:bg-white/10";
 
   return (
-    <div className={`flex items-center justify-center h-[52px] ${className}`}>
-      <div className="flex items-center gap-10 py-1 px-4 h-full">
+    <div className={`flex items-center justify-center min-h-[56px] py-2 w-full ${className}`}>
+      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-8 py-1 px-1 sm:px-4 h-auto">
         
         {/* Hint Item */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button 
             onClick={onHint}
             disabled={!isShop && (hintTaps >= hintLimit || hintLimit === 0 || (hintCount || 0) <= 0)}
@@ -58,7 +58,7 @@ const InventoryBar = ({
         <div className={`w-px h-4 ${sepColor}`} />
 
         {/* Magnet Item */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button 
             onClick={onMagnet}
             disabled={!isShop && (magnetUsedInRound || (magnetCount || 0) <= 0)}
@@ -92,7 +92,7 @@ const InventoryBar = ({
             <div className={`w-px h-4 ${sepColor}`} />
 
             {/* Skip Item */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <button 
                 onClick={onSkip}
                 disabled={!isShop && (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}

@@ -1853,7 +1853,7 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full z-50 mt-auto px-2 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
+              <div className={`shrink-0 w-full z-50 mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}

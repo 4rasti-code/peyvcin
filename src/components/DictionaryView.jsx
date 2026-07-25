@@ -212,7 +212,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
                   <h3 className="text-lg font-black font-heading text-mono-900 dark:text-white group-hover:text-primary transition-colors">
                     {item.word.replace('_', ' ')}
                   </h3>
-                  <span className="text-[7px] font-black uppercase text-mono-400 dark:text-mono-500 tracking-[0.2em] border border-mono-200 dark:border-mono-800 px-2 py-1 rounded-[2px]">
+                  <span className="text-[7px] font-black uppercase text-mono-400 dark:text-mono-500 border border-mono-200 dark:border-mono-800 px-2 py-1 rounded-[2px]">
                     {item.category.replace('_', ' ')}
                   </span>
                 </div>

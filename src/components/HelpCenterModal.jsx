@@ -209,7 +209,7 @@ const HelpCenterModal = ({ onClose, triggerHaptic }) => {
                                  <span className="material-symbols-outlined text-blue-500 text-[22px]">mail</span>
                                  <div className="flex flex-col text-right">
                                     <h3 className="text-[13px] font-black font-rabar text-mono-900 dark:text-white">پەیوەندی کرن ب ئیمەیڵی</h3>
-                                    <p className="text-[10px] font-bold font-rabar text-mono-500">پێشنیار یان کێشە هەنە؟</p>
+                                    <p className="text-[10px] font-bold font-rabar text-mono-500">پێشنیار یان ئاریشە هەنە؟</p>
                                  </div>
                               </div>
                               <span className="material-symbols-outlined text-blue-500 text-[18px]">open_in_new</span>

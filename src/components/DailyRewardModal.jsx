@@ -394,7 +394,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     transition={{ duration: 0.3 }}
                     className="flex flex-col items-center w-full"
                   >
-                    <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-[0_4px_10px_rgba(250,204,21,0.3)]">پیرۆزە!</h3>
+                    <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">پیرۆزە!</h3>
                     <p className="text-mono-900 dark:text-white/90 text-xl font-medium mb-12 drop-shadow-md">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
 
                   <div className="mb-10 relative flex flex-col justify-center items-center w-full">

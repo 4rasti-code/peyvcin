@@ -169,7 +169,7 @@ const DefeatOverlay = ({
                       <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-lg">local_fire_department</span>
                     </div>
                     <div className="flex flex-col items-start leading-none">
-                      <span className="text-amber-700 dark:text-amber-400 font-black text-xs tracking-tight">زنجیرەیا پەیڤان</span>
+                      <span className="text-amber-700 dark:text-amber-400 font-black text-xs">زنجیرەیا پەیڤان</span>
                     </div>
                   </div>
                   <div className="relative z-10 flex items-center gap-1">

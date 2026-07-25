@@ -59,7 +59,7 @@ export default function RewardClaimAnimation({ medal, onClose }) {
           transition={{ duration: 0.6, type: "spring", bounce: 0.5, delay: 0.2 }}
           className="absolute top-[20%] text-center z-20"
         >
-          <h2 className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-200 to-yellow-500 drop-shadow-[0_0_15px_rgba(245,158,11,0.8)] font-rabar">
+          <h2 className="text-4xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-200 to-yellow-500 font-rabar">
             دەستکەفتەکا نوی!
           </h2>
           <p className="text-yellow-100/80 text-lg mt-2">{medal.name}</p>

@@ -6,6 +6,7 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
 import PublicProfileModal from './PublicProfileModal';
+import ReportModal from './ReportModal';
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
 import ClashingSwords from './ClashingSwords';
@@ -193,7 +194,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
                 onClick={() => { onReport(m); onClose(); }}
                 className="flex items-center justify-between w-full py-2 px-3 hover:bg-orange-50 dark:hover:bg-orange-500/10 active:bg-orange-100 dark:active:bg-orange-500/20 text-orange-500 transition-all rounded-md"
               >
-                <span className="font-bold text-[13px]">ڕاپۆرتکردن</span>
+                <span className="font-bold text-[13px]">ڕاپۆرتکرن</span>
                 <span className="material-symbols-outlined text-[18px]">flag</span>
               </button>
             </>
@@ -627,6 +628,9 @@ export default function SocialHubView({
   const [activeReactionModal, setActiveReactionModal] = useState(null); // { message, activeTab }
   const [reactionUsers, setReactionUsers] = useState({}); // { id: nickname }
   const [showCopySuccess, setShowCopySuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const typingTimeoutRef = useRef(null);
@@ -1416,7 +1420,7 @@ export default function SocialHubView({
           >
             <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-md p-2 flex items-center justify-center gap-2">
               <span className="material-symbols-outlined text-[16px]">cloud_off</span>
-              <span className="text-xs font-black">کێشەیەک د پەیوەندیێ دا هەیە... بزاڤا دووبارە دکەین</span>
+              <span className="text-xs font-black">ئاریشەیەک د پەیوەندیێ دا هەیە... بزاڤا دووبارە دکەین</span>
             </div>
           </Motion.div>
         )}
@@ -1497,34 +1501,33 @@ export default function SocialHubView({
                     </div>
                   </div>
 
-                  {/* Clear Chat Button */}
+                  {/* Clear Chat Button (For Normal Players) */}
                   {selectedChat.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
                     <button
-                      onClick={async () => {
+                      onClick={() => {
                         triggerHaptic(20);
-                        const confirmDelete = window.confirm("ئەرێ تو یێ پشتڕاستی تە دڤێت هەمی نامەیێن ناڤبەرا خۆ و ڤی کەسی ژێببەی؟ ئەڤە دێ نامەیان ل دەڤ هەردووکان ژێبەت!");
-                        if (!confirmDelete) return;
-                        try {
-                          const myId = user?.id;
-                          const partnerId = selectedChat.id;
-                          const { error } = await supabase
-                            .from('messages')
-                            .delete()
-                            .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`);
-                          if (error) throw error;
-
-                          setChatMessages([]);
-                          setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
-                          setSelectedChat(null);
-                        } catch (err) {
-                          console.error("Error clearing chat:", err);
-                          alert("شاشیەک ڕوویدا د ژێبرنا نامەیان دا.");
-                        }
+                        setChatToDelete(selectedChat);
+                        setShowDeleteConfirm(true);
                       }}
                       className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm shrink-0 ml-1"
                       title="ژێبرنا نامەیان"
                     >
                       <span className="material-symbols-outlined text-[18px]">delete</span>
+                    </button>
+                  )}
+
+                  {/* Report Button (For Peyvok Bot ONLY) */}
+                  {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                    <button
+                      onClick={() => {
+                        triggerHaptic(20);
+                        setIsReportModalOpen(true);
+                      }}
+                      className="h-8 px-3 rounded-full bg-primary/10 text-primary flex items-center justify-center gap-1.5 hover:bg-primary hover:text-white transition-all shadow-sm shrink-0 ml-1"
+                      title="هنارتنا ڕاپۆرت یان پێشنیار"
+                    >
+                      <span className="material-symbols-outlined text-[17px]">report</span>
+                      <span className="text-[11px] font-bold">ڕاپۆرت</span>
                     </button>
                   )}
                 </div>
@@ -1987,6 +1990,79 @@ export default function SocialHubView({
               </div>
             </Motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Chat Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <Motion.div
+            key="delete-chat-confirm-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-110 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
+          >
+            <Motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-[300px] bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+              dir="rtl"
+            >
+              <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا نامەیان؟</h3>
+              <p className="text-[11px] font-bold text-center text-mono-500 dark:text-white/50 mb-5 leading-relaxed">
+                ئەڤە دێ هەمی نامەیێن تە و ڤی کەسی ب ئێکجاری ژێبەت و دێ ل دەڤ کەسێ بەرامبەر ژی ڕەش بن. ئەڤ کارە ناهێتە زڤڕاندن.
+              </p>
+              <div className="flex gap-2.5 w-full">
+                <button
+                  onClick={async () => {
+                    triggerHaptic(50);
+                    try {
+                      const myId = user?.id;
+                      const partnerId = chatToDelete?.id;
+                      if (!myId || !partnerId) return;
+                      const { error } = await supabase.rpc('delete_chat_history', {
+                        user1_id: myId,
+                        user2_id: partnerId
+                      });
+                      if (error) throw error;
+
+                      setChatMessages([]);
+                      setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
+                      setSelectedChat(null);
+                    } catch (err) {
+                      console.error("Error clearing chat:", err);
+                      alert("شاشیەک ڕوویدا د ژێبرنا نامەیان دا.");
+                    } finally {
+                      setShowDeleteConfirm(false);
+                      setChatToDelete(null);
+                    }
+                  }}
+                  className="flex-1 bg-red-500 text-white hover:bg-red-600 py-2.5 rounded-md text-[13px] font-bold transition-colors shadow-[0_4px_15px_rgba(239,68,68,0.25)]"
+                >
+                  ژێبرن
+                </button>
+                <button
+                  onClick={() => { triggerHaptic(10); setShowDeleteConfirm(false); setChatToDelete(null); }}
+                  className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors"
+                >
+                  پەشێمانم
+                </button>
+              </div>
+            </Motion.div>
+          </Motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Report Bug/Suggestion Modal */}
+      <AnimatePresence>
+        {isReportModalOpen && (
+          <ReportModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            user={user}
+          />
         )}
       </AnimatePresence>
 

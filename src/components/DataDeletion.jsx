@@ -177,7 +177,7 @@ const DataDeletion = ({ onViewChange, onClose }) => {
 
                 {/* Footer Section */}
                 <div className="mt-16 text-center space-y-8">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-800 dark:text-white/90 font-medium text-[11px] uppercase tracking-wider antialiased">
+                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-800 dark:text-white/90 font-medium text-[11px] uppercase antialiased">
                         <button className="text-blue-600 dark:text-blue-400 font-bold pointer-events-none">{isKurdish ? 'ژێبرنا داتایان' : 'Data Deletion'}</button>
                         <span className="w-1 h-1 rounded-md bg-white/10"></span>
                         <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="text-mono-500 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-colors">{isKurdish ? 'سیاسەتا تایبەتمەندیێ' : 'Privacy Policy'}</button>
@@ -187,13 +187,13 @@ const DataDeletion = ({ onViewChange, onClose }) => {
 
                     <button
                         onClick={handleClose}
-                        className="bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 px-6 py-3 rounded-md font-bold text-xs uppercase tracking-wide hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 mx-auto mt-8"
+                        className="bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 px-6 py-3 rounded-md font-bold text-xs uppercase hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 mx-auto mt-8"
                     >
                         <span className="material-symbols-outlined text-xl">arrow_back</span>
                         {t.backButton}
                     </button>
 
-                    <footer className="mt-12 text-center text-mono-500 dark:text-white/50 text-xs font-normal uppercase tracking-wider antialiased opacity-90">
+                    <footer className="mt-12 text-center text-mono-500 dark:text-white/50 text-xs font-normal uppercase antialiased opacity-90">
                         {isKurdish ? '© ٢٠٢٦ تیما پەیڤۆک • هاتیە دروستکرن بۆ کەلەپووری' : '© 2026 Peyvok Team • Built for Heritage'}
                     </footer>
                 </div>
