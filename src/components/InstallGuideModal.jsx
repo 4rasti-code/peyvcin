@@ -131,7 +131,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 pt-12">
+      <div className="fixed inset-0 z-999 flex items-center justify-center p-4 pt-12">
         {/* Backdrop */}
         <Motion.div
           initial={{ opacity: 0 }}
