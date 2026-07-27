@@ -477,13 +477,13 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 {myReaction && (
                   <Motion.div
                     key={`my-${myReaction}`}
-                    initial={{ opacity: 0, scale: 0.5, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.8, type: "spring" }}
-                    className="absolute bottom-full right-0 mb-2 z-100 pointer-events-none"
+                    className="absolute inset-0 flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`relative px-3 py-2 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`relative px-3 py-2 ${isDark ? 'bg-blue-500/80 border-blue-500/50' : 'bg-blue-100/95 border-blue-300 shadow-lg'} backdrop-blur-md border rounded-2xl flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -587,13 +587,13 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 {opponentReaction && (
                   <Motion.div
                     key={`opp-${opponentReaction}`}
-                    initial={{ opacity: 0, scale: 0.5, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.8, type: "spring" }}
-                    className="absolute bottom-full left-0 mb-2 z-100 pointer-events-none"
+                    className="absolute inset-0 flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`relative px-3 py-2 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`relative px-3 py-2 ${isDark ? 'bg-red-500/80 border-red-500/50' : 'bg-red-100/95 border-red-300 shadow-lg'} backdrop-blur-md border rounded-2xl flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>
