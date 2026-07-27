@@ -372,7 +372,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                       <div className="relative flex justify-center items-center">
                         <wonReward.Icon
                           size={100}
-                          className={`filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] ${wonReward.type === 'mystery_box' ? 'w-30 h-30' : ''}`}
+                          className={`relative z-10 ${wonReward.type === 'mystery_box' ? 'w-30 h-30' : ''}`}
                         />
                       </div>
 

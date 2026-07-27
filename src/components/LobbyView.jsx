@@ -587,7 +587,7 @@ const LobbyView = memo(({
                  className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
                >
                  <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'relative z-10' : ''}`} />
                    {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
                  </div>
                </button>

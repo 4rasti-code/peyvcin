@@ -126,12 +126,12 @@ const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
     switch (type) {
       case 'derhem': return <DerhemIcon size={44} className="hover:scale-110 transition-transform" />;
       case 'dinar': return <DinarIcon size={44} className="hover:scale-110 transition-transform" />;
-      case 'hint': return <HintIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
-      case 'magnet': return <MagnetIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
-      case 'skip': return <SkipIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
-      case 'spinTicket': return <SpinTicketIcon size={44} animate={true} className="hover:scale-110 transition-transform drop-shadow-md" />;
+      case 'hint': return <HintIcon size={44} animate={true} className="hover:scale-110 transition-transform" />;
+      case 'magnet': return <MagnetIcon size={44} animate={true} className="hover:scale-110 transition-transform" />;
+      case 'skip': return <SkipIcon size={44} animate={true} className="hover:scale-110 transition-transform" />;
+      case 'spinTicket': return <SpinTicketIcon size={44} animate={true} className="hover:scale-110 transition-transform" />;
       case 'mystery_box': return <div className="w-11 h-11"><MysteryBoxIcon /></div>;
-      case 'xp': return <XPIcon size={44} className="hover:scale-110 transition-transform drop-shadow-[0_4px_10px_rgba(168,85,247,0.6)]" />;
+      case 'xp': return <XPIcon size={44} className="hover:scale-110 transition-transform" />;
       default: return <FilsIcon size={44} className="hover:scale-110 transition-transform" />;
     }
   };
@@ -153,11 +153,11 @@ const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
           }}
         >
           {isPowerup ? (
-             <div className="powerup-inner w-12 h-12 flex items-center justify-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+             <div className="powerup-inner w-12 h-12 flex items-center justify-center relative z-10">
                {getIcon()}
              </div>
           ) : (
-             <div className="w-12 h-12 flex items-center justify-center filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
+             <div className="w-12 h-12 flex items-center justify-center relative z-10">
                {getIcon()}
              </div>
           )}

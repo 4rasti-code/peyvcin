@@ -27,7 +27,7 @@ const AdvancedSparkle = ({ className, delaySec }) => (
       ease: "easeInOut"
     }}
   >
-    <svg viewBox="-20 -20 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible drop-shadow-[0_0_8px_rgba(250,204,21,0.9)]">
+    <svg viewBox="-20 -20 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
       <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" fill="#FDE047" />
       <path d="M50 20C50 36.568 36.568 50 20 50C36.568 50 50 63.431 50 80C50 63.431 63.431 50 80 50C63.431 50 50 36.568 50 20Z" fill="#FFFFFF" />
     </svg>
@@ -427,7 +427,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
                           <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible" />
                         ) : (
-                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white">
                             {claimedDayInfo?.icon || 'redeem'}
                           </span>
                         )}

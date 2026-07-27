@@ -257,7 +257,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                   {toKuDigits(boxCount)}
                 </span>
                 <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
-                <MysteryBoxIcon isOpen={false} className="w-[24px] h-[24px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+                <MysteryBoxIcon isOpen={false} className="w-6 h-6" />
               </div>
             )}
 
@@ -304,7 +304,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                   onClick={canActuallyOpen && !isOpening && !isLidOpen ? handleOpen : undefined}
                   whileTap={canActuallyOpen && !isOpening ? { scale: 0.95 } : {}}
                 >
-                  <MysteryBoxIcon isIdleAnimated={canActuallyOpen && !isOpening} isOpen={isLidOpen} className={`w-full h-full ${!canActuallyOpen && !isOpening ? 'grayscale opacity-40' : 'drop-shadow-[0_15px_25px_rgba(168,85,247,0.4)]'}`} />
+                  <MysteryBoxIcon isIdleAnimated={canActuallyOpen && !isOpening} isOpen={isLidOpen} className={`w-full h-full relative z-10 ${!canActuallyOpen && !isOpening ? 'grayscale opacity-40' : ''}`} />
                 </Motion.div>
 
                 {/* Reward Icon floating out of chest */}
