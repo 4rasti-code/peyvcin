@@ -180,6 +180,10 @@ export default function App() {
     document.fonts.ready.then(() => {
       setIsFontsLoaded(true);
     });
+
+    // Remove the native splash screen seamlessly once React has mounted the App loader
+    const splash = document.getElementById('splash-screen');
+    if (splash) splash.remove();
   }, []);
 
   // 0. CORE CONTEXT HOOKS: Must be at the top to avoid ReferenceErrors
