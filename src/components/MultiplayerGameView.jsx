@@ -461,15 +461,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute -right-11.25 top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                  className="absolute right-full mr-2 sm:mr-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none"
                 >
-                  <div className={`relative px-2 py-1.5 ${isDark ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center`}>
-                    <span className="text-[22px] leading-none">{myReaction}</span>
+                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-[200px]`}>
+                    <span className={`${myReaction.length > 3 ? 'text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight' : 'text-[22px] leading-none'}`}>{myReaction}</span>
                   </div>
                 </Motion.div>
               )}
             </AnimatePresence>
-            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase`}>{userNickname}</span>
+            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase relative z-10`}>{userNickname}</span>
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
             <Grid
@@ -554,15 +554,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute -left-11.25 top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                  className="absolute left-full ml-2 sm:ml-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none"
                 >
-                  <div className={`relative px-2 py-1.5 ${isDark ? 'bg-red-500/20 border-red-500/30' : 'bg-red-50 border-red-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center`}>
-                    <span className="text-[22px] leading-none">{opponentReaction}</span>
+                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-[200px]`}>
+                    <span className={`${opponentReaction.length > 3 ? 'text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight' : 'text-[22px] leading-none'}`}>{opponentReaction}</span>
                   </div>
                 </Motion.div>
               )}
             </AnimatePresence>
-            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
+            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase relative z-10`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
             <div className="relative flex items-center justify-center">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
