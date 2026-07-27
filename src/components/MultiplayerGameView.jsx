@@ -461,9 +461,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute right-full mr-2 sm:mr-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none"
+                  className="absolute right-full mr-2 sm:mr-3 top-1/2 -translate-y-1/2 z-100 pointer-events-none"
                 >
-                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-[200px]`}>
+                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-50`}>
                     <span className={`${myReaction.length > 3 ? 'text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight' : 'text-[22px] leading-none'}`}>{myReaction}</span>
                   </div>
                 </Motion.div>
@@ -554,9 +554,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute left-full ml-2 sm:ml-3 top-1/2 -translate-y-1/2 z-[100] pointer-events-none"
+                  className="absolute left-full ml-2 sm:ml-3 top-1/2 -translate-y-1/2 z-100 pointer-events-none"
                 >
-                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-[200px]`}>
+                  <div className={`relative px-3 py-1.5 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-50`}>
                     <span className={`${opponentReaction.length > 3 ? 'text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight' : 'text-[22px] leading-none'}`}>{opponentReaction}</span>
                   </div>
                 </Motion.div>
