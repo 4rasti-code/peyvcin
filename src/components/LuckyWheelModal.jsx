@@ -377,8 +377,21 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                       </div>
 
                       {/* Reward Amount Text */}
-                      <p className="text-5xl font-black text-yellow-400 mt-4 mb-8">
-                        + {wonReward.type === 'mystery_box' ? `${toKuDigits(wonReward.amount)} ${wonReward.label}` : wonReward.label}
+                      <p className="text-5xl font-black text-yellow-400 mt-4 mb-8" dir="ltr">
+                        {(() => {
+                          const nameMap = {
+                            fils: 'فلس',
+                            derhem: 'درهەم',
+                            dinar: 'دینار',
+                            skip: 'پاس',
+                            hint: 'هاریکاری',
+                            magnet: 'موگناتیس',
+                            mystery_box: 'سندۆق',
+                            spinTicket: 'بلیت'
+                          };
+                          const rewardName = nameMap[wonReward.type] || '';
+                          return `+ ${toKuDigits(wonReward.amount)} ${rewardName}`;
+                        })()}
                       </p>
                     </Motion.div>
 
