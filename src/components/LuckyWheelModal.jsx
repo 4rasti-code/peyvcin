@@ -192,10 +192,10 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
       playChestOpenSfx();
 
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 150,
+        spread: 100,
         origin: { y: 0.6 },
-        colors: ['#FFD700', '#FFA500', '#FF4500']
+        colors: ['#FFD700', '#F59E0B', '#FCD34D']
       });
 
       setShowReward(true);
@@ -276,7 +276,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
             animate={{ opacity: isClaiming ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/95 dark:bg-black/90 backdrop-blur-md"
             style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
           >
             {/* Close Button Top Right */}
@@ -306,7 +306,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
               {/* Ambient Glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)' }} />
 
-              <h2 className={`text-3xl font-black text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 uppercase`}>چەرخێ بەختی</h2>
+              <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 uppercase`}>چەرخێ بەختی</h2>
               {!canSpin && !loadingCheck && timeLeftStr && (
                 <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
               )}
@@ -355,11 +355,8 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="fixed inset-0 z-120 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md overflow-hidden"
+                    className="fixed inset-0 z-120 flex flex-col items-center justify-center bg-white/40 dark:bg-black/60 backdrop-blur-[2px] overflow-hidden"
                   >
-                    {/* Safe Static Glow VFX (Replaces heavy rotating SVG) */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-87.5 h-87.5 rounded-full pointer-events-none -z-10 animate-pulse" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.4) 0%, transparent 70%)' }}></div>
-
                     {/* Floating Reward Container */}
                     <Motion.div
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -369,39 +366,52 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                       style={{ WebkitTransform: 'translateZ(0)' }}
                     >
                       {/* Icon */}
-                      <div className="relative flex justify-center items-center">
+                      <div className="relative flex justify-center items-center mb-4">
+                        {/* Premium Aura (Clean, Sharp, Elegant) */}
+                        <div
+                          className="absolute w-62.5 h-62.5 bg-[radial-gradient(circle,rgba(245,158,11,0.4)_0%,transparent_70%)] pointer-events-none"
+                          style={{ zIndex: -1 }}
+                        />
+
+                        {/* Core intense bright glow directly behind the icon */}
+                        <div className="absolute w-32 h-32 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
+
                         <wonReward.Icon
                           size={100}
                           className={`relative z-10 ${wonReward.type === 'mystery_box' ? 'w-30 h-30' : ''}`}
                         />
                       </div>
 
-                      {/* Reward Amount Text */}
-                      <p className="text-5xl font-black text-yellow-400 mt-4 mb-8" dir="ltr">
-                        {(() => {
-                          const nameMap = {
-                            fils: 'فلس',
-                            derhem: 'درهەم',
-                            dinar: 'دینار',
-                            skip: 'پاس',
-                            hint: 'هاریکاری',
-                            magnet: 'موگناتیس',
-                            mystery_box: 'سندۆق',
-                            spinTicket: 'بلیت'
-                          };
-                          const rewardName = nameMap[wonReward.type] || '';
-                          return `+ ${toKuDigits(wonReward.amount)} ${rewardName}`;
-                        })()}
-                      </p>
+                      {/* Elegant Clean Typography with Gold Glow Behind It */}
+                      <div className="relative mt-6 mb-8">
+                        <div className="absolute -inset-4 bg-yellow-500 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
+                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
+                          {(() => {
+                            const nameMap = {
+                              fils: 'فلس',
+                              derhem: 'درهەم',
+                              dinar: 'دینار',
+                              skip: 'پاس',
+                              hint: 'هاریکاری',
+                              magnet: 'موگناتیس',
+                              mystery_box: 'سندۆق',
+                              spinTicket: 'بلیت'
+                            };
+                            const rewardName = nameMap[wonReward.type] || '';
+                            return `+ ${toKuDigits(wonReward.amount)} ${rewardName}`;
+                          })()}
+                        </p>
+                      </div>
                     </Motion.div>
 
                     {/* Premium Claim Button */}
                     <Motion.button
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.3, ease: "easeOut" }}
+                      transition={{ duration: 0.4, delay: 0.2 }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={handleClaim}
-                      className="w-40 py-2.5 rounded-md mx-auto bg-linear-to-b from-yellow-300 via-amber-500 to-orange-600 text-amber-950 font-black text-lg uppercase hover:scale-105 active:scale-95 transition-all shadow-md border border-yellow-300/50 flex items-center justify-center"
+                      className="w-40 py-2.5 mx-auto bg-linear-to-r from-green-500 to-emerald-600 text-white font-black text-lg uppercase rounded-md hover:scale-105 active:scale-95 transition-all shadow-md border-2 border-emerald-400"
                     >
                       وەرگرتن
                     </Motion.button>
