@@ -320,7 +320,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                       <div className="relative flex items-center justify-center mb-4">
                         {/* Premium Aura (Clean, Sharp, Elegant) */}
                         <div
-                          className="absolute w-[250px] h-[250px] bg-[radial-gradient(circle,rgba(217,70,239,0.4)_0%,transparent_70%)] pointer-events-none"
+                          className="absolute w-62.5 h-62.5 bg-[radial-gradient(circle,rgba(217,70,239,0.4)_0%,transparent_70%)] pointer-events-none"
                           style={{ zIndex: -1 }}
                         />
 
