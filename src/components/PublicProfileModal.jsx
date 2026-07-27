@@ -396,7 +396,7 @@ export default function PublicProfileModal({
             <div className="relative mb-3 mt-2 flex flex-col items-center">
               <div className="w-28 h-28 rounded-full flex items-center justify-center relative">
                 {/* XP Progress Ring */}
-                <div className="absolute inset-[-6px] z-0">
+                <div className="absolute -inset-1.5 z-0">
                   <svg className="w-full h-full -rotate-90 overflow-visible" viewBox="0 0 100 100">
                     <circle cx="50" cy="50" r="44" fill="none" className="stroke-mono-200/20 dark:stroke-white/5" strokeWidth="4" />
                     <Motion.circle
@@ -652,7 +652,7 @@ export default function PublicProfileModal({
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-[300px] bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+              className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
               dir="rtl"
             >
               {showReportConfirm && (

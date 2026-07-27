@@ -118,7 +118,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-8" dir="rtl">
+    <div className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6 pb-safe pt-safe" dir="rtl">
       {/* Backdrop */}
       <Motion.div
         initial={{ opacity: 0 }}
@@ -133,7 +133,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="relative w-full max-w-[400px] bg-white dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 sm:p-6 shadow-2xl flex flex-col gap-4 overflow-hidden"
+        className="relative w-full max-w-lg bg-white dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-[20px] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 max-h-[85vh] overflow-y-auto no-scrollbar"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-black font-rabar text-mono-900 dark:text-white flex items-center gap-2">
@@ -143,7 +143,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
           <button 
             onClick={handleClose}
             disabled={isSubmitting}
-            className="w-8 h-8 rounded-[6px] bg-mono-100 dark:bg-white/10 flex items-center justify-center text-mono-500 hover:text-mono-900 dark:hover:text-white transition-colors"
+            className="w-8 h-8 rounded-md bg-mono-100 dark:bg-white/10 flex items-center justify-center text-mono-500 hover:text-mono-900 dark:hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined text-sm">close</span>
           </button>
@@ -163,13 +163,13 @@ const ReportModal = ({ isOpen, onClose, user }) => {
             <div className="flex bg-mono-100 dark:bg-white/5 rounded-md p-1">
               <button
                 onClick={() => setType('bug')}
-                className={`flex-1 py-2 text-sm font-bold rounded-[4px] transition-colors ${type === 'bug' ? 'bg-white dark:bg-mono-700 text-mono-900 dark:text-white shadow-sm' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                className={`flex-1 py-2 text-sm font-bold rounded-sm transition-colors ${type === 'bug' ? 'bg-white dark:bg-mono-700 text-mono-900 dark:text-white shadow-sm' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
               >
                 ئاریشەیەک هەیە
               </button>
               <button
                 onClick={() => setType('suggestion')}
-                className={`flex-1 py-2 text-sm font-bold rounded-[4px] transition-colors ${type === 'suggestion' ? 'bg-white dark:bg-mono-700 text-mono-900 dark:text-white shadow-sm' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                className={`flex-1 py-2 text-sm font-bold rounded-sm transition-colors ${type === 'suggestion' ? 'bg-white dark:bg-mono-700 text-mono-900 dark:text-white shadow-sm' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
               >
                 پێشنیار
               </button>
@@ -182,7 +182,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={type === 'bug' ? "ئاریشەیەکا چاڤەڕێ نەکری چێبوو..." : "هزرەکا نوی بۆ یاریێ..."}
-                className="w-full bg-mono-50 dark:bg-black/20 border border-mono-200 dark:border-white/10 rounded-md p-3 text-sm min-h-[100px] text-mono-900 dark:text-white focus:outline-none focus:border-primary resize-none"
+                className="w-full bg-mono-50 dark:bg-black/20 border border-mono-200 dark:border-white/10 rounded-md p-3 text-sm min-h-25 text-mono-900 dark:text-white focus:outline-none focus:border-primary resize-none"
               />
             </div>
 
@@ -197,7 +197,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
                       <img src={img.preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
                       <button 
                         onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 w-6 h-6 rounded-[4px] bg-black/60 text-white flex items-center justify-center transition-opacity hover:bg-red-500"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-sm bg-black/60 text-white flex items-center justify-center transition-opacity hover:bg-red-500"
                       >
                         <span className="material-symbols-outlined text-[14px]">close</span>
                       </button>

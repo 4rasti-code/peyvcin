@@ -76,16 +76,17 @@ export const shareGameResult = async ({ title, grid, isDark = document.documentE
 
     if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
-        title: 'پەیڤۆک',
-        text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nhttps://www.peyvokgame.com`,
+        text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
+        url: 'https://www.peyvokgame.com',
         files: [file]
       });
       return true;
     } else if (navigator.share) {
       // Fallback to text sharing if file sharing is not supported
+      // Only sending text and url for maximum compatibility
       await navigator.share({
-        title: 'پەیڤۆک',
-        text: `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nhttps://www.peyvokgame.com`
+        text: `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
+        url: 'https://www.peyvokgame.com'
       });
       return true;
     }

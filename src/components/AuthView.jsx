@@ -606,7 +606,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
         >
             <FloatingLetterBackground ref={bgRef} baseOpacity={0.25} />
 
-            <div className="w-full max-w-[360px] sm:max-w-[380px] flex flex-col items-center relative z-20 shrink-0 my-auto">
+            <div className="w-full max-w-90 sm:max-w-95 flex flex-col items-center relative z-20 shrink-0 my-auto">
                 <Motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1255,7 +1255,7 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
                     className="fixed inset-0 z-1000 flex flex-col bg-mono-white dark:bg-black overflow-y-auto"
                 >
                     {/* Custom Header for Policy Modals */}
-                    <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/5">
+                    <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 pt-safe bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/5">
                         <button
                             onClick={() => {
                                 playBackSfx();

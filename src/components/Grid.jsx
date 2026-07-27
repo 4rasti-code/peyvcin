@@ -290,7 +290,7 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
   }, [wordLength, maxRows, compact, isMobile]);
 
   if (wordLength === 0) return (
-    <div className="w-full flex-1 min-h-[300px] flex items-center justify-center" />
+    <div className="w-full flex-1 min-h-75 flex items-center justify-center" />
   );
 
   const rows = [...guesses];

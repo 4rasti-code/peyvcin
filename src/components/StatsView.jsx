@@ -13,7 +13,7 @@ const modeConfigs = [
 ];
 
 const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId }) => (
-  <div className="bg-mono-white dark:bg-mono-900/30 rounded-[6px] border border-mono-200 dark:border-mono-800 p-5 backdrop-blur-sm transition-all duration-300">
+  <div className="bg-mono-white dark:bg-mono-900/30 rounded-md border border-mono-200 dark:border-mono-800 p-5 backdrop-blur-sm transition-all duration-300">
     <div className="flex items-center gap-3 mb-5">
       <span className={`material-symbols-outlined ${textColor} text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{icon || 'bar_chart'}</span>
       <h4 className="text-[11px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar">{title}</h4>
@@ -24,12 +24,12 @@ const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId })
         return (
           <div key={key} className="flex items-center gap-4">
             <span className={`text-[11px] font-black text-mono-400 text-left ${modeId === 'battle' ? 'w-16' : 'w-3 tabular-nums'}`}>{label}</span>
-            <div className="flex-1 h-6 bg-mono-100/50 dark:bg-mono-800/40 rounded-[4px] overflow-hidden relative border border-mono-200/30 dark:border-mono-700/20">
+            <div className="flex-1 h-6 bg-mono-100/50 dark:bg-mono-800/40 rounded-sm overflow-hidden relative border border-mono-200/30 dark:border-mono-700/20">
             <Motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: `${(value / maxValue) * 100}%` }}
                 transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                className={`h-full min-w-[28px] flex items-center justify-end px-2.5 relative ${value > 0 ? color : 'bg-mono-200 dark:bg-mono-800/60'}`}
+                className={`h-full min-w-7 flex items-center justify-end px-2.5 relative ${value > 0 ? color : 'bg-mono-200 dark:bg-mono-800/60'}`}
               >
                 {value > 0 && <div className="absolute inset-0 bg-white/10" />}
                 <span className="text-[10px] font-black text-white tabular-nums drop-shadow-sm">{toKuDigits(value)}</span>
@@ -152,7 +152,7 @@ export default function StatsView({
       <div className="w-full max-w-lg flex items-center justify-between px-6 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 sticky top-0 z-50 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-100 dark:border-mono-800/30">
         <button 
           onClick={() => { triggerHaptic(10); playSettingsCloseSound(); onViewChange('profile'); }}
-          className="w-10 h-10 rounded-[4px] bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
+          className="w-10 h-10 rounded-sm bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
         >
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
@@ -177,7 +177,7 @@ export default function StatsView({
               { label: 'زنجیرەیا نۆکە', value: stats.currentStreak, icon: 'local_fire_department' },
               { label: 'مەزنترین زنجیرە', value: stats.maxStreak, icon: 'military_tech' }
             ].map((item, idx) => (
-              <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800/60 p-3.5 flex flex-col items-center gap-1 shadow-sm transition-transform hover:scale-[1.02]">
+              <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800/60 p-3.5 flex flex-col items-center gap-1 shadow-sm transition-transform hover:scale-[1.02]">
                 <span className="text-base font-black text-mono-900 dark:text-white tabular-nums">
                   {toKuDigits(item.value)}{item.suffix || ''}
                 </span>
@@ -205,7 +205,7 @@ export default function StatsView({
                 { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
                 { label: 'ڕیکۆردێ تایا پەیڤان', value: advancedStats.feverHighscore, icon: 'bolt', color: 'text-sky-500' }
               ].map((metric, idx) => (
-                <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between shadow-sm transition-all hover:border-mono-300 dark:hover:border-mono-700">
+                <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between shadow-sm transition-all hover:border-mono-300 dark:hover:border-mono-700">
                   <div className="flex items-center gap-4">
                     <span className={`material-symbols-outlined ${metric.color} text-2xl`}>{metric.icon}</span>
                     <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">{metric.label}</span>
@@ -215,7 +215,7 @@ export default function StatsView({
               ))}
             </div>
 
-            <div className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
+            <div className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <span className="material-symbols-outlined text-rose-500 text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
                 <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">مۆدێ دڵخواز</span>
@@ -224,7 +224,7 @@ export default function StatsView({
             </div>
 
             {advancedStats.fastestSolve > 0 && (
-              <div className="bg-mono-white dark:bg-mono-900/40 rounded-[6px] border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
+              <div className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <span className="material-symbols-outlined text-sky-500 text-2xl">timer</span>
                   <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">خێراترین سەرکەفتن</span>
@@ -278,7 +278,7 @@ export default function StatsView({
                           <div className="absolute inset-0 bg-linear-to-t from-black/10 to-transparent"></div>
                         </div>
                         
-                        <div className="w-[85px] flex flex-col items-center justify-center rounded-[8px] bg-slate-400 dark:bg-slate-600 text-white shadow-sm overflow-hidden relative">
+                        <div className="w-21.25 flex flex-col items-center justify-center rounded-[8px] bg-slate-400 dark:bg-slate-600 text-white shadow-sm overflow-hidden relative">
                           <div className="flex items-center gap-1.5 mb-1 z-10">
                             <div className="w-1 h-1 bg-white/80 rotate-45"></div>
                             <span className="text-[9px] font-black uppercase mt-1 text-white/90">یەکسانبوون</span>

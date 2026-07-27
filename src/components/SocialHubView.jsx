@@ -126,7 +126,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         initial={{ scale: 0.8, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 20 }}
-        className="relative z-10 w-full max-w-[220px]"
+        className="relative z-10 w-full max-w-55"
         style={{
           position: 'fixed',
           top: Math.max(10, Math.min(y - 20, window.innerHeight - 220)),
@@ -232,7 +232,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
   }
 
   return (
-    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-[280px] xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 shadow-[0_3px_0_#0f172a,0_5px_15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
+    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-70 xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 shadow-[0_3px_0_#0f172a,0_5px_15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
       <div 
         className="absolute inset-0 z-0"
         style={{ background: 'linear-gradient(90deg, #dc2626 50%, #2563eb 50%)' }} 
@@ -335,11 +335,11 @@ const GameResultRenderer = ({ text, isMe }) => {
   return (
     <div className="flex flex-col gap-2 my-1 cursor-default" onClick={e => e.stopPropagation()}>
       <div className="text-sm font-black text-center text-primary dark:text-sky-400 mb-1">{title}</div>
-      <div className="flex flex-col gap-[3px] items-center">
+      <div className="flex flex-col gap-0.75 items-center">
         {gridLines.map((line, rIdx) => {
           const blocks = line.split(' ').filter(b => b.trim().length > 0);
           return (
-            <div key={rIdx} className="flex gap-[3px] justify-center">
+            <div key={rIdx} className="flex gap-0.75 justify-center">
               {blocks.map((block, cIdx) => {
                 const hasCorrect = block.includes('🟩');
                 const hasWrongPos = block.includes('🟨');
@@ -365,7 +365,7 @@ const GameResultRenderer = ({ text, isMe }) => {
                 }
 
                 return (
-                  <div key={cIdx} className={`w-[22px] h-[22px] rounded-[3px] flex items-center justify-center font-bold text-[10px] ${bgColor} ${textColor} border-[1.5px] uppercase leading-none`}>
+                  <div key={cIdx} className={`w-5.5 h-5.5 rounded-[3px] flex items-center justify-center font-bold text-[10px] ${bgColor} ${textColor} border-[1.5px] uppercase leading-none`}>
                     {letter}
                   </div>
                 );
@@ -429,13 +429,13 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             const msgTier = getLevelTier(userLvl);
             
             const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-              <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+              <div className="w-6.5 h-6.5 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
                 <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
                 <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
               </div>
             ) : (
               <div 
-                className="p-[2px] rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
+                className="p-0.5 rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
                 style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -443,11 +443,11 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                 }}
               >
                 {userAvatarUrl && userAvatarUrl !== 'default' ? (
-                  <div className="w-[24px] h-[24px] rounded-full overflow-hidden border border-black/10 bg-white">
+                  <div className="w-6 h-6 rounded-full overflow-hidden border border-black/10 bg-white">
                     <img src={userAvatarUrl} alt="Avatar" className="w-full h-full object-cover block" />
                   </div>
                 ) : (
-                  <div className="w-[24px] h-[24px] rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
+                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
                     {(m.user_nickname || 'ی')[0]}
                   </div>
                 )}
@@ -465,7 +465,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
                   </span>
                   {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <div className="relative w-[13px] h-[15px] flex items-center justify-center shrink-0">
+                    <div className="relative w-3.25 h-3.75 flex items-center justify-center shrink-0">
                       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
                         <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradientChat-${m.id || m.user_id})`} />
                         <defs>
@@ -1388,7 +1388,7 @@ export default function SocialHubView({
               <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
               <span className="text-xs font-black">{tab.label}</span>
               {tab.badge > 0 && (
-                <span className="absolute -top-1 right-2 min-w-[16px] h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 ring-2 ring-mono-200 dark:ring-mono-800 shadow-sm z-20">
+                <span className="absolute -top-1 right-2 min-w-4 h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 ring-2 ring-mono-200 dark:ring-mono-800 shadow-sm z-20">
                   <span className="text-[10px] text-white font-black leading-none mt-0.5">
                     {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
                   </span>
@@ -1657,7 +1657,7 @@ export default function SocialHubView({
                           }
                         }}
                         className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
-                          ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-[6px] active:translate-y-[2px] active:shadow-[0_0px_0_#047857] mb-4'
+                          ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
                           : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
                           }`}
                       >
@@ -1669,7 +1669,7 @@ export default function SocialHubView({
                           {/* Avatar */}
                           <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
                             {isBot ? (
-                              <div className="w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
+                              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
                                 <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
                                 <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
                               </div>
@@ -1701,7 +1701,7 @@ export default function SocialHubView({
                         </div>
 
                         {/* Right Side: Time and Indicator */}
-                        <div className="flex flex-col items-end justify-center min-w-[50px] pr-1 relative z-10">
+                        <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
                           <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-400 dark:text-mono-500'}`}>
                             {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                           </span>
@@ -1874,7 +1874,7 @@ export default function SocialHubView({
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 10 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative z-10 w-full max-w-[260px] bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+              className="relative z-10 w-full max-w-65 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
               style={activeReactionModal.x && activeReactionModal.y ? {
                 position: 'fixed',
                 top: Math.max(20, Math.min(activeReactionModal.y, window.innerHeight - 300)),
@@ -1893,7 +1893,7 @@ export default function SocialHubView({
                     <button
                       key={emoji}
                       onClick={() => setActiveReactionModal(prev => ({ ...prev, activeTab: emoji }))}
-                      className={`flex items-center justify-center gap-1.5 min-w-[48px] px-2 h-7 rounded-full font-bold text-[12px] whitespace-nowrap transition-colors border ${activeReactionModal.activeTab === emoji ? 'border-mono-300 dark:border-mono-600 bg-mono-100 dark:bg-mono-800 text-mono-900 dark:text-white' : 'border-transparent text-mono-500 hover:bg-mono-100 dark:hover:bg-mono-800'}`}
+                      className={`flex items-center justify-center gap-1.5 min-w-12 px-2 h-7 rounded-full font-bold text-[12px] whitespace-nowrap transition-colors border ${activeReactionModal.activeTab === emoji ? 'border-mono-300 dark:border-mono-600 bg-mono-100 dark:bg-mono-800 text-mono-900 dark:text-white' : 'border-transparent text-mono-500 hover:bg-mono-100 dark:hover:bg-mono-800'}`}
                     >
                       <span className="mt-0.5">{emoji}</span>
                       <span className="text-[11px] tabular-nums mt-0.5">{toKuDigits(users.length)}</span>
@@ -1903,7 +1903,7 @@ export default function SocialHubView({
               </div>
 
               {/* Users List */}
-              <div className="p-2 overflow-y-auto no-scrollbar flex-1 max-h-[200px]" dir="rtl">
+              <div className="p-2 overflow-y-auto no-scrollbar flex-1 max-h-50" dir="rtl">
                 {Object.entries(activeReactionModal.message.reactions)
                   .filter(([emoji]) => activeReactionModal.activeTab === 'all' || activeReactionModal.activeTab === emoji)
                   .flatMap(([emoji, users]) => users.map(u => ({ emoji, user: u })))
@@ -2007,7 +2007,7 @@ export default function SocialHubView({
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-[300px] bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+              className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
               dir="rtl"
             >
               <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا نامەیان؟</h3>

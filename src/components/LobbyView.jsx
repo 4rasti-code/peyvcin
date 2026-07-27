@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, memo } from 'react';
+import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
@@ -21,6 +21,7 @@ import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
 import InstallGuideModal from './InstallGuideModal';
+import OnboardingOverlay from './OnboardingOverlay';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 
@@ -86,6 +87,7 @@ const LobbyView = memo(({
   const [showMysteryBox, setShowMysteryBox] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [tourCompleted, setTourCompleted] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
@@ -94,6 +96,7 @@ const LobbyView = memo(({
   const [invitedUserProfile, setInvitedUserProfile] = useState(null);
   const [inviteTimeLeft, setInviteTimeLeft] = useState(15);
   const [inviteAlert, setInviteAlert] = useState(null);
+  const [inviteCooldowns, setInviteCooldowns] = useState({});
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
@@ -107,6 +110,37 @@ const LobbyView = memo(({
       setSentInvites(new Set());
     }
   }, [multiplayerState]);
+  
+  const recordInviteStrike = useCallback(async (targetId) => {
+    if (!user?.id || !targetId) return;
+    try {
+      const { data } = await supabase
+        .from('invite_tracking')
+        .select('*')
+        .eq('sender_id', user.id)
+        .eq('receiver_id', targetId)
+        .maybeSingle();
+      
+      let newStrikes = (data?.strike_count || 0) + 1;
+      let blockedUntil = null;
+      
+      if (newStrikes >= 3) {
+        blockedUntil = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour block
+        newStrikes = 0; // Reset for next time after block expires
+      }
+      
+      if (data) {
+        await supabase.from('invite_tracking')
+          .update({ strike_count: newStrikes, blocked_until: blockedUntil, updated_at: new Date().toISOString() })
+          .eq('id', data.id);
+      } else {
+        await supabase.from('invite_tracking')
+          .insert({ sender_id: user.id, receiver_id: targetId, strike_count: newStrikes, blocked_until: blockedUntil });
+      }
+    } catch (err) {
+      console.error("Error recording strike:", err);
+    }
+  }, [user?.id]);
   
   const isDailyAvailable = (() => {
     if (!lastRewardClaimedAt) return true;
@@ -132,6 +166,7 @@ const LobbyView = memo(({
       if (payload.payload.roomId === activeMatch?.id) {
         cancelMatch();
         setInviteAlert("وی کەسی داخوازنامە ڕەتکر");
+        if (invitedUserProfile) recordInviteStrike(invitedUserProfile.id);
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
       }
@@ -140,6 +175,7 @@ const LobbyView = memo(({
       if (payload.payload.roomId === activeMatch?.id) {
         cancelMatch();
         setInviteAlert("یاریزان یێ د ناڤ یاریێ دا");
+        if (invitedUserProfile) recordInviteStrike(invitedUserProfile.id);
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
       }
@@ -158,17 +194,18 @@ const LobbyView = memo(({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, multiplayerState, activeMatch?.id, cancelMatch, hostAcceptJoiner]);
+  }, [user?.id, multiplayerState, activeMatch?.id, cancelMatch, hostAcceptJoiner, invitedUserProfile, recordInviteStrike]);
 
   useEffect(() => {
     if (multiplayerState === 'private_lobby' && inviteTimeLeft === 0 && invitedUserProfile) {
       cancelMatch();
       setInviteAlert("بەرسڤا داخوازنامەیێ نەهاتە دان");
       broadcastInviteEvent(invitedUserProfile.id, 'invite_cancelled', { roomId: activeMatch?.id });
+      recordInviteStrike(invitedUserProfile.id);
       setInvitedUserProfile(null);
       if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
     }
-  }, [inviteTimeLeft, multiplayerState, invitedUserProfile, activeMatch, cancelMatch]);
+  }, [inviteTimeLeft, multiplayerState, invitedUserProfile, activeMatch, cancelMatch, recordInviteStrike]);
 
   const broadcastInviteEvent = async (targetUserId, event, payload) => {
     const topic = `user_invites_${targetUserId}`;
@@ -235,7 +272,7 @@ const LobbyView = memo(({
           const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
           
           if (onlineIds.length > 0) {
-            const [profilesRes, friendsRes] = await Promise.all([
+            const [profilesRes, friendsRes, trackRes] = await Promise.all([
               supabase
                 .from('profiles')
                 .select('id, nickname, avatar_url, xp')
@@ -250,7 +287,12 @@ const LobbyView = memo(({
                 .from('friendships')
                 .select('user_id, friend_id')
                 .eq('status', 'accepted')
-                .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`)
+                .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
+              supabase
+                .from('invite_tracking')
+                .select('receiver_id, blocked_until')
+                .eq('sender_id', user?.id)
+                .gt('blocked_until', new Date().toISOString())
             ]);
               
             if (!profilesRes.error && profilesRes.data) {
@@ -259,6 +301,14 @@ const LobbyView = memo(({
                 friendsRes.data.forEach(f => {
                   friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
                 });
+              }
+              
+              if (trackRes && trackRes.data) {
+                const cooldowns = {};
+                trackRes.data.forEach(row => {
+                  cooldowns[row.receiver_id] = row.blocked_until;
+                });
+                setInviteCooldowns(cooldowns);
               }
               
               const profilesWithFriendStatus = profilesRes.data.map(p => ({
@@ -346,10 +396,31 @@ const LobbyView = memo(({
     transition: { type: "spring", stiffness: 400, damping: 17 }
   };
 
+  const CooldownTimer = ({ blockedUntil }) => {
+    const [timeLeft, setTimeLeft] = useState('');
+    useEffect(() => {
+      const update = () => {
+        const ms = new Date(blockedUntil) - new Date();
+        if (ms <= 0) { setTimeLeft(''); return; }
+        const mins = Math.ceil(ms / 60000);
+        setTimeLeft(`پشتی ${mins} خولەکان`);
+      };
+      update();
+      const int = setInterval(update, 60000);
+      return () => clearInterval(int);
+    }, [blockedUntil]);
+  
+    if (!timeLeft) return null;
+    return <span className="text-[10px] text-white/90 font-medium bg-black/20 px-1.5 py-0.5 rounded-full">{timeLeft}</span>;
+  };
+
   const renderProfileRow = (profile, index) => {
     const isSent = sentInvites.has(profile.id);
+    const blockedUntil = inviteCooldowns[profile.id];
+    const isBlocked = blockedUntil && new Date(blockedUntil) > new Date();
+    
     return (
-      <div key={`${profile.id}-${index}`} className="flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border border-mono-200 dark:border-mono-700 shadow-sm transition-all hover:border-blue-500/50">
+      <div key={`${profile.id}-${index}`} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
         <div 
           className="flex items-center gap-3 cursor-pointer flex-1 mr-2"
           onClick={() => {
@@ -374,17 +445,24 @@ const LobbyView = memo(({
         </div>
         <button
           onClick={() => handleSendInviteToUser(profile.id)}
-          disabled={isSent}
+          disabled={isSent || isBlocked}
           className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center gap-1 ${
             isSent 
-              ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+              ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
+              : isBlocked
+                ? 'bg-red-500/80 text-white cursor-not-allowed shadow-inner'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
           }`}
         >
           {isSent ? (
             <>
               <span className="material-symbols-outlined text-[14px]">check</span>
               چوو
+            </>
+          ) : isBlocked ? (
+            <>
+              <span className="material-symbols-outlined text-[14px]">block</span>
+              <CooldownTimer blockedUntil={blockedUntil} />
             </>
           ) : (
             'داخوازی'
@@ -405,18 +483,20 @@ const LobbyView = memo(({
       <div className="relative z-10">
         
         {/* Action Buttons Row */}
-        <div className="flex flex-wrap justify-center items-center gap-2 w-full mb-3 -mt-3">
+        <div className="flex flex-wrap justify-center items-center gap-2.5 w-full mb-3 -mt-3 px-2">
           
           {/* Install Button */}
+          {/* Install Button */}
           <Motion.button
+             id="btn-download-game"
              initial={{ opacity: 0, y: -10 }}
              animate={{ opacity: 1, y: 0 }}
              onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-sky-500 shadow-[0_1.5px_0_#0284c7] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+             className="relative h-7 rounded-full bg-sky-50 dark:bg-sky-500/10 border border-sky-200/50 dark:border-sky-500/20 hover:bg-sky-100 dark:hover:bg-sky-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
           >
-             <div className="flex items-center gap-1 relative z-10">
-                <span className="material-symbols-outlined text-white text-[13px]">download</span>
-                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">دابەزاندنا یاریێ</span>
+             <div className="flex items-center gap-1.5 relative z-10 text-sky-600 dark:text-sky-400">
+                <span className="material-symbols-outlined text-[14px]">download</span>
+                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">داگرتنا یاریێ</span>
              </div>
           </Motion.button>
 
@@ -425,11 +505,11 @@ const LobbyView = memo(({
              initial={{ opacity: 0, y: -10 }}
              animate={{ opacity: 1, y: 0 }}
              onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-amber-500 shadow-[0_1.5px_0_#d97706] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+             className="relative h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
           >
-             <div className="flex items-center gap-1 relative z-10">
-                <span className="material-symbols-outlined text-white text-[13px]">campaign</span>
-                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">ئاریشە و پێشنیار</span>
+             <div className="flex items-center gap-1.5 relative z-10 text-amber-600 dark:text-amber-400">
+                <span className="material-symbols-outlined text-[14px]">campaign</span>
+                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">ئاریشە و پێشنیار</span>
              </div>
           </Motion.button>
 
@@ -438,11 +518,11 @@ const LobbyView = memo(({
              initial={{ opacity: 0, y: -10 }}
              animate={{ opacity: 1, y: 0 }}
              onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-             className="w-auto min-w-[80px] relative h-[26px] rounded-[4px] bg-[#8b5cf6] shadow-[0_1.5px_0_#6d28d9] hover:brightness-105 flex items-center justify-center px-2 transition-transform active:translate-y-[1.5px] active:shadow-none overflow-hidden group border-none"
+             className="relative h-7 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
           >
-             <div className="flex items-center gap-1 relative z-10">
-                <span className="material-symbols-outlined text-white text-[13px]">help</span>
-                <span className="font-bold font-rabar text-white text-[9px] mt-0.5 truncate drop-shadow-sm">فێرکاری</span>
+             <div className="flex items-center gap-1.5 relative z-10 text-indigo-600 dark:text-indigo-400">
+                <span className="material-symbols-outlined text-[14px]">help</span>
+                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">فێرکاری</span>
              </div>
           </Motion.button>
         </div>
@@ -471,8 +551,8 @@ const LobbyView = memo(({
                  }}
                  className={`relative flex items-center justify-center p-1 transition-all duration-300 group ${!isDailyAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
                >
-                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <ClipboardIcon className={`w-[54px] h-[54px] transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
+                   <ClipboardIcon className={`w-13.5 h-13.5 transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                    {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
                  </div>
                </Motion.button>
@@ -489,8 +569,8 @@ const LobbyView = memo(({
                  }}
                  className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
                >
-                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-[48px] h-[48px] transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
+                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-12 h-12 transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                    {!isLuckyWheelAvailable && <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />}
                  </div>
                </button>
@@ -506,8 +586,8 @@ const LobbyView = memo(({
                  }}
                  className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
                >
-                 <div className="relative flex items-center justify-center w-[58px] h-[58px]">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-[58px] h-[58px] transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
                    {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
                  </div>
                </button>
@@ -525,16 +605,16 @@ const LobbyView = memo(({
                 setInviteStep('select');
               }}
               {...bentoMotionProps}
-              className="w-full relative h-28 rounded-[6px] border-none mb-1 group bg-transparent"
+              className="w-full relative h-28 rounded-md border-none mb-1 group bg-transparent"
             >
               {/* 3D Split Shadow Layer */}
               <div 
-                className="absolute inset-0 rounded-[6px] translate-y-[5px]"
+                className="absolute inset-0 rounded-md translate-y-1.25"
                 style={{ background: 'linear-gradient(90deg, #1d4ed8 50%, #b91c1c 50%)' }}
               />
               
               {/* Main Button Content Layer */}
-              <div className="absolute inset-0 rounded-[6px] overflow-hidden">
+              <div className="absolute inset-0 rounded-md overflow-hidden">
                 <div 
                   className="absolute inset-0"
                   style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }} 
@@ -553,7 +633,7 @@ const LobbyView = memo(({
                   </div>
                 </div>
 
-                <div className="absolute bottom-1.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/20 hover:bg-black/40 transition-colors backdrop-blur-md px-2 py-0.5 rounded-[4px] border border-white/10 shadow-sm">
+                <div className="absolute bottom-1.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/20 hover:bg-black/40 transition-colors backdrop-blur-md px-2 py-0.5 rounded-sm border border-white/10 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_6px_#4ade80] animate-pulse"></span>
                   <span className="text-[10px] font-bold text-white/95 mt-0.5" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     {toKuDigits(onlineCount || 1)} سەرهێل
@@ -568,7 +648,7 @@ const LobbyView = memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartClassic(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none mb-1"
+              className="w-full relative h-24 rounded-md overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -589,7 +669,7 @@ const LobbyView = memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartMamak(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none mb-1"
+              className="w-full relative h-24 rounded-md overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -610,7 +690,7 @@ const LobbyView = memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartHardWords(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none mb-1"
+              className="w-full relative h-24 rounded-md overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -631,7 +711,7 @@ const LobbyView = memo(({
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartWordFever(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-[6px] overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none mb-1"
+              className="w-full relative h-24 rounded-md overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none mb-1"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
@@ -640,7 +720,7 @@ const LobbyView = memo(({
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-12">
-                    <TimerIcon className="w-[52px] h-[52px]" />
+                    <TimerIcon className="w-13 h-13" />
                   </div>
                 </div>
               </div>
@@ -712,7 +792,7 @@ const LobbyView = memo(({
                     </h3>
                   </div>
                   
-                  <div className={`overflow-y-auto h-[250px] pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
+                  <div className={`overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
                     {loadingOnline && onlineProfiles.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full opacity-50">
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
@@ -895,6 +975,24 @@ const LobbyView = memo(({
           onClose={() => setIsInstallModalOpen(false)}
         />
       </AnimatePresence>
+
+      {/* Onboarding Tour */}
+      {profileData && profileData.has_completed_install_guide === false && !tourCompleted && (
+        <OnboardingOverlay
+          steps={[
+            {
+              targetId: 'btn-download-game',
+              title: 'یاریێ دابگرە',
+              text: 'ژ بۆ ئەزموونەکا باشتر و بێ ئاریشە، پێدڤییە یاریێ ب شێوەیەکێ سەرەکی دابگریە سەر شاشەیا خوە. کلیکێ ل ڤێ دوگمەیێ بکە دا کو فێرکاریێ ببینی.',
+              position: 'bottom'
+            }
+          ]}
+          onComplete={() => {
+            setTourCompleted(true);
+            setIsInstallModalOpen(true);
+          }}
+        />
+      )}
     </Motion.div>
   );
 });

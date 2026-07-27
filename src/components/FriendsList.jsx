@@ -250,6 +250,20 @@ export default function FriendsList({
     }
   };
 
+  const handleRejectRequest = async (requestId) => {
+    try {
+      triggerHaptic(20);
+      const { error } = await supabase
+        .from('friendships')
+        .delete()
+        .eq('id', requestId);
+      if (error) throw error;
+      fetchFriendsData();
+    } catch (err) {
+      console.error("Error rejecting friend request:", err);
+    }
+  };
+
   return (
     <div className="flex-1 w-full flex flex-col" dir="rtl">
       {selectedPlayer && (
@@ -391,7 +405,10 @@ export default function FriendsList({
               <div className="flex-1 text-right">
                 <div className="font-black text-sm text-mono-900 dark:text-mono-100">{req.sender?.nickname}</div>
               </div>
-              <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-emerald-500 text-white rounded-md font-black text-[10px] uppercase hover:bg-emerald-600 active:scale-95 transition-all">پەژراندن</button>
+              <div className="flex gap-2">
+                <button onClick={() => handleAcceptRequest(req.id)} className="px-4 py-2 bg-emerald-500 text-white rounded-md font-black text-[10px] uppercase hover:bg-emerald-600 active:scale-95 transition-all">پەژراندن</button>
+                <button onClick={() => handleRejectRequest(req.id)} className="px-4 py-2 bg-mono-200 dark:bg-mono-800 text-mono-700 dark:text-mono-300 rounded-md font-black text-[10px] uppercase hover:bg-mono-300 dark:hover:bg-mono-700 active:scale-95 transition-all">ڕەتکرن</button>
+              </div>
             </div>
           ))}
         </div>

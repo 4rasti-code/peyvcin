@@ -14,7 +14,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
   return (
     <LayoutGroup>
       {/* 🚨 THE FIX IS HERE: Reverted back to the stable 'sticky min-h-[80px]' layout from 2 months ago 🚨 */}
-      <nav className="sticky bottom-0 w-full z-40 min-h-[80px] pb-[env(safe-area-inset-bottom)] pt-2 bg-mono-white dark:bg-black border-t border-mono-200 dark:border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
+      <nav className="sticky bottom-0 w-full z-40 min-h-20 pb-[env(safe-area-inset-bottom)] pt-2 bg-mono-white dark:bg-black border-t border-mono-200 dark:border-white/5 flex justify-evenly items-center px-2 leading-none" dir="rtl">
         {tabs.map((tab) => {
           const isActive = currentView === tab.id;
           const isSettings = tab.id === 'settings';
@@ -31,7 +31,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                 if (isSettings) onSettingsToggle();
                 else setCurrentView(tab.id);
               }}
-              className="group flex flex-col items-center justify-center gap-1 transition-all py-1.5 px-2 rounded-md relative w-[72px] select-none"
+              className="group flex flex-col items-center justify-center gap-1 transition-all py-1.5 px-2 rounded-md relative w-18 select-none"
             >
               {/* The Slidable Background Pill */}
               {isActive && (
@@ -47,7 +47,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                 <Motion.div
                   layoutId="active-nav-line"
                   transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-black dark:bg-white shadow-[0_0_12px_rgba(255,255,255,0.4)] rounded-none z-10"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-black dark:bg-white shadow-[0_0_12px_rgba(255,255,255,0.4)] rounded-none z-10"
                 />
               )}
 
@@ -59,7 +59,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   <Motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
+                    className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
                   >
                     {chatBadgeCount > 99 ? '99+' : chatBadgeCount}
                   </Motion.div>
@@ -69,7 +69,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   <Motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
+                    className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 bg-red-500 text-white text-[9px] font-black font-sans rounded-full flex items-center justify-center border-2 border-mono-white dark:border-black z-20 shadow-md"
                   >
                     {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}
                   </Motion.div>

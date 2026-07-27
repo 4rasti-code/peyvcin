@@ -50,7 +50,7 @@ const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
       <div 
         id={`topbar-${currency}`} 
-        className={`flex flex-row items-center gap-1.5 px-2 py-1 rounded-[8px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-[50px] justify-center`}
+        className={`flex flex-row items-center gap-1.5 px-2 py-1 rounded-[8px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-12.5 justify-center`}
       >
         <div className={`w-4 h-4 flex items-center justify-center ${color}`}>
           <_IconComponent className="w-full h-full" />
@@ -130,7 +130,7 @@ export default function TopAppBar({
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 onClick={() => { triggerHaptic(10); onOpenHowToPlay(gameMode); }}
-                className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-[6px] flex items-center justify-center gap-2 group transition-all border-none mb-1"
+                className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-md flex items-center justify-center gap-2 group transition-all border-none mb-1"
               >
                 <span className="material-symbols-outlined text-white text-[20px] group-hover:scale-110 transition-transform">help</span>
                 <span className="text-[13px] font-black font-rabar text-white uppercase mt-0.5 hidden xs:block">فێرکاری</span>
@@ -146,7 +146,7 @@ export default function TopAppBar({
                   whileTap={{ scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   onClick={() => { triggerHaptic(10); onOpenSettings(); }}
-                  className={`flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all ${currentView === 'profile' ? 'w-[60px] h-[60px] mt-[12px]' : 'w-12 h-12'}`}
+                  className={`flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all ${currentView === 'profile' ? 'w-15 h-15 mt-3' : 'w-12 h-12'}`}
                 >
                   <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
                 </Motion.button>

@@ -44,8 +44,8 @@ export default function ResultStats({ profileData, playerStats, gameMode, curren
   const played = statsSource?.playedCount || statsSource?.solvedCount || profileData?.games_played || 0;
   const won = statsSource?.solvedCount || profileData?.games_won || 0;
   const winRate = played > 0 ? Math.round((won / played) * 100) : (profileData?.win_rate || 0);
-  const currentStreak = statsSource?.current_streak || profileData?.current_streak || 0;
-  const maxStreak = statsSource?.max_streak || profileData?.max_streak || 0;
+  const currentStreak = statsSource?.current_streak ?? profileData?.current_streak ?? 0;
+  const maxStreak = statsSource?.max_streak ?? profileData?.max_streak ?? 0;
 
   // 2. Calculate Distribution for current mode
   const rawDistribution = playerStats || profileData?.guess_distribution || {};
@@ -77,7 +77,7 @@ export default function ResultStats({ profileData, playerStats, gameMode, curren
       {/* Guess Distribution Section */}
       <div className="w-full">
         <h3 className="text-[10px] font-black text-mono-400 dark:text-mono-500 uppercase mb-2 text-center">دابەشکرنا پێکۆلان</h3>
-        <div className="flex flex-col gap-1 w-full max-w-[280px] mx-auto">
+        <div className="flex flex-col gap-1 w-full max-w-70 mx-auto">
           {Object.entries(fullDist).map(([key, val]) => (
             <GuessBar 
               key={key} 

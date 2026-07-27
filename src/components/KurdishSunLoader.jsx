@@ -30,7 +30,7 @@ const KurdishSunLoader = ({ progress = 0, statusText = null }) => {
         </div>
 
         {/* The Track */}
-        <div className="w-full h-4 bg-white/5 dark:bg-black/20 rounded-full overflow-hidden border border-white/10 dark:border-white/5 relative shadow-inner p-[2px]">
+        <div className="w-full h-4 bg-white/5 dark:bg-black/20 rounded-full overflow-hidden border border-white/10 dark:border-white/5 relative shadow-inner p-0.5">
           {/* The Filling Bar */}
           <Motion.div
             initial={{ width: 0 }}

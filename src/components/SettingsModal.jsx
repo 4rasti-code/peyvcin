@@ -252,7 +252,7 @@ function SettingsModal({
                      initial={{ scale: 0.9, opacity: 0, y: 20 }}
                      animate={{ scale: 1, opacity: 1, y: 0 }}
                      exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                     className="relative w-full max-w-[300px] bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+                     className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
                      dir="rtl"
                   >
                      <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا ڤێ هژمارێ؟</h3>
@@ -322,7 +322,7 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
                className="fixed inset-0 z-1000 flex flex-col bg-mono-white dark:bg-black overflow-y-auto"
             >
                {/* Custom Header for Policy Modals */}
-               <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-200 dark:border-white/5">
+               <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 pt-safe bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-200 dark:border-white/5">
                   <button
                      onClick={() => {
                         playBackSfx();

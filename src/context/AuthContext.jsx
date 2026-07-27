@@ -136,7 +136,8 @@ export const AuthProvider = ({ children }) => {
           last_nickname_update, haptic_enabled, magnets, hints, skips,
           onboarded,
           daily_streak, reward_streak, last_reward_claimed_at, last_streak_at,
-          last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets
+          last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
+          has_completed_install_guide
         `)
         .eq('id', activeUserId);
 
@@ -447,7 +448,7 @@ export const AuthProvider = ({ children }) => {
   // NEW: Global App Presence Tracking
   useEffect(() => {
     if (!user?.id) return;
-    
+
     const isAdmin = user?.email === '4rasti@gmail.com';
 
     // Heartbeat to update `updated_at` in profiles table so friends see us as online

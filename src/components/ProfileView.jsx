@@ -237,7 +237,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className="relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-[380px] overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300">
+            <div className="relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300">
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
@@ -246,7 +246,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                {/* 3. Top Header: Save & Badges */}
                <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+16px)] sm:pt-[calc(env(safe-area-inset-top)+16px)] flex justify-between items-start pointer-events-none" dir="ltr">
                   {/* Left: Settings Icon */}
-                  <div className="relative pointer-events-auto mt-[-6px]">
+                  <div className="relative pointer-events-auto -mt-1.5">
                      <Motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -382,8 +382,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className="absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-[18px] sm:pb-3 pt-2 flex flex-col justify-end shadow-sm" dir="rtl">
-                  <div className="flex flex-row items-center justify-between w-full mb-[14px] px-2" dir="ltr">
+               <div className="absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-4.5 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm" dir="rtl">
+                  <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
                         className="w-12 h-12 flex items-center justify-center shrink-0"
@@ -519,7 +519,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      <span className="material-symbols-outlined text-[20px]">group</span>
                      لیستا هەڤالان
                      {pendingFriendsCount > 0 && (
-                        <div className="absolute -top-2 -right-2 bg-red-500 min-w-[22px] h-[22px] rounded-full flex items-center justify-center border-2 border-white dark:border-[#141414] z-20 shadow-md px-1">
+                        <div className="absolute -top-2 -right-2 bg-red-500 min-w-5.5 h-5.5 rounded-full flex items-center justify-center border-2 border-white dark:border-[#141414] z-20 shadow-md px-1">
                            <span className="text-[11px] font-black text-white leading-none mt-0.5">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
                         </div>
                      )}
@@ -615,7 +615,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   </div>
 
                   {/* Cropper Container */}
-                  <div className="relative w-full flex-1 min-h-[300px] h-[50vh] bg-black overflow-hidden cursor-move touch-none">
+                  <div className="relative w-full flex-1 min-h-75 h-[50vh] bg-black overflow-hidden cursor-move touch-none">
                      <Cropper
                         image={imageToCrop}
                         crop={crop}

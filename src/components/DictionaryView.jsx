@@ -125,7 +125,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
       <div className="w-full max-w-lg flex items-center justify-between px-6 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 sticky top-0 z-50 bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-100 dark:border-mono-800/30">
         <button
           onClick={() => { triggerHaptic(10); playSettingsCloseSound(); onBack(); }}
-          className="w-10 h-10 rounded-[4px] bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
+          className="w-10 h-10 rounded-sm bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-600 dark:text-white/60 hover:bg-mono-100 dark:hover:bg-white/10 transition-all active:scale-90"
         >
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
@@ -145,7 +145,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
             placeholder="ل پەیڤەکێ بگەڕێ..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full bg-mono-50 dark:bg-mono-900/40 border border-mono-200 dark:border-mono-800/60 rounded-[4px] py-3.5 pl-4 pr-12 font-bold font-rabar text-[15px] text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-600 focus:border-mono-400 dark:focus:border-mono-500 transition-all outline-none"
+            className="w-full bg-mono-50 dark:bg-mono-900/40 border border-mono-200 dark:border-mono-800/60 rounded-sm py-3.5 pl-4 pr-12 font-bold font-rabar text-[15px] text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-600 focus:border-mono-400 dark:focus:border-mono-500 transition-all outline-none"
           />
           <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-mono-400 dark:text-mono-600 text-2xl">
             search
@@ -182,7 +182,7 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
               <button
                 key={cat.id}
                 onClick={() => { triggerHaptic(5); playTabSound(); setActiveCategory(cat.id); }}
-                className={`whitespace-nowrap px-4 py-2 rounded-[4px] font-black transition-all border uppercase flex items-center gap-2 ${isActive
+                className={`whitespace-nowrap px-4 py-2 rounded-sm font-black transition-all border uppercase flex items-center gap-2 ${isActive
                   ? 'bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 border-mono-900 dark:border-mono-100'
                   : 'bg-mono-white dark:bg-mono-900/20 text-mono-400 dark:text-mono-500 border-mono-200 dark:border-mono-800/60 hover:border-mono-400 dark:hover:border-mono-600'
                   }`}
@@ -205,14 +205,14 @@ export default function DictionaryView({ onBack, solvedWords = [], allWordsWithC
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.03 }}
                 key={idx}
-                className="bg-mono-white dark:bg-mono-900/20 p-5 rounded-[4px] border border-mono-200 dark:border-mono-800/60 flex flex-col gap-2.5 hover:bg-mono-50 dark:hover:bg-mono-800/40 transition-all highlight-target group"
+                className="bg-mono-white dark:bg-mono-900/20 p-5 rounded-sm border border-mono-200 dark:border-mono-800/60 flex flex-col gap-2.5 hover:bg-mono-50 dark:hover:bg-mono-800/40 transition-all highlight-target group"
                 data-word={item.word.replace('_', ' ')}
               >
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-black font-heading text-mono-900 dark:text-white group-hover:text-primary transition-colors">
                     {item.word.replace('_', ' ')}
                   </h3>
-                  <span className="text-[7px] font-black uppercase text-mono-400 dark:text-mono-500 border border-mono-200 dark:border-mono-800 px-2 py-1 rounded-[2px]">
+                  <span className="text-[7px] font-black uppercase text-mono-400 dark:text-mono-500 border border-mono-200 dark:border-mono-800 px-2 py-1 rounded-xs">
                     {item.category.replace('_', ' ')}
                   </span>
                 </div>
