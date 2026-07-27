@@ -1361,11 +1361,17 @@ export default function App() {
           setIsWordFeverResultVisible(true);
 
           applyPenalty(timeoutXP, timeoutFils, 'fils');
+          syncProgressToDatabase(targetWord.length, 'word_fever', {
+            score: 0,
+            solvedWords: [],
+            isWin: false,
+            attempts: 3
+          });
         });
       }
     }
     return () => clearInterval(timer);
-  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible, applyPenalty, multiplayerState]);
+  }, [currentView, gameMode, isVictory, isWordFeverResultVisible, timeLeft, setIsDefeat, targetWord, setLastSolvedWord, setFeverStreak, setWordFeverResultType, setIsWordFeverResultVisible, applyPenalty, multiplayerState, syncProgressToDatabase]);
 
   // --- WORD FEVER LAST 10 SECONDS TENSION AUDIO ---
   useEffect(() => {
