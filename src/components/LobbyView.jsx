@@ -445,14 +445,21 @@ const LobbyView = memo(({
           </div>
         </div>
         <button
-          onClick={() => handleSendInviteToUser(profile.id)}
-          disabled={isSent || isBlocked}
+          onClick={() => {
+            if (isSent) return;
+            if (isBlocked) {
+              triggerHaptic(10);
+              setInviteAlert("د نۆکە دا تو نەشێی یاریێ ل گەل ئەڤی یاریزانی بکەی!");
+            } else {
+              handleSendInviteToUser(profile.id);
+            }
+          }}
           className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-[90px] ${
             isSent 
               ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
               : isBlocked
-                ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-not-allowed border border-red-100 dark:border-red-900/30'
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+                ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer'
           }`}
         >
           {isSent ? (
