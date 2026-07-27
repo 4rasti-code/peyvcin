@@ -103,8 +103,7 @@ export default function ClassicIcon({ className = "w-16 h-16", continuous = fals
                   animation: continuous
                     ? `star-burst-continuous 2s infinite ${s.delay} ease-out`
                     : `star-burst 5s infinite ${s.delay} ease-out`,
-                  transformOrigin: '0 0',
-                  filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.3))'
+                  transformOrigin: '0 0'
                 }}
               />
             </g>
