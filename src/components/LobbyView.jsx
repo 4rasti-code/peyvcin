@@ -454,7 +454,7 @@ const LobbyView = memo(({
               handleSendInviteToUser(profile.id);
             }
           }}
-          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-[90px] ${
+          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-22.5 ${
             isSent 
               ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
               : isBlocked
