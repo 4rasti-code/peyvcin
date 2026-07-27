@@ -89,7 +89,7 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.8, y: -50, opacity: 0 }}
             transition={{ type: "spring", damping: 15, stiffness: 300 }}
-            className="relative flex flex-col items-center z-10 w-full max-w-[340px] bg-mono-white dark:bg-black p-8 rounded-[40px] border border-mono-200 dark:border-mono-800 shadow-[0_20px_60px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+            className="relative flex flex-col items-center z-10 w-full max-w-85 bg-mono-white dark:bg-black p-8 rounded-2xl border border-mono-200 dark:border-mono-800 shadow-[0_20px_60px_rgba(0,0,0,0.3)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden"
           >
             {/* Background Texture/Glow */}
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none" />
@@ -108,7 +108,7 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
                 repeatType: "reverse",
                 ease: "easeInOut"
               }}
-              className="absolute top-[160px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(217, 119, 6, 0.1) 40%, transparent 70%)' }}
+              className="absolute top-40 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(217, 119, 6, 0.1) 40%, transparent 70%)' }}
             />
 
             <h2 className="text-3xl font-black font-rabar text-mono-900 dark:text-mono-50 mb-8 leading-tight relative z-10 text-center">
