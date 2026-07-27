@@ -177,7 +177,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const renderReactionContent = (reaction) => {
     if (!reaction) return null;
     if (reaction.length <= 3) {
-      return <span className="text-[22px] leading-none">{reaction}</span>;
+      return <span className="text-[26px] leading-none drop-shadow-md">{reaction}</span>;
     }
     
     const lastSpaceIdx = reaction.lastIndexOf(' ');
@@ -186,13 +186,13 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       const emoji = reaction.substring(lastSpaceIdx + 1);
       return (
         <div className="flex items-center gap-2" dir="rtl">
-          <span className="text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight whitespace-nowrap">{text}</span>
-          <span className="text-[16px] leading-none">{emoji}</span>
+          <span className="text-[13px] sm:text-[14px] font-extrabold text-white leading-tight whitespace-nowrap drop-shadow-sm">{text}</span>
+          <span className="text-[18px] leading-none drop-shadow-md">{emoji}</span>
         </div>
       );
     }
 
-    return <span className="text-xs sm:text-sm font-bold text-mono-900 dark:text-white leading-tight">{reaction}</span>;
+    return <span className="text-[13px] sm:text-[14px] font-extrabold text-white leading-tight drop-shadow-sm">{reaction}</span>;
   };
 
   const opponentHasFailed = activeMatch?.[isPlayer1 ? 'p2_failed' : 'p1_failed'];
@@ -458,7 +458,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center min-w-[32px] min-h-[32px]">
               {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
@@ -472,7 +472,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   </svg>
                 </div>
               )}
-              <Avatar src={userAvatar} size="sm" />
+              <div className={`transition-all duration-300 ${myReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
+                <Avatar src={userAvatar} size="sm" />
+              </div>
               <AnimatePresence mode="popLayout">
                 {myReaction && (
                   <Motion.div
@@ -480,10 +482,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.8, type: "spring" }}
-                    className="absolute inset-0 flex items-center justify-center z-100 pointer-events-none"
+                    transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
+                    className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`relative px-3 py-2 ${isDark ? 'bg-blue-500/80 border-blue-500/50' : 'bg-blue-100/95 border-blue-300 shadow-lg'} backdrop-blur-md border rounded-2xl flex items-center justify-center min-w-max max-w-50`}>
+                    <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-blue-600 dark:bg-blue-500 shadow-xl ring-2 ring-white/20 rounded-full flex items-center justify-center min-w-max max-w-50">
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -568,7 +570,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             style={{ width: gridWidth }}
           >
             <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase relative z-10`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
-            <div className="relative flex items-center justify-center">
+            <div className="relative flex items-center justify-center min-w-[32px] min-h-[32px]">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
@@ -582,7 +584,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   </svg>
                 </div>
               )}
-              <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+              <div className={`transition-all duration-300 ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
+                <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+              </div>
               <AnimatePresence mode="popLayout">
                 {opponentReaction && (
                   <Motion.div
@@ -590,10 +594,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.8, type: "spring" }}
-                    className="absolute inset-0 flex items-center justify-center z-100 pointer-events-none"
+                    transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
+                    className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`relative px-3 py-2 ${isDark ? 'bg-red-500/80 border-red-500/50' : 'bg-red-100/95 border-red-300 shadow-lg'} backdrop-blur-md border rounded-2xl flex items-center justify-center min-w-max max-w-50`}>
+                    <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-red-600 dark:bg-red-500 shadow-xl ring-2 ring-white/20 rounded-full flex items-center justify-center min-w-max max-w-50">
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>
