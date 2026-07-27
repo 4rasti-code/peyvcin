@@ -4,7 +4,7 @@ import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, XPIcon
 import MysteryBoxIcon from './MysteryBoxIcon';
 import { playCoinSfx, playMagnetSfx, playPopSfx, playSuccessSfx } from '../utils/audio';
 
-const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
+const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils', startOffsetX = 0, startOffsetY = 0 }) => {
   const [coins, setCoins] = useState([]);
 
   useEffect(() => {
@@ -145,11 +145,11 @@ const CoinAnimation = ({ trigger, isDaily, amount = 0, type = 'fils' }) => {
           key={coin.id}
           className={type === 'spinTicket' ? "ticket-container" : (isPowerup ? "powerup-container" : "coin-icon")}
           style={{
-            '--target-x': `${targetX - coin.x}px`,
-            '--target-y': `${targetY - coin.y}px`,
+            '--target-x': `${targetX - coin.x - startOffsetX}px`,
+            '--target-y': `${targetY - coin.y - startOffsetY}px`,
             animationDelay: `${coin.delay}s`,
-            left: `calc(50% + ${coin.x}px)`,
-            top: `calc(50% + ${coin.y}px)`
+            left: `calc(50% + ${coin.x + startOffsetX}px)`,
+            top: `calc(50% + ${coin.y + startOffsetY}px)`
           }}
         >
           {isPowerup ? (

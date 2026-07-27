@@ -461,12 +461,38 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 </Motion.div>
                 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                  <CoinAnimation
-                    trigger={animatingReward}
-                    isDaily={true}
-                    type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
-                    amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
-                  />
+                  {claimedDayInfo?.isGrand ? (
+                    <>
+                      <CoinAnimation
+                        trigger={animatingReward}
+                        isDaily={true}
+                        type="skip"
+                        amount={claimedDayInfo?.reward?.skipCount || 1}
+                        startOffsetX={100}
+                      />
+                      <CoinAnimation
+                        trigger={animatingReward}
+                        isDaily={true}
+                        type="dinar"
+                        amount={claimedDayInfo?.reward?.dinar || 1}
+                        startOffsetX={0}
+                      />
+                      <CoinAnimation
+                        trigger={animatingReward}
+                        isDaily={true}
+                        type="fils"
+                        amount={claimedDayInfo?.reward?.fils || 200}
+                        startOffsetX={-100}
+                      />
+                    </>
+                  ) : (
+                    <CoinAnimation
+                      trigger={animatingReward}
+                      isDaily={true}
+                      type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
+                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
+                    />
+                  )}
                 </div>
               </Motion.div>
               )}
