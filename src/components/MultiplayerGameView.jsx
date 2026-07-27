@@ -461,7 +461,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute right-[-45px] top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                  className="absolute -right-11.25 top-1/2 -translate-y-1/2 z-50 pointer-events-none"
                 >
                   <div className={`relative px-2 py-1.5 ${isDark ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center`}>
                     <span className="text-[22px] leading-none">{myReaction}</span>
@@ -500,7 +500,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             }}
           >
             {/* Player Score Box (Right in RTL) */}
-            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-500 text-white border-blue-600'} border rounded shadow-sm min-w-[36px] sm:min-w-[44px]`}>
+            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-blue-600 text-white border-blue-500' : 'bg-blue-500 text-white border-blue-600'} border rounded shadow-sm min-w-9 sm:min-w-11`}>
               <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p1 : scores?.p2)}
               </span>
@@ -512,7 +512,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             </div>
 
             {/* Opponent Score Box (Left in RTL) */}
-            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-red-600 text-white border-red-500' : 'bg-red-500 text-white border-red-600'} border rounded shadow-sm min-w-[36px] sm:min-w-[44px]`}>
+            <div className={`flex items-center justify-center px-1.5 sm:px-4 py-1 sm:py-1.5 ${isDark ? 'bg-red-600 text-white border-red-500' : 'bg-red-500 text-white border-red-600'} border rounded shadow-sm min-w-9 sm:min-w-11`}>
               <span className="text-base font-black leading-none tabular-nums">
                 {toKuDigits(isPlayer1 ? scores?.p2 : scores?.p1)}
               </span>
@@ -554,7 +554,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute left-[-45px] top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+                  className="absolute -left-11.25 top-1/2 -translate-y-1/2 z-50 pointer-events-none"
                 >
                   <div className={`relative px-2 py-1.5 ${isDark ? 'bg-red-500/20 border-red-500/30' : 'bg-red-50 border-red-200 shadow-sm'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center`}>
                     <span className="text-[22px] leading-none">{opponentReaction}</span>
@@ -622,7 +622,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             <Motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-amber-500/10 border-2 border-amber-500/30 p-10 rounded-[40px] shadow-2xl max-w-sm w-full"
+              className="bg-amber-500/10 border-2 border-amber-500/30 p-10 rounded-2xl shadow-2xl max-w-sm w-full"
             >
               <div className="w-20 h-20 bg-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="material-symbols-outlined text-4xl text-amber-400 animate-pulse">wifi_off</span>
