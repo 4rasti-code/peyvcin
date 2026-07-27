@@ -473,23 +473,23 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 </div>
               )}
               <Avatar src={userAvatar} size="sm" />
+              <AnimatePresence mode="popLayout">
+                {myReaction && (
+                  <Motion.div
+                    key={`my-${myReaction}`}
+                    initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="absolute bottom-full right-0 mb-2 z-100 pointer-events-none"
+                  >
+                    <div className={`relative px-3 py-2 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-50`}>
+                      {renderReactionContent(myReaction)}
+                    </div>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
             </div>
-            <AnimatePresence mode="popLayout">
-              {myReaction && (
-                <Motion.div
-                  key={`my-${myReaction}`}
-                  initial={{ opacity: 0, scale: 0.5, x: -10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute left-full ml-2 sm:ml-3 top-1/2 -translate-y-1/2 z-100 pointer-events-none"
-                >
-                  <div className={`relative px-3 py-2 ${isDark ? 'bg-blue-500/30 border-blue-500/40' : 'bg-blue-50 border-blue-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-50`}>
-                    {renderReactionContent(myReaction)}
-                  </div>
-                </Motion.div>
-              )}
-            </AnimatePresence>
             <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase relative z-10`}>{userNickname}</span>
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
@@ -567,22 +567,6 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <AnimatePresence mode="popLayout">
-              {opponentReaction && (
-                <Motion.div
-                  key={`opp-${opponentReaction}`}
-                  initial={{ opacity: 0, scale: 0.5, x: 10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.8, type: "spring" }}
-                  className="absolute right-full mr-2 sm:mr-3 top-1/2 -translate-y-1/2 z-100 pointer-events-none"
-                >
-                  <div className={`relative px-3 py-2 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-br-none flex items-center justify-center min-w-max max-w-50`}>
-                    {renderReactionContent(opponentReaction)}
-                  </div>
-                </Motion.div>
-              )}
-            </AnimatePresence>
             <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase relative z-10`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
             <div className="relative flex items-center justify-center">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
@@ -599,6 +583,22 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 </div>
               )}
               <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
+              <AnimatePresence mode="popLayout">
+                {opponentReaction && (
+                  <Motion.div
+                    key={`opp-${opponentReaction}`}
+                    initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.8, type: "spring" }}
+                    className="absolute bottom-full left-0 mb-2 z-100 pointer-events-none"
+                  >
+                    <div className={`relative px-3 py-2 ${isDark ? 'bg-red-500/30 border-red-500/40' : 'bg-red-50 border-red-200 shadow-md'} backdrop-blur-md border rounded-2xl rounded-bl-none flex items-center justify-center min-w-max max-w-50`}>
+                      {renderReactionContent(opponentReaction)}
+                    </div>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
