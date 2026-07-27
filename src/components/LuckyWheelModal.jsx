@@ -398,7 +398,12 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                               spinTicket: 'بلیت'
                             };
                             const rewardName = nameMap[wonReward.type] || '';
-                            return `+ ${toKuDigits(wonReward.amount)} ${rewardName}`;
+                            return (
+                              <span className="inline-flex items-center gap-2" dir="rtl">
+                                <span dir="ltr">+{toKuDigits(wonReward.amount)}</span>
+                                <span>{rewardName}</span>
+                              </span>
+                            );
                           })()}
                         </p>
                       </div>
