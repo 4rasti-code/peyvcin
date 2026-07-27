@@ -78,7 +78,7 @@ class GlobalErrorBoundary extends React.Component {
                   boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
                 }}
               >
-                نویکرنا پەیجێ 🔄
+                <span className="tracking-normal" style={{ letterSpacing: '0px' }}>نویکرنا پەیجێ 🔄</span>
               </button>
               
               <button 

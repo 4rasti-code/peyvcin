@@ -110,7 +110,7 @@ class GameErrorBoundary extends React.Component {
             <h2 className="text-4xl font-black mb-6 text-red-500">ئاریشەیەک چێ بوو!</h2>
             <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. هێڤییە دووبارە پەیجێ نوی بکە یان ڤەگەڕە لابیێ.</p>
             <div className="flex flex-col gap-4">
-              <button onClick={() => window.location.reload()} className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-105 active:scale-95 transition-all">نویکرنا پەیجێ</button>
+              <button onClick={() => window.location.reload()} className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xl shadow-xl hover:scale-105 active:scale-95 transition-all tracking-normal" style={{ letterSpacing: '0px' }}>نویکرنا پەیجێ</button>
               <button onClick={() => window.location.href = '/'} className="bg-white/5 border border-white/10 text-white/60 px-10 py-5 rounded-2xl font-bold hover:bg-white/10 transition-all">ڤەگەڕ بۆ سەرەکی</button>
             </div>
           </div>
@@ -1647,7 +1647,7 @@ export default function App() {
             <div className="absolute bottom-[10%] right-[10%] w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)' }} />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
-              <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
+              <ClassicIcon className="w-64 h-24" continuous={true} />
             </div>
             <div className="relative z-10">
               <KurdishSunLoader

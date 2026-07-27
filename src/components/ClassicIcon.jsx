@@ -56,7 +56,7 @@ export default function ClassicIcon({ className = "w-16 h-16", continuous = fals
         `}
       </style>
 
-      <svg viewBox="0 0 180 50" className="w-full h-full drop-shadow-[0_6px_8px_rgba(0,0,0,0.25)] overflow-visible absolute inset-0 z-10" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 180 50" className="w-full h-full overflow-visible absolute inset-0 z-10" xmlns="http://www.w3.org/2000/svg">
           
           {/* Wordle Tiles */}
           {TILES.map((t, i) => (

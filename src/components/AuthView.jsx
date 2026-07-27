@@ -1138,7 +1138,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         )}
                                     </AnimatePresence>
                                     <button type="submit" disabled={loading} className="w-full h-11 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold font-rabar text-sm transition-all flex items-center justify-center gap-2 mt-2">
-                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span>نویکرن</span>}
+                                        {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <span className="tracking-normal" style={{ letterSpacing: '0px' }}>نویکرن</span>}
                                     </button>
                                     <button type="button" onClick={() => {
                                         setRecoveryStep(0);
