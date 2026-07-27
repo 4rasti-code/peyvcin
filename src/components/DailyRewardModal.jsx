@@ -248,7 +248,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       transition={isNext && !isClaimed ? { scale: { duration: 3, repeat: Infinity, ease: 'easeInOut' } } : { duration: 0.2 }}
                       className={`
                         relative flex flex-col transition-all
-                        ${isDay7 ? 'col-span-3 h-auto min-h-[130px] sm:min-h-[150px] rounded-[20px] border-[5px]' : 'aspect-square rounded-[20px] border-[5px]'}
+                        ${isDay7 ? 'col-span-3 h-auto min-h-32 sm:min-h-36 rounded-[20px] border-[5px]' : 'aspect-square rounded-[20px] border-[5px]'}
                         ${!isDay7 ? 'bg-[#fff9e6]' : ''}
                         ${DAY_THEMES[item.day].border}
                         ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-2 ring-[#facc15] shadow-[0_0_15px_3px_rgba(250,204,21,0.9)] scale-[1.025] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
@@ -257,17 +257,12 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {/* Active Day Sparkles */}
                       {isNext && !isClaimed && (
                         <div className="absolute inset-0 pointer-events-none z-40">
-                          {/* Main large stars */}
                           <AdvancedSparkle className="-top-3 -left-2 w-8 h-8" delaySec={0} />
                           <AdvancedSparkle className="top-8 -right-3 w-6 h-6" delaySec={0.8} />
                           <AdvancedSparkle className="-bottom-2 left-4 w-7 h-7" delaySec={1.5} />
-                          
-                          {/* Small companion stars (some blurred for depth) */}
                           <AdvancedSparkle className="-top-1 right-2 w-4 h-4" delaySec={0.4} />
                           <AdvancedSparkle className="bottom-6 -left-2 w-3 h-3 blur-[1px] opacity-80" delaySec={1.1} />
                           <AdvancedSparkle className="-bottom-1 right-5 w-5 h-5 blur-[1px]" delaySec={1.9} />
-                          
-                          {/* Extra tiny blurry background stars */}
                           <AdvancedSparkle className="top-1/2 -left-4 w-3 h-3 blur-[1px]" delaySec={0.6} />
                           <AdvancedSparkle className="top-2 right-1/4 w-2 h-2 blur-[1px] opacity-70" delaySec={1.3} />
                           <AdvancedSparkle className="-top-3 left-1/3 w-4 h-4 blur-[2px] opacity-60" delaySec={2.2} />
@@ -276,7 +271,6 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         </div>
                       )}
 
-                      {/* Day 7 Pattern Overlay */}
                       {isDay7 && (
                         <div className="absolute inset-0 pointer-events-none rounded-[15px] overflow-hidden z-0">
                           <div className="absolute -inset-4 opacity-50" style={{
@@ -285,23 +279,22 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         </div>
                       )}
 
-                      {/* Upper Icon Section */}
                       {isDay7 ? (
                         <div className="absolute top-0 left-0 right-0 bottom-8 sm:bottom-10 flex flex-row items-center justify-around px-2 sm:px-4">
                           <div className="relative flex flex-col items-center justify-center pt-2">
-                            <SkipIcon className="w-12 h-12 sm:w-[56px] sm:h-[56px]" />
+                            <SkipIcon className="w-12 h-12 sm:w-14 sm:h-14" />
                             <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
                               {getRibbonText({ skipCount: 1 })}
                             </span>
                           </div>
                           <div className="relative flex flex-col items-center justify-center pt-2">
-                            <DinarIcon className="w-10 h-10 sm:w-[44px] sm:h-[44px]" />
+                            <DinarIcon className="w-10 h-10 sm:w-14 sm:h-14" />
                             <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
                               {getRibbonText({ dinar: 1 })}
                             </span>
                           </div>
                           <div className="relative flex flex-col items-center justify-center pt-2">
-                            <FilsIcon className="w-10 h-10 sm:w-[40px] sm:h-[40px]" />
+                            <FilsIcon className="w-10 h-10 sm:w-11 sm:h-11" />
                             <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
                               {getRibbonText({ fils: 200 })}
                             </span>
@@ -311,12 +304,12 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         <div className="absolute top-0 left-0 right-0 bottom-7 sm:bottom-10 flex flex-col items-center justify-center">
                           <div className="relative flex flex-col items-center justify-center">
                             <div className="flex items-center justify-center">
-                              {item.type === 'fils' ? <FilsIcon className="w-9 h-9 sm:w-[40px] sm:h-[40px]" /> :
-                               item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-[40px] sm:h-[40px]" /> :
-                               item.type === 'spinTicket' ? <SpinTicketIcon className="w-16 h-16 sm:w-[64px] sm:h-[64px]" /> :
-                               item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-[56px] sm:h-[56px]" /> :
-                               item.icon === 'lightbulb' ? <HintIcon className="w-12 h-12 sm:w-[48px] sm:h-[48px]" /> :
-                               item.icon === 'auto_fix_high' ? <MagnetIcon className="w-12 h-12 sm:w-[48px] sm:h-[48px]" /> : null}
+                              {item.type === 'fils' ? <FilsIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
+                               item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
+                               item.type === 'spinTicket' ? <SpinTicketIcon className="w-14 h-14 sm:w-16 sm:h-16" /> :
+                               item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-14 sm:h-14" /> :
+                               item.icon === 'lightbulb' ? <HintIcon className="w-12 h-12 sm:w-12 sm:h-12" /> :
+                               item.icon === 'auto_fix_high' ? <MagnetIcon className="w-12 h-12 sm:w-12 sm:h-12" /> : null}
                             </div>
 
                             <span className={`font-black text-[13px] sm:text-[15px] ${
