@@ -292,7 +292,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                 {toKuDigits(spinTicketCount || 0)}
               </span>
               <div className="w-[1.5px] h-4 bg-mono-300 dark:bg-white/20 rounded-full" />
-              <SpinTicketIcon size={24} className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]" />
+              <SpinTicketIcon size={24} className="relative z-10" />
             </div>
 
             <Motion.div
@@ -306,7 +306,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
               {/* Ambient Glow */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)' }} />
 
-              <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
+              <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 uppercase`}>چەرخێ بەختی</h2>
               {!canSpin && !loadingCheck && timeLeftStr && (
                 <span className="font-black text-xl text-amber-500 font-sans tracking-normal mb-6 relative z-10 tabular-nums" dir="ltr">{timeLeftStr}</span>
               )}
@@ -322,7 +322,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
               >
 
                 {/* Static Outer Frame with Pointer */}
-                <LuckyWheelFrame rotation={spinRotationMotion} className="absolute inset-0 w-full h-full z-20 pointer-events-none drop-shadow-lg" />
+                <LuckyWheelFrame rotation={spinRotationMotion} className="absolute inset-0 w-full h-full z-20 pointer-events-none" />
 
                 {/* The Spinning Inner Wheel */}
                 <Motion.div
@@ -377,7 +377,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                       </div>
 
                       {/* Reward Amount Text */}
-                      <p className="text-5xl font-black text-yellow-400 drop-shadow-[0_5px_15px_rgba(0,0,0,1)] mt-4 mb-8">
+                      <p className="text-5xl font-black text-yellow-400 mt-4 mb-8">
                         + {wonReward.type === 'mystery_box' ? `${toKuDigits(wonReward.amount)} ${wonReward.label}` : wonReward.label}
                       </p>
                     </Motion.div>

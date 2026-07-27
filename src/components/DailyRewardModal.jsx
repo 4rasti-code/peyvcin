@@ -221,7 +221,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 <div className="mb-4 flex items-center justify-center">
                   <ClipboardIcon className="w-20 h-20" />
                 </div>
-                <h2 className="text-3xl font-black text-mono-900 dark:text-white drop-shadow-md mb-2">خەلاتێن ڕۆژانە</h2>
+                <h2 className="text-3xl font-black text-mono-900 dark:text-white mb-2">خەلاتێن ڕۆژانە</h2>
                 {claimedToday && (
                   <div className="text-mono-500 dark:text-white/50 text-sm font-bold font-sans tracking-widest bg-mono-100 dark:bg-white/5 px-4 py-1 rounded-full border border-mono-200 dark:border-white/10 shadow-sm tabular-nums" dir="ltr">
                     {timeLeftStr}
@@ -283,19 +283,19 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         <div className="absolute top-0 left-0 right-0 bottom-8 sm:bottom-10 flex flex-row items-center justify-around px-2 sm:px-4">
                           <div className="relative flex flex-col items-center justify-center pt-2">
                             <SkipIcon className="w-12 h-12 sm:w-14 sm:h-14" />
-                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800" dir="ltr">
                               {getRibbonText({ skipCount: 1 })}
                             </span>
                           </div>
                           <div className="relative flex flex-col items-center justify-center pt-2">
                             <DinarIcon className="w-10 h-10 sm:w-14 sm:h-14" />
-                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800" dir="ltr">
                               {getRibbonText({ dinar: 1 })}
                             </span>
                           </div>
                           <div className="relative flex flex-col items-center justify-center pt-2">
                             <FilsIcon className="w-10 h-10 sm:w-11 sm:h-11" />
-                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800 drop-shadow-sm" dir="ltr">
+                            <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800" dir="ltr">
                               {getRibbonText({ fils: 200 })}
                             </span>
                           </div>
@@ -317,7 +317,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                               item.type === 'derhem' || item.type === 'fils' ? '-mt-0.5 sm:-mt-1 relative z-10' :
                               item.type === 'mystery_box' || item.icon === 'auto_fix_high' ? '-mt-1.5 sm:-mt-2 relative z-10' :
                               '-mt-1 sm:-mt-1.5 relative z-10'
-                            } text-gray-800 drop-shadow-sm`} dir="ltr">
+                            } text-gray-800`} dir="ltr">
                               {getRibbonText(item.reward)}
                             </span>
                           </div>
@@ -325,7 +325,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       )}
 
                       {/* Lower Day Label Section */}
-                      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center text-white font-black z-10 drop-shadow-sm rounded-b-[14px]
+                      <div className={`absolute bottom-0 left-0 right-0 flex items-center justify-center text-white font-black z-10 rounded-b-[14px]
                         ${isDay7 ? 'h-8 sm:h-10 text-[14px] sm:text-[16px]' : 'h-7 sm:h-10 text-[12px] sm:text-[14px]'}
                         ${DAY_THEMES[item.day].banner}
                       `}>
@@ -388,7 +388,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     className="flex flex-col items-center w-full"
                   >
                     <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">پیرۆزە!</h3>
-                    <p className="text-mono-900 dark:text-white/90 text-xl font-medium mb-12 drop-shadow-md">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
+                    <p className="text-mono-900 dark:text-white/90 text-xl font-medium mb-12">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
 
                   <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                     <Motion.div
@@ -433,7 +433,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       initial={{ scale: 0, y: 20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
-                      className="mt-6 text-mono-900 dark:text-white font-black text-3xl relative z-10 drop-shadow-[0_4px_8px_rgba(0,0,0,0.6)]"
+                      className="mt-6 text-mono-900 dark:text-white font-black text-3xl relative z-10"
                     >
                       {claimedDayInfo?.label}
                     </Motion.div>
