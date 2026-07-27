@@ -404,7 +404,7 @@ const LobbyView = memo(({
         const ms = new Date(blockedUntil) - new Date();
         if (ms <= 0) { setTimeLeft(''); return; }
         const mins = Math.ceil(ms / 60000);
-        setTimeLeft(`پشتی ${mins} خولەکان`);
+        setTimeLeft(`${toKuDigits(mins)} خولەک`);
       };
       update();
       const int = setInterval(update, 60000);
@@ -412,7 +412,7 @@ const LobbyView = memo(({
     }, [blockedUntil]);
   
     if (!timeLeft) return null;
-    return <span className="text-[10px] text-white/90 font-medium bg-black/20 px-1.5 py-0.5 rounded-full">{timeLeft}</span>;
+    return <span className="text-[11px] whitespace-nowrap">{timeLeft}</span>;
   };
 
   const renderProfileRow = (profile, index) => {
@@ -447,22 +447,22 @@ const LobbyView = memo(({
         <button
           onClick={() => handleSendInviteToUser(profile.id)}
           disabled={isSent || isBlocked}
-          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center gap-1 ${
+          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-[90px] ${
             isSent 
               ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
               : isBlocked
-                ? 'bg-red-500/80 text-white cursor-not-allowed shadow-inner'
+                ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-not-allowed border border-red-100 dark:border-red-900/30'
                 : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
           }`}
         >
           {isSent ? (
             <>
-              <span className="material-symbols-outlined text-[14px]">check</span>
+              <span className="material-symbols-outlined text-[15px]">check</span>
               چوو
             </>
           ) : isBlocked ? (
             <>
-              <span className="material-symbols-outlined text-[14px]">block</span>
+              <span className="material-symbols-outlined text-[16px]">lock_clock</span>
               <CooldownTimer blockedUntil={blockedUntil} />
             </>
           ) : (
