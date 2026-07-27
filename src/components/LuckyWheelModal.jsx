@@ -304,7 +304,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
 
 
               {/* Ambient Glow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)' }} />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)' }} />
 
               <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
               {!canSpin && !loadingCheck && timeLeftStr && (
@@ -341,7 +341,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                 <button
                   onClick={handleSpin}
                   disabled={isSpinning || (!canActuallySpin && !loadingCheck)}
-                  className={`absolute z-30 w-[50px] h-[50px] rounded-full bg-linear-to-b from-yellow-200 via-amber-400 to-orange-500 text-amber-950 text-[13px] font-black shadow-[inset_0_-2px_4px_rgba(0,0,0,0.3),0_2px_5px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center transition-all border border-yellow-200 ${(!isSpinning && canActuallySpin) ? 'hover:scale-105 hover:brightness-110 cursor-pointer' : 'opacity-80 grayscale-50 cursor-not-allowed'}`}
+                  className={`absolute z-30 w-12.5 h-12.5 rounded-full bg-linear-to-b from-yellow-200 via-amber-400 to-orange-500 text-amber-950 text-[13px] font-black shadow-[inset_0_-2px_4px_rgba(0,0,0,0.3),0_2px_5px_rgba(0,0,0,0.5)] flex flex-col items-center justify-center transition-all border border-yellow-200 ${(!isSpinning && canActuallySpin) ? 'hover:scale-105 hover:brightness-110 cursor-pointer' : 'opacity-80 grayscale-50 cursor-not-allowed'}`}
                 >
                   {isSpinning ? '...' : (!canActuallySpin && !loadingCheck ? <span className="material-symbols-outlined text-[20px] opacity-70">lock</span> : 'بزڤڕینە')}
                 </button>
@@ -358,7 +358,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                     className="fixed inset-0 z-120 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md overflow-hidden"
                   >
                     {/* Safe Static Glow VFX (Replaces heavy rotating SVG) */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-yellow-500/40 blur-[80px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-87.5 h-87.5 rounded-full pointer-events-none -z-10 animate-pulse" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.4) 0%, transparent 70%)' }}></div>
 
                     {/* Floating Reward Container */}
                     <Motion.div
@@ -372,7 +372,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                       <div className="relative flex justify-center items-center">
                         <wonReward.Icon
                           size={100}
-                          className={`filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] ${wonReward.type === 'mystery_box' ? 'w-[120px] h-[120px]' : ''}`}
+                          className={`filter drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] ${wonReward.type === 'mystery_box' ? 'w-30 h-30' : ''}`}
                         />
                       </div>
 
