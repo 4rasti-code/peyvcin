@@ -127,6 +127,7 @@ const LobbyView = memo(({
       if (newStrikes >= 3) {
         blockedUntil = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour block
         newStrikes = 0; // Reset for next time after block expires
+        setInviteCooldowns(prev => ({ ...prev, [targetId]: blockedUntil }));
       }
       
       if (data) {
