@@ -44,10 +44,10 @@ export default function MultiplayerReactions() {
   return (
     <>
       {/* SENDING UI: Vertical Emoji List on the right side */}
-      <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-start gap-2 z-8002">
+      <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-8002">
         
         {/* Quick Chat Menu & Toggle */}
-        <div className="relative flex items-center h-full" ref={quickChatRef}>
+        <div className="relative flex justify-center w-full" ref={quickChatRef}>
           <button
             onClick={() => {
               triggerHaptic(10);
