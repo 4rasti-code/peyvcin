@@ -427,7 +427,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       </Motion.div>
                     </Motion.div>
 
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/30 rounded-full blur-[80px] pointer-events-none" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)' }} />
 
                     <Motion.div
                       initial={{ scale: 0, y: 20 }}
