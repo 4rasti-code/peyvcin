@@ -44,7 +44,7 @@ export default function MultiplayerReactions() {
   return (
     <>
       {/* SENDING UI: Vertical Emoji List on the right side */}
-      <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-start gap-2 z-[8002]">
+      <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-start gap-2 z-8002">
         
         {/* Quick Chat Menu & Toggle */}
         <div className="relative flex items-center h-full" ref={quickChatRef}>
@@ -72,7 +72,7 @@ export default function MultiplayerReactions() {
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.9, x: 20 }}
                 transition={{ duration: 0.2 }}
-                className="absolute right-12 sm:right-14 top-1/2 -translate-y-1/2 w-48 max-h-[250px] overflow-y-auto overflow-x-hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-mono-700 shadow-2xl py-2 scrollbar-hide flex flex-col"
+                className="absolute right-12 sm:right-14 top-1/2 -translate-y-1/2 w-48 max-h-62.5 overflow-y-auto overflow-x-hidden bg-white/90 dark:bg-black/90 backdrop-blur-xl rounded-xl border border-slate-200 dark:border-mono-700 shadow-2xl py-2 scrollbar-hide flex flex-col"
               >
                 {QUICK_CHATS.map((chat, idx) => (
                   <button
