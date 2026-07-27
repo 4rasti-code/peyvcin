@@ -108,7 +108,7 @@ export default function LevelUpOverlay({ isVisible, newLevel, onClose, isDark })
                 repeatType: "reverse",
                 ease: "easeInOut"
               }}
-              className="absolute top-[160px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-radial from-amber-400/40 via-amber-600/10 to-transparent blur-2xl rounded-full pointer-events-none z-0" 
+              className="absolute top-[160px] left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(217, 119, 6, 0.1) 40%, transparent 70%)' }}
             />
 
             <h2 className="text-3xl font-black font-rabar text-mono-900 dark:text-mono-50 mb-8 leading-tight relative z-10 text-center">

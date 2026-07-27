@@ -304,7 +304,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
 
 
               {/* Ambient Glow */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)' }} />
 
               <h2 className={`text-3xl font-black text-mono-900 dark:text-white ${!canSpin && !loadingCheck && timeLeftStr ? 'mb-1' : 'mb-6'} relative z-10 drop-shadow-md uppercase`}>چەرخێ بەختی</h2>
               {!canSpin && !loadingCheck && timeLeftStr && (

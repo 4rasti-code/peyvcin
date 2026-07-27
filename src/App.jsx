@@ -1643,8 +1643,8 @@ export default function App() {
             style={{ zIndex: 99999 }}
           >
             {/* Background Premium Glow Orbs */}
-            <div className="absolute top-[10%] left-[10%] w-96 h-96 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-full blur-[100px] pointer-events-none" />
-            <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-[10%] left-[10%] w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, transparent 70%)' }} />
+            <div className="absolute bottom-[10%] right-[10%] w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)' }} />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
               <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
@@ -2371,7 +2371,7 @@ export default function App() {
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Background glow effect */}
-                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 bg-red-500/20 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-32 h-32 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%)' }} />
 
                 <div className="relative z-10 flex flex-col items-center gap-3">
                   <h2 className="text-base font-bold text-mono-900 dark:text-white mt-2">ئەرێ دێ دەرکەڤی؟</h2>

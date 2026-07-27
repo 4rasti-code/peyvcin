@@ -19,7 +19,7 @@ export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onR
     <div className="fixed inset-0 z-500 bg-[#020617]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
       <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
         {/* Dynamic Background Glow based on result */}
-        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 blur-[100px] rounded-full opacity-30 ${won ? 'bg-emerald-500 animate-pulse' : draw ? 'bg-amber-500' : 'bg-red-500'}`} />
+        <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[400px] h-[400px] -mt-[200px] rounded-full pointer-events-none opacity-40 ${won ? 'animate-pulse' : ''}`} style={{ background: `radial-gradient(circle, ${won ? 'rgba(16, 185, 129, 0.4)' : draw ? 'rgba(245, 158, 11, 0.4)' : 'rgba(239, 68, 68, 0.4)'} 0%, transparent 70%)` }} />
 
         <h1 className="text-4xl font-black text-white mb-2 font-noto-sans-arabic">یاری ب دوماھیک ھات</h1>
         <p className="text-white/40 mb-12 font-noto-sans-arabic">ئەنجامێن دوماھیێ</p>

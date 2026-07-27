@@ -286,7 +286,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             <Motion.div
               animate={{ scale: [1, 1.15, 1], opacity: [0.6, 0.9, 0.6] }}
               transition={{ duration: 1.5, repeat: Infinity }}
-              className="absolute w-40 h-40 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"
+              className="absolute w-64 h-64 rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, rgba(245, 158, 11, 0.25) 0%, transparent 60%)' }}
             />
             <span className="relative font-black text-7xl sm:text-8xl italic bg-linear-to-b from-yellow-300 via-amber-400 to-orange-500 bg-clip-text text-transparent select-none">
               و
