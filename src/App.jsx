@@ -105,7 +105,7 @@ class GameErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-screen bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 p-8 text-center" style={{ fontFamily: 'Rabar, sans-serif' }}>
+        <div className="flex flex-col items-center justify-center min-h-screen w-full bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 p-8 text-center" style={{ fontFamily: 'Rabar, sans-serif' }}>
           <div className="bg-red-500/10 border-2 border-red-500/30 p-10 rounded-3xl shadow-2xl max-w-lg backdrop-blur-xl animate-in zoom-in-95">
             <h2 className="text-4xl font-black mb-6 text-red-500">ئاریشەیەک چێ بوو!</h2>
             <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. هێڤییە دووبارە پەیجێ نوی بکە یان ڤەگەڕە لابیێ.</p>
@@ -128,7 +128,7 @@ const ScrollingMatchFinder = ({ opponent }) => {
   );
 
   return (
-    <div className="relative w-24 h-24 rounded-[100%] overflow-hidden bg-mono-100 dark:bg-black/40 shadow-[0_0_15px_rgba(239,68,68,0.3)] border-2 border-red-500">
+    <div className="relative w-24 h-24 rounded-full overflow-hidden bg-mono-100 dark:bg-black/40 shadow-[0_0_15px_rgba(239,68,68,0.3)] border-2 border-red-500">
       <AnimatePresence mode="wait">
         {!opponent ? (
           <Motion.div
@@ -1510,6 +1510,7 @@ export default function App() {
       setSocialNotifications(prev => ({ ...prev, unreadGlobal: 0 }));
     };
     window.addEventListener('clear_global_notifs', handleClearGlobal);
+    window.addEventListener('friendships_updated', fetchCounts);
 
     const socialChannel = supabase
       .channel(`social_notifs:${user.id}`)
@@ -1536,6 +1537,7 @@ export default function App() {
     return () => {
       supabase.removeChannel(socialChannel);
       window.removeEventListener('clear_global_notifs', handleClearGlobal);
+      window.removeEventListener('friendships_updated', fetchCounts);
     };
   }, [user?.id]);
 
@@ -1644,7 +1646,7 @@ export default function App() {
             <div className="absolute top-[10%] left-[10%] w-96 h-96 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-[10%] right-[10%] w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-            <div className="flex flex-col items-center min-h-[100px] justify-center relative z-10">
+            <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
               <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
             </div>
             <div className="relative z-10">
@@ -1658,7 +1660,7 @@ export default function App() {
       </AnimatePresence>
       <Analytics />
       {user && currentView === 'lobby' && <UpdateNotesModal />}
-      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-[960px] mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
+      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
           <div className="panic-overlay" />
@@ -1803,7 +1805,7 @@ export default function App() {
               {user?.email === '4rasti@gmail.com' && (
                 <button
                   onClick={() => setCurrentView('admin_panel')}
-                  className="fixed bottom-24 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg z-9999 flex items-center gap-2 active:scale-95 transition-transform"
+                  className="fixed bottom-24 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg z-50 flex items-center gap-2 active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined">admin_panel_settings</span>
                   پەنێڵی ئەدمین
@@ -2026,7 +2028,7 @@ export default function App() {
                     setCurrentView('social_hub');
                   }
                 }}
-                className="fixed top-[env(safe-area-inset-top,16px)] left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-[360px] z-9999 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-[16px] shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
+                className="fixed top-4 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-90 z-50 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-2xl shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
               >
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-mono-800 dark:bg-mono-200 shrink-0 flex items-center justify-center">
                   <Avatar src={pushNotification.avatar || 'default'} size="full" border={false} className="object-cover w-full h-full" />
@@ -2055,7 +2057,7 @@ export default function App() {
                 initial={{ opacity: 0, y: -20, x: '-50%' }}
                 animate={{ opacity: 1, y: 0, x: '-50%' }}
                 exit={{ opacity: 0, y: -20, x: '-50%' }}
-                className="fixed top-32 left-1/2 z-100 bg-mono-900/90 dark:bg-mono-100/90 backdrop-blur-md text-mono-50 dark:text-mono-900 px-4 py-2 rounded-md shadow-2xl font-rabar font-light text-xs pointer-events-none border border-white/10 dark:border-black/10"
+                className="fixed top-32 left-1/2 z-50 bg-mono-900/90 dark:bg-mono-100/90 backdrop-blur-md text-mono-50 dark:text-mono-900 px-4 py-2 rounded-md shadow-2xl font-rabar font-light text-xs pointer-events-none border border-white/10 dark:border-black/10"
                 style={{ whiteSpace: 'nowrap' }}
               >
                 {toastMessage}
@@ -2237,7 +2239,7 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-200 flex flex-col items-center justify-between bg-mono-50/90 dark:bg-black/90 backdrop-blur-2xl px-6 py-12 text-center overflow-hidden"
+              className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-mono-50/90 dark:bg-black/90 backdrop-blur-2xl px-6 py-12 text-center overflow-hidden"
             >
               {/* Background gradient elements removed as requested by user */}
 
@@ -2256,14 +2258,14 @@ export default function App() {
               </div>
 
               {/* TOP: OPPONENT SEARCHER / FOUND */}
-              <div className="relative z-10 flex flex-col items-center mt-24 min-h-[220px] w-full">
+              <div className="relative z-10 flex flex-col items-center mt-24 min-h-55 w-full">
                 {/* Premium Avatar Rings */}
                 <div className="relative flex flex-col items-center justify-center">
 
                   {/* Minimalist Stage Base */}
                   <div className="absolute -bottom-4 flex flex-col items-center z-0 pointer-events-none">
-                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-[100%] backdrop-blur-sm" />
-                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-[100%] blur-md" />
+                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-full backdrop-blur-sm" />
+                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full blur-md" />
                   </div>
 
                   {/* Avatar (Rings removed as requested) */}
@@ -2273,7 +2275,7 @@ export default function App() {
                 </div>
 
                 {/* Fixed height placeholder for the name to prevent layout shift */}
-                <div className="absolute top-[160px] left-0 right-0 flex flex-col items-center pointer-events-none">
+                <div className="absolute top-40 w-full px-4 flex flex-col items-center justify-center pointer-events-none z-50">
                   <AnimatePresence>
                     {multiplayerState === 'found' && opponent && (
                       <Motion.div
@@ -2314,11 +2316,11 @@ export default function App() {
 
                   {/* Minimalist Stage Base */}
                   <div className="absolute -bottom-4 flex flex-col items-center z-0 pointer-events-none">
-                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-[100%] backdrop-blur-sm" />
-                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-[100%] blur-md" />
+                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-full backdrop-blur-sm" />
+                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full blur-md" />
                   </div>
 
-                  <div className="w-24 h-24 relative z-10 rounded-[100%] overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.3)] border-2 border-blue-500 bg-mono-100 dark:bg-black/40">
+                  <div className="w-24 h-24 relative z-10 rounded-full overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.3)] border-2 border-blue-500 bg-mono-100 dark:bg-black/40">
                     <Avatar src={userAvatar} size="full" border={false} />
                   </div>
                 </div>
@@ -2357,7 +2359,7 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-200 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsForfeitConfirmOpen(false)}
             >
               <Motion.div
@@ -2365,7 +2367,7 @@ export default function App() {
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.95, y: 10, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-                className="w-full max-w-[320px] bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-5 shadow-2xl flex flex-col gap-4 text-center font-rabar overflow-hidden relative"
+                className="w-full max-w-xs bg-white dark:bg-mono-900 rounded-2xl shadow-2xl p-6 text-center border border-mono-200 dark:border-white/10 font-rabar overflow-hidden relative"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Background glow effect */}

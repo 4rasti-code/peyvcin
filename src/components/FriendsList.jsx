@@ -245,6 +245,7 @@ export default function FriendsList({
         .eq('id', requestId);
       if (error) throw error;
       fetchFriendsData();
+      window.dispatchEvent(new CustomEvent('friendships_updated'));
     } catch (err) {
       console.error("Error accepting friend request:", err);
     }
@@ -259,6 +260,7 @@ export default function FriendsList({
         .eq('id', requestId);
       if (error) throw error;
       fetchFriendsData();
+      window.dispatchEvent(new CustomEvent('friendships_updated'));
     } catch (err) {
       console.error("Error rejecting friend request:", err);
     }
