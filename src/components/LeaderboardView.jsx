@@ -40,7 +40,7 @@ export default function LeaderboardView({ onOpenChat }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
-  const [view, setView] = useState('global');
+  const [view, setView] = useState('daily');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
 
   // Daily isolated states
