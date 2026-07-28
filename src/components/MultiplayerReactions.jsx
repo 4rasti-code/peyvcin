@@ -80,9 +80,10 @@ export default function MultiplayerReactions() {
                 className="absolute right-[110%] top-0 w-max max-h-56 overflow-y-auto overflow-x-hidden bg-white/95 dark:bg-black/95 backdrop-blur-xl rounded-md border border-slate-200 dark:border-mono-700 shadow-2xl py-1.5 scrollbar-hide flex flex-col"
               >
                 {QUICK_CHATS.map((chat, idx) => {
-                  const lastSpaceIdx = chat.lastIndexOf(' ');
-                  const text = lastSpaceIdx !== -1 ? chat.substring(0, lastSpaceIdx) : chat;
-                  const emoji = lastSpaceIdx !== -1 ? chat.substring(lastSpaceIdx + 1) : '';
+                  const cleanChat = chat.replace(/[\u200E\u200F\uFE0F]/g, '');
+                  const lastSpaceIdx = cleanChat.lastIndexOf(' ');
+                  const text = lastSpaceIdx !== -1 ? cleanChat.substring(0, lastSpaceIdx) : cleanChat;
+                  const emoji = lastSpaceIdx !== -1 ? cleanChat.substring(lastSpaceIdx + 1) : '';
 
                   return (
                     <button

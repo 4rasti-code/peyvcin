@@ -174,8 +174,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   // --- PRESSURE TIMER LOGIC ---
   const iHaveFailed = guesses.length >= 3;
-  const renderReactionContent = (reaction) => {
-    if (!reaction) return null;
+  const renderReactionContent = (rawReaction) => {
+    if (!rawReaction) return null;
+    const reaction = rawReaction.replace(/[\u200E\u200F\uFE0F]/g, '');
+    
     if (reaction.length <= 3) {
       return <span className="text-[26px] leading-none drop-shadow-sm">{reaction}</span>;
     }
