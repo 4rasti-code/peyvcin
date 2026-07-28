@@ -31,22 +31,22 @@ const Step1Illustration = () => (
     </div>
     <div className="w-full bg-[#f6f7f9] dark:bg-mono-800 rounded-xl shadow-sm border border-mono-200 dark:border-white/10 p-8 flex flex-col items-center justify-center gap-5 text-mono-900 dark:text-white min-h-40" dir="ltr">
       <div className="flex items-center gap-1.5 w-full justify-center max-w-85">
-         {/* Left Button */}
-         <div className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center justify-center shrink-0">
-            <ChevronLeft className="w-5.5 h-5.5 text-mono-800 dark:text-white" strokeWidth={1.5} />
-         </div>
-         
-         {/* Center Pill */}
-         <div className="flex-1 h-11 px-4 rounded-[22px] bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center gap-3 text-mono-800 dark:text-white">
-            <RotateCcw className="w-4.5 h-4.5 shrink-0" strokeWidth={1.75} />
-            <span className="text-[15px] font-sans font-medium flex-1 truncate text-center">peyvokgame.com</span>
-            <IosSafariReadingIcon className="w-4.5 h-4.5 shrink-0" strokeWidth={1.75} />
-         </div>
-         
-         {/* Right Button */}
-         <div className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center justify-center shrink-0">
-            <MoreHorizontal className="w-6 h-6 text-mono-800 dark:text-white" strokeWidth={1.5} />
-         </div>
+        {/* Left Button */}
+        <div className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center justify-center shrink-0">
+          <ChevronLeft className="w-5.5 h-5.5 text-mono-800 dark:text-white" strokeWidth={1.5} />
+        </div>
+
+        {/* Center Pill */}
+        <div className="flex-1 h-11 px-4 rounded-[22px] bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center gap-3 text-mono-800 dark:text-white">
+          <RotateCcw className="w-4.5 h-4.5 shrink-0" strokeWidth={1.75} />
+          <span className="text-[15px] font-sans font-medium flex-1 truncate text-center">peyvokgame.com</span>
+          <IosSafariReadingIcon className="w-4.5 h-4.5 shrink-0" strokeWidth={1.75} />
+        </div>
+
+        {/* Right Button */}
+        <div className="w-11 h-11 rounded-full bg-white dark:bg-[#1a1a1a] border-[1.5px] border-mono-200 dark:border-white/20 flex items-center justify-center shrink-0">
+          <MoreHorizontal className="w-6 h-6 text-mono-800 dark:text-white" strokeWidth={1.5} />
+        </div>
       </div>
       <div className="px-5 py-2.5 rounded-full bg-white/50 dark:bg-[#1a1a1a]/50 border border-mono-200 dark:border-white/20 shadow-sm text-[13px] font-medium text-mono-700 dark:text-mono-200 mt-2" dir="rtl">
         ل سەر وان هەر سێ خالێن ل لایێ ڕاستێ(...) کلیک بکە
@@ -252,14 +252,14 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
         .from('profiles')
         .update({ has_completed_install_guide: true })
         .eq('id', user.id);
-      
+
       if (error) throw error;
-      
+
       // Update local profile state immediately via AuthContext
       if (refreshProfile) {
         refreshProfile(user.id);
       }
-      
+
       onClose();
     } catch (error) {
       console.error("Error updating install guide completion:", error);

@@ -115,9 +115,9 @@ export default function MultiplayerResultOverlay({
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="w-8 h-[2px] bg-white/10 rounded-full mb-1" />
+              <div className="w-8 h-0.5 bg-white/10 rounded-full mb-1" />
               <span className="text-xs font-black text-white/20 italic">و</span>
-              <div className="w-8 h-[2px] bg-white/10 rounded-full mt-1" />
+              <div className="w-8 h-0.5 bg-white/10 rounded-full mt-1" />
             </div>
 
             <div className="flex flex-col items-center gap-2 flex-1">
@@ -157,6 +157,18 @@ export default function MultiplayerResultOverlay({
                     <AnimatedNumber value={rewards?.xpAdded || 100} prefix="+" />
                     <span className="text-[8px] font-black tracking-tighter opacity-60">XP</span>
                   </div>
+                </div>
+              </div>
+
+              <div className="h-px bg-white/5 my-1" />
+
+              <div className="flex justify-between items-center text-[13px] font-black mt-1 py-1.5 px-2 rounded-sm bg-purple-500/10 border border-purple-500/20 shadow-inner">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px] text-[#a855f7] animate-pulse">timer</span>
+                  <span className="text-[#a855f7] dark:text-[#c084fc] text-[11px] font-rabar pt-0.5">زێدەبوو ل سەرکەفتنێن ئەڤرۆ</span>
+                </div>
+                <div className="flex items-center gap-1 leading-none text-[#a855f7] dark:text-[#c084fc]">
+                  <AnimatedNumber value={rewards?.xpAdded || 100} prefix="+" />
                 </div>
               </div>
             </Motion.div>

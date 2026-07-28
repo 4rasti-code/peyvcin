@@ -235,6 +235,20 @@ export const AuthProvider = ({ children }) => {
       } else {
         console.log("[AuthContext] Profile core fetch successful.");
         handleProfileData(data[0], onProfileLoaded);
+        
+        // Ping daily activity logic to ensure streak is updated just by opening the app
+        supabase.rpc('ping_daily_activity').then(({ data: pingData, error: pingError }) => {
+          if (!pingError && pingData?.updated) {
+            console.log("[AuthContext] Daily activity pinged successfully:", pingData);
+            setProfileData(prev => {
+              if (!prev) return prev;
+              const merged = { ...prev, daily_streak: pingData.daily_streak };
+              localStorage.setItem('peyvchin_cached_profile', JSON.stringify(merged));
+              return merged;
+            });
+          }
+        }).catch(err => console.warn("Failed to ping daily activity", err));
+
         // Start the extended sync in the background so it doesn't hold up the loading screen
         syncProfileExtended(activeUserId);
       }

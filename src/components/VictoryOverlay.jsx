@@ -198,6 +198,18 @@ const VictoryOverlay = ({
                     </div>
                   </div>
                 </div>
+
+                <div className="h-px bg-mono-200 dark:bg-white/5 my-1" />
+
+                <div className="flex justify-between items-center text-[13px] font-black py-1.5 px-2 rounded-sm bg-purple-500/10 border border-purple-500/20 shadow-inner">
+                  <div className="flex items-center gap-1.5">
+                    <span className="material-symbols-outlined text-[16px] text-[#a855f7] animate-pulse">timer</span>
+                    <span className="text-[#a855f7] dark:text-[#c084fc] text-[11px] font-rabar pt-0.5">زێدەبوو ل سەرکەفتنێن ئەڤرۆ</span>
+                  </div>
+                  <div className="flex items-center gap-1 leading-none text-[#a855f7] dark:text-[#c084fc]">
+                    <AnimatedNumber value={breakdown?.xpAdded || xp || 25} prefix="+" />
+                  </div>
+                </div>
               </div>
 
               {/* Fastest Record Banner (Lightning Speed) */}

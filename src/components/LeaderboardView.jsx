@@ -42,6 +42,13 @@ export default function LeaderboardView({ onOpenChat }) {
   const [error, setError] = useState(null);
   const [view, setView] = useState('global');
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+
+  // Daily isolated states
+  const [dailyLeaders, setDailyLeaders] = useState([]);
+  const [loadingDaily, setLoadingDaily] = useState(true);
+  const [loadingMoreDaily, setLoadingMoreDaily] = useState(false);
+  const [hasMoreDaily, setHasMoreDaily] = useState(true);
+  const dailyPageRef = useRef(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Caching for instant load
@@ -89,6 +96,68 @@ export default function LeaderboardView({ onOpenChat }) {
       setSelectedPlayer(null);
     }
   };
+
+  const fetchDailyData = useCallback(async (isLoadMore = false) => {
+    if (loadingAuth || !userId || userId === 'undefined' || userId.length < 5) {
+      if (!isLoadMore) setLoadingDaily(false);
+      return;
+    }
+    
+    if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+
+    return new Promise((resolve) => {
+      fetchTimeoutRef.current = setTimeout(async () => {
+        const currentPage = isLoadMore ? dailyPageRef.current + 1 : 0;
+
+        if (!isLoadMore) {
+          setLoadingDaily(true);
+          setError(null);
+        } else {
+          setLoadingMoreDaily(true);
+        }
+
+        try {
+          const todayISO = new Date().toISOString().split('T')[0];
+          const { data, error: leaderError } = await supabase
+            .from('profiles')
+            .select('*')
+            .neq('nickname', 'Admin_4rasti')
+            .neq('nickname', 'ADMIN_PEYVOK')
+            .neq('nickname', 'پەیڤۆک')
+            .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+            .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
+            .eq('daily_xp_date', todayISO)
+            .gt('daily_xp', 0)
+            .order('daily_xp', { ascending: false })
+            .order('updated_at', { ascending: true })
+            .range(currentPage * ITEMS_PER_PAGE, (currentPage + 1) * ITEMS_PER_PAGE - 1);
+
+          if (leaderError) throw leaderError;
+          const leaderData = data || [];
+
+          if (isLoadMore) {
+            setDailyLeaders(prev => {
+              const existingIds = new Set(prev.map(p => p.id));
+              const newItems = leaderData.filter(p => !existingIds.has(p.id));
+              return [...prev, ...newItems];
+            });
+          } else {
+            setDailyLeaders(leaderData);
+          }
+
+          dailyPageRef.current = currentPage;
+          setHasMoreDaily(leaderData.length === ITEMS_PER_PAGE);
+        } catch (err) {
+          console.warn("Daily Leaderboard fetch error:", err);
+          setError(true);
+        } finally {
+          if (!isLoadMore) setLoadingDaily(false);
+          setLoadingMoreDaily(false);
+          resolve();
+        }
+      }, 300);
+    });
+  }, [loadingAuth, userId]);
 
   const fetchData = useCallback(async (isLoadMore = false) => {
     // 1. HARDENED GUARD: Reject invalid, undefined, or loading states
@@ -199,15 +268,22 @@ export default function LeaderboardView({ onOpenChat }) {
 
   useEffect(() => {
     // When view changes, reset to page 0
-    fetchData(false);
+    if (view === 'daily') {
+      fetchDailyData(false);
+    } else {
+      fetchData(false);
+    }
 
-    const handleFocus = () => fetchData(false);
+    const handleFocus = () => {
+      if (view === 'daily') fetchDailyData(false);
+      else fetchData(false);
+    };
     window.addEventListener('focus', handleFocus);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [view, userId, fetchData]);
+  }, [view, userId, fetchData, fetchDailyData]);
 
   // Real-time XP updates
   useEffect(() => {
@@ -379,17 +455,21 @@ export default function LeaderboardView({ onOpenChat }) {
 
         {/* Top Tab Swapper - Synced Card Style */}
         <div className="flex p-1 rounded-md border mb-3 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-mono-900 border-mono-200 dark:border-mono-800 duration-300">
-          {['global', 'friends'].map((tab) => {
-            const isActive = view === tab;
+          {['daily', 'general'].map((tab) => {
+            const isActive = tab === 'general' ? (view === 'global' || view === 'friends') : view === 'daily';
             return (
               <button
                 key={tab}
                 onClick={() => {
                   triggerHaptic(10);
                   playTabSound();
-                  setView(tab);
+                  if (tab === 'general' && view === 'daily') {
+                    setView('global');
+                  } else if (tab === 'daily') {
+                    setView('daily');
+                  }
                 }}
-                className={`flex-1 py-2.5 px-4 rounded-md font-black text-sm transition-all duration-300 relative z-10 ${isActive
+                className={`flex-1 py-2.5 px-2 rounded-md font-black transition-all duration-300 relative z-10 ${isActive
                   ? 'text-mono-50 dark:text-mono-50'
                   : 'text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
                   }`}
@@ -401,13 +481,73 @@ export default function LeaderboardView({ onOpenChat }) {
                     transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
                   />
                 )}
-                <span className="relative z-20 uppercase tracking-normal font-rabar">
-                  {tab === 'global' ? 'جیھانی' : 'ھەڤال'}
+                <span className="relative z-20 uppercase tracking-normal font-rabar text-[13px] sm:text-[14px]">
+                  {tab === 'general' ? 'گشتی' : 'ئەڤرۆ'}
                 </span>
               </button>
             );
           })}
         </div>
+
+        {/* Sub-tabs for General (Global / Friends) */}
+        <AnimatePresence mode="wait">
+          {(view === 'global' || view === 'friends') && (
+             <Motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex justify-center mb-4 px-4 overflow-hidden relative z-30 w-full mx-auto"
+             >
+                <div className="flex p-0.5 rounded-full border border-mono-200 dark:border-mono-800/80 bg-mono-100/50 dark:bg-mono-900/50 shadow-inner w-fit mx-auto transition-all duration-300">
+                  {['global', 'friends'].map((subTab) => {
+                    const isSubActive = view === subTab;
+                    return (
+                      <button
+                        key={subTab}
+                        onClick={() => {
+                          triggerHaptic(10);
+                          playTabSound();
+                          setView(subTab);
+                        }}
+                        className={`py-1 px-5 rounded-full font-black transition-all duration-300 relative z-10 ${isSubActive
+                          ? 'text-white'
+                          : 'text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
+                          }`}
+                      >
+                        {isSubActive && (
+                          <Motion.div
+                            layoutId="activeSubTabIndicator"
+                            className="absolute inset-0 bg-mono-800 dark:bg-mono-700 rounded-full shadow-sm"
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                          />
+                        )}
+                        <span className="relative z-20 uppercase tracking-normal font-rabar text-[10px] sm:text-[11px]">
+                          {subTab === 'global' ? 'جیھانی' : 'ھەڤال'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+             </Motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Daily Competition Indicator */}
+        <AnimatePresence mode="wait">
+          {view === 'daily' && (
+             <Motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="flex flex-col items-center justify-center mb-4 px-4 overflow-hidden relative z-30 w-full max-w-xs mx-auto"
+             >
+                <div className="bg-mono-100 dark:bg-mono-800/80 rounded-full px-4 py-1.5 flex items-center gap-1.5 border border-mono-200 dark:border-mono-700 shadow-sm">
+                   <span className="material-symbols-outlined text-[#a855f7] text-[16px] animate-pulse">timer</span>
+                   <span className="text-[11px] font-bold text-mono-600 dark:text-mono-300 font-rabar pt-0.5">پێشبڕکێیا ئەڤرۆ (ڕۆژانە نوی دبیت)</span>
+                </div>
+             </Motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Live Stats - Background-less */}
         <div className="flex items-center justify-center gap-4 px-4 pb-8 relative z-30 w-full max-w-xs mx-auto">
@@ -430,7 +570,7 @@ export default function LeaderboardView({ onOpenChat }) {
         </div>
 
         <AnimatePresence mode="wait">
-          {loading ? (
+          {(view === 'daily' ? loadingDaily : loading) ? (
             <div className="flex flex-col items-center justify-center py-48 gap-4">
               <div className="w-10 h-10 border-2 border-mono-200 dark:border-primary border-t-transparent rounded-full animate-spin"></div>
               <span className="font-black text-mono-400 dark:text-mono-700 uppercase text-[10px] tracking-widest">LOADING...</span>
@@ -456,7 +596,7 @@ export default function LeaderboardView({ onOpenChat }) {
               exit="exit"
               className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto pb-40"
             >
-              {leaders.map((player, index) => {
+              {(view === 'daily' ? dailyLeaders : leaders).map((player, index) => {
                 // Sequential Ranking based on the list index (matches exact spot)
                 // Since pagination uses ITEMS_PER_PAGE, we calculate absolute rank
                 let rank = (pageRef.current * ITEMS_PER_PAGE) + index + 1;
@@ -467,7 +607,7 @@ export default function LeaderboardView({ onOpenChat }) {
                 const isMe = userId && (player.id === userId);
                 const effectiveAvatar = isMe ? userAvatar : (player.avatar_url || 'default');
                 const effectiveNickname = isMe ? userNickname : player.nickname;
-                const effectiveXP = isMe ? userXP : player.xp;
+                const effectiveXP = view === 'daily' ? (player.daily_xp || 0) : (isMe ? userXP : player.xp);
                 const progressDecimal = getLevelData(effectiveXP).progressPercent / 100;
                 const effectiveCountryCode = isMe ? countryCode : player.country_code;
                 const effectiveIsInKurdistan = isMe ? isInKurdistan : player.is_kurdistan;
@@ -628,7 +768,7 @@ export default function LeaderboardView({ onOpenChat }) {
                     <div className="flex items-center gap-3 z-10 px-1">
                       <div className="relative w-12 h-12 flex items-center justify-center">
                         {/* XP Progress Ring */}
-                        <div className="absolute inset-[-4px] z-0">
+                        <div className="absolute -inset-1 z-0">
                           <svg className={`w-full h-full -rotate-90 overflow-visible ${
                             isTop3 ? 'drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]' : ''
                           }`} viewBox="0 0 100 100">
@@ -680,7 +820,7 @@ export default function LeaderboardView({ onOpenChat }) {
 
                         {/* Minimal Overlapping Flag Badge */}
                         {(effectiveCountryCode || effectiveIsInKurdistan) && (
-                          <div className={`absolute -bottom-1.5 -right-1.5 z-20 w-[18px] h-[18px] rounded-full overflow-hidden border-[1.5px] shadow-sm bg-white dark:bg-mono-900 flex items-center justify-center scale-90 ${
+                          <div className={`absolute -bottom-1.5 -right-1.5 z-20 w-4.5 h-4.5 rounded-full overflow-hidden border-[1.5px] shadow-sm bg-white dark:bg-mono-900 flex items-center justify-center scale-90 ${
                             rank === 1
                               ? 'border-[#a855f7]'
                               : rank === 2
@@ -708,46 +848,54 @@ export default function LeaderboardView({ onOpenChat }) {
                       }`}>{effectiveNickname}</span>
                     </div>
 
-                    {/* Shield (RIGHT SIDE) */}
+                    {/* Shield or XP (RIGHT SIDE) */}
                     <div className="flex items-center shrink-0 pr-1">
-                      <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
-                        <svg className="absolute inset-0 w-full h-full drop-shadow-[0_2.5px_6px_rgba(0,0,0,0.3)]" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="5" strokeOpacity={isTop3 ? 0.75 : 0.35} />
-                          <defs>
-                              <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                                <stop stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop1} />
-                                <stop offset="1" stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop2} />
-                              </linearGradient>
-                          </defs>
-                        </svg>
-                        <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
-                          <span className="text-[7.5px] font-black text-amber-950/60 uppercase leading-none mb-0.5">ئاست</span>
-                          <span className="text-xl font-black text-amber-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                      {view === 'daily' ? (
+                        <div className="flex flex-col items-center justify-center min-w-14 px-2 py-1.5">
+                          <span className={`text-[8px] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
+                            rank === 1 || rank === 3 ? 'text-white/80' : rank === 2 ? 'text-amber-950/60' : 'text-mono-400 dark:text-mono-500'
+                          }`}>ئێکس پی</span>
+                          <span className={`text-[13px] font-black leading-none drop-shadow-sm tabular-nums ${
+                            rank === 1 || rank === 3 ? 'text-white' : rank === 2 ? 'text-amber-950' : 'text-[#a855f7] dark:text-[#c084fc]'
+                          }`}>+{toKuDigits(effectiveXP)}</span>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
+                          <svg className="absolute inset-0 w-full h-full drop-shadow-[0_2.5px_6px_rgba(0,0,0,0.3)]" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="5" strokeOpacity={isTop3 ? 0.75 : 0.35} />
+                            <defs>
+                                <linearGradient id={`medalGradient-${player.id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                                  <stop stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop1} />
+                                  <stop offset="1" stopColor={getLevelTier(getLevelFromXP(effectiveXP)).stop2} />
+                                </linearGradient>
+                            </defs>
+                          </svg>
+                          <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
+                            <span className="text-[7.5px] font-black text-amber-950/60 uppercase leading-none mb-0.5">ئاست</span>
+                            <span className="text-xl font-black text-amber-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </Motion.div>
                 );
               })}
               
               {/* Load More Button */}
-              {hasMore && leaders.length > 0 && (
-                <div className="pt-4 pb-8 flex justify-center">
+              {(view === 'daily' ? hasMoreDaily : hasMore) && (view === 'daily' ? dailyLeaders.length : leaders.length) >= ITEMS_PER_PAGE && (
+                <div className="flex justify-center pt-6 pb-12">
                   <button
-                    onClick={() => { triggerHaptic(10); fetchData(true); }}
-                    disabled={loadingMore}
-                    className="flex items-center gap-2 bg-mono-100 dark:bg-mono-800 hover:bg-mono-200 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-300 px-6 py-2.5 rounded-full font-black text-sm transition-all active:scale-95 border border-mono-200 dark:border-mono-700 shadow-sm disabled:opacity-50 disabled:active:scale-100"
+                    onClick={() => view === 'daily' ? fetchDailyData(true) : fetchData(true)}
+                    disabled={view === 'daily' ? loadingMoreDaily : loadingMore}
+                    className="group relative px-6 py-2.5 rounded-full bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm tracking-wide transition-all hover:bg-mono-200 dark:hover:bg-mono-800 hover:text-mono-900 dark:hover:text-mono-100 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                   >
-                    {loadingMore ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                        <span>دئینیت...</span>
-                      </>
+                    {(view === 'daily' ? loadingMoreDaily : loadingMore) ? (
+                      <div className="w-5 h-5 border-2 border-mono-900 dark:border-mono-100 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     ) : (
-                      <>
-                        <span className="material-symbols-outlined text-[18px]">expand_more</span>
-                        <span>زێدەتر نیشان بدە</span>
-                      </>
+                      <span className="flex items-center gap-2 uppercase tracking-widest font-black text-[11px] font-rabar">
+                        زێدەتر نیشانبدە
+                        <span className="material-symbols-outlined text-[16px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
+                      </span>
                     )}
                   </button>
                 </div>

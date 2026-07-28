@@ -378,7 +378,7 @@ const GameResultRenderer = ({ text, isMe }) => {
   );
 };
 
-function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick }) {
+function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [] }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -477,6 +477,15 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                       </svg>
                       <span className="relative z-10 text-[7px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
                     </div>
+                  )}
+                  {topDailyPlayers?.includes(m.user_id) && (
+                    <span className={`px-1.5 rounded-sm text-[7.5px] font-black tracking-widest text-white leading-none flex items-center justify-center py-[2.5px] shadow-sm border border-black/10 font-rabar mt-0.5 ${
+                      topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-r from-yellow-400 to-amber-500' :
+                      topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-r from-slate-400 to-slate-500' :
+                      'bg-linear-to-r from-amber-600 to-orange-700'
+                    }`}>
+                      TOP {topDailyPlayers.indexOf(m.user_id) + 1}
+                    </span>
                   )}
                 </div>
               </>
@@ -633,6 +642,7 @@ export default function SocialHubView({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
+  const [topDailyPlayers, setTopDailyPlayers] = useState([]);
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -654,6 +664,24 @@ export default function SocialHubView({
       } else if (initialTab) {
         setActiveTab(initialTab);
       }
+
+      // Fetch Top 3 Daily Players for badges
+      const fetchTopDaily = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('id')
+            .gt('daily_xp', 0)
+            .order('daily_xp', { ascending: false })
+            .limit(3);
+          if (!error && data) {
+            setTopDailyPlayers(data.map(p => p.id));
+          }
+        } catch (e) {
+          console.warn("Failed to fetch top daily players", e);
+        }
+      };
+      fetchTopDaily();
     }
   }, [initialChatPartner, initialTab, isVisible]);
 
@@ -1453,6 +1481,7 @@ export default function SocialHubView({
                     currentUserNickname={userNickname}
                     showNickname={true}
                     reactionUsers={reactionUsers}
+                    topDailyPlayers={topDailyPlayers}
                     onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: false })}
                     onReact={handleReact}
                     onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
@@ -1546,6 +1575,7 @@ export default function SocialHubView({
                         currentUserId={selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id}
                         currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
                         reactionUsers={reactionUsers}
+                        topDailyPlayers={topDailyPlayers}
                         onSeen={async (id) => {
                           const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
                           if (m.user_id !== myId && !m.is_read) {
