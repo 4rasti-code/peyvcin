@@ -177,7 +177,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const renderReactionContent = (reaction) => {
     if (!reaction) return null;
     if (reaction.length <= 3) {
-      return <span className="text-[26px] leading-none drop-shadow-md">{reaction}</span>;
+      return <span className="text-[26px] leading-none drop-shadow-sm">{reaction}</span>;
     }
     
     const lastSpaceIdx = reaction.lastIndexOf(' ');
@@ -186,13 +186,13 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       const emoji = reaction.substring(lastSpaceIdx + 1);
       return (
         <div className="flex items-center gap-2" dir="rtl">
-          <span className="text-[13px] sm:text-[14px] font-extrabold text-white leading-tight whitespace-nowrap drop-shadow-sm">{text}</span>
-          <span className="text-[18px] leading-none drop-shadow-md">{emoji}</span>
+          <span className="text-[13px] sm:text-[14px] font-extrabold text-mono-900 dark:text-white leading-tight whitespace-nowrap drop-shadow-sm">{text}</span>
+          <span className="text-[18px] leading-none drop-shadow-sm">{emoji}</span>
         </div>
       );
     }
 
-    return <span className="text-[13px] sm:text-[14px] font-extrabold text-white leading-tight drop-shadow-sm">{reaction}</span>;
+    return <span className="text-[13px] sm:text-[14px] font-extrabold text-mono-900 dark:text-white leading-tight drop-shadow-sm">{reaction}</span>;
   };
 
   const opponentHasFailed = activeMatch?.[isPlayer1 ? 'p2_failed' : 'p1_failed'];
@@ -485,7 +485,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-blue-600 dark:bg-blue-500 shadow-xl ring-2 ring-white/20 rounded-full flex items-center justify-center min-w-max max-w-50">
+                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -597,7 +597,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-red-600 dark:bg-red-500 shadow-xl ring-2 ring-white/20 rounded-full flex items-center justify-center min-w-max max-w-50">
+                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-red-500/20 border-red-500/30' : 'bg-red-50 border-red-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>
