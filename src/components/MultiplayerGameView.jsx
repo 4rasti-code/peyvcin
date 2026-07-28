@@ -176,24 +176,12 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const iHaveFailed = guesses.length >= 3;
   const renderReactionContent = (rawReaction) => {
     if (!rawReaction) return null;
-    const reaction = rawReaction.replace(/[\u200E\u200F\uFE0F]/g, '');
+    const reaction = rawReaction.replace(/\u200E|\u200F|\uFE0F/g, '');
     
     if (reaction.length <= 3) {
       return <span className="text-[26px] leading-none drop-shadow-sm">{reaction}</span>;
     }
     
-    const lastSpaceIdx = reaction.lastIndexOf(' ');
-    if (lastSpaceIdx !== -1) {
-      const text = reaction.substring(0, lastSpaceIdx);
-      const emoji = reaction.substring(lastSpaceIdx + 1);
-      return (
-        <div className="flex items-center gap-2" dir="rtl">
-          <span className="text-[13px] sm:text-[14px] font-extrabold text-mono-900 dark:text-white leading-tight whitespace-nowrap drop-shadow-sm">{text}</span>
-          <span className="text-[18px] leading-none drop-shadow-sm">{emoji}</span>
-        </div>
-      );
-    }
-
     return <span className="text-[13px] sm:text-[14px] font-extrabold text-mono-900 dark:text-white leading-tight drop-shadow-sm">{reaction}</span>;
   };
 
@@ -460,7 +448,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <div className="relative flex items-center justify-center min-w-[32px] min-h-[32px]">
+            <div className="relative flex items-center justify-center min-w-8 min-h-8">
               {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
@@ -572,7 +560,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             style={{ width: gridWidth }}
           >
             <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase relative z-10`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
-            <div className="relative flex items-center justify-center min-w-[32px] min-h-[32px]">
+            <div className="relative flex items-center justify-center min-w-8 min-h-8">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
