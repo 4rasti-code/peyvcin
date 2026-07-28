@@ -973,12 +973,14 @@ const LobbyView = memo(({
       <AnimatePresence>
         {isReportModalOpen && (
           <ReportModal
+            key="report-modal"
             isOpen={isReportModalOpen}
             onClose={() => setIsReportModalOpen(false)}
             user={user}
           />
         )}
         <InstallGuideModal
+          key="install-modal"
           isOpen={isInstallModalOpen}
           onClose={() => setIsInstallModalOpen(false)}
         />
