@@ -175,20 +175,9 @@ const ReportModal = ({ isOpen, onClose, user }) => {
               </button>
             </div>
 
-            {/* Description */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-mono-600 dark:text-mono-400">ڕوونکرن *</label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={type === 'bug' ? "ئاریشەیەکا چاڤەڕێ نەکری چێبوو..." : "هزرەکا نوی بۆ یاریێ..."}
-                className="w-full bg-mono-50 dark:bg-black/20 border border-mono-200 dark:border-white/10 rounded-md p-3 text-sm min-h-25 text-mono-900 dark:text-white focus:outline-none focus:border-primary resize-none"
-              />
-            </div>
-
             {/* Image Upload */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-mono-600 dark:text-mono-400">وێنە (هەتا ٥ وێنە - هەلبژارتنە)</label>
+              <label className="text-xs font-bold text-mono-600 dark:text-mono-400">وێنەیان هەلبژێرە</label>
               
               {images.length > 0 && (
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x">
@@ -230,6 +219,18 @@ const ReportModal = ({ isOpen, onClose, user }) => {
                 accept="image/*"
                 multiple
                 className="hidden" 
+              />
+              <p className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">تێبینی: تو دشێی ٥ وێنەیان بار بکەی.</p>
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-bold text-mono-600 dark:text-mono-400">ڕوونکرن *</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={type === 'bug' ? "ئاریشێ ڕوون بکە..." : "هزرەکا نوی بۆ یاریێ..."}
+                className="w-full bg-mono-50 dark:bg-black/20 border border-mono-200 dark:border-white/10 rounded-md p-3 text-sm min-h-25 text-mono-900 dark:text-white focus:outline-none focus:border-primary resize-none"
               />
             </div>
 

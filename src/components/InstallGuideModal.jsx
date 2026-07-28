@@ -241,7 +241,10 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
   const { user, refreshProfile } = useUser();
 
   const handleCompleteGuide = async () => {
-    if (!user) return;
+    if (!user) {
+      onClose();
+      return;
+    }
     try {
       setIsLoading(true);
       triggerHaptic(20);
