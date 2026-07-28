@@ -485,7 +485,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-blue-500/20 border-blue-500/30' : 'bg-blue-50 border-blue-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-white/10 border-white/15' : 'bg-white/95 border-slate-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -597,7 +597,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-red-500/20 border-red-500/30' : 'bg-red-50 border-red-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-white/10 border-white/15' : 'bg-white/95 border-slate-200'} backdrop-blur-xl border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>
