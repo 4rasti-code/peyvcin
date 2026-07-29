@@ -32,8 +32,7 @@ export default function PublicProfileModal({
   const [playerStats, setPlayerStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showFullStats, setShowFullStats] = useState(false);
-
-
+  const [topDailyRank, setTopDailyRank] = useState(null);
 
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
   const [showReportConfirm, setShowReportConfirm] = useState(false);
@@ -104,10 +103,59 @@ export default function PublicProfileModal({
           setInternalBlocked(!!blockResult.data);
         }
       }
-
       setLoading(false);
     };
+    
     loadProfile();
+
+    // Fetch and sync Top 3 Daily Rank
+    let fetchTimeout;
+    const fetchTopDaily = async () => {
+      if (!profile?.id) return;
+      try {
+        const todayISO = new Date().toISOString().split('T')[0];
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id')
+          .neq('nickname', 'Admin_4rasti')
+          .neq('nickname', 'ADMIN_PEYVOK')
+          .neq('nickname', 'پەیڤۆک')
+          .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+          .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
+          .eq('daily_xp_date', todayISO)
+          .gt('daily_xp', 0)
+          .order('daily_xp', { ascending: false })
+          .limit(3);
+        if (!error && data) {
+          const index = data.findIndex(p => p.id === profile.id);
+          if (index !== -1) {
+            setTopDailyRank(index + 1);
+          } else {
+            setTopDailyRank(null);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to fetch top daily players", e);
+      }
+    };
+    
+    fetchTopDaily();
+
+    const top3Sub = supabase.channel(`public:profiles:modal_top3_${profile.id}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        const updatedProfile = payload.new;
+        if (updatedProfile && typeof updatedProfile.daily_xp !== 'undefined') {
+          if (fetchTimeout) clearTimeout(fetchTimeout);
+          fetchTimeout = setTimeout(() => {
+             fetchTopDaily();
+          }, 2000); 
+        }
+      }).subscribe();
+
+    return () => {
+      if (fetchTimeout) clearTimeout(fetchTimeout);
+      supabase.removeChannel(top3Sub);
+    };
   }, [profile?.id, currentUser?.id]);
 
   if (!profile) return null;
@@ -458,43 +506,36 @@ export default function PublicProfileModal({
 
         {/* Identity Section */}
         <div className="space-y-1 mb-3 w-full">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full px-4" dir="ltr">
-            {/* Left Column: Flag */}
-            <div className="flex justify-end">
-              <FlagBadge countryCode={displayData.country_code} isInKurdistan={displayData.is_kurdistan} size="sm" />
-            </div>
-
-            {/* Center Column: Name */}
-            <div className="flex justify-center">
-              {(() => {
-                const fontObj = NAME_FONTS[displayData.equipped_font] || NAME_FONTS['default-ku'];
-                const styleObj = NAME_STYLES[displayData.equipped_name_style] || {};
-                const bundleObj = BUNDLES[displayData.equipped_bundle] || BUNDLES['default'];
-                return (
-                  <h2
-                    className={`text-2xl font-black transition-colors duration-500 text-center ${isBot ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
-                    style={{ ...(!isBot && bundleObj.id === 'default' && !styleObj.class ? { color: getLevelTier(safeLevel).stop1 } : {}), ...(!isBot && bundleObj.id === 'default' ? fontObj.style : {}) }}
-                  >
-                    {displayData.nickname}
-                  </h2>
-                );
-              })()}
-            </div>
+          {/* Name Row (Centered) */}
+          <div className="flex flex-col items-center justify-center gap-1 w-full px-4">
+            {(() => {
+              const fontObj = NAME_FONTS[displayData.equipped_font] || NAME_FONTS['default-ku'];
+              const styleObj = NAME_STYLES[displayData.equipped_name_style] || {};
+              const bundleObj = BUNDLES[displayData.equipped_bundle] || BUNDLES['default'];
+              return (
+                <h2
+                  className={`text-2xl font-black transition-colors duration-500 text-center ${isBot ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                  style={{ ...(!isBot && bundleObj.id === 'default' && !styleObj.class ? { color: getLevelTier(safeLevel).stop1 } : {}), ...(!isBot && bundleObj.id === 'default' ? fontObj.style : {}) }}
+                >
+                  {displayData.nickname}
+                </h2>
+              );
+            })()}
             
-            {/* Right Column: Streak */}
-            <div className="flex justify-start">
-              {!isBot && fullData?.daily_streak > 0 && !(minimalMode && relStatus !== 'friend' && !isMe) && (
-                <div className="flex items-center gap-1 pl-2 border-l border-mono-200 dark:border-white/10" dir="ltr">
-                  <span className="text-lg leading-none" style={{ filter: "drop-shadow(0 0 6px rgba(255, 159, 28, 0.4))" }}>
-                    {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
-                  </span>
-                  <div className="flex items-baseline gap-0.5">
-                    <span className="text-lg font-black text-mono-900 dark:text-white leading-none tabular-nums">{toKuDigits(fullData.daily_streak)}</span>
-                    <span className="text-[10px] font-bold text-mono-500 dark:text-mono-400">ڕۆژ</span>
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Daily Top 3 Badge */}
+            {topDailyRank && !isBot && (
+              <Motion.span 
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`px-2 py-0.75 rounded-sm text-[9px] font-black uppercase leading-none shadow-sm flex items-center justify-center border font-rabar ${
+                  topDailyRank === 1 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
+                  topDailyRank === 2 ? 'bg-linear-to-b from-[#F8FAFC] to-[#94A3B8] text-[#0F172A] border-[#64748B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_0_#475569]' :
+                  'bg-linear-to-b from-[#FDBA74] to-[#C2410C] text-[#431407] border-[#92400E] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_1px_0_#78350F]'
+                }`}
+              >
+                <span className="pt-0.5">TOP {topDailyRank} ئەڤرۆ</span>
+              </Motion.span>
+            )}
           </div>
 
           {mastery && !isBot && (
@@ -529,39 +570,64 @@ export default function PublicProfileModal({
             </div>
           )}
 
-          {/* Social Action Icons Row */}
-          {!isMe && !isBot && displayData?.nickname !== 'Admin_4rasti' && displayData?.nickname !== 'ADMIN_PEYVOK' && displayData?.nickname !== 'پەیڤۆک' && (
-            <div className="flex items-center justify-center gap-3 mt-4 pt-1">
-              {/* Friend Action */}
-              {relStatus === 'friend' && !effectiveIsBlocked && (
-                <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="لابرنا ھەڤالینیێ">
-                  <span className="material-symbols-outlined text-[20px]">how_to_reg</span>
-                </button>
-              )}
-              {relStatus === 'none' && !effectiveIsBlocked && (
-                <button onClick={handleSendFriendRequest} className="w-10 h-10 rounded-full bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 flex items-center justify-center hover:opacity-90 transition-all shadow-md" title="ببە ھەڤاڵ">
-                  <span className="material-symbols-outlined text-[20px]">person_add</span>
-                </button>
-              )}
-              {relStatus === 'pending_sent' && !effectiveIsBlocked && (
-                <button onClick={handleDeclineFriendRequest} className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="پەشێمان بوون">
-                  <span className="material-symbols-outlined text-[20px]">hourglass_top</span>
-                </button>
-              )}
+          {/* Flag, Social Actions, and Streak Row */}
+          <div className="flex items-center justify-between w-full px-2 mt-5 pt-1" dir="ltr">
+            {/* Left: Flag */}
+            <div className="flex-1 flex justify-start items-center">
+              <FlagBadge countryCode={displayData.country_code} isInKurdistan={displayData.is_kurdistan} size="sm" />
+            </div>
 
-              {/* Report Action */}
-              <button onClick={() => { triggerHaptic(10); setShowReportConfirm(true); }} className="w-10 h-10 rounded-full bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/40 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/20 transition-all shadow-sm" title="ڕیپۆرتکرن / سکاڵا">
-                <span className="material-symbols-outlined text-[20px]">flag</span>
-              </button>
+            {/* Center: Social Action Icons */}
+            <div className="flex flex-col items-center justify-center shrink-0">
+              {!isMe && !isBot && displayData?.nickname !== 'Admin_4rasti' && displayData?.nickname !== 'ADMIN_PEYVOK' && displayData?.nickname !== 'پەیڤۆک' && (
+                <div className="flex items-center justify-center gap-3">
+                  {/* Friend Action */}
+                  {relStatus === 'friend' && !effectiveIsBlocked && (
+                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="لابرنا ھەڤالینیێ">
+                      <span className="material-symbols-outlined text-[20px]">how_to_reg</span>
+                    </button>
+                  )}
+                  {relStatus === 'none' && !effectiveIsBlocked && (
+                    <button onClick={handleSendFriendRequest} className="w-10 h-10 rounded-full bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 flex items-center justify-center hover:opacity-90 transition-all shadow-md" title="ببە ھەڤاڵ">
+                      <span className="material-symbols-outlined text-[20px]">person_add</span>
+                    </button>
+                  )}
+                  {relStatus === 'pending_sent' && !effectiveIsBlocked && (
+                    <button onClick={handleDeclineFriendRequest} className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="پەشێمان بوون">
+                      <span className="material-symbols-outlined text-[20px]">hourglass_top</span>
+                    </button>
+                  )}
 
-              {/* Block Action */}
-              {onToggleBlock && (
-                <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`} title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
-                  <span className="material-symbols-outlined text-[20px]">{effectiveIsBlocked ? 'block' : 'person_off'}</span>
-                </button>
+                  {/* Report Action */}
+                  <button onClick={() => { triggerHaptic(10); setShowReportConfirm(true); }} className="w-10 h-10 rounded-full bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/40 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/20 transition-all shadow-sm" title="ڕیپۆرتکرن / سکاڵا">
+                    <span className="material-symbols-outlined text-[20px]">flag</span>
+                  </button>
+
+                  {/* Block Action */}
+                  {onToggleBlock && (
+                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`} title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
+                      <span className="material-symbols-outlined text-[20px]">{effectiveIsBlocked ? 'block' : 'person_off'}</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
-          )}
+
+            {/* Right: Streak */}
+            <div className="flex-1 flex justify-end items-center">
+              {!isBot && fullData?.daily_streak > 0 && !(minimalMode && relStatus !== 'friend' && !isMe) && (
+                <div className="flex items-center gap-1" dir="ltr">
+                  <span className="text-xl leading-none" style={{ filter: "drop-shadow(0 0 6px rgba(255, 159, 28, 0.4))" }}>
+                    {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
+                  </span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-xl font-black text-mono-900 dark:text-white leading-none tabular-nums">{toKuDigits(fullData.daily_streak)}</span>
+                    <span className="text-[11px] font-bold text-mono-500 dark:text-mono-400 pb-0.5">ڕۆژ</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}

@@ -497,12 +497,12 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     </div>
                   )}
                   {topDailyPlayers?.includes(m.user_id) && (
-                    <span className={`px-1.5 rounded-sm text-[7.5px] font-black tracking-widest text-white leading-none flex items-center justify-center py-[2.5px] shadow-sm border border-black/10 font-rabar mt-0.5 ${
-                      topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-r from-yellow-400 to-amber-500' :
-                      topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-r from-slate-400 to-slate-500' :
-                      'bg-linear-to-r from-amber-600 to-orange-700'
+                    <span className={`px-2 py-0.75 rounded-[3px] text-[7.5px] font-black uppercase leading-none flex items-center justify-center shadow-sm border ${
+                      topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
+                      topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-b from-[#F8FAFC] to-[#94A3B8] text-[#0F172A] border-[#64748B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_0_#475569]' :
+                      'bg-linear-to-b from-[#FDBA74] to-[#C2410C] text-[#431407] border-[#92400E] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_1px_0_#78350F]'
                     }`}>
-                      TOP {topDailyPlayers.indexOf(m.user_id) + 1}
+                      <span className="pt-px">TOP {topDailyPlayers.indexOf(m.user_id) + 1}</span>
                     </span>
                   )}
                 </div>
@@ -674,6 +674,7 @@ export default function SocialHubView({
   const globalFetchTimeoutRef = useRef(null);
   const privateFetchTimeoutRef = useRef(null);
 
+  // Handle Initial Routing
   useEffect(() => {
     if (isVisible) {
       if (initialChatPartner) {
@@ -682,26 +683,56 @@ export default function SocialHubView({
       } else if (initialTab) {
         setActiveTab(initialTab);
       }
-
-      // Fetch Top 3 Daily Players for badges
-      const fetchTopDaily = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('id')
-            .gt('daily_xp', 0)
-            .order('daily_xp', { ascending: false })
-            .limit(3);
-          if (!error && data) {
-            setTopDailyPlayers(data.map(p => p.id));
-          }
-        } catch (e) {
-          console.warn("Failed to fetch top daily players", e);
-        }
-      };
-      fetchTopDaily();
     }
   }, [initialChatPartner, initialTab, isVisible]);
+
+  // Real-time Top 3 Daily Players for Badges
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    let fetchTimeout;
+    const fetchTopDaily = async () => {
+      try {
+        const todayISO = new Date().toISOString().split('T')[0];
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id')
+          .neq('nickname', 'Admin_4rasti')
+          .neq('nickname', 'ADMIN_PEYVOK')
+          .neq('nickname', 'پەیڤۆک')
+          .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+          .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
+          .eq('daily_xp_date', todayISO)
+          .gt('daily_xp', 0)
+          .order('daily_xp', { ascending: false })
+          .limit(3);
+        if (!error && data) {
+          setTopDailyPlayers(data.map(p => p.id));
+        }
+      } catch (e) {
+        console.warn("Failed to fetch top daily players", e);
+      }
+    };
+
+    fetchTopDaily(); // Initial fetch on mount
+
+    const top3Sub = supabase.channel('public:profiles:socialhub_top3')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        const updatedProfile = payload.new;
+        if (updatedProfile && typeof updatedProfile.daily_xp !== 'undefined') {
+          // Debounce fetch to avoid database spam
+          if (fetchTimeout) clearTimeout(fetchTimeout);
+          fetchTimeout = setTimeout(() => {
+             fetchTopDaily();
+          }, 2000); 
+        }
+      }).subscribe();
+
+    return () => {
+      if (fetchTimeout) clearTimeout(fetchTimeout);
+      supabase.removeChannel(top3Sub);
+    };
+  }, [isVisible]);
 
   // Fetch real names and avatars for missing users (senders and reactions)
   useEffect(() => {

@@ -302,22 +302,38 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
     const profilesSub = supabase.channel('public:profiles:leaderboard')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
         const updatedProfile = payload.new;
-        if (!updatedProfile || typeof updatedProfile.xp === 'undefined') return;
+        if (!updatedProfile) return;
         
-        setLeaders(prev => {
-           const idx = prev.findIndex(p => p.id === updatedProfile.id);
-           if (idx === -1) return prev; // Not currently loaded in the list
-           
-           let next = [...prev];
-           // Only update if xp or other relevant stats changed
-           if (next[idx].xp === updatedProfile.xp) return prev;
-           
-           next[idx] = { ...next[idx], ...updatedProfile };
-           next.sort((a, b) => b.xp - a.xp); // Re-sort descending by XP
-           
-           cacheRef.current[view] = next; // Sync cache
-           return next;
-        });
+        if (typeof updatedProfile.xp !== 'undefined') {
+          setLeaders(prev => {
+             const idx = prev.findIndex(p => p.id === updatedProfile.id);
+             if (idx === -1) return prev; // Not currently loaded in the list
+             
+             let next = [...prev];
+             // Only update if xp or other relevant stats changed
+             if (next[idx].xp === updatedProfile.xp) return prev;
+             
+             next[idx] = { ...next[idx], ...updatedProfile };
+             next.sort((a, b) => b.xp - a.xp); // Re-sort descending by XP
+             
+             cacheRef.current[view] = next; // Sync cache
+             return next;
+          });
+        }
+
+        if (typeof updatedProfile.daily_xp !== 'undefined') {
+          setDailyLeaders(prev => {
+             const idx = prev.findIndex(p => p.id === updatedProfile.id);
+             if (idx === -1) return prev; 
+             
+             let next = [...prev];
+             if (next[idx].daily_xp === updatedProfile.daily_xp) return prev;
+             
+             next[idx] = { ...next[idx], ...updatedProfile };
+             next.sort((a, b) => b.daily_xp - a.daily_xp); 
+             return next;
+          });
+        }
       }).subscribe();
       
     return () => {
@@ -628,6 +644,21 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                 const progressDecimal = getLevelData(effectiveXP).progressPercent / 100;
                 const effectiveCountryCode = isMe ? countryCode : player.country_code;
                 const effectiveIsInKurdistan = isMe ? isInKurdistan : player.is_kurdistan;
+                
+                const nameLen = Math.max(effectiveNickname?.length || 1, 1);
+                
+                // Continuous scaling formula: if length > 8, scale down proportionally.
+                // This ensures an 8-char name and a 16-char name take up the exact same physical width!
+                const scaleFactor = Math.min(1, 8 / nameLen);
+                
+                const maxPx = bundleObj.id !== 'default' ? 24 : 22;
+                const minPx = bundleObj.id !== 'default' ? 16 : 15;
+                
+                const calculatedMin = Math.max(8.5, minPx * scaleFactor);
+                const calculatedMax = Math.max(10, maxPx * scaleFactor);
+                
+                // dynamicFontSize uses clamp to adapt to screen width (vw), while scaling down for long names
+                const dynamicFontSize = `clamp(${calculatedMin}px, ${4 * scaleFactor}vw + ${4 * scaleFactor}px, ${calculatedMax}px)`;
 
                 return (
                   <Motion.div
@@ -770,8 +801,8 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Avatar Section */}
-                    <div className="flex items-center gap-3 z-10 px-1">
-                      <div className="relative w-12 h-12 flex items-center justify-center">
+                    <div className="flex items-center gap-3 z-10 px-1 shrink-0">
+                      <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
                         {/* XP Progress Ring */}
                         <div className="absolute -inset-1 z-0">
                           <svg className={`w-full h-full -rotate-90 overflow-visible ${
@@ -837,11 +868,14 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Info and Name (CENTERED) */}
-                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2 pt-1">
+                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-1 pt-1 overflow-visible">
                       <span 
-                        style={bundleObj.id !== 'default' ? {} : fontObj.style}
-                        className={`font-black tracking-normal uppercase truncate leading-normal ${
-                          bundleObj.id !== 'default' ? ('text-[22px] sm:text-[26px] ' + bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ('text-lg sm:text-2xl ' + (styleObj.class || ''))
+                        style={{
+                          ...(bundleObj.id !== 'default' ? {} : fontObj.style),
+                          fontSize: dynamicFontSize
+                        }}
+                        className={`font-black tracking-normal uppercase whitespace-nowrap leading-normal transition-all duration-300 ${
+                          bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')
                         } ${
                         (!styleObj.class && bundleObj.id === 'default') ? 'text-mono-900 dark:text-mono-50' : ''
                       }`}>{effectiveNickname}</span>

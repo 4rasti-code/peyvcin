@@ -56,15 +56,15 @@ class GlobalErrorBoundary extends React.Component {
             maxWidth: '500px'
           }}>
             <div style={{ fontSize: '80px', marginBottom: '20px' }}>⚠️</div>
-            
+
             <h1 style={{ fontWeight: '900', fontSize: '32px', marginBottom: '15px' }}>ئاریشەیەک چێ بوو!</h1>
             <p style={{ color: '#94a3b8', fontSize: '16px', lineHeight: '1.6', marginBottom: '40px' }}>
-              ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. <br/>
+              ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. <br />
               هێڤییە پێکۆلێ بکە و پەیجێ نوی بکە.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              <button 
+              <button
                 onClick={this.handleReload}
                 style={{
                   padding: '18px',
@@ -80,8 +80,8 @@ class GlobalErrorBoundary extends React.Component {
               >
                 <span className="tracking-normal" style={{ letterSpacing: '0px' }}>نویکرنا پەیجێ 🔄</span>
               </button>
-              
-              <button 
+
+              <button
                 onClick={this.handleHardReset}
                 style={{
                   padding: '12px',
@@ -97,13 +97,13 @@ class GlobalErrorBoundary extends React.Component {
                 پاککرنا داتایان و دەستپێکردنەوە (Reset)
               </button>
             </div>
-            
-            <pre style={{ 
-              marginTop: '30px', 
-              padding: '15px', 
-              fontSize: '10px', 
-              backgroundColor: 'rgba(0,0,0,0.3)', 
-              borderRadius: '10px', 
+
+            <pre style={{
+              marginTop: '30px',
+              padding: '15px',
+              fontSize: '10px',
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              borderRadius: '10px',
               color: '#ef4444',
               textAlign: 'left',
               overflowX: 'auto',
