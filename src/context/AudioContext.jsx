@@ -42,11 +42,11 @@ const AudioContext = createContext();
 export const AudioProvider = ({ children }) => {
   const { user } = useUser();
   const [appSfxVolume, setAppSfxVolume] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_sfx_volume');
+    const saved = safeStorageGet('peyvchin_sfx_volume');
     return saved !== null ? Number(saved) : 20; 
   });
   const [bgMusicVolume, setBgMusicVolume] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_bg_music_volume');
+    const saved = safeStorageGet('peyvchin_bg_music_volume');
     return saved !== null ? Number(saved) : 3;
   });
 
@@ -99,13 +99,13 @@ export const AudioProvider = ({ children }) => {
 
   const updateMusicVolume = useCallback((val) => {
     setBgMusicVolumeGuarded(val);
-    localStorage.setItem('peyvchin_bg_music_volume', val.toString());
+    safeStorageSet('peyvchin_bg_music_volume', val.toString());
     setBackgroundMusicVolume(val / 100);
   }, [setBgMusicVolumeGuarded]);
 
   const updateSfxVolume = useCallback((val) => {
     setAppSfxVolumeGuarded(val);
-    localStorage.setItem('peyvchin_sfx_volume', val.toString());
+    safeStorageSet('peyvchin_sfx_volume', val.toString());
     import('../utils/audio').then(m => m.setSfxVolume(val / 100));
   }, [setAppSfxVolumeGuarded]);
 

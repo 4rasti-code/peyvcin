@@ -25,3 +25,26 @@ export const safeJSONParse = (value, fallback, storageKeyToRemove = null) => {
     return fallback;
   }
 };
+
+/**
+ * Safely gets an item from localStorage, handling SecurityError or QuotaExceededError.
+ */
+export const safeStorageGet = (key) => {
+  try {
+    return localStorage.getItem(key);
+  } catch (err) {
+    console.warn(`[Storage] Failed to read key: ${key}`, err);
+    return null;
+  }
+};
+
+/**
+ * Safely sets an item in localStorage, handling SecurityError or QuotaExceededError.
+ */
+export const safeStorageSet = (key, value) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.warn(`[Storage] Failed to write key: ${key}`, err);
+  }
+};

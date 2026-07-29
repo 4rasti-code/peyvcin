@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import { safeJSONParse } from '../utils/safeParse';
+import { safeJSONParse, safeStorageGet, safeStorageSet } from '../utils/safeParse';
 
 const AuthContext = createContext();
 
@@ -41,33 +41,33 @@ export const AuthProvider = ({ children }) => {
   const [lastNicknameUpdate, setLastNicknameUpdate] = useState(null);
   const [lastProfileUpdate, setLastProfileUpdate] = useState(() => Date.now());
   const [ownedAvatars, setOwnedAvatars] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_owned_avatars');
+    const saved = safeStorageGet('peyvchin_owned_avatars');
     return safeJSONParse(saved, ['default'], 'peyvchin_owned_avatars');
   });
   const [equippedNameStyle, setEquippedNameStyle] = useState('default');
   const [ownedNameStyles, setOwnedNameStyles] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_owned_name_styles');
+    const saved = safeStorageGet('peyvchin_owned_name_styles');
     return safeJSONParse(saved, ['default'], 'peyvchin_owned_name_styles');
   });
   const [equippedFont, setEquippedFont] = useState('default');
   const [ownedFonts, setOwnedFonts] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_owned_fonts');
+    const saved = safeStorageGet('peyvchin_owned_fonts');
     return safeJSONParse(saved, ['default'], 'peyvchin_owned_fonts');
   });
   const [equippedBundle, setEquippedBundle] = useState('default');
   const [ownedBundles, setOwnedBundles] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_owned_bundles');
+    const saved = safeStorageGet('peyvchin_owned_bundles');
     return safeJSONParse(saved, ['default'], 'peyvchin_owned_bundles');
   });
   const [hapticEnabled, setHapticEnabled] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_haptic_enabled');
+    const saved = safeStorageGet('peyvchin_haptic_enabled');
     return saved !== null ? saved === 'true' : true;
   });
 
   // 3.3 VOICE SETTINGS: Persistent global states (Removed)
 
   const [profileData, setProfileData] = useState(() => {
-    const cached = localStorage.getItem('peyvchin_cached_profile');
+    const cached = safeStorageGet('peyvchin_cached_profile');
     return safeJSONParse(cached, null, 'peyvchin_cached_profile');
   });
 
@@ -107,7 +107,7 @@ export const AuthProvider = ({ children }) => {
         setProfileData(prev => {
           if (!prev) return extendedData;
           const merged = { ...prev, ...extendedData };
-          localStorage.setItem('peyvchin_cached_profile', JSON.stringify(merged));
+          safeStorageSet('peyvchin_cached_profile', JSON.stringify(merged));
           return merged;
         });
       }
@@ -261,7 +261,7 @@ export const AuthProvider = ({ children }) => {
             setProfileData(prev => {
               if (!prev) return prev;
               const merged = { ...prev, daily_streak: pingData.daily_streak };
-              localStorage.setItem('peyvchin_cached_profile', JSON.stringify(merged));
+              safeStorageSet('peyvchin_cached_profile', JSON.stringify(merged));
               return merged;
             });
           }
@@ -316,7 +316,7 @@ export const AuthProvider = ({ children }) => {
       setOwnedNameStyles(prev => {
         const next = Array.isArray(data.owned_name_styles) ? data.owned_name_styles : ['default'];
         if (JSON.stringify(prev) !== JSON.stringify(next)) {
-          localStorage.setItem('peyvchin_owned_name_styles', JSON.stringify(next));
+          safeStorageSet('peyvchin_owned_name_styles', JSON.stringify(next));
           return next;
         }
         return prev;
@@ -331,7 +331,7 @@ export const AuthProvider = ({ children }) => {
       setOwnedFonts(prev => {
         const next = Array.isArray(data.owned_fonts) ? data.owned_fonts : ['default'];
         if (JSON.stringify(prev) !== JSON.stringify(next)) {
-          localStorage.setItem('peyvchin_owned_fonts', JSON.stringify(next));
+          safeStorageSet('peyvchin_owned_fonts', JSON.stringify(next));
           return next;
         }
         return prev;
@@ -346,7 +346,7 @@ export const AuthProvider = ({ children }) => {
       setOwnedBundles(prev => {
         const next = Array.isArray(data.owned_bundles) ? data.owned_bundles : ['default'];
         if (JSON.stringify(prev) !== JSON.stringify(next)) {
-          localStorage.setItem('peyvchin_owned_bundles', JSON.stringify(next));
+          safeStorageSet('peyvchin_owned_bundles', JSON.stringify(next));
           return next;
         }
         return prev;
@@ -357,7 +357,7 @@ export const AuthProvider = ({ children }) => {
       const haptic = data.haptic_enabled ?? true;
       setHapticEnabled(prev => {
         if (prev !== haptic) {
-          localStorage.setItem('peyvchin_haptic_enabled', haptic.toString());
+          safeStorageSet('peyvchin_haptic_enabled', haptic.toString());
           return haptic;
         }
         return prev;
@@ -367,7 +367,7 @@ export const AuthProvider = ({ children }) => {
     // Create a safe merge
     setProfileData(prev => {
       const nextData = prev ? { ...prev, ...data } : data;
-      localStorage.setItem('peyvchin_cached_profile', JSON.stringify(nextData));
+      safeStorageSet('peyvchin_cached_profile', JSON.stringify(nextData));
       return nextData;
     });
 
@@ -403,7 +403,7 @@ export const AuthProvider = ({ children }) => {
         setAuthProgress(15);
 
         // OPTIMIZATION: Check for cached profile BEFORE session if possible
-        const cachedProfile = localStorage.getItem('peyvchin_cached_profile');
+        const cachedProfile = safeStorageGet('peyvchin_cached_profile');
         if (cachedProfile) {
           const data = safeJSONParse(cachedProfile, null, 'peyvchin_cached_profile');
           if (data) {
@@ -587,7 +587,7 @@ export const AuthProvider = ({ children }) => {
       setUserNickname(nickname);
       setProfileData(prev => {
         const next = { ...prev, nickname, onboarded: true };
-        localStorage.setItem('peyvchin_cached_profile', JSON.stringify(next));
+        safeStorageSet('peyvchin_cached_profile', JSON.stringify(next));
         return next;
       });
 
@@ -638,7 +638,7 @@ export const AuthProvider = ({ children }) => {
 
     if (profileData.haptic_enabled !== undefined) {
       setHapticEnabled(profileData.haptic_enabled);
-      localStorage.setItem('peyvchin_haptic_enabled', profileData.haptic_enabled.toString());
+      safeStorageSet('peyvchin_haptic_enabled', profileData.haptic_enabled.toString());
     }
 
     try {

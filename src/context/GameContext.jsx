@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 import { getLevelFromXP, getLevelData, getRewardForMode } from '../utils/progression';
-import { safeJSONParse } from '../utils/safeParse';
+import { safeJSONParse, safeStorageGet, safeStorageSet } from '../utils/safeParse';
 import { allWordsMaster } from '../data/wordList';
 import { MEDALS } from '../constants/medals';
 
@@ -17,13 +17,13 @@ export const GameProvider = ({ children }) => {
   
   // INITIALIZATION: Priority to localStorage to prevent "Zero-Reset" on re-renders
   const [currentXP, setCurrentXP] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_xp');
+    const saved = safeStorageGet('peyvchin_xp');
     return saved ? Number(saved) : 0;
   });
 
   const [lastStreakAt, setLastStreakAt] = useState(null);
   const [dailyStreak, setDailyStreak] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_daily_streak');
+    const saved = safeStorageGet('peyvchin_daily_streak');
     return saved ? Number(saved) : 0;
   });
   const [rewardStreak, setRewardStreak] = useState(0);
@@ -35,7 +35,7 @@ export const GameProvider = ({ children }) => {
   const claimRef = useRef(false);
 
   const [claimedMedals, setClaimedMedals] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_claimed_medals');
+    const saved = safeStorageGet('peyvchin_claimed_medals');
     return safeJSONParse(saved, [], 'peyvchin_claimed_medals');
   });
 
@@ -48,7 +48,7 @@ export const GameProvider = ({ children }) => {
 
 
   const getInitial = (key, fallback) => {
-    const saved = localStorage.getItem(key);
+    const saved = safeStorageGet(key);
     return (saved !== null) ? Number(saved) : fallback;
   };
 
@@ -61,12 +61,12 @@ export const GameProvider = ({ children }) => {
   const [spinTicketCount, setSpinTicketCount] = useState(() => getInitial('peyvchin_spin_tickets', 0));
 
   const [solvedWords, setSolvedWords] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_solved_words');
+    const saved = safeStorageGet('peyvchin_solved_words');
     return safeJSONParse(saved, [], 'peyvchin_solved_words');
   });
   
   const [playerStats, setPlayerStats] = useState(() => {
-    const saved = localStorage.getItem('peyvchin_stats');
+    const saved = safeStorageGet('peyvchin_stats');
     const defaultStats = {
       classic: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
       mamak: { score: 0, bestScore: 0, totalXP: 0, solvedCount: 0, guess_distribution: { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0 } },
@@ -129,7 +129,7 @@ export const GameProvider = ({ children }) => {
         });
 
         if (hasChanged) {
-          localStorage.setItem('peyvchin_stats', JSON.stringify(merged));
+          safeStorageSet('peyvchin_stats', JSON.stringify(merged));
           return merged;
         }
         return prev;
@@ -271,7 +271,7 @@ export const GameProvider = ({ children }) => {
             const merged = [...new Set([...local, ...remoteWords, ...inventoryWords])];
             
             if (JSON.stringify(local) !== JSON.stringify(merged)) {
-              localStorage.setItem('peyvchin_solved_words', JSON.stringify(merged));
+              safeStorageSet('peyvchin_solved_words', JSON.stringify(merged));
             }
             
             // --- AUTO-MIGRATE LEGACY STATS TO NEW COLUMNS ---
@@ -306,7 +306,7 @@ export const GameProvider = ({ children }) => {
                    const randomlySelected = availableWords.sort(() => 0.5 - Math.random()).slice(0, missingCount);
                    finalWordsToSave = [...merged, ...randomlySelected];
                    setSolvedWords(finalWordsToSave);
-                   localStorage.setItem('peyvchin_solved_words', JSON.stringify(finalWordsToSave));
+                   safeStorageSet('peyvchin_solved_words', JSON.stringify(finalWordsToSave));
                  }
 
                  supabase.from('profiles').update({
@@ -336,7 +336,7 @@ export const GameProvider = ({ children }) => {
             const local = Array.isArray(prev) ? prev : [];
             const merged = [...new Set([...local, ...remoteMedals])];
             if (JSON.stringify(local) !== JSON.stringify(merged)) {
-              localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
+              safeStorageSet('peyvchin_claimed_medals', JSON.stringify(merged));
               return merged;
             }
             return prev;
@@ -407,7 +407,7 @@ export const GameProvider = ({ children }) => {
                 const remote = Array.isArray(data.claimed_medals) ? data.claimed_medals : [];
                 const merged = [...new Set([...local, ...remote])];
                 if (JSON.stringify(local) !== JSON.stringify(merged)) {
-                  localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(merged));
+                  safeStorageSet('peyvchin_claimed_medals', JSON.stringify(merged));
                   return merged;
                 }
                 return prev;
@@ -472,7 +472,7 @@ export const GameProvider = ({ children }) => {
     Object.entries(updates).forEach(([key, val]) => {
       const storageKey = key === 'magnetCount' ? 'peyvchin_magnets' : key === 'hintCount' ? 'peyvchin_hints' : key === 'skipCount' ? 'peyvchin_skips' : key === 'spinTicketCount' ? 'peyvchin_spin_tickets' : `peyvchin_${key}`;
       const current = getInitial(storageKey, 0);
-      localStorage.setItem(storageKey, (isAdditive ? (current + val) : val).toString());
+      safeStorageSet(storageKey, (isAdditive ? (current + val) : val).toString());
     });
 
     if (currentUser && syncToDB) {
@@ -526,7 +526,7 @@ export const GameProvider = ({ children }) => {
     // 1. Optimistic local update
     const next = [...currentMedals, medalId];
     setClaimedMedals(next);
-    localStorage.setItem('peyvchin_claimed_medals', JSON.stringify(next));
+    safeStorageSet('peyvchin_claimed_medals', JSON.stringify(next));
 
     // 2. Give reward
     if (rewardAmount && rewardAmount > 0) {
@@ -684,10 +684,10 @@ export const GameProvider = ({ children }) => {
     }
 
     setPlayerStats(updatedStats);
-    localStorage.setItem('peyvchin_stats', JSON.stringify(updatedStats));
+    safeStorageSet('peyvchin_stats', JSON.stringify(updatedStats));
 
     setCurrentXP(newLocalXP);
-    localStorage.setItem('peyvchin_xp', newLocalXP.toString());
+    safeStorageSet('peyvchin_xp', newLocalXP.toString());
     
     if (currentAward.type === 'fils') setFils(prev => Number(prev) + (additionalData.filsBonus || currentAward.amount));
     if (currentAward.type === 'derhem') setDerhem(prev => Number(prev) + currentAward.amount);
@@ -705,7 +705,7 @@ export const GameProvider = ({ children }) => {
 
     if (newSolved.length > 0) {
       setSolvedWords(nextSolvedWords);
-      localStorage.setItem('peyvchin_solved_words', JSON.stringify(nextSolvedWords));
+      safeStorageSet('peyvchin_solved_words', JSON.stringify(nextSolvedWords));
     }
 
     if (!currentUser) {
@@ -809,7 +809,7 @@ export const GameProvider = ({ children }) => {
         const { new_level, new_xp, award_xp, daily_streak } = data;
         if (daily_streak !== undefined) {
           setDailyStreak(daily_streak);
-          localStorage.setItem('peyvchin_daily_streak', daily_streak.toString());
+          safeStorageSet('peyvchin_daily_streak', daily_streak.toString());
         }
         await syncProfile(currentUser.id); 
         refreshRank(new_xp, true);
@@ -979,13 +979,13 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
       if (mode === 'mamak') {
         const result = getRandomWordFromCategory('مامک', currLevel, sWords, mode);
         if (result) {
-          localStorage.setItem('peyvchin_last_category', result.category);
+          safeStorageSet('peyvchin_last_category', result.category);
           return result;
         }
       }
 
       // Get the last used category from state or local storage
-      const lastCategory = localStorage.getItem('peyvchin_last_category');
+      const lastCategory = safeStorageGet('peyvchin_last_category');
 
       if (currentUser?.id) {
         try {
@@ -1026,7 +1026,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
           if (finalData && finalData.length > 0) {
             const nextWord = finalData[0];
             // Save the new category for the next round
-            localStorage.setItem('peyvchin_last_category', nextWord.category);
+            safeStorageSet('peyvchin_last_category', nextWord.category);
             return { word: nextWord.word, hint: nextWord.hint, category: nextWord.category, id: nextWord.id };
           }
         } catch (err) { console.warn("[GameContext] Failed to fetch fresh word from DB, falling back to local:", err); }
@@ -1035,7 +1035,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
       const result = getRandomWordFromCategory(category, currLevel, sWords, mode);
       
       if (result) {
-        localStorage.setItem('peyvchin_last_category', result.category);
+        safeStorageSet('peyvchin_last_category', result.category);
         return result;
       }
 
