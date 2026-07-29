@@ -29,7 +29,7 @@ import { getRewardForMode, getTotalXPForLevel } from './utils/progression';
 import useGameLogic from './hooks/useGameLogic';
 import { FilsIcon, DerhemIcon, DinarIcon } from './components/CurrencyIcon';
 import { AVATARS } from './data/avatars';
-import { safeJSONParse } from './utils/safeParse';
+import { safeJSONParse, safeStorageGet, safeStorageSet } from './utils/safeParse';
 
 import { forceResumeAudio } from './utils/audio';
 import { normalizeKurdishInput } from './utils/textUtils';
