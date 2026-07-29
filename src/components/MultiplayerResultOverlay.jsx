@@ -154,7 +154,7 @@ export default function MultiplayerResultOverlay({
                 <span className="text-mono-600 dark:text-white/60">خەلاتێ ئێکس پی</span>
                 <div className="flex items-center gap-2 text-yellow-500">
                   <div className="flex flex-col items-end leading-none">
-                    <AnimatedNumber value={rewards?.xpAdded || 100} prefix="+" />
+                    <AnimatedNumber value={rewards?.xpAdded || 100} />
                     <span className="text-[8px] font-black tracking-tighter opacity-60">XP</span>
                   </div>
                 </div>
@@ -168,7 +168,7 @@ export default function MultiplayerResultOverlay({
                   <span className="text-[#a855f7] dark:text-[#c084fc] text-[11px] font-rabar pt-0.5">زێدەبوو ل سەرکەفتنێن ئەڤرۆ</span>
                 </div>
                 <div className="flex items-center gap-1 leading-none text-[#a855f7] dark:text-[#c084fc]">
-                  <AnimatedNumber value={rewards?.xpAdded || 100} prefix="+" />
+                  <AnimatedNumber value={rewards?.xpAdded || 100} />
                 </div>
               </div>
             </Motion.div>

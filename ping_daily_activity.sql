@@ -40,7 +40,8 @@ BEGIN
 
   -- 2. Daily Streak Logic (with 48-hour Grace Period)
   IF v_last_streak_at IS NULL THEN
-    v_daily_streak := 1;
+    -- If they already had a streak from the old system, preserve it, otherwise 1
+    v_daily_streak := GREATEST(COALESCE(v_daily_streak, 0), 1);
     v_updated := TRUE;
   ELSIF v_last_streak_at::DATE = v_today THEN
     -- Already pinged today, do nothing. (Ensures multiple pings in 24h count as 1)

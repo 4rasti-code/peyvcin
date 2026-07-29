@@ -24,6 +24,9 @@ import InstallGuideModal from './InstallGuideModal';
 import OnboardingOverlay from './OnboardingOverlay';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 
 const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -276,7 +279,7 @@ const LobbyView = memo(({
             const [profilesRes, friendsRes, trackRes] = await Promise.all([
               supabase
                 .from('profiles')
-                .select('id, nickname, avatar_url, xp')
+                .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle')
                 .in('id', onlineIds)
                 .neq('nickname', 'Admin_4rasti')
                 .neq('nickname', 'ADMIN_PEYVOK')
@@ -434,9 +437,19 @@ const LobbyView = memo(({
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
           </div>
           <div className="flex flex-col items-start">
-            <span className="text-sm font-bold text-mono-900 dark:text-white leading-tight">
-              {profile.nickname || 'یاریکەر'}
-            </span>
+            {(() => {
+              const fontObj = NAME_FONTS[profile.equipped_font] || NAME_FONTS['default-ku'];
+              const styleObj = NAME_STYLES[profile.equipped_name_style] || {};
+              const bundleObj = BUNDLES[profile.equipped_bundle] || BUNDLES['default'];
+              return (
+                <span 
+                  className={`text-sm font-bold leading-tight ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
+                  style={bundleObj.id !== 'default' ? {} : fontObj.style}
+                >
+                  {profile.nickname || 'یاریکەر'}
+                </span>
+              );
+            })()}
             {profile.xp !== undefined && (
               <span className="text-[10px] font-medium text-mono-500 dark:text-mono-400">
                 ئاستی {getLevelFromXP(profile.xp)}

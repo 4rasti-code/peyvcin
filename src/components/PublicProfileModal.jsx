@@ -12,6 +12,9 @@ import { getLevelTier } from '../utils/progression';
 import { useAudio } from '../context/AudioContext';
 import { useUser } from '../context/AuthContext';
 import StatsView from './StatsView';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 
 export default function PublicProfileModal({
   profile,
@@ -418,7 +421,7 @@ export default function PublicProfileModal({
                   </svg>
                 </div>
 
-                <div className="w-full h-full rounded-full bg-mono-white dark:bg-slate-900 flex items-center justify-center border-4 border-mono-white dark:border-slate-900 relative z-10 overflow-hidden">
+                <div className={`w-full h-full rounded-full bg-mono-white dark:bg-slate-900 flex items-center justify-center border-4 border-mono-white dark:border-slate-900 relative z-10 overflow-hidden ${isBot ? '' : (BUNDLES[displayData.equipped_bundle]?.id !== 'default' ? BUNDLES[displayData.equipped_bundle]?.avatarRing || '' : '')}`}>
                   {isBot ? (
                     <div className="w-full h-full flex items-center justify-center bg-white dark:bg-[#141414]">
                       <img src="/Peyvok-logo-01.png" alt="Bot Avatar" className="w-[70%] h-[70%] object-contain block dark:hidden" />
@@ -454,26 +457,44 @@ export default function PublicProfileModal({
         })()}
 
         {/* Identity Section */}
-        <div className="space-y-1 mb-3 flex flex-col items-center">
-          <div className="flex items-center justify-center gap-2" dir="ltr">
-            <FlagBadge countryCode={displayData.country_code} isInKurdistan={displayData.is_kurdistan} size="sm" />
-            <h2
-              className={`text-2xl font-black font-rabar transition-colors duration-500 ${isBot ? 'text-primary' : ''}`}
-              style={isBot ? {} : { color: getLevelTier(safeLevel).stop1 }}
-            >
-              {displayData.nickname}
-            </h2>
+        <div className="space-y-1 mb-3 w-full">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 w-full px-4" dir="ltr">
+            {/* Left Column: Flag */}
+            <div className="flex justify-end">
+              <FlagBadge countryCode={displayData.country_code} isInKurdistan={displayData.is_kurdistan} size="sm" />
+            </div>
+
+            {/* Center Column: Name */}
+            <div className="flex justify-center">
+              {(() => {
+                const fontObj = NAME_FONTS[displayData.equipped_font] || NAME_FONTS['default-ku'];
+                const styleObj = NAME_STYLES[displayData.equipped_name_style] || {};
+                const bundleObj = BUNDLES[displayData.equipped_bundle] || BUNDLES['default'];
+                return (
+                  <h2
+                    className={`text-2xl font-black transition-colors duration-500 text-center ${isBot ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                    style={{ ...(!isBot && bundleObj.id === 'default' && !styleObj.class ? { color: getLevelTier(safeLevel).stop1 } : {}), ...(!isBot && bundleObj.id === 'default' ? fontObj.style : {}) }}
+                  >
+                    {displayData.nickname}
+                  </h2>
+                );
+              })()}
+            </div>
             
-            {/* Minimal Daily Streak Badge */}
-            {!isBot && fullData?.daily_streak > 0 && !(minimalMode && relStatus !== 'friend' && !isMe) && (
-              <div className="flex items-center gap-1 pl-2 border-l border-mono-200 dark:border-white/10" dir="ltr">
-                <span className="text-lg leading-none" style={{ filter: "drop-shadow(0 0 6px rgba(255, 159, 28, 0.4))" }}>
-                   {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
-                </span>
-                <span className="text-sm font-black text-orange-500 tabular-nums">{toKuDigits(fullData.daily_streak)}</span>
-                <span className="text-[10px] font-bold text-mono-500 dark:text-mono-400 mt-1">ڕۆژ</span>
-              </div>
-            )}
+            {/* Right Column: Streak */}
+            <div className="flex justify-start">
+              {!isBot && fullData?.daily_streak > 0 && !(minimalMode && relStatus !== 'friend' && !isMe) && (
+                <div className="flex items-center gap-1 pl-2 border-l border-mono-200 dark:border-white/10" dir="ltr">
+                  <span className="text-lg leading-none" style={{ filter: "drop-shadow(0 0 6px rgba(255, 159, 28, 0.4))" }}>
+                    {(fullData.last_streak_at && new Date().getTime() - new Date(fullData.last_streak_at).getTime() > 24 * 60 * 60 * 1000) ? '⏳' : '🔥'}
+                  </span>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-lg font-black text-mono-900 dark:text-white leading-none tabular-nums">{toKuDigits(fullData.daily_streak)}</span>
+                    <span className="text-[10px] font-bold text-mono-500 dark:text-mono-400">ڕۆژ</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {mastery && !isBot && (

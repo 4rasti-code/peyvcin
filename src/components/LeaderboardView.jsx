@@ -12,9 +12,12 @@ import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP, getLevelTier, getLevelData } from '../utils/progression';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { BUNDLES } from '../constants/bundles';
 
 
-export default function LeaderboardView({ onOpenChat }) {
+export default function LeaderboardView({ onOpenChat, isVisible }) {
   const {
     user,
     userNickname,
@@ -24,7 +27,10 @@ export default function LeaderboardView({ onOpenChat }) {
     lastProfileUpdate,
     handleToggleBlock: toggleBlockInContext,
     loadingAuth,
-    onlineCount
+    onlineCount,
+    equippedNameStyle,
+    equippedFont,
+    equippedBundle
   } = useUser();
 
   const {
@@ -71,6 +77,12 @@ export default function LeaderboardView({ onOpenChat }) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (isVisible) {
+      setView('daily');
+    }
+  }, [isVisible]);
 
   const scrollToTop = () => {
     triggerHaptic(10);
@@ -600,13 +612,18 @@ export default function LeaderboardView({ onOpenChat }) {
                 // Sequential Ranking based on the list index (matches exact spot)
                 // Since pagination uses ITEMS_PER_PAGE, we calculate absolute rank
                 let rank = (pageRef.current * ITEMS_PER_PAGE) + index + 1;
-                // Note: The map renders all leaders concatenated, so `index` is already absolute!
                 rank = index + 1;
                 
                 const isTop3 = rank <= 3;
                 const isMe = userId && (player.id === userId);
                 const effectiveAvatar = isMe ? userAvatar : (player.avatar_url || 'default');
                 const effectiveNickname = isMe ? userNickname : player.nickname;
+                const effectiveNameStyle = isMe ? (equippedNameStyle || 'default') : (player.equipped_name_style || 'default');
+                const styleObj = NAME_STYLES[effectiveNameStyle] || NAME_STYLES['default'];
+                const effectiveFontId = isMe ? (equippedFont || 'default') : (player.equipped_font || 'default');
+                const fontObj = NAME_FONTS[effectiveFontId] || NAME_FONTS['default-ku'];
+                const effectiveBundleId = isMe ? (equippedBundle || 'default') : (player.equipped_bundle || 'default');
+                const bundleObj = BUNDLES[effectiveBundleId] || BUNDLES['default'];
                 const effectiveXP = view === 'daily' ? (player.daily_xp || 0) : (isMe ? userXP : player.xp);
                 const progressDecimal = getLevelData(effectiveXP).progressPercent / 100;
                 const effectiveCountryCode = isMe ? countryCode : player.country_code;
@@ -628,18 +645,12 @@ export default function LeaderboardView({ onOpenChat }) {
                         : { scale: 1.02, backgroundColor: 'rgba(255, 255, 255, 0.05)' }
                     }
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP }); }}
+                    onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP, equipped_name_style: effectiveNameStyle }); }}
                     className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer duration-300 ${
-                      rank === 1
-                        ? 'bg-[#a855f7] border-transparent text-white shadow-sm'
-                        : rank === 2
-                        ? 'bg-[#ffcc00] border-transparent text-amber-950 shadow-sm'
-                        : rank === 3
-                        ? 'bg-[#0ea5e9] border-transparent text-white shadow-sm'
-                        : isMe
+                      isMe
                         ? 'bg-primary/10 dark:bg-primary/20 border-primary ring-1 ring-primary/50 shadow-[0_0_12px_rgba(var(--primary),0.4)] text-mono-900 dark:text-mono-50 z-20'
                         : 'bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 text-mono-900 dark:text-mono-50'
-                    }`}
+                    } ${bundleObj.id !== 'default' ? bundleObj.cardBg : ''}`}
                     style={{
                       zIndex: isTop3 ? 50 : 1 // Ensure top 3 cards have higher z-index for floating crowns
                     }}
@@ -752,13 +763,7 @@ export default function LeaderboardView({ onOpenChat }) {
                         </Motion.div>
                       )}
                       <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
-                        rank === 1
-                          ? 'text-white'
-                          : rank === 2
-                          ? 'text-amber-950'
-                          : rank === 3
-                          ? 'text-white'
-                          : 'text-mono-900 dark:text-mono-50'
+                        bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900 dark:text-mono-50'
                       }`}>
                         {toKuDigits(rank)}
                       </span>
@@ -778,11 +783,7 @@ export default function LeaderboardView({ onOpenChat }) {
                                r="44"
                                fill="none"
                                className={
-                                 rank === 1
-                                   ? 'stroke-white/25'
-                                   : rank === 2
-                                   ? 'stroke-amber-950/20'
-                                   : rank === 3
+                                 bundleObj.id !== 'default'
                                    ? 'stroke-white/25'
                                    : 'stroke-mono-200/20 dark:stroke-white/5'
                                }
@@ -808,7 +809,7 @@ export default function LeaderboardView({ onOpenChat }) {
                         </div>
 
                         {/* Clean Avatar */}
-                        <div className="w-10 h-10 rounded-full overflow-hidden shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 border border-mono-200 dark:border-white/10">
+                        <div className={`w-10 h-10 rounded-full overflow-hidden shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : 'border border-mono-200 dark:border-white/10'}`}>
                           <Avatar
                             src={effectiveAvatar}
                             updatedAt={isMe ? lastProfileUpdate : player.updated_at}
@@ -837,14 +838,12 @@ export default function LeaderboardView({ onOpenChat }) {
 
                     {/* Info and Name (CENTERED) */}
                     <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-2 pt-1">
-                      <span className={`font-black text-sm tracking-normal uppercase truncate leading-normal ${
-                        rank === 1
-                          ? 'text-white'
-                          : rank === 2
-                          ? 'text-amber-950'
-                          : rank === 3
-                          ? 'text-white'
-                          : 'text-mono-900 dark:text-mono-50'
+                      <span 
+                        style={bundleObj.id !== 'default' ? {} : fontObj.style}
+                        className={`font-black tracking-normal uppercase truncate leading-normal ${
+                          bundleObj.id !== 'default' ? ('text-[22px] sm:text-[26px] ' + bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ('text-lg sm:text-2xl ' + (styleObj.class || ''))
+                        } ${
+                        (!styleObj.class && bundleObj.id === 'default') ? 'text-mono-900 dark:text-mono-50' : ''
                       }`}>{effectiveNickname}</span>
                     </div>
 
@@ -853,11 +852,11 @@ export default function LeaderboardView({ onOpenChat }) {
                       {view === 'daily' ? (
                         <div className="flex flex-col items-center justify-center min-w-14 px-2 py-1.5">
                           <span className={`text-[8px] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
-                            rank === 1 || rank === 3 ? 'text-white/80' : rank === 2 ? 'text-amber-950/60' : 'text-mono-400 dark:text-mono-500'
+                            bundleObj.id !== 'default' ? 'text-white/80' : 'text-mono-400 dark:text-mono-500'
                           }`}>ئێکس پی</span>
                           <span className={`text-[13px] font-black leading-none drop-shadow-sm tabular-nums ${
-                            rank === 1 || rank === 3 ? 'text-white' : rank === 2 ? 'text-amber-950' : 'text-[#a855f7] dark:text-[#c084fc]'
-                          }`}>+{toKuDigits(effectiveXP)}</span>
+                            bundleObj.id !== 'default' ? 'text-white' : 'text-[#a855f7] dark:text-[#c084fc]'
+                          }`}>{toKuDigits(effectiveXP)}</span>
                         </div>
                       ) : (
                         <div className="relative w-10 h-12 flex items-center justify-center shrink-0">

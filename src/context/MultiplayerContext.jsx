@@ -314,7 +314,7 @@ export const MultiplayerProvider = ({ children }) => {
       isFetchingOpponentRef.current = true;
       let query = supabase
         .from('profiles')
-        .select('id, nickname, avatar_url, updated_at, xp')
+        .select('id, nickname, avatar_url, updated_at, xp, equipped_font, equipped_name_style')
         .eq('id', opponentId);
       
       if (signal) query = query.abortSignal(signal);

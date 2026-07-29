@@ -576,14 +576,26 @@ export const GameProvider = ({ children }) => {
     // --- OPTIMISTIC UPDATE END ---
 
     try {
-      // Execute atomic transaction on server
-      const { error } = await supabase.rpc('process_purchase', {
+      let rpcName = 'process_purchase';
+      let rpcArgs = {
         p_item_id: item.id,
         p_item_type: itemType,
         p_currency_used: currency,
         p_price: price,
         p_amount: item.amount || 0
-      });
+      };
+
+      if (itemType === 'font') {
+        rpcName = 'buy_font';
+        rpcArgs = {
+          p_item_id: item.id,
+          p_currency_used: currency,
+          p_price: price
+        };
+      }
+
+      // Execute atomic transaction on server
+      const { error } = await supabase.rpc(rpcName, rpcArgs);
 
       if (error) throw error;
       

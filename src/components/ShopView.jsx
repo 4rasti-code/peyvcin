@@ -1,10 +1,13 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { THEMES } from '../data/themes';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import { toKuDigits } from '../utils/formatters';
 import InventoryBar from './InventoryBar';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { BUNDLES } from '../constants/bundles';
 import { useUser } from '../context/AuthContext';
 import { useAudio } from '../context/AudioContext';
 
@@ -39,7 +42,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
     <div className="flex items-stretch gap-2 sm:gap-3 w-full">
       {/* Info Card (Right Side in RTL) */}
       <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1`}>
-        <div className="w-[44px] h-[44px] rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/30">
+        <div className="w-11 h-11 rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/30">
           {item.id === 'hint_pack' ? (
             <HintIcon className="w-7 h-7 drop-shadow-md" />
           ) : item.id === 'attractor_field' ? (
@@ -50,7 +53,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
             <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
           )}
         </div>
-        
+
         <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
           <h3 className="text-[16px] font-black text-white dark:text-mono-50 mb-0.5 leading-tight truncate drop-shadow-sm">{item.name}</h3>
           <p className="text-[11px] font-bold text-white/90 dark:text-mono-200 leading-tight truncate">{item.description}</p>
@@ -59,15 +62,15 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
 
       {/* Price Button (Left Side in RTL) */}
       <button
-        onClick={() => { 
+        onClick={() => {
           if (canAfford) {
-            triggerHaptic(10); 
-            onRequestPurchase(item); 
+            triggerHaptic(10);
+            onRequestPurchase(item);
           } else {
             triggerHaptic([50, 30, 50]);
           }
         }}
-        className={`group shrink-0 w-[85px] sm:w-[95px] flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-[4px] active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-[4px] active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
+        className={`group shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-1 active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
       >
         <div className="flex flex-col items-center leading-none relative z-10">
           <span className="text-[17px] font-black text-white drop-shadow-sm">{toKuDigits(item.price || 0)}</span>
@@ -81,11 +84,26 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
 };
 
 
-export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hintCount, skipCount, onPurchase, onPurchaseAvatar, onEquipAvatar, ownedAvatars = ['default'], equippedAvatar = 'default' }) {
-  const { playTabSound, playPurchaseSound } = useAudio();
-  const { user: _user, loadingAuth } = useUser();
-  const [activeTab, setActiveTab] = useState('powerups');
+export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, skipCount, onPurchase, onPurchaseAvatar, equippedAvatar = 'default', ownedNameStyles = ['default'], equippedNameStyle = 'default', onPurchaseNameStyle, onEquipNameStyle, ownedFonts = ['default'], equippedFont = 'default', onPurchaseFont, onEquipFont, ownedBundles = ['default'], equippedBundle = 'default', onPurchaseBundle, onEquipBundle }) {
+  const { playPurchaseSound } = useAudio();
+  const { user: _user, userNickname, loadingAuth } = useUser();
   const bgRef = useRef(null);
+  const [fontTab, setFontTab] = useState('kurdish');
+
+  const getCurrencyAmount = (currency) => currency === 'derhem' ? derhem : currency === 'dinar' ? dinar : fils;
+  const renderCurrencyIcon = (currency) => currency === 'derhem' ? <DerhemIcon /> : currency === 'dinar' ? <DinarIcon /> : <FilsIcon />;
+
+  const getNameStyleDynamicClass = (id) => {
+    switch (id) {
+      case 'gold-gradient': return 'bg-mono-white shadow-[0_4px_0_#FBBF24] dark:bg-mono-900 dark:shadow-[0_4px_0_#B45309] border-yellow-400/50';
+      case 'neon-purple': return 'bg-mono-white shadow-[0_4px_0_#94A3B8] dark:bg-mono-900 dark:shadow-[0_4px_0_#475569] border-slate-400/50';
+      case 'fire': return 'bg-mono-white shadow-[0_4px_0_#FB923C] dark:bg-mono-900 dark:shadow-[0_4px_0_#C2410C] border-orange-400/50';
+      case 'ocean': return 'bg-mono-white shadow-[0_4px_0_#38BDF8] dark:bg-mono-900 dark:shadow-[0_4px_0_#0369A1] border-cyan-400/50';
+      case 'princess': return 'bg-mono-white shadow-[0_4px_0_#F472B6] dark:bg-mono-900 dark:shadow-[0_4px_0_#BE185D] border-pink-400/50';
+      case 'kurdistan': return 'bg-mono-white shadow-[0_4px_0_#4ADE80] dark:bg-mono-900 dark:shadow-[0_4px_0_#15803D] border-green-500/50';
+      default: return 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626] border-mono-200/50 dark:border-mono-800/50';
+    }
+  };
 
   const handleBackgroundClick = (e) => {
     if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
@@ -98,17 +116,23 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
 
   const executePurchase = (payload) => {
     const { type, data } = payload;
-    
+
     // Haptic immediately for instant feedback
-    triggerHaptic(20); 
+    triggerHaptic(20);
     if (playPurchaseSound) playPurchaseSound();
 
     if (type === 'powerup') {
-       onPurchase(data);
+      onPurchase(data);
     } else if (type === 'avatar') {
-       onPurchaseAvatar(data.id, data.price, data.currency);
+      onPurchaseAvatar(data.id, data.price, data.currency);
     } else if (type === 'theme') {
-       onPurchase({ ...data, type: 'theme' });
+      onPurchase({ ...data, type: 'theme' });
+    } else if (type === 'name_style') {
+      onPurchaseNameStyle(data.id, data.price, data.currency);
+    } else if (type === 'font') {
+      onPurchaseFont(data.id, data.price, data.currency);
+    } else if (type === 'bundle') {
+      onPurchaseBundle(data.id, data.price, data.currency);
     }
   };
 
@@ -121,17 +145,17 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
   }
 
   return (
-    <div 
+    <div
       onClick={handleBackgroundClick}
-      className="flex-1 w-full bg-mono-white dark:bg-black px-4 pt-6 pb-[120px] max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
+      className="flex-1 w-full bg-mono-white dark:bg-black px-4 pt-6 pb-30 max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
     >
 
-      <div className="relative z-20 shrink-0 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md p-6 shadow-sm overflow-hidden group transition-colors duration-300">
+      <div className="relative z-20 shrink-0 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md py-3 px-4 shadow-sm overflow-hidden group transition-colors duration-300">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-50" />
         <div className="relative z-10 flex flex-col items-center">
-          <InventoryBar 
-            magnetCount={magnetCount} 
-            hintCount={hintCount} 
+          <InventoryBar
+            magnetCount={magnetCount}
+            hintCount={hintCount}
             skipCount={skipCount}
             isShop={true}
             className="scale-100 sm:scale-110"
@@ -139,103 +163,282 @@ export default function ShopView({ fils, derhem, dinar: _dinar, magnetCount, hin
         </div>
       </div>
 
-      <div className="relative z-20 bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-3 shadow-sm flex flex-col gap-4 transition-colors duration-300">
-        <div className="flex p-1 bg-mono-100 dark:bg-black backdrop-blur-2xl rounded-md border border-mono-200 dark:border-mono-800 shadow-sm relative transition-colors duration-300">
-        {['powerups', 'avatars'].map((tab) => (
-          <button 
-            key={tab}
-            onClick={() => { 
-                triggerHaptic(10); 
-                playTabSound();
-                setActiveTab(tab); 
-            }} 
-            className={`flex-1 flex items-center justify-center py-2 px-2 transition-all duration-300 relative z-10 font-rabar font-black text-[14px] tracking-normal ${
-              activeTab === tab 
-                ? 'text-mono-950 dark:text-mono-50' 
-                : 'text-mono-600 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
-            }`}
-          >
-            {activeTab === tab && (
-              <Motion.div
-                layoutId="shopActiveTab"
-                className="absolute inset-0 bg-mono-white dark:bg-mono-800 rounded-sm shadow-sm z-[-1] transition-all duration-300"
-                transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-              />
-            )}
-            {tab === 'powerups' ? 'ھاریکار' : 'ئێمۆجی'}
-          </button>
-        ))}
-      </div>
+      <div className="relative z-20 w-full transition-colors duration-300">
+        <div className="flex flex-col gap-6 mt-2">
+          {/* PowerUps Section */}
+          <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[22px]">bolt</span>
+              هاریکار
+            </h2>
+            <div className="grid grid-cols-1 gap-4">
+              {SHOP_ITEMS.POWERUPS.map(item => (
+                <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => executePurchase({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
+              ))}
+            </div>
+          </div>
 
-      <Motion.div layout className="flex flex-col gap-5">
-        <AnimatePresence mode="wait">
-          {activeTab === 'powerups' && (
-            <Motion.div key="powerups" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="flex flex-col gap-5">
-              <div className="grid grid-cols-1 gap-4">
-                {SHOP_ITEMS.POWERUPS.map(item => (
-                  <PowerUpCard key={item.id} item={item} onRequestPurchase={(i) => executePurchase({ data: i, type: 'powerup' })} canAfford={fils >= item.price} />
-                ))}
-              </div>
-            </Motion.div>
-          )}
-          {activeTab === 'avatars' && (
-            <Motion.div key="avatars" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.02 }} className="flex flex-col gap-3">
-              {SHOP_ITEMS.AVATARS.map(avatar => (
-                <Motion.div
-                  key={avatar.id}
-                  className={`bg-mono-white dark:bg-mono-900 py-3 px-4 rounded-md border border-mono-200 dark:border-mono-800 flex items-center gap-3 transition-all shadow-sm ${ownedAvatars.includes(avatar.id) && equippedAvatar === avatar.id ? 'border-primary/50 ring-1 ring-primary/10' : ''}`}
-                >
-                  <div className="w-12 h-12 rounded-md bg-mono-100 dark:bg-white/10 border border-mono-200 dark:border-white/5 p-0.5 shrink-0 overflow-hidden relative group shadow-sm">
-                    <img src={avatar.image} alt={avatar.name} className="w-full h-full object-cover rounded-[8px] animate-character-idle" />
-                  </div>
-                  <div className="flex-1 text-right min-w-0">
-                    <h3 className="text-md font-bold text-mono-900 dark:text-mono-50 mb-0 truncate">{avatar.name}</h3>
-                    <p className="text-[9px] font-bold text-mono-500 dark:text-mono-400 leading-tight truncate">{avatar.description}</p>
-                  </div>
-                  <div className="shrink-0 flex items-center">
-                    {ownedAvatars.includes(avatar.id) ? (
+
+          {/* Name Styles Section */}
+          <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[22px]">palette</span>
+              شێوەی نڤیسینێ
+            </h2>
+            <div className="flex flex-col gap-3">
+              {Object.values(NAME_STYLES).filter(style => style.id !== 'default').map(style => {
+                const isOwned = ownedNameStyles.includes(style.id);
+                const isEquipped = equippedNameStyle === style.id;
+                const canAfford = getCurrencyAmount(style.currency) >= style.price;
+                const dynamicClass = getNameStyleDynamicClass(style.id);
+
+                return (
+                  <div key={style.id} className="flex items-stretch gap-2 sm:gap-3 w-full">
+                    {/* Info Card (Right Side in RTL) */}
+                    <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'border-primary/50 ring-1 ring-primary/10' : 'border-mono-200/50 dark:border-mono-800/50'}`}>
+                      <div className="flex-1 text-right min-w-0 flex items-center justify-center">
+                        <span className={`text-[17px] font-black tracking-normal uppercase truncate leading-normal ${style.class}`}>{style.name}</span>
+                      </div>
+                    </div>
+
+                    {/* Price / Equip Button (Left Side in RTL) */}
+                    {isOwned ? (
                       <button
-                        onClick={() => { triggerHaptic(10); onEquipAvatar(avatar.id); }}
-                        className={`px-3 py-1 rounded-md font-bold text-[11px] transition-all ${equippedAvatar === avatar.id ? 'bg-primary text-white shadow-md' : 'bg-mono-100 dark:bg-white/10 text-mono-600 dark:text-mono-300 hover:bg-mono-200'}`}
+                        onClick={() => { triggerHaptic(10); onEquipNameStyle(style.id); }}
+                        className={`shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center font-bold text-[11px] sm:text-[13px] rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200 dark:border-mono-800 ${dynamicClass} active:translate-y-1 active:shadow-[0_0px_0_transparent] ${isEquipped ? 'bg-primary/10 text-primary border-primary/50' : 'text-mono-600 dark:text-mono-300'}`}
                       >
-                        {equippedAvatar === avatar.id ? 'چالاکە' : 'بکاربینە'}
+                        {isEquipped ? 'چالاکە' : 'بکاربینە'}
                       </button>
                     ) : (
-                      <div className="relative">
+                      <button
+                        onClick={() => {
+                          if (canAfford) {
+                            triggerHaptic(10);
+                            executePurchase({ data: style, type: 'name_style' });
+                          } else {
+                            triggerHaptic([50, 30, 50]);
+                          }
+                        }}
+                        className={`group shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200/50 dark:border-mono-800/50 ${!canAfford ? 'opacity-80 active:translate-y-1 active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110 text-mono-700 dark:text-mono-200'}`}
+                      >
+                        {style.price === 0 ? (
+                          <div className="flex flex-col items-center leading-none relative z-10">
+                            <span className="text-[11px] font-bold text-green-500">بکاربینە</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex flex-col items-center leading-none relative z-10">
+                              <span className="text-[14px] sm:text-[15px] font-black tabular-nums">{toKuDigits(style.price)}</span>
+                            </div>
+                            <div className={`w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-sm'}`}>
+                              {renderCurrencyIcon(style.currency)}
+                            </div>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+
+          {/* Fonts Section */}
+          <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary text-[22px]">text_fields</span>
+                فۆنت
+              </h2>
+
+              <div className="flex bg-mono-100 dark:bg-mono-800 p-1 rounded-lg">
+                <button
+                  onClick={() => { triggerHaptic(5); setFontTab('kurdish'); }}
+                  className={`px-4 py-1.5 rounded-md font-bold text-sm transition-all ${fontTab === 'kurdish' ? 'bg-white dark:bg-mono-600 text-primary shadow-sm' : 'text-mono-500 dark:text-mono-400'}`}
+                >
+                  کوردی
+                </button>
+                <button
+                  onClick={() => { triggerHaptic(5); setFontTab('english'); }}
+                  className={`px-4 py-1.5 rounded-md font-bold text-sm transition-all ${fontTab === 'english' ? 'bg-white dark:bg-mono-600 text-primary shadow-sm' : 'text-mono-500 dark:text-mono-400'}`}
+                >
+                  ئینگلیزی
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 mt-2">
+              {Object.values(NAME_FONTS).filter(font => font.language === fontTab).map(font => {
+                const isOwned = ownedFonts.includes(font.id);
+                const isEquipped = equippedFont === font.id;
+                const canAfford = getCurrencyAmount(font.currency) >= font.price;
+                const dynamicClass = 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626] border-mono-200/50 dark:border-mono-800/50';
+
+                return (
+                  <div key={font.id} className="flex items-stretch gap-2 sm:gap-3 w-full">
+                    {/* Info Card (Right Side in RTL) */}
+                    <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'ring-2 ring-primary/30' : ''}`}>
+                      <div className="flex-1 text-right min-w-0 flex items-center justify-center">
+                        <span
+                          className={`text-[17px] sm:text-[19px] font-black tracking-normal truncate leading-normal text-mono-900 dark:text-white flex-1 text-center ${NAME_STYLES[equippedNameStyle]?.class || ''}`}
+                          style={{ ...font.style, paddingBottom: '0.2em' }}
+                        >
+                          {font.language === 'kurdish' ? 'کوردستان' : 'Kurdistan'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Price / Equip Button (Left Side in RTL) */}
+                    {isOwned ? (
+                      <button
+                        onClick={() => { triggerHaptic(10); onEquipFont(font.id); }}
+                        className={`shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center font-bold text-[11px] sm:text-[13px] rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200 dark:border-mono-800 ${dynamicClass} active:translate-y-1 active:shadow-[0_0px_0_transparent] ${isEquipped ? 'bg-primary/10 text-primary border-primary/50' : 'text-mono-600 dark:text-mono-300'}`}
+                      >
+                        {isEquipped ? 'چالاکە' : 'بکاربینە'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (canAfford) {
+                            triggerHaptic(10);
+                            executePurchase({ data: font, type: 'font' });
+                          } else {
+                            triggerHaptic([50, 30, 50]);
+                          }
+                        }}
+                        className={`group shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200/50 dark:border-mono-800/50 ${!canAfford ? 'opacity-80 active:translate-y-1 active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110 text-mono-700 dark:text-mono-200'}`}
+                      >
+                        {font.price === 0 ? (
+                          <div className="flex flex-col items-center leading-none relative z-10">
+                            <span className="text-[11px] font-bold text-green-500">بکاربینە</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex flex-col items-center leading-none relative z-10">
+                              <span className="text-[14px] sm:text-[15px] font-black tabular-nums">{toKuDigits(font.price)}</span>
+                            </div>
+                            <div className={`w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-sm'}`}>
+                              {renderCurrencyIcon(font.currency)}
+                            </div>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+
+
+          {/* Avatars Section */}
+          <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[22px]">face</span>
+              ئێمۆجی
+            </h2>
+            <div className="flex flex-col items-center justify-center py-10 bg-mono-100/50 dark:bg-mono-800/30 rounded-md border border-mono-200/50 dark:border-mono-700/50">
+              <span className="material-symbols-outlined text-[40px] text-primary/50 mb-3">hourglass_empty</span>
+              <h3 className="text-xl font-rabar font-black text-mono-700 dark:text-mono-300">ل ڤان نێزیکان!</h3>
+              <p className="text-sm font-bold text-mono-500 dark:text-mono-500 mt-1">ئێمۆجیێن نووی د ڕێ دانە...</p>
+            </div>
+          </div>
+
+
+
+
+          {/* Bundles Section */}
+          <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary text-[22px]">layers</span>
+              پاکێج
+            </h2>
+            <div className="flex flex-col gap-4">
+              {equippedBundle !== 'default' && (
+                <button
+                  onClick={() => { triggerHaptic(10); onEquipBundle('default'); }}
+                  className="w-full bg-mono-100 dark:bg-mono-800 border border-mono-200 dark:border-mono-700 hover:bg-mono-200 dark:hover:bg-mono-700/80 transition-colors rounded-xl py-3.5 px-4 flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-[18px] text-mono-600 dark:text-mono-300">layers_clear</span>
+                  <span className="font-black text-[13px] text-mono-800 dark:text-mono-100">لادانا پاکێجێ (زڤڕین بۆ ئاسایی)</span>
+                </button>
+              )}
+              {Object.values(BUNDLES).filter(b => b.id !== 'default').map(bundle => (
+                <Motion.div
+                  key={bundle.id}
+                  className={`flex flex-col border rounded-xl overflow-hidden shadow-sm transition-all relative group transform-gpu ${equippedBundle === bundle.id ? 'border-primary/50 ring-1 ring-primary/20' : 'border-mono-200 dark:border-mono-800'} ${bundle.cardBg || 'bg-mono-50 dark:bg-mono-900'}`}
+                >
+                  {/* Glass Shine Animation */}
+                  <div className="absolute inset-0 w-full h-full z-0 pointer-events-none animate-shimmer-sweep" />
+
+                  {/* Top Bar: Preview Section */}
+                  <div className="flex flex-col items-center justify-center py-8 px-4 relative z-10">
+                    <div className={`w-20 h-20 rounded-full flex items-center justify-center shrink-0 relative z-10 mb-4 bg-mono-100 dark:bg-mono-800 ${bundle.avatarRing}`}>
+                      {equippedAvatar === 'default' ? (
+                        <img src="/bundle-avatar.jpg" alt="Avatar Preview" className="w-full h-full object-cover rounded-full" />
+                      ) : (
+                        <Avatar src={equippedAvatar} size="xl" border={false} className="w-full h-full shadow-md" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-3xl tracking-normal uppercase truncate leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
+                    >
+                      {userNickname}
+                    </span>
+                  </div>
+
+                  {/* Bottom Bar: Action Button & Info */}
+                  <div className="flex flex-col sm:flex-row justify-between items-center bg-black/40 backdrop-blur-md p-3 px-4 w-full relative z-10 gap-3 border-t border-white/10">
+                    <div className="flex flex-col text-center sm:text-right w-full sm:w-auto">
+                      <h3 className="text-[17px] font-black text-white">{bundle.name}</h3>
+                      <p className="text-[11px] text-white/80 font-bold mt-1">تێکەلیا پاشبنەما، فۆنت و بازنەیێ پرۆفایلی</p>
+                    </div>
+                    <div className="w-full sm:w-auto shrink-0">
+                      {ownedBundles.includes(bundle.id) ? (
                         <button
-                          onClick={() => { 
-                            if ((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) {
-                              triggerHaptic(10); 
-                              executePurchase({ data: avatar, type: 'avatar' });
+                          onClick={() => { triggerHaptic(10); onEquipBundle(bundle.id); }}
+                          className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-black text-[13px] transition-all flex items-center justify-center gap-1.5 ${equippedBundle === bundle.id ? 'bg-primary text-white shadow-md' : 'bg-white/20 text-white hover:bg-white/30'}`}
+                        >
+                          {equippedBundle === bundle.id ? (
+                            <>
+                              <span className="material-symbols-outlined text-[15px]">check_circle</span>
+                              چالاکە
+                            </>
+                          ) : 'بکاربینە'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (getCurrencyAmount(bundle.currency) >= bundle.price) {
+                              triggerHaptic(10);
+                              executePurchase({ data: bundle, type: 'bundle' });
                             } else {
                               triggerHaptic([50, 30, 50]);
                             }
                           }}
-                          className={`flex items-center gap-1.5 px-3.5 py-1 rounded-md transition-all shadow-sm ${((avatar.currency === 'derhem' ? derhem : fils) >= avatar.price) ? 'bg-mono-100 dark:bg-mono-800 text-mono-700 dark:text-mono-200 border border-mono-200 dark:border-mono-700' : 'bg-mono-100 dark:bg-mono-900 text-mono-400 dark:text-mono-500 border border-mono-200/50 dark:border-mono-800/50 cursor-not-allowed'}`}
+                          className={`w-full sm:w-auto flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl transition-all shadow-sm border ${getCurrencyAmount(bundle.currency) >= bundle.price ? 'bg-white text-mono-900 border-mono-200 hover:bg-mono-100' : 'bg-black/50 text-white/50 border-white/10 cursor-not-allowed'}`}
                         >
-                          <div className="flex flex-col items-center leading-none">
-                            <span className="text-[11px] font-bold">{toKuDigits(avatar.price || 0)}</span>
-                          </div>
-                          <div className="w-3.5 h-3.5 flex items-center justify-center shrink-0">
-                             {avatar.currency === 'derhem' ? <DerhemIcon /> : <FilsIcon />}
+                          <span className="text-[14px] font-black tabular-nums">{toKuDigits(bundle.price || 0)}</span>
+                          <div className="w-5 h-5 flex items-center justify-center shrink-0">
+                            {renderCurrencyIcon(bundle.currency)}
                           </div>
                         </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </Motion.div>
               ))}
-            </Motion.div>
-          )}
-        </AnimatePresence>
-      </Motion.div>
+            </div>
+          </div>
+        </div>
 
-      {/* Store Compliance Virtual Currency Disclaimer */}
-      <div className="relative z-20 mt-6 px-4 py-3 bg-mono-100/50 dark:bg-mono-900/50 border border-mono-200 dark:border-mono-800 rounded-md text-center shadow-inner">
-        <p className="text-[9px] sm:text-[10px] font-bold text-mono-500 dark:text-mono-400 leading-relaxed max-w-sm mx-auto">
-          فلس، درهەم، و دینار دراڤێن خەیالی یێن ناڤ یاریێ نە و چ بهایەکێ ڕاستەقینە یان مادی نینە. ئەڤ یارییە چ پەیوەندی ب قومارێ و گۆڕینا دراڤی ب پارێ ڕاستەقینە ڤە نینە.
-        </p>
-      </div>
+        {/* Store Compliance Virtual Currency Disclaimer */}
+        <div className="relative z-20 mt-6 px-4 py-3 bg-mono-100/50 dark:bg-mono-900/50 border border-mono-200 dark:border-mono-800 rounded-md text-center shadow-inner">
+          <p className="text-[9px] sm:text-[10px] font-bold text-mono-500 dark:text-mono-400 leading-relaxed max-w-sm mx-auto">
+            فلس، درهەم، و دینار دراڤێن خەیالی یێن ناڤ یاریێ نە و چ بهایەکێ ڕاستەقینە یان مادی نینە. ئەڤ یارییە چ پەیوەندی ب قومارێ و گۆڕینا دراڤی ب پارێ ڕاستەقینە ڤە نینە.
+          </p>
+        </div>
       </div>
     </div>
   );

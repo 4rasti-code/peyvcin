@@ -12,6 +12,9 @@ import KurdishSunLoader from './KurdishSunLoader';
 import RoundIntro from './RoundIntro';
 import MultiplayerReactions from './MultiplayerReactions';
 import { toKuDigits } from '../utils/formatters';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 
 export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay: _onOpenHowToPlay }) {
   const {
@@ -289,7 +292,19 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             <div className="ring-4 ring-red-500 shadow-[0_0_30px_rgba(239,68,68,0.4)] rounded-full z-10">
               <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="xl" />
             </div>
-            <p className="mt-4 text-2xl font-rabar font-black text-white z-10">{opponent?.nickname || 'Opponent'}</p>
+            {(() => {
+              const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
+              const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
+              const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+              return (
+                <p 
+                  className={`mt-4 text-2xl font-black z-10 transition-colors duration-300 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                  style={oppBundle.id !== 'default' ? {} : oppFont.style}
+                >
+                  {opponent?.nickname || 'Opponent'}
+                </p>
+              );
+            })()}
           </div>
 
           {/* Middle: VS */}
@@ -316,7 +331,19 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             <div className="ring-4 ring-blue-500 shadow-[0_0_30px_rgba(59,130,246,0.4)] rounded-full z-10">
               <Avatar src={userAvatar} size="xl" />
             </div>
-            <p className="mt-4 text-2xl font-rabar font-black text-white z-10">{userNickname || 'You'}</p>
+            {(() => {
+              const myFont = NAME_FONTS[user?.equipped_font] || NAME_FONTS['default-ku'];
+              const myStyle = NAME_STYLES[user?.equipped_name_style] || {};
+              const myBundle = BUNDLES[user?.equipped_bundle] || BUNDLES['default'];
+              return (
+                <p 
+                  className={`mt-4 text-2xl font-black z-10 transition-colors duration-300 ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                  style={myBundle.id !== 'default' ? {} : myFont.style}
+                >
+                  {userNickname || 'You'}
+                </p>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -482,7 +509,18 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 )}
               </AnimatePresence>
             </div>
-            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-blue-400' : 'text-blue-600'} uppercase relative z-10`}>{userNickname}</span>
+            {(() => {
+              const myFont = NAME_FONTS[user?.equipped_font] || NAME_FONTS['default-ku'];
+              const myStyle = NAME_STYLES[user?.equipped_name_style] || {};
+              return (
+                <span 
+                  className={`text-xs sm:text-sm font-black uppercase relative z-10 transition-colors duration-300 ${myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600')}`}
+                  style={myFont.style}
+                >
+                  {userNickname}
+                </span>
+              );
+            })()}
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
             <Grid
@@ -559,7 +597,19 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <span className={`text-xs sm:text-sm font-black ${isDark ? 'text-red-400' : 'text-red-600'} uppercase relative z-10`}>{opponent?.nickname || 'چاڤەڕێ'}</span>
+            {(() => {
+              const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
+              const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
+              const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+              return (
+                <span 
+                  className={`text-xs sm:text-sm font-black uppercase relative z-10 transition-colors duration-300 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                  style={oppBundle.id !== 'default' ? {} : oppFont.style}
+                >
+                  {opponent?.nickname || 'چاڤەڕێ'}
+                </span>
+              );
+            })()}
             <div className="relative flex items-center justify-center min-w-8 min-h-8">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
@@ -574,9 +624,14 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   </svg>
                 </div>
               )}
-              <div className={`transition-all duration-300 ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
-                <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" />
-              </div>
+              {(() => {
+                const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+                return (
+                  <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''}`}>
+                    <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" border={oppBundle.id === 'default'} />
+                  </div>
+                );
+              })()}
               <AnimatePresence mode="popLayout">
                 {opponentReaction && (
                   <Motion.div

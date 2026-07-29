@@ -171,7 +171,6 @@ const VictoryOverlay = ({
                     <div className="flex flex-col items-end leading-none">
                       <AnimatedNumber
                         value={breakdown?.awardAmount || 50}
-                        prefix="+"
                       />
                       <span className="text-[8px] font-black uppercase opacity-60">
                         {(breakdown?.awardType || 'fils') === 'derhem' ? 'دەرهەم' : (breakdown?.awardType || 'fils') === 'dinar' ? 'دینار' : 'فلس'}
@@ -193,7 +192,7 @@ const VictoryOverlay = ({
                   <span className="text-mono-600 dark:text-white/70">خەلاتێ ئێکس پی</span>
                   <div className="flex items-center gap-2 text-mono-900 dark:text-white">
                     <div className="flex flex-col items-end leading-none">
-                      <AnimatedNumber value={breakdown?.xpAdded || xp || 25} prefix="+" />
+                      <AnimatedNumber value={breakdown?.xpAdded || xp || 25} />
                       <span className="text-[8px] font-black tracking-tighter opacity-60">XP</span>
                     </div>
                   </div>
@@ -207,7 +206,7 @@ const VictoryOverlay = ({
                     <span className="text-[#a855f7] dark:text-[#c084fc] text-[11px] font-rabar pt-0.5">زێدەبوو ل سەرکەفتنێن ئەڤرۆ</span>
                   </div>
                   <div className="flex items-center gap-1 leading-none text-[#a855f7] dark:text-[#c084fc]">
-                    <AnimatedNumber value={breakdown?.xpAdded || xp || 25} prefix="+" />
+                    <AnimatedNumber value={breakdown?.xpAdded || xp || 25} />
                   </div>
                 </div>
               </div>

@@ -11,6 +11,9 @@ import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
 import ClashingSwords from './ClashingSwords';
 import { getLevelTier, getLevelData } from '../utils/progression';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
@@ -457,13 +460,28 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             return (
               <>
                 {avatar}
-                <div className={`flex items-center gap-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <span 
-                    className={`text-[11px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''}`}
-                    style={m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' ? { color: msgTier.stop1 } : {}}
-                  >
-                    {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
-                  </span>
+                <div className={`social-hub-message flex items-center gap-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                  {(() => {
+                    const fontObj = NAME_FONTS[m.equipped_font] || NAME_FONTS['default-ku'];
+                    const styleObj = NAME_STYLES[m.equipped_name_style] || {};
+                    const bundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
+                    return (
+                      <span 
+                        className={`text-[11px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                        style={{ 
+                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}), 
+                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' ? {
+                            ...fontObj.style,
+                            // Scale down custom font sizes in Social Hub since space is tight
+                            fontSize: fontObj.style?.fontSize ? '1.15em' : undefined,
+                            transform: fontObj.style?.transform ? 'translateY(0px)' : undefined
+                          } : {}) 
+                        }}
+                      >
+                        {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
+                      </span>
+                    );
+                  })()}
                   {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
                     <div className="relative w-3.25 h-3.75 flex items-center justify-center shrink-0">
                       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
@@ -791,7 +809,7 @@ export default function SocialHubView({
         try {
           let query = supabase
             .from('messages')
-            .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url, xp)')
+            .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle)')
             .is('receiver_id', null)
             .order('created_at', { ascending: false }) // Fetch descending so we get latest 20
             .limit(20);
@@ -808,12 +826,15 @@ export default function SocialHubView({
             const fallbackRes = await query;
             if (fallbackRes.error) throw fallbackRes.error;
             const userIds = [...new Set(fallbackRes.data.map(m => m.user_id))];
-            const { data: profiles } = await supabase.from('profiles').select('id, avatar_url, xp').in('id', userIds);
+            const { data: profiles } = await supabase.from('profiles').select('id, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle').in('id', userIds);
             const avatarMap = {};
-            if (profiles) profiles.forEach(p => avatarMap[p.id] = { avatar_url: p.avatar_url, xp: p.xp });
+            if (profiles) profiles.forEach(p => avatarMap[p.id] = { avatar_url: p.avatar_url, xp: p.xp, equipped_font: p.equipped_font, equipped_name_style: p.equipped_name_style, equipped_bundle: p.equipped_bundle });
             fallbackRes.data.forEach(m => {
               m.user_avatar = avatarMap[m.user_id]?.avatar_url || 'default';
               m.user_xp = avatarMap[m.user_id]?.xp || 0;
+              m.equipped_font = avatarMap[m.user_id]?.equipped_font;
+              m.equipped_name_style = avatarMap[m.user_id]?.equipped_name_style;
+              m.equipped_bundle = avatarMap[m.user_id]?.equipped_bundle;
             });
             setMessages(fallbackRes.data.reverse()); // Reverse to show ascending in UI
             setConnectionError(false);
@@ -825,6 +846,9 @@ export default function SocialHubView({
             data.forEach(m => {
               m.user_avatar = m.sender?.avatar_url || 'default';
               m.user_xp = m.sender?.xp || 0;
+              m.equipped_font = m.sender?.equipped_font;
+              m.equipped_name_style = m.sender?.equipped_name_style;
+              m.equipped_bundle = m.sender?.equipped_bundle;
             });
             setMessages(data.reverse()); // Reverse to show ascending in UI
           } else {

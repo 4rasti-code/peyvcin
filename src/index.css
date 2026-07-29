@@ -3,6 +3,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Cinzel:wght@400..900&family=Press+Start+2P&family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Cinzel+Decorative:wght@400;700;900&family=Jim+Nightshade&family=Oleo+Script:wght@400;700&family=UnifrakturMaguntia&display=swap');
 
 /* 
   Kurdish Heritage Typography: Rabar Unicode 
@@ -46,6 +49,63 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+@font-face {
+  font-family: 'NRT Bold';
+  src: url('./assets/fonts/NRT-Bd.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'KDigital';
+  src: url('./assets/fonts/KDigital.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UniMahan Ashkan';
+  src: url('./assets/fonts/UniMahan Ashkan.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UniMahan Randa';
+  src: url('./assets/fonts/UniMahan Randa.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UniMahan Shadia';
+  src: url('./assets/fonts/UniMahan Shadia.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'UniQAIDAR_Soz 012';
+  src: url('./assets/fonts/UniQAIDAR_Soz 012.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.bg-kurdistan-flag {
+  background-image: 
+    url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj4KICA8ZGVmcz48cGF0aCBpZD0iciIgZD0iTS0zLjUsLTI0IEwwLC01MCBMMy41LC0yNCBaIiBmaWxsPSIjZmNkMTE2Ii8+PC9kZWZzPgogIDxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjI1IiBmaWxsPSIjZmNkMTE2Ii8+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTAsNTApIj48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgwKSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDE3LjE0Mjg1NzE0Mjg1NzE0MikiLz48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgzNC4yODU3MTQyODU3MTQyODUpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoNTEuNDI4NTcxNDI4NTcxNDMpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoNjguNTcxNDI4NTcxNDI4NTcpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoODUuNzE0Mjg1NzE0Mjg1NzEpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMTAyLjg1NzE0Mjg1NzE0Mjg2KSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDEyMCkiLz48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgxMzcuMTQyODU3MTQyODU3MTQpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMTU0LjI4NTcxNDI4NTcxNDI4KSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDE3MS40Mjg1NzE0Mjg1NzE0MikiLz48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgxODguNTcxNDI4NTcxNDI4NTgpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMjA1LjcxNDI4NTcxNDI4NTcyKSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDIyMi44NTcxNDI4NTcxNDI4NikiLz48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgyNDApIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMjU3LjE0Mjg1NzE0Mjg1NzE3KSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDI3NC4yODU3MTQyODU3MTQzKSIvPjx1c2UgaHJlZj0iI3IiIHRyYW5zZm9ybT0icm90YXRlKDI5MS40Mjg1NzE0Mjg1NzE0NCkiLz48dXNlIGhyZWY9IiNyIiB0cmFuc2Zvcm09InJvdGF0ZSgzMDguNTcxNDI4NTcxNDI4NTYpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMzI1LjcxNDI4NTcxNDI4NTcpIi8+PHVzZSBocmVmPSIjciIgdHJhbnNmb3JtPSJyb3RhdGUoMzQyLjg1NzE0Mjg1NzE0MjgzKSIvPjwvZz4KPC9zdmc+"),
+    linear-gradient(180deg, #ed2939 var(--f-r, 40%), #ffffff var(--f-r, 40%), #ffffff var(--f-g, 60%), #239f40 var(--f-g, 60%));
+  background-position: 50% var(--f-s, 50%), center;
+  background-size: var(--f-sun-size, 0.9em) var(--f-sun-size, 0.9em), 100% 100%;
+  background-repeat: no-repeat;
 }
 
 :root {
@@ -96,6 +156,38 @@
 
   --animate-spin-slow: spin 3s linear infinite;
   --animate-shimmer: shimmer 2s infinite linear;
+  --animate-gold: gold-shimmer 3s infinite alternate;
+  --animate-neon: neon-flicker 1.5s infinite alternate;
+  --animate-fire: fire-blaze 1.5s infinite alternate;
+  --animate-ocean: ocean-wave 3s infinite alternate;
+  --animate-princess: princess-sparkle 2.5s infinite alternate;
+  --animate-flag: flag-wave 3s infinite ease-in-out;
+
+  @keyframes gold-shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes neon-flicker {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+    20%, 24%, 55% { opacity: 0.5; }
+  }
+  @keyframes fire-blaze {
+    0% { background-position: 0% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+  @keyframes ocean-wave {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes princess-sparkle {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes flag-wave {
+    0% { opacity: 1; }
+    50% { opacity: 0.85; }
+    100% { opacity: 1; }
+  }
 
   /* Custom Mono Palette */
   --color-mono-white: #FFFFFF;
@@ -1210,6 +1302,65 @@ body,
   animation: gradient-flow 3s ease infinite;
 }
 
+@keyframes neon-pulse-text {
+  0%, 100% {
+    filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.4)) drop-shadow(0 0 8px rgba(217, 70, 239, 0.8)) drop-shadow(0 0 16px rgba(217, 70, 239, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 12px rgba(217, 70, 239, 1)) drop-shadow(0 0 24px rgba(217, 70, 239, 0.8));
+  }
+}
+
+@keyframes neon-pulse-pill {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(217, 70, 239, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(217, 70, 239, 0.9));
+  }
+}
+
+.neon-purple-text {
+  background-image: linear-gradient(to bottom, #FFD700, #00FFFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  padding: 0;
+  border-radius: 0;
+  /* Strong LED Neon Glow in default mode (mostly dark mode contexts) */
+  animation: neon-pulse-text 2s infinite ease-in-out;
+}
+
+.social-hub-message .neon-purple-text {
+  background-image: linear-gradient(to bottom, #FFD700, #00FFFF), linear-gradient(to right, #4c1d95, #2e1065);
+  background-clip: text, padding-box;
+  -webkit-background-clip: text, padding-box;
+  padding: 0px 8px;
+  border-radius: 6px;
+  width: max-content;
+  max-width: 100%;
+  /* Slightly softer glow when pill background is present (light mode chat) */
+  animation: neon-pulse-pill 2s infinite ease-in-out;
+}
+
+.dark .social-hub-message .neon-purple-text {
+  background-image: linear-gradient(to bottom, #FFD700, #00FFFF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  padding: 0;
+  border-radius: 0;
+  width: auto;
+  max-width: none;
+  /* Restore intense LED glow since pill is gone */
+  animation: neon-pulse-text 2s infinite ease-in-out;
+}
+
+/* Mixed Language Font Stack for Neon Bundle */
+.font-neon-bundle {
+  font-family: 'Orbitron', 'Vazirmatn', sans-serif !important;
+  font-weight: 900 !important;
+}
+
 /* Scoped Text Selection for Auth Page only */
 .auth-view-container input {
   user-select: text !important;
@@ -1308,4 +1459,54 @@ html, body {
 }
 @media (max-height: 600px) {
   .modal-zoom-fit { zoom: 0.65; }
+}
+
+.fire-sparks::before, .fire-sparks::after {
+  content: '';
+  position: absolute;
+  bottom: 25%;
+  width: 2px;
+  height: 2px;
+  background: #FF5722;
+  border-radius: 50%;
+  box-shadow: 0 0 5px 2px rgba(255,152,0,0.8);
+  opacity: 0;
+  pointer-events: none;
+}
+.fire-sparks::before {
+  left: 20%;
+  animation: fly-spark 1.5s infinite ease-in;
+}
+.fire-sparks::after {
+  right: 20%;
+  animation: fly-spark 1.8s infinite ease-in 0.7s;
+}
+@keyframes fly-spark {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  100% { transform: translateY(-15px) scale(0.2); opacity: 0; }
+}
+@keyframes glass-sweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  50%, 100% { transform: translateX(250%) skewX(-20deg); }
+}
+.animate-glass-sweep {
+  animation: glass-sweep 4s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes shimmer-sweep {
+  0% { background-position: 200% 0; }
+  50% { background-position: -100% 0; }
+  100% { background-position: -100% 0; }
+}
+.animate-shimmer-sweep {
+  background: linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.05) 45%,
+    rgba(255, 255, 255, 0.2) 50%,
+    transparent 55%
+  );
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: shimmer-sweep 4s infinite linear;
 }

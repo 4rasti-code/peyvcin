@@ -44,6 +44,21 @@ export const AuthProvider = ({ children }) => {
     const saved = localStorage.getItem('peyvchin_owned_avatars');
     return safeJSONParse(saved, ['default'], 'peyvchin_owned_avatars');
   });
+  const [equippedNameStyle, setEquippedNameStyle] = useState('default');
+  const [ownedNameStyles, setOwnedNameStyles] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_owned_name_styles');
+    return safeJSONParse(saved, ['default'], 'peyvchin_owned_name_styles');
+  });
+  const [equippedFont, setEquippedFont] = useState('default');
+  const [ownedFonts, setOwnedFonts] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_owned_fonts');
+    return safeJSONParse(saved, ['default'], 'peyvchin_owned_fonts');
+  });
+  const [equippedBundle, setEquippedBundle] = useState('default');
+  const [ownedBundles, setOwnedBundles] = useState(() => {
+    const saved = localStorage.getItem('peyvchin_owned_bundles');
+    return safeJSONParse(saved, ['default'], 'peyvchin_owned_bundles');
+  });
   const [hapticEnabled, setHapticEnabled] = useState(() => {
     const saved = localStorage.getItem('peyvchin_haptic_enabled');
     return saved !== null ? saved === 'true' : true;
@@ -137,7 +152,8 @@ export const AuthProvider = ({ children }) => {
           onboarded,
           daily_streak, reward_streak, last_reward_claimed_at, last_streak_at,
           last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
-          has_completed_install_guide
+          has_completed_install_guide, equipped_name_style, owned_name_styles,
+          equipped_font, owned_fonts, equipped_bundle, owned_bundles
         `)
         .eq('id', activeUserId);
 
@@ -175,14 +191,16 @@ export const AuthProvider = ({ children }) => {
             // If no name is provided, fetch a sequential guest name from the database
             const { data: seqName } = await supabase.rpc('get_next_guest_name');
             const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
-            nickname = `بێناڤ_${seqNum}`;
+            const kuDigits = String(seqNum).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+            nickname = `بێناڤ ${kuDigits}`;
           } else {
             // Remove spaces, allow alphanumeric and Kurdish/Arabic characters
             rawName = rawName.replace(/[^a-zA-Z0-9\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g, '');
             if (rawName.length < 3) {
               const { data: seqName } = await supabase.rpc('get_next_guest_name');
               const seqNum = seqName ? seqName.split('_')[1] : Math.floor(1000 + Math.random() * 9000);
-              nickname = `بێناڤ_${seqNum}`;
+              const kuDigits = String(seqNum).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+              nickname = `بێناڤ ${kuDigits}`;
             } else {
               nickname = rawName;
             }
@@ -287,6 +305,51 @@ export const AuthProvider = ({ children }) => {
       setOwnedAvatars(prev => {
         const next = Array.isArray(data.inventory?.owned_avatars) ? data.inventory.owned_avatars : ['default'];
         return JSON.stringify(prev) !== JSON.stringify(next) ? next : prev;
+      });
+    }
+
+    if (data.equipped_name_style !== undefined) {
+      setEquippedNameStyle(prev => prev !== data.equipped_name_style ? (data.equipped_name_style || 'default') : prev);
+    }
+
+    if (data.owned_name_styles !== undefined) {
+      setOwnedNameStyles(prev => {
+        const next = Array.isArray(data.owned_name_styles) ? data.owned_name_styles : ['default'];
+        if (JSON.stringify(prev) !== JSON.stringify(next)) {
+          localStorage.setItem('peyvchin_owned_name_styles', JSON.stringify(next));
+          return next;
+        }
+        return prev;
+      });
+    }
+
+    if (data.equipped_font !== undefined) {
+      setEquippedFont(prev => prev !== data.equipped_font ? (data.equipped_font || 'default') : prev);
+    }
+
+    if (data.owned_fonts !== undefined) {
+      setOwnedFonts(prev => {
+        const next = Array.isArray(data.owned_fonts) ? data.owned_fonts : ['default'];
+        if (JSON.stringify(prev) !== JSON.stringify(next)) {
+          localStorage.setItem('peyvchin_owned_fonts', JSON.stringify(next));
+          return next;
+        }
+        return prev;
+      });
+    }
+
+    if (data.equipped_bundle !== undefined) {
+      setEquippedBundle(prev => prev !== data.equipped_bundle ? (data.equipped_bundle || 'default') : prev);
+    }
+
+    if (data.owned_bundles !== undefined) {
+      setOwnedBundles(prev => {
+        const next = Array.isArray(data.owned_bundles) ? data.owned_bundles : ['default'];
+        if (JSON.stringify(prev) !== JSON.stringify(next)) {
+          localStorage.setItem('peyvchin_owned_bundles', JSON.stringify(next));
+          return next;
+        }
+        return prev;
       });
     }
 
@@ -565,6 +628,13 @@ export const AuthProvider = ({ children }) => {
     if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
     if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
     if (profileData.onboarded !== undefined) setProfileData(prev => ({ ...prev, onboarded: profileData.onboarded }));
+    
+    if (profileData.equipped_name_style !== undefined) setEquippedNameStyle(profileData.equipped_name_style);
+    if (profileData.owned_name_styles !== undefined) setOwnedNameStyles(profileData.owned_name_styles);
+    if (profileData.equipped_font !== undefined) setEquippedFont(profileData.equipped_font);
+    if (profileData.owned_fonts !== undefined) setOwnedFonts(profileData.owned_fonts);
+    if (profileData.equipped_bundle !== undefined) setEquippedBundle(profileData.equipped_bundle);
+    if (profileData.owned_bundles !== undefined) setOwnedBundles(profileData.owned_bundles);
 
     if (profileData.haptic_enabled !== undefined) {
       setHapticEnabled(profileData.haptic_enabled);
@@ -602,6 +672,13 @@ export const AuthProvider = ({ children }) => {
       // Fallback: Also update avatar_url and nickname directly in case the RPC fails or is missing
       if (profileData.avatar_url !== undefined) directUpdates.avatar_url = profileData.avatar_url;
       if (profileData.nickname !== undefined) directUpdates.nickname = profileData.nickname;
+      
+      if (profileData.equipped_name_style !== undefined) directUpdates.equipped_name_style = profileData.equipped_name_style;
+      if (profileData.owned_name_styles !== undefined) directUpdates.owned_name_styles = profileData.owned_name_styles;
+      if (profileData.equipped_font !== undefined) directUpdates.equipped_font = profileData.equipped_font;
+      if (profileData.owned_fonts !== undefined) directUpdates.owned_fonts = profileData.owned_fonts;
+      if (profileData.equipped_bundle !== undefined) directUpdates.equipped_bundle = profileData.equipped_bundle;
+      if (profileData.owned_bundles !== undefined) directUpdates.owned_bundles = profileData.owned_bundles;
 
       if (Object.keys(directUpdates).length > 0) {
         const { error: updateError } = await supabase
@@ -653,13 +730,17 @@ export const AuthProvider = ({ children }) => {
     isInKurdistan, setIsInKurdistan, countryCode, setCountryCode,
     profileData, lastNicknameUpdate,
     ownedAvatars, setOwnedAvatars, hapticEnabled, setHapticEnabled,
+    equippedNameStyle, setEquippedNameStyle, ownedNameStyles, setOwnedNameStyles,
+    equippedFont, setEquippedFont, ownedFonts, setOwnedFonts,
+    equippedBundle, setEquippedBundle, ownedBundles, setOwnedBundles,
     lastProfileUpdate, setLastProfileUpdate,
     onlineCount, onlineUsers,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
-    countryCode, ownedAvatars, hapticEnabled, syncProfile,
+    countryCode, ownedAvatars, hapticEnabled, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
+    equippedBundle, ownedBundles, syncProfile,
     updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers
   ]);
 

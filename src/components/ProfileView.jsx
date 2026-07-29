@@ -19,10 +19,14 @@ import { getCroppedImg } from '../utils/imageUtils';
 import Cropper from 'react-easy-crop';
 import { MEDALS } from '../constants/medals';
 import FriendsList from './FriendsList';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 
-export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount, initialFriendsModalOpen, onFriendsModalConsumed }) {
+export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount, initialFriendsModalOpen, onFriendsModalConsumed, isVisible }) {
    const {
-      user, userNickname, userAvatar, profileData
+      user, userNickname, userAvatar, profileData,
+      equippedFont, equippedNameStyle, equippedBundle
    } = useUser();
 
    const {
@@ -68,6 +72,12 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
       }
    }, [initialFriendsModalOpen, onFriendsModalConsumed]);
 
+   useEffect(() => {
+      if (!isVisible) {
+         setIsFriendsModalOpen(false);
+      }
+   }, [isVisible]);
+
    const handleBackgroundClick = (e) => {
       // Pulse on background void clicks
       const isInteractiveElement = e.target.closest('button') || e.target.closest('input') || e.target.closest('.interactive-zone');
@@ -100,6 +110,10 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    const isBestUnlocked = bestMedal.condition(displayData);
 
    const isLoading = !user || userNickname === 'یاریزان';
+
+   const fontObj = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
+   const styleObj = NAME_STYLES[equippedNameStyle] || {};
+   const bundleObj = BUNDLES[equippedBundle] || BUNDLES['default'];
 
    const handleImageUpload = (e) => {
       const file = e.target.files[0];
@@ -237,7 +251,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className="relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-black group transition-colors duration-300">
+            <div className={`relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
@@ -369,7 +383,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                         </svg>
                      </div>
 
-                     <div className="relative p-0.5 bg-mono-white dark:bg-black rounded-full border-[0.5px] border-mono-200 dark:border-mono-800 z-10">
+                     <div className={`relative p-0.5 bg-mono-white dark:bg-black rounded-full border-[0.5px] border-mono-200 dark:border-mono-800 z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : ''}`}>
                         <Avatar src={draftAvatar} size="xl" className="w-32 h-32 rounded-full border border-mono-100 dark:border-mono-800 object-cover" updatedAt={user?.updated_at} />
                         <div
                            className="absolute bottom-0 right-0 w-9 h-9 text-slate-950 rounded-full border-2 border-white flex items-center justify-center z-50 transition-transform active:scale-90"
@@ -382,7 +396,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className="absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border-t border-mono-200 dark:border-mono-800 px-3 pb-4.5 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm" dir="rtl">
+               <div className={`absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4.5 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
@@ -394,8 +408,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      {/* Center: Name */}
                      <div className="flex-1 flex flex-col items-center px-2 min-w-0">
                         <h3
-                           className="text-[22px] font-black font-rabar leading-tight truncate w-full text-center transition-all duration-500"
-                           style={{ color: tier.stop1 }}
+                           className={`text-[22px] font-black leading-tight truncate w-full text-center transition-all duration-500 ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                           style={bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: tier.stop1 }), ...fontObj.style }}
                         >
                            {userNickname || 'بێناڤ'}
                         </h3>
@@ -448,63 +462,63 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                                        transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
                                     />
                                  </Motion.div>
-                                 <div className="flex flex-col items-center z-10 w-full mt-0.5">
-                                    <span className="text-[7px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
-                                    <div className="flex items-baseline gap-0.5">
-                                       <span className="text-sm font-black text-mono-900 dark:text-mono-100 leading-none tabular-nums">{toKuDigits(dailyStreak || 0)}</span>
-                                       <span className="text-[8px] font-bold text-mono-600 dark:text-mono-400">ڕۆژ</span>
-                                    </div>
-                                 </div>
-                              </Motion.div>
-                           )}
-                        </AnimatePresence>
-                     </div>
-                  </div>
-
-                  {/* Unified 3-Column Stats Grid */}
-                  <div className="grid grid-cols-3 gap-4 px-4" dir="ltr">
-
-                     <div
-                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
-                        style={{
-                           backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.12)`,
-                           borderColor: `${tier.stop1}30`
-                        }}
-                     >
-                        <span className="text-[10px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">XP سەرجەمێ</span>
-                        <span className="text-[13px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
-                           {isLoading ? <div className="w-6 h-2 bg-mono-100 dark:bg-mono-800 animate-pulse rounded"></div> : toKuDigits(currentXP || 0)}
-                        </span>
-                     </div>
-
-                     <div
-                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
-                        style={{
-                           backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.22)`,
-                           borderColor: `${tier.stop1}40`
-                        }}
-                     >
-                        <span className="text-[10px] font-black uppercase mb-0.5 opacity-60 dark:text-mono-300 text-mono-600">ڕێزبەندی</span>
-                        <span className="text-[13px] font-black dark:text-mono-100 text-mono-900 tabular-nums leading-none">
-                           {isLoading ? '...' : `#${toKuDigits(userRank || 0)}`}
-                        </span>
-                     </div>
-
-                     <div
-                        className={`flex flex-col items-center justify-center py-2 rounded-md border border-white/10 shadow-sm transition-all duration-500 backdrop-blur-md ${isLoading ? 'animate-pulse opacity-50' : ''}`}
-                        style={{
-                           backgroundColor: tier.stop1
-                        }}
-                     >
-                        <span className="text-[10px] font-black uppercase mb-0.5 text-mono-950/80">پەیڤێن دیتی</span>
-                        <span className="text-[13px] font-black text-mono-950 leading-none tabular-nums">
-                           {isLoading ? '...' : toKuDigits(solvedWords?.length || 0)}
-                        </span>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
+                                     <div className="flex flex-col items-center z-10 w-full mt-0.5">
+                                        <span className="text-[7px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
+                                        <div className="flex items-baseline gap-0.5">
+                                           <span className={`text-sm font-black leading-none tabular-nums ${bundleObj.id !== 'default' ? 'text-white' : 'text-mono-900 dark:text-mono-100'}`}>{toKuDigits(dailyStreak || 0)}</span>
+                                           <span className={`text-[8px] font-bold ${bundleObj.id !== 'default' ? 'text-white/70' : 'text-mono-600 dark:text-mono-400'}`}>ڕۆژ</span>
+                                        </div>
+                                     </div>
+                                  </Motion.div>
+                               )}
+                            </AnimatePresence>
+                         </div>
+                      </div>
+   
+                      {/* Unified 3-Column Stats Grid */}
+                      <div className="grid grid-cols-3 gap-4 px-4" dir="ltr">
+   
+                         <div
+                            className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                            style={{
+                               backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.12)`,
+                               borderColor: `${tier.stop1}30`
+                            }}
+                         >
+                            <span className={`text-[10px] font-black uppercase mb-0.5 opacity-60 ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-300 text-mono-600'}`}>XP سەرجەمێ</span>
+                            <span className={`text-[13px] font-black tabular-nums leading-none ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-100 text-mono-900'}`}>
+                               {isLoading ? <div className="w-6 h-2 bg-mono-100 dark:bg-mono-800 animate-pulse rounded"></div> : toKuDigits(currentXP || 0)}
+                            </span>
+                         </div>
+   
+                         <div
+                            className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                            style={{
+                               backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.22)`,
+                               borderColor: `${tier.stop1}40`
+                            }}
+                         >
+                            <span className={`text-[10px] font-black uppercase mb-0.5 opacity-60 ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-300 text-mono-600'}`}>ڕێزبەندی</span>
+                            <span className={`text-[13px] font-black tabular-nums leading-none ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-100 text-mono-900'}`}>
+                               {isLoading ? '...' : `#${toKuDigits(userRank || 0)}`}
+                            </span>
+                         </div>
+   
+                         <div
+                            className={`flex flex-col items-center justify-center py-2 rounded-md border border-white/10 shadow-sm transition-all duration-500 backdrop-blur-md ${isLoading ? 'animate-pulse opacity-50' : ''}`}
+                            style={{
+                               backgroundColor: tier.stop1
+                            }}
+                         >
+                            <span className={`text-[10px] font-black uppercase mb-0.5 ${bundleObj.id !== 'default' ? 'text-white/90' : 'text-mono-950/80'}`}>پەیڤێن دیتی</span>
+                            <span className={`text-[13px] font-black leading-none tabular-nums ${bundleObj.id !== 'default' ? 'text-white' : 'text-mono-950'}`}>
+                               {isLoading ? '...' : toKuDigits(solvedWords?.length || 0)}
+                            </span>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
 
          <div className="flex-1 px-4 pb-[max(env(safe-area-inset-bottom),80px)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] relative z-10 bg-trigger-zone flex flex-col justify-start pt-2">
             <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center">

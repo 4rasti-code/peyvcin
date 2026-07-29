@@ -186,7 +186,9 @@ export default function App() {
   const {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
     userNickname, userAvatar, userAvatar: equippedAvatar, city, isInKurdistan, countryCode,
-    ownedAvatars, unlockedThemes: _unlockedThemes, currentTheme,
+    ownedAvatars, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
+    equippedBundle, ownedBundles,
+    unlockedThemes: _unlockedThemes, currentTheme,
     updateProfile, profileData, syncProfile
   } = useUser();
 
@@ -1913,6 +1915,7 @@ export default function App() {
                 </div>
                 <div className={currentView === 'leaderboard' ? 'contents' : 'hidden'}>
                   <LeaderboardView
+                    isVisible={currentView === 'leaderboard'}
                     onOpenChat={handleOpenChat}
                   />
                 </div>
@@ -1939,6 +1942,33 @@ export default function App() {
                     playPurchaseSound={playPurchaseSound}
                     ownedAvatars={ownedAvatars}
                     equippedAvatar={equippedAvatar}
+                    ownedNameStyles={ownedNameStyles}
+                    equippedNameStyle={equippedNameStyle}
+                    onPurchaseNameStyle={async (id, price, currency) => {
+                      const result = await processPurchase({ id, price, currency, type: 'name_style' });
+                      if (result.success) {
+                        updateProfile({ owned_name_styles: [...ownedNameStyles, id] });
+                      }
+                    }}
+                    onEquipNameStyle={(id) => updateProfile({ equipped_name_style: id })}
+                    ownedFonts={ownedFonts}
+                    equippedFont={equippedFont}
+                    onPurchaseFont={async (id, price, currency) => {
+                      const result = await processPurchase({ id, price, currency, type: 'font' });
+                      if (result.success) {
+                        updateProfile({ owned_fonts: [...ownedFonts, id] });
+                      }
+                    }}
+                    onEquipFont={(id) => updateProfile({ equipped_font: id })}
+                    ownedBundles={ownedBundles}
+                    equippedBundle={equippedBundle}
+                    onPurchaseBundle={async (id, price, currency) => {
+                      const result = await processPurchase({ id, price, currency, type: 'bundle' });
+                      if (result.success) {
+                        updateProfile({ owned_bundles: [...ownedBundles, id] });
+                      }
+                    }}
+                    onEquipBundle={(id) => updateProfile({ equipped_bundle: id })}
                   />
                 </div>
                 <div className={currentView === 'stats' ? 'contents' : 'hidden'}>
@@ -1973,6 +2003,7 @@ export default function App() {
                 </div>
                 <div className={currentView === 'profile' ? 'contents' : 'hidden'}>
                   <ProfileView
+                    isVisible={currentView === 'profile'}
                     initialFriendsModalOpen={openFriendsFromNotif}
                     onFriendsModalConsumed={() => setOpenFriendsFromNotif(false)}
                     onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}

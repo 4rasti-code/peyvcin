@@ -50,3 +50,13 @@ export const formatCompactNumber = (val) => {
   }
   return toKuDigits(num);
 };
+
+/**
+ * Detects whether the provided nickname uses Kurdish/Arabic script or English/Latin.
+ * Returns 'kurdish' if it contains Kurdish/Arabic characters, otherwise 'english'.
+ */
+export const detectNameLanguage = (nickname) => {
+  if (!nickname) return 'kurdish'; // Default
+  const kurdishArabicRegex = /[\u0600-\u06FF]/;
+  return kurdishArabicRegex.test(nickname) ? 'kurdish' : 'english';
+};
