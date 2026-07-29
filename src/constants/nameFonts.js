@@ -93,7 +93,7 @@ export const NAME_FONTS = {
   'digiface': {
     id: 'digiface',
     name: 'DigifaceWide',
-    style: { fontFamily: '"Audiowide", cursive', fontSize: '1.40em' },
+    style: { fontFamily: '"Audiowide", cursive', fontSize: '1.15em' },
     language: 'english',
     price: 5000,
     currency: 'fils'
