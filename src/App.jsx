@@ -273,16 +273,30 @@ export default function App() {
     if (!user || !user.is_anonymous || !profileData || typeof profileData.xp !== 'number') return;
 
     const xpThreshold = getTotalXPForLevel(5);
-    const hasBeenNotified = localStorage.getItem('guest_level5_notified') === 'true';
+    const hasBeenNotified = safeStorageGet('guest_level5_notified') === 'true';
 
     if (profileData.xp >= xpThreshold && !hasBeenNotified) {
-      console.log("[Progression] Guest reached Level 5. Sending automated system message.");
+      console.log("[Progression] Guest reached Level 5. Checking if message needs to be sent.");
 
-      // Optimistically set the flag to prevent duplicate messages from race conditions
-      localStorage.setItem('guest_level5_notified', 'true');
+      // Optimistically set the flag to prevent rapid duplicate calls
+      safeStorageSet('guest_level5_notified', 'true');
 
       const sendSystemMessage = async () => {
         try {
+          // Verify against DB to prevent duplicates
+          const { data: existingMessages } = await supabase
+            .from('messages')
+            .select('id')
+            .eq('receiver_id', user.id)
+            .eq('user_id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+            .ilike('content', '%مێڤان%') // Check for guest specific message
+            .limit(1);
+
+          if (existingMessages && existingMessages.length > 0) {
+            console.log("[Progression] Guest message already exists in DB. Skipping.");
+            return;
+          }
+
           const { error } = await supabase.from('messages').insert([{
             content: "تو گەهشتیە ئاستەکێ باش!\nلێ بۆ پاراستنا ئاست و زانیاریێن خوە و بەردەوامبوونا یاریێ، پێدڤیە هژمارا خوە ب شێوەیەکێ فەرمی تۆمار بکەی. ئەو کەسێن وەکو مێڤان خوە تۆمارکرین و بێی ئیمێل، دێ پشتی ٧ ڕۆژان ب شێوەیەکێ تۆتۆماتیکی هێنە ژێبرن د ناڤ یاریێ دا. هێڤیە ب زویترین دەم ب شێوەیەکێ فەرمی ب ڕێکا ئیمێلی خوە تۆمار بکە!",
             user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
@@ -292,7 +306,6 @@ export default function App() {
           }]);
 
           if (error) {
-            localStorage.removeItem('guest_level5_notified');
             throw error;
           }
         } catch (err) {
@@ -308,16 +321,29 @@ export default function App() {
   useEffect(() => {
     if (!user || !user.id || !profileData || !profileData.id) return;
 
-    const hasBeenWelcomed = localStorage.getItem('beta_welcome_sent') === 'true';
+    const hasBeenWelcomed = safeStorageGet('beta_welcome_sent') === 'true';
 
     if (!hasBeenWelcomed) {
-      console.log("[Welcome] First login detected. Sending automated welcome message.");
+      console.log("[Welcome] First login detected. Checking if welcome message needs to be sent.");
 
-      // Optimistically set the flag to prevent duplicate messages from race conditions
-      localStorage.setItem('beta_welcome_sent', 'true');
+      // Optimistically set the flag to prevent rapid duplicate calls
+      safeStorageSet('beta_welcome_sent', 'true');
 
       const sendWelcomeMessage = async () => {
         try {
+          // Verify against DB to prevent duplicates if localStorage was cleared or user changed devices
+          const { data: existingMessages } = await supabase
+            .from('messages')
+            .select('id')
+            .eq('receiver_id', user.id)
+            .eq('user_id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+            .limit(1);
+
+          if (existingMessages && existingMessages.length > 0) {
+            console.log("[Welcome] Message already exists in DB. Skipping.");
+            return;
+          }
+
           const { error } = await supabase.from('messages').insert([{
             content: "سڵاڤ و رێز... ب خێرهاتی بۆ یاریا پەیڤۆک 🧩\n\nمە دڤیا ب ڕێکا ڤێ نامەیێ، هەم ب گەرمی خێرهاتنا تە بکەین و هەم ژی ب شانازی ڤە پێزانینەکا گرنگ بگەهینینە تە. 'پەیڤۆک' یارییەکا کوردی یا رەسەنە، کو ب تەمامی ب دەستێ گەشەپێدەرێن کورد هاتییە دروستکرن و ب ڕەنگەکێ راستەوخۆ گرێدایی زمان و کلتورێ مە یێ دەوڵەمەندە.\n\nیارییا مە نۆکە د قۆناغا تاقیکرنێ (Beta) دایە، و پرۆسەیا دروستکرنا وێ هێشتا یا د بەردەوامە. تیمێ مە ب بەردەوامی کار دکەت بۆ زێدەکرنا پەیڤێن کوردی یێن نویتر و بەرفرەهتر، دگەل چارەسەرکرنا هەر ئاریشەیەکا تەکنیکی کو بهێتە پێش. ژبەر هندێ، ئەگەر تو تووشی هەر ئاریشەیەکێ ببی، قۆناغەکا دەمییە و ئەم کار ل سەر دکەین.\n\nل ڤان نێزیکان، 'پەیڤۆک' دێ ب شێوەیەکێ فەرمی وەک ئەپلیکەیشن بۆ ئەندرۆید (Android) و ئایئۆئێس (iOS) بەردەست بیت!\n\nپشکدارییا تە د ڤێ قۆناغێ دا بۆ مە گەلەک یا گرنگە. تو ئێک ژ بکارهێنەرێن مە یێن دەستپێکێی، و پشتەڤانییا تە دێ هاریکارییا مە کەت بۆ پێشخستنا یاریێ، دا کو ببیتە باشترین یارییا هزری ب زمانێ کوردی/بەهدینی.\n\nزۆر سوپاس بۆ باوەری و پشتەڤانییا تە. \nـ دگەل رێزێن تیما گەشەپێدەرێن \"پەیڤۆک\"",
             user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
@@ -327,7 +353,6 @@ export default function App() {
           }]);
 
           if (error) {
-            localStorage.removeItem('beta_welcome_sent');
             throw error;
           }
         } catch (err) {
