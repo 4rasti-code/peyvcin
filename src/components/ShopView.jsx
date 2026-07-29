@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import Avatar from './Avatar';
 import { triggerHaptic } from '../utils/haptics';
 import { THEMES } from '../data/themes';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
