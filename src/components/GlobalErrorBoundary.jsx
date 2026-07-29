@@ -98,21 +98,22 @@ class GlobalErrorBoundary extends React.Component {
               </button>
             </div>
             
-            {window.location.hostname === 'localhost' && (
-              <pre style={{ 
-                marginTop: '30px', 
-                padding: '15px', 
-                fontSize: '10px', 
-                backgroundColor: 'rgba(0,0,0,0.3)', 
-                borderRadius: '10px', 
-                color: '#ef4444',
-                textAlign: 'left',
-                overflowX: 'auto',
-                maxWidth: '100%'
-              }}>
-                {this.state.error?.toString()}
-              </pre>
-            )}
+            <pre style={{ 
+              marginTop: '30px', 
+              padding: '15px', 
+              fontSize: '10px', 
+              backgroundColor: 'rgba(0,0,0,0.3)', 
+              borderRadius: '10px', 
+              color: '#ef4444',
+              textAlign: 'left',
+              overflowX: 'auto',
+              maxWidth: '100%'
+            }}>
+              {this.state.error?.toString()}
+              {'\n'}
+              {this.state.errorInfo?.componentStack?.slice(0, 200)}
+            </pre>
+
           </div>
         </div>
       );
