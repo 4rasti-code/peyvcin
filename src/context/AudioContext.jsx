@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { safeStorageGet, safeStorageSet, safeJSONParse } from '../utils/safeParse';
+import { safeStorageGet, safeStorageSet } from '../utils/safeParse';
 import { useUser } from './AuthContext';
 import { 
   playPopSfx, 
