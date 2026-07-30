@@ -308,7 +308,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               return (
                 <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
                   <span 
-                    className={`font-black uppercase block max-w-[80vw] whitespace-nowrap overflow-visible text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                    dir="auto"
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-hidden text-clip text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: dynamicFontSize
@@ -334,9 +335,12 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             </span>
           </div>
           {/* Countdown Badge */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-20 z-50 flex flex-col items-center">
-            <div className="bg-black/60 px-8 py-1.5 rounded-full border border-white/10 backdrop-blur-md shadow-xl">
-              <span className="text-4xl font-black text-white">{countdown}</span>
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+            <div className="bg-black/80 px-8 py-2 rounded-full border border-white/20 backdrop-blur-md shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center justify-center gap-3 text-white">
+                <span className="material-symbols-outlined animate-pulse text-amber-500 text-3xl">timer</span>
+                <span className="text-4xl font-black">{countdown}</span>
+              </div>
             </div>
           </div>
 
@@ -361,7 +365,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               return (
                 <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
                   <span 
-                    className={`font-black uppercase block max-w-[80vw] whitespace-nowrap overflow-visible text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                    dir="auto"
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-hidden text-clip text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: dynamicFontSize

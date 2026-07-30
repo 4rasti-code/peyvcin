@@ -25,6 +25,6 @@ export const BUNDLES = {
     avatarRing: 'border-2 border-[#d946ef] shadow-[0_0_10px_#d946ef]',
     // Font stack handles both English (Bangers) and Kurdish (Rabar_013) gracefully via CSS fallback
     fontKurdish: 'font-neon-bundle', // Bold kurdish font
-    fontEnglish: 'font-black uppercase'
+    fontEnglish: 'font-black'
   }
 };

@@ -913,14 +913,15 @@ const LobbyView = memo(({
                 const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
                 const isWideFont = wideFonts.includes(targetObj.equipped_font);
                 
-                const baselineLen = isWideFont ? 4 : 7.5;
+                const baselineLen = isWideFont ? 3 : 6;
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
                 const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                 return (
                   <span 
-                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 truncate px-3 -mx-3 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-900 dark:text-white')}`}
+                    dir="auto"
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-hidden text-clip px-3 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-900 dark:text-white')}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: dynamicFontSize
@@ -974,14 +975,15 @@ const LobbyView = memo(({
                 const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
                 const isWideFont = wideFonts.includes(equippedFont);
                 
-                const baselineLen = isWideFont ? 4 : 7.5;
+                const baselineLen = isWideFont ? 3 : 6;
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
                 const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                 return (
                   <span 
-                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 truncate px-3 -mx-3 ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-900 dark:text-white')}`}
+                    dir="auto"
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-hidden text-clip px-3 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-900 dark:text-white')}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: dynamicFontSize

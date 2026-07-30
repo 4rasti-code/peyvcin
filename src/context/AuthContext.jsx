@@ -180,10 +180,9 @@ export const AuthProvider = ({ children }) => {
             currentUser?.user_metadata?.name ||
             '';
 
-          // Extract avatar URL if provided by OAuth provider
-          let extractedAvatar = currentUser?.user_metadata?.avatar_url ||
-            currentUser?.user_metadata?.picture ||
-            'default';
+          // Always assign a random Monster Avatar upon registration, ignoring Google/Discord metadata
+          const randomMonsterIndex = Math.floor(Math.random() * 9) + 1;
+          let extractedAvatar = `/Monster_Avatars/Monster_Avatars-0${randomMonsterIndex}.svg`;
 
           let nickname = '';
 
@@ -292,7 +291,22 @@ export const AuthProvider = ({ children }) => {
       data.onboarded = false;
     }
     if (data.nickname !== undefined) setUserNickname(prev => prev !== data.nickname ? (data.nickname || 'یاریزان') : prev);
-    if (data.avatar_url !== undefined) setUserAvatar(prev => prev !== data.avatar_url ? (data.avatar_url || 'default') : prev);
+    // Auto-assign random monster avatar if they have the legacy 'default', null, or a Google/Discord avatar
+    let processedAvatar = data.avatar_url;
+    const isOAuthAvatar = processedAvatar && (processedAvatar.includes('googleusercontent.com') || processedAvatar.includes('cdn.discordapp.com'));
+    
+    if (!processedAvatar || processedAvatar === 'default' || isOAuthAvatar) {
+      const randomIndex = Math.floor(Math.random() * 9) + 1;
+      processedAvatar = `/Monster_Avatars/Monster_Avatars-0${randomIndex}.svg`;
+      if (data.id) {
+        // Run asynchronously without awaiting to not block profile load
+        supabase.from('profiles').update({ avatar_url: processedAvatar }).eq('id', data.id).then(() => {
+          console.log("[AuthContext] Upgraded default avatar to monster avatar");
+        }).catch(err => console.warn("Failed to update monster avatar", err));
+      }
+    }
+    
+    if (processedAvatar !== undefined) setUserAvatar(prev => prev !== processedAvatar ? processedAvatar : prev);
     if (data.city !== undefined) setCity(prev => prev !== data.city ? (data.city || '') : prev);
     if (data.is_kurdistan !== undefined) setIsInKurdistan(prev => prev !== data.is_kurdistan ? (data.is_kurdistan ?? true) : prev);
     if (data.country_code !== undefined) setCountryCode(prev => prev !== data.country_code ? (data.country_code || 'IQ') : prev);

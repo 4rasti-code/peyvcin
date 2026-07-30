@@ -154,7 +154,7 @@ export const NAME_FONTS = {
     name: 'KDigital',
     style: { fontFamily: '"KDigital", sans-serif' },
     language: 'kurdish',
-    price: 25,
+    price: 100,
     currency: 'derhem'
   },
   'daffiys': {
@@ -194,7 +194,7 @@ export const NAME_FONTS = {
     name: 'UniQAIDAR Soz 012',
     style: { fontFamily: '"UniQAIDAR_Soz 012", sans-serif', fontSize: '1.2em', transform: 'translateY(-2px)' },
     language: 'kurdish',
-    price: 100,
+    price: 150,
     currency: 'derhem'
   },
   'awesome-christmas': {
@@ -218,7 +218,7 @@ export const NAME_FONTS = {
     name: 'UniMahan Ashkan',
     style: { fontFamily: '"UniMahan Ashkan", sans-serif' },
     language: 'kurdish',
-    price: 250,
+    price: 300,
     currency: 'derhem'
   },
 
@@ -228,7 +228,7 @@ export const NAME_FONTS = {
     name: 'NCL Halloween Danger',
     style: { fontFamily: '"NCL Halloween Danger", sans-serif', fontSize: '1.20em' },
     language: 'english',
-    price: 2,
+    price: 25,
     currency: 'dinar'
   },
   'blackadder': {
@@ -236,7 +236,7 @@ export const NAME_FONTS = {
     name: 'Blackadder',
     style: { fontFamily: '"Jim Nightshade", cursive', fontSize: '1.60em' },
     language: 'english',
-    price: 5,
+    price: 50,
     currency: 'dinar'
   },
   'blackletter': {
@@ -244,7 +244,7 @@ export const NAME_FONTS = {
     name: 'Blackletter',
     style: { fontFamily: '"UnifrakturMaguntia", cursive', fontSize: '1.60em' },
     language: 'english',
-    price: 10,
+    price: 100,
     currency: 'dinar'
   },
   'grootten-beast': {
@@ -252,7 +252,7 @@ export const NAME_FONTS = {
     name: 'Grootten Beast',
     style: { fontFamily: '"Grootten Beast", sans-serif', fontSize: '1.20em' },
     language: 'english',
-    price: 15,
+    price: 150,
     currency: 'dinar'
   },
   'aref-ruqaa': {
@@ -260,7 +260,7 @@ export const NAME_FONTS = {
     name: 'ڕوقعە',
     style: { fontFamily: '"Aref Ruqaa", serif', fontSize: '1.1em', transform: 'translateY(-2px)', lineHeight: '1.4', paddingBottom: '6px' },
     language: 'kurdish',
-    price: 20,
+    price: 150,
     currency: 'dinar'
   },
   'god-of-war': {
@@ -268,7 +268,7 @@ export const NAME_FONTS = {
     name: 'God of War',
     style: { fontFamily: '"God of War", sans-serif', fontSize: '1.20em' },
     language: 'english',
-    price: 25,
+    price: 300,
     currency: 'dinar'
   },
   'noto-nastaliq': {
@@ -276,7 +276,7 @@ export const NAME_FONTS = {
     name: 'نەستەعلیق',
     style: { fontFamily: '"Noto Nastaliq Urdu", serif', fontSize: '1.05em', transform: 'translateY(-4px)', lineHeight: '1.6', paddingBottom: '8px' },
     language: 'kurdish',
-    price: 50,
+    price: 300,
     currency: 'dinar'
   }
 };

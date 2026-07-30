@@ -187,14 +187,15 @@ const BattleResultOverlay = ({
                     const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
                     const isWideFont = wideFonts.includes(targetObj.equipped_font);
                     
-                    const baselineLen = isWideFont ? 4 : 7.5;
+                    const baselineLen = isWideFont ? 2.5 : 4.5;
                     const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                     const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
                     const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                     return (
                       <span 
-                        className={`font-black text-sm uppercase block max-w-30 whitespace-nowrap overflow-visible text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        dir="auto"
+                        className={`font-black text-sm block w-full max-w-30 overflow-hidden text-clip whitespace-nowrap text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
                         style={{
                           ...(myBundle.id !== 'default' ? {} : myFont.style),
                           fontSize: dynamicFontSize
@@ -220,14 +221,15 @@ const BattleResultOverlay = ({
                     const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
                     const isWideFont = wideFonts.includes(targetObj.equipped_font);
                     
-                    const baselineLen = isWideFont ? 4 : 7.5;
+                    const baselineLen = isWideFont ? 2.5 : 4.5;
                     const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                     const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
                     const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                     return (
                       <span 
-                        className={`font-black text-sm uppercase block max-w-30 whitespace-nowrap overflow-visible text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        dir="auto"
+                        className={`font-black text-sm block w-full max-w-30 overflow-hidden text-clip whitespace-nowrap text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
                         style={{
                           ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                           fontSize: dynamicFontSize

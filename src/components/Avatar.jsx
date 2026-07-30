@@ -19,6 +19,7 @@ const Avatar = memo(({
   level = null
 }) => {
   const isRemote = typeof src === 'string' && src.startsWith('http');
+  const isLocalRelative = typeof src === 'string' && src.startsWith('/');
   const avatarData = AVATARS.find(a => a.id === src);
   
   // Calculate online status: Prefer explicit boolean, fallback to 3-minute logic
@@ -26,9 +27,9 @@ const Avatar = memo(({
     explicitIsOnline === true || 
     (explicitIsOnline !== false && lastActive && (new Date() - new Date(lastActive)) < 3 * 60 * 1000)
   );
-  
+
   // Asset vs. Storage Logic: ONLY apply versioning if it's a remote URL
-  let displaySrc = avatarData?.img || (isRemote ? src : null);
+  let displaySrc = avatarData?.img || (isRemote || isLocalRelative ? src : null);
   
   if (isRemote && updatedAt) {
     try {

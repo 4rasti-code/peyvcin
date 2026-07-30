@@ -872,13 +872,14 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Info and Name (CENTERED) */}
-                    <div className="flex-1 flex justify-center items-center gap-3 min-w-0 mx-3 sm:mx-4 pt-1 overflow-visible">
+                    <div className="flex-1 flex justify-center items-center gap-3 min-w-0 mx-3 sm:mx-4 overflow-hidden py-6 -my-6">
                       <span 
                         style={{
                           ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                           fontSize: dynamicFontSize
                         }}
-                        className={`font-black tracking-normal whitespace-nowrap leading-normal transition-all duration-300 ${
+                        dir="auto"
+                        className={`font-black tracking-normal whitespace-nowrap leading-normal transition-all duration-300 pt-1 ${
                           bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')
                         } ${
                         (!styleObj.class && bundleObj.id === 'default') ? 'text-mono-900 dark:text-mono-50' : ''

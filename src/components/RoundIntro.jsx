@@ -106,7 +106,8 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                 return (
                   <div className="mt-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
                     <span 
-                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full truncate px-2 -mx-2 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                      dir="auto"
+                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-hidden text-clip px-2 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
                       style={{
                         ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                         fontSize: dynamicFontSize
@@ -183,7 +184,8 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                 return (
                   <div className="mt-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
                     <span 
-                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full truncate px-2 -mx-2 ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                      dir="auto"
+                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-hidden text-clip px-2 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
                       style={{
                         ...(myBundle.id !== 'default' ? {} : myFont.style),
                         fontSize: dynamicFontSize
