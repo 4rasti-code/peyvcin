@@ -199,7 +199,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
             <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[22px]">palette</span>
-              شێوەی نڤیسینێ
+              کارتێکەرێن ناڤی
             </h2>
             <div className="flex flex-col gap-3">
               {Object.values(NAME_STYLES).filter(style => style.id !== 'default').map(style => {
