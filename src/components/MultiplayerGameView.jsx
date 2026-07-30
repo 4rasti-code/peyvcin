@@ -309,7 +309,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
                   <span 
                     dir="auto"
-                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-hidden text-clip text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-3 text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: dynamicFontSize
@@ -366,7 +366,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
                   <span 
                     dir="auto"
-                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-hidden text-clip text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-3 text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: dynamicFontSize

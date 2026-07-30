@@ -195,7 +195,7 @@ const BattleResultOverlay = ({
                     return (
                       <span 
                         dir="auto"
-                        className={`font-black text-sm block w-full max-w-30 overflow-hidden text-clip whitespace-nowrap text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
                         style={{
                           ...(myBundle.id !== 'default' ? {} : myFont.style),
                           fontSize: dynamicFontSize
@@ -229,7 +229,7 @@ const BattleResultOverlay = ({
                     return (
                       <span 
                         dir="auto"
-                        className={`font-black text-sm block w-full max-w-30 overflow-hidden text-clip whitespace-nowrap text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
                         style={{
                           ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                           fontSize: dynamicFontSize
