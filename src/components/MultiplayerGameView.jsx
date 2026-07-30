@@ -70,7 +70,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     return () => observer.disconnect();
   }, []);
 
-  const { user, userNickname, userAvatar } = useUser();
+  const { user, userNickname, userAvatar, equippedFont, equippedNameStyle, equippedBundle } = useUser();
   const { playPopSound, playVictorySound: _playVictorySound, playStartGameSound: playStartSound } = useAudio();
   const { level: userLevel } = useGame();
 
@@ -296,13 +296,27 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
               const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
               const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+              const name = opponent?.nickname || 'Hévrk';
+              const nameLen = Math.max(name.length, 1);
+              const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+              const isWideFont = wideFonts.includes(opponent?.equipped_font);
+              const baselineLen = isWideFont ? 4 : 7.5;
+              const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+              const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
+              const dynamicFontSize = `${baseSize * scaleFactor}em`;
+              
               return (
-                <p 
-                  className={`mt-4 text-2xl font-black z-10 transition-colors duration-300 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
-                  style={oppBundle.id !== 'default' ? {} : oppFont.style}
-                >
-                  {opponent?.nickname || 'Opponent'}
-                </p>
+                <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
+                  <span 
+                    className={`font-black uppercase block max-w-[80vw] whitespace-nowrap overflow-visible text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                    style={{
+                      ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                </div>
               );
             })()}
           </div>
@@ -332,16 +346,30 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               <Avatar src={userAvatar} size="xl" />
             </div>
             {(() => {
-              const myFont = NAME_FONTS[user?.equipped_font] || NAME_FONTS['default-ku'];
-              const myStyle = NAME_STYLES[user?.equipped_name_style] || {};
-              const myBundle = BUNDLES[user?.equipped_bundle] || BUNDLES['default'];
+              const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
+              const myStyle = NAME_STYLES[equippedNameStyle] || {};
+              const myBundle = BUNDLES[equippedBundle] || BUNDLES['default'];
+              const name = userNickname || 'یاریزان';
+              const nameLen = Math.max(name.length, 1);
+              const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+              const isWideFont = wideFonts.includes(equippedFont);
+              const baselineLen = isWideFont ? 4 : 7.5;
+              const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+              const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
+              const dynamicFontSize = `${baseSize * scaleFactor}em`;
+              
               return (
-                <p 
-                  className={`mt-4 text-2xl font-black z-10 transition-colors duration-300 ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
-                  style={myBundle.id !== 'default' ? {} : myFont.style}
-                >
-                  {userNickname || 'You'}
-                </p>
+                <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
+                  <span 
+                    className={`font-black uppercase block max-w-[80vw] whitespace-nowrap overflow-visible text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                    style={{
+                      ...(myBundle.id !== 'default' ? {} : myFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                </div>
               );
             })()}
           </div>
@@ -472,10 +500,10 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         {/* TOP HALF: YOUR GRID */}
         <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pb-6 sm:pb-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
           <div 
-            className={`flex items-center justify-between gap-2 mb-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
+            className={`flex items-center justify-between gap-2 mb-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <div className="relative flex items-center justify-center min-w-8 min-h-8">
+            <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
               {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
@@ -509,18 +537,35 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 )}
               </AnimatePresence>
             </div>
-            {(() => {
-              const myFont = NAME_FONTS[user?.equipped_font] || NAME_FONTS['default-ku'];
-              const myStyle = NAME_STYLES[user?.equipped_name_style] || {};
-              return (
-                <span 
-                  className={`text-xs sm:text-sm font-black uppercase relative z-10 transition-colors duration-300 ${myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600')}`}
-                  style={myFont.style}
-                >
-                  {userNickname}
-                </span>
-              );
-            })()}
+            <div className="flex-1 flex flex-col min-w-0 items-end justify-center">
+              {(() => {
+                const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
+                const myStyle = NAME_STYLES[equippedNameStyle] || {};
+                const myBundle = BUNDLES[equippedBundle] || BUNDLES['default'];
+                
+                const name = userNickname || 'یاریزان';
+                const nameLen = Math.max(name.length, 1);
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(equippedFont);
+                
+                const baselineLen = isWideFont ? 4 : 7.5;
+                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
+                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                return (
+                  <span 
+                    className={`text-sm sm:text-base font-black uppercase relative z-10 transition-colors duration-300 whitespace-nowrap ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                    style={{
+                      ...(myBundle.id !== 'default' ? {} : myFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                );
+              })()}
+            </div>
           </div>
           <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
             <Grid
@@ -594,23 +639,39 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             />
           </div>
           <div 
-            className={`flex items-center justify-between gap-2 mt-2 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-3 py-1.5 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
+            className={`flex items-center justify-between gap-2 mt-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            {(() => {
-              const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
-              const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
-              const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
-              return (
-                <span 
-                  className={`text-xs sm:text-sm font-black uppercase relative z-10 transition-colors duration-300 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
-                  style={oppBundle.id !== 'default' ? {} : oppFont.style}
-                >
-                  {opponent?.nickname || 'چاڤەڕێ'}
-                </span>
-              );
-            })()}
-            <div className="relative flex items-center justify-center min-w-8 min-h-8">
+            <div className="flex-1 flex flex-col min-w-0 items-start justify-center">
+              {(() => {
+                const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
+                const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
+                const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+                
+                const name = opponent?.nickname || 'چاڤەڕێ';
+                const nameLen = Math.max(name.length, 1);
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(opponent?.equipped_font);
+                
+                const baselineLen = isWideFont ? 4 : 7.5;
+                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
+                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                return (
+                  <span 
+                    className={`text-sm sm:text-base font-black uppercase relative z-10 transition-colors duration-300 whitespace-nowrap ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                    style={{
+                      ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                );
+              })()}
+            </div>
+            <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
               {iHaveFailed && !opponentHasFailed && pressureTimer !== null && pressureTimer > 0 && (
                 <div className="absolute -inset-1.5 pointer-events-none z-50">
                   <svg width="100%" height="100%" viewBox="0 0 52 52" className="-rotate-90 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]">
@@ -673,6 +734,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         opponent={opponent}
         userAvatar={userAvatar}
         userNickname={userNickname}
+        userEquippedFont={equippedFont}
+        userEquippedNameStyle={equippedNameStyle}
+        userEquippedBundle={equippedBundle}
         userLevel={userLevel}
         currentRound={currentRound}
         roundMessage={roundMessage}

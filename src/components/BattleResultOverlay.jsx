@@ -6,6 +6,9 @@ import Avatar from './Avatar';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playRewardSfx, playDefeatSfx } from '../utils/audio';
 import { toKuDigits } from '../utils/formatters';
+import { NAME_FONTS } from '../constants/nameFonts';
+import { NAME_STYLES } from '../constants/nameStyles';
+import { BUNDLES } from '../constants/bundles';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
 
@@ -151,29 +154,102 @@ const BattleResultOverlay = ({
             </div>
 
             {/* VS SECTION (Premium Look) */}
-            <div className="w-full bg-mono-50 dark:bg-[#141414] rounded-md border border-mono-200 dark:border-white/10 p-4 flex items-center justify-between relative">
-              <div className="absolute inset-0 bg-mono-200 dark:bg-white/5 h-px top-1/2 -translate-y-1/2 w-full" />
-
-              {/* Player 1 (YOU) */}
-              <div className="flex flex-col items-center gap-2 flex-1 z-10">
-                <div className="p-0.5 rounded-full border border-sky-500/30">
-                  <Avatar src={user?.avatar_url} size="lg" />
+            <div className="w-full bg-mono-50 dark:bg-[#141414] rounded-md border border-mono-200 dark:border-white/10 py-5 px-6 sm:px-12">
+              <div className="grid grid-cols-3 gap-y-3 items-center">
+                
+                {/* ROW 1: Avatars & VS separator */}
+                <div className="flex justify-center z-10">
+                  <div className="p-0.5 rounded-full border border-sky-500/30">
+                    <Avatar src={user?.avatar_url} size="lg" />
+                  </div>
                 </div>
-                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{displayUser?.nickname || 'تۆ'}</span>
-                <span className={`text-2xl font-black ${isVictory ? 'text-sky-500 dark:text-sky-400' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(myScore)}</span>
-              </div>
-
-              <div className="flex flex-col items-center z-10">
-                <span className="text-xs font-black text-mono-300 dark:text-white/20 italic mb-1">و</span>
-              </div>
-
-              {/* Player 2 (FOE) */}
-              <div className="flex flex-col items-center gap-2 flex-1 z-10">
-                <div className="p-0.5 rounded-full border border-red-500/30">
-                  <Avatar src={displayOpponent?.avatar_url} size="lg" />
+                
+                <div className="flex justify-center z-10">
+                  <span className="text-xs font-black text-mono-300 dark:text-white/20 italic">و</span>
                 </div>
-                <span className="text-[9px] font-black text-mono-400 dark:text-white/40 uppercase truncate w-20 text-center">{displayOpponent?.nickname || 'بەرامبەر'}</span>
-                <span className={`text-2xl font-black ${isDefeat ? 'text-red-500' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(oppScore)}</span>
+                
+                <div className="flex justify-center z-10">
+                  <div className="p-0.5 rounded-full border border-red-500/30">
+                    <Avatar src={displayOpponent?.avatar_url} size="lg" />
+                  </div>
+                </div>
+
+                {/* ROW 2: Names */}
+                <div className="flex justify-center items-center z-10 min-h-10">
+                  {(() => {
+                    const targetObj = displayUser || {};
+                    const myFont = NAME_FONTS[targetObj.equipped_font] || NAME_FONTS['default-ku'];
+                    const myStyle = NAME_STYLES[targetObj.equipped_name_style] || {};
+                    const myBundle = BUNDLES[targetObj.equipped_bundle] || BUNDLES['default'];
+                    
+                    const name = displayUser?.nickname || 'تۆ';
+                    const nameLen = Math.max(name.length, 1);
+                    const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                    const isWideFont = wideFonts.includes(targetObj.equipped_font);
+                    
+                    const baselineLen = isWideFont ? 4 : 7.5;
+                    const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                    const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
+                    const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                    return (
+                      <span 
+                        className={`font-black text-sm uppercase block max-w-30 whitespace-nowrap overflow-visible text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        style={{
+                          ...(myBundle.id !== 'default' ? {} : myFont.style),
+                          fontSize: dynamicFontSize
+                        }}
+                      >
+                        {name}
+                      </span>
+                    );
+                  })()}
+                </div>
+                
+                <div className="flex justify-center z-10"></div>
+                
+                <div className="flex justify-center items-center z-10 min-h-10">
+                  {(() => {
+                    const targetObj = displayOpponent || {};
+                    const oppFont = NAME_FONTS[targetObj.equipped_font] || NAME_FONTS['default-ku'];
+                    const oppStyle = NAME_STYLES[targetObj.equipped_name_style] || {};
+                    const oppBundle = BUNDLES[targetObj.equipped_bundle] || BUNDLES['default'];
+                    
+                    const name = displayOpponent?.nickname || 'بەرامبەر';
+                    const nameLen = Math.max(name.length, 1);
+                    const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                    const isWideFont = wideFonts.includes(targetObj.equipped_font);
+                    
+                    const baselineLen = isWideFont ? 4 : 7.5;
+                    const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                    const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
+                    const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                    return (
+                      <span 
+                        className={`font-black text-sm uppercase block max-w-30 whitespace-nowrap overflow-visible text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        style={{
+                          ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                          fontSize: dynamicFontSize
+                        }}
+                      >
+                        {name}
+                      </span>
+                    );
+                  })()}
+                </div>
+
+                {/* ROW 3: Scores */}
+                <div className="flex justify-center z-10">
+                  <span className={`text-3xl font-black ${isVictory ? 'text-sky-500 dark:text-sky-400' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(myScore)}</span>
+                </div>
+                
+                <div className="flex justify-center z-10"></div>
+                
+                <div className="flex justify-center z-10">
+                  <span className={`text-3xl font-black ${isDefeat ? 'text-red-500' : 'text-mono-900 dark:text-white'}`}>{toKuDigits(oppScore)}</span>
+                </div>
+                
               </div>
             </div>
 

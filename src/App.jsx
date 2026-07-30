@@ -2201,7 +2201,16 @@ export default function App() {
           scores={scores}
           opponent={opponent}
           playerStats={playerStats}
-          user={{ id: user?.id, nickname: userNickname, avatar_url: userAvatar, level: level, xp: profileData?.xp || 0 }}
+          user={{ 
+            id: user?.id, 
+            nickname: userNickname, 
+            avatar_url: userAvatar, 
+            level: level, 
+            xp: profileData?.xp || 0,
+            equipped_font: profileData?.equipped_font,
+            equipped_name_style: profileData?.equipped_name_style,
+            equipped_bundle: profileData?.equipped_bundle
+          }}
           isPlayer1={activeMatch?.player1_id === user?.id}
           breakdown={MatchReward?.awards ? {
             awardAmount: MatchReward.awards.amount,

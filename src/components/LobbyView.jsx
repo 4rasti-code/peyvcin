@@ -103,7 +103,7 @@ const LobbyView = memo(({
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
-  const { user, userNickname, userAvatar, onlineUsers, onlineCount, profileData } = useUser();
+  const { user, userNickname, userAvatar, onlineUsers, onlineCount, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
   
@@ -433,28 +433,37 @@ const LobbyView = memo(({
           }}
         >
           <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
-            <Avatar src={profile.avatar_url} size="full" border={false} />
+            <Avatar src={profile.avatar_url} size="full" border={false} level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} />
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
           </div>
-          <div className="flex flex-col items-start">
+          <div className="flex flex-col items-start flex-1 min-w-0 pr-1">
             {(() => {
               const fontObj = NAME_FONTS[profile.equipped_font] || NAME_FONTS['default-ku'];
               const styleObj = NAME_STYLES[profile.equipped_name_style] || {};
               const bundleObj = BUNDLES[profile.equipped_bundle] || BUNDLES['default'];
+              
+              const name = profile.nickname || 'یاریکەر';
+              const nameLen = Math.max(name.length, 1);
+              const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+              const isWideFont = wideFonts.includes(profile.equipped_font);
+              
+              const baselineLen = isWideFont ? 5 : 8;
+              const scaleFactor = Math.min(1.0, Math.max(0.4, baselineLen / nameLen));
+              const baseSize = fontObj.style?.fontSize ? parseFloat(fontObj.style.fontSize) : 1.05;
+              const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
               return (
                 <span 
-                  className={`text-sm font-bold leading-tight ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
-                  style={bundleObj.id !== 'default' ? {} : fontObj.style}
+                  className={`text-sm font-bold leading-tight whitespace-nowrap ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
+                  style={{
+                    ...(bundleObj.id !== 'default' ? {} : fontObj.style),
+                    fontSize: dynamicFontSize
+                  }}
                 >
-                  {profile.nickname || 'یاریکەر'}
+                  {name}
                 </span>
               );
             })()}
-            {profile.xp !== undefined && (
-              <span className="text-[10px] font-medium text-mono-500 dark:text-mono-400">
-                ئاستی {getLevelFromXP(profile.xp)}
-              </span>
-            )}
           </div>
         </div>
         <button
@@ -893,9 +902,34 @@ const LobbyView = memo(({
                   }`}>person</span>
                 )}
               </div>
-              <p className="text-mono-900 dark:text-white font-black text-lg drop-shadow-sm dark:drop-shadow-md">
-                {invitedUserProfile?.nickname || opponent?.nickname || 'یاریزان'}
-              </p>
+              {(() => {
+                const targetObj = invitedUserProfile || opponent || {};
+                const oppFont = NAME_FONTS[targetObj.equipped_font] || NAME_FONTS['default-ku'];
+                const oppStyle = NAME_STYLES[targetObj.equipped_name_style] || {};
+                const oppBundle = BUNDLES[targetObj.equipped_bundle] || BUNDLES['default'];
+                
+                const name = targetObj.nickname || 'یاریزان';
+                const nameLen = Math.max(name.length, 1);
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(targetObj.equipped_font);
+                
+                const baselineLen = isWideFont ? 4 : 7.5;
+                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
+                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                return (
+                  <span 
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 truncate px-3 -mx-3 ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-900 dark:text-white')}`}
+                    style={{
+                      ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                );
+              })()}
             </div>
 
             {/* Middle Center: Timer or Loading Spinner */}
@@ -930,7 +964,33 @@ const LobbyView = memo(({
                   }`}>person</span>
                 )}
               </div>
-              <p className="text-mono-900 dark:text-white font-black text-lg drop-shadow-sm dark:drop-shadow-md">{userNickname}</p>
+              {(() => {
+                const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
+                const myStyle = NAME_STYLES[equippedNameStyle] || {};
+                const myBundle = BUNDLES[equippedBundle] || BUNDLES['default'];
+                
+                const name = userNickname || 'یاریزان';
+                const nameLen = Math.max(name.length, 1);
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(equippedFont);
+                
+                const baselineLen = isWideFont ? 4 : 7.5;
+                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
+                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                return (
+                  <span 
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 truncate px-3 -mx-3 ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-900 dark:text-white')}`}
+                    style={{
+                      ...(myBundle.id !== 'default' ? {} : myFont.style),
+                      fontSize: dynamicFontSize
+                    }}
+                  >
+                    {name}
+                  </span>
+                );
+              })()}
             </div>
           </Motion.div>
         )}

@@ -48,6 +48,7 @@ export default function PublicProfileModal({
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);
+  const [isAvatarExpanded, setIsAvatarExpanded] = useState(false);
   const { getLevelData } = useGame();
   const { playBubblePopSound } = useAudio();
 
@@ -469,7 +470,10 @@ export default function PublicProfileModal({
                   </svg>
                 </div>
 
-                <div className={`w-full h-full rounded-full bg-mono-white dark:bg-slate-900 flex items-center justify-center border-4 border-mono-white dark:border-slate-900 relative z-10 overflow-hidden ${isBot ? '' : (BUNDLES[displayData.equipped_bundle]?.id !== 'default' ? BUNDLES[displayData.equipped_bundle]?.avatarRing || '' : '')}`}>
+                <div 
+                  className={`w-full h-full rounded-full bg-mono-white dark:bg-slate-900 flex items-center justify-center border-4 border-mono-white dark:border-slate-900 relative z-10 overflow-hidden cursor-pointer active:scale-95 transition-transform ${isBot ? '' : (BUNDLES[displayData.equipped_bundle]?.id !== 'default' ? BUNDLES[displayData.equipped_bundle]?.avatarRing || '' : '')}`}
+                  onClick={() => setIsAvatarExpanded(true)}
+                >
                   {isBot ? (
                     <div className="w-full h-full flex items-center justify-center bg-white dark:bg-[#141414]">
                       <img src="/Peyvok-logo-01.png" alt="Bot Avatar" className="w-[70%] h-[70%] object-contain block dark:hidden" />
@@ -580,7 +584,7 @@ export default function PublicProfileModal({
             {/* Center: Social Action Icons */}
             <div className="flex flex-col items-center justify-center shrink-0">
               {!isMe && !isBot && displayData?.nickname !== 'Admin_4rasti' && displayData?.nickname !== 'ADMIN_PEYVOK' && displayData?.nickname !== 'پەیڤۆک' && (
-                <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-3" dir="rtl">
                   {/* Friend Action */}
                   {relStatus === 'friend' && !effectiveIsBlocked && (
                     <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="لابرنا ھەڤالینیێ">
@@ -802,6 +806,64 @@ export default function PublicProfileModal({
               )}
             </Motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Avatar Viewer */}
+      <AnimatePresence>
+        {isAvatarExpanded && (
+          <Motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-99999 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4" 
+            onClick={() => setIsAvatarExpanded(false)}
+          >
+            <Motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ 
+                type: 'spring', damping: 25, stiffness: 400,
+                exit: { duration: 0.15, ease: "easeIn" }
+              }}
+              className="relative w-full max-w-[75vw] sm:max-w-xs aspect-square flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close Button */}
+              <button 
+                onClick={() => setIsAvatarExpanded(false)}
+                className="absolute -top-12 sm:-top-16 right-0 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+              
+              <div 
+                className={`w-full h-full rounded-full border-4 border-white/20 overflow-hidden shadow-2xl relative select-none ${isBot ? '' : (BUNDLES[displayData.equipped_bundle]?.id !== 'default' ? BUNDLES[displayData.equipped_bundle]?.avatarRing || '' : '')}`}
+                onContextMenu={(e) => e.preventDefault()}
+              >
+                {/* Transparent overlay to intercept all right-clicks and long-presses on the image */}
+                <div className="absolute inset-0 z-50 bg-transparent" />
+                {isBot ? (
+                  <div className="w-full h-full flex items-center justify-center bg-white dark:bg-[#141414] pointer-events-none">
+                    <img src="/Peyvok-logo-01.png" alt="Bot Avatar" className="w-[80%] h-[80%] object-contain block dark:hidden pointer-events-none" draggable={false} />
+                    <img src="/Peyvok-logo-02.png" alt="Bot Avatar" className="w-[80%] h-[80%] object-contain hidden dark:block pointer-events-none" draggable={false} />
+                  </div>
+                ) : (
+                  <div className="w-full h-full pointer-events-none select-none">
+                    <Avatar
+                      src={displayData.avatar_url}
+                      updatedAt={displayData.updated_at}
+                      size="full"
+                      border={false}
+                      className="w-full h-full object-cover pointer-events-none"
+                    />
+                  </div>
+                )}
+              </div>
+            </Motion.div>
+          </Motion.div>
         )}
       </AnimatePresence>
 

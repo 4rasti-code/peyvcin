@@ -58,13 +58,29 @@ const Avatar = memo(({
 
   const selectedSizeClass = sizeClasses[size] || sizeClasses['md'];
 
+  const getBadgeStyles = (s) => {
+    switch (s) {
+      case 'xs': return { w: 14, h: 16, text: 'text-[6px]', top: '-top-0.5', left: '-left-1' };
+      case 'sm': return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
+      case 'md': return { w: 22, h: 25, text: 'text-[9px]', top: '-top-1', left: '-left-1.5' };
+      case 'lg': return { w: 26, h: 30, text: 'text-[10px]', top: '-top-1', left: '-left-2' };
+      case 'xl': return { w: 32, h: 37, text: 'text-[12px]', top: '-top-1.5', left: '-left-2.5' };
+      case '2xl': return { w: 40, h: 46, text: 'text-[14px]', top: '-top-2', left: '-left-3' };
+      case '3xl': return { w: 48, h: 55, text: 'text-[16px]', top: '-top-2.5', left: '-left-3.5' };
+      case '4xl': return { w: 56, h: 64, text: 'text-[20px]', top: '-top-3', left: '-left-4' };
+      case 'full': return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
+      default: return { w: 22, h: 25, text: 'text-[9px]', top: '-top-1', left: '-left-1.5' };
+    }
+  };
+  const badge = getBadgeStyles(size);
+
   return (
     <div className={`relative shrink-0 ${selectedSizeClass} group ${className}`}>
       {/* LEVEL SHIELD BADGE */}
       {level !== null && (
-        <div className="absolute -top-1 -left-2 z-25 flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none">
+        <div className={`absolute ${badge.top} ${badge.left} z-25 flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none`}>
             <div className="relative filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)]">
-               <svg width="28" height="32" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <svg width={badge.w} height={badge.h} viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path 
                     d="M14 0L2 4.5V14C2 21.5 7.5 28.5 14 31C20.5 28.5 26 21.5 26 14V4.5L14 0Z" 
                     fill="url(#shieldGoldGradient)" 
@@ -79,7 +95,7 @@ const Avatar = memo(({
                      </linearGradient>
                   </defs>
                </svg>
-               <span className="absolute inset-0 flex items-center justify-center text-[11px] font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] pb-1.5 pr-0.5">
+               <span className={`absolute inset-0 flex items-center justify-center ${badge.text} font-black text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)] pb-[10%] pr-[2%]`}>
                   {level}
                </span>
             </div>

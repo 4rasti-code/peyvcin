@@ -192,7 +192,7 @@ export const NAME_FONTS = {
   'uniqaidar-soz-012': {
     id: 'uniqaidar-soz-012',
     name: 'UniQAIDAR Soz 012',
-    style: { fontFamily: '"UniQAIDAR_Soz 012", sans-serif', fontSize: '1.6em', transform: 'translateY(-2px)' },
+    style: { fontFamily: '"UniQAIDAR_Soz 012", sans-serif', fontSize: '1.2em', transform: 'translateY(-2px)' },
     language: 'kurdish',
     price: 100,
     currency: 'derhem'

@@ -157,11 +157,11 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
       <AnimatePresence>
         {invite && (
           <Motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 20, scale: 1 }}
-            exit={{ opacity: 0, y: -50, scale: 0.9 }}
+            initial={{ opacity: 0, y: -100, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -100, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="fixed top-0 left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
+            className="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
           >
             <div className="rounded p-4 shadow-[0_10px_25px_rgba(0,0,0,0.5)] border-none pointer-events-auto max-w-sm w-full flex flex-col gap-3 relative overflow-hidden bg-blue-600">
               <div 
@@ -228,7 +228,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-mono-100 dark:bg-mono-900 rounded-md p-5 shadow-2xl border border-mono-200 dark:border-mono-800 max-w-[260px] w-full flex flex-col items-center gap-3 text-center"
+              className="bg-mono-100 dark:bg-mono-900 rounded-md p-5 shadow-2xl border border-mono-200 dark:border-mono-800 max-w-65 w-full flex flex-col items-center gap-3 text-center"
               dir="rtl"
             >
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
