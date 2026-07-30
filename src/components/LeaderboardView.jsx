@@ -647,9 +647,13 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                 
                 const nameLen = Math.max(effectiveNickname?.length || 1, 1);
                 
-                // Continuous scaling formula: if length > 8, scale down proportionally.
-                // This ensures an 8-char name and a 16-char name take up the exact same physical width!
-                const scaleFactor = Math.min(1, 8 / nameLen);
+                // Specific penalty for naturally wide/fat fonts so they don't overlap
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(effectiveFontId);
+                const baselineLen = isWideFont ? 5.5 : 8.5;
+                
+                // Continuous scaling formula: if length > baselineLen, scale down proportionally.
+                const scaleFactor = Math.min(1, baselineLen / nameLen);
                 
                 const maxPx = bundleObj.id !== 'default' ? 24 : 22;
                 const minPx = bundleObj.id !== 'default' ? 16 : 15;
@@ -868,13 +872,13 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Info and Name (CENTERED) */}
-                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-1 pt-1 overflow-visible">
+                    <div className="flex-1 flex justify-center items-center gap-2 min-w-0 mx-3 sm:mx-4 pt-1 overflow-visible">
                       <span 
                         style={{
                           ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                           fontSize: dynamicFontSize
                         }}
-                        className={`font-black tracking-normal uppercase whitespace-nowrap leading-normal transition-all duration-300 ${
+                        className={`font-black tracking-normal whitespace-nowrap leading-normal transition-all duration-300 ${
                           bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')
                         } ${
                         (!styleObj.class && bundleObj.id === 'default') ? 'text-mono-900 dark:text-mono-50' : ''

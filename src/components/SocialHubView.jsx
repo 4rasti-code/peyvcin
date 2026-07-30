@@ -230,20 +230,20 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
     myTier = getLevelTier(myLevel);
     const oppLevel = data.oppLevel || 1;
     oppTier = getLevelTier(oppLevel);
-  } catch(_e) {
+  } catch (_e) {
     // Ignore invalid level data safely
   }
 
   return (
     <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-70 xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 shadow-[0_3px_0_#0f172a,0_5px_15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
-      <div 
+      <div
         className="absolute inset-0 z-0"
-        style={{ background: 'linear-gradient(90deg, #dc2626 50%, #2563eb 50%)' }} 
+        style={{ background: 'linear-gradient(90deg, #dc2626 50%, #2563eb 50%)' }}
       />
-      
+
       {/* Radial Light */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.3),transparent_70%)] pointer-events-none z-0 mix-blend-overlay" />
-      
+
       {/* Premium Crossed Swords Pattern */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay z-0" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -253,7 +253,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
               <line x1="14" y1="14" x2="28" y2="28" />
               <line x1="12" y1="16" x2="16" y2="12" />
               <line x1="10" y1="10" x2="14" y2="14" />
-              
+
               {/* Sword 2: Top-Right to Bottom-Left */}
               <line x1="26" y1="14" x2="12" y2="28" />
               <line x1="24" y1="12" x2="28" y2="16" />
@@ -274,7 +274,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
       <div className="flex items-center justify-between w-full gap-2 relative z-10 my-1">
         {/* P1 */}
         <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
-          <div 
+          <div
             className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.myId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
             style={{ background: `linear-gradient(135deg, ${myTier.stop1}, ${myTier.stop2})` }}
             onClick={(e) => {
@@ -292,7 +292,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
               </div>
             )}
           </div>
-          <span className="text-[10px] font-black uppercase whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.myName}</span>
+          <span className="text-[10px] font-black whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.myName}</span>
           <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.myScore)}</span>
         </div>
 
@@ -303,7 +303,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
 
         {/* P2 */}
         <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
-          <div 
+          <div
             className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.oppId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
             style={{ background: `linear-gradient(135deg, ${oppTier.stop1}, ${oppTier.stop2})` }}
             onClick={(e) => {
@@ -321,7 +321,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
               </div>
             )}
           </div>
-          <span className="text-[10px] font-black uppercase whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
+          <span className="text-[10px] font-black whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
           <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.oppScore)}</span>
         </div>
       </div>
@@ -423,21 +423,33 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
       animate={{ opacity: 1, y: 0, scale: 1 }}
       className={`flex flex-col ${isMe ? 'items-start' : 'items-end'} group max-w-full mb-4`}
     >
-      {showNickname && (
-        <div className={`flex items-center gap-1.5 mb-1 px-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+      {showNickname && (() => {
+        const headerBundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
+        const isPremiumBundle = headerBundleObj.id !== 'default';
+        const headerNameStyleObj = NAME_STYLES[m.equipped_name_style] || NAME_STYLES['default'];
+        const isPremiumStyle = headerNameStyleObj.id !== 'default';
+        
+        const cardBgClass = isPremiumBundle 
+          ? headerBundleObj.cardBg 
+          : isPremiumStyle 
+            ? headerNameStyleObj.cardBg 
+            : 'bg-mono-100/90 dark:bg-mono-800/60 border border-mono-200/60 dark:border-white/5';
+        
+        return (
+        <div className={`flex items-center gap-2 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
           {(() => {
             const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
             const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
             const userLvl = getLevelData(userXp).level;
             const msgTier = getLevelTier(userLvl);
-            
+
             const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
               <div className="w-6.5 h-6.5 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
                 <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
                 <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
               </div>
             ) : (
-              <div 
+              <div
                 className="p-0.5 rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
                 style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
                 onClick={(e) => {
@@ -460,22 +472,32 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             return (
               <>
                 {avatar}
-                <div className={`social-hub-message flex items-center gap-1 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`social-hub-message flex items-center gap-1.5 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                   {(() => {
                     const fontObj = NAME_FONTS[m.equipped_font] || NAME_FONTS['default-ku'];
                     const styleObj = NAME_STYLES[m.equipped_name_style] || {};
                     const bundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
+                    
+                    const nameLen = Math.max(m.user_nickname?.length || 1, 1);
+                    const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                    const isWideFont = wideFonts.includes(m.equipped_font);
+                    const baselineLen = isWideFont ? 5.5 : 8.5;
+                    const scaleFactor = Math.min(1, baselineLen / nameLen);
+                    
+                    const baseSize = fontObj.style?.fontSize ? 1.15 : 1;
+                    const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
                     return (
-                      <span 
-                        className={`text-[11px] font-black uppercase ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
-                        style={{ 
-                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}), 
+                      <span
+                        className={`text-[11px] font-black ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                        style={{
+                          fontSize: scaleFactor < 1 ? dynamicFontSize : undefined,
+                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}),
                           ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' ? {
                             ...fontObj.style,
-                            // Scale down custom font sizes in Social Hub since space is tight
-                            fontSize: fontObj.style?.fontSize ? '1.15em' : undefined,
+                            fontSize: dynamicFontSize,
                             transform: fontObj.style?.transform ? 'translateY(0px)' : undefined
-                          } : {}) 
+                          } : {})
                         }}
                       >
                         {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
@@ -497,11 +519,10 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     </div>
                   )}
                   {topDailyPlayers?.includes(m.user_id) && (
-                    <span className={`px-2 py-0.75 rounded-[3px] text-[7.5px] font-black uppercase leading-none flex items-center justify-center shadow-sm border ${
-                      topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
-                      topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-b from-[#F8FAFC] to-[#94A3B8] text-[#0F172A] border-[#64748B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_0_#475569]' :
-                      'bg-linear-to-b from-[#FDBA74] to-[#C2410C] text-[#431407] border-[#92400E] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_1px_0_#78350F]'
-                    }`}>
+                    <span className={`px-2 py-0.75 rounded-[3px] text-[7.5px] font-black uppercase leading-none flex items-center justify-center shadow-sm border ${topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
+                        topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-b from-[#F8FAFC] to-[#94A3B8] text-[#0F172A] border-[#64748B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_0_#475569]' :
+                          'bg-linear-to-b from-[#FDBA74] to-[#C2410C] text-[#431407] border-[#92400E] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_1px_0_#78350F]'
+                      }`}>
                       <span className="pt-px">TOP {topDailyPlayers.indexOf(m.user_id) + 1}</span>
                     </span>
                   )}
@@ -510,7 +531,8 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             );
           })()}
         </div>
-      )}
+        );
+      })()}
 
       {/* Quoted Message (Reply) */}
       {m.reply_to_text && !isDeleted && (
@@ -689,7 +711,7 @@ export default function SocialHubView({
   // Real-time Top 3 Daily Players for Badges
   useEffect(() => {
     if (!isVisible) return;
-    
+
     let fetchTimeout;
     const fetchTopDaily = async () => {
       try {
@@ -723,8 +745,8 @@ export default function SocialHubView({
           // Debounce fetch to avoid database spam
           if (fetchTimeout) clearTimeout(fetchTimeout);
           fetchTimeout = setTimeout(() => {
-             fetchTopDaily();
-          }, 2000); 
+            fetchTopDaily();
+          }, 2000);
         }
       }).subscribe();
 

@@ -406,13 +406,13 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      </div>
 
                      {/* Center: Name */}
-                     <div className="flex-1 flex flex-col items-center px-2 min-w-0">
-                        <h3
-                           className={`text-[22px] font-black leading-tight truncate w-full text-center transition-all duration-500 ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
-                           style={bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: tier.stop1 }), ...fontObj.style }}
+                     <div className="w-full text-center relative z-10 px-4">
+                        <span 
+                           className={`text-[22px] font-black leading-tight overflow-visible whitespace-nowrap w-full text-center transition-all duration-500 ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                           style={{ paddingBottom: '0.2em', ...(bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: tier.stop1 }), ...fontObj.style }) }}
                         >
                            {userNickname || 'بێناڤ'}
-                        </h3>
+                        </span>
                      </div>
 
                      {/* Right: Streak / Save */}

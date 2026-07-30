@@ -89,19 +89,34 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
   const { playPurchaseSound } = useAudio();
   const { user: _user, userNickname, loadingAuth } = useUser();
   const bgRef = useRef(null);
+  const fontListRef = useRef(null);
   const [fontTab, setFontTab] = useState('kurdish');
+  const [showFontScrollHint, setShowFontScrollHint] = useState(true);
+
+  const handleFontScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    setShowFontScrollHint(scrollTop + clientHeight < scrollHeight - 5);
+  };
+  
+  React.useEffect(() => {
+    if (fontListRef.current) {
+      const { scrollHeight, clientHeight } = fontListRef.current;
+      setShowFontScrollHint(scrollHeight > clientHeight);
+    }
+  }, [fontTab]);
 
   const getCurrencyAmount = (currency) => currency === 'derhem' ? derhem : currency === 'dinar' ? dinar : fils;
   const renderCurrencyIcon = (currency) => currency === 'derhem' ? <DerhemIcon /> : currency === 'dinar' ? <DinarIcon /> : <FilsIcon />;
 
   const getNameStyleDynamicClass = (id) => {
     switch (id) {
-      case 'gold-gradient': return 'bg-mono-white shadow-[0_4px_0_#FBBF24] dark:bg-mono-900 dark:shadow-[0_4px_0_#B45309] border-yellow-400/50';
-      case 'neon-purple': return 'bg-mono-white shadow-[0_4px_0_#94A3B8] dark:bg-mono-900 dark:shadow-[0_4px_0_#475569] border-slate-400/50';
-      case 'fire': return 'bg-mono-white shadow-[0_4px_0_#FB923C] dark:bg-mono-900 dark:shadow-[0_4px_0_#C2410C] border-orange-400/50';
-      case 'ocean': return 'bg-mono-white shadow-[0_4px_0_#38BDF8] dark:bg-mono-900 dark:shadow-[0_4px_0_#0369A1] border-cyan-400/50';
-      case 'princess': return 'bg-mono-white shadow-[0_4px_0_#F472B6] dark:bg-mono-900 dark:shadow-[0_4px_0_#BE185D] border-pink-400/50';
-      case 'kurdistan': return 'bg-mono-white shadow-[0_4px_0_#4ADE80] dark:bg-mono-900 dark:shadow-[0_4px_0_#15803D] border-green-500/50';
+      case 'gold-gradient': return 'bg-slate-50 shadow-[0_4px_0_#FBBF24] dark:bg-mono-900 dark:shadow-[0_4px_0_#B45309] border-transparent';
+      case 'neon-purple': return 'bg-slate-50 shadow-[0_4px_0_#E879F9] dark:bg-mono-900 dark:shadow-[0_4px_0_#C026D3] border-transparent';
+      case 'fire': return 'bg-slate-50 shadow-[0_4px_0_#FB923C] dark:bg-mono-900 dark:shadow-[0_4px_0_#C2410C] border-transparent';
+      case 'ocean': return 'bg-slate-50 shadow-[0_4px_0_#38BDF8] dark:bg-mono-900 dark:shadow-[0_4px_0_#0369A1] border-transparent';
+      case 'princess': return 'bg-slate-50 shadow-[0_4px_0_#F472B6] dark:bg-mono-900 dark:shadow-[0_4px_0_#BE185D] border-transparent';
+      case 'kurdistan': return 'bg-slate-50 shadow-[0_4px_0_#4ADE80] dark:bg-mono-900 dark:shadow-[0_4px_0_#15803D] border-transparent';
+      case 'mehfira-kurdi': return 'bg-slate-50 shadow-[0_4px_0_#133c45] dark:bg-mono-900 dark:shadow-[0_4px_0_#0c252a] border-transparent';
       default: return 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626] border-mono-200/50 dark:border-mono-800/50';
     }
   };
@@ -198,7 +213,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                     {/* Info Card (Right Side in RTL) */}
                     <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'border-primary/50 ring-1 ring-primary/10' : 'border-mono-200/50 dark:border-mono-800/50'}`}>
                       <div className="flex-1 text-right min-w-0 flex items-center justify-center">
-                        <span className={`text-[17px] font-black tracking-normal uppercase truncate leading-normal ${style.class}`}>{style.name}</span>
+                        <span className={`text-[17px] font-black tracking-normal uppercase overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
                       </div>
                     </div>
 
@@ -268,7 +283,12 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                 </button>
               </div>
             </div>
-            <div className="flex flex-col gap-3 mt-2">
+            <div className="relative mt-2">
+              <div 
+                ref={fontListRef}
+                onScroll={handleFontScroll}
+                className="flex flex-col gap-3 max-h-96 sm:max-h-112 overflow-y-auto pr-1 pb-2"
+              >
               {Object.values(NAME_FONTS).filter(font => font.language === fontTab).map(font => {
                 const isOwned = ownedFonts.includes(font.id);
                 const isEquipped = equippedFont === font.id;
@@ -279,9 +299,10 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                   <div key={font.id} className="flex items-stretch gap-2 sm:gap-3 w-full">
                     {/* Info Card (Right Side in RTL) */}
                     <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'ring-2 ring-primary/30' : ''}`}>
-                      <div className="flex-1 text-right min-w-0 flex items-center justify-center">
+                      <span className="absolute top-1.5 left-2 text-[9px] sm:text-[10px] text-mono-400 dark:text-mono-500 font-bold tracking-wide">{font.name}</span>
+                      <div className="flex-1 text-right min-w-0 flex items-center justify-center pt-2">
                         <span
-                          className={`text-[17px] sm:text-[19px] font-black tracking-normal truncate leading-normal text-mono-900 dark:text-white flex-1 text-center ${NAME_STYLES[equippedNameStyle]?.class || ''}`}
+                          className={`text-[17px] sm:text-[19px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${equippedNameStyle === 'default' ? 'text-mono-900 dark:text-white' : ''} ${NAME_STYLES[equippedNameStyle]?.class || ''}`}
                           style={{ ...font.style, paddingBottom: '0.2em' }}
                         >
                           {font.language === 'kurdish' ? 'کوردستان' : 'Kurdistan'}
@@ -328,6 +349,19 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                   </div>
                 );
               })}
+              </div>
+              <AnimatePresence>
+                {showFontScrollHint && (
+                  <Motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute bottom-0 left-0 right-1 h-12 bg-linear-to-t from-white dark:from-mono-900 to-transparent pointer-events-none flex items-end justify-center pb-1 rounded-b-md"
+                  >
+                    <span className="material-symbols-outlined text-mono-400 animate-bounce text-[20px]">keyboard_arrow_down</span>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -382,11 +416,14 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                         <Avatar src={equippedAvatar} size="xl" border={false} className="w-full h-full shadow-md" />
                       )}
                     </div>
-                    <span
-                      className={`text-3xl tracking-normal uppercase truncate leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
-                    >
-                      {userNickname}
-                    </span>
+                    <div className="flex-1 flex flex-col justify-center items-center py-2 relative z-10 w-full overflow-hidden px-4">
+                      <span 
+                        className={`text-3xl tracking-normal uppercase overflow-visible whitespace-nowrap leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
+                        style={{ paddingBottom: '0.2em' }}
+                      >
+                        {userNickname}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Bottom Bar: Action Button & Info */}
