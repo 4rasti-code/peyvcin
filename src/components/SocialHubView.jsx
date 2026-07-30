@@ -505,7 +505,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                     );
                   })()}
                   {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <div className="relative w-3.25 h-3.75 flex items-center justify-center shrink-0">
+                    <div className="relative w-4.5 h-5 flex items-center justify-center shrink-0">
                       <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
                         <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradientChat-${m.id || m.user_id})`} />
                         <defs>
@@ -515,7 +515,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
                           </linearGradient>
                         </defs>
                       </svg>
-                      <span className="relative z-10 text-[7px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
+                      <span className="relative z-10 text-[9px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
                     </div>
                   )}
                   {topDailyPlayers?.includes(m.user_id) && (
