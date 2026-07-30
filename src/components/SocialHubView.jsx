@@ -436,7 +436,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             : 'bg-mono-100/90 dark:bg-mono-800/60 border border-mono-200/60 dark:border-white/5';
         
         return (
-        <div className={`flex items-center gap-2 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+        <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
           {(() => {
             const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
             const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
@@ -472,7 +472,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
             return (
               <>
                 {avatar}
-                <div className={`social-hub-message flex items-center gap-1.5 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`social-hub-message flex items-center gap-2.5 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                   {(() => {
                     const fontObj = NAME_FONTS[m.equipped_font] || NAME_FONTS['default-ku'];
                     const styleObj = NAME_STYLES[m.equipped_name_style] || {};
