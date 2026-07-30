@@ -76,7 +76,7 @@ const Avatar = memo(({
   const badge = getBadgeStyles(size);
 
   return (
-    <div className={`relative shrink-0 ${selectedSizeClass} group ${className}`}>
+    <div className={`relative shrink-0 rounded-full ${selectedSizeClass} group ${className}`}>
       {/* LEVEL SHIELD BADGE */}
       {level !== null && (
         <div className={`absolute ${badge.top} ${badge.left} z-25 flex items-center justify-center transform hover:scale-110 transition-transform cursor-default select-none`}>
