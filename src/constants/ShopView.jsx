@@ -428,7 +428,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                                     </div>
 
                                     {/* Bottom Bar: Action Button & Info */}
-                                    <div className="flex flex-col sm:flex-row justify-between items-center bg-black/40 backdrop-blur-md p-3 px-4 w-full relative z-10 gap-3 border-t border-white/10">
+                                    <div className="flex flex-col sm:flex-row justify-between items-center bg-black/40 backdrop-blur-md p-3 px-4 w-full relative z-10 gap-3 border-t border-white/10 overflow-visible">
                                         <div className="flex flex-col text-center sm:text-right w-full sm:w-auto">
                                             <h3 className="text-[17px] font-black text-white">{bundle.name}</h3>
                                             <p className="text-[11px] text-white/80 font-bold mt-1">تێکەلیا پاشبنەما، فۆنت و بازنەیێ پرۆفایلی</p>

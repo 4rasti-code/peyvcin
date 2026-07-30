@@ -416,7 +416,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                         <Avatar src={equippedAvatar} size="xl" border={false} className="w-full h-full shadow-md" />
                       )}
                     </div>
-                    <div className="flex-1 flex flex-col justify-center items-center py-2 relative z-10 w-full overflow-hidden px-4">
+                    <div className="flex-1 flex flex-col justify-center items-center py-4 relative z-10 w-full overflow-visible px-4">
                       <span 
                         className={`text-3xl tracking-normal uppercase overflow-visible whitespace-nowrap leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
                         style={{ paddingBottom: '0.2em' }}
