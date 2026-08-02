@@ -154,7 +154,8 @@ const AdminPanelView = ({ onBack }) => {
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.reporter_id,
-          is_read: false
+          is_read: false,
+          reply_to_text: report.reportedContent ? report.reportedContent.substring(0, 150) + (report.reportedContent.length > 150 ? '...' : '') : ''
         }]);
 
       if (msgError) throw msgError;
@@ -239,7 +240,8 @@ const AdminPanelView = ({ onBack }) => {
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.user_id,
-          is_read: false
+          is_read: false,
+          reply_to_text: report.description ? report.description.substring(0, 150) + (report.description.length > 150 ? '...' : '') : ''
         }]);
 
       if (msgError) throw msgError;
