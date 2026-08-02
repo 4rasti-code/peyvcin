@@ -23,7 +23,7 @@ export const XP_REWARDS = {
   battle_draw: 10,   // Multiplayer Draw
   mamak: 100,        // Riddles Mode
   hard_words: 100,
-  word_fever: 100
+  word_fever: 25     // Rebalanced to prevent fast-farming exploit
 };
 
 /**
@@ -71,7 +71,7 @@ export const getRewardForMode = (mode) => {
     battle_draw: { type: 'fils', amount: 20 },
     mamak: { type: 'fils', amount: 75 },
     hard_words: { type: 'fils', amount: 100 },
-    word_fever: { type: 'fils', amount: 150 }
+    word_fever: { type: 'fils', amount: 35 } // Rebalanced
   };
 
   const reward = monetary[mode] || { type: 'fils', amount: 50 };

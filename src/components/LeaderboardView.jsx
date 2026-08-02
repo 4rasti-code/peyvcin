@@ -69,14 +69,11 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
 
   const bgRef = useRef(null);
   const fetchTimeoutRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const handleScroll = (e) => {
+    setShowScrollTop(e.target.scrollTop > 400);
+  };
 
   useEffect(() => {
     if (isVisible) {
@@ -86,7 +83,9 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
 
   const scrollToTop = () => {
     triggerHaptic(10);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleBackgroundClick = (e) => {
@@ -334,7 +333,9 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
              return next;
           });
         }
-      }).subscribe();
+      }).subscribe((status, err) => {
+        if (err) console.warn('profiles realtime subscription error:', err);
+      });
       
     return () => {
       supabase.removeChannel(profilesSub);
@@ -432,12 +433,21 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
   return (
     <div
       onClick={handleBackgroundClick}
-      className="w-full max-w-full px-4 md:px-6 pb-56 h-full relative animate-in fade-in duration-700 bg-mono-50 dark:bg-black overflow-x-hidden pt-[calc(env(safe-area-inset-top,24px)+32px)] md:pt-20 text-right bg-trigger-zone transition-colors"
+      className="w-full max-w-full px-4 md:px-6 relative animate-in fade-in duration-700 bg-mono-50 dark:bg-black overflow-hidden text-right bg-trigger-zone transition-colors flex flex-col"
+      style={{ height: '100dvh' }}
     >
 
 
-      <div className="relative z-10">
-        <div className="flex flex-col items-center mb-8 max-w-md mx-auto text-center relative mt-2">
+      <div className="relative z-10 flex flex-col h-full w-full">
+        {/* FIXED HEADER CONTAINER */}
+        <div 
+          className="shrink-0 bg-mono-50 dark:bg-black md:pt-12 pb-4 px-4 md:px-6 border-b border-mono-200 dark:border-mono-800 shadow-sm transition-colors relative z-50"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 24px) + 24px)' }}
+        >
+          {/* GAP FILLER: Extends background infinitely upwards to cover iOS notch or scroll bounce gaps */}
+          <div className="absolute bottom-full -left-12.5 -right-12.5 h-125 bg-mono-50 dark:bg-black pointer-events-none" />
+          
+          <div className="flex flex-col items-center mb-6 max-w-md mx-auto text-center relative mt-2">
           <Motion.div 
             animate={{ y: [-2, 2, -2] }} 
             transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
@@ -578,7 +588,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
         </AnimatePresence>
 
         {/* Live Stats - Background-less */}
-        <div className="flex items-center justify-center gap-4 px-4 pb-8 relative z-30 w-full max-w-xs mx-auto">
+        <div className="flex items-center justify-center gap-4 px-4 pb-2 relative z-30 w-full max-w-xs mx-auto">
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -596,9 +606,17 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
             <span className="text-[13px] font-black text-mono-900 dark:text-white tabular-nums drop-shadow-sm">{totalPlayersCount > 0 ? toKuDigits(totalPlayersCount) : '-'}</span>
           </div>
         </div>
+        </div> {/* END FIXED HEADER */}
 
-        <AnimatePresence mode="wait">
-          {(view === 'daily' ? loadingDaily : loading) ? (
+        {/* SCROLLABLE LIST CONTAINER */}
+        <div 
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto overflow-x-hidden -mx-4 px-4 md:-mx-6 md:px-6 pb-24"
+        >
+          <div className="pt-6">
+            <AnimatePresence mode="wait">
+              {(view === 'daily' ? loadingDaily : loading) ? (
             <div className="flex flex-col items-center justify-center py-48 gap-4">
               <div className="w-10 h-10 border-2 border-mono-200 dark:border-primary border-t-transparent rounded-full animate-spin"></div>
               <span className="font-black text-mono-400 dark:text-mono-700 uppercase text-[10px] tracking-widest">LOADING...</span>
@@ -622,7 +640,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto pb-40"
+              className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto"
             >
               {(view === 'daily' ? dailyLeaders : leaders).map((player, index) => {
                 // Sequential Ranking based on the list index (matches exact spot)
@@ -661,8 +679,12 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                 const calculatedMin = Math.max(8.5, minPx * scaleFactor);
                 const calculatedMax = Math.max(10, maxPx * scaleFactor);
                 
-                // dynamicFontSize uses clamp to adapt to screen width (vw), while scaling down for long names
-                const dynamicFontSize = `clamp(${calculatedMin}px, ${4 * scaleFactor}vw + ${4 * scaleFactor}px, ${calculatedMax}px)`;
+                // Calculate dynamic container-based limits to prevent overflowing boundaries
+                const charWidthFactor = isWideFont ? 1.2 : 0.75;
+                const maxCqi = 100 / (nameLen * charWidthFactor);
+                
+                // dynamicFontSize uses clamp to adapt to screen width, and min() with cqi to ensure it NEVER exceeds the container box
+                const dynamicFontSize = `min(clamp(${calculatedMin}px, ${4 * scaleFactor}vw + ${4 * scaleFactor}px, ${calculatedMax}px), ${maxCqi}cqi)`;
 
                 return (
                   <Motion.div
@@ -681,18 +703,18 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     }
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP, equipped_name_style: effectiveNameStyle }); }}
-                    className={`flex flex-row items-center justify-between p-2.5 px-5 rounded-md border relative transition-all cursor-pointer duration-300 ${
+                    className={`flex flex-row items-center justify-between p-[clamp(0.5rem,2vw,0.625rem)] px-[clamp(0.75rem,3vw,1.25rem)] rounded-md border relative transition-all cursor-pointer duration-300 ${
                       isMe
                         ? 'bg-primary/10 dark:bg-primary/20 border-primary ring-1 ring-primary/50 shadow-[0_0_12px_rgba(var(--primary),0.4)] text-mono-900 dark:text-mono-50 z-20'
                         : 'bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 text-mono-900 dark:text-mono-50'
                     } ${bundleObj.id !== 'default' ? bundleObj.cardBg : ''}`}
                     style={{
-                      zIndex: isTop3 ? 50 : 1 // Ensure top 3 cards have higher z-index for floating crowns
+                      zIndex: isTop3 ? 30 : 1 // Ensure top 3 cards have higher z-index for floating crowns, but strictly below sticky header (z-50)
                     }}
                   >
 
                     {/* Sleek Metallic Rank Number (MINIMALIST) */}
-                    <div className="flex items-center justify-center w-10 shrink-0 z-10 relative">
+                    <div className="flex items-center justify-center w-[clamp(1.75rem,10vw,2.5rem)] shrink-0 z-10 relative">
                       {rank <= 3 && (
                         <Motion.div
                           initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
@@ -703,7 +725,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                           transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
                           className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
                         >
-                          <div className="relative w-9 h-9 flex items-center justify-center">
+                          <div className="relative w-[clamp(1.5rem,9vw,2.25rem)] h-[clamp(1.5rem,9vw,2.25rem)] flex items-center justify-center">
                             <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_3px_6px_rgba(0,0,0,0.3)]">
                               <defs>
                                 <linearGradient id={`refGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -797,7 +819,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                           </div>
                         </Motion.div>
                       )}
-                      <span className={`text-2xl font-black italic tracking-normal relative z-10 ${
+                      <span className={`font-black italic tracking-normal relative z-10 text-[clamp(1.1rem,6vw,1.5rem)] ${
                         bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900 dark:text-mono-50'
                       }`}>
                         {toKuDigits(rank)}
@@ -805,8 +827,8 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Avatar Section */}
-                    <div className="flex items-center gap-3 z-10 px-1 shrink-0">
-                      <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                    <div className="flex items-center gap-[clamp(0.25rem,2vw,0.75rem)] z-10 px-1 shrink-0">
+                      <div className="relative w-[clamp(2rem,12vw,3rem)] h-[clamp(2rem,12vw,3rem)] flex items-center justify-center shrink-0">
                         {/* XP Progress Ring */}
                         <div className="absolute -inset-1 z-0">
                           <svg className={`w-full h-full -rotate-90 overflow-visible ${
@@ -844,7 +866,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                         </div>
 
                         {/* Clean Avatar */}
-                        <div className={`w-10 h-10 rounded-full overflow-hidden shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : 'border border-mono-200 dark:border-white/10'}`}>
+                        <div className={`w-[clamp(1.75rem,10vw,2.5rem)] h-[clamp(1.75rem,10vw,2.5rem)] rounded-full overflow-hidden shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : 'border border-mono-200 dark:border-white/10'}`}>
                           <Avatar
                             src={effectiveAvatar}
                             updatedAt={isMe ? lastProfileUpdate : player.updated_at}
@@ -872,7 +894,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     </div>
 
                     {/* Info and Name (CENTERED) */}
-                    <div className="flex-1 flex justify-center items-center gap-3 min-w-0 mx-3 sm:mx-4 overflow-hidden py-6 -my-6">
+                    <div className="flex-1 flex justify-center items-center min-w-0 mx-1 sm:mx-2" style={{ containerType: 'inline-size' }}>
                       <span 
                         style={{
                           ...(bundleObj.id !== 'default' ? {} : fontObj.style),
@@ -889,16 +911,16 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     {/* Shield or XP (RIGHT SIDE) */}
                     <div className="flex items-center shrink-0 pr-1">
                       {view === 'daily' ? (
-                        <div className="flex flex-col items-center justify-center min-w-14 px-2 py-1.5">
-                          <span className={`text-[8px] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
+                        <div className="flex flex-col items-center justify-center min-w-[clamp(2.5rem,14vw,3.5rem)] px-[clamp(0.25rem,1.5vw,0.5rem)] py-1.5">
+                          <span className={`text-[clamp(6px,2vw,8px)] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
                             bundleObj.id !== 'default' ? 'text-white/80' : 'text-mono-400 dark:text-mono-500'
                           }`}>ئێکس پی</span>
-                          <span className={`text-[13px] font-black leading-none drop-shadow-sm tabular-nums ${
+                          <span className={`text-[clamp(10px,3.5vw,13px)] font-black leading-none drop-shadow-sm tabular-nums ${
                             bundleObj.id !== 'default' ? 'text-white' : 'text-[#a855f7] dark:text-[#c084fc]'
                           }`}>{toKuDigits(effectiveXP)}</span>
                         </div>
                       ) : (
-                        <div className="relative w-10 h-12 flex items-center justify-center shrink-0">
+                        <div className="relative w-[clamp(1.75rem,10vw,2.5rem)] h-[clamp(2.25rem,12vw,3rem)] flex items-center justify-center shrink-0">
                           <svg className="absolute inset-0 w-full h-full drop-shadow-[0_2.5px_6px_rgba(0,0,0,0.3)]" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradient-${player.id})`} stroke="white" strokeWidth="5" strokeOpacity={isTop3 ? 0.75 : 0.35} />
                             <defs>
@@ -909,8 +931,8 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                             </defs>
                           </svg>
                           <div className="relative z-10 flex flex-col items-center justify-center -mt-1 w-full scale-[0.85]">
-                            <span className="text-[7.5px] font-black text-amber-950/60 uppercase leading-none mb-0.5">ئاست</span>
-                            <span className="text-xl font-black text-amber-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
+                            <span className="text-[clamp(6px,1.5vw,7.5px)] font-black text-amber-950/60 uppercase leading-none mb-0.5">ئاست</span>
+                            <span className="text-[clamp(1rem,4vw,1.25rem)] font-black text-amber-950 leading-none drop-shadow-sm">{toKuDigits(getLevelFromXP(effectiveXP))}</span>
                           </div>
                         </div>
                       )}
@@ -986,13 +1008,15 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
             onClick={scrollToTop}
-            className="fixed bottom-[calc(148px+env(safe-area-inset-bottom))] left-4 md:left-8 z-50 w-12 h-12 bg-mono-900 dark:bg-white text-white dark:text-mono-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all border border-white/10 dark:border-black/10"
+            className="fixed bottom-[calc(148px+env(safe-area-inset-bottom))] right-4 md:right-8 z-50 w-10 h-10 bg-mono-900 dark:bg-white text-white dark:text-mono-900 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.3)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all border border-white/10 dark:border-black/10"
             title="بۆ سەرەوە"
           >
-            <span className="material-symbols-outlined text-[24px]">keyboard_arrow_up</span>
+            <span className="material-symbols-outlined text-[20px]">keyboard_arrow_up</span>
           </Motion.button>
-        )}
-      </AnimatePresence>
+            )}
+            </AnimatePresence>
+          </div>
+        </div>
 
       <PublicProfileModal
         profile={selectedPlayer}

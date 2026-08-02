@@ -213,7 +213,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                     {/* Info Card (Right Side in RTL) */}
                     <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'border-primary/50 ring-1 ring-primary/10' : 'border-mono-200/50 dark:border-mono-800/50'}`}>
                       <div className="flex-1 text-right min-w-0 flex items-center justify-center">
-                        <span className={`text-[17px] font-black tracking-normal uppercase overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
+                        <span className={`text-[17px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
                       </div>
                     </div>
 
@@ -418,7 +418,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                     </div>
                     <div className="flex-1 flex flex-col justify-center items-center py-4 relative z-10 w-full overflow-visible px-4">
                       <span 
-                        className={`text-3xl tracking-normal uppercase overflow-visible whitespace-nowrap leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
+                        className={`text-3xl tracking-normal overflow-visible whitespace-nowrap leading-normal text-center w-full ${bundle.previewTextStyle} ${bundle.fontKurdish}`}
                         style={{ paddingBottom: '0.2em' }}
                       >
                         {userNickname}

@@ -4,21 +4,31 @@ import { useAudio } from '../context/AudioContext';
 
 const UPDATE_VERSION = 'v2.5.0'; // Change this string to force the modal to show again for all users
 
-const UpdateNotesModal = () => {
+const UPDATE_RELEASE_DATE = new Date('2026-08-01T00:00:00Z');
+
+const UpdateNotesModal = ({ user }) => {
    const [isVisible, setIsVisible] = useState(false);
    const { playPopSound } = useAudio();
 
    useEffect(() => {
       const hasSeenUpdate = localStorage.getItem(`update_seen_${UPDATE_VERSION}`);
+      
       if (!hasSeenUpdate) {
-         // Add a small delay so it doesn't instantly jump scare the user on load
+         // Check if the user is a new user (registered after the update release)
+         if (user?.created_at && new Date(user.created_at) > UPDATE_RELEASE_DATE) {
+            // New user: mark as seen silently so they never see it
+            localStorage.setItem(`update_seen_${UPDATE_VERSION}`, 'true');
+            return;
+         }
+
+         // Old user: show the modal with a small delay
          const timer = setTimeout(() => {
             setIsVisible(true);
             try { playPopSound(); } catch (_e) { /* ignore */ }
          }, 1500);
          return () => clearTimeout(timer);
       }
-   }, [playPopSound]);
+   }, [playPopSound, user]);
 
    const handleClose = () => {
       try { playPopSound(); } catch (_e) { /* ignore */ }

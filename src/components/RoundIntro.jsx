@@ -58,6 +58,37 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex flex-col items-center gap-2"
             >
+              {(() => {
+                const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
+                const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
+                const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+                
+                const name = opponent?.nickname || 'ھەڤڕک';
+                const nameLen = Math.max(name.length, 1);
+                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                const isWideFont = wideFonts.includes(opponent?.equipped_font);
+                
+                const baselineLen = isWideFont ? 4 : 7.5;
+                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
+                const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
+                const charWidthFactor = isWideFont ? 1.2 : 0.75;
+                const maxVw = 80 / (nameLen * charWidthFactor);
+
+                return (
+                  <div className="mb-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
+                    <span 
+                      dir="auto"
+                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                      style={{
+                        ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                        fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
+                      }}
+                    >
+                      {name}
+                    </span>
+                  </div>
+                );
+              })()}
               <div className="relative w-40 h-49 flex justify-center">
                 {/* SVG Pin Pointing DOWN */}
                 <svg viewBox="-5 -5 110 135" preserveAspectRatio="none" className="absolute inset-0 w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]">
@@ -88,36 +119,6 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                   </div>
                 </div>
               </div>
-              {(() => {
-                const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
-                const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
-                const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
-                
-                const name = opponent?.nickname || 'ھەڤڕک';
-                const nameLen = Math.max(name.length, 1);
-                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
-                const isWideFont = wideFonts.includes(opponent?.equipped_font);
-                
-                const baselineLen = isWideFont ? 4 : 7.5;
-                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
-                const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
-                const dynamicFontSize = `${baseSize * scaleFactor}em`;
-
-                return (
-                  <div className="mt-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
-                    <span 
-                      dir="auto"
-                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
-                      style={{
-                        ...(oppBundle.id !== 'default' ? {} : oppFont.style),
-                        fontSize: dynamicFontSize
-                      }}
-                    >
-                      {name}
-                    </span>
-                  </div>
-                );
-              })()}
             </Motion.div>
           </Motion.div>
 
@@ -179,7 +180,8 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                 const baselineLen = isWideFont ? 4 : 7.5;
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
-                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+                const charWidthFactor = isWideFont ? 1.2 : 0.75;
+                const maxVw = 80 / (nameLen * charWidthFactor);
 
                 return (
                   <div className="mt-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
@@ -188,7 +190,7 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                       className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
                       style={{
                         ...(myBundle.id !== 'default' ? {} : myFont.style),
-                        fontSize: dynamicFontSize
+                        fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
                       }}
                     >
                       {name}

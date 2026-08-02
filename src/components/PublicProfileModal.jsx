@@ -151,7 +151,9 @@ export default function PublicProfileModal({
              fetchTopDaily();
           }, 2000); 
         }
-      }).subscribe();
+      }).subscribe((status, err) => {
+        if (err) console.warn('modal_top3 subscription error:', err);
+      });
 
     return () => {
       if (fetchTimeout) clearTimeout(fetchTimeout);

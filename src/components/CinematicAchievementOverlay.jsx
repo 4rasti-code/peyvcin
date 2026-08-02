@@ -93,7 +93,7 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1, transition: { duration: 1, ease: "easeOut" } }}
       >
-        <div className="w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] rounded-full bg-linear-to-r from-yellow-500/20 via-orange-500/20 to-purple-500/20 blur-[60px] animate-pulse" />
+        <div className="w-75 h-75 sm:w-125 sm:h-125 rounded-full bg-linear-to-r from-yellow-500/20 via-orange-500/20 to-purple-500/20 blur-[60px] animate-pulse" />
       </motion.div>
 
       {/* Header */}
@@ -154,7 +154,7 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
       <motion.h3
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, type: "spring", damping: 15 }}
+        transition={{ delay: 0.4, type: "spring", damping: 15 }}
         className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-linear-to-b from-yellow-300 to-yellow-600 mt-16 sm:mt-20 z-10 text-center py-2 leading-relaxed"
       >
         {title}
@@ -163,7 +163,8 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
       {/* Continue Button */}
       <motion.button
         initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1, transition: { delay: 0.6, type: "spring" } }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.6, type: "spring" }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handleClaimClick}
