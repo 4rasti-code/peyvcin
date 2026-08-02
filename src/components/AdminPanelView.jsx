@@ -146,11 +146,16 @@ const AdminPanelView = ({ onBack }) => {
       setSendingId(report.id);
       triggerHaptic(10);
 
+      let imagesText = '';
+      if (report.reportedImage) {
+        imagesText = '\n\n' + report.reportedImage.split(',').map(url => `[IMAGE:${url.trim()}]`).join('');
+      }
+
       // Send the message as the Bot
       const { error: msgError } = await supabase
         .from('messages')
         .insert([{
-          content: `📌 ڕاپۆرتا نامەیێ:\n"${report.reportedContent}"\n\nبەرسڤ:\n${text.trim()}`,
+          content: `📌 ڕاپۆرتا نامەیێ:\n"${report.reportedContent}"${imagesText}\n\nبەرسڤ:\n${text.trim()}`,
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.reporter_id,
@@ -233,10 +238,15 @@ const AdminPanelView = ({ onBack }) => {
       setSendingId(report.id);
       triggerHaptic(10);
 
+      let imagesText = '';
+      if (report.image_url) {
+        imagesText = '\n\n' + report.image_url.split(',').map(url => `[IMAGE:${url.trim()}]`).join('');
+      }
+
       const { error: msgError } = await supabase
         .from('messages')
         .insert([{
-          content: `📌 ${report.type === 'bug' ? 'ئاریشە' : 'پێشنیار'}:\n"${report.description}"\n\nبەرسڤ:\n${text.trim()}`,
+          content: `📌 ${report.type === 'bug' ? 'ئاریشە' : 'پێشنیار'}:\n"${report.description}"${imagesText}\n\nبەرسڤ:\n${text.trim()}`,
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.user_id,

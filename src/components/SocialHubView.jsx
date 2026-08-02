@@ -394,10 +394,18 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(@\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|@\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
+      }
+      if (part.startsWith('[IMAGE:') && part.endsWith(']')) {
+        const url = part.substring(7, part.length - 1);
+        return (
+          <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block mt-2 mb-2 w-full max-w-[240px]">
+             <img src={url} alt="Attachment" className="w-full h-auto rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40" />
+          </a>
+        );
       }
       return part;
     });
