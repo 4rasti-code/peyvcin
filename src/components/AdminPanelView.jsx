@@ -466,7 +466,7 @@ const AdminPanelView = ({ onBack }) => {
                   <textarea
                     value={replyTexts[report.id] || ''}
                     onChange={(e) => handleReplyChange(report.id, e.target.value)}
-                    placeholder="وەڵامەکەت لێرە بنووسە..."
+                    placeholder="وەڵامەکەت لێرە بنووسە... (ڤێرژنا نوی)"
                     className="w-full bg-mono-100 dark:bg-black/30 border border-mono-200 dark:border-white/10 rounded-xl p-3.5 text-sm min-h-30 focus:outline-none focus:border-primary/50 focus:bg-white dark:focus:bg-[#2C2C2E] transition-all resize-y shadow-inner"
                   />
                   <div className="flex justify-end gap-2">
