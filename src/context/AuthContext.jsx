@@ -153,7 +153,8 @@ export const AuthProvider = ({ children }) => {
           daily_streak, reward_streak, last_reward_claimed_at, last_streak_at,
           last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
           has_completed_install_guide, equipped_name_style, owned_name_styles,
-          equipped_font, owned_fonts, equipped_bundle, owned_bundles
+          equipped_font, owned_fonts, equipped_bundle, owned_bundles,
+          claimed_medals
         `)
         .eq('id', activeUserId);
 
