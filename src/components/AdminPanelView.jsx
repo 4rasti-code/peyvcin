@@ -150,7 +150,7 @@ const AdminPanelView = ({ onBack }) => {
       const { error: msgError } = await supabase
         .from('messages')
         .insert([{
-          content: text.trim(),
+          content: `📌 ڕاپۆرتا نامەیێ:\n"${report.reportedContent}"\n\nبەرسڤ:\n${text.trim()}`,
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.reporter_id,
@@ -236,7 +236,7 @@ const AdminPanelView = ({ onBack }) => {
       const { error: msgError } = await supabase
         .from('messages')
         .insert([{
-          content: text.trim(),
+          content: `📌 ${report.type === 'bug' ? 'ئاریشە' : 'پێشنیار'}:\n"${report.description}"\n\nبەرسڤ:\n${text.trim()}`,
           user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
           user_nickname: 'پەیڤۆک',
           receiver_id: report.user_id,
