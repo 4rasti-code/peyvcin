@@ -224,6 +224,38 @@ const AdminPanelView = ({ onBack }) => {
     }
   };
 
+  const handleSendBugReply = async (report) => {
+    const text = replyTexts[report.id];
+    if (!text || !text.trim()) return;
+
+    try {
+      setSendingId(report.id);
+      triggerHaptic(10);
+
+      const { error: msgError } = await supabase
+        .from('messages')
+        .insert([{
+          content: text.trim(),
+          user_id: '9a813c24-b662-477d-a74a-6f822d17bbf1', // System Bot ID
+          user_nickname: 'پەیڤۆک',
+          receiver_id: report.user_id,
+          is_read: false
+        }]);
+
+      if (msgError) throw msgError;
+
+      await handleMarkBugResolved(report.id);
+      
+      setReplyTexts(prev => ({ ...prev, [report.id]: '' }));
+
+    } catch (err) {
+      console.error("Error sending reply:", err);
+      alert('هەڵە: ' + (err.message || JSON.stringify(err)));
+    } finally {
+      setSendingId(null);
+    }
+  };
+
   return (
     <div className="absolute inset-0 z-50 bg-[#F9FAFB] dark:bg-[#121212] flex flex-col items-center select-none overflow-hidden" dir="rtl">
       {/* Header */}
@@ -418,14 +450,33 @@ const AdminPanelView = ({ onBack }) => {
                   </div>
                 )}
 
-                <div className="flex justify-end mt-2 border-t border-mono-100 dark:border-white/5 pt-3">
-                  <button
-                    onClick={() => handleMarkBugResolved(report.id)}
-                    className="px-6 py-2 rounded-lg text-sm font-bold text-white bg-green-500 hover:bg-green-600 active:scale-95 flex items-center gap-2 transition-colors shadow-sm"
-                  >
-                    <span className="material-symbols-outlined text-lg">check_circle</span>
-                    چارەسەرکرا
-                  </button>
+                <div className="flex flex-col gap-2 mt-2 border-t border-mono-100 dark:border-white/5 pt-3">
+                  <textarea
+                    value={replyTexts[report.id] || ''}
+                    onChange={(e) => handleReplyChange(report.id, e.target.value)}
+                    placeholder="وەڵامەکەت لێرە بنووسە..."
+                    className="w-full bg-mono-100 dark:bg-black/30 border border-mono-200 dark:border-white/10 rounded-xl p-3.5 text-sm min-h-30 focus:outline-none focus:border-primary/50 focus:bg-white dark:focus:bg-[#2C2C2E] transition-all resize-y shadow-inner"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleMarkBugResolved(report.id)}
+                      className="px-4 py-2 rounded-lg text-sm font-bold text-mono-500 bg-mono-100 dark:bg-white/5 active:scale-95"
+                    >
+                      سڕینەوە
+                    </button>
+                    <button
+                      onClick={() => handleSendBugReply(report)}
+                      disabled={sendingId === report.id || !replyTexts[report.id]?.trim()}
+                      className="px-6 py-2 rounded-lg text-sm font-bold text-white bg-primary disabled:opacity-50 active:scale-95 flex items-center gap-2"
+                    >
+                      {sendingId === report.id ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <span className="material-symbols-outlined text-lg">send</span>
+                      )}
+                      ناردن
+                    </button>
+                  </div>
                 </div>
               </Motion.div>
             ))
