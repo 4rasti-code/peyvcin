@@ -10,7 +10,7 @@ const fallbackAds = [
     subtitle: 'بۆ زێدەکرنا ڕیکلاما بزنسێ خوە د ناڤ پەیڤۆکێ دا پەیوەندیێ ب مە بکە.',
     icon: 'campaign',
     link: 'https://t.me/AymanAlhelo',
-    bgClass: 'bg-gradient-to-r from-purple-600 to-indigo-600',
+    bgClass: 'bg-linear-to-r from-purple-600 to-indigo-600',
     shadowClass: 'shadow-[0_5px_0_#4338ca]'
   },
   {
@@ -20,7 +20,7 @@ const fallbackAds = [
     subtitle: 'هەزاران یاریزان ڕۆژانە دێ ڕیکلاما تە بینن. جهێ خوە ڤەگرە.',
     icon: 'trending_up',
     link: 'https://t.me/AymanAlhelo',
-    bgClass: 'bg-gradient-to-r from-emerald-500 to-teal-600',
+    bgClass: 'bg-linear-to-r from-emerald-500 to-teal-600',
     shadowClass: 'shadow-[0_5px_0_#047857]'
   }
 ];
@@ -75,7 +75,7 @@ const AdBanner = () => {
   const currentAd = displayAds[currentIndex];
 
   return (
-    <div className="col-span-2 relative mt-1 aspect-[2/1] w-full rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
+    <div className="col-span-2 relative mt-1 aspect-2/1 w-full rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
       <AnimatePresence initial={false}>
         <Motion.div
           key={currentAd.id}
@@ -114,7 +114,7 @@ const AdBanner = () => {
                 className="w-full h-full object-cover"
               />
               {currentAd.title && (
-                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent flex items-end justify-end p-3 pb-4 pointer-events-none">
+                <div className="absolute bottom-0 inset-x-0 h-1/2 bg-linear-to-t from-black/80 to-transparent flex items-end justify-end p-3 pb-4 pointer-events-none">
                   <span className="text-white font-bold text-xs shadow-sm text-right font-rabar">{currentAd.title}</span>
                 </div>
               )}
