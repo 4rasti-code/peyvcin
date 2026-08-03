@@ -60,7 +60,7 @@ const AdBanner = () => {
     if (displayAds.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % displayAds.length);
-      }, 3000); // 3 seconds per slide
+      }, 5000); // 5 seconds per slide
 
       return () => clearInterval(interval);
     }
