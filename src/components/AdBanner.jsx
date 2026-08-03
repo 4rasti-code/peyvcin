@@ -66,12 +66,6 @@ const AdBanner = () => {
 
   if (loading) return null;
 
-  const handleAdClick = (url) => {
-    if (url) {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
   const slideVariants = {
     enter: { x: '-100%', opacity: 1 },
     center: { zIndex: 1, x: 0, opacity: 1 },
@@ -83,15 +77,14 @@ const AdBanner = () => {
   return (
     <div className="col-span-2 relative mt-1 h-24 rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
       <AnimatePresence initial={false}>
-        <Motion.button
+        <Motion.div
           key={currentAd.id}
           variants={slideVariants}
           initial="enter"
           animate="center"
           exit="exit"
           transition={{ type: "tween", duration: 0.4, ease: "easeInOut" }}
-          onClick={() => handleAdClick(currentAd.is_fallback ? currentAd.link : currentAd.link_url)}
-          className={`absolute inset-0 w-full h-full border-none cursor-pointer outline-none ${currentAd.is_fallback ? currentAd.bgClass + ' ' + currentAd.shadowClass : ''}`}
+          className={`absolute inset-0 w-full h-full border-none outline-none ${currentAd.is_fallback ? currentAd.bgClass + ' ' + currentAd.shadowClass : ''}`}
         >
           {/* Badge */}
           <div className="absolute top-2 left-2 z-20 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded-sm shadow-sm">
@@ -127,7 +120,7 @@ const AdBanner = () => {
               )}
             </>
           )}
-        </Motion.button>
+        </Motion.div>
       </AnimatePresence>
     </div>
   );
