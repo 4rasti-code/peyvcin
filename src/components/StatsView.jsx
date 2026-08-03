@@ -208,7 +208,7 @@ export default function StatsView({
 
           {/* 2. Advanced Gamer Metrics */}
           <Motion.div variants={itemVariants}>
-            <AdvancedStatsList advancedStats={advancedStats} mostPlayedMode={mostPlayedMode} gamesLost={Math.max(0, stats.played - stats.won)} />
+            <AdvancedStatsList advancedStats={advancedStats} mostPlayedMode={mostPlayedMode} gamesLost={Math.max(0, stats.played - stats.won)} gamesWon={stats.won} />
           </Motion.div>
 
           {/* 3. Global Distribution Chart */}

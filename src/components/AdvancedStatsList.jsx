@@ -18,7 +18,9 @@ const FoundWordsGridIcon = () => {
   );
 };
 
-export default function AdvancedStatsList({ advancedStats, mostPlayedMode, gamesLost = 0 }) {
+export default function AdvancedStatsList({ advancedStats, mostPlayedMode, gamesLost = 0, gamesWon = 0 }) {
+  const assistedWins = Math.max(0, gamesWon - (advancedStats.flawlessWins || 0));
+
   const metrics = [
     { label: 'کۆما پەیڤێن دیتین', value: advancedStats.totalWords, icon: <FoundWordsGridIcon />, color: 'text-emerald-500' },
     { label: 'یاریێن دۆڕاندی', value: gamesLost, icon: 'heart_broken', color: 'text-red-500' },
@@ -32,6 +34,7 @@ export default function AdvancedStatsList({ advancedStats, mostPlayedMode, games
     },
     { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
     { label: 'مۆدێ دڵخواز', value: mostPlayedMode || '-', icon: 'favorite', color: 'text-rose-500' },
+    { label: 'سەرکەفتنێن ب هاریکاری', value: assistedWins, icon: 'handshake', color: 'text-violet-500' },
     { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
     { 
       label: 'ڕیکۆردێ تایا پەیڤان', 
