@@ -182,13 +182,13 @@ const LobbyView = memo(({
         cancelMatch();
         const busyMode = payload.payload?.busyMode;
         let modeText = "یاریێ";
-        if (busyMode === 'classic') modeText = "یارییا کلاسیك";
-        else if (busyMode === 'survival') modeText = "یارییا نەترس";
-        else if (busyMode === 'battle') modeText = "یارییا تەباخ";
-        else if (busyMode === 'multiplayer') modeText = "یارییا هەڤڕکی";
-        else if (busyMode === 'wordFever') modeText = "یارییا تایێ پەیڤان";
+        if (busyMode === 'classic') modeText = "پەیڤۆک کلاسیك";
+        else if (busyMode === 'hard_words') modeText = "پەیڤێن دژوار";
+        else if (busyMode === 'word_fever') modeText = "تایا پەیڤان";
+        else if (busyMode === 'mamak') modeText = "مامک";
+        else if (busyMode === 'multiplayer') modeText = "هەڤڕکی";
 
-        setInviteAlert(`یاریزان یێ د ناڤ ${modeText} دا`);
+        setInviteAlert(`یاریزان یێ د ناڤ یارییا ${modeText} دا`);
         if (invitedUserProfile) recordInviteStrike(invitedUserProfile.id);
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
