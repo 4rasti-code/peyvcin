@@ -217,7 +217,7 @@ export default function StatsView({
           {/* 4. Mode Preference Bar */}
           {modeUsage.total > 0 && (
             <Motion.div variants={itemVariants} className="mt-2 mb-2">
-              <div className="bg-mono-50 dark:bg-mono-900 rounded-default p-5 shadow-sm border border-mono-200/50 dark:border-white/5 relative overflow-hidden">
+              <div className="bg-mono-white dark:bg-mono-900/40 rounded-[12px] p-4 shadow-sm border border-mono-200 dark:border-mono-800/60 relative overflow-hidden">
                 {/* Background glow based on archetype color */}
                 <div className={`absolute top-0 right-0 w-32 h-32 opacity-[0.03] dark:opacity-[0.05] pointer-events-none rounded-bl-full ${modeUsage.archetype.color.replace('text-', 'bg-')}`}></div>
 
