@@ -22,9 +22,15 @@ export default function AdvancedStatsList({ advancedStats, mostPlayedMode, games
   const assistedWins = Math.max(0, gamesWon - (advancedStats.flawlessWins || 0));
 
   const metrics = [
+    // Row 1: Word Stats
     { label: 'کۆما پەیڤێن دیتین', value: advancedStats.totalWords, icon: <FoundWordsGridIcon />, color: 'text-emerald-500' },
-    { label: 'یاریێن دۆڕاندی', value: gamesLost, icon: 'heart_broken', color: 'text-red-500' },
     { label: 'درێژترین پەیڤ', value: advancedStats.longestWord, icon: 'straighten', color: 'text-sky-500' },
+    
+    // Row 2: Win Types
+    { label: 'سەرکەفتنێن ب هاریکاری', value: assistedWins, icon: 'handshake', color: 'text-violet-500' },
+    { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
+    
+    // Row 3: Time Records
     { 
       label: 'بلەزترین سەرکەفتن', 
       value: advancedStats.fastestSolve > 0 ? (advancedStats.fastestSolve / 1000).toFixed(2) : 0, 
@@ -32,16 +38,17 @@ export default function AdvancedStatsList({ advancedStats, mostPlayedMode, games
       color: 'text-sky-500',
       suffix: 'چرکە'
     },
-    { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
-    { label: 'سەرکەفتنێن ب هاریکاری', value: assistedWins, icon: 'handshake', color: 'text-violet-500' },
-    { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
     { 
       label: 'ڕیکۆردێ تایا پەیڤان', 
       value: advancedStats.feverHighscore > 0 ? (advancedStats.feverHighscore / 1000).toFixed(2) : 0, 
       icon: 'bolt', 
       color: 'text-sky-500',
       suffix: 'چرکە'
-    }
+    },
+
+    // Row 4: General Status
+    { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
+    { label: 'یاریێن دۆڕاندی', value: gamesLost, icon: 'heart_broken', color: 'text-red-500' }
   ];
 
   return (
