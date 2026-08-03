@@ -81,6 +81,8 @@ const WordFeverResultOverlay = ({
 
     if (!isVisible) {
       hasTriggeredRef.current = false;
+      setShareStatus(null);
+      setGlobalShareStatus(null);
     }
 
     if (isVisible) {

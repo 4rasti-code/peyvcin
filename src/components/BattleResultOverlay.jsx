@@ -99,8 +99,10 @@ const BattleResultOverlay = ({
         playDefeatSfx();
       }
     } else if (!isVisible) {
-      // Reset when closed so it can trigger next time
+      // Reset trigger flag and share status when overlay is hidden
       hasTriggeredRef.current = false;
+      setShareStatus(null);
+      setGlobalShareStatus(null);
     }
 
     return () => {

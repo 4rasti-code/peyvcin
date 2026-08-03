@@ -116,8 +116,10 @@ const VictoryOverlay = ({
       }, 10000);
       return () => clearTimeout(timer);
     } else {
-      // Reset trigger flag when overlay is hidden
+      // Reset trigger flag and share status when overlay is hidden
       hasTriggeredRef.current = false;
+      setShareStatus(null);
+      setGlobalShareStatus(null);
     }
   }, [isVisible, onNext, onHome, isDark]);
 
