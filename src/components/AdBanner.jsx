@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 
+const fallbackAds = [
   {
     id: 'fallback-1',
     is_fallback: true,
@@ -112,7 +113,7 @@ const AdBanner = () => {
                 </Motion.div>
               </div>
               {/* Subtle glass overlay */}
-              <div className="absolute inset-0 bg-linear-to-br from-white/[0.04] to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-white/4 to-transparent pointer-events-none" />
             </div>
           ) : (
             <>
