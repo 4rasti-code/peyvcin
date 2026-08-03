@@ -1,4 +1,4 @@
--- Advanced Stats System for Peyvçîn profiles
+-- Advanced Stats System for Peyvok profiles
 -- Adds columns for comprehensive game statistics
 
 ALTER TABLE profiles 

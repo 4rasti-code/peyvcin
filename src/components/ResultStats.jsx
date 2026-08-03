@@ -37,17 +37,14 @@ const GuessBar = ({ label, value, maxValue, isCurrent }) => {
 };
 
 export default function ResultStats({ profileData, playerStats, gameMode, currentGuessCount }) {
-  // 1. Calculate Stats
-  // We use the mode-specific stats if available, otherwise fallback to global profile stats.
-  const statsSource = playerStats?.[gameMode] || profileData;
-  
-  const played = statsSource?.playedCount || statsSource?.solvedCount || profileData?.games_played || 0;
-  const won = statsSource?.solvedCount || profileData?.games_won || 0;
+  // 1. Calculate Stats (Global)
+  const played = profileData?.games_played || 0;
+  const won = profileData?.games_won || 0;
   const winRate = played > 0 ? Math.round((won / played) * 100) : (profileData?.win_rate || 0);
-  const currentStreak = statsSource?.current_streak ?? profileData?.current_streak ?? 0;
-  const maxStreak = statsSource?.max_streak ?? profileData?.max_streak ?? 0;
+  const currentStreak = profileData?.current_streak ?? 0;
+  const maxStreak = profileData?.max_streak ?? 0;
 
-  // 2. Calculate Distribution for current mode
+  // 2. Calculate Distribution for current mode (Mode-specific)
   const rawDistribution = playerStats || profileData?.guess_distribution || {};
   const modeData = rawDistribution[gameMode] || {};
   const distribution = modeData.guess_distribution || modeData || {};
@@ -60,12 +57,21 @@ export default function ResultStats({ profileData, playerStats, gameMode, curren
   }
 
   const maxValue = Math.max(...Object.values(fullDist), 1);
+  
+  const modeTitles = {
+    'classic': 'کلاسیك',
+    'mamak': 'مامک',
+    'hard_words': 'پەیڤێن دژوار',
+    'word_fever': 'تایا پەیڤان',
+    'battle': 'هەڤڕکی سەرهێل'
+  };
+  const modeName = modeTitles[gameMode] || 'یاری';
 
   return (
     <div className="w-full flex flex-col items-center gap-2 py-1 border-t border-mono-200 dark:border-white/5 mt-1">
-      {/* Statistics Section */}
+      {/* Statistics Section (Global) */}
       <div className="w-full">
-        <h3 className="text-[10px] font-black text-mono-400 dark:text-mono-500 uppercase mb-2 text-center">ئامار</h3>
+        <h3 className="text-[10px] font-black text-mono-400 dark:text-mono-500 uppercase mb-2 text-center">ئامارێن گشتی</h3>
         <div className="grid grid-cols-4 gap-1.5">
           <StatItem label="یاریێن کرین" value={played} />
           <StatItem label="ڕێژەیا سەرکەفتنێ" value={winRate} suffix="%" />
@@ -74,9 +80,9 @@ export default function ResultStats({ profileData, playerStats, gameMode, curren
         </div>
       </div>
 
-      {/* Guess Distribution Section */}
+      {/* Guess Distribution Section (Mode-specific) */}
       <div className="w-full">
-        <h3 className="text-[10px] font-black text-mono-400 dark:text-mono-500 uppercase mb-2 text-center">دابەشکرنا پێکۆلان</h3>
+        <h3 className="text-[10px] font-black text-mono-400 dark:text-mono-500 uppercase mb-2 text-center">دابەشکرنا: {modeName}</h3>
         <div className="flex flex-col gap-1 w-full max-w-70 mx-auto">
           {Object.entries(fullDist).map(([key, val]) => (
             <GuessBar 

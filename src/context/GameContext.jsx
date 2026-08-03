@@ -742,71 +742,7 @@ export const GameProvider = ({ children }) => {
       });
 
       if (error) {
-         console.warn("RPC sync_profile_progression failed, falling back to direct update:", error);
-      }
-
-      // --- DIRECT DATABASE SYNC (BACKUP) ---
-      try {
-        const dbGuessDist = {};
-        Object.entries(updatedStats).forEach(([m, data]) => {
-          if (data.guess_distribution) dbGuessDist[m] = data.guess_distribution;
-        });
-
-        const isWin = additionalData.isWin !== undefined ? additionalData.isWin : true;
-        const isPvPWin = mode === 'battle' && isWin;
-        const isFlawless = isWin && additionalData.hintsUsed === 0 && additionalData.magnetsUsed === 0;
-        const solveTimeMs = additionalData.durationMs || 0;
-        const wordsToAdd = Array.isArray(additionalData.solvedWords) ? additionalData.solvedWords.length : (isWin ? 1 : 0);
-        
-        const newFeverHighscore = mode === 'word_fever' ? Math.max(profileData?.fever_highscore || 0, score) : (profileData?.fever_highscore || 0);
-        const newLongestWord = isWin ? Math.max(profileData?.longest_word_length || 0, lettersCount) : (profileData?.longest_word_length || 0);
-        
-        let newFastestSolve = profileData?.fastest_solve_ms || 0;
-        if (isWin && solveTimeMs > 0) {
-           newFastestSolve = newFastestSolve > 0 ? Math.min(newFastestSolve, solveTimeMs) : solveTimeMs;
-        }
-
-        const currentModePlayCounts = profileData?.mode_play_counts || {};
-        const todayStr = new Date().toISOString().split('T')[0];
-        const lastActiveDate = profileData?.last_active_date;
-        const activeDaysIncrement = (!lastActiveDate || lastActiveDate < todayStr) ? 1 : 0;
-
-        const newCurrentStreak = isWin ? (profileData?.current_streak || 0) + 1 : 0;
-        const newMaxStreak = Math.max(profileData?.max_streak || 0, newCurrentStreak);
-
-        const currentInventory = profileData?.inventory || { owned_avatars: ["default"], unlocked_themes: ["default"] };
-        const newInventory = { ...currentInventory, solved_words: nextSolvedWords };
-
-        const payload = {
-            statistics: updatedStats,
-            guess_distribution: dbGuessDist,
-            games_played: Number(profileData?.games_played || 0) + 1,
-            games_won: Number(profileData?.games_won || 0) + (isWin ? 1 : 0),
-            pvp_wins: Number(profileData?.pvp_wins || 0) + (isPvPWin ? 1 : 0),
-            total_words_found: Number(profileData?.total_words_found || 0) + Number(wordsToAdd || 0),
-            longest_word_length: Number(newLongestWord || 0),
-            fastest_solve_ms: Number(newFastestSolve || 0),
-            flawless_wins: Number(profileData?.flawless_wins || 0) + (isFlawless ? 1 : 0),
-            fever_highscore: Number(newFeverHighscore || 0),
-            total_active_days: Number(profileData?.total_active_days || 0) + activeDaysIncrement,
-            last_active_date: todayStr,
-            current_streak: Number(newCurrentStreak || 0),
-            max_streak: Number(newMaxStreak || 0),
-            mode_play_counts: {
-              ...currentModePlayCounts,
-              [mode]: Number(currentModePlayCounts[mode] || 0) + 1
-            },
-            inventory: newInventory
-        };
-
-        console.log("[DEBUG] Supabase Profile Update Payload:", payload);
-
-        await supabase
-          .from('profiles')
-          .update(payload)
-          .eq('id', currentUser.id);
-      } catch (dbErr) {
-        console.warn("Direct DB stats update failed:", dbErr.message);
+         console.warn("RPC sync_profile_progression failed:", error);
       }
 
       if (data) {
@@ -841,7 +777,7 @@ export const GameProvider = ({ children }) => {
     } finally {
       isSyncingProgressionRef.current = false;
     }
-  }, [refreshRank, syncProfile, profileData?.games_played, profileData?.games_won, profileData?.fastest_solve_ms, profileData?.fever_highscore, profileData?.flawless_wins, profileData?.last_active_date, profileData?.longest_word_length, profileData?.mode_play_counts, profileData?.pvp_wins, profileData?.total_active_days, profileData?.total_words_found, profileData?.current_streak, profileData?.max_streak, profileData?.inventory]);
+  }, [refreshRank, syncProfile]);
 
   const addXP = useCallback((amount) => { if (amount) setCurrentXP(prev => prev + amount); }, []);
 

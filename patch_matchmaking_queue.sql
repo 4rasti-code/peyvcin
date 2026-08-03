@@ -1,4 +1,4 @@
--- Atomic Matchmaking Queue for Peyvçîn 1v1
+-- Atomic Matchmaking Queue for Peyvok 1v1
 -- Prevents race conditions when multiple players search simultaneously
 
 CREATE OR REPLACE FUNCTION join_matchmaking(p_user_id UUID)

@@ -104,10 +104,13 @@ export const calculateDefeatPenalty = (word, allGuesses, mode = 'classic') => {
   };
 
   const mult = multipliers[mode] || 0.5;
-  const basePenalty = (stats.gray * 2) + (stats.yellow * 1);
-  const finalPenalty = Math.max(5, Math.ceil(basePenalty * mult));
+  const baseDefeatPenalty = 5;
+  const mistakesPenalty = Math.ceil(((stats.gray * 2) + (stats.yellow * 1)) * mult);
+  const finalPenalty = baseDefeatPenalty + mistakesPenalty;
 
   return {
+    base: baseDefeatPenalty,
+    mistakes: mistakesPenalty,
     total: finalPenalty,
     grayCount: stats.gray,
     yellowCount: stats.yellow

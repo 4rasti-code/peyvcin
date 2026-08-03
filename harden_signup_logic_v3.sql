@@ -1,5 +1,5 @@
 -- ================================================================
--- PEYVÇÎN: HARDENED SIGNUP & PROFILE SYNC
+-- Peyvok: HARDENED SIGNUP & PROFILE SYNC
 -- ================================================================
 -- This script fixes nickname conflicts during signup (Google/FB)
 -- and ensures the profile creation trigger never fails.

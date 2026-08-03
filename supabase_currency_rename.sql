@@ -1,5 +1,5 @@
 -- ================================================================
--- PEYVÇÎN 2.0: CURRENCY RENAMING MIGRATION (SHAYI -> FILS)
+-- Peyvok 2.0: CURRENCY RENAMING MIGRATION (SHAYI -> FILS)
 -- ================================================================
 -- Run this script in the Supabase SQL Editor.
 

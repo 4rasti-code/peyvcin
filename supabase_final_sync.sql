@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN 2.0: FINAL CLOUD SYNCHRONIZATION
+-- Peyvok 2.0: FINAL CLOUD SYNCHRONIZATION
 -- ==========================================
 
 -- 1. Ensure all progression columns exist for new game modes

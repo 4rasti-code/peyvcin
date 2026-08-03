@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN: USER PROGRESS & COLLECTION LOGIC
+-- Peyvok: USER PROGRESS & COLLECTION LOGIC
 -- ==========================================
 
 -- 1. Create User Progress Table

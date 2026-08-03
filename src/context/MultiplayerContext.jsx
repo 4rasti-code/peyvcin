@@ -17,7 +17,7 @@ export const MultiplayerProvider = ({ children }) => {
     stopSearchingSound, 
     playRewardSound 
   } = useAudio();
-  const { syncProgressToDatabase, applyPenalty } = useGame();
+  const { syncProgressToDatabase, applyPenalty, level } = useGame();
   const [multiplayerState, setMultiplayerState] = useState('idle');
   const [MatchmakingTime, setMatchmakingTime] = useState(0);
   const [activeMatch, setActiveMatch] = useState(null);
@@ -1041,15 +1041,37 @@ export const MultiplayerProvider = ({ children }) => {
         .is('player2_id', null)
         .neq('player1_id', user.id)
         .order('created_at', { ascending: true })
-        .limit(1);
+        .limit(10); // Fetch up to 10 for SBMM
 
       if (searchError) {
         console.error('[Multiplayer] Search Query Error:', searchError);
       }
 
       if (openMatches && openMatches.length > 0) {
-        const targetMatch = openMatches[0];
-        console.log('[Multiplayer] JOINER: Found target room:', targetMatch.id, '. Attempting atomic claim...');
+        // --- SBMM LOGIC: Find the host with the closest level ---
+        const hostIds = openMatches.map(m => m.player1_id);
+        const { data: hostProfiles } = await supabase
+          .from('profiles')
+          .select('id, level')
+          .in('id', hostIds);
+
+        let targetMatch = openMatches[0]; // fallback to first
+        let smallestDiff = Infinity;
+        const myLevel = level || 1;
+
+        if (hostProfiles && hostProfiles.length > 0) {
+          for (const match of openMatches) {
+            const profile = hostProfiles.find(p => p.id === match.player1_id);
+            const hostLevel = profile?.level || 1;
+            const diff = Math.abs(hostLevel - myLevel);
+            
+            if (diff < smallestDiff) {
+              smallestDiff = diff;
+              targetMatch = match;
+            }
+          }
+        }
+        console.log(`[Multiplayer] JOINER: Found ${openMatches.length} room(s). Selected best match (ID: ${targetMatch.id}) with level diff: ${smallestDiff !== Infinity ? smallestDiff : 'unknown'}. Attempting atomic claim...`);
 
         // ATOMIC CLAIM: Update only if it's still waiting with no p2
         const { data: joinedMatch, error: claimError } = await supabase
@@ -1137,7 +1159,7 @@ export const MultiplayerProvider = ({ children }) => {
       try { stopSearchingSound(false); } catch(_e) { /* Ignore audio stop failures */ }
       setMultiplayerStateGuarded('idle');
     }
-  }, [user?.id, startSearchingSound, stopSearchingSound, safeClearMatchmakingTimeout, fetchOpponentProfile, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded]);
+  }, [user?.id, startSearchingSound, stopSearchingSound, safeClearMatchmakingTimeout, fetchOpponentProfile, setActiveMatchGuarded, setMultiplayerStateGuarded, setOpponentGuarded, level]);
 
 
 

@@ -1,5 +1,5 @@
 -- ================================================================
--- PEYVÇÎN: SOCIAL ONBOARDING & NICKNAME SELECTION
+-- Peyvok: SOCIAL ONBOARDING & NICKNAME SELECTION
 -- ================================================================
 -- This script enables a "Choose your nickname" flow for social logins.
 

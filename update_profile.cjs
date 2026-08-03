@@ -1,5 +1,5 @@
 const fs = require('fs');
-const file = 'd:/Peyivcin App/src/components/ProfileView.jsx';
+const file = 'd:/Peyvok App/src/components/ProfileView.jsx';
 let code = fs.readFileSync(file, 'utf8');
 
 code = code.replace('currentXP, level, dailyStreak,', 'currentXP, level, dailyStreak, lastStreakAt,');

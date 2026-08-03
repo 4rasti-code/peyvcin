@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'; // You need to run: npm install jsonwebtoken
 // ⚠️ تکایە ئەڤان زانیاریان ل خوارێ پڕ بکە ب دروستی:
 
 const TEAM_ID = 'YOUR_TEAM_ID_HERE'; // وەکی: ABCD123456 (ژ هەژمارا ئەپڵ)
-const CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; // وەکی: com.peyvcin.app.auth (یان ئەو کۆدێ تە ل خانا Client ID دانا بوو)
+const CLIENT_ID = 'YOUR_CLIENT_ID_HERE'; // وەکی: com.peyvok.app.auth (یان ئەو کۆدێ تە ل خانا Client ID دانا بوو)
 const KEY_ID = 'YOUR_KEY_ID_HERE'; // وەکی: 123ABC456D (ئەو کلیلێ تە ل ئەپڵ دروستکری)
 
 // ناڤێ فایلێ .p8 یێ تە دابەزاندی. دڤێت د ناڤ هەمان فۆلدەرا ڤی فایلیدا بیت.

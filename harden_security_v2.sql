@@ -1,4 +1,4 @@
--- Peyvçîn Security Hardening Phase 2: RPC-First Architecture
+-- Peyvok Security Hardening Phase 2: RPC-First Architecture
 -- This script migrates critical state updates to server-side RPCs and locks down direct client-side updates.
 -- Fixed: Replaced invalid RLS 'old/new' syntax with a secure Trigger-based column lock.
 -- Fixed: Aligned with schema (individual columns for currencies and inventory).

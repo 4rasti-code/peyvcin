@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN 2.0: FINAL STANDARDIZED SETUP
+-- Peyvok 2.0: FINAL STANDARDIZED SETUP
 -- ==========================================
 
 -- 1. PROFILES TABLE

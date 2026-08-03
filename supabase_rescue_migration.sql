@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN 2.0: EMERGENCY RESCUE MIGRATION
+-- Peyvok 2.0: EMERGENCY RESCUE MIGRATION
 -- This script fixes the "Secured Sync Failed" errors by:
 -- 1. Standardizing currency column names (derhem -> derhem)
 -- 2. Creating missing RPC functions for game synchronization

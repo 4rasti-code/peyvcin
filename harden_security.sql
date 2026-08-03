@@ -1,4 +1,4 @@
--- Peyvçîn Security Hardening Phase 1: Atomic Protected Progression
+-- Peyvok Security Hardening Phase 1: Atomic Protected Progression
 -- This script replaces handle_game_xp with a version that includes:
 -- 1. Sanity Checks (Max XP/Currency per match)
 -- 2. Inventory Consumption (Magnets/Hints/Skips)

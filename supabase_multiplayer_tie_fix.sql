@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN: MULTIPLAYER TIE LOGIC SCHEMA
+-- Peyvok: MULTIPLAYER TIE LOGIC SCHEMA
 -- Run this in your Supabase SQL Editor
 -- ==========================================
 

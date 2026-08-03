@@ -1,5 +1,5 @@
 -- ================================================================
--- PEYVÇÎN 2.0: EMERGENCY REPAIR & CURRENCY STANDARDIZATION
+-- Peyvok 2.0: EMERGENCY REPAIR & CURRENCY STANDARDIZATION
 -- ================================================================
 -- Use this script to restore user signups and fix currency naming.
 -- Run this in the Supabase SQL Editor.

@@ -137,9 +137,47 @@ export const getRandomWordFromCategory = (category, level, solvedWords = [], mod
  * Defaults to 5 words of length 5.
  */
 export const getUnifiedWords = (count = 5, length = 5) => {
-  const pool = allWordsMaster.filter(w => w.word.length === length);
-  const shuffled = [...pool].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, count).map(w => ({
+  const fullPool = allWordsMaster.filter(w => w.word.length === length);
+  
+  // 1. Get recently used words from local storage
+  let recentWords = [];
+  try {
+    const saved = localStorage.getItem('recentBattleWords');
+    if (saved) recentWords = JSON.parse(saved);
+  } catch (_e) {
+    // ignore
+  }
+
+  // 2. Filter out recently used words
+  let availablePool = fullPool.filter(w => !recentWords.includes(w.word));
+  
+  // 3. Reset if we don't have enough words left
+  if (availablePool.length < count) {
+    recentWords = [];
+    availablePool = fullPool;
+  }
+  
+  // 4. Shuffle and select
+  const shuffled = [...availablePool].sort(() => 0.5 - Math.random());
+  const selectedWords = shuffled.slice(0, count);
+  
+  // 5. Update history
+  recentWords = [...recentWords, ...selectedWords.map(w => w.word)];
+  
+  // 6. Keep memory limited to half the total pool size to ensure long rotation without exhausting the pool
+  const maxLock = Math.max(10, Math.floor(fullPool.length / 1.5));
+  if (recentWords.length > maxLock) {
+    recentWords = recentWords.slice(recentWords.length - maxLock);
+  }
+
+  // 7. Save back to local storage
+  try {
+    localStorage.setItem('recentBattleWords', JSON.stringify(recentWords));
+  } catch (_e) {
+    // ignore
+  }
+
+  return selectedWords.map(w => ({
     word: w.word,
     hint: w.hint,
     category: w.category

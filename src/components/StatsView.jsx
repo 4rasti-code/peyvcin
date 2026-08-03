@@ -3,44 +3,23 @@ import { motion as Motion } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 import { toKuDigits } from '../utils/formatters';
 import { triggerHaptic } from '../utils/haptics';
+import StatCard from './StatCard';
+import StatsDistributionChart from './StatsDistributionChart';
+import AdvancedStatsList from './AdvancedStatsList';
+
+import ClashingSwords from './ClashingSwords';
+import ClassicIcon from './ClassicIcon';
+import MamakIcon from './MamakIcon';
+import CubeIcon from './CubeIcon';
+import TimerIcon from './TimerIcon';
 
 const modeConfigs = [
-  { id: 'classic', name: 'کلاسیك', icon: 'videogame_asset', color: 'bg-amber-500', textColor: 'text-amber-500', maxAttempts: 6 },
-  { id: 'mamak', name: 'مامک', icon: 'quiz', color: 'bg-emerald-500', textColor: 'text-emerald-500', maxAttempts: 6 },
-  { id: 'hard_words', name: 'پەیڤێن دژوار', icon: 'psychology', color: 'bg-rose-500', textColor: 'text-rose-500', maxAttempts: 6 },
-  { id: 'word_fever', name: 'تایا پەیڤان', icon: 'timer', color: 'bg-sky-500', textColor: 'text-sky-500', maxAttempts: 3 },
-  { id: 'battle', name: 'هەڤڕکی سەرهێل', icon: 'swords', color: 'bg-orange-500', textColor: 'text-orange-500', maxAttempts: 3 }
+  { id: 'battle', name: 'هەڤڕکی سەرهێل', icon: ClashingSwords, iconProps: {}, color: 'bg-orange-500', textColor: 'text-orange-500', maxAttempts: 3, bgColor: 'bg-mono-100 dark:bg-mono-900 shadow-[0_5px_0_#e5e5e5] dark:shadow-[0_5px_0_#111111]', theme: 'adaptive' },
+  { id: 'classic', name: 'کلاسیك', icon: ClassicIcon, iconProps: { continuous: true }, color: 'bg-amber-500', textColor: 'text-amber-500', maxAttempts: 6, bgColor: 'bg-[#ffcc00] shadow-[0_5px_0_#cc9900]', theme: 'light' },
+  { id: 'mamak', name: 'مامک', icon: MamakIcon, iconProps: {}, color: 'bg-emerald-500', textColor: 'text-emerald-500', maxAttempts: 6, bgColor: 'bg-[#22c55e] shadow-[0_5px_0_#16a34a]', theme: 'dark' },
+  { id: 'hard_words', name: 'پەیڤێن دژوار', icon: CubeIcon, iconProps: {}, color: 'bg-rose-500', textColor: 'text-rose-500', maxAttempts: 6, bgColor: 'bg-[#ef4444] shadow-[0_5px_0_#dc2626]', theme: 'dark' },
+  { id: 'word_fever', name: 'تایا پەیڤان', icon: TimerIcon, iconProps: {}, color: 'bg-sky-500', textColor: 'text-sky-500', maxAttempts: 3, bgColor: 'bg-[#0ea5e9] shadow-[0_5px_0_#0284c7]', theme: 'dark' }
 ];
-
-const ChartSection = ({ title, dist, maxValue, color, textColor, icon, modeId }) => (
-  <div className="bg-mono-white dark:bg-mono-900/30 rounded-md border border-mono-200 dark:border-mono-800 p-5 backdrop-blur-sm transition-all duration-300">
-    <div className="flex items-center gap-3 mb-5">
-      <span className={`material-symbols-outlined ${textColor} text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{icon || 'bar_chart'}</span>
-      <h4 className="text-[11px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar">{title}</h4>
-    </div>
-    <div className="space-y-3">
-      {Object.entries(dist).map(([key, value]) => {
-        let label = toKuDigits(key);
-        return (
-          <div key={key} className="flex items-center gap-4">
-            <span className={`text-[11px] font-black text-mono-400 text-left ${modeId === 'battle' ? 'w-16' : 'w-3 tabular-nums'}`}>{label}</span>
-            <div className="flex-1 h-6 bg-mono-100/50 dark:bg-mono-800/40 rounded-sm overflow-hidden relative border border-mono-200/30 dark:border-mono-700/20">
-            <Motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: `${(value / maxValue) * 100}%` }}
-                transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                className={`h-full min-w-7 flex items-center justify-end px-2.5 relative ${value > 0 ? color : 'bg-mono-200 dark:bg-mono-800/60'}`}
-              >
-                {value > 0 && <div className="absolute inset-0 bg-white/10" />}
-                <span className="text-[10px] font-black text-white tabular-nums drop-shadow-sm">{toKuDigits(value)}</span>
-              </Motion.div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  </div>
-);
 
 export default function StatsView({ 
   profileData,
@@ -49,6 +28,7 @@ export default function StatsView({
 }) {
 
   const { playSettingsCloseSound } = useAudio();
+  
   // --- LEGACY FALLBACK FOR PUBLIC VIEWING ---
   const { legacyStats, advancedLegacyStats } = useMemo(() => {
     let played = profileData?.games_played || 0;
@@ -97,7 +77,10 @@ export default function StatsView({
         flawlessWins: profileData?.flawless_wins || 0,
         totalActiveDays: profileData?.total_active_days || 0,
         feverHighscore: Math.max(profileData?.fever_highscore || 0, oldStats?.word_fever?.bestScore || 0),
-        modePlayCounts: profileData?.mode_play_counts || {}
+        modePlayCounts: profileData?.mode_play_counts || {},
+        secretWins: profileData?.secret_wins || 0,
+        riddlesNoSkip: profileData?.riddles_no_skip || 0,
+        pvpFlawlessWins: profileData?.pvp_flawless_wins || 0
       }
     };
   }, [profileData, playerStats]);
@@ -120,11 +103,19 @@ export default function StatsView({
     return modeConfigs.find(m => m.id === modeId)?.name || 'کلاسیك';
   }, [advancedStats.modePlayCounts]);
 
-  // Global distribution calculation
   const globalDist = useMemo(() => {
     const dist = { "1":0, "2":0, "3":0, "4":0, "5":0, "6":0 };
+    
+    // Fallback: If the structure is flat (legacy), handle it directly
+    if (stats.rawDistribution["1"] !== undefined && typeof stats.rawDistribution["1"] === 'number') {
+      Object.entries(stats.rawDistribution).forEach(([key, val]) => {
+        if (dist[key] !== undefined && typeof val === 'number') dist[key] += val;
+      });
+      return dist;
+    }
+
     Object.values(stats.rawDistribution).forEach(modeData => {
-      // Handle both old flat structure and new nested playerStats structure
+      // Handle nested playerStats structure
       const modeDist = modeData?.guess_distribution || modeData || {};
       Object.entries(modeDist).forEach(([key, val]) => {
         if (dist[key] !== undefined && typeof val === 'number') dist[key] += val;
@@ -133,7 +124,44 @@ export default function StatsView({
     return dist;
   }, [stats.rawDistribution]);
 
-  const maxGlobalDist = Math.max(...Object.values(globalDist), 1);
+  const maxGlobalDist = Math.max(1, ...Object.values(globalDist));
+
+  const modeUsage = useMemo(() => {
+    const battlePlays = (advancedStats.pvpWins || 0) + 
+      (advancedStats.modePlayCounts?.battle_loss || 0) + 
+      (advancedStats.modePlayCounts?.battle_draw || 0);
+
+    const counts = {
+      classic: advancedStats.modePlayCounts?.classic || 0,
+      mamak: advancedStats.modePlayCounts?.mamak || 0,
+      hard_words: advancedStats.modePlayCounts?.hard_words || 0,
+      word_fever: advancedStats.modePlayCounts?.word_fever || 0,
+      battle: battlePlays
+    };
+    
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    
+    let max = -1;
+    let dominant = 'classic';
+    Object.entries(counts).forEach(([id, val]) => {
+      if (val > max) { max = val; dominant = id; }
+    });
+
+    const archetypes = {
+      classic: { title: 'پەیڤدۆستێ گشتی 🌟', color: 'text-amber-500' },
+      mamak: { title: 'مێشکێ ڤەکۆلەر 🕵️', color: 'text-emerald-500' },
+      hard_words: { title: 'مێشکێ زێڕین 🧠', color: 'text-rose-500' },
+      word_fever: { title: 'یاریزانێ بلەز ⚡', color: 'text-sky-500' },
+      battle: { title: 'شەڕکەرێ مەیدانێ ⚔️', color: 'text-orange-500' }
+    };
+
+    return {
+      counts,
+      total,
+      dominant,
+      archetype: archetypes[dominant]
+    };
+  }, [advancedStats]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -145,7 +173,6 @@ export default function StatsView({
     visible: { y: 0, opacity: 1 }
   };
 
-
   return (
     <div className="min-h-screen bg-mono-white dark:bg-black flex flex-col items-center safe-top safe-bottom overflow-x-hidden transition-colors duration-500" dir="rtl">
       {/* Header */}
@@ -156,9 +183,11 @@ export default function StatsView({
         >
           <span className="material-symbols-outlined">arrow_forward</span>
         </button>
-        <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase">
-          {profileData?.nickname ? `ئامارێن ${profileData.nickname}` : 'ئامار'}
-        </h2>
+        <div className="flex flex-col items-center">
+          <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-white uppercase leading-none mt-1">
+            {profileData?.nickname ? `ئامارێن ${profileData.nickname}` : 'ئامار'}
+          </h2>
+        </div>
         <div className="w-10" />
       </div>
 
@@ -171,86 +200,97 @@ export default function StatsView({
         >
           {/* 1. Core Performance Grid */}
           <Motion.div variants={itemVariants} className="grid grid-cols-4 gap-3">
-            {[
-              { label: 'یاریێن کرین', value: stats.played, icon: 'sports_esports' },
-              { label: 'ڕێژەیا سەرکەفتنێ', value: winRate, suffix: '%', icon: 'emoji_events' },
-              { label: 'زنجیرەیا نۆکە', value: stats.currentStreak, icon: 'local_fire_department' },
-              { label: 'مەزنترین زنجیرە', value: stats.maxStreak, icon: 'military_tech' }
-            ].map((item, idx) => (
-              <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800/60 p-3.5 flex flex-col items-center gap-1 shadow-sm transition-transform hover:scale-[1.02]">
-                <span className="text-base font-black text-mono-900 dark:text-white tabular-nums">
-                  {toKuDigits(item.value)}{item.suffix || ''}
-                </span>
-                <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase text-center leading-none mt-1">
-                  {item.label}
-                </span>
-              </div>
-            ))}
+            <StatCard label="یاریێن کرین" value={stats.played} icon="sports_esports" />
+            <StatCard label="ڕێژەیا سەرکەفتنێ" value={winRate} suffix="%" icon="emoji_events" />
+            <StatCard label="زنجیرەیا نۆکە" value={stats.currentStreak} icon="local_fire_department" />
+            <StatCard label="مەزنترین زنجیرە" value={stats.maxStreak} icon="military_tech" />
           </Motion.div>
 
           {/* 2. Advanced Gamer Metrics */}
-          <Motion.div variants={itemVariants} className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 px-1">
-              <div className="h-px flex-1 bg-mono-100 dark:bg-mono-800" />
-              <span className="text-[9px] font-black text-mono-400 dark:text-mono-500 uppercase ]">ئامارێن پێشکەفتی</span>
-              <div className="h-px flex-1 bg-mono-100 dark:bg-mono-800" />
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              {[
-                { label: 'سەرکەفتنێن سەرهێل', value: advancedStats.pvpWins, icon: 'swords', color: 'text-orange-500' },
-                { label: 'کۆما پەیڤێن دیتین', value: advancedStats.totalWords, icon: 'dictionary', color: 'text-emerald-500' },
-                { label: 'درێژترین پەیڤ', value: advancedStats.longestWord, icon: 'straighten', color: 'text-sky-500' },
-                { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
-                { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
-                { label: 'ڕیکۆردێ تایا پەیڤان', value: advancedStats.feverHighscore, icon: 'bolt', color: 'text-sky-500' }
-              ].map((metric, idx) => (
-                <div key={idx} className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between shadow-sm transition-all hover:border-mono-300 dark:hover:border-mono-700">
-                  <div className="flex items-center gap-4">
-                    <span className={`material-symbols-outlined ${metric.color} text-2xl`}>{metric.icon}</span>
-                    <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">{metric.label}</span>
-                  </div>
-                  <span className="text-base font-black text-mono-900 dark:text-white tabular-nums">{toKuDigits(metric.value)}</span>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="material-symbols-outlined text-rose-500 text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
-                <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">مۆدێ دڵخواز</span>
-              </div>
-              <span className="text-sm font-black text-mono-900 dark:text-white">{mostPlayedMode}</span>
-            </div>
-
-            {advancedStats.fastestSolve > 0 && (
-              <div className="bg-mono-white dark:bg-mono-900/40 rounded-md border border-mono-200 dark:border-mono-800 p-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <span className="material-symbols-outlined text-sky-500 text-2xl">timer</span>
-                  <span className="text-[10px] font-bold text-mono-400 dark:text-mono-500 uppercase">خێراترین سەرکەفتن</span>
-                </div>
-                <span className="text-sm font-black text-mono-900 dark:text-white tabular-nums">{toKuDigits((advancedStats.fastestSolve / 1000).toFixed(2))} چرکە</span>
-              </div>
-            )}
+          <Motion.div variants={itemVariants}>
+            <AdvancedStatsList advancedStats={advancedStats} mostPlayedMode={mostPlayedMode} gamesLost={Math.max(0, stats.played - stats.won)} />
           </Motion.div>
 
           {/* 3. Global Distribution Chart */}
           <Motion.div variants={itemVariants}>
-            <ChartSection 
+            <StatsDistributionChart 
               title="دابەشکرنا پێکۆلان (گشتی)" 
               dist={globalDist} 
               maxValue={maxGlobalDist} 
-              color="bg-primary" 
-              textColor="text-primary"
+              color="bg-white" 
+              textColor="text-white"
+              bgColor="bg-indigo-500 shadow-[0_5px_0_#4338ca]"
+              theme="dark"
               icon="analytics"
             />
           </Motion.div>
 
-          {/* 4. Individual Mode Distributions */}
-          <div className="flex flex-col gap-5">
+          {/* 4. Mode Preference Bar */}
+          {modeUsage.total > 0 && (
+            <Motion.div variants={itemVariants} className="mt-4 mb-2">
+              <div className="flex items-center justify-between mb-3 px-1">
+                <span className="text-[12px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar">حەزێن یاریزانی</span>
+                <span className={`text-[10px] font-black uppercase tracking-wider ${modeUsage.archetype.color} drop-shadow-sm bg-black/5 dark:bg-white/10 px-2 py-1 rounded-md flex items-center gap-1`}>
+                  ناسنامە: {modeUsage.archetype.title}
+                </span>
+              </div>
+              
+              {/* Segmented Bar */}
+              <div className="w-full h-4 bg-mono-100 dark:bg-mono-800/50 rounded-full overflow-hidden flex shadow-inner border border-mono-200 dark:border-mono-800">
+                {modeConfigs.map(mode => {
+                  const count = modeUsage.counts[mode.id] || 0;
+                  if (count === 0) return null;
+                  const percentage = (count / modeUsage.total) * 100;
+                  
+                  // Map background colors based on mode definitions
+                  const bgColors = {
+                    classic: 'bg-amber-400',
+                    mamak: 'bg-emerald-400',
+                    hard_words: 'bg-rose-500',
+                    word_fever: 'bg-sky-400',
+                    battle: 'bg-orange-500'
+                  };
+
+                  return (
+                    <div 
+                      key={mode.id} 
+                      className={`h-full ${bgColors[mode.id] || 'bg-mono-300'} transition-all duration-700 ease-out hover:opacity-80`}
+                      style={{ width: `${percentage}%` }}
+                      title={`${mode.name}: ${count}`}
+                    />
+                  );
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-4 px-2">
+                {modeConfigs.map(mode => {
+                  const count = modeUsage.counts[mode.id] || 0;
+                  if (count === 0) return null;
+                  const percentage = Math.round((count / modeUsage.total) * 100);
+
+                  return (
+                    <div key={mode.id} className="flex items-center gap-1.5">
+                      <div className={`flex items-center justify-center ${mode.id === 'classic' ? 'w-10' : 'w-5'} h-5`}>
+                        <div className="scale-[0.35] origin-center flex items-center justify-center pointer-events-none w-16 h-16">
+                          <mode.icon className="w-16 h-16" {...(mode.iconProps || {})} />
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-mono-600 dark:text-mono-300">
+                        {mode.name} <span className="opacity-60 tabular-nums">({percentage}%)</span>
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Motion.div>
+          )}
+
+          {/* 5. Individual Mode Distributions */}
+          <div className="flex flex-col gap-4 mt-4">
             <div className="flex items-center gap-3 px-1 mt-4">
               <div className="h-px flex-1 bg-mono-100 dark:bg-mono-800" />
-              <span className="text-[9px] font-black text-mono-400 dark:text-mono-500 uppercase ]">دابەشکرنا مۆدان</span>
+              <span className="text-[9px] font-black text-mono-400 dark:text-mono-500 uppercase">دابەشکرنا مۆدان</span>
               <div className="h-px flex-1 bg-mono-100 dark:bg-mono-800" />
             </div>
             
@@ -262,10 +302,10 @@ export default function StatsView({
                 
                 return (
                   <Motion.div key={mode.id} variants={itemVariants}>
-                    <div className="bg-mono-white dark:bg-mono-900/30 rounded-[12px] border border-mono-200 dark:border-mono-800 p-4 transition-all duration-300">
+                    <div className={`${mode.bgColor} mb-1 rounded-[12px] p-4 transition-all duration-300`}>
                       <div className="flex items-center justify-center gap-2 mb-4">
-                        <span className={`material-symbols-outlined text-orange-500 text-2xl`} style={{ fontVariationSettings: "'FILL' 1" }}>{mode.icon}</span>
-                        <h4 className="text-[14px] font-black text-mono-800 dark:text-mono-200 uppercase font-rabar drop-shadow-sm">ئامارێن: {mode.name}</h4>
+                        <mode.icon className={`h-6 ${mode.id === 'classic' ? 'w-16' : 'w-6'}`} />
+                        <h4 className={`text-[14px] font-black uppercase font-rabar drop-shadow-sm ${mode.theme === 'light' ? 'text-amber-950' : mode.theme === 'adaptive' ? 'text-mono-900 dark:text-white' : 'text-white'}`}>ئامارێن: {mode.name}</h4>
                       </div>
                       
                       <div className="flex items-stretch justify-center gap-2 h-24">
@@ -304,7 +344,13 @@ export default function StatsView({
               const dist = {};
               for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
               
-              const modeData = stats.rawDistribution[mode.id] || {};
+              let modeData = stats.rawDistribution[mode.id] || {};
+              
+              // Fallback: Show legacy flat distribution under Classic mode
+              if (mode.id === 'classic' && stats.rawDistribution["1"] !== undefined && typeof stats.rawDistribution["1"] === 'number') {
+                modeData = stats.rawDistribution;
+              }
+              
               const rawModeDist = modeData.guess_distribution || modeData || {};
 
               Object.entries(rawModeDist).forEach(([key, val]) => {
@@ -315,15 +361,18 @@ export default function StatsView({
 
               return (
                 <Motion.div key={mode.id} variants={itemVariants}>
-                  <ChartSection 
-                    title={`دابەشکرنا: ${mode.name}`} 
-                    dist={dist} 
-                    maxValue={maxValue} 
-                    color={mode.color} 
-                    textColor={mode.textColor}
-                    icon={mode.icon}
-                    modeId={mode.id}
-                  />
+                    <StatsDistributionChart 
+                      title={`دابەشکرنا: ${mode.name}`} 
+                      dist={dist} 
+                      maxValue={maxValue} 
+                      color={mode.color} 
+                      textColor={mode.textColor}
+                      icon={mode.icon}
+                      iconProps={mode.iconProps}
+                      modeId={mode.id}
+                      bgColor={mode.bgColor}
+                      theme={mode.theme}
+                    />
                 </Motion.div>
               );
             })}
@@ -333,5 +382,3 @@ export default function StatsView({
     </div>
   );
 }
-
-

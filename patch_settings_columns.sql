@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN: SETTINGS SYNC MIGRATION
+-- Peyvok: SETTINGS SYNC MIGRATION
 -- Run this in your Supabase SQL Editor
 -- ==========================================
 

@@ -1,5 +1,5 @@
 -- ==========================================
--- PEYVÇÎN: SAFE COLUMN MIGRATION PATCH
+-- Peyvok: SAFE COLUMN MIGRATION PATCH
 -- Run this in your Supabase SQL Editor
 -- This will safely add any missing columns to your 'profiles' table
 -- without affecting your existing data.
