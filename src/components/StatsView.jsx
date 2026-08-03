@@ -221,18 +221,15 @@ export default function StatsView({
                 {/* Background glow based on archetype color */}
                 <div className={`absolute top-0 right-0 w-32 h-32 opacity-[0.03] dark:opacity-[0.05] pointer-events-none rounded-bl-full ${modeUsage.archetype.color.replace('text-', 'bg-')}`}></div>
 
-                <div className="flex items-center justify-between mb-5 relative z-10">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-rose-500 text-[20px]">pie_chart</span>
-                    <span className="text-[14px] font-black text-mono-900 dark:text-white uppercase font-rabar drop-shadow-sm mt-1">حەزێن یاریزانی</span>
-                  </div>
-                  <div className={`text-[11px] font-black uppercase tracking-wider ${modeUsage.archetype.color} bg-white dark:bg-black/40 px-3 py-1.5 rounded-[8px] flex items-center gap-1.5 shadow-sm border border-mono-100 dark:border-white/10`}>
+                <div className="flex items-center justify-between mb-4 relative z-10">
+                  <span className="text-[13px] font-black text-mono-900 dark:text-white uppercase font-rabar drop-shadow-sm">حەزێن یاریزانی</span>
+                  <div className={`text-[11px] font-black uppercase tracking-wider ${modeUsage.archetype.color} drop-shadow-sm flex items-center gap-1`}>
                     ناسنامە: {modeUsage.archetype.title}
                   </div>
                 </div>
                 
                 {/* Segmented Bar */}
-                <div className="w-full h-4.5 bg-mono-200/50 dark:bg-black/50 rounded-full overflow-hidden flex shadow-inner border border-mono-300/30 dark:border-white/5 relative z-10">
+                <div className="w-full h-4 bg-mono-200/50 dark:bg-black/50 rounded-full overflow-hidden flex shadow-inner border border-mono-300/30 dark:border-white/5 relative z-10">
                   {modeConfigs.map(mode => {
                     const count = modeUsage.counts[mode.id] || 0;
                     if (count === 0) return null;
@@ -258,21 +255,21 @@ export default function StatsView({
                 </div>
 
                 {/* Legend */}
-                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-3 mt-5 relative z-10">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-4 relative z-10">
                   {modeConfigs.map(mode => {
                     const count = modeUsage.counts[mode.id] || 0;
                     if (count === 0) return null;
                     const percentage = Math.round((count / modeUsage.total) * 100);
 
                     return (
-                      <div key={mode.id} className="flex items-center gap-1.5 bg-white dark:bg-black/20 px-2.5 py-1.5 rounded-md shadow-[0_2px_0_rgba(0,0,0,0.02)] border border-mono-100 dark:border-white/5">
+                      <div key={mode.id} className="flex items-center gap-1.5 px-1">
                         <div className={`flex items-center justify-center ${mode.id === 'classic' ? 'w-8' : 'w-4'} h-4`}>
                           <div className="scale-[0.25] origin-center flex items-center justify-center pointer-events-none w-16 h-16">
                             <mode.icon className="w-16 h-16" {...(mode.iconProps || {})} />
                           </div>
                         </div>
                         <span className="text-[11px] font-bold text-mono-700 dark:text-mono-300 mt-0.5">
-                          {mode.name} <span className="opacity-50 ml-0.5 tabular-nums">({percentage}%)</span>
+                          {mode.name} <span className="opacity-60 ml-0.5 tabular-nums">({percentage}%)</span>
                         </span>
                       </div>
                     );
