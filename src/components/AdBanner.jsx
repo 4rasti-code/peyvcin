@@ -75,7 +75,7 @@ const AdBanner = () => {
   const currentAd = displayAds[currentIndex];
 
   return (
-    <div className="col-span-2 relative mt-1 h-24 rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
+    <div className="col-span-2 relative mt-1 aspect-[2/1] w-full rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
       <AnimatePresence initial={false}>
         <Motion.div
           key={currentAd.id}
