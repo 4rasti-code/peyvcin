@@ -66,8 +66,10 @@ const DefeatOverlay = ({
 
     if (!isVisible) {
       hasTriggeredRef.current = false;
-      setShareStatus(null);
-      setGlobalShareStatus(null);
+      setTimeout(() => {
+        setShareStatus(null);
+        setGlobalShareStatus(null);
+      }, 0);
     }
   }, [isVisible, onHome]);
 
