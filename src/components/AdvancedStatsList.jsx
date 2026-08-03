@@ -33,7 +33,6 @@ export default function AdvancedStatsList({ advancedStats, mostPlayedMode, games
       suffix: 'چرکە'
     },
     { label: 'کۆما ڕۆژێن بەشداریێ', value: advancedStats.totalActiveDays, icon: 'calendar_month', color: 'text-rose-500' },
-    { label: 'مۆدێ دڵخواز', value: mostPlayedMode || '-', icon: 'favorite', color: 'text-rose-500' },
     { label: 'سەرکەفتنێن ب هاریکاری', value: assistedWins, icon: 'handshake', color: 'text-violet-500' },
     { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
     { 
