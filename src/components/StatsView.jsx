@@ -90,18 +90,7 @@ export default function StatsView({
 
   const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
 
-  // Calculate Most Played Mode
-  const mostPlayedMode = useMemo(() => {
-    let max = -1;
-    let modeId = 'classic';
-    Object.entries(advancedStats.modePlayCounts).forEach(([id, count]) => {
-      if (count > max) {
-        max = count;
-        modeId = id;
-      }
-    });
-    return modeConfigs.find(m => m.id === modeId)?.name || 'کلاسیك';
-  }, [advancedStats.modePlayCounts]);
+
 
   const globalDist = useMemo(() => {
     const dist = { "1":0, "2":0, "3":0, "4":0, "5":0, "6":0 };
