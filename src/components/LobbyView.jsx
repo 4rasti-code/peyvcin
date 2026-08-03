@@ -100,6 +100,7 @@ const LobbyView = memo(({
   const [inviteTimeLeft, setInviteTimeLeft] = useState(15);
   const [inviteAlert, setInviteAlert] = useState(null);
   const [inviteCooldowns, setInviteCooldowns] = useState({});
+  const [inviteStrikes, setInviteStrikes] = useState({});
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
@@ -128,10 +129,11 @@ const LobbyView = memo(({
       let blockedUntil = null;
       
       if (newStrikes >= 3) {
-        blockedUntil = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour block
+        blockedUntil = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 min block
         newStrikes = 0; // Reset for next time after block expires
         setInviteCooldowns(prev => ({ ...prev, [targetId]: blockedUntil }));
       }
+      setInviteStrikes(prev => ({ ...prev, [targetId]: newStrikes }));
       
       if (data) {
         await supabase.from('invite_tracking')
@@ -294,9 +296,8 @@ const LobbyView = memo(({
                 .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
               supabase
                 .from('invite_tracking')
-                .select('receiver_id, blocked_until')
+                .select('receiver_id, blocked_until, strike_count')
                 .eq('sender_id', user?.id)
-                .gt('blocked_until', new Date().toISOString())
             ]);
               
             if (!profilesRes.error && profilesRes.data) {
@@ -309,10 +310,16 @@ const LobbyView = memo(({
               
               if (trackRes && trackRes.data) {
                 const cooldowns = {};
+                const strikes = {};
+                const now = new Date();
                 trackRes.data.forEach(row => {
-                  cooldowns[row.receiver_id] = row.blocked_until;
+                  if (row.blocked_until && new Date(row.blocked_until) > now) {
+                    cooldowns[row.receiver_id] = row.blocked_until;
+                  }
+                  strikes[row.receiver_id] = row.strike_count || 0;
                 });
                 setInviteCooldowns(cooldowns);
+                setInviteStrikes(strikes);
               }
               
               const profilesWithFriendStatus = profilesRes.data.map(p => ({
@@ -495,7 +502,7 @@ const LobbyView = memo(({
               <CooldownTimer blockedUntil={blockedUntil} />
             </>
           ) : (
-            'داخوازی'
+            `داخوازی (${(3 - (inviteStrikes[profile.id] || 0)).toLocaleString('ar-EG')})`
           )}
         </button>
       </div>
