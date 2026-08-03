@@ -22,6 +22,7 @@ import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
 import InstallGuideModal from './InstallGuideModal';
 import OnboardingOverlay from './OnboardingOverlay';
+import AdBanner from './AdBanner';
 import { supabase } from '../lib/supabase';
 import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
@@ -771,6 +772,9 @@ const LobbyView = memo(({
               </div>
             </Motion.button>
           </div>
+
+          {/* Dynamic Ad Banner Space */}
+          <AdBanner />
         </div>
       </div>
 
