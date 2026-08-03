@@ -125,14 +125,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   // Expose Game Board Readiness
   useEffect(() => {
-    console.log('[MultiplayerGameView] Readiness Check:', {
-      hasOpponent: !!opponent,
-      hasTargetWord: !!targetWord,
-      hasActiveMatch: !!activeMatch,
-      targetWord,
-      opponentId: opponent?.id,
-      matchId: activeMatch?.id
-    });
+
 
     if (opponent && targetWord && activeMatch) {
       setIsGameBoardMounted?.(true);
