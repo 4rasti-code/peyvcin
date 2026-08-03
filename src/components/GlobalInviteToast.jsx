@@ -7,18 +7,20 @@ import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
 import Avatar from './Avatar';
 
-const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
+const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode }) => {
   const { user } = useUser();
   const { playInviteSound } = useAudio();
   const { joinPrivateMatch, multiplayerState } = useMultiplayer();
   
   const currentViewRef = useRef(currentView);
   const multiplayerStateRef = useRef(multiplayerState);
+  const gameModeRef = useRef(gameMode);
 
   useEffect(() => {
     currentViewRef.current = currentView;
     multiplayerStateRef.current = multiplayerState;
-  }, [currentView, multiplayerState]);
+    gameModeRef.current = gameMode;
+  }, [currentView, multiplayerState, gameMode]);
 
   const broadcastReply = async (hostId, event, payload) => {
     const topic = `host_replies_${hostId}`;
@@ -61,7 +63,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView }) => {
         
         if (isBusy) {
            console.log('User is busy, auto-rejecting invite.');
-           broadcastReply(inviteData.hostId, 'match_invite_busy', { roomId: inviteData.roomId, joinerId: user.id });
+           broadcastReply(inviteData.hostId, 'match_invite_busy', { roomId: inviteData.roomId, joinerId: user.id, busyMode: gameModeRef.current });
            return;
         }
 

@@ -2285,7 +2285,7 @@ export default function App() {
         </Suspense>
 
         {/* GLOBAL INVITE TOAST */}
-        <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} setCurrentView={setCurrentView} />
+        <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} setCurrentView={setCurrentView} gameMode={gameMode} />
 
         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
         <UpgradeAccountModal
