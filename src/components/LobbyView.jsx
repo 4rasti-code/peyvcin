@@ -651,7 +651,7 @@ const LobbyView = memo(({
                 setInviteStep('select');
               }}
               {...bentoMotionProps}
-              className="w-full relative h-28 rounded-md border-none mb-1 group bg-transparent"
+              className="w-full relative h-24 rounded-md border-none mb-1 group bg-transparent"
             >
               {/* 3D Split Shadow Layer */}
               <div 
