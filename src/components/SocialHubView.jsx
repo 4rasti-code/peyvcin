@@ -872,8 +872,8 @@ export default function SocialHubView({
             .from('messages')
             .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle)')
             .is('receiver_id', null)
-            .order('created_at', { ascending: false }) // Fetch descending so we get latest 20
-            .limit(20);
+            .order('created_at', { ascending: false }) // Fetch descending so we get latest 100
+            .limit(100);
 
           if (signal) query = query.abortSignal(signal);
 
@@ -882,7 +882,7 @@ export default function SocialHubView({
           if (error) {
             if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
             // Fallback if join syntax fails
-            query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(20);
+            query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(100);
             if (signal) query = query.abortSignal(signal);
             const fallbackRes = await query;
             if (fallbackRes.error) throw fallbackRes.error;
@@ -1037,8 +1037,8 @@ export default function SocialHubView({
         .select('id, content, user_id, receiver_id, created_at, is_read, reactions')
         .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`)
         .gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false }) // Limit 20 descending
-        .limit(20);
+        .order('created_at', { ascending: false }) // Limit 100 descending
+        .limit(100);
       if (error) throw error;
       setChatMessages(data ? data.reverse() : []); // Reverse to show ascending
     } catch (err) {
@@ -1948,7 +1948,8 @@ export default function SocialHubView({
                 e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
               }}
               onKeyDown={(e) => {
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+                // Remove touch checks to prevent false positives on touch-enabled Windows laptops
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
                 if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
                   e.preventDefault();
                   handleSendMessage();
