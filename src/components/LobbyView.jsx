@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { AlarmClock } from 'lucide-react';
 import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
@@ -66,8 +67,25 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-mono-900 dark:bg-[#1a1a1a] px-1.5 py-px rounded-sm border border-white/20 dark:border-white/10 z-20 pointer-events-none flex items-center justify-center shadow-sm" style={{ minHeight: '14px' }}>
-      <span className="text-[8px] leading-none font-black text-amber-400 tabular-nums tracking-[0.05em] drop-shadow-md pt-px" dir="ltr">
+    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-mono-900 dark:bg-[#1a1a1a] px-1.5 py-px rounded-sm border border-white/20 dark:border-white/10 z-20 pointer-events-none flex items-center justify-center shadow-sm gap-0.5" style={{ minHeight: '14px' }}>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md">
+        <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#ef4444" />
+        <rect x="9" y="1" width="6" height="2" rx="1" fill="#ef4444" />
+        <g transform="rotate(-40 12 13)">
+          <rect x="10.5" y="2" width="3" height="4" rx="1" fill="#ef4444" />
+          <rect x="9" y="2" width="6" height="2" rx="1" fill="#ef4444" />
+        </g>
+        <g transform="rotate(40 12 13)">
+          <rect x="10.5" y="2" width="3" height="4" rx="1" fill="#ef4444" />
+          <rect x="9" y="2" width="6" height="2" rx="1" fill="#ef4444" />
+        </g>
+        <circle cx="12" cy="13" r="9.5" fill="#ef4444" />
+        <circle cx="12" cy="13" r="7.5" fill="#f8fafc" />
+        <path d="M12 13 L12 8.5" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M12 13 L15.5 10.5" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="12" cy="13" r="1.5" fill="#1e293b" />
+      </svg>
+      <span className="text-[8px] leading-none font-black text-amber-400 tabular-nums tracking-[0.05em] drop-shadow-md pt-[1.5px]" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
     </div>
@@ -442,7 +460,7 @@ const LobbyView = memo(({
     return (
       <div key={`${profile.id}-${index}`} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
         <div 
-          className="flex items-center gap-3 cursor-pointer flex-1 mr-2"
+          className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 mr-2"
           onClick={() => {
             triggerHaptic(10);
             setSelectedProfile(profile);
@@ -452,7 +470,10 @@ const LobbyView = memo(({
             <Avatar src={profile.avatar_url} size="full" border={false} level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} />
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
           </div>
-          <div className="flex flex-col items-start flex-1 min-w-0 pr-1">
+          <div 
+            className="flex flex-col items-start flex-1 min-w-0 pr-1"
+            style={{ containerType: 'inline-size' }}
+          >
             {(() => {
               const fontObj = NAME_FONTS[profile.equipped_font] || NAME_FONTS['default-ku'];
               const styleObj = NAME_STYLES[profile.equipped_name_style] || {};
@@ -463,14 +484,22 @@ const LobbyView = memo(({
               const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
               const isWideFont = wideFonts.includes(profile.equipped_font);
               
-              const baselineLen = isWideFont ? 5 : 8;
-              const scaleFactor = Math.min(1.0, Math.max(0.4, baselineLen / nameLen));
+              // 1. Calculate an aggressive heuristic fallback
+              const baselineLen = isWideFont ? 4 : 7;
+              const scaleFactor = Math.min(1.0, Math.max(0.3, baselineLen / nameLen));
               const baseSize = fontObj.style?.fontSize ? parseFloat(fontObj.style.fontSize) : 1.05;
-              const dynamicFontSize = `${baseSize * scaleFactor}em`;
+              const fallbackSize = `${baseSize * scaleFactor}em`;
+
+              // 2. Calculate the exact max container width percentage (cqw) needed to fit the characters
+              const charWidthRatio = isWideFont ? 0.9 : 0.55; 
+              const maxCqw = 100 / (nameLen * charWidthRatio);
+              
+              // 3. Use CSS min() to pick the safest small size so it NEVER overflows and doesn't need dots
+              const dynamicFontSize = `min(${fallbackSize}, ${maxCqw}cqw)`;
 
               return (
                 <span 
-                  className={`text-sm font-bold leading-tight whitespace-nowrap ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
+                  className={`text-sm font-bold leading-tight whitespace-nowrap overflow-visible ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
                   style={{
                     ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                     fontSize: dynamicFontSize
@@ -595,10 +624,10 @@ const LobbyView = memo(({
                     triggerHaptic(15); 
                     onDailyRewardClick?.(); 
                  }}
-                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group ${!isDailyAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group cursor-pointer`}
                >
                  <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <ClipboardIcon className={`w-13.5 h-13.5 transition-transform duration-300 group-hover:scale-110 ${isDailyAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   <ClipboardIcon className={`w-13.5 h-13.5 transition-transform duration-300 group-hover:scale-110 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md'}`} />
                    {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
                  </div>
                </Motion.button>
@@ -613,10 +642,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowLuckyWheel(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isLuckyWheelAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 cursor-pointer`}
                >
                  <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-12 h-12 transition-transform duration-300 hover:scale-110 ${isLuckyWheelAvailable ? 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md' : ''}`} />
+                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-12 h-12 transition-transform duration-300 hover:scale-110 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md'}`} />
                    {!isLuckyWheelAvailable && <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />}
                  </div>
                </button>
@@ -630,10 +659,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowMysteryBox(true);
                  }}
-                 className={`relative flex items-center justify-center p-1 ${!isMysteryBoxAvailable ? 'grayscale opacity-80 cursor-pointer' : 'cursor-pointer'}`}
+                 className={`relative flex items-center justify-center p-1 cursor-pointer`}
                >
                  <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${isMysteryBoxAvailable ? 'relative z-10' : ''}`} />
+                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10'}`} />
                    {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
                  </div>
                </button>

@@ -2147,6 +2147,7 @@ export default function App() {
               pendingFriendsCount={socialNotifications.pendingRequests || 0}
               hasSilentGlobal={hasUnreadGlobalMessage}
               hasUnclaimedRewards={hasUnclaimedMedals}
+              userAvatarUrl={profileData?.avatar_url}
             />
           )}
 

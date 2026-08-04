@@ -11,7 +11,9 @@ const QUICK_CHATS = [
   "تە پەقاند",
   "چەوا بوو؟",
   "دێ ڕحێ!",
-  "چ لێ هات؟"
+  "چ لێ هات؟",
+  "ئەڤە چیە بابۆ؟",
+  "ئەز نزانم!"
 ];
 
 export default function MultiplayerReactions() {

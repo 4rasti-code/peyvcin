@@ -251,16 +251,16 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className={`relative w-full aspect-[1.15/1] sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
+            <div className={`relative w-full aspect-square sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+16px)] sm:pt-[calc(env(safe-area-inset-top)+16px)] flex justify-between items-start pointer-events-none" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+36px)] sm:pt-[calc(env(safe-area-inset-top)+36px)] flex justify-between items-start pointer-events-none" dir="ltr">
                   {/* Left: Settings Icon */}
-                  <div className="relative pointer-events-auto -mt-1.5">
+                  <div className="relative pointer-events-auto">
                      <Motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -295,9 +295,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
-               <div className="absolute top-0 left-0 right-0 h-[62%] sm:h-[65%] flex items-center justify-center z-30 pointer-events-none">
+               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] flex items-center justify-center z-30 pointer-events-none">
                   <Motion.div
-                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8 sm:mt-4"
+                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8 sm:mt-8"
                      whileHover={{ scale: 1.05 }}
                      whileTap={{ scale: 0.95 }}
                      onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
@@ -396,7 +396,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className={`absolute top-[62%] sm:top-[65%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4.5 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
+               <div className={`absolute top-[68%] sm:top-[70%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
