@@ -61,46 +61,9 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
 export function NavLeaderboardIcon({ className = "w-10 h-10", isActive = false }) {
   // Premium, sleek Trophy (Redesigned for better shape and brighter gold)
   return (
-    <IconWrapper isActive={isActive} className={className}>
-      <defs>
-        <linearGradient id="trophyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="40%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#b45309" />
-        </linearGradient>
-        <linearGradient id="trophyGlare" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft shadow */}
-        <ellipse cx="50" cy="88" rx="28" ry="5" fill="rgba(0,0,0,0.2)" />
-        
-        {/* Base */}
-        <path d="M 30 85 L 70 85 C 72 85, 73 83, 72 81 L 65 73 L 35 73 L 28 81 C 27 83, 28 85, 30 85 Z" fill="url(#trophyGrad)" />
-        
-        {/* Stem */}
-        <rect x="42" y="65" width="16" height="8" fill="url(#trophyGrad)" />
-        
-        {/* Handles */}
-        <path d="M 28 35 C 5 35, 10 60, 35 55" fill="none" stroke="url(#trophyGrad)" strokeWidth="6" strokeLinecap="round" />
-        <path d="M 72 35 C 95 35, 90 60, 65 55" fill="none" stroke="url(#trophyGrad)" strokeWidth="6" strokeLinecap="round" />
-        
-        {/* Cup Body */}
-        <path d="M 20 25 L 80 25 C 80 55, 68 65, 50 65 C 32 65, 20 55, 20 25 Z" fill="url(#trophyGrad)" />
-        
-        {/* Inner Glass Edge */}
-        <path d="M 23 27 C 23 53, 34 62, 50 62 C 66 62, 77 53, 77 27" fill="none" stroke="url(#trophyGlare)" strokeWidth="2" />
-        
-        {/* Cup Top / Bowl */}
-        <ellipse cx="50" cy="25" rx="30" ry="6" fill="#78350f" />
-        <ellipse cx="50" cy="25" rx="30" ry="6" fill="none" stroke="url(#trophyGrad)" strokeWidth="2" />
-        
-        {/* Star */}
-        <path d="M 50 36 L 52.5 42 L 59 42 L 54 46.5 L 56 53 L 50 49 L 44 53 L 46 46.5 L 41 42 L 47.5 42 Z" fill="#ffffff" opacity="0.95" />
-      </g>
-    </IconWrapper>
+    <div className={`${className} transition-all duration-300 flex items-center justify-center ${!isActive ? 'opacity-90 dark:opacity-70 scale-[0.90]' : 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] scale-110 -translate-y-1'}`}>
+      <img src="/assets/Top_1.svg" className="w-full h-full object-contain" alt="Leaderboard" />
+    </div>
   );
 }
 

@@ -443,53 +443,19 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
       <div className="relative z-10 flex flex-col h-full w-full">
         {/* FIXED HEADER CONTAINER */}
         <div 
-          className="shrink-0 bg-mono-50 dark:bg-black md:pt-12 pb-4 px-4 md:px-6 border-b border-mono-200 dark:border-mono-800 shadow-sm transition-colors relative z-50"
-          style={{ paddingTop: 'calc(env(safe-area-inset-top, 24px) + 24px)' }}
+          className="shrink-0 bg-mono-50 dark:bg-black md:pt-4 px-4 md:px-6 border-b border-mono-200 dark:border-mono-800 shadow-sm transition-colors relative z-50"
+          style={{ paddingTop: 'calc(env(safe-area-inset-top, 8px) + 8px)' }}
         >
           {/* GAP FILLER: Extends background infinitely upwards to cover iOS notch or scroll bounce gaps */}
           <div className="absolute bottom-full -left-12.5 -right-12.5 h-125 bg-mono-50 dark:bg-black pointer-events-none" />
           
-          <div className="flex flex-col items-center mb-6 max-w-md mx-auto text-center relative mt-2">
-          <Motion.div 
-            animate={{ y: [-2, 2, -2] }} 
-            transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
-            className="z-30 relative -mb-3 drop-shadow-sm"
-          >
-             <svg viewBox="0 0 100 100" className="w-12 h-12">
-               <defs>
-                 <linearGradient id={`refGold-title`} x1="0%" y1="0%" x2="0%" y2="100%">
-                   <stop offset="0%" stopColor="#FFD54F" />
-                   <stop offset="50%" stopColor="#FFC107" />
-                   <stop offset="100%" stopColor="#FFA000" />
-                 </linearGradient>
-               </defs>
-
-               <path d="M15 85 Q50 90 85 85 L85 75 Q50 80 15 75 Z" fill="#FF8F00" stroke="#3E2723" strokeWidth="2" />
-               <path d="M15 75 Q50 80 85 75 L85 68 Q50 73 15 68 Z" fill={`url(#refGold-title)`} stroke="#3E2723" strokeWidth="2" />
-               <path d="M15 68 Q50 73 85 68 L95 40 L75 55 L50 20 L25 55 L5 40 Z" fill={`url(#refGold-title)`} stroke="#3E2723" strokeWidth="2" />
-
-               <Motion.path d="M50 45 L58 55 L50 65 L42 55 Z" fill="#7E57C2" stroke="#3E2723" strokeWidth="1.5" />
-               <Motion.path d="M50 48 L54 55 L50 62 L46 55 Z" fill="white" fillOpacity="0.4" />
-
-               {[
-                 { cx: 5, cy: 40, r: 5 }, { cx: 25, cy: 55, r: 4 }, { cx: 50, cy: 20, r: 6 }, { cx: 75, cy: 55, r: 4 }, { cx: 95, cy: 40, r: 5 }
-               ].map((b, i) => (
-                 <g key={i}>
-                   <circle cx={b.cx || 0} cy={b.cy || 0} r={b.r || 0} fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5" />
-                   <circle cx={(b.cx - b.r / 3) || 0} cy={(b.cy - b.r / 3) || 0} r={(b.r / 4) || 0} fill="white" fillOpacity="0.6" />
-                 </g>
-               ))}
-
-               <circle cx="30" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-               <circle cx="40" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-               <circle cx="60" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-               <circle cx="70" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-               <path d="M50 25 L50 40" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" />
-             </svg>
-          </Motion.div>
-          
-          <div className="relative z-20 flex flex-col items-center">
-             <h2 className="text-[24px] font-black font-rabar uppercase text-mono-900 dark:text-mono-50 drop-shadow-sm mb-6">رێزبەندی</h2>
+          <div className="flex flex-col items-center max-w-md mx-auto text-center relative">
+          <div className="z-30 relative mb-2 drop-shadow-sm">
+             <img 
+               src="/assets/leaderboard_icon-01.svg" 
+               alt="Leaderboard Crown" 
+               className="w-56 h-auto object-contain max-h-50"
+             />
           </div>
         </div>
 
@@ -716,116 +682,24 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                   >
 
                     {/* Sleek Metallic Rank Number (MINIMALIST) */}
-                    <div className="flex items-center justify-center w-[clamp(1.75rem,10vw,2.5rem)] shrink-0 z-10 relative">
-                      {rank <= 3 && (
-                        <Motion.div
-                          initial={{ y: 0, rotate: rank === 1 ? -5 : rank === 2 ? 5 : 0 }}
-                          animate={{
-                            y: [-2, 2, -2],
-                            rotate: rank === 1 ? [-5, 5, -5] : rank === 2 ? [5, -5, 5] : [-3, 3, -3]
-                          }}
-                          transition={{ repeat: Infinity, duration: rank === 1 ? 4 : rank === 2 ? 4.5 : 5, ease: "easeInOut" }}
-                          className={`absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none`}
-                        >
-                          <div className="relative w-[clamp(1.5rem,9vw,2.25rem)] h-[clamp(1.5rem,9vw,2.25rem)] flex items-center justify-center">
-                            <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_3px_6px_rgba(0,0,0,0.3)]">
-                              <defs>
-                                <linearGradient id={`refGold-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                  <stop offset="0%" stopColor="#FFD54F" />
-                                  <stop offset="50%" stopColor="#FFC107" />
-                                  <stop offset="100%" stopColor="#FFA000" />
-                                </linearGradient>
-                                <linearGradient id={`refSilver-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                  <stop offset="0%" stopColor="#F8FAFC" />
-                                  <stop offset="50%" stopColor="#CBD5E1" />
-                                  <stop offset="100%" stopColor="#94A3B8" />
-                                </linearGradient>
-                                <linearGradient id={`refBronze-${player.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                                  <stop offset="0%" stopColor="#FFCC80" />
-                                  <stop offset="50%" stopColor="#FB8C00" />
-                                  <stop offset="100%" stopColor="#E65100" />
-                                </linearGradient>
-                              </defs>
-
-                              {/* Dual-Band Base */}
-                              <path
-                                d="M15 85 Q50 90 85 85 L85 75 Q50 80 15 75 Z"
-                                fill={rank === 1 ? "#FF8F00" : rank === 2 ? "#475569" : "#BF360C"}
-                                stroke="#3E2723" strokeWidth="2"
-                              />
-                              <path
-                                d="M15 75 Q50 80 85 75 L85 68 Q50 73 15 68 Z"
-                                fill={rank === 1 ? `url(#refGold-${player.id})` : rank === 2 ? `url(#refSilver-${player.id})` : `url(#refBronze-${player.id})`}
-                                stroke="#3E2723" strokeWidth="2"
-                              />
-
-                              {/* 5-Point Crown Body (matching reference shape) */}
-                              <path
-                                d="M15 68 Q50 73 85 68 L95 40 L75 55 L50 20 L25 55 L5 40 Z"
-                                fill={rank === 1 ? `url(#refGold-${player.id})` : rank === 2 ? `url(#refSilver-${player.id})` : `url(#refBronze-${player.id})`}
-                                stroke="#3E2723" strokeWidth="2"
-                              />
-
-                              {/* Central Diamond Gem (Purple) with Shine Animation */}
-                              <Motion.path
-                                d="M50 45 L58 55 L50 65 L42 55 Z"
-                                fill={rank === 1 ? "#7E57C2" : rank === 2 ? "#3B82F6" : "#EF4444"}
-                                stroke="#3E2723" strokeWidth="1.5"
-                                animate={{
-                                  filter: ["brightness(1)", "brightness(1.5)", "brightness(1)"],
-                                }}
-                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                              />
-
-                              {/* Glowing Highlight for Diamond */}
-                              <Motion.path
-                                d="M50 48 L54 55 L50 62 L46 55 Z"
-                                fill="white" fillOpacity="0.4"
-                                animate={{ opacity: [0.2, 0.6, 0.2] }}
-                                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                              />
-
-                              {/* 5 Beads on Points (Teal) with Shine */}
-                              {[
-                                { cx: 5, cy: 40, r: 5 },
-                                { cx: 25, cy: 55, r: 4 },
-                                { cx: 50, cy: 20, r: 6 },
-                                { cx: 75, cy: 55, r: 4 },
-                                { cx: 95, cy: 40, r: 5 }
-                              ].map((b, i) => (
-                                <g key={i}>
-                                  <Motion.circle
-                                    cx={b.cx || 0} cy={b.cy || 0} r={b.r || 0}
-                                    fill="#4DD0E1" stroke="#3E2723" strokeWidth="1.5"
-                                    animate={{ filter: ["brightness(1)", "brightness(1.3)", "brightness(1)"] }}
-                                    transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
-                                  />
-                                  <Motion.circle
-                                    cx={(b.cx - b.r / 3) || 0} cy={(b.cy - b.r / 3) || 0} r={(b.r / 4) || 0}
-                                    fill="white" fillOpacity="0.6"
-                                    animate={{ opacity: [0.4, 0.9, 0.4] }}
-                                    transition={{ repeat: Infinity, duration: 2, delay: i * 0.2 }}
-                                  />
-                                </g>
-                              ))}
-
-                              {/* Small Decorative Beads on Body */}
-                              <circle cx="30" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-                              <circle cx="40" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-                              <circle cx="60" cy="64" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-                              <circle cx="70" cy="62" r="2.5" fill="#4DD0E1" stroke="#3E2723" strokeWidth="1" />
-
-                              {/* Highlight Reflections */}
-                              <path d="M50 25 L50 40" stroke="white" strokeWidth="2" strokeOpacity="0.3" strokeLinecap="round" />
-                            </svg>
+                    <div className="flex items-center justify-center w-[clamp(1.75rem,10vw,2.5rem)] shrink-0 z-10 relative ml-3 sm:ml-4">
+                      {rank <= 3 ? (
+                        <div className="z-30 pointer-events-none">
+                          <div className="relative w-[clamp(1.25rem,8vw,2rem)] h-[clamp(1.25rem,8vw,2rem)] flex items-center justify-center">
+                            <img 
+                              src={`/assets/Top_${rank}.svg`} 
+                              alt={`Top ${rank}`} 
+                              className="w-full h-full object-contain drop-shadow-[0_3px_6px_rgba(0,0,0,0.4)]"
+                            />
                           </div>
-                        </Motion.div>
+                        </div>
+                      ) : (
+                        <span className={`font-black italic tracking-normal relative z-10 text-[clamp(1.1rem,6vw,1.5rem)] ${
+                          bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900 dark:text-mono-50'
+                        }`}>
+                          {toKuDigits(rank)}
+                        </span>
                       )}
-                      <span className={`font-black italic tracking-normal relative z-10 text-[clamp(1.1rem,6vw,1.5rem)] ${
-                        bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900 dark:text-mono-50'
-                      }`}>
-                        {toKuDigits(rank)}
-                      </span>
                     </div>
 
                     {/* Avatar Section */}
