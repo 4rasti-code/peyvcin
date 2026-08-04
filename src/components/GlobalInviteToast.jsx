@@ -11,7 +11,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
   const { user } = useUser();
   const { playInviteSound } = useAudio();
   const { joinPrivateMatch, multiplayerState } = useMultiplayer();
-  
+
   const currentViewRef = useRef(currentView);
   const multiplayerStateRef = useRef(multiplayerState);
   const gameModeRef = useRef(gameMode);
@@ -37,7 +37,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
     }
   };
 
-  
+
   const [invite, setInvite] = useState(null);
   const [cancelAlert, setCancelAlert] = useState(null);
   const inviteRef = useRef(null);
@@ -51,7 +51,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
     if (!user?.id) return;
 
     const channel = supabase.channel(`user_invites_${user.id}`);
-    
+
     channel.on(
       'broadcast',
       { event: 'match_invite' },
@@ -60,11 +60,11 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
         const inviteData = payload.payload;
 
         const isBusy = currentViewRef.current === 'game' || (multiplayerStateRef.current && multiplayerStateRef.current !== 'idle');
-        
+
         if (isBusy) {
-           console.log('User is busy, auto-rejecting invite.');
-           broadcastReply(inviteData.hostId, 'match_invite_busy', { roomId: inviteData.roomId, joinerId: user.id, busyMode: gameModeRef.current });
-           return;
+          console.log('User is busy, auto-rejecting invite.');
+          broadcastReply(inviteData.hostId, 'match_invite_busy', { roomId: inviteData.roomId, joinerId: user.id, busyMode: gameModeRef.current });
+          return;
         }
 
         setInvite({
@@ -74,10 +74,10 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
           roomId: inviteData.roomId,
           timestamp: Date.now()
         });
-        
+
         playInviteSound();
         triggerHaptic(10);
-        
+
         // Auto-dismiss after 14 seconds
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
@@ -85,18 +85,18 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
         }, 14000);
       }
     )
-    .on('broadcast', { event: 'invite_cancelled' }, (payload) => {
-       if (payload.payload.roomId === inviteRef.current?.roomId) {
+      .on('broadcast', { event: 'invite_cancelled' }, (payload) => {
+        if (payload.payload.roomId === inviteRef.current?.roomId) {
           setInvite(null);
           if (timeoutRef.current) clearTimeout(timeoutRef.current);
           triggerHaptic(50);
           const hostName = inviteRef.current?.hostName || 'یاریزان';
           setCancelAlert(hostName);
-       }
-    })
-    .subscribe((status) => {
-      console.log('B. Receiver channel status:', status);
-    });
+        }
+      })
+      .subscribe((status) => {
+        console.log('B. Receiver channel status:', status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -116,21 +116,21 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
 
   const handleAccept = async () => {
     triggerHaptic(15);
-    
+
     // 1. FORCE BLUR: Close OS keyboard and clear focus from chat inputs
     if (document.activeElement) {
       document.activeElement.blur();
     }
-    
+
     // 2. DISPATCH EVENT: Tell SocialHub to clean up internal state
     window.dispatchEvent(new Event('forceCloseChat'));
 
     if (setGameMode) setGameMode('multiplayer');
     if (setCurrentView) setCurrentView('game'); // STRICTLY ROUTE TO GAME VIEW
-    
+
     if (invite?.roomId && invite?.hostId) {
       joinPrivateMatch(invite.roomId);
-      
+
       // Broadcast acceptance to host for INSTANT transition
       // Broadcast acceptance to host for INSTANT transition
       await broadcastReply(invite.hostId, 'match_invite_accepted', { roomId: invite.roomId, joinerId: user.id });
@@ -143,7 +143,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
 
   const handleDecline = async () => {
     triggerHaptic(10);
-    
+
     if (invite?.hostId && invite?.roomId) {
       // Broadcast rejection to host
       // Broadcast rejection to host
@@ -166,14 +166,14 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
             className="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
           >
             <div className="rounded p-4 shadow-[0_10px_25px_rgba(0,0,0,0.5)] border-none pointer-events-auto max-w-sm w-full flex flex-col gap-3 relative overflow-hidden bg-blue-600">
-              <div 
+              <div
                 className="absolute inset-0 bg-red-600 z-0"
-                style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }} 
+                style={{ clipPath: 'polygon(50% 0, 100% 0, 100% 100%, 50% 100%)' }}
               />
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay z-0" />
-              
+
               <div className="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-black/60 to-transparent z-0 pointer-events-none" />
-              
+
               <div className="relative z-10 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0 border border-white/20 relative overflow-hidden shadow-sm">
                   {invite.hostAvatar ? (
@@ -186,9 +186,9 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                   <span className="text-white font-black">{invite.hostName}</span> داخوازا یارییەکا هەڤڕکی ژ تە دکەت!
                 </p>
               </div>
-              
+
               <div className="relative z-10 flex gap-8 mt-2">
-                <button 
+                <button
                   onClick={handleDecline}
                   className="flex-1 py-2 rounded-sm bg-white/15 hover:bg-white/25 border border-white/20 transition-colors shadow-sm"
                 >
@@ -196,7 +196,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                     رەتکرن
                   </div>
                 </button>
-                <button 
+                <button
                   onClick={handleAccept}
                   className="flex-1 py-2 rounded-sm bg-white shadow-md hover:bg-blue-50 transition-colors"
                 >
@@ -205,9 +205,9 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                   </div>
                 </button>
               </div>
-              
+
               {/* Countdown bar indicator */}
-              <Motion.div 
+              <Motion.div
                 initial={{ width: "100%" }}
                 animate={{ width: "0%" }}
                 transition={{ duration: 15, ease: "linear" }}

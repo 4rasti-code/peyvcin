@@ -208,7 +208,6 @@ const LobbyView = memo(({
         else if (busyMode === 'multiplayer') modeText = "هەڤڕکی";
 
         setInviteAlert(`یاریزان یێ د ناڤ یارییا ${modeText} دا`);
-        if (invitedUserProfile) recordInviteStrike(invitedUserProfile.id);
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
       }

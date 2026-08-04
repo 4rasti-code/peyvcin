@@ -7,7 +7,7 @@ DECLARE
   kurdistan_date DATE;
 BEGIN
   -- Get current date in Kurdistan Time (Asia/Baghdad)
-  kurdistan_date := (CURRENT_TIMESTAMP AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Baghdad')::DATE;
+  kurdistan_date := (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Baghdad')::DATE;
 
   -- Only trigger if XP actually increased
   IF NEW.xp > OLD.xp THEN
