@@ -66,8 +66,8 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded-sm border border-white/10 z-20 pointer-events-none">
-      <span className="text-[8.5px] font-black text-amber-400 tabular-nums tracking-widest drop-shadow-md" dir="ltr">
+    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md px-1 py-[1px] rounded-sm border border-white/10 z-20 pointer-events-none">
+      <span className="text-[7.5px] font-black text-amber-400 tabular-nums tracking-widest drop-shadow-md" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
     </div>
