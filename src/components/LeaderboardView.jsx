@@ -128,7 +128,9 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
         }
 
         try {
-          const todayISO = new Date().toISOString().split('T')[0];
+          // Kurdistan is UTC+3. Get the date string offset by 3 hours.
+          const kurdistanTime = new Date(Date.now() + 3 * 60 * 60 * 1000);
+          const todayISO = kurdistanTime.toISOString().split('T')[0];
           const { data, error: leaderError } = await supabase
             .from('profiles')
             .select('*')

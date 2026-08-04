@@ -1334,9 +1334,16 @@ export default function App() {
   }, [resetBoard, getFreshWord, setIsVictory, setIsDefeat, setIsWordFeverResultVisible, setTimeLeft, handleGoHome]);
 
   const handleForfeitClick = useCallback(() => {
+    // If multiplayer game hasn't actually started properly (e.g. no active match), just leave without penalty
+    if (gameMode === 'multiplayer' && (!activeMatch || multiplayerState !== 'playing')) {
+      if (cancelMatch) cancelMatch();
+      handleGoHome();
+      return;
+    }
+    
     playPopSound();
     setIsForfeitConfirmOpen(true);
-  }, [playPopSound]);
+  }, [playPopSound, gameMode, multiplayerState, activeMatch, cancelMatch, handleGoHome]);
 
   // Auto-close forfeit modal if game ends or view changes
   useEffect(() => {
