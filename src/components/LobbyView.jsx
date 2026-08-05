@@ -60,7 +60,7 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
       const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
       const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
       const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-      setTimeLeft(`${h}:${m}:${s}`);
+      setTimeLeft(h === '00' ? `${m}:${s}` : `${h}:${m}:${s}`);
     };
     
     update();
@@ -70,24 +70,7 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1 py-0.5 rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm gap-1 mx-auto max-w-12 md:max-w-none w-max">
-      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md shrink-0">
-        <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#ef4444" />
-        <rect x="9" y="1" width="6" height="2" rx="1" fill="#ef4444" />
-        <g transform="rotate(-40 12 13)">
-          <rect x="10.5" y="2" width="3" height="4" rx="1" fill="#ef4444" />
-          <rect x="9" y="2" width="6" height="2" rx="1" fill="#ef4444" />
-        </g>
-        <g transform="rotate(40 12 13)">
-          <rect x="10.5" y="2" width="3" height="4" rx="1" fill="#ef4444" />
-          <rect x="9" y="2" width="6" height="2" rx="1" fill="#ef4444" />
-        </g>
-        <circle cx="12" cy="13" r="9.5" fill="#ef4444" />
-        <circle cx="12" cy="13" r="7.5" fill="#f8fafc" />
-        <path d="M12 13 L12 8.5" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M12 13 L15.5 10.5" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
-        <circle cx="12" cy="13" r="1.5" fill="#1e293b" />
-      </svg>
+    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1.5 py-0.5 rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm mx-auto w-max">
       <span className="text-[7.5px] md:text-[9px] leading-none font-black text-amber-400 tabular-nums tracking-widest drop-shadow-md pt-[1.5px]" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
