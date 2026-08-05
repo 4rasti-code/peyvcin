@@ -366,7 +366,8 @@ export default function App() {
 
   // 1. INITIALIZE VIEW FROM URL
   const [currentView, setCurrentView] = useState(() => {
-    const path = window.location.pathname.replace('/', '');
+    const path = window.location.pathname.replace(/^\/+/, '');
+    if (path.startsWith('social_hub')) return 'social_hub';
     return path || 'lobby';
   });
 
@@ -434,16 +435,20 @@ export default function App() {
   // Sync URL -> State (Initial Load & Back Button)
   // Sync URL -> State (Handles Initial Load & Back/Forward Buttons)
   useEffect(() => {
-    const path = location.pathname.replace('/', '') || 'lobby';
+    const path = location.pathname.replace(/^\/+/, '') || 'lobby';
     requestAnimationFrame(() => {
-      setCurrentView(prev => prev !== path ? path : prev);
+      let view = path;
+      if (path.startsWith('social_hub')) view = 'social_hub';
+      setCurrentView(prev => prev !== view ? view : prev);
     });
   }, [location.pathname]);
 
   // Sync State -> URL (Handles internal navigateTo calls)
   useEffect(() => {
-    const path = location.pathname.replace('/', '') || 'lobby';
-    if (path !== currentView) {
+    const path = location.pathname.replace(/^\/+/, '') || 'lobby';
+    let view = path;
+    if (path.startsWith('social_hub')) view = 'social_hub';
+    if (view !== currentView) {
       navigate('/' + currentView, { replace: true });
     }
   }, [currentView, navigate, location.pathname]);
@@ -455,7 +460,12 @@ export default function App() {
   const [howToPlayMode, setHowToPlayMode] = useState('classic');
   const [isHowToPlayShowTabs, setIsHowToPlayShowTabs] = useState(true);
   const [activeChatPartner, setActiveChatPartner] = useState(null);
-  const [initialSocialTab, setInitialSocialTab] = useState(null);
+  const [initialSocialTab, setInitialSocialTab] = useState(() => {
+    const path = window.location.pathname;
+    if (path.includes('/social_hub/global')) return 'global';
+    if (path.includes('/social_hub/private')) return 'private';
+    return null;
+  });
   const [openFriendsFromNotif, setOpenFriendsFromNotif] = useState(false);
   const [_isRecoveringPassword, setIsRecoveringPassword] = useState(false);
   const [_isVerifyingSignup, setIsVerifyingSignup] = useState(false);
