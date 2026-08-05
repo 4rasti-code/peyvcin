@@ -402,9 +402,16 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
       if (part.startsWith('[IMAGE:') && part.endsWith(']')) {
         const url = part.substring(7, part.length - 1);
         return (
-          <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="block mt-2 mb-2 w-full max-w-60" onClick={e => e.stopPropagation()}>
-             <img src={url} alt="Attachment" className="w-full h-auto rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40" />
-          </a>
+          <div key={i} className="relative block mt-2 mb-2 w-full max-w-60" onContextMenu={e => e.preventDefault()}>
+             <img 
+                src={url} 
+                alt="Attachment" 
+                className="w-full h-auto rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40 pointer-events-none select-none" 
+                style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
+                draggable="false"
+             />
+             <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()} />
+          </div>
         );
       }
       if (part.match(/^https?:\/\//)) {
@@ -702,6 +709,8 @@ export default function SocialHubView({
   const typingChannelRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const textareaRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
@@ -1293,6 +1302,78 @@ export default function SocialHubView({
       }]);
     } catch (err) {
       console.error("Failed to report message:", err);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !user?.id) return;
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+    setIsUploadingImage(true);
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('chat_images')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat_images')
+        .getPublicUrl(fileName);
+
+      const msgContent = `[IMAGE:${publicUrl}]`;
+      const currentUserId = user.id;
+
+      if (activeTab === 'global') {
+        const payload = {
+          content: msgContent,
+          user_id: currentUserId,
+          user_nickname: userNickname || 'بێناڤ',
+          user_avatar: userAvatar,
+        };
+        const { error } = await supabase.from('messages').insert([payload]);
+        if (error) throw error;
+        setTimeout(() => {
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+          }
+        }, 100);
+      } else if (selectedChat) {
+        const payload = {
+          content: msgContent,
+          user_id: currentUserId,
+          user_nickname: userNickname || 'بێناڤ',
+          user_avatar: userAvatar,
+          receiver_id: selectedChat.id
+        };
+        
+        // Optimistic UI for private
+        const tempId = `temp-${Date.now()}`;
+        const tempMsg = { ...payload, id: tempId, created_at: new Date().toISOString() };
+        setChatMessages(prev => [...prev, tempMsg]);
+        setTimeout(() => {
+          if (messagesContainerRef.current) {
+            messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+          }
+        }, 50);
+
+        const { data, error } = await supabase.from('messages').insert([payload]).select();
+        if (error) {
+          setChatMessages(prev => prev.filter(m => m.id !== tempId));
+          throw error;
+        } else if (data && data.length > 0) {
+           setChatMessages(prev => prev.map(m => m.id === tempId ? data[0] : m));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to upload image:", err);
+      alert("ئاریشەیەک دروستبوو د هنارتنا وێنەی دا.");
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -1942,12 +2023,36 @@ export default function SocialHubView({
             <button
               onClick={handleSendMessage}
               onPointerDown={(e) => e.preventDefault()}
-              disabled={!newMessage.trim()}
-              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${newMessage.trim() ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
+              disabled={(!newMessage.trim() && !isUploadingImage) || isUploadingImage}
+              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${(newMessage.trim() || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
               title="ھنارتن"
             >
-              <span className="material-symbols-outlined font-black text-xl">send</span>
+              {isUploadingImage ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <span className="material-symbols-outlined font-black text-xl">send</span>
+              )}
             </button>
+            
+            <input 
+              type="file" 
+              accept="image/*" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleImageUpload} 
+            />
+            
+            {selectedChat && (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingImage}
+                className="w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-400 hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                title="وێنەیەک بهنێرە"
+              >
+                <span className="material-symbols-outlined font-black text-xl">image</span>
+              </button>
+            )}
+
             <textarea
               ref={textareaRef}
               rows="1"
