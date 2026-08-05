@@ -407,7 +407,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
              <img 
                 src={url} 
                 alt="Attachment" 
-                className="w-full h-auto rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40 pointer-events-none select-none" 
+                className="w-auto h-auto max-w-full max-h-72 rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40 pointer-events-none select-none" 
                 style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                 draggable="false"
              />
@@ -1558,8 +1558,8 @@ export default function SocialHubView({
   return (
     <div className="flex flex-col h-full bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
-      <div className="px-4 pb-3" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
-        <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300">
+      <div className="pb-2 w-full" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
+        <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
             {
               id: 'global',
