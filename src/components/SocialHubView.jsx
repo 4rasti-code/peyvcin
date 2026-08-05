@@ -1330,8 +1330,7 @@ export default function SocialHubView({
         const payload = {
           content: msgContent,
           user_id: currentUserId,
-          user_nickname: userNickname || 'بێناڤ',
-          user_avatar: userAvatar,
+          user_nickname: userNickname || 'بێناڤ'
         };
         const { error } = await supabase.from('messages').insert([payload]);
         if (error) throw error;
@@ -1345,13 +1344,12 @@ export default function SocialHubView({
           content: msgContent,
           user_id: currentUserId,
           user_nickname: userNickname || 'بێناڤ',
-          user_avatar: userAvatar,
           receiver_id: selectedChat.id
         };
         
         // Optimistic UI for private
         const tempId = `temp-${Date.now()}`;
-        const tempMsg = { ...payload, id: tempId, created_at: new Date().toISOString() };
+        const tempMsg = { ...payload, user_avatar: userAvatar, id: tempId, created_at: new Date().toISOString() };
         setChatMessages(prev => [...prev, tempMsg]);
         setTimeout(() => {
           if (messagesContainerRef.current) {
