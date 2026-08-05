@@ -1557,16 +1557,8 @@ export default function SocialHubView({
 
   return (
     <div className="flex flex-col h-full bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
-      {/* Header - Social Center Branding */}
-      <div
-        className="px-4 pb-4 flex items-center justify-center border-b border-mono-200 dark:border-mono-800 bg-mono-white dark:bg-mono-900 transition-colors duration-500"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
-      >
-        <h2 className="text-xl font-black font-rabar text-mono-900 dark:text-mono-100">ناڤەندا جڤاکی</h2>
-      </div>
-
       {/* Tabs - Sharp Segmented Style with Shadow */}
-      <div className="px-4 py-3">
+      <div className="px-4 pb-3" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
             {

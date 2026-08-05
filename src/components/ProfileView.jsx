@@ -258,7 +258,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+36px)] sm:pt-[calc(env(safe-area-inset-top)+36px)] flex justify-between items-start pointer-events-none" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] z-60 px-6 sm:px-6 pt-[calc(env(safe-area-inset-top)+36px)] sm:pt-[calc(env(safe-area-inset-top)+36px)] flex justify-between items-start pointer-events-none sm:max-w-md sm:mx-auto w-full" dir="ltr">
                   {/* Left: Settings Icon */}
                   <div className="relative pointer-events-auto">
                      <Motion.button
@@ -397,7 +397,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
                {/* 5. Bottom Info Dock */}
                <div className={`absolute top-[68%] sm:top-auto sm:bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 sm:pt-6 flex flex-col justify-end shadow-sm`} dir="rtl">
-                  <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
+                  <div className="flex flex-row items-center justify-between w-full sm:max-w-md sm:mx-auto mb-3.5 px-2 sm:px-6" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
                         className="w-12 h-12 flex items-center justify-center shrink-0"
