@@ -1305,11 +1305,10 @@ export default function SocialHubView({
     }
   };
 
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const uploadImageFile = async (file) => {
     if (!file || !user?.id) return;
 
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name ? file.name.split('.').pop() : 'png';
     const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
     setIsUploadingImage(true);
@@ -1374,6 +1373,26 @@ export default function SocialHubView({
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    uploadImageFile(e.target.files[0]);
+  };
+
+  const handlePaste = (e) => {
+    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+    if (!items) return;
+    for (let index in items) {
+      const item = items[index];
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile();
+        if (file) {
+          uploadImageFile(file);
+          e.preventDefault();
+          break;
+        }
+      }
     }
   };
 
@@ -2057,6 +2076,7 @@ export default function SocialHubView({
               ref={textareaRef}
               rows="1"
               value={newMessage}
+              onPaste={handlePaste}
               onChange={(e) => {
                 handleInputChange(e.target.value);
                 e.target.style.height = 'auto';
