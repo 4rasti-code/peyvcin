@@ -1663,8 +1663,9 @@ export default function SocialHubView({
 
             <div
               ref={messagesContainerRef}
-              className="relative z-10 flex-1 h-full overflow-y-auto p-4 space-y-4 no-scrollbar"
+              className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
             >
+              <div className="mt-auto flex-none" />
               <AnimatePresence initial={false}>
                 {messages.map((m, idx) => (
                   <MessageItem
@@ -1759,8 +1760,9 @@ export default function SocialHubView({
 
                   <div
                     ref={messagesContainerRef}
-                    className="relative z-10 flex-1 h-full overflow-y-auto p-4 space-y-4 no-scrollbar"
+                    className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
                   >
+                    <div className="mt-auto flex-none" />
                     {/* Disappearing Messages Notice */}
                     <div className="flex justify-center mb-4 mt-2">
                       <div className="bg-mono-200/60 dark:bg-mono-800/60 backdrop-blur-md border border-mono-300/30 dark:border-mono-700/30 text-mono-600 dark:text-mono-300 text-[11.5px] leading-relaxed text-center px-4 py-2.5 rounded-xl max-w-[90%] shadow-sm flex items-start gap-2.5" dir="rtl">
