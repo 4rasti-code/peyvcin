@@ -155,8 +155,8 @@ export default function ImageEditorModal({ imageUrl, onSave, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-mono-900/95 backdrop-blur-md flex flex-col items-center justify-between overflow-hidden" dir="rtl">
-      <div className="w-full h-[60px] bg-black/40 flex items-center justify-between px-4 z-20 shrink-0">
+    <div className="fixed inset-0 z-9999 bg-mono-900/95 backdrop-blur-md flex flex-col items-center justify-between overflow-hidden" dir="rtl">
+      <div className="w-full h-15 bg-black/40 flex items-center justify-between px-4 z-20 shrink-0">
         <button 
           onClick={onClose}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
