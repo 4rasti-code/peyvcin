@@ -163,7 +163,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
   return (
     <div
       onClick={handleBackgroundClick}
-      className="flex-1 w-full bg-mono-white dark:bg-black px-4 pt-6 pb-30 max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
+      className="flex-1 w-full px-4 pt-6 pb-30 max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
     >
 
       <div className="relative z-20 shrink-0 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md py-3 px-4 shadow-sm overflow-hidden group transition-colors duration-300">

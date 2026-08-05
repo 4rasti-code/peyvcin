@@ -578,17 +578,18 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
               : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
+
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
             {!isDeleted && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLongPress(m, e.clientX, e.clientY);
-                }}
-                className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
-              >
-                <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLongPress(m, e.clientX, e.clientY);
+                  }}
+                  className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+                </button>
             )}
 
             {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
@@ -1209,7 +1210,7 @@ export default function SocialHubView({
         }
       });
     }
-  }, [messages.length, chatMessages.length, activeTab, selectedChat, isVisible]);
+  }, [messages.length, chatMessages.length, activeTab, selectedChat, isVisible, partnerIsTyping]);
 
 
 
@@ -2016,28 +2017,7 @@ export default function SocialHubView({
           </AnimatePresence>
 
           <div className="bg-mono-50 dark:bg-black/50 border-t border-mono-200 dark:border-mono-800 shrink-0 relative transition-colors duration-500">
-            {/* Scroll to Bottom Button */}
-            <AnimatePresence>
-              {(messages.length > 5 || chatMessages.length > 5) && (
-                <Motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                  className="absolute -top-12 left-1/2 -translate-x-1/2 z-50"
-                >
-                  <button
-                    onClick={() => {
-                      if (messagesContainerRef.current) {
-                        messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
-                      }
-                    }}
-                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-mono-800 rounded-full shadow-lg border border-mono-200 dark:border-mono-700 text-mono-500 hover:text-primary transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-lg">keyboard_arrow_down</span>
-                  </button>
-                </Motion.div>
-              )}
-            </AnimatePresence>
+
 
             {/* Image Preview Container */}
             {pendingImagePreview && (
@@ -2074,7 +2054,7 @@ export default function SocialHubView({
                 onClick={handleSendMessage}
                 onPointerDown={(e) => e.preventDefault()}
                 disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
-                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
+                className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-60 scale-95'}`}
                 title="ھنارتن"
               >
                 {isUploadingImage ? (
@@ -2084,25 +2064,6 @@ export default function SocialHubView({
                 )}
               </button>
             
-              <input 
-                type="file" 
-                accept="image/*" 
-                ref={fileInputRef} 
-                style={{ display: 'none' }} 
-                onChange={handleImageUpload} 
-              />
-              
-              {selectedChat && (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  className="w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-400 hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                  title="وێنەیەک بهنێرە"
-                >
-                  <span className="material-symbols-outlined font-black text-xl">image</span>
-                </button>
-              )}
-
               <textarea
                 ref={textareaRef}
                 rows="1"
@@ -2123,8 +2084,27 @@ export default function SocialHubView({
                 placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
                 onFocus={() => onKeyboardToggle?.(true)}
                 onBlur={() => onKeyboardToggle?.(false)}
-                className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 transition-colors duration-300 outline-none resize-none overflow-y-auto no-scrollbar"
+                className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
               />
+
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                onChange={handleImageUpload} 
+              />
+              
+              {selectedChat && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                  title="وێنەیەک بهنێرە"
+                >
+                  <span className="material-symbols-outlined font-black text-xl">image</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

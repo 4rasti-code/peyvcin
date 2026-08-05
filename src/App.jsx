@@ -122,10 +122,13 @@ class GameErrorBoundary extends React.Component {
 }
 
 // --- UI SUB-COMPONENTS (HOISTED FOR PERFORMANCE) ---
+const MATCHMAKING_AVATARS = Array.from({ length: 9 }, (_, i) => ({ id: `/Monster_Avatars/Monster_Avatars-0${i + 1}.svg` }));
+
 const ScrollingMatchFinder = ({ opponent }) => {
-  const [randomPool] = useState(() =>
-    [...AVATARS, ...AVATARS].sort(() => 0.5 - Math.random())
-  );
+  const [randomPool] = useState(() => {
+    const base = [...MATCHMAKING_AVATARS].sort(() => 0.5 - Math.random());
+    return [...base, ...base, ...base];
+  });
 
   return (
     <div className="relative w-24 h-24 rounded-full overflow-hidden bg-mono-100 dark:bg-black/40 shadow-[0_0_15px_rgba(239,68,68,0.3)] border-2 border-red-500">
@@ -139,8 +142,8 @@ const ScrollingMatchFinder = ({ opponent }) => {
             className="absolute inset-0"
           >
             <Motion.div
-              animate={{ y: [0, -1200] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              animate={{ y: ["0%", "-33.333333%"] }} // Perfect loop regardless of root font size
+              transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
               className="flex flex-col items-center"
             >
               {randomPool.map((av, i) => (
@@ -186,7 +189,7 @@ export default function App() {
   const {
     user, setUser, hapticEnabled, loadingAuth, authProgress,
     userNickname, userAvatar, userAvatar: equippedAvatar, city, isInKurdistan, countryCode,
-    ownedAvatars, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
+    ownedAvatars, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts,
     equippedBundle, ownedBundles,
     unlockedThemes: _unlockedThemes, currentTheme,
     updateProfile, profileData, syncProfile
@@ -1350,7 +1353,7 @@ export default function App() {
       handleGoHome();
       return;
     }
-    
+
     playPopSound();
     setIsForfeitConfirmOpen(true);
   }, [playPopSound, gameMode, multiplayerState, activeMatch, cancelMatch, handleGoHome]);
@@ -1705,6 +1708,13 @@ export default function App() {
       <Analytics />
       {user && currentView === 'lobby' && profileData?.has_completed_install_guide !== false && <UpdateNotesModal user={user} />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
+        {/* Background Image Layer for all main tabs */}
+        {['lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (
+          <div
+            className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-[0.15] pointer-events-none transition-all duration-500"
+            style={{ backgroundImage: `url('/lobby_bg.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
+          />
+        )}
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
           <div className="panic-overlay" />
@@ -2214,11 +2224,11 @@ export default function App() {
           scores={scores}
           opponent={opponent}
           playerStats={playerStats}
-          user={{ 
-            id: user?.id, 
-            nickname: userNickname, 
-            avatar_url: userAvatar, 
-            level: level, 
+          user={{
+            id: user?.id,
+            nickname: userNickname,
+            avatar_url: userAvatar,
+            level: level,
             xp: profileData?.xp || 0,
             equipped_font: profileData?.equipped_font,
             equipped_name_style: profileData?.equipped_name_style,
@@ -2317,12 +2327,12 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-mono-50/90 dark:bg-black/90 backdrop-blur-2xl px-6 py-12 text-center overflow-hidden"
+              className="fixed inset-0 z-150 flex flex-col items-center justify-between bg-mono-50/90 dark:bg-black/90 backdrop-blur-2xl px-6 py-12 text-center overflow-hidden"
             >
               {/* Background gradient elements removed as requested by user */}
 
               {/* TOP RIGHT CANCEL ICON */}
-              <div className={`absolute top-6 right-6 z-50 transition-all duration-500 ${multiplayerState === 'found' ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}>
+              <div className={`absolute top-[calc(env(safe-area-inset-top)+24px)] right-6 z-50 transition-all duration-500 ${multiplayerState === 'found' ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}>
                 <button
                   onClick={cancelMatch}
                   className="p-3 bg-mono-200/50 dark:bg-mono-800/50 hover:bg-mono-300 dark:hover:bg-mono-700 border border-mono-300/50 dark:border-mono-700/50 rounded-full text-mono-600 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white backdrop-blur-md shadow-sm hover:shadow-md transition-all active:scale-90"
@@ -2415,7 +2425,7 @@ export default function App() {
 
 
               <div className="absolute bottom-12 left-0 right-0 flex justify-center gap-4 opacity-20">
-                {['پ', 'ە', 'ی', 'ڤ', 'چ', 'ن'].map((char, i) => (
+                {['پ', 'ە', 'ی', 'ڤ', 'ۆ', 'ک'].map((char, i) => (
                   <Motion.span
                     key={i}
                     animate={{ y: [-10, 10, -10] }}

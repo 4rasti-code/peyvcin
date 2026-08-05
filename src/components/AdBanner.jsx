@@ -9,10 +9,10 @@ const fallbackAds = [
     title: 'ڕیکلاما خوە ل ڤێرێ بکە!',
     subtitle: 'بۆ دانانا ڕیکلاما بزنسێ خوە ل ڤێرێ، نۆکە پەیوەندیێ ب مە بکە.',
     icon: 'campaign',
-    bgClass: 'bg-mono-900 border border-white/5 overflow-hidden',
-    shadowClass: 'shadow-lg',
-    glowColor: 'bg-purple-500/20',
-    iconColor: 'text-purple-400'
+    bgClass: 'bg-mono-white dark:bg-black border border-amber-200/50 dark:border-amber-500/20 overflow-hidden',
+    shadowClass: 'shadow-[0_4px_15px_rgba(245,158,11,0.1)] dark:shadow-none',
+    glowColor: 'bg-amber-500/20',
+    iconColor: 'text-amber-500 dark:text-amber-400'
   },
   {
     id: 'fallback-2',
@@ -20,10 +20,10 @@ const fallbackAds = [
     title: 'بزنسێ خوە پێشبێخە!',
     subtitle: 'ئەڤ بۆشاییە یا تەرخانکریە بۆ ڕیکلامکرنا بزنس و کارێن وە.',
     icon: 'trending_up',
-    bgClass: 'bg-mono-900 border border-white/5 overflow-hidden',
-    shadowClass: 'shadow-lg',
-    glowColor: 'bg-emerald-500/20',
-    iconColor: 'text-emerald-400'
+    bgClass: 'bg-mono-white dark:bg-black border border-cyan-200/50 dark:border-cyan-500/20 overflow-hidden',
+    shadowClass: 'shadow-[0_4px_15px_rgba(6,182,212,0.1)] dark:shadow-none',
+    glowColor: 'bg-cyan-500/20',
+    iconColor: 'text-cyan-500 dark:text-cyan-400'
   }
 ];
 
@@ -77,7 +77,7 @@ const AdBanner = () => {
   const currentAd = displayAds[currentIndex];
 
   return (
-    <div className="col-span-2 relative mt-1 aspect-2/1 w-full rounded-md overflow-hidden bg-mono-900" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
+    <div className="col-span-2 relative mt-1 aspect-2/1 w-full rounded-md overflow-hidden bg-mono-white dark:bg-black" style={{ boxShadow: currentAd.is_fallback ? 'none' : '0 5px 0 rgba(0,0,0,0.5)' }}>
       <AnimatePresence initial={false}>
         <Motion.div
           key={currentAd.id}
@@ -89,27 +89,27 @@ const AdBanner = () => {
           className={`absolute inset-0 w-full h-full border-none outline-none ${currentAd.is_fallback ? currentAd.bgClass + ' ' + currentAd.shadowClass : ''}`}
         >
           {/* Badge */}
-          <div className="absolute top-3 left-3 z-20 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded border border-white/10 shadow-sm">
-            <span className="text-[10px] text-white/90 font-bold tracking-widest uppercase drop-shadow-sm">سپۆنسەر</span>
+          <div className="absolute top-2 right-2 z-20 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded border border-white/10 shadow-sm">
+            <span className="text-[10px] text-white/90 font-bold tracking-widest uppercase drop-shadow-sm font-rabar">سپۆنسەر</span>
           </div>
 
           {currentAd.is_fallback ? (
-            <div className="relative w-full h-full flex items-center justify-between p-6 overflow-hidden">
+            <div className="relative w-full h-full flex items-center justify-between p-4 pt-8 overflow-hidden gap-3">
               {/* Animated Glow Backdrops */}
               <div className={`absolute -top-12 -left-12 w-40 h-40 rounded-full blur-3xl ${currentAd.glowColor} animate-pulse`} />
               <div className={`absolute -bottom-12 -right-12 w-40 h-40 rounded-full blur-3xl ${currentAd.glowColor} animate-pulse`} style={{ animationDelay: '1.5s' }} />
               
-              <div className="relative z-10 flex flex-col items-start text-right w-full pr-2">
-                <h3 className="text-xl font-black font-heading text-white drop-shadow-md truncate w-full mb-1">{currentAd.title}</h3>
-                <span className="text-xs font-medium font-rabar text-white/50 leading-relaxed max-w-[85%] whitespace-pre-wrap">{currentAd.subtitle}</span>
+              <div className="relative z-10 flex flex-col items-start text-right flex-1">
+                <h3 className="text-base sm:text-lg font-black font-heading text-white drop-shadow-md w-full mb-1 whitespace-normal leading-tight">{currentAd.title}</h3>
+                <span className="text-[11px] sm:text-xs font-medium font-rabar text-white/60 leading-relaxed whitespace-normal">{currentAd.subtitle}</span>
               </div>
-              <div className="flex items-center justify-center relative shrink-0">
+              <div className="flex items-center justify-center relative shrink-0 z-10">
                 <Motion.div 
                   animate={{ y: [0, -5, 0] }} 
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-inner"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/5 flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-inner"
                 >
-                  <span className={`material-symbols-outlined text-[28px] drop-shadow-md ${currentAd.iconColor}`}>{currentAd.icon}</span>
+                  <span className={`material-symbols-outlined text-[24px] sm:text-[28px] drop-shadow-md ${currentAd.iconColor}`}>{currentAd.icon}</span>
                 </Motion.div>
               </div>
               {/* Subtle glass overlay */}

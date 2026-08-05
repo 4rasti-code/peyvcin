@@ -435,7 +435,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
   return (
     <div
       onClick={handleBackgroundClick}
-      className="w-full max-w-full px-4 md:px-6 relative animate-in fade-in duration-700 bg-mono-50 dark:bg-black overflow-hidden text-right bg-trigger-zone transition-colors flex flex-col"
+      className="w-full max-w-full px-4 md:px-6 relative animate-in fade-in duration-700 bg-transparent overflow-hidden text-right transition-colors flex flex-col"
       style={{ height: '100dvh' }}
     >
 
@@ -443,11 +443,11 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
       <div className="relative z-10 flex flex-col h-full w-full">
         {/* FIXED HEADER CONTAINER */}
         <div 
-          className="shrink-0 bg-mono-50 dark:bg-black md:pt-4 px-4 md:px-6 border-b border-mono-200 dark:border-mono-800 shadow-sm transition-colors relative z-50"
+          className="shrink-0 bg-transparent md:pt-4 px-4 md:px-6 shadow-sm transition-colors relative z-50"
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 8px) + 8px)' }}
         >
           {/* GAP FILLER: Extends background infinitely upwards to cover iOS notch or scroll bounce gaps */}
-          <div className="absolute bottom-full -left-12.5 -right-12.5 h-125 bg-mono-50 dark:bg-black pointer-events-none" />
+          <div className="absolute bottom-full -left-12.5 -right-12.5 h-125 bg-transparent pointer-events-none" />
           
           <div className="flex flex-col items-center max-w-md mx-auto text-center relative">
           <div className="z-30 relative mb-2 drop-shadow-sm">

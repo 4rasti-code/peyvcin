@@ -13,7 +13,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
   ];
 
   return (
-    <nav className="sticky bottom-0 w-full z-40 pb-[env(safe-area-inset-bottom)] bg-mono-100 dark:bg-mono-900 border-t border-mono-200 dark:border-mono-800 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]" dir="rtl">
+    <nav className="sticky bottom-0 w-full z-40 pb-[env(safe-area-inset-bottom)] bg-white/10 dark:bg-white/5 backdrop-blur-2xl border-t border-mono-200/50 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]" dir="rtl">
       <div className="h-24 flex justify-between items-end px-3 pt-3 pb-4 gap-2.5 w-full">
         {tabs.map((tab, index) => {
           const isActive = currentView === tab.id;
@@ -30,11 +30,10 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   if (isSettings) onSettingsToggle();
                   else setCurrentView(tab.id);
                 }}
-                className={`group relative flex-1 flex flex-col items-center justify-center rounded-[14px] select-none outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 ease-out ${
-                  isActive 
-                    ? '-translate-y-1' 
+                className={`group relative flex-1 flex flex-col items-center justify-center rounded-[14px] select-none outline-none focus:outline-none focus-visible:outline-none transition-all duration-200 ease-out ${isActive
+                    ? '-translate-y-1'
                     : 'bg-transparent hover:-translate-y-0.5 active:translate-y-0.5 active:scale-95'
-                }`}
+                  }`}
                 style={{
                   height: isActive ? '68px' : '62px'
                 }}
@@ -77,18 +76,17 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                     />
                   )}
 
-                  <Icon 
-                    className={`w-8 h-8 ${isActive ? 'mb-1' : 'mb-0.5'} pointer-events-none`} 
-                    isActive={isActive} 
+                  <Icon
+                    className={`w-8 h-8 ${isActive ? 'mb-1' : 'mb-0.5'} pointer-events-none`}
+                    isActive={isActive}
                     avatarUrl={userAvatarUrl}
                   />
                 </div>
-                
+
                 {/* Text Label */}
                 <span
-                  className={`text-[10px] font-black font-rabar whitespace-nowrap uppercase transition-colors duration-150 pointer-events-none ${
-                    isActive ? 'text-mono-900 dark:text-white dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]' : 'text-mono-400 dark:text-mono-500'
-                  }`}
+                  className={`text-[10px] font-black font-rabar whitespace-nowrap uppercase transition-colors duration-150 pointer-events-none ${isActive ? 'text-mono-900 dark:text-white dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]' : 'text-mono-400 dark:text-mono-500'
+                    }`}
                 >
                   {tab.label}
                 </span>

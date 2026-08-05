@@ -244,7 +244,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    return (
       <div
          onClick={handleBackgroundClick}
-         className="w-full max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x-hidden relative z-10 bg-mono-white dark:bg-black bg-trigger-zone transition-colors duration-500"
+         className="w-full max-w-full mx-auto h-full flex flex-col pt-0 pb-0 overflow-x-hidden relative z-10 bg-transparent transition-colors duration-500"
       >
          <div className="absolute inset-0 pointer-events-none z-0">
 

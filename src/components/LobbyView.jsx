@@ -17,6 +17,9 @@ import MysteryBoxModal from './MysteryBoxModal';
 import ClipboardIcon from './ClipboardIcon';
 import LuckyWheelIcon from './LuckyWheelIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
+import ReportIcon from './ReportIcon';
+import DownloadIcon from './DownloadIcon';
+import TutorialIcon from './TutorialIcon';
 import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
@@ -465,7 +468,7 @@ const LobbyView = memo(({
             setSelectedProfile(profile);
           }}
         >
-          <div className="w-10 h-10 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
+          <div className="w-8 h-8 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
             <Avatar src={profile.avatar_url} size="full" border={false} level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} />
             <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
           </div>
@@ -481,20 +484,13 @@ const LobbyView = memo(({
               const name = profile.nickname || 'یاریکەر';
               const nameLen = Math.max(name.length, 1);
               const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
-              const isWideFont = wideFonts.includes(profile.equipped_font);
+              const actualFontClass = bundleObj.id !== 'default' ? bundleObj.fontKurdish : profile.equipped_font;
+              const isWideFont = wideFonts.some(wf => actualFontClass?.includes(wf));
               
-              // 1. Calculate an aggressive heuristic fallback
-              const baselineLen = isWideFont ? 4 : 7;
-              const scaleFactor = Math.min(1.0, Math.max(0.3, baselineLen / nameLen));
               const baseSize = fontObj.style?.fontSize ? parseFloat(fontObj.style.fontSize) : 1.05;
-              const fallbackSize = `${baseSize * scaleFactor}em`;
-
-              // 2. Calculate the exact max container width percentage (cqw) needed to fit the characters
-              const charWidthRatio = isWideFont ? 0.9 : 0.55; 
+              const charWidthRatio = isWideFont ? 1.3 : 0.85; 
               const maxCqw = 100 / (nameLen * charWidthRatio);
-              
-              // 3. Use CSS min() to pick the safest small size so it NEVER overflows and doesn't need dots
-              const dynamicFontSize = `min(${fallbackSize}, ${maxCqw}cqw)`;
+              const dynamicFontSize = `min(${baseSize}em, ${maxCqw}cqw)`;
 
               return (
                 <span 
@@ -552,125 +548,137 @@ const LobbyView = memo(({
       initial="hidden"
       animate="show"
       onClick={handleBackgroundClick}
-      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-mono-white dark:bg-black relative h-full bg-trigger-zone transition-colors duration-500"
+      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-transparent relative h-full bg-trigger-zone transition-colors duration-500"
     >
-      <div className="relative z-10">
-        
-        {/* Action Buttons Row */}
-        <div className="flex flex-wrap justify-center items-center gap-2.5 w-full mb-3 -mt-3 px-2">
-          
-          {/* Install Button */}
-          {/* Install Button */}
-          <Motion.button
-             id="btn-download-game"
-             initial={{ opacity: 0, y: -10 }}
-             animate={{ opacity: 1, y: 0 }}
-             onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-             className="relative h-7 rounded-full bg-sky-50 dark:bg-sky-500/10 border border-sky-200/50 dark:border-sky-500/20 hover:bg-sky-100 dark:hover:bg-sky-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
-          >
-             <div className="flex items-center gap-1.5 relative z-10 text-sky-600 dark:text-sky-400">
-                <span className="material-symbols-outlined text-[14px]">download</span>
-                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">داگرتنا یاریێ</span>
-             </div>
-          </Motion.button>
 
-          {/* Report Button */}
-          <Motion.button
-             initial={{ opacity: 0, y: -10 }}
-             animate={{ opacity: 1, y: 0 }}
-             onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-             className="relative h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 border border-amber-200/50 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
-          >
-             <div className="flex items-center gap-1.5 relative z-10 text-amber-600 dark:text-amber-400">
-                <span className="material-symbols-outlined text-[14px]">campaign</span>
-                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">ئاریشە و پێشنیار</span>
-             </div>
-          </Motion.button>
 
-          {/* Tutorial Button */}
-          <Motion.button
-             initial={{ opacity: 0, y: -10 }}
-             animate={{ opacity: 1, y: 0 }}
-             onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-             className="relative h-7 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200/50 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 flex items-center justify-center px-3 transition-colors overflow-hidden group"
-          >
-             <div className="flex items-center gap-1.5 relative z-10 text-indigo-600 dark:text-indigo-400">
-                <span className="material-symbols-outlined text-[14px]">help</span>
-                <span className="font-bold font-rabar text-[10px] mt-0.5 tracking-wide">فێرکاری</span>
-             </div>
-          </Motion.button>
-        </div>
+        {/* Fixed Docks Wrapper (Does not scroll with cards) */}
+        <div className="fixed inset-y-0 w-full max-w-screen-sm md:max-w-240 left-1/2 -translate-x-1/2 pointer-events-none z-50">
+          {/* Left Column (Icons) - Fixed to Edge */}
+          <div className="absolute left-2 md:left-6 top-32 sm:top-40 md:top-52 flex flex-col pointer-events-auto items-center gap-4 z-40 bg-transparent py-4 pr-1 pl-0.5">
+            
+            {/* Mystery Box */}
+            <Motion.button
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic(15);
+                playDailyOpenSfx();
+                setShowMysteryBox(true);
+              }}
+              className="flex flex-col items-center gap-1 cursor-pointer relative"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-8 h-8 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
+                {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
+            </Motion.button>
 
-        <div className="flex flex-col mb-4 px-1 gap-2 mt-0 relative z-10 w-full justify-start">
-          <div className="flex items-center justify-center w-full mt-2 mb-2">
-            {/* Centered Daily Rewards Group */}
-            <div className="flex flex-row items-center gap-3">
-               <Motion.button
-                 initial={{ opacity: 0, scale: 0.8 }}
-                 animate={{
-                   opacity: 1,
-                   scale: 1,
-                   rotate: isDailyAvailable ? [-2, 2, -2, 2, 0] : 0,
-                 }}
-                 whileHover={{ scale: 1.1 }}
-                 whileTap={{ scale: 0.9 }}
-                 transition={{
-                   rotate: isDailyAvailable ? { repeat: Infinity, duration: 2, ease: "easeInOut", repeatDelay: 3 } : { duration: 0.2 },
-                   type: "spring", stiffness: 400, damping: 17
-                 }}
-                 onClick={(e) => { 
-                    e.stopPropagation(); 
-                    triggerHaptic(15); 
-                    onDailyRewardClick?.(); 
-                 }}
-                 className={`relative flex items-center justify-center p-1 transition-all duration-300 group cursor-pointer`}
-               >
-                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <ClipboardIcon className={`w-13.5 h-13.5 transition-transform duration-300 group-hover:scale-110 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md'}`} />
-                   {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
-                 </div>
-               </Motion.button>
+            {/* Lucky Wheel */}
+            <Motion.button
+              id="nav-lucky-wheel"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                playDailyOpenSfx();
+                setShowLuckyWheel(true);
+              }}
+              className="flex flex-col items-center gap-1 cursor-pointer relative"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                {!isLuckyWheelAvailable && <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />}
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
+            </Motion.button>
 
-               <div className="w-px h-8 bg-mono-200 dark:bg-white/10 mx-1"></div>
+            {/* Daily Tasks */}
+            <Motion.button
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic(15);
+                onDailyRewardClick?.();
+              }}
+              className="flex flex-col items-center gap-1 cursor-pointer relative"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <ClipboardIcon className={`w-8 h-8 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
+            </Motion.button>
 
-               <button
-                 id="nav-lucky-wheel"
-                 onClick={(e) => { 
-                    e.stopPropagation(); 
-                    triggerHaptic(15); 
-                    playDailyOpenSfx();
-                    setShowLuckyWheel(true);
-                 }}
-                 className={`relative flex items-center justify-center p-1 cursor-pointer`}
-               >
-                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-12 h-12 transition-transform duration-300 hover:scale-110 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_8px_16px_rgba(0,0,0,0.15)] dark:drop-shadow-md'}`} />
-                   {!isLuckyWheelAvailable && <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />}
-                 </div>
-               </button>
-
-               <div className="w-px h-8 bg-mono-200 dark:bg-white/10 mx-1"></div>
-
-               <button
-                 onClick={(e) => { 
-                    e.stopPropagation(); 
-                    triggerHaptic(15); 
-                    playDailyOpenSfx();
-                    setShowMysteryBox(true);
-                 }}
-                 className={`relative flex items-center justify-center p-1 cursor-pointer`}
-               >
-                 <div className="relative flex items-center justify-center w-14.5 h-14.5">
-                   <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-14.5 h-14.5 transition-transform duration-300 hover:scale-[1.10] ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10'}`} />
-                   {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
-                 </div>
-               </button>
-            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="col-span-2 md:col-span-4 relative group">
+          {/* Right Column (Icons) - Fixed to Edge */}
+          <div className="absolute right-2 md:right-6 top-32 sm:top-40 md:top-52 flex flex-col pointer-events-auto items-center gap-4 z-40 bg-transparent py-4 pl-1 pr-0.5">
+            
+            {/* Report */}
+            <Motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
+              className="flex flex-col items-center gap-1 cursor-pointer"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <ReportIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
+            </Motion.button>
+
+            {/* Download */}
+            <Motion.button
+              id="btn-download-game"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
+              className="flex flex-col items-center gap-1 cursor-pointer"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <DownloadIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
+            </Motion.button>
+
+            {/* Tutorial */}
+            <Motion.button
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
+              className="flex flex-col items-center gap-1 cursor-pointer"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
+                <TutorialIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
+              </div>
+              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
+            </Motion.button>
+
+          </div>
+
+        </div>
+        <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
+          
+          {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
+          <div className="w-full max-w-2xl mx-auto px-6 md:px-8 relative z-10">
+              <div className="flex flex-col gap-4">
+<div className="relative group w-full">
             <Motion.button
               variants={itemVariants}
               onClick={() => { 
@@ -679,7 +687,7 @@ const LobbyView = memo(({
                 setInviteStep('select');
               }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-md border-none mb-1 group bg-transparent"
+              className="w-full block relative h-20 md:h-27.5 rounded-md border-none group bg-transparent"
             >
               {/* 3D Split Shadow Layer */}
               <div 
@@ -697,12 +705,12 @@ const LobbyView = memo(({
                 <div className="relative z-10 grid grid-cols-2 h-full">
                   <div className="flex items-center justify-center">
                     <div className="flex flex-col items-center text-center">
-                      <h3 className="text-3xl font-black font-heading text-white drop-shadow-md">ھەڤڕکی</h3>
+                      <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">ھەڤڕکی</h3>
                     </div>
                   </div>
                   <div className="flex items-center justify-center relative">
                     <div className="transition-all duration-300 ease-out">
-                      <ClashingSwords className="w-14 h-14 drop-shadow-md text-white/90 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3" />
+                      <ClashingSwords className="w-14 h-14 md:w-20 md:h-20 drop-shadow-md text-white/90 group-hover:text-white group-hover:scale-110 group-hover:-rotate-3" />
                     </div>
                   </div>
                 </div>
@@ -710,87 +718,83 @@ const LobbyView = memo(({
                 <div className="absolute bottom-1.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/20 hover:bg-black/40 transition-colors backdrop-blur-md px-2 py-0.5 rounded-sm border border-white/10 shadow-sm">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_6px_#4ade80] animate-pulse"></span>
                   <span className="text-[10px] font-bold text-white/95 mt-0.5" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                    {toKuDigits(onlineCount || 1)} سەرهێل
+                    {toKuDigits(onlineCount || 1)}
                   </span>
                 </div>
               </div>
             </Motion.button>
           </div>
 
-          <div className="col-span-2 relative group">
+          <div className="relative group w-full">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartClassic(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-md overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none mb-1"
+              className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
-                  <h3 className="text-xl font-black font-heading text-amber-950">پەیڤۆک</h3>
-                  <span className="text-[9px] font-medium font-rabar uppercase  text-amber-900/80 leading-none">کلاسیک</span>
+                  <h3 className="text-2xl md:text-[34px] font-black font-heading text-amber-950 drop-shadow-md">پەیڤۆک</h3>
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out">
-                    <ClassicIcon className="w-32 h-10" />
+                    <ClassicIcon className="w-32 h-10 md:w-45 md:h-14" />
                   </div>
                 </div>
               </div>
             </Motion.button>
           </div>
 
-          <div className="col-span-2 relative group">
+          <div className="relative group w-full">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartMamak(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-md overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none mb-1"
+              className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
-                  <h3 className="text-xl font-black font-heading text-white">مامک</h3>
-                  <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 leading-none">پەیدا بکە</span>
+                  <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">مامک</h3>
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
-                    <MamakIcon className="w-16 h-16" />
+                    <MamakIcon className="w-16 h-16 md:w-21 md:h-21" />
                   </div>
                 </div>
               </div>
             </Motion.button>
           </div>
 
-          <div className="col-span-2 relative group">
+          <div className="relative group w-full">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartHardWords(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-md overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none mb-1"
+              className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
-                  <h3 className="text-xl font-black font-heading text-white">پەیڤێن دژوار</h3>
-                  <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 leading-none">بۆ شارەزایان</span>
+                  <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">پەیڤێن دژوار</h3>
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
-                    <CubeIcon className="w-16 h-16" />
+                    <CubeIcon className="w-16 h-16 md:w-21 md:h-21" />
                   </div>
                 </div>
               </div>
             </Motion.button>
           </div>
 
-          <div className="col-span-2 relative group">
+          <div className="relative group w-full">
             <Motion.button
               variants={itemVariants}
               onClick={() => { triggerHaptic(10); onStartWordFever(); }}
               {...bentoMotionProps}
-              className="w-full relative h-24 rounded-md overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none mb-1"
+              className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none"
             >
               <div className="relative z-10 flex items-center justify-between px-8 h-full">
                 <div className="flex flex-col items-start text-right">
-                  <h3 className="text-xl font-black font-heading text-white">تایا پەیڤان</h3>
-                  <span className="text-[9px] font-medium font-rabar uppercase  text-white/50 leading-none">بەرھەڤ بە</span>
+                  <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">تایا پەیڤان</h3>
                 </div>
                 <div className="flex items-center justify-center relative">
                   <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-12">
@@ -803,7 +807,9 @@ const LobbyView = memo(({
 
           {/* Dynamic Ad Banner Space */}
           <AdBanner />
-        </div>
+            </div>
+          </div>
+
       </div>
 
       <AnimatePresence>
@@ -928,7 +934,7 @@ const LobbyView = memo(({
             {multiplayerState === 'private_lobby' && (
               <button 
                 onClick={handleHostCancelInvite}
-                className="absolute top-6 right-6 z-50 w-10 h-10 rounded-full bg-white dark:bg-mono-800 text-mono-400 hover:text-mono-900 dark:hover:text-white flex items-center justify-center transition-colors shadow-lg border border-mono-200 dark:border-transparent"
+                className="absolute top-6 right-6 z-50 w-8 h-8 rounded-full bg-white dark:bg-mono-800 text-mono-400 hover:text-mono-900 dark:hover:text-white flex items-center justify-center transition-colors shadow-lg border border-mono-200 dark:border-transparent"
               >
                 <span className="material-symbols-outlined font-black text-2xl">close</span>
               </button>

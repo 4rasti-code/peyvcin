@@ -38,7 +38,7 @@ const AnimatedCounter = ({ value }) => {
         setDisplayValue(formatCompactNumber(Math.round(latest)));
       }
     });
-    
+
     return () => controls.stop();
   }, [internalValue, count]);
 
@@ -48,14 +48,14 @@ const AnimatedCounter = ({ value }) => {
 const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
   return (
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
-      <div 
-        id={`topbar-${currency}`} 
-        className={`flex flex-row items-center gap-1.5 px-2 py-1 rounded-[8px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-12.5 justify-center`}
+      <div
+        id={`topbar-${currency}`}
+        className={`flex flex-row items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 rounded-[8px] md:rounded-[12px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-12.5 md:min-w-20 justify-center`}
       >
-        <div className={`w-4 h-4 flex items-center justify-center ${color}`}>
+        <div className={`w-4 h-4 md:w-7 md:h-7 flex items-center justify-center ${color}`}>
           <_IconComponent className="w-full h-full" />
         </div>
-        <span className={`text-[15px] font-black font-heading tabular-nums leading-none pt-0.5 ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
+        <span className={`text-[15px] md:text-[22px] font-black font-heading tabular-nums leading-none pt-0.5 ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
       </div>
     </CurrencyDecrementEffect>
   );
@@ -63,15 +63,15 @@ const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils
 
 const InventoryStat = ({ value, icon, Icon, color, bg, isDark = true, type }) => {
   return (
-    <div id={`topbar-${type}`} className={`flex items-center gap-1.5 px-2 py-1 rounded-[10px] ${bg || 'bg-white/5'} border border-white/5`}>
+    <div id={`topbar-${type}`} className={`flex items-center gap-1.5 px-2 py-1 md:px-3 md:py-2 rounded-[10px] md:rounded-[14px] ${bg || 'bg-white/5'} border border-white/5`}>
       {Icon ? (
-        <Icon className="w-5 h-5 drop-shadow-md" disabled={(value || 0) <= 0} />
+        <Icon className="w-5 h-5 md:w-8 md:h-8 drop-shadow-md" disabled={(value || 0) <= 0} />
       ) : (
-        <span className={`material-symbols-outlined text-[18px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+        <span className={`material-symbols-outlined text-[18px] md:text-[26px] ${color}`} style={{ fontVariationSettings: "'FILL' 1" }}>
           {icon}
         </span>
       )}
-      <span className={`text-[14px] font-black tabular-nums ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
+      <span className={`text-[14px] md:text-[20px] font-black tabular-nums ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
     </div>
   );
 };
@@ -114,7 +114,7 @@ export default function TopAppBar({
 
   return (
     <header
-      className={`relative top-0 w-full z-100 bg-mono-white dark:bg-black border-b border-mono-200 dark:border-white/5 pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
+      className={`relative top-0 w-full z-100 bg-transparent pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
       dir="ltr"
     >
       <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full mx-auto relative gap-4">
@@ -138,7 +138,7 @@ export default function TopAppBar({
             </div>
           ) : (
             <div className="flex items-center gap-1 relative h-full">
-              
+
 
               {(currentView === 'leaderboard' || currentView === 'profile') && (
                 <Motion.button
@@ -151,12 +151,12 @@ export default function TopAppBar({
                   <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
                 </Motion.button>
               )}
-              
+
               {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
                 <div className="flex items-center gap-1 ml-1">
-                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-black/5 dark:bg-white/10" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
+                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
                 </div>
               )}
             </div>
@@ -166,48 +166,48 @@ export default function TopAppBar({
         <div className="flex items-center justify-center flex-1">
           {isPlaying ? (
             <div className="hidden md:flex items-center gap-8 px-6 py-1 bg-mono-100/50 dark:bg-white/5 rounded-2xl border border-mono-200 dark:border-white/10 transition-all duration-500">
-               {/* Skip */}
-               <button 
-                 onClick={() => { triggerHaptic(10); onSkip?.(); }}
-                 disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
-                 className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-               >
-                 <SkipIcon 
-                   disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
-                   className={`w-6 h-6 transition-all ${skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
-                 />
-                 <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}</span>
-               </button>
+              {/* Skip */}
+              <button
+                onClick={() => { triggerHaptic(10); onSkip?.(); }}
+                disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
+                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
+              >
+                <SkipIcon
+                  disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
+                  className={`w-6 h-6 transition-all ${skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
+                />
+                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}</span>
+              </button>
 
-               <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
+              <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
 
-               {/* Magnet */}
-               <button 
-                 onClick={() => { triggerHaptic(10); onMagnet?.(); }}
-                 disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
-                 className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-               >
-                 <MagnetIcon 
-                   disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
-                   className={`w-6 h-6 transition-all ${magnetUsedInRound || (magnetCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
-                 />
-                 <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits((magnetUsedInRound || (magnetCount || 0) <= 0) ? 0 : 1)}</span>
-               </button>
+              {/* Magnet */}
+              <button
+                onClick={() => { triggerHaptic(10); onMagnet?.(); }}
+                disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
+                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
+              >
+                <MagnetIcon
+                  disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
+                  className={`w-6 h-6 transition-all ${magnetUsedInRound || (magnetCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
+                />
+                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits((magnetUsedInRound || (magnetCount || 0) <= 0) ? 0 : 1)}</span>
+              </button>
 
-               <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
+              <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
 
-               {/* Hint */}
-               <button 
-                 onClick={() => { triggerHaptic(10); onHint?.(); }}
-                 disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
-                 className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-               >
-                 <HintIcon 
-                   disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
-                   className={`w-6 h-6 transition-all ${hintTaps >= hintLimit || (hintCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`} 
-                 />
-                 <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}</span>
-               </button>
+              {/* Hint */}
+              <button
+                onClick={() => { triggerHaptic(10); onHint?.(); }}
+                disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
+                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
+              >
+                <HintIcon
+                  disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
+                  className={`w-6 h-6 transition-all ${hintTaps >= hintLimit || (hintCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
+                />
+                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}</span>
+              </button>
             </div>
           ) : null}
         </div>
@@ -234,7 +234,7 @@ export default function TopAppBar({
             <div className="flex items-center gap-2">
               {/* Helpers Group (Lobby/Store/Leaderboard) */}
               {(currentView === 'store' || currentView === 'lobby' || currentView === 'leaderboard') && (
-                <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/5 rounded-xl border border-white/5">
+                <div className="hidden xs:flex items-center gap-1.5 px-2 py-1 bg-white/80 dark:bg-white/5 rounded-xl border border-mono-200/50 dark:border-white/5 backdrop-blur-md shadow-sm">
                   <InventoryStat value={hintCount} Icon={HintIcon} bg="bg-transparent" isDark={isDark} type="hint" />
                   <InventoryStat value={magnetCount} Icon={MagnetIcon} bg="bg-transparent" isDark={isDark} type="magnet" />
                   <InventoryStat value={skipCount} Icon={SkipIcon} bg="bg-transparent" isDark={isDark} type="skip" />
@@ -257,22 +257,22 @@ export default function TopAppBar({
                     }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => { 
-                      triggerHaptic(10); 
-                      if (onPlaySound) onPlaySound(); 
+                    onClick={() => {
+                      triggerHaptic(10);
+                      if (onPlaySound) onPlaySound();
                       setIsNotifsOpen(!isNotifsOpen);
                       window.__hasViewedSystemNotifs = true;
                     }}
-                    className={`w-14 h-14 flex items-center justify-center transition-all relative ${isNotifsOpen || (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-600/60 dark:text-mono-400/60 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+                    className={`w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-all relative ${isNotifsOpen || (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-600/60 dark:text-mono-400/60 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
                   >
-                    <span className="material-symbols-outlined text-[48px] font-black" style={{ fontVariationSettings: (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
+                    <span className="material-symbols-outlined text-[48px] md:text-[64px] font-black" style={{ fontVariationSettings: (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
                     {notificationCount > 0 && !window.__hasViewedSystemNotifs && (
                       <Motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="absolute top-0 right-0 w-6 h-6 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 flex items-center justify-center pointer-events-none"
+                        className="absolute top-0 md:top-2 right-0 md:right-2 w-6 h-6 md:w-8 md:h-8 bg-red-500 rounded-full border-2 border-mono-white dark:border-mono-950 flex items-center justify-center pointer-events-none"
                       >
-                        <span className="text-[11px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
+                        <span className="text-[11px] md:text-[14px] font-black text-white leading-none">{toKuDigits(notificationCount)}</span>
                       </Motion.div>
                     )}
                   </Motion.button>
