@@ -1942,11 +1942,6 @@ export default function App() {
                     user={user}
                     initialChatPartner={activeChatPartner}
                     initialTab={initialSocialTab}
-                    onBack={() => {
-                      setActiveChatPartner(null);
-                      setInitialSocialTab(null);
-                      setCurrentView('lobby');
-                    }}
                     onViewMessages={handleViewMessages}
                     onViewFriends={handleViewFriends}
                     onKeyboardToggle={(isOpen) => {

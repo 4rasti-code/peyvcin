@@ -662,7 +662,6 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
 
 
 export default function SocialHubView({
-  onBack,
   initialChatPartner = null,
   initialTab = null,
   onViewMessages: _onViewMessages,
