@@ -258,7 +258,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
 
                {/* 3. Top Header: Save & Badges */}
-               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+36px)] sm:pt-[calc(env(safe-area-inset-top)+36px)] flex justify-between items-start pointer-events-none" dir="ltr">
+               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[45%] z-60 px-6 pt-[calc(env(safe-area-inset-top)+36px)] sm:pt-[calc(env(safe-area-inset-top)+36px)] flex justify-between items-start pointer-events-none" dir="ltr">
                   {/* Left: Settings Icon */}
                   <div className="relative pointer-events-auto">
                      <Motion.button
@@ -295,7 +295,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
-               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] flex items-center justify-center z-30 pointer-events-none">
+               <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[45%] flex items-center justify-center z-30 pointer-events-none">
                   <Motion.div
                      className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8 sm:mt-8"
                      whileHover={{ scale: 1.05 }}
@@ -396,7 +396,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className={`absolute top-[68%] sm:top-[70%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
+               <div className={`absolute top-[68%] sm:top-[45%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
