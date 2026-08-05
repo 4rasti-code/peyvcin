@@ -70,7 +70,7 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1 py-[2px] rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm gap-1 mx-auto max-w-[48px] md:max-w-none w-max">
+    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1 py-0.5 rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm gap-1 mx-auto max-w-12 md:max-w-none w-max">
       <svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md shrink-0">
         <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#ef4444" />
         <rect x="9" y="1" width="6" height="2" rx="1" fill="#ef4444" />
