@@ -70,8 +70,8 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="absolute bottom-0.5 left-1/2 -translate-x-1/2 bg-mono-900 dark:bg-[#1a1a1a] px-1.5 py-px rounded-sm border border-white/20 dark:border-white/10 z-20 pointer-events-none flex items-center justify-center shadow-sm gap-0.5" style={{ minHeight: '14px' }}>
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md">
+    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1 py-[2px] rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm gap-1 mx-auto max-w-[48px] md:max-w-none w-max">
+      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-md shrink-0">
         <rect x="10.5" y="1" width="3" height="4" rx="1" fill="#ef4444" />
         <rect x="9" y="1" width="6" height="2" rx="1" fill="#ef4444" />
         <g transform="rotate(-40 12 13)">
@@ -88,7 +88,7 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
         <path d="M12 13 L15.5 10.5" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
         <circle cx="12" cy="13" r="1.5" fill="#1e293b" />
       </svg>
-      <span className="text-[8px] leading-none font-black text-amber-400 tabular-nums tracking-[0.05em] drop-shadow-md pt-[1.5px]" dir="ltr">
+      <span className="text-[7.5px] md:text-[9px] leading-none font-black text-amber-400 tabular-nums tracking-widest drop-shadow-md pt-[1.5px]" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
     </div>
@@ -573,9 +573,12 @@ const LobbyView = memo(({
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
                 <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-8 h-8 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
-                {!isMysteryBoxAvailable && <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />}
               </div>
-              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
+              {isMysteryBoxAvailable ? (
+                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
+              ) : (
+                <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
+              )}
             </Motion.button>
 
             {/* Lucky Wheel */}
@@ -594,9 +597,12 @@ const LobbyView = memo(({
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
                 <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                {!isLuckyWheelAvailable && <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />}
               </div>
-              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
+              {isLuckyWheelAvailable ? (
+                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
+              ) : (
+                <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
+              )}
             </Motion.button>
 
             {/* Daily Tasks */}
@@ -614,9 +620,12 @@ const LobbyView = memo(({
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16">
                 <ClipboardIcon className={`w-8 h-8 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                {!isDailyAvailable && <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />}
               </div>
-              <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
+              {isDailyAvailable ? (
+                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
+              ) : (
+                <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
+              )}
             </Motion.button>
 
           </div>
