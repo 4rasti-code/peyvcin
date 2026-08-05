@@ -1056,8 +1056,8 @@ export default function SocialHubView({
         .select('id, content, user_id, receiver_id, created_at, is_read, reactions')
         .or(`and(user_id.eq.${myId},receiver_id.eq.${partnerId}),and(user_id.eq.${partnerId},receiver_id.eq.${myId})`)
         .gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false }) // Limit 100 descending
-        .limit(100);
+        .order('created_at', { ascending: false }) // Limit 30 descending
+        .limit(30);
       if (error) throw error;
       setChatMessages(data ? data.reverse() : []); // Reverse to show ascending
     } catch (err) {
@@ -1282,6 +1282,7 @@ export default function SocialHubView({
       }
     } catch (e) {
       console.error("Error deleting message:", e);
+      alert("Delete Error: " + (e?.message || e?.toString()));
     }
   };
 
