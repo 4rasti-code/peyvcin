@@ -7,6 +7,7 @@ import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
+import ImageEditorModal from './ImageEditorModal';
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
 import ClashingSwords from './ClashingSwords';
@@ -710,6 +711,10 @@ export default function SocialHubView({
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
+  const [pendingImage, setPendingImage] = useState(null);
+  const [pendingImagePreview, setPendingImagePreview] = useState(null);
+  const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
 
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
@@ -1374,8 +1379,21 @@ export default function SocialHubView({
     }
   };
 
+  const preparePendingImage = (file) => {
+    if (!file) return;
+    
+    // Clean up previous preview URL to avoid memory leaks
+    if (pendingImagePreview) {
+      URL.revokeObjectURL(pendingImagePreview);
+    }
+    
+    setPendingImage(file);
+    setPendingImagePreview(URL.createObjectURL(file));
+  };
+
   const handleImageUpload = (e) => {
-    uploadImageFile(e.target.files[0]);
+    preparePendingImage(e.target.files[0]);
+    if (e.target) e.target.value = '';
   };
 
   const handlePaste = (e) => {
@@ -1386,7 +1404,7 @@ export default function SocialHubView({
       if (item.kind === 'file' && item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) {
-          uploadImageFile(file);
+          preparePendingImage(file);
           e.preventDefault();
           break;
         }
@@ -1395,15 +1413,51 @@ export default function SocialHubView({
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user?.id) return;
+    if ((!newMessage.trim() && !pendingImage) || !user?.id) return;
 
-    const msgContent = newMessage.trim();
     const currentUserId = user?.id;
     triggerHaptic(15);
     playMessageSentSound();
 
+    let finalMsgContent = newMessage.trim();
+    let uploadedImageUrl = null;
+
+    if (pendingImage) {
+      setIsUploadingImage(true);
+      try {
+        const fileExt = pendingImage.name ? pendingImage.name.split('.').pop() : 'png';
+        const fileName = `${currentUserId}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('chat_images')
+          .upload(fileName, pendingImage, { cacheControl: '3600', upsert: false });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('chat_images')
+          .getPublicUrl(fileName);
+          
+        uploadedImageUrl = publicUrl;
+      } catch (err) {
+        console.error("Image upload error:", err);
+        alert("خەلەتی د ئاپلۆدکرنێدا چێبوو.");
+        setIsUploadingImage(false);
+        return; // Stop sending if image upload fails
+      }
+    }
+    
+    if (uploadedImageUrl) {
+        finalMsgContent = `[IMAGE:${uploadedImageUrl}] ${finalMsgContent}`.trim();
+    }
+
     // Clear input immediately for better UX
     setNewMessage('');
+    if (pendingImagePreview) URL.revokeObjectURL(pendingImagePreview);
+    setPendingImage(null);
+    setPendingImagePreview(null);
+    setIsUploadingImage(false);
+
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
     }
@@ -1411,7 +1465,7 @@ export default function SocialHubView({
     try {
       if (activeTab === 'global') {
         const payload = {
-          content: msgContent,
+          content: finalMsgContent,
           user_id: currentUserId,
           user_nickname: userNickname || 'یاریزان',
           user_avatar: userAvatar,
@@ -1443,7 +1497,7 @@ export default function SocialHubView({
 
         // Optimistic update for Private
         const tempMsg = {
-          content: msgContent,
+          content: finalMsgContent,
           user_id: myId,
           receiver_id: partnerId,
           reply_to_id: replyingTo?.id,
@@ -1457,7 +1511,7 @@ export default function SocialHubView({
         const { data: insertedMsg, error } = await supabase
           .from('messages')
           .insert([{
-            content: msgContent,
+            content: finalMsgContent,
             user_id: myId,
             user_nickname: myNickname,
             receiver_id: partnerId,
@@ -2015,7 +2069,7 @@ export default function SocialHubView({
       {/* Input Area - WhatsApp Pill Style Swapped */}
       {(activeTab === 'global' || selectedChat) && (
         <div className="bg-mono-white dark:bg-black border-t border-mono-200 dark:border-mono-800 relative z-45 transition-colors duration-300">
-          {/* Reply Preview Box */}
+{/* Reply Preview Box */}
           <AnimatePresence>
             {replyingTo && (
               <Motion.div
@@ -2038,65 +2092,118 @@ export default function SocialHubView({
             )}
           </AnimatePresence>
 
-          <div className="p-3 pb-6 flex gap-2 items-center">
-            <button
-              onClick={handleSendMessage}
-              onPointerDown={(e) => e.preventDefault()}
-              disabled={(!newMessage.trim() && !isUploadingImage) || isUploadingImage}
-              className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${(newMessage.trim() || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
-              title="ھنارتن"
-            >
-              {isUploadingImage ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <span className="material-symbols-outlined font-black text-xl">send</span>
+          <div className="bg-mono-50 dark:bg-black/50 border-t border-mono-200 dark:border-mono-800 shrink-0 relative transition-colors duration-500">
+            {/* Scroll to Bottom Button */}
+            <AnimatePresence>
+              {(messages.length > 5 || chatMessages.length > 5) && (
+                <Motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                  className="absolute -top-12 left-1/2 -translate-x-1/2 z-50"
+                >
+                  <button
+                    onClick={() => {
+                      if (messagesContainerRef.current) {
+                        messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+                      }
+                    }}
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-mono-800 rounded-full shadow-lg border border-mono-200 dark:border-mono-700 text-mono-500 hover:text-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-lg">keyboard_arrow_down</span>
+                  </button>
+                </Motion.div>
               )}
-            </button>
-            
-            <input 
-              type="file" 
-              accept="image/*" 
-              ref={fileInputRef} 
-              style={{ display: 'none' }} 
-              onChange={handleImageUpload} 
-            />
-            
-            {selectedChat && (
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingImage}
-                className="w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-400 hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                title="وێنەیەک بهنێرە"
-              >
-                <span className="material-symbols-outlined font-black text-xl">image</span>
-              </button>
-            )}
+            </AnimatePresence>
 
-            <textarea
-              ref={textareaRef}
-              rows="1"
-              value={newMessage}
-              onPaste={handlePaste}
-              onChange={(e) => {
-                handleInputChange(e.target.value);
-                e.target.style.height = 'auto';
-                e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-              }}
-              onKeyDown={(e) => {
-                // Remove touch checks to prevent false positives on touch-enabled Windows laptops
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-                if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
-                  e.preventDefault();
-                  handleSendMessage();
-                }
-              }}
-              placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
-              onFocus={() => onKeyboardToggle?.(true)}
-              onBlur={() => onKeyboardToggle?.(false)}
-              className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 transition-colors duration-300 outline-none resize-none overflow-y-auto no-scrollbar"
-            />
+            {/* Image Preview Container */}
+            {pendingImagePreview && (
+              <div className="px-4 pt-3 flex items-center justify-start" dir="rtl">
+                <div className="relative rounded-lg overflow-hidden border border-mono-200 dark:border-mono-700 shadow-sm bg-mono-100 dark:bg-mono-900 w-24 h-24 sm:w-32 sm:h-32">
+                  <img src={pendingImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  
+                  {/* Close button */}
+                  <button 
+                    onClick={() => {
+                        URL.revokeObjectURL(pendingImagePreview);
+                        setPendingImage(null);
+                        setPendingImagePreview(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[16px] font-bold">close</span>
+                  </button>
+
+                  {/* Edit button */}
+                  <button 
+                    onClick={() => setIsImageEditorOpen(true)}
+                    className="absolute top-1 left-1 w-6 h-6 rounded-full bg-primary/80 text-white flex items-center justify-center hover:bg-primary transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[14px] font-bold">edit</span>
+                  </button>
+                </div>
+              </div>
+            )}
+  
+            <div className="p-3 pb-6 flex gap-2 items-center">
+              <button
+                onClick={handleSendMessage}
+                onPointerDown={(e) => e.preventDefault()}
+                disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
+                className={`w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-50 scale-95'}`}
+                title="ھنارتن"
+              >
+                {isUploadingImage ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span className="material-symbols-outlined font-black text-xl">send</span>
+                )}
+              </button>
+            
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                onChange={handleImageUpload} 
+              />
+              
+              {selectedChat && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  className="w-11 h-11 flex items-center justify-center rounded-md transition-all shrink-0 bg-mono-100 dark:bg-mono-800 text-mono-600 dark:text-mono-400 hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                  title="وێنەیەک بهنێرە"
+                >
+                  <span className="material-symbols-outlined font-black text-xl">image</span>
+                </button>
+              )}
+
+              <textarea
+                ref={textareaRef}
+                rows="1"
+                value={newMessage}
+                onPaste={handlePaste}
+                onChange={(e) => {
+                  handleInputChange(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                }}
+                onKeyDown={(e) => {
+                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                  if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+                placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
+                onFocus={() => onKeyboardToggle?.(true)}
+                onBlur={() => onKeyboardToggle?.(false)}
+                className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 transition-colors duration-300 outline-none resize-none overflow-y-auto no-scrollbar"
+              />
+            </div>
           </div>
-        </div>
       )}
 
       {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
@@ -2307,8 +2414,22 @@ export default function SocialHubView({
         )}
       </AnimatePresence>
 
+      {/* Image Editor Modal */}
+      <AnimatePresence>
+        {isImageEditorOpen && pendingImagePreview && (
+          <ImageEditorModal 
+            imageUrl={pendingImagePreview}
+            onClose={() => setIsImageEditorOpen(false)}
+            onSave={(editedFile) => {
+              // Update pending image with the edited file
+              if (pendingImagePreview) URL.revokeObjectURL(pendingImagePreview);
+              setPendingImage(editedFile);
+              setPendingImagePreview(URL.createObjectURL(editedFile));
+              setIsImageEditorOpen(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
-
-
