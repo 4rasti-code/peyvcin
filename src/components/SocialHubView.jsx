@@ -2095,26 +2095,6 @@ export default function SocialHubView({
               className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-5 py-3 text-sm font-bold font-rabar focus:ring-1 focus:ring-primary/20 transition-colors duration-300 outline-none resize-none overflow-y-auto no-scrollbar"
             />
           </div>
-          {/* Minimalist iOS-Style Home Indicator */}
-          <div className="flex flex-col items-center pb-2 pt-1 transition-all">
-            <button
-              onClick={() => {
-                triggerHaptic(10);
-                onBack?.();
-              }}
-              className="px-8 py-2 focus:outline-none active:scale-95 transition-transform"
-            >
-              <Motion.div
-                animate={{
-                  width: [40, 50, 40],
-                  opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="h-1.5 rounded-full bg-mono-900 dark:bg-mono-200"
-                style={{ width: '45px' }}
-              />
-            </button>
-          </div>
         </div>
       )}
 
