@@ -190,7 +190,7 @@ export default function StatsView({
           {/* 1. Core Performance Grid */}
           <Motion.div variants={itemVariants} className="grid grid-cols-4 gap-3">
             <StatCard label="یاریێن کرین" value={stats.played} icon="sports_esports" />
-            <StatCard label="ڕێژەیا سەرکەفتنێ" value={winRate} suffix="%" icon="emoji_events" />
+            <StatCard label="ڕێژەیا سەرکەفتنێ" value={winRate} suffix="٪" icon="emoji_events" />
             <StatCard label="زنجیرەیا نۆکە" value={stats.currentStreak} icon="local_fire_department" />
             <StatCard label="مەزنترین زنجیرە" value={stats.maxStreak} icon="military_tech" />
           </Motion.div>
