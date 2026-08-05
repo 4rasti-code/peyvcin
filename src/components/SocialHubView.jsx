@@ -1369,7 +1369,7 @@ export default function SocialHubView({
       }
     } catch (err) {
       console.error("Failed to upload image:", err);
-      alert("ئاریشەیەک دروستبوو د هنارتنا وێنەی دا.");
+      alert("V3-ERROR: " + (err?.message || err?.toString() || "Unknown error") + " | " + JSON.stringify(err));
     } finally {
       setIsUploadingImage(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
