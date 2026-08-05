@@ -407,7 +407,7 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
              <img 
                 src={url} 
                 alt="Attachment" 
-                className="w-auto h-auto max-w-full max-h-72 rounded-lg shadow-sm border border-black/10 dark:border-white/10 object-contain bg-black/5 dark:bg-black/40 pointer-events-none select-none" 
+                className="w-auto h-auto max-w-full max-h-72 rounded-sm shadow-sm border border-black/10 dark:border-white/10 object-contain pointer-events-none select-none" 
                 style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
                 draggable="false"
              />
