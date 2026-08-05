@@ -1704,7 +1704,7 @@ export default function App() {
       </AnimatePresence>
       <Analytics />
       {user && currentView === 'lobby' && profileData?.has_completed_install_guide !== false && <UpdateNotesModal user={user} />}
-      <div className={`flex-1 flex flex-col w-full max-w-md mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
+      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
           <div className="panic-overlay" />
