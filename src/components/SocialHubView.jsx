@@ -1310,75 +1310,6 @@ export default function SocialHubView({
     }
   };
 
-  const uploadImageFile = async (file) => {
-    if (!file || !user?.id) return;
-
-    const fileExt = file.name ? file.name.split('.').pop() : 'png';
-    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-    setIsUploadingImage(true);
-    try {
-      const { error: uploadError } = await supabase.storage
-        .from('chat_images')
-        .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('chat_images')
-        .getPublicUrl(fileName);
-
-      const msgContent = `[IMAGE:${publicUrl}]`;
-      const currentUserId = user.id;
-
-      if (activeTab === 'global') {
-        const payload = {
-          content: msgContent,
-          user_id: currentUserId,
-          user_nickname: userNickname || 'بێناڤ'
-        };
-        const { error } = await supabase.from('messages').insert([payload]);
-        if (error) throw error;
-        setTimeout(() => {
-          if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
-          }
-        }, 100);
-      } else if (selectedChat) {
-        const payload = {
-          content: msgContent,
-          user_id: currentUserId,
-          user_nickname: userNickname || 'بێناڤ',
-          receiver_id: selectedChat.id
-        };
-        
-        // Optimistic UI for private
-        const tempId = `temp-${Date.now()}`;
-        const tempMsg = { ...payload, user_avatar: userAvatar, id: tempId, created_at: new Date().toISOString() };
-        setChatMessages(prev => [...prev, tempMsg]);
-        setTimeout(() => {
-          if (messagesContainerRef.current) {
-            messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
-          }
-        }, 50);
-
-        const { data, error } = await supabase.from('messages').insert([payload]).select();
-        if (error) {
-          setChatMessages(prev => prev.filter(m => m.id !== tempId));
-          throw error;
-        } else if (data && data.length > 0) {
-           setChatMessages(prev => prev.map(m => m.id === tempId ? data[0] : m));
-        }
-      }
-    } catch (err) {
-      console.error("Failed to upload image:", err);
-      alert("V3-ERROR: " + (err?.message || err?.toString() || "Unknown error") + " | " + JSON.stringify(err));
-    } finally {
-      setIsUploadingImage(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
   const preparePendingImage = (file) => {
     if (!file) return;
     
@@ -1531,7 +1462,7 @@ export default function SocialHubView({
             await supabase.from('reported_messages').insert([{
               message_id: insertedMsg[0].id,
               reporter_id: currentUserId,
-              reason: `[نامەیا بۆتی]: ${msgContent}`
+              reason: `[نامەیا بۆتی]: ${finalMsgContent}`
             }]);
           } catch (reportErr) {
             console.error("Failed to forward to reported_messages:", reportErr);
@@ -1552,7 +1483,7 @@ export default function SocialHubView({
       const errorCode = err.code || "unknown";
       alert(`ئاریشەیەک د ھنارتنا نامەیێ دا ھەبوو:\n\nMessage: ${errorMsg}\nCode: ${errorCode}\n\nهێڤییە دڵنیابە کو دەستھەڵاتێن Supabase دروستن.`);
       // On failure, we could restore the message to the box
-      setNewMessage(msgContent);
+      setNewMessage(finalMsgContent);
     }
   };
 
@@ -2204,6 +2135,7 @@ export default function SocialHubView({
               />
             </div>
           </div>
+        </div>
       )}
 
       {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
