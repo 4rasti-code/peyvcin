@@ -251,7 +251,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className={`relative w-full aspect-square overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
+            <div className={`relative w-full aspect-square sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
 
                {/* 1. Texture Layer */}
                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
@@ -396,7 +396,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className={`absolute top-[68%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
+               <div className={`absolute top-[68%] sm:top-[70%] bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 flex flex-col justify-end shadow-sm`} dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full mb-3.5 px-2" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
