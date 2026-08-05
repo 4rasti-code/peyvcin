@@ -668,7 +668,7 @@ const LobbyView = memo(({
         <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
           
           {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
-          <div className="w-full max-w-2xl mx-auto px-14 sm:px-16 md:px-28 relative z-10">
+          <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
               <div className="flex flex-col gap-4">
 <div className="relative group w-full">
             <Motion.button
