@@ -552,12 +552,12 @@ const LobbyView = memo(({
                 playDailyOpenSfx();
                 setShowMysteryBox(true);
               }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer relative"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-8 h-8 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 {isMysteryBoxAvailable ? (
                   <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
                 ) : (
@@ -578,12 +578,12 @@ const LobbyView = memo(({
                 playDailyOpenSfx();
                 setShowLuckyWheel(true);
               }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer relative"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 {isLuckyWheelAvailable ? (
                   <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
                 ) : (
@@ -603,12 +603,12 @@ const LobbyView = memo(({
                 triggerHaptic(15);
                 onDailyRewardClick?.();
               }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer relative"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <ClipboardIcon className={`w-8 h-8 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 {isDailyAvailable ? (
                   <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
                 ) : (
@@ -629,12 +629,12 @@ const LobbyView = memo(({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <ReportIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
               </div>
             </Motion.button>
@@ -647,12 +647,12 @@ const LobbyView = memo(({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <DownloadIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
               </div>
             </Motion.button>
@@ -664,12 +664,12 @@ const LobbyView = memo(({
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-              className="flex flex-col items-center justify-start h-[52px] md:h-[84px] cursor-pointer"
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
             >
               <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
                 <TutorialIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
               </div>
-              <div className="flex items-center justify-center h-[18px] md:h-6 mt-1">
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
                 <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
               </div>
             </Motion.button>
