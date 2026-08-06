@@ -97,6 +97,7 @@ const LobbyView = memo(({
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [tourCompleted, setTourCompleted] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   const [inviteStep, setInviteStep] = useState('select'); 
   const [onlineProfiles, setOnlineProfiles] = useState([]);
   const [loadingOnline, setLoadingOnline] = useState(false);
@@ -272,6 +273,7 @@ const LobbyView = memo(({
   const isMysteryBoxAvailable = totalBoxesAvailable > 0;
 
   const handleBackgroundClick = (e) => {
+    setIsMoreMenuOpen(false);
     if (e.target === e.currentTarget || e.target.classList.contains('bg-trigger-zone')) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width;
@@ -617,6 +619,66 @@ const LobbyView = memo(({
               </div>
             </Motion.button>
 
+            {/* More Menu Toggle */}
+            <div className="relative z-50">
+              <Motion.button
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  triggerHaptic(10);
+                  setIsMoreMenuOpen(!isMoreMenuOpen);
+                }}
+                className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative"
+              >
+                <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0 bg-white/50 dark:bg-black/50 rounded-xl shadow-sm border border-white/20 dark:border-white/10 backdrop-blur-md">
+                  <span className="material-symbols-outlined text-[24px] md:text-[32px] text-mono-700 dark:text-mono-300 drop-shadow-sm">apps</span>
+                </div>
+                <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
+                  <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">زێدەتر</span>
+                </div>
+              </Motion.button>
+
+              {/* Flyout Menu */}
+              <AnimatePresence>
+                {isMoreMenuOpen && (
+                  <Motion.div
+                    initial={{ opacity: 0, x: -15, scale: 0.95 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -15, scale: 0.95 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                    style={{ left: 'calc(100% + 8px)' }}
+                    className="absolute top-0 flex flex-col gap-2 bg-mono-100/95 dark:bg-[#1a1a1a]/95 backdrop-blur-xl p-2 md:p-3 rounded-2xl shadow-xl border border-mono-200 dark:border-mono-800 pointer-events-auto min-w-[130px] z-50"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Report */}
+                    <button onClick={() => { setIsMoreMenuOpen(false); triggerHaptic(10); setIsReportModalOpen(true); }} className="flex items-center gap-3 hover:bg-mono-200 dark:hover:bg-mono-800 p-2 md:p-2.5 rounded-xl transition-colors w-full">
+                      <div className="w-5 h-5 md:w-7 md:h-7 flex items-center justify-center shrink-0">
+                        <ReportIcon className="w-full h-full drop-shadow-sm" />
+                      </div>
+                      <span className="text-[11px] md:text-sm font-black font-heading text-mono-900 dark:text-white whitespace-nowrap mt-1">پێشنیار</span>
+                    </button>
+                    {/* Download */}
+                    <button onClick={() => { setIsMoreMenuOpen(false); triggerHaptic(10); setIsInstallModalOpen(true); }} className="flex items-center gap-3 hover:bg-mono-200 dark:hover:bg-mono-800 p-2 md:p-2.5 rounded-xl transition-colors w-full">
+                      <div className="w-5 h-5 md:w-7 md:h-7 flex items-center justify-center shrink-0">
+                        <DownloadIcon className="w-full h-full drop-shadow-sm" />
+                      </div>
+                      <span className="text-[11px] md:text-sm font-black font-heading text-mono-900 dark:text-white whitespace-nowrap mt-1">داگرتن</span>
+                    </button>
+                    {/* Tutorial */}
+                    <button onClick={() => { setIsMoreMenuOpen(false); triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }} className="flex items-center gap-3 hover:bg-mono-200 dark:hover:bg-mono-800 p-2 md:p-2.5 rounded-xl transition-colors w-full">
+                      <div className="w-5 h-5 md:w-7 md:h-7 flex items-center justify-center shrink-0">
+                        <TutorialIcon className="w-full h-full drop-shadow-sm" />
+                      </div>
+                      <span className="text-[11px] md:text-sm font-black font-heading text-mono-900 dark:text-white whitespace-nowrap mt-1">فێرکاری</span>
+                    </button>
+                  </Motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
 
         </div>
@@ -625,61 +687,6 @@ const LobbyView = memo(({
           {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
           <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
               <div className="flex flex-col gap-4">
-
-                {/* Horizontal Top Menu (Report, Download, Tutorial) */}
-                <div className="flex items-center justify-center gap-8 md:gap-16 mb-1 w-full">
-                  {/* Report */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                      <ReportIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                      <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
-                    </div>
-                  </Motion.button>
-
-                  {/* Download */}
-                  <Motion.button
-                    id="btn-download-game"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                      <DownloadIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                      <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
-                    </div>
-                  </Motion.button>
-
-                  {/* Tutorial */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-                    className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                      <TutorialIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                      <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
-                    </div>
-                  </Motion.button>
-                </div>
 
 <div className="relative group w-full">
             <Motion.button
