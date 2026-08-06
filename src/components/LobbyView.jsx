@@ -539,62 +539,7 @@ const LobbyView = memo(({
         <div className="fixed inset-y-0 w-full max-w-screen-sm md:max-w-240 left-1/2 -translate-x-1/2 pointer-events-none z-50">
           {/* Left Column removed because its icons were moved above the Multiplayer card */}
 
-          {/* Right Column (Icons) - Fixed to Edge */}
-          <div className="absolute right-2 md:right-6 top-32 sm:top-40 md:top-52 flex flex-col pointer-events-auto items-center gap-4 z-40 bg-transparent py-4 pl-1 pr-0.5">
-            
-            {/* Report */}
-            <Motion.button
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-            >
-              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                <ReportIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-              </div>
-              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
-              </div>
-            </Motion.button>
-
-            {/* Download */}
-            <Motion.button
-              id="btn-download-game"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-            >
-              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                <DownloadIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-              </div>
-              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
-              </div>
-            </Motion.button>
-
-            {/* Tutorial */}
-            <Motion.button
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-            >
-              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                <TutorialIcon className="w-8 h-8 md:w-16 md:h-16 drop-shadow-md" />
-              </div>
-              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
-              </div>
-            </Motion.button>
-
-          </div>
+          {/* Right Column removed because its icons were moved above the Multiplayer card */}
 
         </div>
         <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
@@ -602,6 +547,61 @@ const LobbyView = memo(({
           {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
           <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
               <div className="flex flex-col gap-4">
+
+                {/* Horizontal Top Menu (Report, Download, Tutorial) */}
+                <div className="flex items-center justify-center gap-6 md:gap-16 mb-2 w-full">
+                  {/* Report */}
+                  <Motion.button
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                  >
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <ReportIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    </div>
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
+                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
+                    </div>
+                  </Motion.button>
+
+                  {/* Download */}
+                  <Motion.button
+                    id="btn-download-game"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                  >
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <DownloadIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    </div>
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
+                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
+                    </div>
+                  </Motion.button>
+
+                  {/* Tutorial */}
+                  <Motion.button
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                  >
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <TutorialIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    </div>
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
+                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
+                    </div>
+                  </Motion.button>
+                </div>
 
                 {/* Horizontal Top Rewards Menu (Mystery Box, Lucky Wheel, Daily Tasks) */}
                 <div className="flex items-center justify-center gap-6 md:gap-16 mb-4 w-full">
@@ -617,14 +617,14 @@ const LobbyView = memo(({
                       playDailyOpenSfx();
                       setShowMysteryBox(true);
                     }}
-                    className="flex flex-col items-center justify-start h-16 md:h-26 cursor-pointer relative"
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
                   >
-                    <div className="relative flex items-center justify-center w-12 h-12 md:w-20 md:h-20 shrink-0">
-                      <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-12 h-12 md:w-20 md:h-20 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-10 h-10 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-7 mt-1.5">
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
                       {isMysteryBoxAvailable ? (
-                        <span className="text-[10px] md:text-[14px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
+                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
                       ) : (
                         <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
                       )}
@@ -643,14 +643,14 @@ const LobbyView = memo(({
                       playDailyOpenSfx();
                       setShowLuckyWheel(true);
                     }}
-                    className="flex flex-col items-center justify-start h-16 md:h-26 cursor-pointer relative"
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
                   >
-                    <div className="relative flex items-center justify-center w-12 h-12 md:w-20 md:h-20 shrink-0">
-                      <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-11 h-11 md:w-[72px] md:h-[72px] ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-9 h-9 md:w-[60px] md:h-[60px] ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-7 mt-1.5">
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
                       {isLuckyWheelAvailable ? (
-                        <span className="text-[10px] md:text-[14px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
+                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
                       ) : (
                         <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
                       )}
@@ -668,14 +668,14 @@ const LobbyView = memo(({
                       triggerHaptic(15);
                       onDailyRewardClick?.();
                     }}
-                    className="flex flex-col items-center justify-start h-16 md:h-26 cursor-pointer relative"
+                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
                   >
-                    <div className="relative flex items-center justify-center w-12 h-12 md:w-20 md:h-20 shrink-0">
-                      <ClipboardIcon className={`w-12 h-12 md:w-20 md:h-20 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
+                      <ClipboardIcon className={`w-10 h-10 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-7 mt-1.5">
+                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
                       {isDailyAvailable ? (
-                        <span className="text-[10px] md:text-[14px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
+                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
                       ) : (
                         <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
                       )}
