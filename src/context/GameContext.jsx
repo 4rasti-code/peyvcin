@@ -580,22 +580,25 @@ export const GameProvider = ({ children }) => {
     // --- OPTIMISTIC UPDATE END ---
 
     try {
-      let rpcName = 'process_purchase';
+      let rpcName;
       let rpcArgs = {
         p_item_id: item.id,
-        p_item_type: itemType,
         p_currency_used: currency,
-        p_price: price,
-        p_amount: item.amount || 0
+        p_price: price
       };
 
-      if (itemType === 'font') {
+      if (itemType === 'powerup') {
+        rpcName = 'buy_powerup';
+      } else if (itemType === 'font') {
         rpcName = 'buy_font';
-        rpcArgs = {
-          p_item_id: item.id,
-          p_currency_used: currency,
-          p_price: price
-        };
+      } else if (itemType === 'avatar') {
+        rpcName = 'buy_avatar';
+      } else if (itemType === 'name_style') {
+        rpcName = 'buy_name_style';
+      } else if (itemType === 'bundle') {
+        rpcName = 'buy_bundle';
+      } else {
+        throw new Error(`Unknown item type: ${itemType}`);
       }
 
       // Execute atomic transaction on server
@@ -604,7 +607,7 @@ export const GameProvider = ({ children }) => {
       if (error) throw error;
       
       // Final sync to ensure parity
-      await syncProfile(currentUser.id);
+      await syncProfile(currentUser.id, true);
       return { success: true };
     } catch (err) {
       console.error("Purchase failed, reverting:", err.message);

@@ -46,9 +46,9 @@ BEGIN
       fils = CASE WHEN p_currency_used = 'fils' THEN fils - p_price ELSE fils END,
       derhem = CASE WHEN p_currency_used = 'derhem' THEN derhem - p_price ELSE derhem END,
       dinar = CASE WHEN p_currency_used = 'dinar' THEN dinar - p_price ELSE dinar END,
-      magnets = CASE WHEN p_item_id = 'attractor_field' THEN magnets + 1 ELSE magnets END,
-      hints = CASE WHEN p_item_id = 'hint_pack' THEN hints + 1 ELSE hints END,
-      skips = CASE WHEN p_item_id = 'full_skip' THEN skips + 1 ELSE skips END,
+      magnets = CASE WHEN p_item_id = 'attractor_field' THEN COALESCE(magnets, 3) + 1 ELSE magnets END,
+      hints = CASE WHEN p_item_id = 'hint_pack' THEN COALESCE(hints, 3) + 1 ELSE hints END,
+      skips = CASE WHEN p_item_id = 'full_skip' THEN COALESCE(skips, 3) + 1 ELSE skips END,
       updated_at = NOW()
     WHERE id = auth.uid();
 

@@ -404,14 +404,14 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         const url = part.substring(7, part.length - 1);
         return (
           <div key={i} className="relative block mt-2 mb-2 w-full max-w-60" onContextMenu={e => e.preventDefault()}>
-             <img 
-                src={url} 
-                alt="Attachment" 
-                className="w-auto h-auto max-w-full max-h-72 rounded-sm shadow-sm border border-black/10 dark:border-white/10 object-contain pointer-events-none select-none" 
-                style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
-                draggable="false"
-             />
-             <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()} />
+            <img
+              src={url}
+              alt="Attachment"
+              className="w-auto h-auto max-w-full max-h-72 rounded-sm shadow-sm border border-black/10 dark:border-white/10 object-contain pointer-events-none select-none"
+              style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
+              draggable="false"
+            />
+            <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()} />
           </div>
         );
       }
@@ -451,109 +451,109 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         const isPremiumBundle = headerBundleObj.id !== 'default';
         const headerNameStyleObj = NAME_STYLES[m.equipped_name_style] || NAME_STYLES['default'];
         const isPremiumStyle = headerNameStyleObj.id !== 'default';
-        
-        const cardBgClass = isPremiumBundle 
-          ? headerBundleObj.cardBg 
-          : isPremiumStyle 
-            ? headerNameStyleObj.cardBg 
+
+        const cardBgClass = isPremiumBundle
+          ? headerBundleObj.cardBg
+          : isPremiumStyle
+            ? headerNameStyleObj.cardBg
             : 'bg-mono-100/90 dark:bg-mono-800/60 border border-mono-200/60 dark:border-white/5';
-        
+
         return (
-        <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-          {(() => {
-            const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
-            const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
-            const userLvl = getLevelData(userXp).level;
-            const msgTier = getLevelTier(userLvl);
+          <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+            {(() => {
+              const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
+              const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
+              const userLvl = getLevelData(userXp).level;
+              const msgTier = getLevelTier(userLvl);
 
-            const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-              <div className="w-6.5 h-6.5 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
-                <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
-                <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
-              </div>
-            ) : (
-              <div
-                className="p-0.5 rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
-                style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: userAvatarUrl, xp: userXp });
-                }}
-              >
-                {userAvatarUrl && userAvatarUrl !== 'default' ? (
-                  <div className="w-6 h-6 rounded-full overflow-hidden border border-black/10 bg-white">
-                    <img src={userAvatarUrl} alt="Avatar" className="w-full h-full object-cover block" />
-                  </div>
-                ) : (
-                  <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
-                    {(m.user_nickname || 'ی')[0]}
-                  </div>
-                )}
-              </div>
-            );
-
-            return (
-              <>
-                {avatar}
-                <div className={`social-hub-message flex items-center gap-2.5 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
-                  {(() => {
-                    const fontObj = NAME_FONTS[m.equipped_font] || NAME_FONTS['default-ku'];
-                    const styleObj = NAME_STYLES[m.equipped_name_style] || {};
-                    const bundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
-                    
-                    const nameLen = Math.max(m.user_nickname?.length || 1, 1);
-                    const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
-                    const isWideFont = wideFonts.includes(m.equipped_font);
-                    const baselineLen = isWideFont ? 5.5 : 8.5;
-                    const scaleFactor = Math.min(1, baselineLen / nameLen);
-                    
-                    const baseSize = fontObj.style?.fontSize ? 1.15 : 1;
-                    const dynamicFontSize = `${baseSize * scaleFactor}em`;
-
-                    return (
-                      <span
-                        className={`text-[11px] font-black ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
-                        style={{
-                          fontSize: scaleFactor < 1 ? dynamicFontSize : undefined,
-                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}),
-                          ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' ? {
-                            ...fontObj.style,
-                            fontSize: dynamicFontSize,
-                            transform: fontObj.style?.transform ? 'translateY(0px)' : undefined
-                          } : {})
-                        }}
-                      >
-                        {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
-                      </span>
-                    );
-                  })()}
-                  {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <div className="relative w-4.5 h-5 flex items-center justify-center shrink-0">
-                      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
-                        <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradientChat-${m.id || m.user_id})`} />
-                        <defs>
-                          <linearGradient id={`medalGradientChat-${m.id || m.user_id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
-                            <stop stopColor={msgTier.stop1} />
-                            <stop offset="1" stopColor={msgTier.stop2} />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                      <span className="relative z-10 text-[9px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
+              const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                <div className="w-6.5 h-6.5 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+                  <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+                  <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
+                </div>
+              ) : (
+                <div
+                  className="p-0.5 rounded-full shadow-sm shrink-0 flex items-center justify-center cursor-pointer hover:scale-105 active:scale-95 transition-all"
+                  style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: userAvatarUrl, xp: userXp });
+                  }}
+                >
+                  {userAvatarUrl && userAvatarUrl !== 'default' ? (
+                    <div className="w-6 h-6 rounded-full overflow-hidden border border-black/10 bg-white">
+                      <img src={userAvatarUrl} alt="Avatar" className="w-full h-full object-cover block" />
+                    </div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
+                      {(m.user_nickname || 'ی')[0]}
                     </div>
                   )}
-                  {topDailyPlayers?.includes(m.user_id) && (
-                    <span className={`px-2 py-0.75 rounded-[3px] text-[7.5px] font-black uppercase leading-none flex items-center justify-center shadow-sm border ${topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
+                </div>
+              );
+
+              return (
+                <>
+                  {avatar}
+                  <div className={`social-hub-message flex items-center gap-2.5 ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                    {(() => {
+                      const fontObj = NAME_FONTS[m.equipped_font] || NAME_FONTS['default-ku'];
+                      const styleObj = NAME_STYLES[m.equipped_name_style] || {};
+                      const bundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
+
+                      const nameLen = Math.max(m.user_nickname?.length || 1, 1);
+                      const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
+                      const isWideFont = wideFonts.includes(m.equipped_font);
+                      const baselineLen = isWideFont ? 5.5 : 8.5;
+                      const scaleFactor = Math.min(1, baselineLen / nameLen);
+
+                      const baseSize = fontObj.style?.fontSize ? 1.15 : 1;
+                      const dynamicFontSize = `${baseSize * scaleFactor}em`;
+
+                      return (
+                        <span
+                          className={`text-[11px] font-black ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                          style={{
+                            fontSize: scaleFactor < 1 ? dynamicFontSize : undefined,
+                            ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}),
+                            ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' ? {
+                              ...fontObj.style,
+                              fontSize: dynamicFontSize,
+                              transform: fontObj.style?.transform ? 'translateY(0px)' : undefined
+                            } : {})
+                          }}
+                        >
+                          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
+                        </span>
+                      );
+                    })()}
+                    {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                      <div className="relative w-4.5 h-5 flex items-center justify-center shrink-0">
+                        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 115" fill="none">
+                          <path d="M50 0L95 20V55C95 80 50 115 50 115C50 115 5 80 5 55V20L50 0Z" fill={`url(#medalGradientChat-${m.id || m.user_id})`} />
+                          <defs>
+                            <linearGradient id={`medalGradientChat-${m.id || m.user_id}`} x1="50" y1="0" x2="50" y2="115" gradientUnits="userSpaceOnUse">
+                              <stop stopColor={msgTier.stop1} />
+                              <stop offset="1" stopColor={msgTier.stop2} />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                        <span className="relative z-10 text-[9px] font-black text-slate-950/80 leading-none mt-[0.5px]">{toKuDigits(userLvl)}</span>
+                      </div>
+                    )}
+                    {topDailyPlayers?.includes(m.user_id) && (
+                      <span className={`px-2 py-0.75 rounded-[3px] text-[7.5px] font-black uppercase leading-none flex items-center justify-center shadow-sm border ${topDailyPlayers.indexOf(m.user_id) === 0 ? 'bg-linear-to-b from-[#FFEA00] to-[#F59E0B] text-[#422006] border-[#D97706] shadow-[inset_0_1px_1px_rgba(255,255,255,0.7),0_1px_0_#92400E]' :
                         topDailyPlayers.indexOf(m.user_id) === 1 ? 'bg-linear-to-b from-[#F8FAFC] to-[#94A3B8] text-[#0F172A] border-[#64748B] shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_1px_0_#475569]' :
                           'bg-linear-to-b from-[#FDBA74] to-[#C2410C] text-[#431407] border-[#92400E] shadow-[inset_0_1px_1px_rgba(255,255,255,0.5),0_1px_0_#78350F]'
-                      }`}>
-                      <span className="pt-px">TOP {topDailyPlayers.indexOf(m.user_id) + 1}</span>
-                    </span>
-                  )}
-                </div>
-              </>
-            );
-          })()}
-        </div>
+                        }`}>
+                        <span className="pt-px">TOP {topDailyPlayers.indexOf(m.user_id) + 1}</span>
+                      </span>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
+          </div>
         );
       })()}
 
@@ -581,15 +581,15 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
             {!isDeleted && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onLongPress(m, e.clientX, e.clientY);
-                  }}
-                  className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
-                </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLongPress(m, e.clientX, e.clientY);
+                }}
+                className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
+              >
+                <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+              </button>
             )}
 
             {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
@@ -661,11 +661,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
     </Motion.div>
   );
 }, (prev, next) => {
-  return prev.m === next.m && 
-         prev.isMe === next.isMe && 
-         JSON.stringify(prev.reactionUsers) === JSON.stringify(next.reactionUsers) &&
-         JSON.stringify(prev.topDailyPlayers) === JSON.stringify(next.topDailyPlayers) &&
-         prev.showNickname === next.showNickname;
+  return prev.m === next.m &&
+    prev.isMe === next.isMe &&
+    JSON.stringify(prev.reactionUsers) === JSON.stringify(next.reactionUsers) &&
+    JSON.stringify(prev.topDailyPlayers) === JSON.stringify(next.topDailyPlayers) &&
+    prev.showNickname === next.showNickname;
 });
 
 
@@ -718,7 +718,7 @@ export default function SocialHubView({
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  
+
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingImagePreview, setPendingImagePreview] = useState(null);
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
@@ -852,7 +852,7 @@ export default function SocialHubView({
     activeTabRef.current = activeTab;
     window.activeChatTab = activeTab;
     localStorage.setItem('activeChatTab', activeTab);
-    
+
     // Sync URL without triggering full page reload
     window.history.replaceState(null, '', '/social_hub/' + activeTab);
 
@@ -1319,12 +1319,12 @@ export default function SocialHubView({
 
   const preparePendingImage = (file) => {
     if (!file) return;
-    
+
     // Clean up previous preview URL to avoid memory leaks
     if (pendingImagePreview) {
       URL.revokeObjectURL(pendingImagePreview);
     }
-    
+
     setPendingImage(file);
     setPendingImagePreview(URL.createObjectURL(file));
   };
@@ -1365,7 +1365,7 @@ export default function SocialHubView({
       try {
         const fileExt = pendingImage.name ? pendingImage.name.split('.').pop() : 'png';
         const fileName = `${currentUserId}/${Date.now()}.${fileExt}`;
-        
+
         const { error: uploadError } = await supabase.storage
           .from('chat_images')
           .upload(fileName, pendingImage, { cacheControl: '3600', upsert: false });
@@ -1375,7 +1375,7 @@ export default function SocialHubView({
         const { data: { publicUrl } } = supabase.storage
           .from('chat_images')
           .getPublicUrl(fileName);
-          
+
         uploadedImageUrl = publicUrl;
       } catch (err) {
         console.error("Image upload error:", err);
@@ -1384,9 +1384,9 @@ export default function SocialHubView({
         return; // Stop sending if image upload fails
       }
     }
-    
+
     if (uploadedImageUrl) {
-        finalMsgContent = `[IMAGE:${uploadedImageUrl}] ${finalMsgContent}`.trim();
+      finalMsgContent = `[IMAGE:${uploadedImageUrl}] ${finalMsgContent}`.trim();
     }
 
     // Clear input immediately for better UX
@@ -1999,7 +1999,7 @@ export default function SocialHubView({
       {/* Input Area - WhatsApp Pill Style Swapped */}
       {(activeTab === 'global' || selectedChat) && (
         <div className="bg-mono-white dark:bg-black border-t border-mono-200 dark:border-mono-800 relative z-45 transition-colors duration-300">
-{/* Reply Preview Box */}
+          {/* Reply Preview Box */}
           <AnimatePresence>
             {replyingTo && (
               <Motion.div
@@ -2030,14 +2030,14 @@ export default function SocialHubView({
               <div className="px-4 pt-3 flex items-center justify-start" dir="rtl">
                 <div className="relative rounded-lg overflow-hidden border border-mono-200 dark:border-mono-700 shadow-sm bg-mono-100 dark:bg-mono-900 w-24 h-24 sm:w-32 sm:h-32">
                   <img src={pendingImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  
+
                   {/* Close button */}
-                  <button 
+                  <button
                     onClick={() => {
-                        URL.revokeObjectURL(pendingImagePreview);
-                        setPendingImage(null);
-                        setPendingImagePreview(null);
-                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      URL.revokeObjectURL(pendingImagePreview);
+                      setPendingImage(null);
+                      setPendingImagePreview(null);
+                      if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                     className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
                   >
@@ -2045,7 +2045,7 @@ export default function SocialHubView({
                   </button>
 
                   {/* Edit button */}
-                  <button 
+                  <button
                     onClick={() => setIsImageEditorOpen(true)}
                     className="absolute top-1 left-1 w-6 h-6 rounded-full bg-primary/80 text-white flex items-center justify-center hover:bg-primary transition-colors"
                   >
@@ -2054,7 +2054,7 @@ export default function SocialHubView({
                 </div>
               </div>
             )}
-  
+
             <div className="p-3 pb-6 flex gap-2 items-center">
               <button
                 onClick={handleSendMessage}
@@ -2069,7 +2069,7 @@ export default function SocialHubView({
                   <span className="material-symbols-outlined font-black text-xl">send</span>
                 )}
               </button>
-            
+
               <textarea
                 ref={textareaRef}
                 rows="1"
@@ -2093,14 +2093,14 @@ export default function SocialHubView({
                 className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
               />
 
-              <input 
-                type="file" 
-                accept="image/*" 
-                ref={fileInputRef} 
-                style={{ display: 'none' }} 
-                onChange={handleImageUpload} 
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                style={{ display: 'none' }}
+                onChange={handleImageUpload}
               />
-              
+
               {selectedChat && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
@@ -2327,7 +2327,7 @@ export default function SocialHubView({
       {/* Image Editor Modal */}
       <AnimatePresence>
         {isImageEditorOpen && pendingImagePreview && (
-          <ImageEditorModal 
+          <ImageEditorModal
             imageUrl={pendingImagePreview}
             onClose={() => setIsImageEditorOpen(false)}
             onSave={(editedFile) => {

@@ -15,8 +15,8 @@ import { useAudio } from '../context/AudioContext';
 
 const SHOP_ITEMS = {
   POWERUPS: [
-    { id: 'hint_pack', name: 'ھاریکاری', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 1000, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
-    { id: 'attractor_field', name: 'موگناتیس', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 2500, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
+    { id: 'attractor_field', name: 'موگناتیس', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 1000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
+    { id: 'hint_pack', name: 'ھاریکاری', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 2500, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
     { id: 'full_skip', name: 'دەربازبوون', description: 'دەربازبوونا ب تەمام ژ پەیڤێ', icon: 'fast_forward', price: 5000, color: 'from-blue-400 to-cyan-600', glow: 'shadow-blue-500/40', currency: 'fils' }
   ],
   SPECIALS: [
@@ -30,9 +30,9 @@ const SHOP_ITEMS = {
 const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   const getDynamicStyles = (id) => {
     switch (id) {
-      case 'hint_pack': return 'bg-[#FF9F1C] shadow-[0_4px_0_#E68A00] dark:bg-[#FF9F1C]/90 dark:shadow-[0_4px_0_rgba(230,138,0,0.8)]';
-      case 'attractor_field': return 'bg-[#98A3F8] shadow-[0_4px_0_#7A85D9] dark:bg-[#98A3F8]/90 dark:shadow-[0_4px_0_rgba(122,133,217,0.8)]';
-      case 'full_skip': return 'bg-[#A2E263] shadow-[0_4px_0_#85C14B] dark:bg-[#A2E263]/90 dark:shadow-[0_4px_0_rgba(133,193,75,0.8)]';
+      case 'hint_pack': return 'bg-[#98A3F8] shadow-[0_4px_0_#7A85D9] dark:bg-[#98A3F8]/90 dark:shadow-[0_4px_0_rgba(122,133,217,0.8)]';
+      case 'attractor_field': return 'bg-[#A2E263] shadow-[0_4px_0_#85C14B] dark:bg-[#A2E263]/90 dark:shadow-[0_4px_0_rgba(133,193,75,0.8)]';
+      case 'full_skip': return 'bg-[#FF9F1C] shadow-[0_4px_0_#E68A00] dark:bg-[#FF9F1C]/90 dark:shadow-[0_4px_0_rgba(230,138,0,0.8)]';
       default: return 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626]';
     }
   };
