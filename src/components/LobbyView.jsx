@@ -555,8 +555,8 @@ const LobbyView = memo(({
               }}
               className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative z-50"
             >
-              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0 bg-white/50 dark:bg-black/50 rounded-xl shadow-sm border border-white/20 dark:border-white/10 backdrop-blur-md">
-                <span className="material-symbols-outlined text-[24px] md:text-[32px] text-mono-700 dark:text-mono-300 drop-shadow-sm">redeem</span>
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
+                <span className="material-symbols-outlined text-[32px] md:text-[56px] text-[#ffb800] drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">redeem</span>
                 {(isMysteryBoxAvailable || isLuckyWheelAvailable || isDailyAvailable) && (
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3.5 md:h-3.5 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-sm" />
                 )}
