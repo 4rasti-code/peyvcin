@@ -1711,7 +1711,7 @@ export default function App() {
         {/* Background Image Layer for all main tabs */}
         {['lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (
           <div
-            className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-[0.15] pointer-events-none transition-all duration-500"
+            className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-20 pointer-events-none transition-all duration-500"
             style={{ backgroundImage: `url('/lobby_bg.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
           />
         )}
