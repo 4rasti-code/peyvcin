@@ -32,6 +32,7 @@ import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import { AlarmClockIcon } from './AlarmClockIcon';
 
 const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -70,10 +71,11 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="bg-mono-900 dark:bg-[#1a1a1a] px-1.5 py-0.5 rounded border border-white/20 dark:border-white/10 flex items-center justify-center shadow-sm mx-auto w-max">
-      <span className="text-[7.5px] md:text-[9px] leading-none font-black text-amber-400 tabular-nums tracking-widest drop-shadow-md pt-[1.5px]" dir="ltr">
+    <div className="bg-mono-900 dark:bg-[#111111] px-1.5 py-0.5 md:px-2 md:py-1 rounded-full border border-white/20 dark:border-white/10 flex items-center justify-center gap-1 shadow-md mx-auto w-max whitespace-nowrap">
+      <span className="text-[8px] md:text-[9px] leading-none font-black text-amber-500 tabular-nums tracking-widest drop-shadow-md pt-px" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
+      <AlarmClockIcon className="w-3.5 h-3.5 md:w-4 md:h-4 drop-shadow-sm" />
     </div>
   );
 };
@@ -545,144 +547,139 @@ const LobbyView = memo(({
         <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
           
           {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
-          <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
+          <div className="w-full max-w-2xl mx-auto px-4 sm:px-8 md:px-12 relative z-10">
               <div className="flex flex-col gap-4">
 
-                {/* Horizontal Top Menu (Report, Download, Tutorial) */}
-                <div className="flex items-center justify-center gap-6 md:gap-16 -mt-8 md:-mt-12 mb-6 md:mb-8 w-full">
-                  {/* Report */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-10 md:h-14 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 shrink-0">
-                      <ReportIcon className="w-6 h-6 md:w-10 md:h-10 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4 mt-1">
-                      <span className="text-[7px] md:text-[9px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
-                    </div>
-                  </Motion.button>
+                {/* Top Rewards & Menus Area */}
+                <div className="flex flex-col items-center justify-center w-full mb-6 md:mb-8 -mt-10 md:-mt-14 relative z-20 gap-8 md:gap-12">
+                  
+                  {/* --- ROW 1 (Pills) --- */}
+                  <div className="flex flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 w-full">
+                    
+                    {/* Download */}
+                    <Motion.button
+                      id="btn-download-game"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
+                      className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-cyan-400 dark:border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(34,211,238,0.15)] cursor-pointer backdrop-blur-sm"
+                    >
+                      <span className="material-symbols-outlined text-[8px] md:text-[10px] text-cyan-500 dark:text-cyan-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">download</span>
+                      <span className="text-[7px] md:text-[9px] font-bold font-heading text-cyan-500 dark:text-cyan-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] tracking-wide pt-px">داگرتنا یاریێ</span>
+                    </Motion.button>
 
-                  {/* Download */}
-                  <Motion.button
-                    id="btn-download-game"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-10 md:h-14 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 shrink-0">
-                      <DownloadIcon className="w-6 h-6 md:w-10 md:h-10 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4 mt-1">
-                      <span className="text-[7px] md:text-[9px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
-                    </div>
-                  </Motion.button>
+                    {/* Report */}
+                    <Motion.button
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
+                      className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-amber-400 dark:border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(251,191,36,0.15)] cursor-pointer backdrop-blur-sm"
+                    >
+                      <span className="material-symbols-outlined text-[8px] md:text-[10px] text-amber-500 dark:text-amber-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]">campaign</span>
+                      <span className="text-[7px] md:text-[9px] font-bold font-heading text-amber-500 dark:text-amber-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] tracking-wide pt-px">ئاریشە و پێشنیار</span>
+                    </Motion.button>
 
-                  {/* Tutorial */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-                    className="flex flex-col items-center justify-start h-10 md:h-14 cursor-pointer"
-                  >
-                    <div className="relative flex items-center justify-center w-6 h-6 md:w-10 md:h-10 shrink-0">
-                      <TutorialIcon className="w-6 h-6 md:w-10 md:h-10 drop-shadow-md" />
-                    </div>
-                    <div className="flex items-center justify-center h-4 mt-1">
-                      <span className="text-[7px] md:text-[9px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
-                    </div>
-                  </Motion.button>
+                    {/* Tutorial */}
+                    <Motion.button
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
+                      className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-purple-400 dark:border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.15)] cursor-pointer backdrop-blur-sm"
+                    >
+                      <span className="material-symbols-outlined text-[8px] md:text-[10px] text-purple-500 dark:text-purple-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]">help</span>
+                      <span className="text-[7px] md:text-[9px] font-bold font-heading text-purple-500 dark:text-purple-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] tracking-wide pt-px">فێرکاری</span>
+                    </Motion.button>
+
+                  </div>
+                  
+                  {/* --- ROW 2 (Rewards) --- */}
+                  <div className="flex flex-row items-end justify-center gap-6 sm:gap-8 md:gap-12 w-full">
+                    {/* Daily Tasks */}
+                    <Motion.button
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerHaptic(15);
+                        onDailyRewardClick?.();
+                      }}
+                      className="flex flex-col items-center justify-center cursor-pointer relative pb-1"
+                    >
+                      <div className="relative flex items-center justify-center w-10 h-10 md:w-14 md:h-14 shrink-0 z-10">
+                        <ClipboardIcon className={`w-10 h-10 md:w-14 md:h-14 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                      </div>
+                      {!isDailyAvailable && (
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20">
+                          <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
+                        </div>
+                      )}
+                    </Motion.button>
+
+                    {/* Divider 1 */}
+                    <div className="w-[1.5px] h-8 md:h-12 mb-3 md:mb-4 bg-mono-400 dark:bg-white/30 rounded-full" />
+
+                    {/* Lucky Wheel */}
+                    <Motion.button
+                      id="nav-lucky-wheel"
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playDailyOpenSfx();
+                        setShowLuckyWheel(true);
+                      }}
+                      className="flex flex-col items-center justify-center cursor-pointer relative pb-1"
+                    >
+                      <div className="relative flex items-center justify-center w-10 h-10 md:w-14 md:h-14 shrink-0 z-10">
+                        <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-10 h-10 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                      </div>
+                      {!isLuckyWheelAvailable && (
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20">
+                          <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
+                        </div>
+                      )}
+                    </Motion.button>
+
+                    {/* Divider 2 */}
+                    <div className="w-[1.5px] h-8 md:h-12 mb-3 md:mb-4 bg-mono-400 dark:bg-white/30 rounded-full" />
+
+                    {/* Mystery Box */}
+                    <Motion.button
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerHaptic(15);
+                        playDailyOpenSfx();
+                        setShowMysteryBox(true);
+                      }}
+                      className="flex flex-col items-center justify-center cursor-pointer relative pb-1"
+                    >
+                      <div className="relative flex items-center justify-center w-10 h-10 md:w-14 md:h-14 shrink-0 z-10">
+                        <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-10 h-10 md:w-14 md:h-14 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                      </div>
+                      {!isMysteryBoxAvailable && (
+                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-20">
+                          <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
+                        </div>
+                      )}
+                    </Motion.button>
+
+                  </div>
                 </div>
-
-                {/* Horizontal Top Rewards Menu (Mystery Box, Lucky Wheel, Daily Tasks) */}
-                <div className="flex items-center justify-center gap-6 md:gap-16 mb-4 w-full">
-                  {/* Mystery Box */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      triggerHaptic(15);
-                      playDailyOpenSfx();
-                      setShowMysteryBox(true);
-                    }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
-                  >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-10 h-10 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
-                    </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      {isMysteryBoxAvailable ? (
-                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
-                      ) : (
-                        <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
-                      )}
-                    </div>
-                  </Motion.button>
-
-                  {/* Lucky Wheel */}
-                  <Motion.button
-                    id="nav-lucky-wheel"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playDailyOpenSfx();
-                      setShowLuckyWheel(true);
-                    }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
-                  >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-9 h-9 md:w-[60px] md:h-[60px] ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                    </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      {isLuckyWheelAvailable ? (
-                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
-                      ) : (
-                        <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
-                      )}
-                    </div>
-                  </Motion.button>
-
-                  {/* Daily Tasks */}
-                  <Motion.button
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      triggerHaptic(15);
-                      onDailyRewardClick?.();
-                    }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer relative"
-                  >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <ClipboardIcon className={`w-10 h-10 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                    </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      {isDailyAvailable ? (
-                        <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
-                      ) : (
-                        <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
-                      )}
-                    </div>
-                  </Motion.button>
-                </div>
-<div className="relative group w-full">
+<div className="relative group w-full mb-2 md:mb-3">
             <Motion.button
               variants={itemVariants}
               onClick={() => { 
@@ -691,7 +688,7 @@ const LobbyView = memo(({
                 setInviteStep('select');
               }}
               {...bentoMotionProps}
-              className="w-full block relative h-20 md:h-27.5 rounded-md border-none group bg-transparent"
+              className="w-full block relative h-25 md:h-32.5 rounded-md border-none group bg-transparent"
             >
               {/* 3D Split Shadow Layer */}
               <div 

@@ -9,10 +9,10 @@ const fallbackAds = [
     title: 'ڕیکلاما خوە ل ڤێرێ بکە!',
     subtitle: 'بۆ دانانا ڕیکلاما بزنسێ خوە ل ڤێرێ، نۆکە پەیوەندیێ ب مە بکە.',
     icon: 'campaign',
-    bgClass: 'bg-mono-white dark:bg-black border border-amber-200/50 dark:border-amber-500/20 overflow-hidden',
-    shadowClass: 'shadow-[0_4px_15px_rgba(245,158,11,0.1)] dark:shadow-none',
+    bgClass: 'bg-mono-900 dark:bg-black border border-amber-500/20 overflow-hidden',
+    shadowClass: 'shadow-md dark:shadow-none',
     glowColor: 'bg-amber-500/20',
-    iconColor: 'text-amber-500 dark:text-amber-400'
+    iconColor: 'text-amber-400'
   },
   {
     id: 'fallback-2',
@@ -20,10 +20,10 @@ const fallbackAds = [
     title: 'بزنسێ خوە پێشبێخە!',
     subtitle: 'ئەڤ بۆشاییە یا تەرخانکریە بۆ ڕیکلامکرنا بزنس و کارێن وە.',
     icon: 'trending_up',
-    bgClass: 'bg-mono-white dark:bg-black border border-cyan-200/50 dark:border-cyan-500/20 overflow-hidden',
-    shadowClass: 'shadow-[0_4px_15px_rgba(6,182,212,0.1)] dark:shadow-none',
+    bgClass: 'bg-mono-900 dark:bg-black border border-cyan-500/20 overflow-hidden',
+    shadowClass: 'shadow-md dark:shadow-none',
     glowColor: 'bg-cyan-500/20',
-    iconColor: 'text-cyan-500 dark:text-cyan-400'
+    iconColor: 'text-cyan-400'
   }
 ];
 
