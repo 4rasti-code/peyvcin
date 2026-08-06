@@ -557,13 +557,13 @@ const LobbyView = memo(({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                    className="flex flex-col items-center justify-start h-12 md:h-16 cursor-pointer"
                   >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <ReportIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 shrink-0">
+                      <ReportIcon className="w-8 h-8 md:w-12 md:h-12 drop-shadow-md" />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
+                    <div className="flex items-center justify-center h-4.5 md:h-5 mt-1">
+                      <span className="text-[8px] md:text-[10px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">پێشنیار</span>
                     </div>
                   </Motion.button>
 
@@ -575,13 +575,13 @@ const LobbyView = memo(({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                    className="flex flex-col items-center justify-start h-12 md:h-16 cursor-pointer"
                   >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <DownloadIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 shrink-0">
+                      <DownloadIcon className="w-8 h-8 md:w-12 md:h-12 drop-shadow-md" />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
+                    <div className="flex items-center justify-center h-4.5 md:h-5 mt-1">
+                      <span className="text-[8px] md:text-[10px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">داگرتن</span>
                     </div>
                   </Motion.button>
 
@@ -592,13 +592,13 @@ const LobbyView = memo(({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => { triggerHaptic(10); if(onOpenHowToPlay) onOpenHowToPlay(); }}
-                    className="flex flex-col items-center justify-start h-14 md:h-21 cursor-pointer"
+                    className="flex flex-col items-center justify-start h-12 md:h-16 cursor-pointer"
                   >
-                    <div className="relative flex items-center justify-center w-10 h-10 md:w-16 md:h-16 shrink-0">
-                      <TutorialIcon className="w-10 h-10 md:w-16 md:h-16 drop-shadow-md" />
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 shrink-0">
+                      <TutorialIcon className="w-8 h-8 md:w-12 md:h-12 drop-shadow-md" />
                     </div>
-                    <div className="flex items-center justify-center h-5 md:h-6 mt-1">
-                      <span className="text-[10px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
+                    <div className="flex items-center justify-center h-4.5 md:h-5 mt-1">
+                      <span className="text-[8px] md:text-[10px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">فێرکاری</span>
                     </div>
                   </Motion.button>
                 </div>
