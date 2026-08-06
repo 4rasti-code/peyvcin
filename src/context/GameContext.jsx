@@ -58,6 +58,8 @@ export const GameProvider = ({ children }) => {
   const [magnetCount, setMagnetCount] = useState(() => getInitial('peyvchin_magnets', 3));
   const [hintCount, setHintCount] = useState(() => getInitial('peyvchin_hints', 3));
   const [skipCount, setSkipCount] = useState(() => getInitial('peyvchin_skips', 3));
+  
+  const lastPurchaseTimeRef = useRef(0);
   const [spinTicketCount, setSpinTicketCount] = useState(() => getInitial('peyvchin_spin_tickets', 0));
 
   const [solvedWords, setSolvedWords] = useState(() => {
@@ -227,21 +229,23 @@ export const GameProvider = ({ children }) => {
             // If no server record, initialize to current level to prevent "catch-up" spam
             return Math.max(prev, currentLevelFromXP);
           });
-          setFils(prev => {
-            const next = profileData.fils ?? 500;
-            return prev !== next ? next : prev;
-          });
-          setDerhem(prev => {
-            const next = profileData.derhem ?? 10;
-            return prev !== next ? next : prev;
-          });
-          setDinar(prev => {
-            const next = profileData.dinar ?? 5;
-            return prev !== next ? next : prev;
-          });
-          setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
-          setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
-          setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
+          if (Date.now() - lastPurchaseTimeRef.current > 5000) {
+            setFils(prev => {
+              const next = profileData.fils ?? 500;
+              return prev !== next ? next : prev;
+            });
+            setDerhem(prev => {
+              const next = profileData.derhem ?? 10;
+              return prev !== next ? next : prev;
+            });
+            setDinar(prev => {
+              const next = profileData.dinar ?? 5;
+              return prev !== next ? next : prev;
+            });
+            setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
+            setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
+            setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
+          }
           // Fallback reading from old JSON inventory in case the new column hasn't been populated yet
           if (profileData.spin_tickets !== undefined && profileData.spin_tickets !== null) {
             setSpinTicketCount(prev => prev !== profileData.spin_tickets ? profileData.spin_tickets : prev);
@@ -395,15 +399,17 @@ export const GameProvider = ({ children }) => {
           }
           
           if (data.daily_streak !== undefined) setDailyStreak(prev => prev !== data.daily_streak ? data.daily_streak : prev);
-          if (data.fils !== undefined) setFils(prev => prev !== data.fils ? data.fils : prev);
-          if (data.derhem !== undefined) setDerhem(prev => prev !== data.derhem ? data.derhem : prev);
-          if (data.dinar !== undefined || data.dinars !== undefined) {
-             const dValue = data.dinar !== undefined ? data.dinar : data.dinars;
-             setDinar(prev => prev !== dValue ? dValue : prev);
+          if (Date.now() - lastPurchaseTimeRef.current > 5000) {
+            if (data.fils !== undefined) setFils(prev => prev !== data.fils ? data.fils : prev);
+            if (data.derhem !== undefined) setDerhem(prev => prev !== data.derhem ? data.derhem : prev);
+            if (data.dinar !== undefined || data.dinars !== undefined) {
+               const dValue = data.dinar !== undefined ? data.dinar : data.dinars;
+               setDinar(prev => prev !== dValue ? dValue : prev);
+            }
+            if (data.magnets !== undefined) setMagnetCount(prev => prev !== data.magnets ? data.magnets : prev);
+            if (data.hints !== undefined) setHintCount(prev => prev !== data.hints ? data.hints : prev);
+            if (data.skips !== undefined) setSkipCount(prev => prev !== data.skips ? data.skips : prev);
           }
-          if (data.magnets !== undefined) setMagnetCount(prev => prev !== data.magnets ? data.magnets : prev);
-          if (data.hints !== undefined) setHintCount(prev => prev !== data.hints ? data.hints : prev);
-          if (data.skips !== undefined) setSkipCount(prev => prev !== data.skips ? data.skips : prev);
 
           if (data.claimed_medals !== undefined) {
              setClaimedMedals(prev => {
@@ -555,29 +561,13 @@ export const GameProvider = ({ children }) => {
   }, [updateInventory]);
 
   const processPurchase = useCallback(async (item) => {
-    const { user: currentUser, fils: currFils, derhem: currDerhem, dinar: currDinar, hintCount: currHints, magnetCount: currMags, skipCount: currSkips } = gameStateRef.current;
+    const { user: currentUser } = gameStateRef.current;
     if (!currentUser) return { success: false, error: "Must be logged in" };
 
-    // --- OPTIMISTIC UPDATE START ---
-    // Save current values to revert if needed
-    const oldValues = { fils: currFils, derhem: currDerhem, dinar: currDinar, hints: currHints, magnets: currMags, skips: currSkips };
-    
+
     const itemType = item.type || (item.price_usd ? 'currency' : 'powerup');
     const currency = item.currency || 'fils';
     const price = item.price || 0;
-
-    // Apply visual deduction immediately
-    if (currency === 'fils') setFils(prev => prev - price);
-    if (currency === 'derhem') setDerhem(prev => prev - price);
-    if (currency === 'dinar') setDinar(prev => prev - price);
-
-    // If it's a powerup, add it immediately to UI
-    if (itemType === 'powerup') {
-      if (item.id === 'hint_pack') setHintCount(prev => prev + 1);
-      if (item.id === 'attractor_field') setMagnetCount(prev => prev + 1);
-      if (item.id === 'full_skip') setSkipCount(prev => prev + 1);
-    }
-    // --- OPTIMISTIC UPDATE END ---
 
     try {
       let rpcName;
@@ -601,23 +591,42 @@ export const GameProvider = ({ children }) => {
         throw new Error(`Unknown item type: ${itemType}`);
       }
 
-      // Execute atomic transaction on server
-      const { error } = await supabase.rpc(rpcName, rpcArgs);
+      // Execute atomic transaction on server via secure RPC
+      const { data, error } = await supabase.rpc(rpcName, rpcArgs);
 
-      if (error) throw error;
+      // ١. پشکنینا ئێرۆرێن تەکنیکی
+      if (error) {
+        console.error("Supabase RPC Error during purchase:", error);
+        return { success: false, error: error.message };
+      }
       
-      // Final sync to ensure parity
-      await syncProfile(currentUser.id, true);
+      // ٢. پشکنینا لۆژیکی یا بەرسڤا داتابەیسی (ڤێرە نهێنییا کێشەیا تە یە!)
+      if (data === false || (data && data.success === false) || (data && data.error)) {
+        console.error("Purchase rejected by Database! Returned Data:", data, "Args Sent:", rpcArgs);
+        return { success: false, error: "Purchase rejected by backend rules" };
+      }
+      
+      console.log("Database successfully completed purchase. Data:", data);
+      
+      // Pause external syncs for this currency/inventory momentarily to avoid race condition overwrite
+      lastPurchaseTimeRef.current = Date.now();
+      
+      // --- APPLY LOCAL STATE UPDATE ONLY AFTER SUCCESS ---
+      if (currency === 'fils') setFils(prev => prev - price);
+      if (currency === 'derhem') setDerhem(prev => prev - price);
+      if (currency === 'dinar') setDinar(prev => prev - price);
+
+      if (itemType === 'powerup') {
+        if (item.id === 'hint_pack') setHintCount(prev => prev + 1);
+        if (item.id === 'attractor_field') setMagnetCount(prev => prev + 1);
+        if (item.id === 'full_skip') setSkipCount(prev => prev + 1);
+      }
+      
+      // Final sync to ensure parity (force=true)
+      await syncProfile(currentUser.id, true, true);
       return { success: true };
     } catch (err) {
-      console.error("Purchase failed, reverting:", err.message);
-      // REVERT on failure
-      setFils(oldValues.fils);
-      setDerhem(oldValues.derhem);
-      setDinar(oldValues.dinar);
-      setHintCount(oldValues.hints);
-      setMagnetCount(oldValues.magnets);
-      setSkipCount(oldValues.skips);
+      console.error("Purchase failed:", err.message);
       return { success: false, error: err.message };
     }
   }, [syncProfile]);

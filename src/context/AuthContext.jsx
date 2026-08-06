@@ -386,7 +386,7 @@ export const AuthProvider = ({ children }) => {
       return nextData;
     });
 
-    if (onProfileLoaded) onProfileLoaded(data);
+    if (typeof onProfileLoaded === 'function') onProfileLoaded(data);
     return data;
   };
 

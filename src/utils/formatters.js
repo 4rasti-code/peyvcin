@@ -44,10 +44,6 @@ export const formatCompactNumber = (val) => {
     const formatted = (num / 1000000).toFixed(1).replace(/\.0$/, '');
     return toKuDigits(formatted) + 'م';
   }
-  if (num >= 1000) {
-    const formatted = (num / 1000).toFixed(1).replace(/\.0$/, '');
-    return toKuDigits(formatted) + 'ھ';
-  }
   return toKuDigits(num);
 };
 
