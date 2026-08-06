@@ -6,6 +6,7 @@ import CurrencyDecrementEffect from './CurrencyDecrementEffect';
 import NotificationsView from './NotificationsView';
 import { toKuDigits, formatCompactNumber } from '../utils/formatters';
 import ClipboardIcon from './ClipboardIcon';
+import NotificationBellIcon from './NotificationBellIcon';
 
 const AnimatedCounter = ({ value }) => {
   const [internalValue, setInternalValue] = useState(value);
@@ -263,9 +264,9 @@ export default function TopAppBar({
                       setIsNotifsOpen(!isNotifsOpen);
                       window.__hasViewedSystemNotifs = true;
                     }}
-                    className={`w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-all relative ${isNotifsOpen || (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? 'text-emerald-600 dark:text-emerald-400' : 'text-mono-600/60 dark:text-mono-400/60 hover:text-emerald-600 dark:hover:text-emerald-400'}`}
+                    className={`w-14 h-14 md:w-20 md:h-20 flex items-center justify-center transition-all relative group cursor-pointer hover:scale-105 active:scale-95 ${isNotifsOpen || (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]' : 'text-amber-500/80 hover:text-amber-400 drop-shadow-md'}`}
                   >
-                    <span className="material-symbols-outlined text-[48px] md:text-[64px] font-black" style={{ fontVariationSettings: (notificationCount > 0 && !window.__hasViewedSystemNotifs) ? "'FILL' 1" : "'FILL' 0" }}>notifications</span>
+                    <NotificationBellIcon className="w-8 h-8 md:w-10.5 md:h-10.5" isRinging={notificationCount > 0 && !window.__hasViewedSystemNotifs} />
                     {notificationCount > 0 && !window.__hasViewedSystemNotifs && (
                       <Motion.div
                         initial={{ scale: 0 }}
