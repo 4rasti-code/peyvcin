@@ -626,8 +626,8 @@ const LobbyView = memo(({
           <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
               <div className="flex flex-col gap-4">
 
-                {/* Vertical Top Menu (Report, Download, Tutorial) */}
-                <div className="flex flex-col items-center justify-center gap-4 mb-4 w-full">
+                {/* Horizontal Top Menu (Report, Download, Tutorial) */}
+                <div className="flex items-center justify-center gap-8 md:gap-16 mb-2 w-full">
                   {/* Report */}
                   <Motion.button
                     initial={{ opacity: 0, y: -20 }}
