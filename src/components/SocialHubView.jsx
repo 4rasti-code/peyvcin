@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
@@ -382,7 +382,7 @@ const GameResultRenderer = ({ text, isMe }) => {
   );
 };
 
-function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [] }) {
+const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [] }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -660,7 +660,13 @@ function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, curren
       </div>
     </Motion.div>
   );
-}
+}, (prev, next) => {
+  return prev.m === next.m && 
+         prev.isMe === next.isMe && 
+         JSON.stringify(prev.reactionUsers) === JSON.stringify(next.reactionUsers) &&
+         JSON.stringify(prev.topDailyPlayers) === JSON.stringify(next.topDailyPlayers) &&
+         prev.showNickname === next.showNickname;
+});
 
 
 export default function SocialHubView({
