@@ -539,7 +539,89 @@ const LobbyView = memo(({
 
         {/* Fixed Docks Wrapper (Does not scroll with cards) */}
         <div className="fixed inset-y-0 w-full max-w-screen-sm md:max-w-240 left-1/2 -translate-x-1/2 pointer-events-none z-50">
-            {/* Left sidebar was removed and moved to the horizontal top menu */}
+          {/* Left Column (Icons) - Fixed to Edge */}
+          <div className="absolute left-2 md:left-6 top-32 sm:top-40 md:top-52 flex flex-col pointer-events-auto items-center gap-4 z-40 bg-transparent py-4 pr-1 pl-0.5">
+            
+            {/* Gifts Toggle Button */}
+            <Motion.button
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                triggerHaptic(10);
+                setIsGiftsMenuOpen(!isGiftsMenuOpen);
+              }}
+              className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative z-50"
+            >
+              <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
+                <span className="material-symbols-outlined text-[32px] md:text-[56px] text-[#ffb800] drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">redeem</span>
+                {(isMysteryBoxAvailable || isLuckyWheelAvailable || isDailyAvailable) && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3.5 md:h-3.5 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-sm" />
+                )}
+              </div>
+              <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
+                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">دیاری</span>
+              </div>
+            </Motion.button>
+
+            {/* Gifts Slider Menu */}
+            <AnimatePresence>
+              {isGiftsMenuOpen && (
+                <Motion.div
+                  initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
+                  animate={{ height: 'auto', opacity: 1, overflow: 'visible' }}
+                  exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  className="flex flex-col items-center gap-4"
+                >
+                  {/* Mystery Box */}
+                  <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); playDailyOpenSfx(); setShowMysteryBox(true); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
+                      <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-8 h-8 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
+                    </div>
+                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
+                      {isMysteryBoxAvailable ? (
+                        <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
+                      ) : (
+                        <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Lucky Wheel */}
+                  <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); playDailyOpenSfx(); setShowLuckyWheel(true); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
+                      <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                    </div>
+                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
+                      {isLuckyWheelAvailable ? (
+                        <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
+                      ) : (
+                        <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Daily Tasks */}
+                  <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); onDailyRewardClick?.(); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
+                    <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
+                      <ClipboardIcon className={`w-8 h-8 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
+                    </div>
+                    <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
+                      {isDailyAvailable ? (
+                        <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
+                      ) : (
+                        <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
+                      )}
+                    </div>
+                  </button>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+
+          </div>
 
         </div>
         <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
@@ -548,88 +630,8 @@ const LobbyView = memo(({
           <div className="w-full max-w-2xl mx-auto px-10 sm:px-12 md:px-20 relative z-10">
               <div className="flex flex-col gap-4">
 
-                {/* Horizontal Top Menu (Gifts, Report, Download, Tutorial) */}
+                {/* Horizontal Top Menu (Report, Download, Tutorial) */}
                 <div className="flex items-center justify-center gap-8 md:gap-16 mb-2 w-full">
-                  {/* Gifts Toggle Button */}
-                  <div className="relative flex flex-col items-center z-50">
-                    <Motion.button
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerHaptic(10);
-                        setIsGiftsMenuOpen(!isGiftsMenuOpen);
-                      }}
-                      className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer"
-                    >
-                      <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                        <span className="material-symbols-outlined text-[32px] md:text-[56px] text-[#ffb800] drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]">redeem</span>
-                        {(isMysteryBoxAvailable || isLuckyWheelAvailable || isDailyAvailable) && (
-                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3.5 md:h-3.5 bg-red-500 rounded-full border-2 border-white dark:border-black shadow-sm" />
-                        )}
-                      </div>
-                      <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                        <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">دیاری</span>
-                      </div>
-                    </Motion.button>
-
-                    {/* Gifts Dropdown Menu */}
-                    <AnimatePresence>
-                      {isGiftsMenuOpen && (
-                        <Motion.div
-                          initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                          animate={{ height: 'auto', opacity: 1, overflow: 'visible' }}
-                          exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                          transition={{ duration: 0.3, ease: 'easeInOut' }}
-                          className="absolute top-[105%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 bg-black/40 backdrop-blur-md rounded-2xl py-4 px-2 border border-white/10"
-                        >
-                          {/* Mystery Box */}
-                          <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); playDailyOpenSfx(); setShowMysteryBox(true); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
-                            <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                              <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-8 h-8 md:w-16 md:h-16 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-md'}`} />
-                            </div>
-                            <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                              {isMysteryBoxAvailable ? (
-                                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">سندۆق</span>
-                              ) : (
-                                <CooldownTimerOverlay targetDate={profileData?.last_mystery_box_date} />
-                              )}
-                            </div>
-                          </button>
-
-                          {/* Lucky Wheel */}
-                          <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); playDailyOpenSfx(); setShowLuckyWheel(true); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
-                            <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                              <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                            </div>
-                            <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                              {isLuckyWheelAvailable ? (
-                                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">چەرخ</span>
-                              ) : (
-                                <CooldownTimerOverlay targetDate={profileData?.last_spin_date} />
-                              )}
-                            </div>
-                          </button>
-
-                          {/* Daily Tasks */}
-                          <button onClick={() => { setIsGiftsMenuOpen(false); triggerHaptic(15); onDailyRewardClick?.(); }} className="flex flex-col items-center justify-start h-13 md:h-21 cursor-pointer relative">
-                            <div className="relative flex items-center justify-center w-8 h-8 md:w-16 md:h-16 shrink-0">
-                              <ClipboardIcon className={`w-8 h-8 md:w-16 md:h-16 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-md'}`} />
-                            </div>
-                            <div className="flex items-center justify-center h-4.5 md:h-6 mt-1">
-                              {isDailyAvailable ? (
-                                <span className="text-[8px] md:text-[12px] font-black font-heading text-mono-900 dark:text-white drop-shadow-sm dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wide">خەڵات</span>
-                              ) : (
-                                <CooldownTimerOverlay targetDate={lastRewardClaimedAt} isMidnightReset={true} />
-                              )}
-                            </div>
-                          </button>
-                        </Motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
 
                   {/* Report */}
                   <Motion.button
