@@ -547,7 +547,7 @@ const LobbyView = memo(({
         <div className="relative z-10 w-full mt-6 sm:mt-10 md:mt-16 mb-12">
           
           {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
-          <div className="w-full max-w-2xl mx-auto px-4 sm:px-8 md:px-12 relative z-10">
+          <div className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 relative z-10">
               <div className="flex flex-col gap-4">
 
                 {/* Top Rewards & Menus Area */}
