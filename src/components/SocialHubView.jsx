@@ -1911,9 +1911,11 @@ export default function SocialHubView({
                               }`}>
                               {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
                             </span>
-                            <div className={`flex items-center gap-1.5 text-xs font-bold font-rabar w-full justify-start ${isBot ? 'text-white/80' : 'text-mono-500 dark:text-mono-400'}`}>
+                            <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
                               <span className="material-symbols-outlined text-[14px]">chat</span>
-                              <span className="truncate">{chat.lastMsg || 'نامەک ل ڤێرێیە'}</span>
+                              <span className="truncate">
+                                {chat.lastMsg && chat.lastMsg.includes('[IMAGE:') ? '📷 وێنەیەک' : (chat.lastMsg || 'نامەک ل ڤێرێیە')}
+                              </span>
                             </div>
                           </div>
                         </div>

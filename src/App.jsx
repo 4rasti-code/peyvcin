@@ -22,6 +22,7 @@ import { STATUS } from './data/constants';
 import { getLocalDateString as _getLocalDateString } from './utils/formatters';
 import KurdishSunLoader from './components/KurdishSunLoader';
 import ClassicIcon from './components/ClassicIcon';
+import { NavChatIcon } from './components/NavIcons';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatus';
@@ -376,6 +377,39 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
+  // --- NATIVE APP KEYBOARD FIX (WHATSAPP STYLE) ---
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(`${window.visualViewport.height}px`);
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+      } else {
+        setViewportHeight(`${window.innerHeight}px`);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+    
+    handleResize();
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+        window.visualViewport.removeEventListener('scroll', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
   // --- THEME SYNC ENGINE (OS PREFERENCE & USER SELECTION) ---
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -550,7 +584,7 @@ export default function App() {
   const [pushNotification, setPushNotification] = useState(null);
   const showPush = useCallback((data) => {
     setPushNotification(data);
-    setTimeout(() => setPushNotification(null), 4000);
+    setTimeout(() => setPushNotification(null), 5000);
   }, []);
 
 
@@ -1677,7 +1711,7 @@ export default function App() {
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
-    <div className="flex-1 flex flex-col w-full min-h-screen items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic" dir="rtl">
+    <div className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl" style={{ height: viewportHeight }}>
 
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>
@@ -1871,9 +1905,9 @@ export default function App() {
           {currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) && (
             <div className="flex-1 flex flex-col overflow-hidden relative h-full">
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
-              <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar">
+              <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
                 {/* Question Section */}
-                <div className={`w-full shrink-0 flex flex-col items-center my-1`}>
+                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center my-1`}>
                   <InfoBar
                     targetHint={targetHint}
                     category={currentWordCategory || category}
@@ -1893,8 +1927,8 @@ export default function App() {
                 </div>
 
                 {/* Grid Section (Centers content in remaining space) */}
-                <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden">
-                  <div className="game-grid-core">
+                <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto">
+                  <div className="game-grid-core w-full flex justify-center items-center">
                     <Grid
                       key={targetWord}
                       guesses={guesses}
@@ -1915,7 +1949,7 @@ export default function App() {
               </div>
 
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full z-50 mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isSystemDark ? 'bg-mono-900 border-t border-white/5' : 'bg-mono-white border-t border-slate-200'} transition-colors duration-500`}>
+              <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isSystemDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-colors duration-500`}>
                 <Keyboard
                   onKey={onKey}
                   onDelete={onDelete}
@@ -2093,9 +2127,10 @@ export default function App() {
           <AnimatePresence>
             {pushNotification && (
               <Motion.div
-                initial={{ opacity: 0, y: -50, scale: 0.9 }}
+                initial={{ opacity: 0, y: -50, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -50, scale: 0.9 }}
+                exit={{ opacity: 0, y: -50, scale: 0.8 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25, mass: 1 }}
                 onClick={() => {
                   setPushNotification(null);
                   triggerHaptic(10);
@@ -2106,23 +2141,44 @@ export default function App() {
                     setCurrentView('social_hub');
                   }
                 }}
-                className="fixed top-4 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 sm:w-90 z-50 bg-mono-900/95 dark:bg-mono-100/95 backdrop-blur-xl p-3 rounded-2xl shadow-2xl border border-white/10 dark:border-black/10 flex items-center gap-3 cursor-pointer"
+                className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/80' : 'bg-white/95'} backdrop-blur-2xl p-1.5 pl-3 rounded-full border ${
+                  pushNotification.type === 'message' 
+                    ? 'border-blue-500/50 shadow-[0_10px_40px_rgba(59,130,246,0.6)]'
+                    : 'border-red-500/50 shadow-[0_10px_40px_rgba(239,68,68,0.6)]'
+                } flex items-center gap-3 cursor-pointer overflow-hidden`}
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-mono-800 dark:bg-mono-200 shrink-0 flex items-center justify-center">
-                  <Avatar src={pushNotification.avatar || 'default'} size="full" border={false} className="object-cover w-full h-full" />
+                {/* Shrinking Timeout Bar - Only for competitive/friend requests */}
+                {pushNotification.type !== 'message' && (
+                  <Motion.div
+                    initial={{ width: "100%" }}
+                    animate={{ width: "0%" }}
+                    transition={{ duration: 5, ease: "linear" }}
+                    className="absolute bottom-0 left-0 h-0.75 z-0 rounded-full bg-linear-to-r from-red-500 to-blue-500"
+                  />
+                )}
+
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center shadow-sm relative z-10">
+                  <div className={`absolute inset-0 rounded-full border-2 animate-ping opacity-75 ${pushNotification.type === 'message' ? 'border-blue-400' : 'border-red-400'}`}></div>
+                  <div className="w-full h-full rounded-full overflow-hidden relative z-10 border border-white/20">
+                    <Avatar src={pushNotification.avatar || 'default'} size="full" border={false} className="object-cover w-full h-full" />
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0 flex flex-col items-start text-right">
-                  <h4 className={`text-[15px] font-black ${isSystemDark ? 'text-mono-900' : 'text-mono-50'} truncate w-full leading-tight font-heading`}>
+                <div className="flex flex-col items-start text-right pb-0.5 max-w-45 sm:max-w-60 relative z-10">
+                  <h4 className={`text-[14px] font-black ${isSystemDark ? 'text-white' : 'text-slate-800'} truncate w-full leading-tight font-heading`}>
                     {pushNotification.title}
                   </h4>
-                  <p className={`text-[12px] font-medium ${isSystemDark ? 'text-mono-600' : 'text-mono-300'} truncate w-full mt-0.5`}>
+                  <p className={`text-[11px] font-bold ${isSystemDark ? 'text-white/60' : 'text-slate-500'} truncate w-full mt-0.5`}>
                     {pushNotification.message}
                   </p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0 ml-1">
-                  <span className="material-symbols-outlined text-[18px]">
-                    {pushNotification.type === 'message' ? 'chat' : 'person_add'}
-                  </span>
+                <div className="flex items-center justify-center shrink-0 relative z-10">
+                  {pushNotification.type === 'message' ? (
+                    <NavChatIcon className="w-8 h-8 drop-shadow-md" isActive={true} />
+                  ) : (
+                    <span className="material-symbols-outlined text-[26px] bg-clip-text text-transparent bg-linear-to-tr from-red-500 to-blue-500 drop-shadow-md">
+                      person_add
+                    </span>
+                  )}
                 </div>
               </Motion.div>
             )}
@@ -2135,7 +2191,7 @@ export default function App() {
                 initial={{ opacity: 0, y: -20, x: '-50%' }}
                 animate={{ opacity: 1, y: 0, x: '-50%' }}
                 exit={{ opacity: 0, y: -20, x: '-50%' }}
-                className="fixed top-32 left-1/2 z-50 bg-mono-900/90 dark:bg-mono-100/90 backdrop-blur-md text-mono-50 dark:text-mono-900 px-4 py-2 rounded-md shadow-2xl font-rabar font-light text-xs pointer-events-none border border-white/10 dark:border-black/10"
+                className={`fixed top-[max(6rem,calc(env(safe-area-inset-top)+4rem))] left-1/2 z-9999 ${isSystemDark ? 'bg-black/75 text-white border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'bg-white/85 text-slate-800 border-white/50 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'} backdrop-blur-2xl px-5 py-2.5 rounded-full font-rabar font-bold text-sm pointer-events-none border`}
                 style={{ whiteSpace: 'nowrap' }}
               >
                 {toastMessage}

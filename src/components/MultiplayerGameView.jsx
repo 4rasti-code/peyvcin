@@ -492,7 +492,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
         {/* RIDDLE DISPLAY */}
         <div className={`w-full h-12 flex flex-col items-center justify-center px-4 animate-in fade-in duration-700 shrink-0 ${isDark ? 'bg-white/5 border-b border-white/5' : 'bg-slate-50 border-b border-slate-200'}`}>
-          <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text w-full`}>
+          <p className={`text-lg sm:text-2xl font-light ${isDark ? 'text-white' : 'text-slate-800'} font-noto-sans-arabic ${isDark ? 'drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]' : ''} riddle-text w-full md:max-w-lg md:mx-auto md:text-center`}>
             {activeMatch?.riddles?.[currentRound % (activeMatch?.riddles?.length || 1)] || '...'}
           </p>
         </div>
@@ -568,7 +568,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               })()}
             </div>
           </div>
-          <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
+          <div className="w-full md:max-w-lg md:mx-auto flex justify-center items-center overflow-hidden" dir="rtl" ref={topGridWrapperRef}>
             <Grid
               gridId="player"
               guesses={guesses}
@@ -619,7 +619,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
         {/* BOTTOM HALF: OPPONENT GRID */}
         <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pt-6 sm:pt-1 ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
-          <div className="w-full flex justify-center items-center overflow-hidden" dir="rtl">
+          <div className="w-full md:max-w-lg md:mx-auto flex justify-center items-center overflow-hidden" dir="rtl">
             <Grid
               gridId="opponent"
               opponentStatuses={opponentGuesses}
@@ -717,7 +717,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
       </div>
 
       {/* 3. KEYBOARD (Pinned to bottom via Flex) */}
-      <div className={`shrink-0 w-full z-50 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isDark ? 'bg-black/40' : 'bg-mono-50'} m-0 border-t ${isDark ? 'border-white/5' : 'border-mono-200 shadow-lg'} relative`}>
+      <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 px-2 pt-2 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isDark ? 'bg-black/40 md:bg-transparent' : 'bg-mono-50 md:bg-transparent'} m-0 border-t ${isDark ? 'border-white/5 md:border-none' : 'border-mono-200 shadow-lg md:border-none md:shadow-none'} relative`}>
         {/* WAITING FOR OPPONENT OVERLAY MOVED TO AVATAR */}
 
         <Keyboard

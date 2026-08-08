@@ -77,7 +77,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   )}
 
                   <Icon
-                    className={`w-8 h-8 ${isActive ? 'mb-1' : 'mb-0.5'} pointer-events-none`}
+                    className={`w-10 h-10 ${isActive ? 'mb-1' : 'mb-0.5'} pointer-events-none`}
                     isActive={isActive}
                     avatarUrl={userAvatarUrl}
                   />
