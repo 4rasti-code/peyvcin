@@ -1679,7 +1679,7 @@ export default function App() {
 
   return (
     <div 
-      className="fixed inset-0 w-full h-[100dvh] flex flex-col items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
+      className="fixed inset-0 w-full h-dvh flex flex-col items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
       dir="rtl"
     >
 
