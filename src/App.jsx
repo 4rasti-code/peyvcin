@@ -377,42 +377,6 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
-  // --- NATIVE APP KEYBOARD FIX ---
-  const [viewportHeight, setViewportHeight] = useState('100dvh');
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.visualViewport) {
-        setViewportHeight(`${window.visualViewport.height}px`);
-      } else {
-        setViewportHeight(`${window.innerHeight}px`);
-      }
-    };
-
-    // STRICT SCROLL LOCK: Prevents iOS Safari from panning the body when input focuses
-    const handleScroll = () => {
-      if (window.scrollY > 0 || document.documentElement.scrollTop > 0) {
-        window.scrollTo(0, 0);
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleResize);
-    }
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleScroll, { passive: false });
-    
-    handleResize();
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleResize);
-      }
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
   // --- THEME SYNC ENGINE (OS PREFERENCE & USER SELECTION) ---
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -1715,9 +1679,8 @@ export default function App() {
 
   return (
     <div 
-      className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
+      className="fixed inset-0 w-full h-[100dvh] flex flex-col items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
       dir="rtl"
-      style={{ height: viewportHeight, position: 'absolute', top: 0, left: 0, right: 0 }}
     >
 
       {/* GLOBAL LOADING OVERLAY */}
