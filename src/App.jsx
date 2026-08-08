@@ -377,37 +377,39 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
-  // --- NATIVE APP KEYBOARD FIX (WHATSAPP STYLE) ---
-  const [viewportStyle, setViewportStyle] = useState({ height: '100dvh', top: 0 });
+  // --- NATIVE APP KEYBOARD FIX ---
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
 
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
-        setViewportStyle({
-          height: `${window.visualViewport.height}px`,
-          top: window.visualViewport.offsetTop
-        });
+        setViewportHeight(`${window.visualViewport.height}px`);
       } else {
-        setViewportStyle({ height: `${window.innerHeight}px`, top: 0 });
+        setViewportHeight(`${window.innerHeight}px`);
+      }
+    };
+
+    // STRICT SCROLL LOCK: Prevents iOS Safari from panning the body when input focuses
+    const handleScroll = () => {
+      if (window.scrollY > 0 || document.documentElement.scrollTop > 0) {
+        window.scrollTo(0, 0);
       }
     };
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
-      window.visualViewport.addEventListener('scroll', handleResize);
-    } else {
-      window.addEventListener('resize', handleResize);
     }
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('scroll', handleScroll, { passive: false });
     
     handleResize();
 
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
-        window.visualViewport.removeEventListener('scroll', handleResize);
-      } else {
-        window.removeEventListener('resize', handleResize);
       }
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -1714,8 +1716,8 @@ export default function App() {
   return (
     <div 
       className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
-      dir="rtl" 
-      style={{ height: viewportStyle.height, transform: `translateY(${viewportStyle.top}px)`, position: 'relative' }}
+      dir="rtl"
+      style={{ height: viewportHeight, position: 'absolute', top: 0, left: 0, right: 0 }}
     >
 
       {/* GLOBAL LOADING OVERLAY */}
