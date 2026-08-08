@@ -378,16 +378,17 @@ export default function App() {
   const bgmStatusRef = useRef('stopped');
 
   // --- NATIVE APP KEYBOARD FIX (WHATSAPP STYLE) ---
-  const [viewportHeight, setViewportHeight] = useState('100dvh');
+  const [viewportStyle, setViewportStyle] = useState({ height: '100dvh', top: 0 });
 
   useEffect(() => {
     const handleResize = () => {
       if (window.visualViewport) {
-        setViewportHeight(`${window.visualViewport.height}px`);
-        window.scrollTo(0, 0);
-        document.body.scrollTop = 0;
+        setViewportStyle({
+          height: `${window.visualViewport.height}px`,
+          top: window.visualViewport.offsetTop
+        });
       } else {
-        setViewportHeight(`${window.innerHeight}px`);
+        setViewportStyle({ height: `${window.innerHeight}px`, top: 0 });
       }
     };
 
@@ -1711,7 +1712,11 @@ export default function App() {
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
-    <div className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl" style={{ height: viewportHeight }}>
+    <div 
+      className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
+      dir="rtl" 
+      style={{ height: viewportStyle.height, transform: `translateY(${viewportStyle.top}px)`, position: 'relative' }}
+    >
 
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>
