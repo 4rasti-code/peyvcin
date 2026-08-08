@@ -2316,3 +2316,6 @@ html, body {
   86.1%, 100% { opacity: 1; color: #fff !important; text-shadow: 0 0 2px #fff, 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff; }
 }
 
+
+html { background-color: #ffffff; }
+html.dark { background-color: #000000; }
