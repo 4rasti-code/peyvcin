@@ -235,98 +235,155 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
     // Ignore invalid level data safely
   }
 
+  const oppWon = data.oppScore > data.myScore;
+  
+  let leftPlayer = {
+    id: data.myId, name: data.myName, avatar: data.myAvatar, score: data.myScore, xp: data.myXP, tier: myTier
+  };
+  let rightPlayer = {
+    id: data.oppId, name: data.oppName, avatar: data.oppAvatar, score: data.oppScore, xp: data.oppXP, tier: oppTier
+  };
+
+  if (oppWon) {
+    leftPlayer = {
+      id: data.oppId, name: data.oppName, avatar: data.oppAvatar, score: data.oppScore, xp: data.oppXP, tier: oppTier
+    };
+    rightPlayer = {
+      id: data.myId, name: data.myName, avatar: data.myAvatar, score: data.myScore, xp: data.myXP, tier: myTier
+    };
+  }
+
   return (
-    <div className={`flex flex-col items-center gap-1.5 mt-2 mb-1 cursor-default w-70 xs:w-[320px] max-w-[95%] rounded-sm px-5 py-3 shadow-[0_3px_0_#0f172a,0_5px_15px_rgba(0,0,0,0.3)] border-none relative overflow-hidden justify-center`} onClick={e => e.stopPropagation()}>
-      <div
-        className="absolute inset-0 z-0"
-        style={{ background: 'linear-gradient(90deg, #dc2626 50%, #2563eb 50%)' }}
-      />
+    <div className="flex flex-col mt-3 mb-1 mx-auto cursor-default w-full max-w-100 rounded-sm shadow-lg border border-black/20 relative overflow-hidden" onClick={e => e.stopPropagation()}>
+      
+      {/* Background 50/50 Split */}
+      <div className="absolute inset-0 z-0">
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.25),transparent_70%)] pointer-events-none mix-blend-overlay" />
+        
+        {/* Swords Pattern */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="swords-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+              <g stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
+                <line x1="14" y1="14" x2="28" y2="28" />
+                <line x1="12" y1="16" x2="16" y2="12" />
+                <line x1="10" y1="10" x2="14" y2="14" />
+                <line x1="26" y1="14" x2="12" y2="28" />
+                <line x1="24" y1="12" x2="28" y2="16" />
+                <line x1="30" y1="10" x2="26" y2="14" />
+              </g>
+              <rect x="19" y="27" width="2" height="2" fill="#ffffff" transform="rotate(45, 20, 28)" />
+            </pattern>
+          </defs>
+          <rect x="0" y="0" width="100%" height="100%" fill="url(#swords-pattern)" />
+        </svg>
 
-      {/* Radial Light */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.3),transparent_70%)] pointer-events-none z-0 mix-blend-overlay" />
-
-      {/* Premium Crossed Swords Pattern */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay z-0" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="swords-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-            <g stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
-              {/* Sword 1: Top-Left to Bottom-Right */}
-              <line x1="14" y1="14" x2="28" y2="28" />
-              <line x1="12" y1="16" x2="16" y2="12" />
-              <line x1="10" y1="10" x2="14" y2="14" />
-
-              {/* Sword 2: Top-Right to Bottom-Left */}
-              <line x1="26" y1="14" x2="12" y2="28" />
-              <line x1="24" y1="12" x2="28" y2="16" />
-              <line x1="30" y1="10" x2="26" y2="14" />
-            </g>
-            {/* Center Diamond */}
-            <rect x="19" y="27" width="2" height="2" fill="#ffffff" transform="rotate(45, 20, 28)" />
-          </pattern>
-        </defs>
-        <rect x="0" y="0" width="100%" height="100%" fill="url(#swords-pattern)" />
-      </svg>
-
-      {/* Edge Highlights */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/50 to-transparent z-10" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-black/40 to-transparent z-10" />
-      <div className="text-[10px] font-black text-center text-white mb-0.5 drop-shadow-sm relative z-10">ئەنجامێ هەڤڕکیێ</div>
-
-      <div className="flex items-center justify-between w-full gap-2 relative z-10 my-1">
-        {/* P1 */}
-        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
-          <div
-            className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.myId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
-            style={{ background: `linear-gradient(135deg, ${myTier.stop1}, ${myTier.stop2})` }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (data.myId) {
-                onProfileClick?.({ id: data.myId, nickname: data.myName, avatar_url: data.myAvatar, xp: data.myXP });
-              }
-            }}
-          >
-            {data.myAvatar && data.myAvatar !== 'default' ? (
-              <img src={data.myAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover bg-white border border-black/10" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-black text-[#e65c00] uppercase border border-black/10">
-                {(data.myName || 'ی')[0]}
-              </div>
-            )}
-          </div>
-          <span className="text-[10px] font-black whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.myName}</span>
-          <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.myScore)}</span>
-        </div>
-
-        {/* VS text */}
-        <div className="flex flex-col items-center justify-center z-10 opacity-90 mx-1">
-          <ClashingSwords className="w-9 h-9 drop-shadow-lg text-white/90" />
-        </div>
-
-        {/* P2 */}
-        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0 pt-0.5 relative z-10">
-          <div
-            className={`p-[2.5px] rounded-full shadow-md flex items-center justify-center ${data.oppId ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
-            style={{ background: `linear-gradient(135deg, ${oppTier.stop1}, ${oppTier.stop2})` }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (data.oppId) {
-                onProfileClick?.({ id: data.oppId, nickname: data.oppName, avatar_url: data.oppAvatar, xp: data.oppXP });
-              }
-            }}
-          >
-            {data.oppAvatar && data.oppAvatar !== 'default' ? (
-              <img src={data.oppAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover bg-white border border-black/10" />
-            ) : (
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-lg font-black text-[#e65c00] uppercase border border-black/10">
-                {(data.oppName || 'ی')[0]}
-              </div>
-            )}
-          </div>
-          <span className="text-[10px] font-black whitespace-normal break-all line-clamp-2 leading-tight w-full text-center text-white drop-shadow-sm">{data.oppName}</span>
-          <span className="text-3xl font-black text-white drop-shadow-md leading-none mt-0.5">{toKuDigits(data.oppScore)}</span>
+        {/* Sword Light Sweep Effect */}
+        <div className="absolute inset-0 overflow-hidden rounded-sm pointer-events-none">
+          <div className="absolute top-0 bottom-0 left-0 w-1/2 bg-linear-to-r from-transparent via-white/30 to-transparent animate-glass-sweep mix-blend-overlay" />
         </div>
       </div>
 
+      {/* 1. Header Notch (Attached to Top) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+        <div className="bg-white/95 backdrop-blur-md px-3 py-0.75 rounded-b-lg shadow-md border-x border-b border-black/10">
+          <span className="text-mono-900 text-[10px] md:text-[11px] font-black whitespace-nowrap leading-none block pt-0.5">ئەنجامێن هەڤڕکیێ</span>
+        </div>
+      </div>
+
+      {/* 2. Middle Area (Perfectly Divided Grid) */}
+      {/* 1fr (Left) | 40px (Swords) | 1fr (Right) */}
+      <div className="grid grid-cols-[1fr_40px_1fr] items-center w-full relative z-20 px-1.5 pt-6 pb-4" dir="ltr">
+        
+        {/* P1 (Left Side - Blue) */}
+        <div className="flex items-center justify-between w-full">
+          
+          {/* Avatar (Fixed Size) */}
+          <div
+            className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${leftPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            style={{ background: `linear-gradient(135deg, ${leftPlayer.tier.stop1}, ${leftPlayer.tier.stop2})` }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (leftPlayer.id) onProfileClick?.({ id: leftPlayer.id, nickname: leftPlayer.name, avatar_url: leftPlayer.avatar, xp: leftPlayer.xp });
+            }}
+          >
+            {leftPlayer.avatar && leftPlayer.avatar !== 'default' ? (
+              <img src={leftPlayer.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover bg-white border border-black/10" />
+            ) : (
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-[13px] font-black text-[#e65c00] uppercase border border-black/10">
+                {(leftPlayer.name || 'ی')[0]}
+              </div>
+            )}
+          </div>
+          
+          {/* Name (Flexible but STRICTLY limited so it doesn't touch others) */}
+          <div className="flex-1 px-1.5 flex justify-start min-w-0">
+            <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-left" dir="auto">
+              {leftPlayer.name}
+            </span>
+          </div>
+          
+          {/* Score (Fixed Box) */}
+          <div className="shrink-0 w-6 flex justify-center">
+            <span className="text-2xl font-black drop-shadow-md text-white leading-none mt-1">
+              {toKuDigits(leftPlayer.score)}
+            </span>
+          </div>
+
+        </div>
+
+        {/* Center: Swords (Fixed 40px Area) */}
+        <div className="flex items-center justify-center relative z-40 w-10">
+          <div className="bg-white/95 p-1.5 rounded-md shadow-md border border-black/10 flex items-center justify-center">
+            <ClashingSwords className="w-4 h-4 text-mono-900" />
+          </div>
+        </div>
+
+        {/* P2 (Right Side - Red) */}
+        <div className="flex items-center justify-between w-full">
+          
+          {/* Score (Fixed Box) */}
+          <div className="shrink-0 w-6 flex justify-center">
+            <span className="text-2xl font-black drop-shadow-md text-white leading-none mt-1">
+              {toKuDigits(rightPlayer.score)}
+            </span>
+          </div>
+          
+          {/* Name (Flexible but STRICTLY limited) */}
+          <div className="flex-1 px-1.5 flex justify-end min-w-0">
+            <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-right" dir="auto">
+              {rightPlayer.name}
+            </span>
+          </div>
+          
+          {/* Avatar (Fixed Size) */}
+          <div
+            className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${rightPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            style={{ background: `linear-gradient(135deg, ${rightPlayer.tier.stop1}, ${rightPlayer.tier.stop2})` }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (rightPlayer.id) onProfileClick?.({ id: rightPlayer.id, nickname: rightPlayer.name, avatar_url: rightPlayer.avatar, xp: rightPlayer.xp });
+            }}
+          >
+            {rightPlayer.avatar && rightPlayer.avatar !== 'default' ? (
+              <img src={rightPlayer.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover bg-white border border-black/10" />
+            ) : (
+              <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white flex items-center justify-center text-[13px] font-black text-[#e65c00] uppercase border border-black/10">
+                {(rightPlayer.name || 'ی')[0]}
+              </div>
+            )}
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* Footer Edge */}
+      <div className="w-full relative z-10 bg-black/25 h-1.5"></div>
     </div>
   );
 };
@@ -1563,7 +1620,7 @@ export default function SocialHubView({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-[calc(6rem+env(safe-area-inset-bottom))] focus-within:pb-0" dir="rtl">
+    <div className="fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 focus-within:pb-0" dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
       <div className="pb-2 w-full shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
@@ -1782,17 +1839,39 @@ export default function SocialHubView({
 
                     {partnerIsTyping && (
                       <Motion.div
-                        initial={{ opacity: 0, scale: 0.8, x: -10 }}
-                        animate={{ opacity: 1, scale: 1, x: 0 }}
-                        className="flex items-center gap-2 mb-4"
+                        initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="flex items-center gap-2 mb-4 w-fit"
                       >
-                        <div className="bg-mono-100/80 dark:bg-mono-800/80 px-4 py-2 rounded-md border border-mono-200 dark:border-mono-700 flex items-center gap-2 shadow-sm">
-                          <div className="flex gap-1">
-                            <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                            <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-                            <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+                        <div className="bg-mono-100/90 dark:bg-mono-800/90 px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-mono-200/60 dark:border-mono-700/60 flex items-center gap-3 shadow-md backdrop-blur-md relative overflow-hidden" dir="ltr">
+                          
+                          <Motion.span 
+                            animate={{ opacity: [0.6, 1, 0.6] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            className="text-[11px] font-bold text-mono-500 dark:text-mono-300 tracking-wide"
+                            dir="rtl"
+                          >
+                            دنڤیسیت...
+                          </Motion.span>
+
+                          <div className="flex gap-1.5 items-center">
+                            <Motion.span 
+                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0 }} 
+                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                            />
+                            <Motion.span 
+                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15 }} 
+                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                            />
+                            <Motion.span 
+                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3 }} 
+                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                            />
                           </div>
-                          <span className="text-[10px] font-black text-mono-500 dark:text-mono-400">دنڤیسیت...</span>
+                          
                         </div>
                       </Motion.div>
                     )}
