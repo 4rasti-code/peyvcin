@@ -208,7 +208,7 @@ function SettingsModal({
                         </button>
 
                         <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
-                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.5.0</p>
+                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.6.0</p>
                         </div>
                      </div>
                   </Motion.div>

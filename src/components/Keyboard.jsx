@@ -5,12 +5,12 @@ import { triggerHaptic } from '../utils/haptics';
 import { playKeyClickSfx } from '../utils/audio';
 import InventoryBar from './InventoryBar';
 
-// Kurdish Alphabet: 33 Characters in 4 Rows (9-9-9-6)
+// Kurdish Alphabet: 33 Characters iOS layout
 const ROWS = [
-   ['پ', 'ۆ', 'ح', 'ع', 'ئ', 'ی', 'ێ', 'ت', 'ە'],
-   ['ڕ', 'ر', 'و', 'ق', 'ل', 'ڵ', 'ک', 'ژ', 'ھ'],
-   ['گ', 'غ', 'م', 'ن', 'ف', 'د', 'س', 'ش', 'ا'],
-   ['ب', 'ڤ', 'ج', 'چ', 'خ', 'ز']
+   ['پ', 'ۆ', 'ی', 'ێ', 'ئ', 'ت', 'ڕ', 'ر', 'ە', 'و', 'ق'],
+   ['ڵ', 'ل', 'ژ', 'ھ', 'ک', 'گ', 'ف', 'د', 'ش', 'س', 'ا'],
+   ['غ', 'ع', 'ح', 'م', 'ن', 'ب', 'ڤ', 'چ', 'ج', 'خ', 'ز'],
+   []
 ];
 
 const SPECIAL_KEYS = {
@@ -139,7 +139,7 @@ const Keyboard = memo(({
          {ROWS.map((row, rowIndex) => (
             <MotionDiv
                key={`kbd-row-${rowIndex}`}
-               className="flex gap-1 w-full justify-center"
+               className={`flex ${rowIndex === 3 ? 'gap-6' : 'gap-1'} w-full justify-center`}
                initial="initial"
                animate="animate"
                variants={{
@@ -151,7 +151,7 @@ const Keyboard = memo(({
                   }
                }}
             >
-               {rowIndex === 2 && (
+               {rowIndex === 3 && (
                   <MotionButton
                      variants={{
                         initial: { y: 3 },
@@ -164,11 +164,22 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.DELETE, true); }}
-                     className="flex-[1.5] h-[clamp(38px,6vh,55px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-[0_4px_0_#be123c]"
+                     className="flex-1 h-[clamp(38px,6vh,55px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-[0_4px_0_#be123c]"
                   >
                      <span className="material-symbols-outlined text-[20px]">backspace</span>
                   </MotionButton>
                )}
+
+               {row.map((key) => (
+                  <Key
+                     key={key}
+                     k={key}
+                     status={usedKeys[key]}
+                     isDisabled={(magnetDisabledKeys || []).includes(key)}
+                     onKeyPress={handleKeyPress}
+                     isDark={isDark}
+                  />
+               ))}
 
                {rowIndex === 3 && (
                   <MotionButton
@@ -183,22 +194,13 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.ENTER, true); }}
-                     className="flex-[1.8] h-[clamp(38px,6vh,55px)] rounded-md bg-primary text-white font-bold text-xs uppercase flex items-center justify-center transition-all active:scale-95 border border-white/10 shadow-[0_4px_0_#047857]"
+                     className="flex-1 h-[clamp(38px,6vh,55px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all active:scale-95 border border-white/10 shadow-[0_4px_0_#047857]"
                   >
                      <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
                   </MotionButton>
                )}
 
-               {row.map((key) => (
-                  <Key
-                     key={key}
-                     k={key}
-                     status={usedKeys[key]}
-                     isDisabled={(magnetDisabledKeys || []).includes(key)}
-                     onKeyPress={handleKeyPress}
-                     isDark={isDark}
-                  />
-               ))}
+
             </MotionDiv>
          ))}
       </div>

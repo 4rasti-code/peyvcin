@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const UPDATE_VERSION = 'v2.5.0'; // Change this string to force the modal to show again for all users
+const UPDATE_VERSION = 'v2.6.0'; // Change this string to force the modal to show again for all users
 
-const UPDATE_RELEASE_DATE = new Date('2026-08-01T00:00:00Z');
+const UPDATE_RELEASE_DATE = new Date('2026-08-10T00:00:00Z');
 
 const UpdateNotesModal = ({ user }) => {
    const [isVisible, setIsVisible] = useState(false);
@@ -52,54 +52,93 @@ const UpdateNotesModal = ({ user }) => {
                   animate={{ scale: 1, y: 0, opacity: 1 }}
                   exit={{ scale: 0.9, y: 20, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
-                  className="w-full max-w-sm relative flex flex-col items-center"
+                  className="w-[90%] max-w-sm relative flex flex-col items-center mt-12"
                >
                   {/* Decorative Header */}
-                  <div className="absolute -top-12 z-10 bg-amber-500 w-24 h-24 rounded-xl flex items-center justify-center border-4 border-mono-white dark:border-mono-900 transition-colors duration-500">
+                  <div className="absolute -top-12 z-20 bg-linear-to-br from-amber-400 to-amber-600 w-24 h-24 rounded-2xl flex items-center justify-center border-4 border-mono-white dark:border-mono-900 shadow-xl shadow-amber-500/20 transition-colors duration-500">
                      <span className="material-symbols-outlined text-[48px] text-white">campaign</span>
                   </div>
 
                   {/* Main Card */}
-                  <div className="bg-mono-white dark:bg-mono-900 rounded-xl w-full border border-mono-200 dark:border-white/10 shadow-xl pt-16 pb-6 px-6 overflow-hidden flex flex-col relative transition-colors duration-500">
+                  <div className="bg-linear-to-b from-mono-white to-amber-50/30 dark:from-mono-900 dark:to-[#0f0a05] rounded-lg border-2 border-amber-500 w-full pt-16 pb-5 px-4 sm:px-6 overflow-hidden flex flex-col relative z-10 transition-colors duration-500 shadow-2xl shadow-amber-500/10">
 
                      {/* Title */}
                      <h2 className="text-xl font-black text-center text-mono-900 dark:text-white mb-1 transition-colors">
                         وەشانا نوی گەهشت!
                      </h2>
-                     <p className="text-xs text-center text-amber-600 dark:text-amber-400 font-bold mb-6 transition-colors">
+                     <p className="text-xs text-center text-amber-600 dark:text-amber-400 font-bold mb-5 transition-colors">
                         ڤێرژنا {UPDATE_VERSION}
                      </p>
 
                      {/* Scrollable Content */}
-                     <ul className="flex-1 overflow-y-auto custom-scrollbar pr-4 pl-1 max-h-[75vh] space-y-3 list-disc marker:text-amber-500 dark:marker:text-amber-400">
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🌟 <b className="text-mono-900 dark:text-white">سیستەمێ ڕاپۆرتان:</b> نۆکە ل ناڤ لۆبیێ، تو دشێی ب ساناهی گازندە و پێشنیارێن خۆ ڕاستەوخۆ بۆ مە بهنێری ل گەل هەلبژارتنا ٥ وێنەیان ب ئێکجار!
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           💬 <b className="text-mono-900 dark:text-white">ئاریشەیا چاتێ:</b> ئەو ئاریشەیا کو نامەیێن کەڤن یێن چاتێ پشتی ژێبرنێ ڤەدگەڕیان، ب تەمامی هاتە چارەسەرکرن.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           ✍️ <b className="text-mono-900 dark:text-white">ئاریشەیا فۆنتێ:</b> ئەو پەیڤێن کو پیتێن وان ل هندەک شاشەیان پچڕ پچڕ و ژێکڤەبووی دیار دبوون، هاتنە دروستکرن.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           📱 <b className="text-mono-900 dark:text-white">دیزاینا شاشەیان:</b> دیزاین و دوکمەیێن یاریێ نۆکە ب دروستی ل گەل شاشەیێن هەمی مۆبایلان دگونجن، بێی کو شاشە ل سەر مۆبایلێن بچیک بلڤیت و تە بێزار بکەت.
-                        </li>
-                        <li className="text-[12px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed transition-colors">
-                           🛠️ <b className="text-mono-900 dark:text-white">باشترکرنا یاریێ:</b> ل گەل چەندین چارەسەریێن دی یێن بچیک بۆ نەهێلانا گیربوونان و خێراترکرنا کارکرنا یاریێ ب گشتی!
-                        </li>
-                     </ul>
+                     <div className="relative flex-1 min-h-0 flex flex-col">
+                        <div 
+                           className="flex-1 overflow-y-auto custom-scrollbar pr-2 pl-1 max-h-[55vh] flex flex-col space-y-3 pb-4"
+                        >
+                           {/* Item 1 */}
+                           <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                 📸
+                              </div>
+                              <div className="flex flex-col pt-0.5">
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">هنارتنا وێنەیان د چاتێ دا</h3>
+                                 <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
+                                    نۆکە دشێی وێنەیان بۆ هەڤالان بهنێری! هەروەسا بۆ پاراستنا تایبەتمەندیێ، هەمی نامە و وێنە پشتی ٢٤ دەمژمێران ب ئۆتۆماتیکی دێ هێنە ژێبرن.
+                                 </p>
+                              </div>
+                           </div>
+
+                           {/* Item 2 */}
+                           <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                 ⚡
+                              </div>
+                              <div className="flex flex-col pt-0.5">
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">گەهشتنا ب لەز بۆ نامەیان</h3>
+                                 <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
+                                    ب کلیککرنا ل سەر نۆتیفیکەیشنا نامەیێ، دێ ئێکسەر چییە د ناڤ چاتێ دا. هەروەسا دەقێ نامەیێ ژی د نۆتیفیکەیشنان دا باشتر دیار دبیت.
+                                 </p>
+                              </div>
+                           </div>
+
+                           {/* Item 3 */}
+                           <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                 ⌨️
+                              </div>
+                              <div className="flex flex-col pt-0.5">
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">کیبۆردەکێ نوی و ستاندارد</h3>
+                                 <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
+                                    ڕێزبەندیا پیتێن ل سەر تەختەکلیکی ئانکو کیبۆردی بوویە ستاندارد وەکی مۆبایلان، و دوکمەیێن (تەمام) و (ژێبرن) هاتنە ڕێکخستن داکو بکارئینانا ب تبلان گەلەک ب ساناهیتر بیت!
+                                 </p>
+                              </div>
+                           </div>
+
+                           {/* Item 4 */}
+                           <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                 🏆
+                              </div>
+                              <div className="flex flex-col pt-0.5">
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">دیزاینەکا نوی بۆ کارتا ئەنجامان</h3>
+                                 <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
+                                    دیزاین و قەبارەیێ کارتا ئەنجامێن هەڤڕکیێ (Multiplayer) هاتە باشتر کرن، داکو جوانتر و ڕوونتر ل سەر شاشەیێ دیار بیت.
+                                 </p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
 
                      {/* Action Button */}
                      <div className="mt-6 pt-4 border-t border-mono-200 dark:border-white/10 flex justify-center transition-colors duration-500">
                         <button
                            onClick={handleClose}
-                           className="bg-mono-900 hover:bg-mono-800 dark:bg-white dark:hover:bg-mono-200 text-white dark:text-mono-900 font-black text-[15px] py-3 px-12 rounded-md active:scale-95 transition-all w-full flex items-center justify-center gap-2"
+                           className="bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-lg shadow-amber-500/25 border border-amber-400/50 font-black text-[15px] py-3 px-12 rounded-md active:scale-95 transition-all w-full flex items-center justify-center gap-2"
                         >
                            <span>گەلەک باشە</span>
                            <span className="material-symbols-outlined text-[18px]">check_circle</span>
                         </button>
                      </div>
-
                   </div>
                </Motion.div>
             </Motion.div>
