@@ -377,6 +377,28 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
+  // --- NATIVE APP KEYBOARD FIX (VISUAL VIEWPORT SYNC) ---
+  useEffect(() => {
+    const handleVisualViewport = () => {
+      if (window.visualViewport) {
+        document.documentElement.style.setProperty('--vv-offset-top', `${window.visualViewport.offsetTop}px`);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('scroll', handleVisualViewport, { passive: true });
+      window.visualViewport.addEventListener('resize', handleVisualViewport, { passive: true });
+      handleVisualViewport();
+    }
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('scroll', handleVisualViewport);
+        window.visualViewport.removeEventListener('resize', handleVisualViewport);
+      }
+    };
+  }, []);
+
   // --- THEME SYNC ENGINE (OS PREFERENCE & USER SELECTION) ---
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
