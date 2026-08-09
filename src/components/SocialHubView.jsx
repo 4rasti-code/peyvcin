@@ -2000,7 +2000,7 @@ export default function SocialHubView({
 
       {/* Input Area - WhatsApp Pill Style Swapped */}
       {(activeTab === 'global' || selectedChat) && (
-        <div className="bg-mono-white dark:bg-black border-t border-mono-200 dark:border-mono-800 relative z-45 transition-colors duration-300">
+        <div className="w-full shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] bg-mono-white dark:bg-black border-t border-mono-200 dark:border-mono-800 relative z-45 transition-colors duration-300">
           {/* Reply Preview Box */}
           <AnimatePresence>
             {replyingTo && (
@@ -2057,7 +2057,7 @@ export default function SocialHubView({
               </div>
             )}
 
-            <div className="shrink-0 p-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] flex gap-2 items-center">
+            <div className="p-3 pb-3 flex gap-2 items-center">
               <button
                 onClick={handleSendMessage}
                 onPointerDown={(e) => e.preventDefault()}
