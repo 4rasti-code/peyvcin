@@ -377,28 +377,6 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
-  // --- NATIVE APP KEYBOARD FIX (VISUAL VIEWPORT SYNC) ---
-  useEffect(() => {
-    const handleVisualViewport = () => {
-      if (window.visualViewport) {
-        document.documentElement.style.setProperty('--vv-offset-top', `${window.visualViewport.offsetTop}px`);
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('scroll', handleVisualViewport, { passive: true });
-      window.visualViewport.addEventListener('resize', handleVisualViewport, { passive: true });
-      handleVisualViewport();
-    }
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('scroll', handleVisualViewport);
-        window.visualViewport.removeEventListener('resize', handleVisualViewport);
-      }
-    };
-  }, []);
-
   // --- THEME SYNC ENGINE (OS PREFERENCE & USER SELECTION) ---
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -422,9 +400,9 @@ export default function App() {
         document.body.style.backgroundColor = '#000000';
       } else {
         document.documentElement.classList.remove('dark');
-        setMetaTheme('#FFFFFF');
-        document.documentElement.style.backgroundColor = '#FFFFFF';
-        document.body.style.backgroundColor = '#FFFFFF';
+        setMetaTheme('#f8fafc');
+        document.documentElement.style.backgroundColor = '#f8fafc';
+        document.body.style.backgroundColor = '#f8fafc';
       }
     };
 
@@ -1700,7 +1678,7 @@ export default function App() {
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-dvh items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl" style={{ transform: 'translateY(var(--vv-offset-top, 0px))' }}>
+    <div className="flex-1 flex flex-col w-full h-dvh items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl" >
 
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>

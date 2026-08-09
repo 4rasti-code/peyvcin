@@ -1565,7 +1565,7 @@ export default function SocialHubView({
   return (
     <div className="flex flex-col h-full bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
-      <div className="pb-2 w-full relative z-40" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
+      <div className="pb-2 w-full" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
             {
@@ -1679,7 +1679,7 @@ export default function SocialHubView({
           <div className="flex-1 flex flex-col overflow-hidden">
             {selectedChat ? (
               <div className="flex-1 flex flex-col overflow-hidden bg-mono-50 dark:bg-black">
-                <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between relative z-40 shadow-sm transition-colors duration-300">
+                <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between z-10 shadow-sm transition-colors duration-300">
                   <div className="flex items-center gap-3">
                     <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
