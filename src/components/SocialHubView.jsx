@@ -1563,7 +1563,7 @@ export default function SocialHubView({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
+    <div className="fixed inset-0 flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-[calc(6rem+env(safe-area-inset-bottom))] focus-within:pb-0" dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
       <div className="pb-2 w-full shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
