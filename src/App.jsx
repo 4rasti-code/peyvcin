@@ -1956,7 +1956,6 @@ export default function App() {
                     onViewMessages={handleViewMessages}
                     onViewFriends={handleViewFriends}
                     onKeyboardToggle={(isOpen) => {
-                      if (isOpen && !window.matchMedia('(pointer: coarse)').matches) return;
                       setIsKeyboardOpen(isOpen);
                     }}
                   />
