@@ -377,6 +377,39 @@ export default function App() {
 
   const bgmStatusRef = useRef('stopped');
 
+  // --- NATIVE APP KEYBOARD FIX (WHATSAPP STYLE) ---
+  const [viewportHeight, setViewportHeight] = useState('100dvh');
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        setViewportHeight(`${window.visualViewport.height}px`);
+        window.scrollTo(0, 0);
+        document.body.scrollTop = 0;
+      } else {
+        setViewportHeight(`${window.innerHeight}px`);
+      }
+    };
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
+    } else {
+      window.addEventListener('resize', handleResize);
+    }
+    
+    handleResize();
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize);
+        window.visualViewport.removeEventListener('scroll', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, []);
+
   // --- THEME SYNC ENGINE (OS PREFERENCE & USER SELECTION) ---
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -1678,10 +1711,7 @@ export default function App() {
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
-    <div 
-      className="fixed inset-0 w-full h-dvh flex flex-col items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" 
-      dir="rtl"
-    >
+    <div className="flex-1 flex flex-col w-full items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl" style={{ height: viewportHeight }}>
 
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>
