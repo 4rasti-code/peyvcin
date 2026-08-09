@@ -117,7 +117,6 @@ export default function TopAppBar({
     <header
       className={`relative top-0 w-full z-100 bg-transparent pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
       dir="ltr"
-      style={{ transform: 'translateY(var(--vv-offset-top, 0px))' }}
     >
       <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full mx-auto relative gap-4">
 
