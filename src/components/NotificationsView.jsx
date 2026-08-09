@@ -66,7 +66,7 @@ export default function NotificationsView({
         </div>
         
         <div className="flex-1 min-w-0">
-          <p className="text-[12px] font-bold text-mono-900 dark:text-white/90 leading-tight truncate">
+          <p className="text-[12px] font-bold text-mono-900 dark:text-white/90 leading-tight line-clamp-2 wrap-break-word">
             <span className="text-primary font-black">{item.user_nickname}</span>
             {item.type === 'message' ? (
               <span className="text-mono-600 dark:text-mono-400 font-normal mr-1">
