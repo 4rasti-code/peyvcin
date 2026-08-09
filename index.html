@@ -207,14 +207,17 @@
   <title>Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game</title>
   <script>
     // Smart iOS PWA Keyboard Fix (Gemini)
+    let maxInnerHeight = window.innerHeight;
+
     const updateAppHeight = () => {
       let height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      maxInnerHeight = Math.max(maxInnerHeight, window.innerHeight);
       
       // iOS PWA Accessory Bar Fix: 
       // visualViewport doesn't subtract the 45px accessory bar in PWA mode
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      const isKeyboardOpen = window.visualViewport && window.visualViewport.height < window.innerHeight - 100;
+      const isKeyboardOpen = window.visualViewport && window.visualViewport.height < maxInnerHeight - 100;
       
       if (isIOS && isPWA && isKeyboardOpen) {
         height -= 45; // Height of the iOS keyboard accessory bar
