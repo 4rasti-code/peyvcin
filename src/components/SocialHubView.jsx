@@ -1843,7 +1843,7 @@ export default function SocialHubView({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         className="flex items-center gap-2 mb-4 w-fit"
                       >
-                        <div className="bg-mono-100/90 dark:bg-mono-800/90 px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-mono-200/60 dark:border-mono-700/60 flex items-center gap-3 shadow-md backdrop-blur-md relative overflow-hidden" dir="ltr">
+                        <div className="bg-white dark:bg-mono-900 px-3.5 py-2 rounded-md rounded-tl-none border border-mono-200 dark:border-mono-800 flex items-center gap-3 shadow-sm relative overflow-hidden" dir="ltr">
                           
                           <Motion.span 
                             animate={{ opacity: [0.6, 1, 0.6] }}
@@ -1856,18 +1856,18 @@ export default function SocialHubView({
 
                           <div className="flex gap-1.5 items-center">
                             <Motion.span 
-                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0 }} 
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0, ease: "easeInOut" }} 
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
                             <Motion.span 
-                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15 }} 
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15, ease: "easeInOut" }} 
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
                             <Motion.span 
-                              animate={{ y: [0, -2.5, 0], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3 }} 
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3, ease: "easeInOut" }} 
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
                           </div>
