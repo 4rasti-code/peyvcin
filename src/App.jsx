@@ -1046,15 +1046,16 @@ export default function App() {
             id: Date.now(),
             type: 'message',
             title: senderName,
-            message: 'نامەیەک بۆ تە هنارت',
+            message: payload.new.content || 'نامەیەک بۆ تە هنارت',
             created_at: new Date().toISOString()
           }, ...prev]);
 
           showPush({
             title: senderName,
-            message: 'نامەیەک بۆ تە هنارت',
+            message: payload.new.content || 'نامەیەک بۆ تە هنارت',
             avatar: avatarUrl,
-            type: 'message'
+            type: 'message',
+            sender_id: payload.new.user_id
           });
         }
       )
@@ -1509,6 +1510,7 @@ export default function App() {
           sender_id: m.user_id,
           user_nickname: sender?.nickname || m.user_nickname || 'بێناڤ',
           user_avatar: sender?.avatar_url || 'default',
+          message: m.content,
           created_at: m.created_at
         };
       });
@@ -2104,7 +2106,15 @@ export default function App() {
                     setOpenFriendsFromNotif(true);
                     navigateTo('profile');
                   } else {
-                    setCurrentView('social_hub');
+                    if (pushNotification.type === 'message' && pushNotification.sender_id) {
+                      handleOpenChat({
+                        id: pushNotification.sender_id,
+                        nickname: pushNotification.title,
+                        avatar_url: pushNotification.avatar
+                      });
+                    } else {
+                      setCurrentView('social_hub');
+                    }
                   }
                 }}
                 className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/80' : 'bg-white/95'} backdrop-blur-2xl p-1.5 pl-3 rounded-full border ${

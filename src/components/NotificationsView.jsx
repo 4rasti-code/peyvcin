@@ -68,7 +68,13 @@ export default function NotificationsView({
         <div className="flex-1 min-w-0">
           <p className="text-[12px] font-bold text-mono-900 dark:text-white/90 leading-tight truncate">
             <span className="text-primary font-black">{item.user_nickname}</span>
-            {item.type === 'message' ? ' نامە ' : ' داخوازى '}
+            {item.type === 'message' ? (
+              <span className="text-mono-600 dark:text-mono-400 font-normal mr-1">
+                {item.message?.includes('[IMAGE:') ? ': 📷 وێنەیەک' : (item.message ? `: ${item.message}` : ' نامەیەک هنارت')}
+              </span>
+            ) : (
+              ' داخوازى '
+            )}
             <span className="text-[9px] text-mono-400 dark:text-white/30 font-bold uppercase mr-1">{timeAgo}</span>
           </p>
         </div>
@@ -86,7 +92,7 @@ export default function NotificationsView({
         initial={{ opacity: 0, y: -10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="absolute top-full mt-2 right-0 w-80 max-h-[480px] z-50 bg-mono-50 dark:bg-mono-900 rounded-md border border-mono-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden"
+        className="absolute top-full mt-2 right-0 w-80 max-h-120 z-50 bg-mono-50 dark:bg-mono-900 rounded-md border border-mono-200 dark:border-white/10 shadow-2xl flex flex-col overflow-hidden"
         dir="rtl"
         onClick={(e) => e.stopPropagation()}
       >
