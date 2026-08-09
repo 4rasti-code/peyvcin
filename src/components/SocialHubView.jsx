@@ -339,7 +339,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
         {/* Center: Swords (Fixed 40px Area) */}
         <div className="flex items-center justify-center relative z-40 w-10">
           <div className="bg-white/95 p-1.5 rounded-md shadow-md border border-black/10 flex items-center justify-center">
-            <ClashingSwords className="w-4 h-4 text-mono-900" />
+            <ClashingSwords className="w-5 h-5 text-mono-900" />
           </div>
         </div>
 
