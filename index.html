@@ -206,26 +206,7 @@
   <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="/Peyvok-logo-02.png" />
   <title>Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game</title>
   <script>
-    // iOS PWA Keyboard Fix
-    const setAppHeight = () => {
-      // Base height is always the innerHeight (layout viewport)
-      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-      
-      // Calculate keyboard height
-      const visualHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      let keyboardHeight = window.innerHeight - visualHeight;
-      if (keyboardHeight < 0) keyboardHeight = 0;
-      
-      document.documentElement.style.setProperty('--keyboard-height', `${keyboardHeight}px`);
-      window.scrollTo(0, 0); // Prevent Safari from panning
-    };
-    window.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setAppHeight);
-      window.visualViewport.addEventListener('scroll', () => window.scrollTo(0, 0));
-    }
-    setAppHeight();
+    // Native viewport behavior
   </script>
 </head>
 
