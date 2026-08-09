@@ -422,9 +422,9 @@ export default function App() {
         document.body.style.backgroundColor = '#000000';
       } else {
         document.documentElement.classList.remove('dark');
-        setMetaTheme('#f8fafc');
-        document.documentElement.style.backgroundColor = '#f8fafc';
-        document.body.style.backgroundColor = '#f8fafc';
+        setMetaTheme('#FFFFFF');
+        document.documentElement.style.backgroundColor = '#FFFFFF';
+        document.body.style.backgroundColor = '#FFFFFF';
       }
     };
 
