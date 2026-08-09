@@ -206,36 +206,12 @@
   <link rel="apple-touch-icon" media="(prefers-color-scheme: dark)" href="/Peyvok-logo-02.png" />
   <title>Peyvok - پەیڤۆک | The Ultimate Kurdish Word Game</title>
   <script>
-    // Smart iOS PWA Keyboard Fix (Gemini)
-    let maxInnerHeight = window.innerHeight;
-
-    const updateAppHeight = () => {
-      let height = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      maxInnerHeight = Math.max(maxInnerHeight, window.innerHeight);
-      
-      // iOS PWA Accessory Bar Fix: 
-      // visualViewport doesn't subtract the 45px accessory bar in PWA mode
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-      const isKeyboardOpen = window.visualViewport && window.visualViewport.height < maxInnerHeight - 100;
-      
-      if (isIOS && isPWA && isKeyboardOpen) {
-        height -= 45; // Height of the iOS keyboard accessory bar
-      }
-      
-      document.documentElement.style.setProperty('--app-height', `${height}px`);
-    };
-    window.addEventListener('resize', updateAppHeight);
-    window.addEventListener('orientationchange', updateAppHeight);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', updateAppHeight);
-    }
-    updateAppHeight();
+    // Native viewport behavior
   </script>
 </head>
 
 <body
-  class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden fixed inset-0 w-full h-full">
+  class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container overflow-hidden">
 
   <div id="root">
     <!-- NATIVE INSTANT SPLASH SCREEN (Replaced by React on load) -->

@@ -2057,7 +2057,7 @@ export default function SocialHubView({
               </div>
             )}
 
-            <div className="p-3 pb-6 flex gap-2 items-center">
+            <div className="p-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] flex gap-2 items-center">
               <button
                 onClick={handleSendMessage}
                 onPointerDown={(e) => e.preventDefault()}
