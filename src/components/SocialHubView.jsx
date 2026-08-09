@@ -1563,9 +1563,9 @@ export default function SocialHubView({
   };
 
   return (
-    <div className="flex flex-col h-full bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
+    <div className="fixed inset-0 flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-500" dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
-      <div className="pb-2 w-full" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
+      <div className="pb-2 w-full shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
           {[
             {
@@ -2057,7 +2057,7 @@ export default function SocialHubView({
               </div>
             )}
 
-            <div className="p-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] flex gap-2 items-center">
+            <div className="shrink-0 p-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] flex gap-2 items-center">
               <button
                 onClick={handleSendMessage}
                 onPointerDown={(e) => e.preventDefault()}
