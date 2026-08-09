@@ -2090,12 +2090,7 @@ export default function SocialHubView({
                   }
                 }}
                 placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
-                onFocus={(e) => {
-                  onKeyboardToggle?.(true);
-                  setTimeout(() => {
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }, 300);
-                }}
+                onFocus={() => onKeyboardToggle?.(true)}
                 onBlur={() => onKeyboardToggle?.(false)}
                 className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
               />
