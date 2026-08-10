@@ -33,25 +33,7 @@ function SettingsModal({
    const [activePolicyModal, setActivePolicyModal] = React.useState(null);
    const { user, handleToggleBlock } = useUser();
 
-   const requestLocation = () => {
-      triggerHaptic(10);
-      if (navigator.geolocation) {
-         navigator.geolocation.getCurrentPosition(
-            async (position) => {
-               const { latitude, longitude } = position.coords;
-               await supabase.from('profiles').update({ latitude, longitude }).eq('id', user?.id);
-               // Simple toast/alert for the user
-               alert('جهێ تە (لۆکەیشن) ب سەرکەفتیانە هاتە نویکرن!');
-            },
-            (error) => {
-               console.error('Error getting location:', error);
-               alert('ببورە، نەشێین جهێ تە دیار بکەین. تکایە د ڕێکخستنێن مۆبایلێ دا ڕێپێدانێ بدە.');
-            }
-         );
-      } else {
-         alert('ئەڤ تایبەتمەندییە د وێبگەڕێ تە دا کار ناکەت.');
-      }
-   };
+
 
    const handleDeleteAccount = async () => {
       setShowDeleteConfirm(false);
@@ -195,13 +177,6 @@ function SettingsModal({
                               </div>
                               <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
                            </button>
-                           <button onClick={requestLocation} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">my_location</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">نویکرنا جهی (بۆ دیتنا هەڤڕکان)</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
-                           </button>
                            <button onClick={() => { triggerHaptic(10); setActivePolicyModal('terms'); }} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
                               <div className="flex items-center gap-3">
                                  <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">description</span>
@@ -235,7 +210,7 @@ function SettingsModal({
                         </button>
 
                         <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
-                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.6.0</p>
+                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.7.0</p>
                         </div>
                      </div>
                   </Motion.div>
