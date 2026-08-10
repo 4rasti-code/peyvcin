@@ -456,7 +456,19 @@ const CustomAudioPlayer = ({ src }) => {
   };
 
   const onLoadedMetadata = () => {
-    if (audioRef.current) setDuration(audioRef.current.duration);
+    if (audioRef.current) {
+      if (audioRef.current.duration === Infinity || isNaN(audioRef.current.duration)) {
+        // Fix for Chrome WebM duration bug
+        audioRef.current.currentTime = 1e101;
+        audioRef.current.ontimeupdate = () => {
+          audioRef.current.ontimeupdate = null;
+          audioRef.current.currentTime = 0;
+          setDuration(audioRef.current.duration);
+        };
+      } else {
+        setDuration(audioRef.current.duration);
+      }
+    }
   };
 
   const onTimeUpdate = () => {
@@ -478,7 +490,7 @@ const CustomAudioPlayer = ({ src }) => {
   };
 
   const formatTime = (time) => {
-    if (!time || isNaN(time)) return "0:00";
+    if (!time || isNaN(time) || !isFinite(time)) return "0:00";
     const min = Math.floor(time / 60);
     const sec = Math.floor(time % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
