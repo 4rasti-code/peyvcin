@@ -1172,8 +1172,7 @@ export default function SocialHubView({
       if (payload.eventType === 'INSERT') {
         const newMsg = payload.new;
         if (newMsg.user_id !== currentUserId) {
-          const isCurrentlyViewingChat = activeTabRef.current === 'private' && selectedChatRef.current?.id === newMsg.user_id;
-          if (isCurrentlyViewingChat) _playMessageSound();
+          // No longer playing sound if we are already viewing the chat
         }
 
         if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
