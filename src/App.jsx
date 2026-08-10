@@ -1037,6 +1037,13 @@ export default function App() {
             }
           } catch (_e) { console.warn(_e); }
 
+          let previewText = payload.new.content || 'نامەیەک بۆ تە هنارت';
+          if (previewText.startsWith('[VOICE:') && previewText.endsWith(']')) {
+            previewText = '🎤 نامەیەکا دەنگی';
+          } else if (previewText.startsWith('[IMAGE:') && previewText.endsWith(']')) {
+            previewText = '📷 وێنەیەک هنارت';
+          }
+
           setSocialNotifications(prev => ({
             ...prev,
             unreadMessages: prev.unreadMessages + 1
@@ -1045,13 +1052,13 @@ export default function App() {
             id: Date.now(),
             type: 'message',
             title: senderName,
-            message: payload.new.content || 'نامەیەک بۆ تە هنارت',
+            message: previewText,
             created_at: new Date().toISOString()
           }, ...prev]);
 
           showPush({
             title: senderName,
-            message: payload.new.content || 'نامەیەک بۆ تە هنارت',
+            message: previewText,
             avatar: avatarUrl,
             type: 'message',
             sender_id: payload.new.user_id
