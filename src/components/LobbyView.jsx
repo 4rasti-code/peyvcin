@@ -108,6 +108,9 @@ const LobbyView = memo(({
   const [inviteAlert, setInviteAlert] = useState(null);
   const [inviteCooldowns, setInviteCooldowns] = useState({});
   const [inviteStrikes, setInviteStrikes] = useState({});
+  const [localLocationEnabled, setLocalLocationEnabled] = useState(() => {
+    return localStorage.getItem('use_location_matchmaking') === 'true';
+  });
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
@@ -121,6 +124,13 @@ const LobbyView = memo(({
       setSentInvites(new Set());
     }
   }, [multiplayerState]);
+
+  // Sync local visual state with profile data initially if not set
+  useEffect(() => {
+    if (profileData?.latitude != null && localStorage.getItem('use_location_matchmaking') === null) {
+      localStorage.setItem('use_location_matchmaking', 'true');
+    }
+  }, [profileData]);
   
   const recordInviteStrike = useCallback(async (targetId) => {
     if (!user?.id || !targetId) return;
@@ -254,7 +264,6 @@ const LobbyView = memo(({
     setInvitedUserProfile(null);
     if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
   };
-
   const freeSpins = (() => {
     if (!profileData?.last_spin_date) return 1;
     const lastSpin = new Date(profileData.last_spin_date);
@@ -822,7 +831,7 @@ const LobbyView = memo(({
             className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
             onClick={() => setShowMultiplayerModal(false)}
           >
-            <Motion.div 
+<Motion.div 
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -833,23 +842,66 @@ const LobbyView = memo(({
                 <>
                   <h3 className="text-lg font-black text-center text-mono-900 dark:text-white mb-6">شێوەیێ یاریکرنێ هەلبژێرە</h3>
                   <div className="flex flex-col gap-3">
-                    <button 
-                      onClick={() => {
-                        triggerHaptic(10);
-                        setShowMultiplayerModal(false);
-                        onStartMultiplayer();
-                      }}
-                      className="w-full py-4 rounded-md bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
-                    >
-                      <span className="material-symbols-outlined">public</span>
-                      لێگەڕیانا گشتی
-                    </button>
+                    <div className="flex items-stretch gap-2 h-14">
+                      {/* Global Search Button */}
+                      <button 
+                        onClick={() => {
+                          triggerHaptic(10);
+                          setShowMultiplayerModal(false);
+                          onStartMultiplayer();
+                        }}
+                        className="flex-1 rounded-md bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
+                      >
+                        <span className="material-symbols-outlined">public</span>
+                        لێگەڕیانا گشتی
+                      </button>
+
+                      {/* Get Location Toggle Button */}
+                      <button 
+                        onClick={() => {
+                           triggerHaptic(10);
+                           if (localLocationEnabled) {
+                             // Fake Turn OFF location (only visual)
+                             setLocalLocationEnabled(false);
+                             localStorage.setItem('use_location_matchmaking', 'false');
+                           } else {
+                             // Turn ON location
+                             setLocalLocationEnabled(true);
+                             localStorage.setItem('use_location_matchmaking', 'true');
+                             if (navigator.geolocation) {
+                               navigator.geolocation.getCurrentPosition(
+                                 async (position) => {
+                                   try {
+                                     const { latitude, longitude } = position.coords;
+                                     await supabase.from('profiles').update({ latitude, longitude }).eq('id', user?.id);
+                                   } catch (err) {
+                                     console.error('Error saving location:', err);
+                                   }
+                                 },
+                                 (error) => {
+                                   console.error('Error getting location:', error);
+                                 }
+                               );
+                             }
+                           }
+                        }}
+                        className={`w-19 sm:w-21 shrink-0 rounded-md flex flex-col items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 text-mono-700 bg-mono-100 hover:bg-mono-200 dark:text-mono-200 dark:bg-mono-800 dark:hover:bg-mono-700`}
+                      >
+                        {/* iOS Style Switch */}
+                        <div dir="ltr" className={`w-11 h-6 rounded-full p-1 flex items-center shrink-0 transition-colors duration-300 ease-in-out ${localLocationEnabled ? 'bg-[#34C759]' : 'bg-mono-300 dark:bg-mono-600'}`}>
+                          <div className={`bg-white w-4 h-4 rounded-full shadow-sm shrink-0 transition-transform duration-300 ease-in-out transform ${localLocationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </div>
+                        <span className={`text-[10px] sm:text-[11px] font-bold transition-colors duration-300 ${localLocationEnabled ? 'text-[#34C759]' : 'text-mono-500 dark:text-mono-400'}`}>
+                          {localLocationEnabled ? 'هەمان ئاست' : 'هەر ئاستەک'}
+                        </span>
+                      </button>
+                    </div>
                     <button 
                       onClick={() => {
                         triggerHaptic(10);
                         setInviteStep('invite');
                       }}
-                      className="w-full py-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2"
+                      className="w-full h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
                     >
                       <span className="material-symbols-outlined">person_add</span>
                       داخوازکرنا تایبەت

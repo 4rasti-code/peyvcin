@@ -42,9 +42,17 @@ export default function AchievementToastManager() {
        return;
     }
 
+    const claimedMedals = profileData?.claimed_medals || [];
+    
     const newUnlocked = [];
     MEDALS.forEach(medal => {
-      if (medal.condition(displayData) && !previouslyUnlocked.includes(medal.id)) {
+      // If they have already claimed the reward for this medal in the DB, 
+      // or we already showed them the toast in this local session, don't show it again.
+      if (
+        medal.condition(displayData) && 
+        !previouslyUnlocked.includes(medal.id) && 
+        !claimedMedals.includes(medal.id)
+      ) {
         newUnlocked.push(medal);
         previouslyUnlocked.push(medal.id);
       }

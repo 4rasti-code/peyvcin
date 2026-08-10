@@ -67,51 +67,61 @@ export default function MedalsView({ onViewChange }) {
                      <Motion.div
                         key={m.id}
                         variants={item}
-                        className={`relative flex flex-row items-center justify-between py-4 px-4 gap-4 transition-all duration-300 border-2 rounded-[12px] bg-linear-to-b from-white to-mono-50 dark:from-[#1a1a24] dark:to-[#0f0f14] overflow-hidden group
-                           ${isUnlocked ? 'border-mono-300 dark:border-[#3a3a48] shadow-md dark:shadow-[0_4px_12px_rgba(0,0,0,0.3)]' : 'border-mono-200 dark:border-[#1a1a24] opacity-60 grayscale'}
-                           ${isClaimable ? 'border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : ''}
+                        className={`relative flex flex-row items-center py-5 px-6 gap-6 transition-all duration-300 border-b-4 overflow-hidden group
+                           ${isUnlocked ? 'bg-linear-to-r from-mono-100 to-white dark:from-[#1a1a24] dark:to-[#22222e] border-blue-500 shadow-[0_8px_20px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.4)]' : 'bg-mono-200/50 dark:bg-[#111116] border-mono-300 dark:border-mono-800 opacity-70 grayscale'}
+                           ${isClaimable ? 'border-amber-500 shadow-[0_0_30px_rgba(245,158,11,0.3)]' : ''}
                         `}
+                        style={{
+                           clipPath: 'polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%)',
+                        }}
                      >
-                        {/* Tactical Corner Accents */}
-                        <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-mono-500/30 rounded-tl-[10px]" />
-                        <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-mono-500/30 rounded-tr-[10px]" />
+                        {/* Tactical Background Elements */}
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay pointer-events-none" />
+                        <div className="absolute right-0 top-0 bottom-0 w-32 bg-linear-to-l from-black/5 to-transparent dark:from-black/40 pointer-events-none" />
 
                         {/* Glow Background for Unlocked */}
                         {isUnlocked && (
-                           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-amber-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
+                           <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-40 h-40 bg-[radial-gradient(circle,var(--tw-gradient-stops))] from-blue-500/20 to-transparent blur-2xl pointer-events-none" />
                         )}
 
-                        {/* Icon Container */}
-                        <div className="relative flex items-center justify-center min-w-[72px] min-h-[72px] shrink-0 z-10">
+                        {/* Icon Container (Right Side) */}
+                        <div className="relative flex items-center justify-center min-w-21.25 min-h-21.25 shrink-0 z-10">
                            {isClaimable ? (
                               <div className="relative flex flex-col items-center justify-center w-full h-full">
-                                 <m.IconComponent className="w-16 h-16 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)] group-hover:scale-110 transition-transform duration-500" size={64} disabled={false} />
+                                 <m.IconComponent className="w-20 h-20 drop-shadow-[0_0_15px_rgba(245,158,11,0.6)] group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500" size={80} disabled={false} />
 
                                  <Motion.button
                                     onClick={(e) => { e.stopPropagation(); triggerHaptic(20); handleClaimMedal(m); }}
                                     animate={{
-                                       boxShadow: ["0px 0px 5px rgba(245,158,11,0.5)", "0px 0px 20px rgba(245,158,11,1)", "0px 0px 5px rgba(245,158,11,0.5)"]
+                                       boxShadow: ["0px 0px 10px rgba(245,158,11,0.5)", "0px 0px 25px rgba(245,158,11,1)", "0px 0px 10px rgba(245,158,11,0.5)"]
                                     }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
-                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1.5 bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 rounded-sm font-black text-white text-[12px] active:scale-95 transition-transform z-20 whitespace-nowrap border border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.8)] clip-path-tactical"
+                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-5 py-2 bg-linear-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 font-black text-white text-[14px] active:scale-95 transition-transform z-20 whitespace-nowrap shadow-xl"
                                     style={{ clipPath: 'polygon(10% 0, 100% 0, 90% 100%, 0% 100%)' }}
                                  >
                                     وەرگرە
                                  </Motion.button>
                               </div>
                            ) : (
-                              <m.IconComponent className="w-16 h-16 drop-shadow-md transition-transform duration-500 group-hover:scale-105" size={64} disabled={!isUnlocked} />
+                              <div className="relative">
+                                 <m.IconComponent className="w-20 h-20 drop-shadow-xl transition-transform duration-500 group-hover:scale-105" size={80} disabled={!isUnlocked} />
+                                 {!isUnlocked && (
+                                    <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-mono-800 rounded-full flex items-center justify-center border-2 border-mono-300 dark:border-mono-900 shadow-md">
+                                       <span className="material-symbols-outlined text-[16px] text-white">lock</span>
+                                    </div>
+                                 )}
+                              </div>
                            )}
                         </div>
 
-                        {/* Text and Condition Container */}
-                        <div className="flex flex-col items-start justify-center flex-1 w-full z-10 min-w-0">
-                           <span className={`text-[16px] font-black font-rabar mb-1.5 drop-shadow-sm truncate w-full ${isUnlocked ? 'text-mono-900 dark:text-white' : 'text-mono-500 dark:text-mono-500'}`}>
+                        {/* Text and Condition Container (Left Side) */}
+                        <div className="flex flex-col items-start justify-center flex-1 w-full z-10 min-w-0 pl-2">
+                           <span className={`text-[20px] sm:text-[22px] font-black font-rabar mb-2 drop-shadow-sm truncate w-full ${isUnlocked ? 'text-mono-900 dark:text-white' : 'text-mono-500 dark:text-mono-600'}`}>
                               {m.name}
                            </span>
 
-                           <div className="w-full bg-mono-100 dark:bg-[#0a0a0c] py-1.5 px-3 rounded-sm border border-mono-200 dark:border-[#2a2a35]">
-                              <span className="block text-[11px] font-bold text-mono-500 dark:text-mono-400 leading-tight">
+                           <div className={`w-full py-2 px-3 relative overflow-hidden ${isUnlocked ? 'bg-blue-500/10 dark:bg-blue-500/20' : 'bg-mono-300/30 dark:bg-[#111116]'} border-l-4 ${isUnlocked ? 'border-blue-500' : 'border-mono-400 dark:border-mono-700'}`}>
+                              <span className={`block text-[12px] sm:text-[13px] font-bold leading-tight ${isUnlocked ? 'text-blue-700 dark:text-blue-200' : 'text-mono-500 dark:text-mono-500'}`}>
                                  {m.tooltip}
                               </span>
                            </div>

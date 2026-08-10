@@ -236,7 +236,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
   }
 
   const oppWon = data.oppScore > data.myScore;
-  
+
   let leftPlayer = {
     id: data.myId, name: data.myName, avatar: data.myAvatar, score: data.myScore, xp: data.myXP, tier: myTier
   };
@@ -255,7 +255,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
 
   return (
     <div className="flex flex-col mt-3 mb-1 mx-auto cursor-default w-full max-w-100 rounded-sm shadow-lg border border-black/20 relative overflow-hidden" onClick={e => e.stopPropagation()}>
-      
+
       {/* Background 50/50 Split */}
       <div className="absolute inset-0 z-0">
         <div
@@ -263,7 +263,7 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
           style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.25),transparent_70%)] pointer-events-none mix-blend-overlay" />
-        
+
         {/* Swords Pattern */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -298,10 +298,10 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
       {/* 2. Middle Area (Perfectly Divided Grid) */}
       {/* 1fr (Left) | 40px (Swords) | 1fr (Right) */}
       <div className="grid grid-cols-[1fr_40px_1fr] items-center w-full relative z-20 px-1.5 pt-6 pb-4" dir="ltr">
-        
+
         {/* P1 (Left Side - Blue) */}
         <div className="flex items-center justify-between w-full">
-          
+
           {/* Avatar (Fixed Size) */}
           <div
             className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${leftPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
@@ -319,14 +319,14 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
               </div>
             )}
           </div>
-          
+
           {/* Name (Flexible but STRICTLY limited so it doesn't touch others) */}
           <div className="flex-1 px-1.5 flex justify-start min-w-0">
             <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-left" dir="auto">
               {leftPlayer.name}
             </span>
           </div>
-          
+
           {/* Score (Fixed Box) */}
           <div className="shrink-0 w-6 flex justify-center">
             <span className="text-2xl font-black drop-shadow-md text-white leading-none mt-1">
@@ -345,21 +345,21 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
 
         {/* P2 (Right Side - Red) */}
         <div className="flex items-center justify-between w-full">
-          
+
           {/* Score (Fixed Box) */}
           <div className="shrink-0 w-6 flex justify-center">
             <span className="text-2xl font-black drop-shadow-md text-white leading-none mt-1">
               {toKuDigits(rightPlayer.score)}
             </span>
           </div>
-          
+
           {/* Name (Flexible but STRICTLY limited) */}
           <div className="flex-1 px-1.5 flex justify-end min-w-0">
             <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-right" dir="auto">
               {rightPlayer.name}
             </span>
           </div>
-          
+
           {/* Avatar (Fixed Size) */}
           <div
             className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${rightPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
@@ -439,6 +439,121 @@ const GameResultRenderer = ({ text, isMe }) => {
   );
 };
 
+const CustomAudioPlayer = ({ src }) => {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const togglePlayPause = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const onLoadedMetadata = () => {
+    if (audioRef.current) setDuration(audioRef.current.duration);
+  };
+
+  const onTimeUpdate = () => {
+    if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
+  };
+
+  const onEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    if (audioRef.current) audioRef.current.currentTime = 0;
+  };
+
+  const handleSeek = (e) => {
+    const time = Number(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const formatTime = (time) => {
+    if (!time || isNaN(time)) return "0:00";
+    const min = Math.floor(time / 60);
+    const sec = Math.floor(time % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  };
+
+  const fakeWaveform = [20, 35, 25, 50, 70, 45, 30, 60, 80, 50, 40, 60, 75, 70, 40, 50, 65, 40, 20, 50, 65, 55, 30, 40, 20, 50, 30, 20, 35, 50, 70, 45, 40, 60, 30];
+  const progressPercent = duration ? (currentTime / duration) * 100 : 0;
+
+  return (
+    <div className="flex flex-col w-56 my-1 py-1" dir="ltr" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()}>
+
+      <div className="flex flex-row items-center gap-3">
+        {/* Circular Solid Play Button */}
+        <button
+          onClick={togglePlayPause}
+          className="shrink-0 w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm ml-1"
+        >
+          {isPlaying ? (
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          )}
+        </button>
+
+        {/* Waveform Wrapper */}
+        <div className="relative h-6 flex-1 flex items-center justify-between">
+          {fakeWaveform.map((h, i) => {
+            const barPercent = (i / fakeWaveform.length) * 100;
+            const isPlayed = barPercent <= progressPercent;
+            return (
+              <div
+                key={i}
+                className={`w-[2.5px] rounded-full transition-colors duration-150 ${isPlayed ? 'bg-primary' : 'bg-current opacity-25'}`}
+                style={{ height: `${Math.max(15, h)}%` }}
+              />
+            );
+          })}
+
+          {/* Invisible Range Slider */}
+          <input
+            type="range"
+            min="0"
+            max={duration || 100}
+            value={currentTime}
+            onChange={handleSeek}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center text-[10px] font-bold font-inter mt-1.5 pl-15 pr-1">
+        <span className="opacity-60">{formatTime(currentTime)}</span>
+        <div className="flex items-center gap-1 opacity-70">
+          <span className="font-medium">{formatTime(duration)}</span>
+          <span className="material-symbols-outlined text-[12px]">mic</span>
+        </div>
+      </div>
+
+      <audio
+        ref={audioRef}
+        src={src}
+        onLoadedMetadata={onLoadedMetadata}
+        onTimeUpdate={onTimeUpdate}
+        onEnded={onEnded}
+        preload="metadata"
+        className="hidden"
+      />
+    </div>
+  );
+};
+
 const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [] }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -452,7 +567,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[VOICE:.*?\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -471,6 +586,10 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()} />
           </div>
         );
+      }
+      if (part.startsWith('[VOICE:') && part.endsWith(']')) {
+        const url = part.substring(7, part.length - 1);
+        return <CustomAudioPlayer key={i} src={url} />;
       }
       if (part.match(/^https?:\/\//)) {
         return (
@@ -764,6 +883,7 @@ export default function SocialHubView({
   const [reactionUsers, setReactionUsers] = useState({}); // { id: nickname }
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
@@ -780,6 +900,14 @@ export default function SocialHubView({
   const [pendingImagePreview, setPendingImagePreview] = useState(null);
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
 
+  // --- Voice Notes State ---
+  const [isRecording, setIsRecording] = useState(false);
+  const [isRecordingPaused, setIsRecordingPaused] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const recordingTimerRef = useRef(null);
+  // -------------------------
   const activeTabRef = useRef(activeTab);
   const selectedChatRef = useRef(selectedChat);
   const fetchedReactionIdsRef = useRef(new Set());
@@ -959,6 +1087,7 @@ export default function SocialHubView({
             .from('messages')
             .select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions, sender:profiles!user_id(avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle)')
             .is('receiver_id', null)
+            .gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
             .order('created_at', { ascending: false }) // Fetch descending so we get latest 100
             .limit(100);
 
@@ -969,7 +1098,7 @@ export default function SocialHubView({
           if (error) {
             if (error.name === 'AbortError' || error.message?.includes('aborted')) throw error;
             // Fallback if join syntax fails
-            query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).order('created_at', { ascending: false }).limit(100);
+            query = supabase.from('messages').select('id, content, user_id, user_nickname, created_at, reply_to_id, reply_to_text, reactions').is('receiver_id', null).gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(100);
             if (signal) query = query.abortSignal(signal);
             const fallbackRes = await query;
             if (fallbackRes.error) throw fallbackRes.error;
@@ -1044,8 +1173,12 @@ export default function SocialHubView({
               isBotChat: false
             }));
           } else {
+            if (error?.message?.includes('AbortError') || error?.name === 'AbortError' || error?.code === '20') {
+              resolve();
+              return;
+            }
             console.warn("WhatsApp RPC failed, falling back to basic fetch:", error);
-            const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
+            const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(200);
             const { data: fallbackData, error: fErr } = await (signal ? fallbackQuery.abortSignal(signal) : fallbackQuery);
             if (!fErr && fallbackData) {
               const convosMap = new Map();
@@ -1069,7 +1202,7 @@ export default function SocialHubView({
           // If user is Admin, fetch Bot's conversations (only if they aren't the bot itself)
           if (user?.email === '4rasti@gmail.com' && user?.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1') {
             const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
-            const botQuery = supabase.from('messages').select('*').or(`user_id.eq.${BOT_ID},receiver_id.eq.${BOT_ID}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
+            const botQuery = supabase.from('messages').select('*').or(`user_id.eq.${BOT_ID},receiver_id.eq.${BOT_ID}`).not('receiver_id', 'is', null).gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(200);
             const { data: botData, error: botErr } = await (signal ? botQuery.abortSignal(signal) : botQuery);
 
             if (!botErr && botData) {
@@ -1406,6 +1539,149 @@ export default function SocialHubView({
     }
   };
 
+  // --- Voice Notes Methods ---
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
+        stream.getTracks().forEach(track => track.stop());
+        if (audioBlob.size > 0) {
+          uploadAndSendVoiceNote(audioBlob);
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setIsRecordingPaused(false);
+      setRecordingTime(0);
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      triggerHaptic(10);
+    } catch (err) {
+      console.error("Microphone access error:", err);
+      alert("تکایە ڕێگە ب مایکڕۆفۆنی بدە بۆ هنارتنا دەنگی.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsRecordingPaused(false);
+      clearInterval(recordingTimerRef.current);
+    }
+  };
+
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      if (isRecordingPaused) {
+        mediaRecorderRef.current.resume();
+        setIsRecordingPaused(false);
+        recordingTimerRef.current = setInterval(() => {
+          setRecordingTime(prev => prev + 1);
+        }, 1000);
+      } else {
+        mediaRecorderRef.current.pause();
+        setIsRecordingPaused(true);
+        clearInterval(recordingTimerRef.current);
+      }
+      triggerHaptic(10);
+    }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.onstop = null; // Prevent sending
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+      setIsRecordingPaused(false);
+      clearInterval(recordingTimerRef.current);
+      setRecordingTime(0);
+      triggerHaptic(10);
+    }
+  };
+
+  const uploadAndSendVoiceNote = async (blob) => {
+    if (!user?.id) return;
+    setIsUploadingImage(true);
+    try {
+      const fileName = `${user.id}/${Date.now()}.webm`;
+      const { error: uploadError } = await supabase.storage
+        .from('chat_audio')
+        .upload(fileName, blob, { cacheControl: '3600', upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat_audio')
+        .getPublicUrl(fileName);
+
+      const finalMsgContent = `[VOICE:${publicUrl}]`;
+      const currentUserId = user.id;
+      const isGlobal = activeTab === 'global';
+      const receiverId = isGlobal ? null : selectedChat?.id;
+
+      let replyToId = null;
+      let replyToText = null;
+      if (replyingTo) {
+        replyToId = replyingTo.id;
+        replyToText = replyingTo.content;
+      }
+
+      // Optimistic update removed to prevent duplicates with realtime subscription.
+      // Instead, we will fetch the real data after insertion.
+
+      const { error } = await supabase.from('messages').insert([{
+        content: finalMsgContent,
+        user_id: currentUserId,
+        user_nickname: userNickname,
+        receiver_id: receiverId,
+        reply_to_id: replyToId,
+        reply_to_text: replyToText,
+        is_read: isGlobal ? true : false
+      }]);
+
+      if (error) throw error;
+      playMessageSentSound();
+      setReplyingTo(null);
+
+      // Refresh data just like handleSendMessage
+      if (isGlobal) {
+        fetchGlobalMessages();
+      } else {
+        fetchPrivateChatHistory(receiverId, selectedChat?.isBotChat);
+        fetchPrivateConversations();
+      }
+
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTo({ top: messagesContainerRef.current.scrollHeight, behavior: 'smooth' });
+      }
+    } catch (err) {
+      console.error("Voice upload error:", err);
+      alert("خەلەتی د هنارتنا دەنگی دا چێبوو.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const formatRecordingTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+  // -------------------------
+
   const handleSendMessage = async () => {
     if ((!newMessage.trim() && !pendingImage) || !user?.id) return;
 
@@ -1619,7 +1895,7 @@ export default function SocialHubView({
   };
 
   return (
-    <div className="fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0 focus-within:pb-0" dir="rtl">
+    <div className={`fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 ${isKeyboardVisible ? 'pb-0' : 'pb-[calc(6rem+env(safe-area-inset-bottom))]'} md:pb-0`} dir="rtl">
       {/* Tabs - Sharp Segmented Style with Shadow */}
       <div className="pb-2 w-full shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
         <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
@@ -1843,8 +2119,8 @@ export default function SocialHubView({
                         className="flex items-center gap-2 mb-4 w-fit"
                       >
                         <div className="bg-white dark:bg-mono-900 px-3.5 py-2 rounded-md rounded-tl-none border border-mono-200 dark:border-mono-800 flex items-center gap-3 shadow-sm relative overflow-hidden" dir="ltr">
-                          
-                          <Motion.span 
+
+                          <Motion.span
                             animate={{ opacity: [0.6, 1, 0.6] }}
                             transition={{ repeat: Infinity, duration: 1.5 }}
                             className="text-[11px] font-bold text-mono-500 dark:text-mono-300 tracking-wide"
@@ -1854,23 +2130,23 @@ export default function SocialHubView({
                           </Motion.span>
 
                           <div className="flex gap-1.5 items-center">
-                            <Motion.span 
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0, ease: "easeInOut" }} 
+                            <Motion.span
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0, ease: "easeInOut" }}
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
-                            <Motion.span 
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15, ease: "easeInOut" }} 
+                            <Motion.span
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15, ease: "easeInOut" }}
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
-                            <Motion.span 
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }} 
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3, ease: "easeInOut" }} 
+                            <Motion.span
+                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3, ease: "easeInOut" }}
                               className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
                             />
                           </div>
-                          
+
                         </div>
                       </Motion.div>
                     )}
@@ -1991,8 +2267,14 @@ export default function SocialHubView({
                             </span>
                             <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
                               <span className="material-symbols-outlined text-[14px]">chat</span>
-                              <span className="truncate">
-                                {chat.lastMsg && chat.lastMsg.includes('[IMAGE:') ? '📷 وێنەیەک' : (chat.lastMsg || 'نامەک ل ڤێرێیە')}
+                              <span className="truncate flex items-center gap-1">
+                                {chat.lastMsg && chat.lastMsg.includes('[VOICE:') ? (
+                                  <><span className="material-symbols-outlined text-[13px] text-[#00a884]">mic</span> دەنگ</>
+                                ) : chat.lastMsg && chat.lastMsg.includes('[IMAGE:') ? (
+                                  <><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنەیەک</>
+                                ) : (
+                                  chat.lastMsg || 'نامەک ل ڤێرێیە'
+                                )}
                               </span>
                             </div>
                           </div>
@@ -2136,42 +2418,78 @@ export default function SocialHubView({
             )}
 
             <div className="p-3 pb-3 flex gap-2 items-center">
-              <button
-                onClick={handleSendMessage}
-                onPointerDown={(e) => e.preventDefault()}
-                disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
-                className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-60 scale-95'}`}
-                title="ھنارتن"
-              >
-                {isUploadingImage ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <span className="material-symbols-outlined font-black text-xl">send</span>
-                )}
-              </button>
+              {(newMessage.trim() || pendingImage || isUploadingImage || !selectedChat) ? (
+                <button
+                  onClick={handleSendMessage}
+                  onPointerDown={(e) => e.preventDefault()}
+                  disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-60 scale-95'}`}
+                  title="ھنارتن"
+                >
+                  {isUploadingImage ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined font-black text-xl">send</span>
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isUploadingImage}
+                  className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${isRecording ? 'bg-red-500 text-white scale-110 shadow-red-500/30 shadow-lg' : 'bg-[#00a884] text-white scale-100 hover:bg-[#009071]'}`}
+                  title={isRecording ? "هنارتنا دەنگی" : "تۆمارکرنا دەنگی"}
+                >
+                  {isUploadingImage ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <span className="material-symbols-outlined font-black text-xl">{isRecording ? 'send' : 'mic'}</span>
+                  )}
+                </button>
+              )}
 
-              <textarea
-                ref={textareaRef}
-                rows="1"
-                value={newMessage}
-                onPaste={handlePaste}
-                onChange={(e) => {
-                  handleInputChange(e.target.value);
-                  e.target.style.height = 'auto';
-                  e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-                }}
-                onKeyDown={(e) => {
-                  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-                  if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-                placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
-                onFocus={() => onKeyboardToggle?.(true)}
-                onBlur={() => onKeyboardToggle?.(false)}
-                className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
-              />
+              {isRecording ? (
+                <div className="flex-1 bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 h-10.5 flex items-center justify-between shadow-sm" dir="ltr">
+                  <button onClick={cancelRecording} className="text-mono-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-mono-200 dark:hover:bg-mono-800">
+                    <span className="material-symbols-outlined font-black text-xl">delete</span>
+                  </button>
+                  <div className="flex items-center gap-3">
+                    <button onClick={pauseRecording} className={`text-mono-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full ${isRecordingPaused ? 'bg-red-500/10 text-red-500' : 'hover:bg-mono-200 dark:hover:bg-mono-800'}`}>
+                      <span className="material-symbols-outlined font-black text-xl">{isRecordingPaused ? 'play_arrow' : 'pause'}</span>
+                    </button>
+                    <span className="text-sm font-bold text-red-500 font-inter min-w-9 text-center">{formatRecordingTime(recordingTime)}</span>
+                    <div className={`w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] ${isRecordingPaused ? 'opacity-50' : 'animate-pulse'}`} />
+                  </div>
+                </div>
+              ) : (
+                <textarea
+                  ref={textareaRef}
+                  rows="1"
+                  value={newMessage}
+                  onPaste={handlePaste}
+                  onChange={(e) => {
+                    handleInputChange(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                  }}
+                  onKeyDown={(e) => {
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
+                  onFocus={() => {
+                    setIsKeyboardVisible(true);
+                    onKeyboardToggle?.(true);
+                  }}
+                  onBlur={() => {
+                    setIsKeyboardVisible(false);
+                    onKeyboardToggle?.(false);
+                  }}
+                  className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
+                />
+              )}
 
               <input
                 type="file"
@@ -2181,7 +2499,7 @@ export default function SocialHubView({
                 onChange={handleImageUpload}
               />
 
-              {selectedChat && (
+              {(selectedChat && !isRecording) && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploadingImage}

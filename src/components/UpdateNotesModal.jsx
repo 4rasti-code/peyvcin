@@ -6,11 +6,14 @@ const UPDATE_VERSION = 'v2.6.0'; // Change this string to force the modal to sho
 
 const UPDATE_RELEASE_DATE = new Date('2026-08-10T00:00:00Z');
 
-const UpdateNotesModal = ({ user }) => {
+const UpdateNotesModal = ({ user, onComplete }) => {
    const [isVisible, setIsVisible] = useState(false);
    const { playPopSound } = useAudio();
+   const hasCheckedRef = React.useRef(false);
 
    useEffect(() => {
+      if (hasCheckedRef.current) return;
+      hasCheckedRef.current = true;
       const hasSeenUpdate = localStorage.getItem(`update_seen_${UPDATE_VERSION}`);
       
       if (!hasSeenUpdate) {
@@ -18,6 +21,7 @@ const UpdateNotesModal = ({ user }) => {
          if (user?.created_at && new Date(user.created_at) > UPDATE_RELEASE_DATE) {
             // New user: mark as seen silently so they never see it
             localStorage.setItem(`update_seen_${UPDATE_VERSION}`, 'true');
+            if (onComplete) onComplete();
             return;
          }
 
@@ -27,13 +31,17 @@ const UpdateNotesModal = ({ user }) => {
             try { playPopSound(); } catch (_e) { /* ignore */ }
          }, 1500);
          return () => clearTimeout(timer);
+      } else {
+         if (onComplete) onComplete();
       }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [playPopSound, user]);
 
    const handleClose = () => {
       try { playPopSound(); } catch (_e) { /* ignore */ }
       setIsVisible(false);
       localStorage.setItem(`update_seen_${UPDATE_VERSION}`, 'true');
+      if (onComplete) onComplete();
    };
 
    return (

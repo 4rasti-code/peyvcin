@@ -91,7 +91,7 @@ import DataDeletion from './components/DataDeletion';
 import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
 import UpgradeAccountModal from './components/UpgradeAccountModal';
-
+import LocationPrompt from './components/LocationPrompt';
 const PEYVOK_VERSION = '2.3.0';
 
 // Audio logic handled via GameContext useGame()
@@ -175,6 +175,7 @@ const ScrollingMatchFinder = ({ opponent }) => {
 
 
 export default function App() {
+  const [isUpdateNotesCleared, setIsUpdateNotesCleared] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -440,11 +441,9 @@ export default function App() {
   // Sync URL -> State (Handles Initial Load & Back/Forward Buttons)
   useEffect(() => {
     const path = location.pathname.replace(/^\/+/, '') || 'lobby';
-    requestAnimationFrame(() => {
-      let view = path;
-      if (path.startsWith('social_hub')) view = 'social_hub';
-      setCurrentView(prev => prev !== view ? view : prev);
-    });
+    let view = path;
+    if (path.startsWith('social_hub')) view = 'social_hub';
+    setCurrentView(prev => prev !== view ? view : prev);
   }, [location.pathname]);
 
   // Sync State -> URL (Handles internal navigateTo calls)
@@ -1709,7 +1708,8 @@ export default function App() {
         )}
       </AnimatePresence>
       <Analytics />
-      {user && currentView === 'lobby' && profileData?.has_completed_install_guide !== false && <UpdateNotesModal user={user} />}
+      {user && currentView === 'lobby' && profileData?.has_completed_install_guide !== false && <UpdateNotesModal user={user} onComplete={() => setIsUpdateNotesCleared(true)} />}
+      {!isLoadingScreenVisible && user && isUpdateNotesCleared && <LocationPrompt user={user} profileData={profileData} onComplete={() => {}} />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
         {/* Background Image Layer for all main tabs */}
         {['lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (

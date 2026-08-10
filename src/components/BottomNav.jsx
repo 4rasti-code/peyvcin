@@ -11,9 +11,10 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
     { id: 'store', Icon: NavStoreIcon, label: 'بازاڕ' },
     { id: 'social_hub', Icon: NavChatIcon, label: 'چات' }
   ];
+  const isChat = currentView === 'social_hub';
 
   return (
-    <nav className="mt-auto shrink-0 relative w-full z-40 pb-[env(safe-area-inset-bottom)] bg-white/10 dark:bg-white/5 backdrop-blur-2xl border-t border-mono-200/50 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]" dir="rtl">
+    <nav className={`mt-auto shrink-0 relative w-full z-40 pb-[env(safe-area-inset-bottom)] ${isChat ? 'bg-mono-100 dark:bg-mono-900' : 'bg-white/10 dark:bg-white/5'} backdrop-blur-2xl border-t border-mono-200/50 dark:border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]`} dir="rtl">
       <div className="h-24 flex justify-between items-end px-3 pt-3 pb-4 gap-2.5 w-full">
         {tabs.map((tab, index) => {
           const isActive = currentView === tab.id;

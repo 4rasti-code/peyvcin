@@ -1048,30 +1048,80 @@ export const MultiplayerProvider = ({ children }) => {
       }
 
       if (openMatches && openMatches.length > 0) {
-        // --- SBMM LOGIC: Find the host with the closest level ---
-        const hostIds = openMatches.map(m => m.player1_id);
-        const { data: hostProfiles } = await supabase
-          .from('profiles')
-          .select('id, level')
-          .in('id', hostIds);
+        let targetMatch = null;
 
-        let targetMatch = openMatches[0]; // fallback to first
-        let smallestDiff = Infinity;
-        const myLevel = level || 1;
+        const useLocationMatchmaking = localStorage.getItem('use_location_matchmaking') === 'true';
 
-        if (hostProfiles && hostProfiles.length > 0) {
-          for (const match of openMatches) {
-            const profile = hostProfiles.find(p => p.id === match.player1_id);
-            const hostLevel = profile?.level || 1;
-            const diff = Math.abs(hostLevel - myLevel);
-            
-            if (diff < smallestDiff) {
-              smallestDiff = diff;
-              targetMatch = match;
+        // --- NEW: LOCATION-BASED MATCHMAKING LAYER ---
+        if (useLocationMatchmaking) {
+          // 1. Check if the current user has GPS coordinates
+          const { data: userProfile } = await supabase
+            .from('profiles')
+            .select('latitude, longitude')
+            .eq('id', user.id)
+            .single();
+
+          if (userProfile?.latitude && userProfile?.longitude) {
+            // 2. Find nearby players using the RPC
+            const { data: nearbyPlayers } = await supabase.rpc('find_nearby_players', {
+              user_lat: userProfile.latitude,
+              user_lon: userProfile.longitude,
+              search_radius_km: 50, // 50km radius
+              current_user_id: user.id
+            });
+
+            if (nearbyPlayers && nearbyPlayers.length > 0) {
+              // Extract the IDs of nearby players
+              const nearbyIds = nearbyPlayers.map(p => p.id);
+              
+              // 3. Filter open matches to see if any nearby player is waiting
+              const nearbyOpenMatches = openMatches.filter(match => nearbyIds.includes(match.player1_id));
+              
+              if (nearbyOpenMatches.length > 0) {
+                // If there are multiple, pick the closest one (they are ordered by distance ASC in RPC)
+                const matchesWithDistance = nearbyOpenMatches.map(match => {
+                  const playerInfo = nearbyPlayers.find(p => p.id === match.player1_id);
+                  return {
+                    ...match,
+                    distance: playerInfo.distance_km
+                  };
+                });
+                
+                // Sort by distance (just to be safe) and pick the first
+                matchesWithDistance.sort((a, b) => a.distance - b.distance);
+                targetMatch = matchesWithDistance[0];
+                console.log(`[Multiplayer] Found nearby match with distance: ${targetMatch.distance}km`);
+              }
             }
           }
         }
-        console.log(`[Multiplayer] JOINER: Found ${openMatches.length} room(s). Selected best match (ID: ${targetMatch.id}) with level diff: ${smallestDiff !== Infinity ? smallestDiff : 'unknown'}. Attempting atomic claim...`);
+
+        // --- SBMM LOGIC (Fallback if no nearby match found) ---
+        if (!targetMatch) {
+          const hostIds = openMatches.map(m => m.player1_id);
+          const { data: hostProfiles } = await supabase
+            .from('profiles')
+            .select('id, level')
+            .in('id', hostIds);
+
+          targetMatch = openMatches[0]; // fallback to first
+          let smallestDiff = Infinity;
+          const myLevel = level || 1;
+
+          if (hostProfiles && hostProfiles.length > 0) {
+            for (const match of openMatches) {
+              const profile = hostProfiles.find(p => p.id === match.player1_id);
+              const hostLevel = profile?.level || 1;
+              const diff = Math.abs(hostLevel - myLevel);
+              
+              if (diff < smallestDiff) {
+                smallestDiff = diff;
+                targetMatch = match;
+              }
+            }
+          }
+          console.log(`[Multiplayer] JOINER: Found ${openMatches.length} room(s). Selected best match (ID: ${targetMatch.id}) with level diff: ${smallestDiff !== Infinity ? smallestDiff : 'unknown'}. Attempting atomic claim...`);
+        }
 
         // ATOMIC CLAIM: Update only if it's still waiting with no p2
         const { data: joinedMatch, error: claimError } = await supabase
