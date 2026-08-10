@@ -5,9 +5,9 @@ import ClashingSwords from './ClashingSwords';
 export default function LocationPrompt({ user, profileData, onComplete }) {
   const [isVisible, setIsVisible] = useState(() => {
     if (!user || !profileData) return false;
-    const hasSkipped = localStorage.getItem('has_skipped_location');
+    const hasSeen = localStorage.getItem('has_seen_location_prompt');
     const isMissingLocation = !profileData.latitude || !profileData.longitude;
-    return isMissingLocation && !hasSkipped;
+    return isMissingLocation && !hasSeen;
   });
   const hasEvaluated = React.useRef(false);
 
@@ -24,12 +24,13 @@ export default function LocationPrompt({ user, profileData, onComplete }) {
   }, [user, profileData, isVisible, onComplete]);
 
   const handleSkip = () => {
-    localStorage.setItem('has_skipped_location', 'true');
+    localStorage.setItem('has_seen_location_prompt', 'true');
     setIsVisible(false);
     onComplete();
   };
 
   const handleAccept = () => {
+    localStorage.setItem('has_seen_location_prompt', 'true');
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
