@@ -80,7 +80,8 @@ export default function StatsView({
         modePlayCounts: profileData?.mode_play_counts || {},
         secretWins: profileData?.secret_wins || 0,
         riddlesNoSkip: profileData?.riddles_no_skip || 0,
-        pvpFlawlessWins: profileData?.pvp_flawless_wins || 0
+        pvpFlawlessWins: profileData?.pvp_flawless_wins || 0,
+        assistedWins: profileData?.assisted_wins || 0
       }
     };
   }, [profileData, playerStats]);
@@ -220,8 +221,8 @@ export default function StatsView({
           </Motion.div>
 
           <div className="flex flex-col gap-4">
-            {/* Advanced Stats Pass totalLost and totalWon */}
-            <AdvancedStatsList advancedStats={advancedStats} gamesLost={totalLost} gamesWon={totalWon} />
+            {/* Advanced Stats Pass totalLost */}
+            <AdvancedStatsList advancedStats={advancedStats} gamesLost={totalLost} />
           </div>
 
           {/* 3. Global Distribution Chart */}

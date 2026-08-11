@@ -18,8 +18,8 @@ const FoundWordsGridIcon = () => {
   );
 };
 
-export default function AdvancedStatsList({ advancedStats, gamesLost = 0, gamesWon = 0 }) {
-  const assistedWins = Math.max(0, gamesWon - (advancedStats.flawlessWins || 0));
+export default function AdvancedStatsList({ advancedStats, gamesLost = 0 }) {
+  const assistedWins = advancedStats.assistedWins || 0;
 
   const metrics = [
     // Row 1: Word Stats

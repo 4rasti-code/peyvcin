@@ -210,7 +210,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
 }
 
 
-const BattleResultRenderer = ({ text, onProfileClick }) => {
+const BattleResultRenderer = ({ text, onProfileClick: _onProfileClick }) => {
   let data = null;
   let hasError = false;
   try {
@@ -304,12 +304,8 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
 
           {/* Avatar (Fixed Size) */}
           <div
-            className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${leftPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            className="p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center transition-all"
             style={{ background: `linear-gradient(135deg, ${leftPlayer.tier.stop1}, ${leftPlayer.tier.stop2})` }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (leftPlayer.id) onProfileClick?.({ id: leftPlayer.id, nickname: leftPlayer.name, avatar_url: leftPlayer.avatar, xp: leftPlayer.xp });
-            }}
           >
             {leftPlayer.avatar && leftPlayer.avatar !== 'default' ? (
               <img src={leftPlayer.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover bg-white border border-black/10" />
@@ -362,12 +358,8 @@ const BattleResultRenderer = ({ text, onProfileClick }) => {
 
           {/* Avatar (Fixed Size) */}
           <div
-            className={`p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center ${rightPlayer.id ? 'cursor-pointer hover:scale-105 active:scale-95' : ''} transition-all`}
+            className="p-0.5 rounded-full shadow-md shrink-0 flex items-center justify-center transition-all"
             style={{ background: `linear-gradient(135deg, ${rightPlayer.tier.stop1}, ${rightPlayer.tier.stop2})` }}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (rightPlayer.id) onProfileClick?.({ id: rightPlayer.id, nickname: rightPlayer.name, avatar_url: rightPlayer.avatar, xp: rightPlayer.xp });
-            }}
           >
             {rightPlayer.avatar && rightPlayer.avatar !== 'default' ? (
               <img src={rightPlayer.avatar} alt="Avatar" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover bg-white border border-black/10" />

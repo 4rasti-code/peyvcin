@@ -7,6 +7,7 @@ import { useUser } from '../context/AuthContext';
 import { useAudio } from '../context/AudioContext';
 import { useGame } from '../context/GameContext';
 import useGameLogic from '../hooks/useGameLogic';
+import useBotSimulator from '../hooks/useBotSimulator';
 import Avatar from './Avatar';
 import KurdishSunLoader from './KurdishSunLoader';
 import RoundIntro from './RoundIntro';
@@ -43,7 +44,11 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     setIsGameBoardMounted,
     myReaction,
     opponentReaction,
-    submitTimeout
+    submitTimeout,
+    setOpponentGuesses,
+    setOpponentLiveStatuses,
+    setActiveMatchGuarded,
+    setWinnerNickname
   } = useMultiplayer();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
@@ -75,6 +80,29 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const { level: userLevel } = useGame();
 
   const tickAudioRef = React.useRef(null);
+
+  // 1. TOP-LEVEL DERIVED DATA
+  const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);
+  const targetWord = useMemo(() => {
+    if (!activeMatch?.words?.length) return '';
+    const idx = currentRound % activeMatch.words.length;
+    return activeMatch.words[idx] || '';
+  }, [activeMatch, currentRound]);
+
+  // Initialize Bot Simulator
+  useBotSimulator({
+    isBot: opponent?.isBot,
+    multiplayerState,
+    targetWord,
+    userLevel,
+    setOpponentGuesses,
+    setOpponentLiveStatuses,
+    opponentLiveCursor,
+    setActiveMatchGuarded,
+    activeMatch,
+    setWinnerNickname,
+    opponentGuessesLength: opponentGuesses.length
+  });
 
   useEffect(() => {
     if (!showCinematicOverlay || multiplayerState !== 'playing') return;
@@ -114,14 +142,6 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     };
   }, [showCinematicOverlay, multiplayerState, playStartSound]);
 
-  // 1. TOP-LEVEL DERIVED DATA (DECLARE BEFORE ANY RETURNS)
-  const isPlayer1 = useMemo(() => activeMatch?.player1_id === user?.id, [activeMatch, user]);
-  const targetWord = useMemo(() => {
-    if (!activeMatch?.words?.length) return '';
-    // Safe modulo access in case of extreme round counts
-    const idx = currentRound % activeMatch.words.length;
-    return activeMatch.words[idx] || '';
-  }, [activeMatch, currentRound]);
 
   // Expose Game Board Readiness
   useEffect(() => {

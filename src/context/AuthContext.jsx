@@ -254,6 +254,30 @@ export const AuthProvider = ({ children }) => {
         console.log("[AuthContext] Profile core fetch successful.");
         handleProfileData(data[0], onProfileLoaded);
         
+        // Silently fetch and update IP address for security tracking
+        (async () => {
+          try {
+            let ip = null;
+            try {
+              const res = await fetch('https://api.ipify.org?format=json');
+              const data = await res.json();
+              ip = data.ip;
+            } catch (_err) {
+              const res2 = await fetch('https://jsonip.com');
+              const data2 = await res2.json();
+              ip = data2.ip;
+            }
+            if (ip) {
+              const { error } = await supabase.from('profiles').update({ last_ip: ip }).eq('id', activeUserId);
+              if (error) console.error("[AuthContext] Supabase IP Update Error:", error);
+              else console.log("[AuthContext] IP updated successfully.");
+            }
+          } catch (e) {
+            console.error("[AuthContext] Failed to track IP:", e);
+          }
+        })();
+
+        
         // Ping daily activity logic to ensure streak is updated just by opening the app
         supabase.rpc('ping_daily_activity').then(({ data: pingData, error: pingError }) => {
           if (!pingError && pingData?.updated) {

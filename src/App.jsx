@@ -763,6 +763,7 @@ export default function App() {
     if (lossMode === 'word_fever') {
       setWordFeverResultType('fail');
       setIsWordFeverResultVisible(true);
+      handleGameCompletion(finalGuesses, false, lossMode, lossWord, null, penalty);
     } else {
       handleGameCompletion(finalGuesses, false, lossMode, lossWord, null, penalty);
     }
