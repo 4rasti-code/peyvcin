@@ -27,8 +27,8 @@ export default function AdvancedStatsList({ advancedStats, gamesLost = 0, gamesW
     { label: 'درێژترین پەیڤ', value: advancedStats.longestWord, icon: 'straighten', color: 'text-sky-500' },
     
     // Row 2: Win Types
-    { label: 'سەرکەفتنێن بێ هاریکاری', value: assistedWins, icon: 'auto_awesome', color: 'text-amber-500' },
-    { label: 'سەرکەفتنێن ب هاریکاری', value: advancedStats.flawlessWins, icon: 'handshake', color: 'text-violet-500' },
+    { label: 'سەرکەفتنێن بێ هاریکاری', value: advancedStats.flawlessWins, icon: 'auto_awesome', color: 'text-amber-500' },
+    { label: 'سەرکەفتنێن ب هاریکاری', value: assistedWins, icon: 'handshake', color: 'text-violet-500' },
     
     // Row 3: Time Records
     { 

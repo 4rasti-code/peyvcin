@@ -96,15 +96,15 @@ export const calculateDefeatPenalty = (word, allGuesses, mode = 'classic') => {
   const stats = analyzeTileStats(word, allGuesses);
 
   const multipliers = {
-    'classic': 0.5,
-    'word_fever': 1.0,
-    'mamak': 0.2,
-    'hard_words': 1.0,
-    'battle': 2.0
+    'classic': 0.3,
+    'word_fever': 0.8,
+    'mamak': 0.1,
+    'hard_words': 0.8,
+    'battle': 1.5
   };
 
-  const mult = multipliers[mode] || 0.5;
-  const baseDefeatPenalty = 5;
+  const mult = multipliers[mode] || 0.3;
+  const baseDefeatPenalty = 3;
   const mistakesPenalty = Math.ceil(((stats.gray * 2) + (stats.yellow * 1)) * mult);
   const finalPenalty = baseDefeatPenalty + mistakesPenalty;
 
