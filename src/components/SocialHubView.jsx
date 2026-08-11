@@ -439,7 +439,7 @@ const GameResultRenderer = ({ text, isMe }) => {
   );
 };
 
-const CustomAudioPlayer = ({ src }) => {
+const CustomAudioPlayer = ({ src, isMe }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState(0);
@@ -500,20 +500,20 @@ const CustomAudioPlayer = ({ src }) => {
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex flex-col w-48 xs:w-52 sm:w-56 -my-1" dir="ltr" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()}>
+    <div className={`flex flex-col w-56 xs:w-60 sm:w-64 -my-0.5 ${isMe ? 'ml-5' : 'mr-4'}`} dir="ltr" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()}>
 
       <div className="flex flex-row items-center gap-2">
         {/* Circular Solid Play Button */}
         <button
           onClick={togglePlayPause}
-          className="shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm"
+          className="shrink-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm ml-1"
         >
           {isPlaying ? (
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="ml-px">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="ml-px">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
@@ -545,9 +545,9 @@ const CustomAudioPlayer = ({ src }) => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center text-[9px] font-bold font-inter leading-none pl-9 pr-1 pt-1">
+      <div className="flex justify-end items-center gap-1 text-[9px] font-bold font-inter leading-none pr-1 pt-0.5">
         <span className="opacity-60">{isPlaying ? formatTime(currentTime) : formatTime(duration)}</span>
-        <span className="material-symbols-outlined text-[11px] opacity-70">mic</span>
+        <span className="material-symbols-outlined text-[12px] opacity-70">mic</span>
       </div>
 
       <audio
@@ -599,7 +599,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
       }
       if (part.startsWith('[VOICE:') && part.endsWith(']')) {
         const url = part.substring(7, part.length - 1);
-        return <CustomAudioPlayer key={i} src={url} />;
+        return <CustomAudioPlayer key={i} src={url} isMe={isMe} />;
       }
       if (part.match(/^https?:\/\//)) {
         return (
@@ -790,7 +790,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                   : renderFormattedText(m.content || m.text)
             )}
 
-            <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-2.5 z-20' : 'mt-1'}`}>
+            <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-1'}`}>
               <div className={`text-[9px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
