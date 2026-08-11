@@ -75,7 +75,7 @@ export default function StatsView({
         longestWord: profileData?.longest_word_length || 0,
         fastestSolve: profileData?.fastest_solve_ms || 0,
         flawlessWins: profileData?.flawless_wins || 0,
-        totalActiveDays: profileData?.total_active_days || 0,
+        totalActiveDays: Math.max((played > 0 || profileData?.pvp_wins > 0) ? 1 : 0, profileData?.total_active_days || 0),
         feverHighscore: Math.max(profileData?.fever_highscore || 0, oldStats?.word_fever?.bestScore || 0),
         modePlayCounts: profileData?.mode_play_counts || {},
         secretWins: profileData?.secret_wins || 0,
@@ -88,7 +88,16 @@ export default function StatsView({
   const stats = legacyStats;
   const advancedStats = advancedLegacyStats;
 
-  const winRate = stats.played > 0 ? Math.round((stats.won / stats.played) * 100) : 0;
+  // Combine Single Player and Multiplayer Stats for Unified Display
+  const pvpWins = advancedStats.pvpWins || 0;
+  const pvpLosses = advancedStats.modePlayCounts?.battle_loss || 0;
+  const pvpDraws = advancedStats.modePlayCounts?.battle_draw || 0;
+  const pvpPlayed = pvpWins + pvpLosses + pvpDraws;
+
+  const totalPlayed = stats.played + pvpPlayed;
+  const totalWon = stats.won + pvpWins;
+  const totalLost = Math.max(0, totalPlayed - totalWon - pvpDraws);
+  const winRate = totalPlayed > 0 ? Math.round((totalWon / totalPlayed) * 100) : 0;
 
 
 
@@ -116,18 +125,33 @@ export default function StatsView({
   const maxGlobalDist = Math.max(1, ...Object.values(globalDist));
 
   const modeUsage = useMemo(() => {
+    // Battle plays correctly counts wins, losses, and draws
     const battlePlays = (advancedStats.pvpWins || 0) + 
       (advancedStats.modePlayCounts?.battle_loss || 0) + 
       (advancedStats.modePlayCounts?.battle_draw || 0);
 
+    // stats.played reliably holds ALL single-player games (wins + losses)
+    const singlePlayerTotalPlayed = stats.played || 0;
+
+    const mamak = advancedStats.modePlayCounts?.mamak || 0;
+    const hard_words = advancedStats.modePlayCounts?.hard_words || 0;
+    const word_fever = advancedStats.modePlayCounts?.word_fever || 0;
+
+    // DEDUCE true classic games by subtracting other single-player modes from the reliable total
+    let trueClassicCount = singlePlayerTotalPlayed - (mamak + hard_words + word_fever);
+
+    // Fallback safety: ensure it never drops below the raw recorded classic count
+    trueClassicCount = Math.max(trueClassicCount, advancedStats.modePlayCounts?.classic || 0);
+
     const counts = {
-      classic: advancedStats.modePlayCounts?.classic || 0,
-      mamak: advancedStats.modePlayCounts?.mamak || 0,
-      hard_words: advancedStats.modePlayCounts?.hard_words || 0,
-      word_fever: advancedStats.modePlayCounts?.word_fever || 0,
+      classic: trueClassicCount,
+      mamak,
+      hard_words,
+      word_fever,
       battle: battlePlays
     };
     
+    // The sum of these counts will now perfectly equal totalPlayed
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     
     let max = -1;
@@ -150,7 +174,7 @@ export default function StatsView({
       dominant,
       archetype: archetypes[dominant]
     };
-  }, [advancedStats]);
+  }, [advancedStats, stats.played]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -188,17 +212,17 @@ export default function StatsView({
           className="flex flex-col gap-6"
         >
           {/* 1. Core Performance Grid */}
-          <Motion.div variants={itemVariants} className="grid grid-cols-4 gap-3">
-            <StatCard label="یاریێن کرین" value={stats.played} icon="sports_esports" />
+          <Motion.div variants={itemVariants} className="grid grid-cols-4 gap-3 mb-4">
+            <StatCard label="یاریێن کرین" value={totalPlayed} icon="sports_esports" />
             <StatCard label="ڕێژەیا سەرکەفتنێ" value={winRate} suffix="٪" icon="emoji_events" />
             <StatCard label="زنجیرەیا نۆکە" value={stats.currentStreak} icon="local_fire_department" />
             <StatCard label="مەزنترین زنجیرە" value={stats.maxStreak} icon="military_tech" />
           </Motion.div>
 
-          {/* 2. Advanced Gamer Metrics */}
-          <Motion.div variants={itemVariants}>
-            <AdvancedStatsList advancedStats={advancedStats} gamesLost={Math.max(0, stats.played - stats.won)} gamesWon={stats.won} />
-          </Motion.div>
+          <div className="flex flex-col gap-4">
+            {/* Advanced Stats Pass totalLost and totalWon */}
+            <AdvancedStatsList advancedStats={advancedStats} gamesLost={totalLost} gamesWon={totalWon} />
+          </div>
 
           {/* 3. Global Distribution Chart */}
           <Motion.div variants={itemVariants}>
