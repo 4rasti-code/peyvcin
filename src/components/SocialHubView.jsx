@@ -500,27 +500,27 @@ const CustomAudioPlayer = ({ src }) => {
   const progressPercent = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="flex flex-col w-56 my-1 py-1" dir="ltr" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()}>
+    <div className="flex flex-col w-48 xs:w-52 sm:w-56 -my-1" dir="ltr" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()}>
 
-      <div className="flex flex-row items-center gap-3">
+      <div className="flex flex-row items-center gap-2">
         {/* Circular Solid Play Button */}
         <button
           onClick={togglePlayPause}
-          className="shrink-0 w-11 h-11 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm ml-1"
+          className="shrink-0 w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm"
         >
           {isPlaying ? (
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           ) : (
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" className="ml-px">
               <path d="M8 5v14l11-7z" />
             </svg>
           )}
         </button>
 
         {/* Waveform Wrapper */}
-        <div className="relative h-6 flex-1 flex items-center justify-between">
+        <div className="relative h-3.5 flex-1 flex items-center justify-between">
           {fakeWaveform.map((h, i) => {
             const barPercent = (i / fakeWaveform.length) * 100;
             const isPlayed = barPercent <= progressPercent;
@@ -545,12 +545,9 @@ const CustomAudioPlayer = ({ src }) => {
         </div>
       </div>
 
-      <div className="flex justify-between items-center text-[10px] font-bold font-inter mt-1.5 pl-15 pr-1">
-        <span className="opacity-60">{formatTime(currentTime)}</span>
-        <div className="flex items-center gap-1 opacity-70">
-          <span className="font-medium">{formatTime(duration)}</span>
-          <span className="material-symbols-outlined text-[12px]">mic</span>
-        </div>
+      <div className="flex justify-between items-center text-[9px] font-bold font-inter leading-none pl-9 pr-1 pt-1">
+        <span className="opacity-60">{isPlaying ? formatTime(currentTime) : formatTime(duration)}</span>
+        <span className="material-symbols-outlined text-[11px] opacity-70">mic</span>
       </div>
 
       <audio
@@ -576,6 +573,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
   const msgContent = m.content || m.text || '';
   const isMentioned = !isMe && currentUserNickname && msgContent.includes(`@${currentUserNickname}`);
+  const isOnlyVoice = /^\s*\[VOICE:.*?\]\s*$/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
@@ -792,8 +790,8 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                   : renderFormattedText(m.content || m.text)
             )}
 
-            <div className="flex items-center justify-end gap-1 mt-1">
-              <div className={`text-[10px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
+            <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-2.5 z-20' : 'mt-1'}`}>
+              <div className={`text-[9px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
               {isMe && !isDeleted && (

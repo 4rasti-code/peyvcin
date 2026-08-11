@@ -15,7 +15,7 @@ const UpdateNotesModal = ({ user, onComplete }) => {
       if (hasCheckedRef.current) return;
       hasCheckedRef.current = true;
       const hasSeenUpdate = localStorage.getItem(`update_seen_${UPDATE_VERSION}`);
-      
+
       if (!hasSeenUpdate) {
          // Check if the user is a new user (registered after the update release)
          if (user?.created_at && new Date(user.created_at) > UPDATE_RELEASE_DATE) {
@@ -34,7 +34,7 @@ const UpdateNotesModal = ({ user, onComplete }) => {
       } else {
          if (onComplete) onComplete();
       }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [playPopSound, user]);
 
    const handleClose = () => {
@@ -80,7 +80,7 @@ const UpdateNotesModal = ({ user, onComplete }) => {
 
                      {/* Scrollable Content */}
                      <div className="relative flex-1 min-h-0 flex flex-col">
-                        <div 
+                        <div
                            className="flex-1 overflow-y-auto custom-scrollbar pr-2 pl-1 max-h-[55vh] flex flex-col space-y-3 pb-4"
                         >
                            {/* Item 1 */}
