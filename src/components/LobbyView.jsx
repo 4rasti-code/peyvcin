@@ -622,7 +622,7 @@ const LobbyView = memo(({
                   className="flex flex-col items-center justify-center cursor-pointer relative pb-4 md:pb-5"
                 >
                   <div className="relative flex items-center justify-center w-9 h-9 md:w-12 md:h-12 shrink-0 z-10">
-                    <ClipboardIcon className={`w-9 h-9 md:w-12 md:h-12 ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                    <ClipboardIcon className={`w-9 h-9 md:w-12 md:h-12 translate-y-0.75 md:translate-y-[4.5px] ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
                   {!isDailyAvailable && (
                     <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
@@ -676,7 +676,7 @@ const LobbyView = memo(({
                   className="flex flex-col items-center justify-center cursor-pointer relative pb-4 md:pb-5"
                 >
                   <div className="relative flex items-center justify-center w-9 h-9 md:w-12 md:h-12 shrink-0 z-10">
-                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-9 h-9 md:w-12 md:h-12 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-9 h-9 md:w-12 md:h-12 translate-y-1.25 md:translate-y-1.75 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
                   {!isMysteryBoxAvailable && (
                     <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
