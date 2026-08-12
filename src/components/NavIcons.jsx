@@ -61,8 +61,8 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
 export function NavLeaderboardIcon({ className = "w-10 h-10", isActive = false }) {
   // Premium, sleek Trophy (Redesigned for better shape and brighter gold)
   return (
-    <div className={`${className} transition-all duration-300 flex items-center justify-center ${!isActive ? 'opacity-90 dark:opacity-70 scale-[0.90]' : 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] scale-110 -translate-y-1'}`}>
-      <img src="/assets/Top_1.svg" className="w-full h-full object-contain" alt="Leaderboard" />
+    <div className={`${className} transition-all duration-300 flex items-center justify-center ${!isActive ? 'opacity-90 dark:opacity-70 scale-[0.85]' : 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] scale-[1.05] -translate-y-1'}`}>
+      <img src="/assets/Top_1.svg" className="w-[80%] h-[80%] object-contain" alt="Leaderboard" />
     </div>
   );
 }
