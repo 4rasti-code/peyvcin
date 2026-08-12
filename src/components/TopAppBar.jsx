@@ -46,17 +46,19 @@ const AnimatedCounter = ({ value }) => {
   return <>{displayValue}</>;
 };
 
-const CurrencyStat = ({ value, Icon: _IconComponent, color, bg, currency = 'fils', resetKey, isDark = true }) => {
+const CurrencyStat = ({ value, Icon: _IconComponent, color, currency = 'fils', resetKey, _isDark = true }) => {
   return (
     <CurrencyDecrementEffect value={value} currency={currency} resetKey={resetKey}>
       <div
         id={`topbar-${currency}`}
-        className={`flex flex-row items-center gap-1.5 px-2 py-1 md:px-4 md:py-2 rounded-[8px] md:rounded-[12px] ${bg || 'bg-transparent'} transition-colors duration-300 origin-center min-w-12.5 md:min-w-20 justify-center`}
+        className={`flex flex-row items-center justify-end pr-5 xs:pr-7 sm:pr-8 md:pr-10 pl-3 xs:pl-4 h-5 md:h-6 flex-1 w-full min-w-20 xs:min-w-[96px] sm:min-w-28 max-w-48 bg-white/40 dark:bg-white/5 backdrop-blur-md rounded border border-black/15 dark:border-white/10 shadow-sm transition-all duration-300 origin-center cursor-pointer hover:brightness-110 active:scale-95 relative`}
+        onClick={() => { triggerHaptic(10); /* Handled by generic store routing */ }}
       >
-        <div className={`w-4 h-4 md:w-7 md:h-7 flex items-center justify-center ${color}`}>
+        <div className={`absolute -left-1 md:-left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 md:w-9 md:h-9 shrink-0 flex items-center justify-center ${color} drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)] z-10`}>
           <_IconComponent className="w-full h-full" />
         </div>
-        <span className={`text-[15px] md:text-[22px] font-black font-heading tabular-nums leading-none pt-0.5 ${isDark ? 'text-white' : 'text-mono-900'}`}><AnimatedCounter value={value || 0} /></span>
+
+        <span className={`pl-5 md:pl-7 text-[12px] md:text-[15px] font-black font-heading tabular-nums leading-none pt-0.5 text-mono-900 dark:text-white whitespace-nowrap flex-1 text-center drop-shadow-sm`}><AnimatedCounter value={value || 0} /></span>
       </div>
     </CurrencyDecrementEffect>
   );
@@ -118,10 +120,10 @@ export default function TopAppBar({
       className={`relative top-0 w-full z-100 bg-transparent pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
       dir="ltr"
     >
-      <div className="flex h-16 items-center justify-between px-6 sm:px-12 w-full mx-auto relative gap-4">
+      <div className="flex h-16 items-center justify-between px-4 xs:px-6 sm:px-12 w-full mx-auto relative gap-1 xs:gap-2 sm:gap-4">
 
         {/* Left Section: Close (X) or Settings / Daily Reward */}
-        <div className="flex items-center justify-start flex-1 relative">
+        <div className="flex items-center justify-start shrink-0 relative">
           {isPlaying ? (
             <div className="flex items-center gap-1 relative">
               <Motion.button
@@ -152,19 +154,11 @@ export default function TopAppBar({
                   <span className={`material-symbols-outlined font-black ${currentView === 'profile' ? 'text-[60px]' : 'text-[28px]'}`}>settings</span>
                 </Motion.button>
               )}
-
-              {(currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
-                <div className="flex items-center gap-1 ml-1">
-                  <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
-                  <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" bg="bg-white/80 dark:bg-white/10 backdrop-blur-md shadow-sm" resetKey={currentView} isDark={isDark} />
-                </div>
-              )}
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-center flex-1">
+        <div className="flex items-center justify-start flex-1 max-w-175 px-1 md:px-4 min-w-0">
           {isPlaying ? (
             <div className="hidden md:flex items-center gap-8 px-6 py-1 bg-mono-100/50 dark:bg-white/5 rounded-2xl border border-mono-200 dark:border-white/10 transition-all duration-500">
               {/* Skip */}
@@ -210,11 +204,19 @@ export default function TopAppBar({
                 <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}</span>
               </button>
             </div>
-          ) : null}
+          ) : (
+            (currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
+              <div className="flex w-full items-center justify-start gap-1.5 xs:gap-3 sm:gap-6 md:gap-8 mt-1 transition-all pl-1 md:pl-0 pr-1 xs:pr-2">
+                <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" resetKey={currentView} _isDark={isDark} />
+                <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" resetKey={currentView} _isDark={isDark} />
+                <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" resetKey={currentView} _isDark={isDark} />
+              </div>
+            )
+          )}
         </div>
 
         {/* Right Section: In-Game Info (Mode Specific) OR Global Stats + Notification */}
-        <div className="flex items-center justify-end gap-3 flex-1 relative">
+        <div className="flex items-center justify-end gap-1 sm:gap-3 shrink-0 relative min-w-14 md:min-w-20 pl-2">
           {isPlaying ? (
             <div className="flex items-center gap-2">
               <div className="relative">
