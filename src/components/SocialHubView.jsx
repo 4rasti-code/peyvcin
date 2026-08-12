@@ -1228,6 +1228,14 @@ export default function SocialHubView({
           }
 
           // Sort combined
+          const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
+          allFormatted = allFormatted.filter(row => {
+            if (!PROTECTED_ADMIN_IDS.includes(row.id)) return true;
+            const hts = localStorage.getItem(`hidden_chat_${user.id}_${row.id}`);
+            if (!hts) return true;
+            return new Date(row.time).getTime() > parseInt(hts, 10);
+          });
+
           allFormatted.sort((a, b) => new Date(b.time) - new Date(a.time));
 
           let unread = 0;
@@ -1262,7 +1270,17 @@ export default function SocialHubView({
         .order('created_at', { ascending: false }) // Limit 30 descending
         .limit(30);
       if (error) throw error;
-      setChatMessages(data ? data.reverse() : []); // Reverse to show ascending
+      let msgs = data ? data.reverse() : []; // Reverse to show ascending
+      
+      const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
+      if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
+        const hts = localStorage.getItem(`hidden_chat_${user.id}_${partnerId}`);
+        if (hts) {
+          msgs = msgs.filter(m => new Date(m.created_at).getTime() > parseInt(hts, 10));
+        }
+      }
+      
+      setChatMessages(msgs);
     } catch (err) {
       console.error("Chat history fetch error:", err);
       if (err.message?.includes('timeout') || err.message?.includes('504')) {
@@ -2680,11 +2698,20 @@ export default function SocialHubView({
                       const myId = user?.id;
                       const partnerId = chatToDelete?.id;
                       if (!myId || !partnerId) return;
-                      const { error } = await supabase.rpc('delete_chat_history', {
-                        user1_id: myId,
-                        user2_id: partnerId
-                      });
-                      if (error) throw error;
+                      
+                      const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
+                      
+                      if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
+                        // Hide locally for admins so their messages are preserved
+                        localStorage.setItem(`hidden_chat_${myId}_${partnerId}`, Date.now().toString());
+                      } else {
+                        // Physically delete for normal users
+                        const { error } = await supabase.rpc('delete_chat_history', {
+                          user1_id: myId,
+                          user2_id: partnerId
+                        });
+                        if (error) throw error;
+                      }
 
                       setChatMessages([]);
                       setPrivateChats(prev => prev.filter(c => c.id !== partnerId));

@@ -592,13 +592,13 @@ export const AuthProvider = ({ children }) => {
         const users = new Set();
         Object.values(state).forEach(presences => {
           presences.forEach(p => {
-            if (p.user_id && p.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && p.user_id !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4') {
+            if (p.user_id && p.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && p.user_id !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && p.user_id !== user.id) {
               users.add(p.user_id);
             }
           });
         });
         setOnlineUsers(users);
-        setOnlineCount(Math.max(1, users.size));
+        setOnlineCount(users.size);
       }
     }).subscribe(async (status) => {
       if (status === 'SUBSCRIBED' && isMounted) {

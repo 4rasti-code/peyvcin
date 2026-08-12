@@ -41,8 +41,12 @@ export const formatCompactNumber = (val) => {
   if (isNaN(num)) return toKuDigits(val);
   
   if (num >= 1000000) {
-    const formatted = (num / 1000000).toFixed(1).replace(/\.0$/, '');
-    return toKuDigits(formatted) + 'م';
+    const formatted = (num / 1000000).toFixed(1).replace(/\.0$/, '').replace('.', '،');
+    return toKuDigits(formatted) + ' م';
+  }
+  if (num >= 1000) {
+    const formatted = (num / 1000).toFixed(1).replace(/\.0$/, '').replace('.', '،');
+    return toKuDigits(formatted) + ' هـ';
   }
   return toKuDigits(num);
 };

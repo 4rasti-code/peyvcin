@@ -643,16 +643,33 @@ export const GameProvider = ({ children }) => {
       sessionGuardRef.current.add(additionalData.sessionId);
     }    
     
+    const isWin = additionalData.isWin !== undefined ? additionalData.isWin : true;
     const currentAward = getRewardForMode(mode);
     
-    // --- ASSISTANCE PENALTY CALCULATION ---
-    // Deduct 2 XP for every Hint or Magnet used (Minimum floor 2 XP)
+    // --- WIN/LOSS REWARDS CALCULATION ---
+    let baseXP = currentAward.xp;
+    
+    if (!isWin) {
+      const lossXPRewards = {
+        'classic': 5,
+        'mamak': 10,
+        'hard_words': 15,
+        'word_fever': 2.5
+      };
+      baseXP = lossXPRewards[mode] || 0;
+    }
+
     const hintsUsed = additionalData.hintsUsed || 0;
     const magnetsUsed = additionalData.magnetsUsed || 0;
     const totalAssistance = hintsUsed + magnetsUsed;
     const penaltyXP = totalAssistance * 2;
     
-    let xpToAdd = Math.max(2, currentAward.xp - penaltyXP);
+    // Do not apply assistance penalties if the player already lost
+    let xpToAdd = isWin ? Math.max(2, baseXP - penaltyXP) : baseXP;
+    
+    // If float (e.g. 2.5), ensure we round or let it be float (XP is best rounded)
+    xpToAdd = Math.round(xpToAdd);
+
     const newLocalXP = Number(currXP) + xpToAdd;
 
     // --- HYBRID INFINITE LEVEL CALCULATION ---
@@ -660,7 +677,6 @@ export const GameProvider = ({ children }) => {
 
     // --- UPDATE STATISTICS (LOCAL) ---
     const score = additionalData.score || 0;
-    const isWin = additionalData.isWin !== undefined ? additionalData.isWin : true;
     const updatedStats = { ...currStats };
     if (!updatedStats[mode]) {
       updatedStats[mode] = { 
@@ -705,9 +721,11 @@ export const GameProvider = ({ children }) => {
     setCurrentXP(newLocalXP);
     safeStorageSet('peyvchin_xp', newLocalXP.toString());
     
-    if (currentAward.type === 'fils') setFils(prev => Number(prev) + (additionalData.filsBonus || currentAward.amount));
-    if (currentAward.type === 'derhem') setDerhem(prev => Number(prev) + currentAward.amount);
-    if (currentAward.type === 'dinar') setDinar(prev => Number(prev) + currentAward.amount);
+    if (isWin) {
+      if (currentAward.type === 'fils') setFils(prev => Number(prev) + (additionalData.filsBonus || currentAward.amount));
+      if (currentAward.type === 'derhem') setDerhem(prev => Number(prev) + currentAward.amount);
+      if (currentAward.type === 'dinar') setDinar(prev => Number(prev) + currentAward.amount);
+    }
 
     // Daily Streak local logic removed - Now handled server-side via RPC to ensure date-accuracy
 
@@ -735,9 +753,9 @@ export const GameProvider = ({ children }) => {
     try {
       const { data, error } = await supabase.rpc('sync_profile_progression', {
         p_xp_to_add: xpToAdd,
-        p_fils_to_add: currentAward.type === 'fils' ? (additionalData.filsBonus || currentAward.amount) : 0,
-        p_derhem_to_add: currentAward.type === 'derhem' ? currentAward.amount : 0,
-        p_dinar_to_add: currentAward.type === 'dinar' ? currentAward.amount : 0,
+        p_fils_to_add: (isWin && currentAward.type === 'fils') ? (additionalData.filsBonus || currentAward.amount) : 0,
+        p_derhem_to_add: (isWin && currentAward.type === 'derhem') ? currentAward.amount : 0,
+        p_dinar_to_add: (isWin && currentAward.type === 'dinar') ? currentAward.amount : 0,
         p_level: newLevel,
         p_solved_words: nextSolvedWords,
         p_mode: mode,
