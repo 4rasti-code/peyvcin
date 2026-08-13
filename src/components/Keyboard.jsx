@@ -65,7 +65,7 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true }) => {
          whileTap={{ scale: 0.92 }}
          transition={{ type: "spring", stiffness: 400, damping: 17 }}
          onPointerDown={(e) => { e.preventDefault(); !isDisabled && onKeyPress(k); }}
-         className={`flex-1 h-[clamp(38px,6vh,55px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border ${getKeyStyle()}`}
+         className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border ${getKeyStyle()}`}
       >
          <span className={`text-[clamp(1.3rem,4.5vw,1.9rem)] ${getTextTranslateY()}`}>{k}</span>
       </MotionButton>
@@ -112,7 +112,7 @@ const Keyboard = memo(({
    }, [onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState]);
 
    return (
-      <div className={`flex flex-col gap-2 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
+      <div className={`flex flex-col gap-2.5 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
 
          {!hidePowerups && (
             <div className="md:hidden">
@@ -139,7 +139,7 @@ const Keyboard = memo(({
          {ROWS.map((row, rowIndex) => (
             <MotionDiv
                key={`kbd-row-${rowIndex}`}
-               className={`flex ${rowIndex === 3 ? 'gap-6' : 'gap-1'} w-full justify-center`}
+               className={`flex ${rowIndex === 3 ? 'gap-6' : 'gap-1.5'} w-full justify-center`}
                initial="initial"
                animate="animate"
                variants={{
@@ -164,7 +164,7 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.DELETE, true); }}
-                     className="flex-1 h-[clamp(38px,6vh,55px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-[0_4px_0_#be123c]"
+                     className="flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-[0_4px_0_#be123c]"
                   >
                      <span className="material-symbols-outlined text-[20px]">backspace</span>
                   </MotionButton>
@@ -194,7 +194,7 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.ENTER, true); }}
-                     className="flex-1 h-[clamp(38px,6vh,55px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all active:scale-95 border border-white/10 shadow-[0_4px_0_#047857]"
+                     className="flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all active:scale-95 border border-white/10 shadow-[0_4px_0_#047857]"
                   >
                      <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
                   </MotionButton>
