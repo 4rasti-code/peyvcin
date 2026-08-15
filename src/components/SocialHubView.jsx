@@ -996,15 +996,39 @@ export default function SocialHubView({
     const fetchHistoricalAnnouncements = async () => {
       try {
         const oneHourAgoISO = new Date(Date.now() - 3600000).toISOString();
-        const { data, error } = await supabase
+        
+        // Fetch DB announcements
+        const { data: dbData, error: dbError } = await supabase
           .from('global_announcements')
           .select('id, text, created_at')
-          .gte('created_at', oneHourAgoISO)
-          .order('created_at', { ascending: true }); // old to new
+          .gte('created_at', oneHourAgoISO);
 
-        if (!error && data) {
-          setMarqueeAnnouncements(data);
+        // Fetch recent users
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, nickname, created_at')
+          .gte('created_at', oneHourAgoISO);
+
+        let combined = [];
+        if (!dbError && dbData) {
+          combined = [...combined, ...dbData];
         }
+        
+        if (!profilesError && profilesData) {
+          const welcomeMsgs = profilesData
+            .filter(p => p.nickname)
+            .map(p => ({
+              id: p.id,
+              text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname}!`,
+              created_at: p.created_at
+            }));
+          combined = [...combined, ...welcomeMsgs];
+        }
+
+        // Sort by timestamp old to new
+        combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        
+        setMarqueeAnnouncements(combined);
       } catch (e) {
         console.warn("Failed to fetch historical announcements", e);
       }
