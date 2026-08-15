@@ -1870,7 +1870,7 @@ export default function App() {
               {user?.email === '4rasti@gmail.com' && (
                 <button
                   onClick={() => setCurrentView('admin_panel')}
-                  className="fixed top-24 left-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg z-[9999] flex items-center gap-2 active:scale-95 transition-transform"
+                  className="fixed top-24 left-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-full font-bold shadow-lg z-9999 flex items-center gap-2 active:scale-95 transition-transform"
                 >
                   <span className="material-symbols-outlined">admin_panel_settings</span>
                   پەنێڵی ئەدمین
