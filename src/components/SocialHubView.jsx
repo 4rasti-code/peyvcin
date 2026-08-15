@@ -2084,15 +2084,15 @@ export default function SocialHubView({
       </div>
 
       {/* Welcome Marquee Container */}
-      {marqueeAnnouncements.length > 0 && (
-        <div className="w-full bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 overflow-hidden shrink-0 flex items-center justify-center h-7 md:h-8" dir="ltr">
+      <div className="w-full bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 overflow-hidden shrink-0 flex items-center justify-center h-7 md:h-8" dir="ltr">
+        {marqueeAnnouncements.length > 0 && (
           <div className="w-full relative flex items-center overflow-hidden">
             <div className="animate-marquee font-black text-[11px] md:text-[12px] text-primary/80 whitespace-nowrap" dir="rtl">
               {marqueeAnnouncements.map(a => a.text).join(' • ')}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <AnimatePresence>
         {connectionError && (
