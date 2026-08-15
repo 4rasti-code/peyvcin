@@ -1039,10 +1039,37 @@ export default function SocialHubView({
         const newProfile = payload.new;
         if (newProfile) {
           setMarqueeAnnouncements(prev => [...prev, {
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            id: newProfile.id,
             text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname || 'مێهڤان'}!`,
             created_at: new Date().toISOString()
           }]);
+        }
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        const newProfile = payload.new;
+        if (newProfile && newProfile.nickname) {
+          // Only process updates for users created in the last 2 minutes
+          const isNewUser = newProfile.created_at && (Date.now() - new Date(newProfile.created_at).getTime() < 120000);
+          
+          if (isNewUser) {
+            setMarqueeAnnouncements(prev => {
+              const alreadyWelcomed = prev.some(a => a.id === newProfile.id && a.text.includes('ب خێرهاتی'));
+              if (alreadyWelcomed) {
+                // Update the placeholder 'مێهڤان' with the actual nickname (e.g. بێناڤ ٢٨٠٤)
+                return prev.map(a => 
+                  (a.id === newProfile.id && a.text.includes('ب خێرهاتی')) 
+                    ? { ...a, text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!` }
+                    : a
+                );
+              }
+              // If we missed the INSERT somehow, add them now
+              return [...prev, {
+                id: newProfile.id,
+                text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`,
+                created_at: new Date().toISOString()
+              }];
+            });
+          }
         }
       })
       .subscribe();
