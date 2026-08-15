@@ -1045,7 +1045,20 @@ export default function SocialHubView({
             created_at: new Date().toISOString()
           }]);
         }
-      }).subscribe();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        const newProfile = payload.new;
+        const oldProfile = payload.old;
+        // If nickname was just set for the first time, announce them!
+        if (newProfile && newProfile.nickname && (!oldProfile || !oldProfile.nickname)) {
+          setMarqueeAnnouncements(prev => [...prev, {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`,
+            created_at: new Date().toISOString()
+          }]);
+        }
+      })
+      .subscribe();
 
     const dbAnnouncementsSub = supabase.channel('public:global_announcements')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_announcements' }, (payload) => {
