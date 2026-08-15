@@ -891,6 +891,7 @@ export default function SocialHubView({
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const [topDailyPlayers, setTopDailyPlayers] = useState([]);
+  const [marqueeText, setMarqueeText] = useState("🎉 ب خێرهاتی بۆ پەیڤۆک - یارییا پەیڤان یا سەردەمیانە");
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -975,6 +976,27 @@ export default function SocialHubView({
     return () => {
       if (fetchTimeout) clearTimeout(fetchTimeout);
       supabase.removeChannel(top3Sub);
+    };
+  }, [isVisible]);
+
+  // Welcome Marquee Logic
+  useEffect(() => {
+    if (!isVisible) return;
+    const welcomeSub = supabase.channel('public:profiles:welcome_marquee')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, (payload) => {
+        const newProfile = payload.new;
+        if (newProfile && newProfile.nickname) {
+          setMarqueeText(`🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`);
+          
+          // Revert to default after 2 minutes
+          setTimeout(() => {
+            setMarqueeText("🎉 ب خێرهاتی بۆ پەیڤۆک - یارییا پەیڤان یا سەردەمیانە");
+          }, 120000);
+        }
+      }).subscribe();
+
+    return () => {
+      supabase.removeChannel(welcomeSub);
     };
   }, [isVisible]);
 
@@ -1965,6 +1987,15 @@ export default function SocialHubView({
               right: activeTab === 'global' ? '4px' : '50%'
             }}
           />
+        </div>
+      </div>
+
+      {/* Welcome Marquee Container */}
+      <div className="w-full bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 overflow-hidden shrink-0 flex items-center h-7 md:h-8" dir="ltr">
+        <div className="w-full relative flex items-center overflow-hidden">
+          <div className="animate-marquee font-black text-[11px] md:text-[12px] text-primary/80 whitespace-nowrap" dir="rtl">
+            {marqueeText}
+          </div>
         </div>
       </div>
 
