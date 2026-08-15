@@ -108,6 +108,7 @@ const LobbyView = memo(({
   const [inviteAlert, setInviteAlert] = useState(null);
   const [inviteCooldowns, setInviteCooldowns] = useState({});
   const [inviteStrikes, setInviteStrikes] = useState({});
+  const [busyUsers, setBusyUsers] = useState({});
   const [localLocationEnabled, setLocalLocationEnabled] = useState(() => {
     return localStorage.getItem('use_location_matchmaking') === 'true';
   });
@@ -198,14 +199,9 @@ const LobbyView = memo(({
         if (payload.payload.roomId === activeMatch?.id) {
           cancelMatch();
           const busyMode = payload.payload?.busyMode;
-          let modeText = "یاریێ";
-          if (busyMode === 'classic') modeText = "پەیڤۆک کلاسیك";
-          else if (busyMode === 'hard_words') modeText = "پەیڤێن دژوار";
-          else if (busyMode === 'word_fever') modeText = "تایا پەیڤان";
-          else if (busyMode === 'mamak') modeText = "مامک";
-          else if (busyMode === 'multiplayer') modeText = "هەڤڕکی";
-
-          setInviteAlert(`یاریزان یێ د ناڤ یارییا ${modeText} دا`);
+          if (invitedUserProfile) {
+            setBusyUsers(prev => ({ ...prev, [invitedUserProfile.id]: busyMode }));
+          }
           setInvitedUserProfile(null);
           if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
         }
@@ -452,6 +448,29 @@ const LobbyView = memo(({
     const isSent = sentInvites.has(profile.id);
     const blockedUntil = inviteCooldowns[profile.id];
     const isBlocked = blockedUntil && new Date(blockedUntil) > new Date();
+    const busyMode = busyUsers[profile.id];
+
+    const getBusyModeText = (mode) => {
+      switch (mode) {
+        case 'classic': return "د کلاسیك دایە";
+        case 'hard_words': return "د دژوار دایە";
+        case 'word_fever': return "د تایا پەیڤان دایە";
+        case 'mamak': return "د مامک دایە";
+        case 'multiplayer': return "د هەڤڕکی دایە";
+        default: return "یاریێ دکەت";
+      }
+    };
+
+    const getBusyColorClass = (mode) => {
+      switch (mode) {
+        case 'classic': return "bg-sky-500 border-sky-400/50 shadow-[0_0_10px_rgba(14,165,233,0.3)] text-white";
+        case 'hard_words': return "bg-red-500 border-red-400/50 shadow-[0_0_10px_rgba(239,68,68,0.3)] text-white";
+        case 'word_fever': return "bg-orange-500 border-orange-400/50 shadow-[0_0_10px_rgba(249,115,22,0.3)] text-white";
+        case 'mamak': return "bg-purple-500 border-purple-400/50 shadow-[0_0_10px_rgba(168,85,247,0.3)] text-white";
+        case 'multiplayer': return "bg-blue-600 border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.3)] text-white";
+        default: return "bg-gray-500 text-white border-transparent";
+      }
+    };
 
     return (
       <div key={`${profile.id}-${index}`} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
@@ -502,7 +521,7 @@ const LobbyView = memo(({
         </div>
         <button
           onClick={() => {
-            if (isSent) return;
+            if (isSent || busyMode) return;
             if (isBlocked) {
               triggerHaptic(10);
               setInviteAlert("د نۆکە دا تو نەشێی یاریێ ل گەل ئەڤی یاریزانی بکەی!");
@@ -510,14 +529,22 @@ const LobbyView = memo(({
               handleSendInviteToUser(profile.id);
             }
           }}
-          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-22.5 ${isSent
-            ? 'bg-green-500/10 text-green-600 dark:text-green-400 cursor-default'
-            : isBlocked
-              ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30'
-              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md cursor-pointer'
+          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-22.5 border ${
+            busyMode
+              ? `${getBusyColorClass(busyMode)} cursor-default`
+              : isSent
+                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-transparent cursor-default'
+                : isBlocked
+                  ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border-red-100 dark:border-red-900/30'
+                  : 'bg-blue-600 hover:bg-blue-700 border-transparent text-white shadow-md cursor-pointer'
             }`}
         >
-          {isSent ? (
+          {busyMode ? (
+            <>
+              <span className="material-symbols-outlined text-[15px]">sports_esports</span>
+              {getBusyModeText(busyMode)}
+            </>
+          ) : isSent ? (
             <>
               <span className="material-symbols-outlined text-[15px]">check</span>
               چوو
