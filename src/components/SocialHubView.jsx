@@ -992,16 +992,16 @@ export default function SocialHubView({
   useEffect(() => {
     if (!isVisible) return;
 
-    // Fetch historical data from the last 1 hour
+    // Fetch historical data from the last 15 minutes
     const fetchHistoricalAnnouncements = async () => {
       try {
-        const oneHourAgoISO = new Date(Date.now() - 3600000).toISOString();
+        const fifteenMinsAgoISO = new Date(Date.now() - 900000).toISOString();
         
         // Fetch DB announcements
         const { data: dbData, error: dbError } = await supabase
           .from('global_announcements')
           .select('id, text, created_at')
-          .gte('created_at', oneHourAgoISO);
+          .gte('created_at', fifteenMinsAgoISO);
 
         // Fetch recent users
         const { data: profilesData, error: profilesError } = await supabase
@@ -1082,8 +1082,8 @@ export default function SocialHubView({
       }).subscribe();
 
     const cleanupInterval = setInterval(() => {
-      const oneHourAgo = new Date(Date.now() - 3600000).getTime();
-      setMarqueeAnnouncements(prev => prev.filter(a => new Date(a.created_at).getTime() > oneHourAgo));
+      const fifteenMinsAgo = new Date(Date.now() - 900000).getTime();
+      setMarqueeAnnouncements(prev => prev.filter(a => new Date(a.created_at).getTime() > fifteenMinsAgo));
     }, 60000);
 
     return () => {
