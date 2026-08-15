@@ -2324,5 +2324,5 @@ html, body {
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll 15s linear infinite;
+  animation: marquee-scroll 30s linear infinite;
 }
