@@ -1007,7 +1007,7 @@ export default function SocialHubView({
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('id, nickname, created_at')
-          .gte('created_at', oneHourAgoISO);
+          .gte('created_at', fifteenMinsAgoISO);
 
         let combined = [];
         if (!dbError && dbData) {
