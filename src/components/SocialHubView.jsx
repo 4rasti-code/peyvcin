@@ -992,13 +992,14 @@ export default function SocialHubView({
   useEffect(() => {
     if (!isVisible) return;
 
-    // Fetch historical data since August 15
+    // Fetch historical data from the last 1 hour
     const fetchHistoricalAnnouncements = async () => {
       try {
+        const oneHourAgoISO = new Date(Date.now() - 3600000).toISOString();
         const { data, error } = await supabase
           .from('global_announcements')
           .select('id, text, created_at')
-          .gte('created_at', '2026-08-15T00:00:00Z')
+          .gte('created_at', oneHourAgoISO)
           .order('created_at', { ascending: true }); // old to new
 
         if (!error && data) {
@@ -1029,9 +1030,15 @@ export default function SocialHubView({
         }
       }).subscribe();
 
+    const cleanupInterval = setInterval(() => {
+      const oneHourAgo = new Date(Date.now() - 3600000).getTime();
+      setMarqueeAnnouncements(prev => prev.filter(a => new Date(a.created_at).getTime() > oneHourAgo));
+    }, 60000);
+
     return () => {
       supabase.removeChannel(welcomeSub);
       supabase.removeChannel(dbAnnouncementsSub);
+      clearInterval(cleanupInterval);
     };
   }, [isVisible]);
 
