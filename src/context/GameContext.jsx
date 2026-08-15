@@ -193,7 +193,7 @@ export const GameProvider = ({ children }) => {
     const applyProfileData = async () => {
       if (!loadingAuth && profileData) {
         // If we have profile data, apply it to local states ONLY IF it changed meaningfully
-        const profileSignature = `${profileData.xp}-${profileData.fils}-${profileData.derhem}-${profileData.dinar}-${profileData.magnets}-${profileData.hints}-${profileData.skips}`;
+        const profileSignature = `${profileData?.xp}-${profileData?.fils}-${profileData?.derhem}-${profileData?.dinar}-${profileData?.magnets}-${profileData?.hints}-${profileData?.skips}`;
         
         if (profileSignature !== lastAppliedProfileRef.current) {
           console.log("[GameContext] Applying profile progression sync...");
@@ -204,7 +204,7 @@ export const GameProvider = ({ children }) => {
           
           // Safety: If local XP is greater than remote XP, force a sync to prevent data loss.
           // Otherwise, only apply the remote XP if it's higher than the local XP.
-          const remoteXP = Number(profileData.xp || 0);
+          const remoteXP = Number(profileData?.xp || 0);
           setCurrentXP(prev => {
             if (prev > remoteXP) {
               console.log(`[GameContext] Local XP (${prev}) > Remote XP (${remoteXP}). Triggering force sync.`);
@@ -222,7 +222,7 @@ export const GameProvider = ({ children }) => {
             return (prev === 0 || remoteXP > prev) ? remoteXP : prev;
           });
           
-          const serverNotifiedLevel = profileData.last_notified_level;
+          const serverNotifiedLevel = profileData?.last_notified_level;
           const currentLevelFromXP = getLevelFromXP(remoteXP);
           setLastNotifiedLevel(prev => {
             if (serverNotifiedLevel !== undefined) return Math.max(prev, serverNotifiedLevel);
@@ -231,31 +231,31 @@ export const GameProvider = ({ children }) => {
           });
           if (Date.now() - lastPurchaseTimeRef.current > 5000) {
             setFils(prev => {
-              const next = profileData.fils ?? 500;
+              const next = profileData?.fils ?? 500;
               return prev !== next ? next : prev;
             });
             setDerhem(prev => {
-              const next = profileData.derhem ?? 10;
+              const next = profileData?.derhem ?? 10;
               return prev !== next ? next : prev;
             });
             setDinar(prev => {
-              const next = profileData.dinar ?? 5;
+              const next = profileData?.dinar ?? 5;
               return prev !== next ? next : prev;
             });
-            setMagnetCount(prev => prev !== (profileData.magnets ?? 3) ? (profileData.magnets ?? 3) : prev);
-            setHintCount(prev => prev !== (profileData.hints ?? 3) ? (profileData.hints ?? 3) : prev);
-            setSkipCount(prev => prev !== (profileData.skips ?? 3) ? (profileData.skips ?? 3) : prev);
+            setMagnetCount(prev => prev !== (profileData?.magnets ?? 3) ? (profileData?.magnets ?? 3) : prev);
+            setHintCount(prev => prev !== (profileData?.hints ?? 3) ? (profileData?.hints ?? 3) : prev);
+            setSkipCount(prev => prev !== (profileData?.skips ?? 3) ? (profileData?.skips ?? 3) : prev);
           }
           // Fallback reading from old JSON inventory in case the new column hasn't been populated yet
-          if (profileData.spin_tickets !== undefined && profileData.spin_tickets !== null) {
-            setSpinTicketCount(prev => prev !== profileData.spin_tickets ? profileData.spin_tickets : prev);
-          } else if (profileData.inventory?.spinTickets !== undefined) {
-            setSpinTicketCount(prev => prev !== profileData.inventory.spinTickets ? profileData.inventory.spinTickets : prev);
+          if (profileData?.spin_tickets !== undefined && profileData?.spin_tickets !== null) {
+            setSpinTicketCount(prev => prev !== profileData?.spin_tickets ? profileData?.spin_tickets : prev);
+          } else if (profileData?.inventory?.spinTickets !== undefined) {
+            setSpinTicketCount(prev => prev !== profileData?.inventory.spinTickets ? profileData?.inventory.spinTickets : prev);
           }
-          setDailyStreak(prev => prev !== (profileData.daily_streak || 0) ? (profileData.daily_streak || 0) : prev);
-          setLastStreakAt(prev => prev !== profileData.last_streak_at ? profileData.last_streak_at : prev);
-          setRewardStreak(prev => prev !== (profileData.reward_streak || 0) ? (profileData.reward_streak || 0) : prev);
-          setLastRewardClaimedAt(prev => prev !== profileData.last_reward_claimed_at ? profileData.last_reward_claimed_at : prev);
+          setDailyStreak(prev => prev !== (profileData?.daily_streak || 0) ? (profileData?.daily_streak || 0) : prev);
+          setLastStreakAt(prev => prev !== profileData?.last_streak_at ? profileData?.last_streak_at : prev);
+          setRewardStreak(prev => prev !== (profileData?.reward_streak || 0) ? (profileData?.reward_streak || 0) : prev);
+          setLastRewardClaimedAt(prev => prev !== profileData?.last_reward_claimed_at ? profileData?.last_reward_claimed_at : prev);
         } // <-- End of profileSignature progression sync block
 
         // =========================================================================
@@ -263,14 +263,14 @@ export const GameProvider = ({ children }) => {
         // =========================================================================
         
         // --- CONSOLIDATED SOLVED WORDS SYNC (MERGE STRATEGY) ---
-        const remoteWords = Array.isArray(profileData.solved_words) ? profileData.solved_words : [];
+        const remoteWords = Array.isArray(profileData?.solved_words) ? profileData?.solved_words : [];
         
         let inventoryWords = [];
-        if (profileData.inventory?.solved_words) {
-          if (Array.isArray(profileData.inventory.solved_words)) {
-            inventoryWords = profileData.inventory.solved_words;
-          } else if (typeof profileData.inventory.solved_words === 'string') {
-            try { inventoryWords = JSON.parse(profileData.inventory.solved_words); } catch (_e) { /* ignore */ }
+        if (profileData?.inventory?.solved_words) {
+          if (Array.isArray(profileData?.inventory.solved_words)) {
+            inventoryWords = profileData?.inventory.solved_words;
+          } else if (typeof profileData?.inventory.solved_words === 'string') {
+            try { inventoryWords = JSON.parse(profileData?.inventory.solved_words); } catch (_e) { /* ignore */ }
           }
         }
         
@@ -284,7 +284,7 @@ export const GameProvider = ({ children }) => {
           }
           
           // --- AUTO-MIGRATE LEGACY STATS TO NEW COLUMNS ---
-          const legacyStats = profileData.inventory?.stats;
+          const legacyStats = profileData?.inventory?.stats;
           if (legacyStats) {
             let legacyGamesWon = 0;
             let legacyGamesPlayed = 0;
@@ -296,11 +296,11 @@ export const GameProvider = ({ children }) => {
             });
 
             // If legacy stats have significantly more wins than the new columns, trigger rescue
-            if (legacyGamesWon > (profileData.games_won || 0) + 5) {
+            if (legacyGamesWon > (profileData?.games_won || 0) + 5) {
                console.log("[GameContext] 🚨 MIGRATING LEGACY STATS to top-level columns!");
-               const realGamesPlayed = Math.max(legacyGamesPlayed, legacyGamesWon, profileData.games_played || 0);
-               const realGamesWon = Math.max(legacyGamesWon, profileData.games_won || 0);
-               const maxWords = Math.max(merged.length, profileData.total_words_found || 0, realGamesWon);
+               const realGamesPlayed = Math.max(legacyGamesPlayed, legacyGamesWon, profileData?.games_played || 0);
+               const realGamesWon = Math.max(legacyGamesWon, profileData?.games_won || 0);
+               const maxWords = Math.max(merged.length, profileData?.total_words_found || 0, realGamesWon);
                const legacyPvpWins = legacyStats.battle?.solvedCount || 0;
                
                let finalWordsToSave = merged;
@@ -321,9 +321,9 @@ export const GameProvider = ({ children }) => {
                supabase.from('profiles').update({
                  games_played: realGamesPlayed,
                  games_won: realGamesWon,
-                 pvp_wins: Math.max(profileData.pvp_wins || 0, legacyPvpWins),
+                 pvp_wins: Math.max(profileData?.pvp_wins || 0, legacyPvpWins),
                  total_words_found: maxWords,
-                 fever_highscore: Math.max(legacyFeverHigh, profileData.fever_highscore || 0),
+                 fever_highscore: Math.max(legacyFeverHigh, profileData?.fever_highscore || 0),
                  solved_words: finalWordsToSave,
                  statistics: legacyStats
                }).eq('id', user.id).then(({error}) => {
@@ -336,11 +336,11 @@ export const GameProvider = ({ children }) => {
           return merged;
         });
         
-        if (profileData.inventory) {
-          setInventory(prev => JSON.stringify(prev) !== JSON.stringify(profileData.inventory) ? profileData.inventory : prev);
+        if (profileData?.inventory) {
+          setInventory(prev => JSON.stringify(prev) !== JSON.stringify(profileData?.inventory) ? profileData?.inventory : prev);
         }
 
-        const remoteMedals = Array.isArray(profileData.claimed_medals) ? profileData.claimed_medals : [];
+        const remoteMedals = Array.isArray(profileData?.claimed_medals) ? profileData?.claimed_medals : [];
         setClaimedMedals(prev => {
           const local = Array.isArray(prev) ? prev : [];
           const merged = [...new Set([...local, ...remoteMedals])];
@@ -353,7 +353,7 @@ export const GameProvider = ({ children }) => {
         
         setSyncStatus('پشکنینا ڕیزبەندییا تە...');
         // Run rank calculation in background so it doesn't freeze the loading screen
-        refreshRank(Number(profileData.xp || 0), true, controller.signal);
+        refreshRank(Number(profileData?.xp || 0), true, controller.signal);
         
         setSyncStatus('کۆتایی پێئینان...');
         setLoading(false);
@@ -489,7 +489,7 @@ export const GameProvider = ({ children }) => {
       try { 
         // Sync standalone spin_tickets column
         if (nextValues.spinTickets !== undefined) {
-           await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser.id);
+           await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser?.id);
         }
 
         const { error: rpcError } = await supabase.rpc('sync_profile_inventory', {
@@ -514,12 +514,12 @@ export const GameProvider = ({ children }) => {
           if (nextValues.dinar !== undefined) payload.dinar = nextValues.dinar;
           
           if (Object.keys(payload).length > 0) {
-            await supabase.from('profiles').update(payload).eq('id', currentUser.id);
+            await supabase.from('profiles').update(payload).eq('id', currentUser?.id);
           }
           
           // Fallback for standalone spin tickets
           if (nextValues.spinTickets !== undefined) {
-             await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser.id);
+             await supabase.from('profiles').update({ spin_tickets: nextValues.spinTickets }).eq('id', currentUser?.id);
           }
         } catch (fallbackErr) {
           console.error("Direct fallback update also failed:", fallbackErr);
@@ -547,15 +547,15 @@ export const GameProvider = ({ children }) => {
     const { user: currentUser } = gameStateRef.current;
     if (currentUser?.id) {
       try {
-        const { error } = await supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser.id });
+        const { error } = await supabase.rpc('claim_medal', { p_medal_id: medalId, p_user_id: currentUser?.id });
         if (error) {
            console.warn('claim_medal rpc failed, falling back:', error);
-           await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id);
+           await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser?.id);
         }
       } catch (err) {
          // Silently catch missing RPC or network errors without crashing the app
          console.warn('claim_medal rpc error, falling back:', err);
-         await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser.id);
+         await supabase.from('profiles').update({ claimed_medals: next }).eq('id', currentUser?.id);
       }
     }
   }, [updateInventory]);
@@ -623,7 +623,7 @@ export const GameProvider = ({ children }) => {
       }
       
       // Final sync to ensure parity (force=true)
-      await syncProfile(currentUser.id, true, true);
+      await syncProfile(currentUser?.id, true, true);
       return { success: true };
     } catch (err) {
       console.error("Purchase failed:", err.message);
@@ -782,7 +782,7 @@ export const GameProvider = ({ children }) => {
           setDailyStreak(daily_streak);
           safeStorageSet('peyvchin_daily_streak', daily_streak.toString());
         }
-        await syncProfile(currentUser.id); 
+        await syncProfile(currentUser?.id); 
         refreshRank(new_xp, true);
 
         return { 
@@ -792,7 +792,7 @@ export const GameProvider = ({ children }) => {
           bahdiniMsg: `سەرکەفتنەکا نوی! ✨ (پاراستی)` 
         };
       } else {
-        await syncProfile(currentUser.id);
+        await syncProfile(currentUser?.id);
         refreshRank(newLocalXP, true);
         
         return { 
@@ -857,7 +857,7 @@ export const GameProvider = ({ children }) => {
         p_solve_time_ms: 0,
         p_words_found: 0
       });
-      await syncProfile(currentUser.id);
+      await syncProfile(currentUser?.id);
     } catch (err) {
       console.warn("Penalty sync failed:", err);
     }
@@ -890,6 +890,7 @@ export const GameProvider = ({ children }) => {
           setMagnetCount(prev => prev + (data.rewards.magnets || 0));
           setHintCount(prev => prev + (data.rewards.hints || 0));
           setSkipCount(prev => prev + (data.rewards.skips || 0));
+          setSpinTicketCount(prev => prev + (data.rewards.spinTicketCount || data.rewards.spin_tickets || 0));
         }
         
         setRewardStreak(data.streak);
@@ -964,7 +965,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
           const rpcName = isAll ? 'get_balanced_random_word' : 'get_random_fresh_word';
           
           const rpcParams = {
-            p_user_id: currentUser.id,
+            p_user_id: currentUser?.id,
             p_mode_tag: mode === 'classic' ? 'classic' : (mode === 'hard_words' ? 'hard_words' : (mode === 'mamak' ? 'mamak' : mode))
           };
 
@@ -1027,7 +1028,7 @@ level, currentXP, maxXP, minXPForLevel, fils, derhem, dinar, addXP,
 
       for (const stat of dummyStats) {
         await supabase.rpc('sync_game_session', {
-          p_user_id: currentUser.id,
+          p_user_id: currentUser?.id,
           p_mode: stat.mode,
           p_magnets_used: 0,
           p_hints_used: 0,

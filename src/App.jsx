@@ -275,12 +275,12 @@ export default function App() {
 
   // --- GUEST LEVEL 5 PROGRESSION TRIGGER ---
   useEffect(() => {
-    if (!user || !user.is_anonymous || !profileData || typeof profileData.xp !== 'number') return;
+    if (!user || !user.is_anonymous || !profileData || typeof profileData?.xp !== 'number') return;
 
     const xpThreshold = getTotalXPForLevel(5);
     const hasBeenNotified = safeStorageGet('guest_level5_notified') === 'true';
 
-    if (profileData.xp >= xpThreshold && !hasBeenNotified) {
+    if (profileData?.xp >= xpThreshold && !hasBeenNotified) {
       console.log("[Progression] Guest reached Level 5. Checking if message needs to be sent.");
 
       // Optimistically set the flag to prevent rapid duplicate calls
@@ -324,7 +324,7 @@ export default function App() {
 
   // --- BETA WELCOME MESSAGE TRIGGER ---
   useEffect(() => {
-    if (!user || !user.id || !profileData || !profileData.id) return;
+    if (!user || !user.id || !profileData || !profileData?.id) return;
 
     const hasBeenWelcomed = safeStorageGet('beta_welcome_sent') === 'true';
 
@@ -1204,10 +1204,10 @@ export default function App() {
 
     try {
       const result = await updateProfile({
-        nickname: profileData.nickname,
-        avatar_url: profileData.avatar_url,
-        country_code: profileData.countryCode,
-        is_kurdistan: profileData.isInKurdistan
+        nickname: profileData?.nickname,
+        avatar_url: profileData?.avatar_url,
+        country_code: profileData?.countryCode,
+        is_kurdistan: profileData?.isInKurdistan
       });
 
       if (result?.success) {
@@ -2094,7 +2094,7 @@ export default function App() {
             )}
 
             {/* SOCIAL ONBOARDING OVERLAY */}
-            {user && !user.is_anonymous && profileData && (profileData.onboarded === false || profileData.onboarded === null) && (
+            {user && !user.is_anonymous && profileData && (profileData?.onboarded === false || profileData?.onboarded === null) && (
               <OnboardingView />
             )}
           </Suspense>

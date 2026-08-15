@@ -215,7 +215,7 @@ export const MultiplayerProvider = ({ children }) => {
     broadcastLiveAction([], 0);
 
     const action = isWin ? 'WIN' : 'GUESS';
-    const currentIdx = activeMatch.current_word_index || 0;
+    const currentIdx = activeMatch?.current_word_index || 0;
 
     const payload = {
       p_match_id: String(matchId),
@@ -261,7 +261,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     broadcastLiveAction([], 0);
 
-    const currentIdx = activeMatch.current_word_index || 0;
+    const currentIdx = activeMatch?.current_word_index || 0;
     const failureColors = ["#334155", "#334155", "#334155", "#334155", "#334155"];
 
     const payload = {
@@ -290,7 +290,7 @@ export const MultiplayerProvider = ({ children }) => {
       return;
     }
 
-    const currentIdx = activeMatch.current_word_index || 0;
+    const currentIdx = activeMatch?.current_word_index || 0;
     const payload = {
       p_match_id: String(matchId),
       p_user_id: String(user?.id),
@@ -800,7 +800,7 @@ export const MultiplayerProvider = ({ children }) => {
 
     const verifyAndStart = async () => {
       try {
-        if (activeMatch.player1_id && activeMatch.player2_id) {
+        if (activeMatch?.player1_id && activeMatch?.player2_id) {
           const handleTransition = () => {
             const currentState = stateRef.current;
             if (currentState === 'private_lobby' || currentState === 'joining' || currentState === 'syncing') {
@@ -815,8 +815,8 @@ export const MultiplayerProvider = ({ children }) => {
               setTimeout(async () => {
                 if (stateRef.current === 'found') {
                   // Final Safety Check: Did the host cancel/delete the room while we were waiting?
-                  if (!activeMatch.id?.startsWith?.('local_bot_')) {
-                    const { data } = await supabase.from('online_matches').select('id').eq('id', activeMatch.id).maybeSingle();
+                  if (!activeMatch?.id?.startsWith?.('local_bot_')) {
+                    const { data } = await supabase.from('online_matches').select('id').eq('id', activeMatch?.id).maybeSingle();
                     if (!data) {
                       console.log('[Multiplayer] Safety Check: Room was deleted before we could start. Aborting.');
                       setMultiplayerStateGuarded('idle');
@@ -835,8 +835,8 @@ export const MultiplayerProvider = ({ children }) => {
             handleTransition();
           } else {
             console.warn("[Multiplayer] Handshake: Waiting for opponent profile...");
-            const isP1 = activeMatch.player1_id === user.id;
-            const oppId = isP1 ? activeMatch.player2_id : activeMatch.player1_id;
+            const isP1 = activeMatch?.player1_id === user.id;
+            const oppId = isP1 ? activeMatch?.player2_id : activeMatch?.player1_id;
 
             const { data: opponentProfile, error } = await supabase
               .from('profiles')
@@ -914,12 +914,12 @@ export const MultiplayerProvider = ({ children }) => {
   useEffect(() => {
     if (!activeMatch || !user?.id) return;
 
-    const isP1 = activeMatch.player1_id === user.id;
+    const isP1 = activeMatch?.player1_id === user.id;
 
     // --- 4.1 DETECT ROUND TRANSITION ---
-    if (activeMatch.current_word_index !== undefined && activeMatch.current_word_index !== wordIndexRef.current) {
-      const newIndex = activeMatch.current_word_index || 0;
-      const wasTie = (activeMatch.p1_score === scoresRef.current.p1 && activeMatch.p2_score === scoresRef.current.p2);
+    if (activeMatch?.current_word_index !== undefined && activeMatch?.current_word_index !== wordIndexRef.current) {
+      const newIndex = activeMatch?.current_word_index || 0;
+      const wasTie = (activeMatch?.p1_score === scoresRef.current.p1 && activeMatch?.p2_score === scoresRef.current.p2);
 
       setCurrentWordIndex(newIndex);
       setOpponentGuesses([]);
@@ -935,15 +935,15 @@ export const MultiplayerProvider = ({ children }) => {
     }
 
     // --- 4.3 UPDATE LOCAL REFS (DO THIS LAST) ---
-    wordIndexRef.current = activeMatch.current_word_index || 0;
-    scoresRef.current = { p1: activeMatch.p1_score || 0, p2: activeMatch.p2_score || 0 };
+    wordIndexRef.current = activeMatch?.current_word_index || 0;
+    scoresRef.current = { p1: activeMatch?.p1_score || 0, p2: activeMatch?.p2_score || 0 };
     setScores(scoresRef.current);
 
-    if (activeMatch.status === 'finished' && multiplayerState !== 'idle') {
+    if (activeMatch?.status === 'finished' && multiplayerState !== 'idle') {
       // Logic for anyone who didn't trigger the game_over state locally (e.g. the loser)
       if (multiplayerState !== 'game_over' || LastMatchResult === null) {
-        const myScore = isP1 ? activeMatch.p1_score : activeMatch.p2_score;
-        const oppScore = isP1 ? activeMatch.p2_score : activeMatch.p1_score;
+        const myScore = isP1 ? activeMatch?.p1_score : activeMatch?.p2_score;
+        const oppScore = isP1 ? activeMatch?.p2_score : activeMatch?.p1_score;
 
         let result = 'draw';
         if (myScore - oppScore >= 2) result = 'victory';
@@ -981,12 +981,12 @@ export const MultiplayerProvider = ({ children }) => {
       }
     }
 
-    if (activeMatch.p1_score !== scoresRef.current.p1 || activeMatch.p2_score !== scoresRef.current.p2) {
-      setScores({ p1: activeMatch.p1_score, p2: activeMatch.p2_score });
+    if (activeMatch?.p1_score !== scoresRef.current.p1 || activeMatch?.p2_score !== scoresRef.current.p2) {
+      setScores({ p1: activeMatch?.p1_score, p2: activeMatch?.p2_score });
     }
 
     // NEW: Sync Opponent Colors from DB if missing in local state
-    const oppColors = isP1 ? activeMatch.p2_colors : activeMatch.p1_colors;
+    const oppColors = isP1 ? activeMatch?.p2_colors : activeMatch?.p1_colors;
     if (oppColors && Array.isArray(oppColors) && oppColors.length > opponentGuesses.length) {
       setOpponentGuesses(oppColors);
     }
@@ -994,14 +994,14 @@ export const MultiplayerProvider = ({ children }) => {
 
   // 4.5 HOST TIE-BREAK FALLBACK (Resolves Race Conditions when both fail simultaneously)
   useEffect(() => {
-    if (!activeMatch || !user?.id || activeMatch.id?.startsWith?.('local_bot_')) return;
-    const isP1 = activeMatch.player1_id === user.id;
+    if (!activeMatch || !user?.id || activeMatch?.id?.startsWith?.('local_bot_')) return;
+    const isP1 = activeMatch?.player1_id === user.id;
 
-    if (isP1 && activeMatch.p1_failed && activeMatch.p2_failed) {
+    if (isP1 && activeMatch?.p1_failed && activeMatch?.p2_failed) {
       console.log('[Multiplayer] Host Tie-Break: Both players failed. Forcing round advance.');
-      const currentIdx = activeMatch.current_word_index || 0;
-      const scoreDiff = Math.abs((activeMatch.p1_score || 0) - (activeMatch.p2_score || 0));
-      const totalWords = activeMatch.words?.length || 5;
+      const currentIdx = activeMatch?.current_word_index || 0;
+      const scoreDiff = Math.abs((activeMatch?.p1_score || 0) - (activeMatch?.p2_score || 0));
+      const totalWords = activeMatch?.words?.length || 5;
       const isMatchEnd = scoreDiff >= 2 || (currentIdx + 1 >= totalWords);
 
       const nextRoundData = {
@@ -1013,7 +1013,7 @@ export const MultiplayerProvider = ({ children }) => {
       };
       if (isMatchEnd) nextRoundData.status = 'finished';
 
-      supabase.from('online_matches').update(nextRoundData).eq('id', activeMatch.id);
+      supabase.from('online_matches').update(nextRoundData).eq('id', activeMatch?.id);
     }
   }, [activeMatch, user?.id]);
 

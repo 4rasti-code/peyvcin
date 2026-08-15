@@ -70,7 +70,7 @@ export default function StatsView({
         rawDistribution: rawDist
       },
       advancedLegacyStats: {
-        pvpWins: Math.max(profileData?.pvp_wins || 0, oldStats?.battle?.solvedCount || 0),
+        pvpWins: Math.max(profileData?.mode_play_counts?.battle || 0, profileData?.pvp_wins || 0, oldStats?.battle?.solvedCount || 0),
         totalWords,
         longestWord: profileData?.longest_word_length || 0,
         fastestSolve: profileData?.fastest_solve_ms || 0,

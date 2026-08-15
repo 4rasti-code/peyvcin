@@ -661,80 +661,80 @@ export const AuthProvider = ({ children }) => {
 
     if (!currentUser?.id) return { success: false, error: "Must be logged in" };
 
-    if (profileData.nickname !== undefined) setUserNickname(profileData.nickname);
-    if (profileData.avatar_url !== undefined) setUserAvatar(profileData.avatar_url);
-    if (profileData.city !== undefined) setCity(profileData.city);
-    if (profileData.is_kurdistan !== undefined) setIsInKurdistan(profileData.is_kurdistan);
-    if (profileData.country_code !== undefined) setCountryCode(profileData.country_code);
-    if (profileData.onboarded !== undefined) setProfileData(prev => ({ ...prev, onboarded: profileData.onboarded }));
+    if (profileData?.nickname !== undefined) setUserNickname(profileData?.nickname);
+    if (profileData?.avatar_url !== undefined) setUserAvatar(profileData?.avatar_url);
+    if (profileData?.city !== undefined) setCity(profileData?.city);
+    if (profileData?.is_kurdistan !== undefined) setIsInKurdistan(profileData?.is_kurdistan);
+    if (profileData?.country_code !== undefined) setCountryCode(profileData?.country_code);
+    if (profileData?.onboarded !== undefined) setProfileData(prev => ({ ...prev, onboarded: profileData?.onboarded }));
     
-    if (profileData.equipped_name_style !== undefined) setEquippedNameStyle(profileData.equipped_name_style);
-    if (profileData.owned_name_styles !== undefined) setOwnedNameStyles(profileData.owned_name_styles);
-    if (profileData.equipped_font !== undefined) setEquippedFont(profileData.equipped_font);
-    if (profileData.owned_fonts !== undefined) setOwnedFonts(profileData.owned_fonts);
-    if (profileData.equipped_bundle !== undefined) setEquippedBundle(profileData.equipped_bundle);
-    if (profileData.owned_bundles !== undefined) setOwnedBundles(profileData.owned_bundles);
+    if (profileData?.equipped_name_style !== undefined) setEquippedNameStyle(profileData?.equipped_name_style);
+    if (profileData?.owned_name_styles !== undefined) setOwnedNameStyles(profileData?.owned_name_styles);
+    if (profileData?.equipped_font !== undefined) setEquippedFont(profileData?.equipped_font);
+    if (profileData?.owned_fonts !== undefined) setOwnedFonts(profileData?.owned_fonts);
+    if (profileData?.equipped_bundle !== undefined) setEquippedBundle(profileData?.equipped_bundle);
+    if (profileData?.owned_bundles !== undefined) setOwnedBundles(profileData?.owned_bundles);
 
-    if (profileData.haptic_enabled !== undefined) {
-      setHapticEnabled(profileData.haptic_enabled);
-      safeStorageSet('peyvchin_haptic_enabled', profileData.haptic_enabled.toString());
+    if (profileData?.haptic_enabled !== undefined) {
+      setHapticEnabled(profileData?.haptic_enabled);
+      safeStorageSet('peyvchin_haptic_enabled', profileData?.haptic_enabled.toString());
     }
 
     try {
       // 1. Update Identity via RPC
       const { error: rpcError } = await supabase.rpc('update_profile_identity', {
-        p_nickname: profileData.nickname || currentNickname || 'یاریزان',
-        p_avatar_url: profileData.avatar_url || currentAvatar || 'default',
-        p_country_code: profileData.country_code || currentCountryCode || 'IQ',
-        p_is_in_kurdistan: profileData.is_kurdistan ?? currentIsInKurdistan ?? true
+        p_nickname: profileData?.nickname || currentNickname || 'یاریزان',
+        p_avatar_url: profileData?.avatar_url || currentAvatar || 'default',
+        p_country_code: profileData?.country_code || currentCountryCode || 'IQ',
+        p_is_in_kurdistan: profileData?.is_kurdistan ?? currentIsInKurdistan ?? true
       });
       if (rpcError) {
         console.warn("[AuthContext] RPC update_profile_identity failed, relying on fallback direct updates:", rpcError);
       }
 
       // Sync metadata to auth.users so it shows up in the Supabase Auth Dashboard
-      if (profileData.nickname !== undefined || profileData.avatar_url !== undefined) {
+      if (profileData?.nickname !== undefined || profileData?.avatar_url !== undefined) {
         await supabase.auth.updateUser({
           data: {
-            nickname: profileData.nickname || currentNickname || 'یاریزان',
-            name: profileData.nickname || currentNickname || 'یاریزان',
-            avatar_url: profileData.avatar_url || currentAvatar || 'default',
+            nickname: profileData?.nickname || currentNickname || 'یاریزان',
+            name: profileData?.nickname || currentNickname || 'یاریزان',
+            avatar_url: profileData?.avatar_url || currentAvatar || 'default',
           }
         });
       }
 
       // 2. Update Voice Settings & Haptic via direct update (as columns are new)
       const directUpdates = {};
-      if (profileData.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData.haptic_enabled;
-      if (profileData.onboarded !== undefined) directUpdates.onboarded = profileData.onboarded;
+      if (profileData?.haptic_enabled !== undefined) directUpdates.haptic_enabled = profileData?.haptic_enabled;
+      if (profileData?.onboarded !== undefined) directUpdates.onboarded = profileData?.onboarded;
 
       // Fallback: Also update avatar_url and nickname directly in case the RPC fails or is missing
-      if (profileData.avatar_url !== undefined) directUpdates.avatar_url = profileData.avatar_url;
-      if (profileData.nickname !== undefined) directUpdates.nickname = profileData.nickname;
+      if (profileData?.avatar_url !== undefined) directUpdates.avatar_url = profileData?.avatar_url;
+      if (profileData?.nickname !== undefined) directUpdates.nickname = profileData?.nickname;
       
-      if (profileData.equipped_name_style !== undefined) directUpdates.equipped_name_style = profileData.equipped_name_style;
-      if (profileData.owned_name_styles !== undefined) directUpdates.owned_name_styles = profileData.owned_name_styles;
-      if (profileData.equipped_font !== undefined) directUpdates.equipped_font = profileData.equipped_font;
-      if (profileData.owned_fonts !== undefined) directUpdates.owned_fonts = profileData.owned_fonts;
-      if (profileData.equipped_bundle !== undefined) directUpdates.equipped_bundle = profileData.equipped_bundle;
-      if (profileData.owned_bundles !== undefined) directUpdates.owned_bundles = profileData.owned_bundles;
+      if (profileData?.equipped_name_style !== undefined) directUpdates.equipped_name_style = profileData?.equipped_name_style;
+      if (profileData?.owned_name_styles !== undefined) directUpdates.owned_name_styles = profileData?.owned_name_styles;
+      if (profileData?.equipped_font !== undefined) directUpdates.equipped_font = profileData?.equipped_font;
+      if (profileData?.owned_fonts !== undefined) directUpdates.owned_fonts = profileData?.owned_fonts;
+      if (profileData?.equipped_bundle !== undefined) directUpdates.equipped_bundle = profileData?.equipped_bundle;
+      if (profileData?.owned_bundles !== undefined) directUpdates.owned_bundles = profileData?.owned_bundles;
 
       if (Object.keys(directUpdates).length > 0) {
         const { error: updateError } = await supabase
           .from('profiles')
           .update(directUpdates)
-          .eq('id', currentUser.id);
+          .eq('id', currentUser?.id);
         if (updateError) throw updateError;
       }
 
       // 3. Update Inventory if ownedAvatars was changed (e.g. from purchasing)
-      if (profileData.ownedAvatars !== undefined) {
-        setOwnedAvatars(profileData.ownedAvatars);
-        const { data: currentProfile } = await supabase.from('profiles').select('inventory').eq('id', currentUser.id).single();
+      if (profileData?.ownedAvatars !== undefined) {
+        setOwnedAvatars(profileData?.ownedAvatars);
+        const { data: currentProfile } = await supabase.from('profiles').select('inventory').eq('id', currentUser?.id).single();
         const currentInv = currentProfile?.inventory || {};
         await supabase.from('profiles').update({
-          inventory: { ...currentInv, owned_avatars: profileData.ownedAvatars }
-        }).eq('id', currentUser.id);
+          inventory: { ...currentInv, owned_avatars: profileData?.ownedAvatars }
+        }).eq('id', currentUser?.id);
       }
 
       setLastProfileUpdate(Date.now());

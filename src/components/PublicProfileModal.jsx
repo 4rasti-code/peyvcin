@@ -142,22 +142,33 @@ export default function PublicProfileModal({
     
     fetchTopDaily();
 
-    const top3Sub = supabase.channel(`public:profiles:modal_top3_${profile.id}`)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
-        const updatedProfile = payload.new;
-        if (updatedProfile && typeof updatedProfile.daily_xp !== 'undefined') {
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(() => {
-             fetchTopDaily();
-          }, 2000); 
-        }
-      }).subscribe((status, err) => {
-        if (err) console.warn('modal_top3 subscription error:', err);
-      });
+    let top3Sub = null;
+    try {
+      top3Sub = supabase.channel(`public:profiles:modal_top3_${profile?.id || 'unknown'}`)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+          const updatedProfile = payload?.new;
+          if (updatedProfile && typeof updatedProfile?.daily_xp !== 'undefined') {
+            if (fetchTimeout) clearTimeout(fetchTimeout);
+            fetchTimeout = setTimeout(() => {
+               fetchTopDaily();
+            }, 2000); 
+          }
+        }).subscribe((status, err) => {
+          if (err) console.warn('modal_top3 subscription error:', err);
+        });
+    } catch (e) {
+      console.warn('Failed to subscribe to modal_top3 channel:', e);
+    }
 
     return () => {
       if (fetchTimeout) clearTimeout(fetchTimeout);
-      supabase.removeChannel(top3Sub);
+      if (top3Sub) {
+        try {
+          supabase.removeChannel(top3Sub);
+        } catch (e) {
+          console.warn('Failed to remove modal_top3 channel:', e);
+        }
+      }
     };
   }, [profile?.id, currentUser?.id]);
 

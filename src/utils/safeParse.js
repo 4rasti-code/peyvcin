@@ -11,7 +11,19 @@
 export const safeJSONParse = (value, fallback, storageKeyToRemove = null) => {
   if (!value) return fallback;
   try {
-    return JSON.parse(value);
+    const parsed = JSON.parse(value);
+    
+    // Strict Type Checking against fallback to prevent corrupted states
+    if (fallback !== null && fallback !== undefined) {
+      if (Array.isArray(fallback) && !Array.isArray(parsed)) {
+        throw new Error("Type mismatch: Expected Array but got something else");
+      }
+      if (typeof fallback === 'object' && !Array.isArray(fallback) && (typeof parsed !== 'object' || Array.isArray(parsed) || parsed === null)) {
+        throw new Error("Type mismatch: Expected Object but got something else");
+      }
+    }
+    
+    return parsed;
   } catch (err) {
     console.error(`[safeJSONParse] Failed to parse value. Returning fallback. Error:`, err);
     if (storageKeyToRemove) {
