@@ -106,7 +106,10 @@ export default function StatsView({
     const dist = { "1":0, "2":0, "3":0, "4":0, "5":0, "6":0 };
     
     // Fallback: If the structure is flat (legacy), handle it directly
-    if (stats.rawDistribution["1"] !== undefined && typeof stats.rawDistribution["1"] === 'number') {
+    const hasAnyGuessKey = Object.keys(stats.rawDistribution).some(k => ['1','2','3','4','5','6'].includes(k));
+    const hasModeKeys = Object.keys(stats.rawDistribution).some(k => ['classic','mamak','hard_words','word_fever'].includes(k));
+    
+    if (hasAnyGuessKey && !hasModeKeys) {
       Object.entries(stats.rawDistribution).forEach(([key, val]) => {
         if (dist[key] !== undefined && typeof val === 'number') dist[key] += val;
       });
@@ -364,8 +367,8 @@ export default function StatsView({
               
               let modeData = stats.rawDistribution[mode.id] || {};
               
-              // Fallback: Show legacy flat distribution under Classic mode
-              if (mode.id === 'classic' && stats.rawDistribution["1"] !== undefined && typeof stats.rawDistribution["1"] === 'number') {
+              // Fallback: Show flat distribution under Classic mode if any guess key exists
+              if (mode.id === 'classic' && Object.keys(stats.rawDistribution).some(k => ['1','2','3','4','5','6'].includes(k))) {
                 modeData = stats.rawDistribution;
               }
               
