@@ -891,7 +891,7 @@ export default function SocialHubView({
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const [topDailyPlayers, setTopDailyPlayers] = useState([]);
-  const [marqueeText, setMarqueeText] = useState("🎉 ب خێرهاتی بۆ پەیڤۆک");
+  const [marqueeAnnouncements, setMarqueeAnnouncements] = useState([]);
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -931,7 +931,7 @@ export default function SocialHubView({
     }
   }, [initialChatPartner, initialTab, isVisible]);
 
-  // Real-time Top 3 Daily Players for Badges
+  // Real-time Top 3 Daily Players for Badges & Marquee Announcer
   useEffect(() => {
     if (!isVisible) return;
 
@@ -952,7 +952,21 @@ export default function SocialHubView({
           .order('daily_xp', { ascending: false })
           .limit(3);
         if (!error && data) {
-          setTopDailyPlayers(data.map(p => p.id));
+          const newTopIds = data.map(p => p.id);
+          setTopDailyPlayers(prev => {
+            if (user?.id && newTopIds.includes(user.id) && !prev.includes(user.id)) {
+              supabase.channel('public:announcements').send({
+                type: 'broadcast',
+                event: 'announcement',
+                payload: {
+                  id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                  text: `یاریزان ${user.user_metadata?.nickname || 'نەناسریای'} گەهشتە ڕیزبەندییا سێ یەکەمێن ڕۆژێ! 🔥`,
+                  timestamp: Date.now()
+                }
+              });
+            }
+            return newTopIds;
+          });
         }
       } catch (e) {
         console.warn("Failed to fetch top daily players", e);
@@ -977,26 +991,40 @@ export default function SocialHubView({
       if (fetchTimeout) clearTimeout(fetchTimeout);
       supabase.removeChannel(top3Sub);
     };
-  }, [isVisible]);
+  }, [isVisible, user]);
 
-  // Welcome Marquee Logic
+  // Global Announcements Marquee Logic (Append & 1-Hour Expiration)
   useEffect(() => {
     if (!isVisible) return;
+
     const welcomeSub = supabase.channel('public:profiles:welcome_marquee')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, (payload) => {
         const newProfile = payload.new;
         if (newProfile && newProfile.nickname) {
-          setMarqueeText(`🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`);
-          
-          // Revert to default after 2 minutes
-          setTimeout(() => {
-            setMarqueeText("🎉 ب خێرهاتی بۆ پەیڤۆک");
-          }, 120000);
+          setMarqueeAnnouncements(prev => [...prev, {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`,
+            timestamp: Date.now()
+          }]);
         }
       }).subscribe();
 
+    const announcementsSub = supabase.channel('public:announcements')
+      .on('broadcast', { event: 'announcement' }, ({ payload }) => {
+        if (payload && payload.text && payload.timestamp) {
+          setMarqueeAnnouncements(prev => [...prev, payload]);
+        }
+      }).subscribe();
+
+    const cleanupInterval = setInterval(() => {
+      const oneHourAgo = Date.now() - 3600000;
+      setMarqueeAnnouncements(prev => prev.filter(a => a.timestamp > oneHourAgo));
+    }, 60000);
+
     return () => {
       supabase.removeChannel(welcomeSub);
+      supabase.removeChannel(announcementsSub);
+      clearInterval(cleanupInterval);
     };
   }, [isVisible]);
 
@@ -1994,7 +2022,9 @@ export default function SocialHubView({
       <div className="w-full bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 overflow-hidden shrink-0 flex items-center h-7 md:h-8" dir="ltr">
         <div className="w-full relative flex items-center overflow-hidden">
           <div className="animate-marquee font-black text-[11px] md:text-[12px] text-primary/80 whitespace-nowrap" dir="rtl">
-            {marqueeText}
+            {marqueeAnnouncements.length > 0 
+              ? marqueeAnnouncements.map(a => a.text).join(' • ') 
+              : "🎉 ب خێرهاتی بۆ پەیڤۆک"}
           </div>
         </div>
       </div>

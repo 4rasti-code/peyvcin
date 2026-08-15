@@ -4,6 +4,7 @@ import { useUser } from '../context/AuthContext';
 import { MEDALS } from '../constants/medals';
 import { triggerHaptic } from '../utils/haptics';
 import { getLevelFromXP } from '../utils/progression';
+import { supabase } from '../lib/supabase';
 import { 
   playNoberaSfx, 
   playPalawanSfx, 
@@ -18,6 +19,7 @@ export default function AchievementToastManager() {
   const [queue, setQueue] = useState([]);
   const [currentToast, setCurrentToast] = useState(null);
   const hasInitialized = useRef(false);
+  const previousLevelRef = useRef(null);
 
   // Check for newly unlocked achievements
   useEffect(() => {
@@ -38,9 +40,24 @@ export default function AchievementToastManager() {
        const merged = Array.from(new Set([...previouslyUnlocked, ...currentUnlocked]));
        localStorage.setItem('peyvchin_unlocked_medals', JSON.stringify(merged));
        
+       previousLevelRef.current = computedLevel;
        hasInitialized.current = true;
        return;
     }
+
+    // Level up broadcast check
+    if (previousLevelRef.current !== null && computedLevel > previousLevelRef.current) {
+      supabase.channel('public:announcements').send({
+        type: 'broadcast',
+        event: 'announcement',
+        payload: {
+          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          text: `یاریزان ${profileData.nickname || 'نەناسریای'} گەهشتە ئاستێ ${computedLevel}! ⭐`,
+          timestamp: Date.now()
+        }
+      });
+    }
+    previousLevelRef.current = computedLevel;
 
     const claimedMedals = profileData?.claimed_medals || [];
     
@@ -55,6 +72,17 @@ export default function AchievementToastManager() {
       ) {
         newUnlocked.push(medal);
         previouslyUnlocked.push(medal.id);
+
+        // Broadcast medal unlock globally
+        supabase.channel('public:announcements').send({
+          type: 'broadcast',
+          event: 'announcement',
+          payload: {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            text: `یاریزان ${profileData.nickname || 'نەناسریای'} مەدالیایەکا نوی وەرگرت! 🏆`,
+            timestamp: Date.now()
+          }
+        });
       }
     });
 
