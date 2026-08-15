@@ -891,7 +891,7 @@ export default function SocialHubView({
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const [topDailyPlayers, setTopDailyPlayers] = useState([]);
-  const [marqueeText, setMarqueeText] = useState("🎉 ب خێرهاتی بۆ پەیڤۆک - یارییا پەیڤان یا سەردەمیانە");
+  const [marqueeText, setMarqueeText] = useState("🎉 ب خێرهاتی بۆ پەیڤۆک");
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
   const messagesContainerRef = useRef(null);
@@ -990,7 +990,7 @@ export default function SocialHubView({
           
           // Revert to default after 2 minutes
           setTimeout(() => {
-            setMarqueeText("🎉 ب خێرهاتی بۆ پەیڤۆک - یارییا پەیڤان یا سەردەمیانە");
+            setMarqueeText("🎉 ب خێرهاتی بۆ پەیڤۆک");
           }, 120000);
         }
       }).subscribe();
