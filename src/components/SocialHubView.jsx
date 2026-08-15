@@ -955,15 +955,10 @@ export default function SocialHubView({
           const newTopIds = data.map(p => p.id);
           setTopDailyPlayers(prev => {
             if (user?.id && newTopIds.includes(user.id) && !prev.includes(user.id)) {
-              supabase.channel('public:announcements').send({
-                type: 'broadcast',
-                event: 'announcement',
-                payload: {
-                  id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-                  text: `یاریزان ${user.user_metadata?.nickname || 'نەناسریای'} گەهشتە ڕیزبەندییا سێ یەکەمێن ڕۆژێ! 🔥`,
-                  timestamp: Date.now()
-                }
-              });
+              supabase.from('global_announcements').insert({
+                type: 'top3',
+                text: `یاریزان ${user.user_metadata?.nickname || 'نەناسریای'} گەهشتە ڕیزبەندییا سێ یەکەمێن ڕۆژێ! 🔥`
+              }).then();
             }
             return newTopIds;
           });
@@ -993,9 +988,27 @@ export default function SocialHubView({
     };
   }, [isVisible, user]);
 
-  // Global Announcements Marquee Logic (Append & 1-Hour Expiration)
+  // Global Announcements Marquee Logic
   useEffect(() => {
     if (!isVisible) return;
+
+    // Fetch historical data since August 15
+    const fetchHistoricalAnnouncements = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('global_announcements')
+          .select('id, text, created_at')
+          .gte('created_at', '2026-08-15T00:00:00Z')
+          .order('created_at', { ascending: true }); // old to new
+
+        if (!error && data) {
+          setMarqueeAnnouncements(data);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch historical announcements", e);
+      }
+    };
+    fetchHistoricalAnnouncements();
 
     const welcomeSub = supabase.channel('public:profiles:welcome_marquee')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, (payload) => {
@@ -1004,27 +1017,21 @@ export default function SocialHubView({
           setMarqueeAnnouncements(prev => [...prev, {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`,
-            timestamp: Date.now()
+            created_at: new Date().toISOString()
           }]);
         }
       }).subscribe();
 
-    const announcementsSub = supabase.channel('public:announcements')
-      .on('broadcast', { event: 'announcement' }, ({ payload }) => {
-        if (payload && payload.text && payload.timestamp) {
-          setMarqueeAnnouncements(prev => [...prev, payload]);
+    const dbAnnouncementsSub = supabase.channel('public:global_announcements')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_announcements' }, (payload) => {
+        if (payload.new) {
+          setMarqueeAnnouncements(prev => [...prev, payload.new]);
         }
       }).subscribe();
 
-    const cleanupInterval = setInterval(() => {
-      const oneHourAgo = Date.now() - 3600000;
-      setMarqueeAnnouncements(prev => prev.filter(a => a.timestamp > oneHourAgo));
-    }, 60000);
-
     return () => {
       supabase.removeChannel(welcomeSub);
-      supabase.removeChannel(announcementsSub);
-      clearInterval(cleanupInterval);
+      supabase.removeChannel(dbAnnouncementsSub);
     };
   }, [isVisible]);
 

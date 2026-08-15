@@ -47,15 +47,10 @@ export default function AchievementToastManager() {
 
     // Level up broadcast check
     if (previousLevelRef.current !== null && computedLevel > previousLevelRef.current) {
-      supabase.channel('public:announcements').send({
-        type: 'broadcast',
-        event: 'announcement',
-        payload: {
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-          text: `یاریزان ${profileData.nickname || 'نەناسریای'} گەهشتە ئاستێ ${computedLevel}! ⭐`,
-          timestamp: Date.now()
-        }
-      });
+      supabase.from('global_announcements').insert({
+        type: 'level',
+        text: `یاریزان ${profileData.nickname || 'نەناسریای'} گەهشتە ئاستێ ${computedLevel}! ⭐`
+      }).then();
     }
     previousLevelRef.current = computedLevel;
 
@@ -74,15 +69,10 @@ export default function AchievementToastManager() {
         previouslyUnlocked.push(medal.id);
 
         // Broadcast medal unlock globally
-        supabase.channel('public:announcements').send({
-          type: 'broadcast',
-          event: 'announcement',
-          payload: {
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-            text: `یاریزان ${profileData.nickname || 'نەناسریای'} مەدالیایەکا نوی وەرگرت! 🏆`,
-            timestamp: Date.now()
-          }
-        });
+        supabase.from('global_announcements').insert({
+          type: 'medal',
+          text: `یاریزان ${profileData.nickname || 'نەناسریای'} مەدالیایەکا نوی وەرگرت! 🏆`
+        }).then();
       }
     });
 
