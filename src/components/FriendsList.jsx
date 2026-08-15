@@ -267,7 +267,7 @@ export default function FriendsList({
   };
 
   return (
-    <div className="flex-1 w-full flex flex-col" dir="rtl">
+    <div className="flex-1 w-full flex flex-col min-h-0" dir="rtl">
       {selectedPlayer && (
         <PublicProfileModal
           profile={selectedPlayer}
@@ -397,7 +397,7 @@ export default function FriendsList({
       )}
 
       {activeTab === 'friends' && (
-        <div className="flex-1 overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-2 duration-300 pb-28">
+        <div className="flex-1 overflow-y-auto min-h-0 no-scrollbar animate-in fade-in slide-in-from-bottom-2 duration-300 pb-28">
       {pendingRequests.length > 0 && (
         <div className="mb-6 space-y-3">
           <h3 className="text-[10px] font-black uppercase text-mono-500 px-2">داخوازێن ھەڤالینیێ</h3>
