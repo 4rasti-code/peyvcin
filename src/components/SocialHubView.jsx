@@ -1016,10 +1016,9 @@ export default function SocialHubView({
         
         if (!profilesError && profilesData) {
           const welcomeMsgs = profilesData
-            .filter(p => p.nickname)
             .map(p => ({
               id: p.id,
-              text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname}!`,
+              text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname || 'مێهڤان'}!`,
               created_at: p.created_at
             }));
           combined = [...combined, ...welcomeMsgs];
@@ -1038,10 +1037,10 @@ export default function SocialHubView({
     const welcomeSub = supabase.channel('public:profiles:welcome_marquee')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, (payload) => {
         const newProfile = payload.new;
-        if (newProfile && newProfile.nickname) {
+        if (newProfile) {
           setMarqueeAnnouncements(prev => [...prev, {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-            text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!`,
+            text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname || 'مێهڤان'}!`,
             created_at: new Date().toISOString()
           }]);
         }
