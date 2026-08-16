@@ -609,14 +609,21 @@ export const AuthProvider = ({ children }) => {
       const state = presenceChannel.presenceState();
       if (isMounted) {
         const users = new Set();
-        const statuses = {};
+        const latestPresence = {};
         Object.values(state).forEach(presences => {
           presences.forEach(p => {
             if (p.user_id && p.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && p.user_id !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && p.user_id !== user.id) {
               users.add(p.user_id);
-              if (p.busy_mode) statuses[p.user_id] = p.busy_mode;
+              if (!latestPresence[p.user_id] || new Date(p.online_at) > new Date(latestPresence[p.user_id].online_at)) {
+                latestPresence[p.user_id] = p;
+              }
             }
           });
+        });
+
+        const statuses = {};
+        Object.values(latestPresence).forEach(p => {
+          if (p.busy_mode) statuses[p.user_id] = p.busy_mode;
         });
         setOnlineUsers(users);
         setOnlineUserStatuses(statuses);

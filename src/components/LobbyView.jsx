@@ -201,7 +201,15 @@ const LobbyView = memo(({
           cancelMatch();
           const busyMode = payload.payload?.busyMode;
           if (invitedUserProfile) {
-            setBusyUsers(prev => ({ ...prev, [invitedUserProfile.id]: busyMode }));
+            const targetId = invitedUserProfile.id;
+            setBusyUsers(prev => ({ ...prev, [targetId]: busyMode }));
+            setTimeout(() => {
+              setBusyUsers(prev => {
+                const next = { ...prev };
+                delete next[targetId];
+                return next;
+              });
+            }, 10000);
           }
           setInvitedUserProfile(null);
           if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
