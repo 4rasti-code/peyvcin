@@ -379,13 +379,13 @@ export default function PublicProfileModal({
 
   // Medals Configuration
   const getLatestMedal = () => {
-    if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return MEDALS[0];
-    const latestId = profileData.claimed_medals[profileData.claimed_medals.length - 1];
+    if (!displayData?.claimed_medals || displayData.claimed_medals.length === 0) return MEDALS[0];
+    const latestId = displayData.claimed_medals[displayData.claimed_medals.length - 1];
     return MEDALS.find(m => m.id === latestId) || MEDALS[0];
   };
 
   const bestMedal = getLatestMedal();
-  const isBestUnlocked = profileData?.claimed_medals?.includes(bestMedal.id);
+  const isBestUnlocked = displayData?.claimed_medals?.includes(bestMedal.id);
 
   const effectiveIsBlocked = internalBlocked || isBlocked;
 
