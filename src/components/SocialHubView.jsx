@@ -590,6 +590,52 @@ const CustomAudioPlayer = ({ src, isMe }) => {
   );
 };
 
+const SingleAnimatedEmoji = memo(({ emoji }) => {
+  const [error, setError] = useState(false);
+  
+  const hexCode = React.useMemo(() => {
+    let codePoints = [];
+    for (let char of emoji) {
+      let code = char.codePointAt(0);
+      if (code !== 0xFE0F) {
+        codePoints.push(code.toString(16));
+      }
+    }
+    return codePoints.join('_');
+  }, [emoji]);
+
+  if (error || !hexCode) return <span>{emoji}</span>;
+
+  return (
+    <img 
+      src={`https://fonts.gstatic.com/s/e/notoemoji/latest/${hexCode}/512.webp`}
+      alt={emoji}
+      className="inline-block object-contain w-[1em] h-[1em]"
+      onError={() => setError(true)}
+    />
+  );
+});
+
+const AnimatedEmojiRenderer = memo(({ text }) => {
+  const emojis = React.useMemo(() => {
+    try {
+      if (window.Intl && window.Intl.Segmenter) {
+        const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
+        return Array.from(segmenter.segment(text)).map(s => s.segment).filter(s => s.trim().length > 0);
+      }
+    } catch(e) { }
+    return Array.from(text).filter(s => s.trim().length > 0);
+  }, [text]);
+
+  return (
+    <div className="flex items-center justify-center flex-wrap gap-1" dir="ltr">
+      {emojis.map((emoji, idx) => (
+        <SingleAnimatedEmoji key={idx} emoji={emoji} />
+      ))}
+    </div>
+  );
+});
+
 const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [], onImageClick }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -852,7 +898,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                   m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1'
                 )
                   ? <GameResultRenderer text={m.content || m.text} isMe={isMe} />
-                  : renderFormattedText(m.content || m.text)
+                  : (isOnlyEmoji ? <AnimatedEmojiRenderer text={m.content || m.text} /> : renderFormattedText(m.content || m.text))
             )}
 
             <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-1'}`}>
