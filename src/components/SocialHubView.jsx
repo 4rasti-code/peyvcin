@@ -790,8 +790,8 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
       {/* Quoted Message (Reply) */}
       {m.reply_to_text && !isDeleted && (
-        <div className={`mb-1 max-w-[70%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic line-clamp-1 truncate ${isMe ? 'mr-2' : 'ml-2'}`}>
-          {renderPreviewText(m.reply_to_text)}
+        <div className={`mb-1 max-w-[70%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic ${isMe ? 'mr-2' : 'ml-2'}`}>
+          {renderFormattedText(m.reply_to_text)}
         </div>
       )}
 
