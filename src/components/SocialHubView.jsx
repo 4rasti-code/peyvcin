@@ -2096,8 +2096,8 @@ export default function SocialHubView({
           <div className="absolute top-0 right-0 bottom-0 w-6 md:w-10 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-10 pointer-events-none"></div>
           
           {marqueeAnnouncements.length > 0 && (
-            <div className="w-full relative flex items-center overflow-hidden">
-              <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] whitespace-nowrap tracking-wide" dir="rtl">
+            <div className="w-full relative flex items-center">
+              <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:drop-shadow-[0_0_8px_rgba(0,255,204,0.6)] whitespace-nowrap tracking-wide py-2" dir="rtl">
                 {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0')}
               </div>
             </div>
