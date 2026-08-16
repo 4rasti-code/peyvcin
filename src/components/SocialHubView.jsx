@@ -2550,6 +2550,7 @@ export default function SocialHubView({
             onReply={(msg) => {
               triggerHaptic(10);
               setReplyingTo(msg);
+              setTimeout(() => textareaRef.current?.focus(), 50);
             }}
             onCopy={(text) => {
               navigator.clipboard.writeText(text);
