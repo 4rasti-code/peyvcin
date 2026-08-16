@@ -2091,17 +2091,17 @@ export default function SocialHubView({
       {/* Welcome Marquee Container */}
       {activeTab === 'global' && (
         <div className="w-full relative overflow-hidden shrink-0 flex items-center h-8 md:h-10 bg-mono-100/50 dark:bg-[#080808] border-b border-mono-200 dark:border-white/5 backdrop-blur-md shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]" dir="ltr">
-          {/* Edge fading gradients */}
-          <div className="absolute top-0 left-0 bottom-0 w-6 md:w-10 bg-linear-to-r from-mono-100 dark:from-[#080808] to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute top-0 right-0 bottom-0 w-6 md:w-10 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-10 pointer-events-none"></div>
-          
           {marqueeAnnouncements.length > 0 && (
-            <div className="w-full relative flex items-center">
+            <div className="w-full relative flex items-center z-0">
               <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:drop-shadow-[0_0_8px_rgba(0,255,204,0.6)] whitespace-nowrap tracking-wide py-2" dir="rtl">
                 {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0')}
               </div>
             </div>
           )}
+          
+          {/* Edge fading gradients (placed after text to ensure they render on top of the transform stacking context) */}
+          <div className="absolute top-0 left-0 bottom-0 w-10 md:w-16 bg-linear-to-r from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 bottom-0 w-10 md:w-16 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
         </div>
       )}
 
