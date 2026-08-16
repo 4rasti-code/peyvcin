@@ -914,11 +914,28 @@ export const GameProvider = ({ children }) => {
     if (user?.id) {
       try {
         await supabase.from('profiles').update({ last_notified_level: newLevel }).eq('id', user.id);
+        
+        // Broadcast the level up for the global marquee
+        const channel = supabase.channel('public:profiles:welcome_marquee');
+        channel.subscribe(async (status) => {
+          if (status === 'SUBSCRIBED') {
+            await channel.send({
+              type: 'broadcast',
+              event: 'level_up',
+              payload: {
+                id: user.id,
+                nickname: profileData?.nickname || 'یاریزانەک',
+                level: newLevel
+              }
+            });
+            setTimeout(() => supabase.removeChannel(channel), 1000);
+          }
+        });
       } catch (err) {
         console.error("[GameContext] Failed to sync last_notified_level:", err);
       }
     }
-  }, [user]);
+  }, [user, profileData?.nickname]);
 
   const { hasUnclaimedMedals, unclaimedMedalsList } = useMemo(() => {
     const safeLevel = getLevelFromXP(currentXP || 0);

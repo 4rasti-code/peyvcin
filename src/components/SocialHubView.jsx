@@ -1120,6 +1120,16 @@ export default function SocialHubView({
           }
         }
       })
+      .on('broadcast', { event: 'level_up' }, (payload) => {
+        const data = payload.payload;
+        if (data && data.nickname && data.level) {
+          setMarqueeAnnouncements(prev => [...prev, {
+            id: `lvl-${data.id}-${data.level}`,
+            text: `⭐ شەنگەستە! ${data.nickname} گەهشتە ئاستێ ${toKuDigits(data.level)}! 🏆`,
+            created_at: new Date().toISOString()
+          }]);
+        }
+      })
       .subscribe();
 
 
