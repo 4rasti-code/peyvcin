@@ -183,3 +183,87 @@ export const getUnifiedWords = (count = 5, length = 5) => {
     category: w.category
   }));
 };
+
+/**
+ * Gets a set of escalating words for multiplayer matches: [3, 4, 5, 5, 6] length.
+ */
+export const getEscalatingUnifiedWords = () => {
+  const lengths = [3, 4, 5, 5, 6];
+  const selectedWords = [];
+
+  let recentWords = [];
+  try {
+    const saved = localStorage.getItem('recentBattleWords');
+    if (saved) recentWords = JSON.parse(saved);
+  } catch (_e) {
+    // ignore
+  }
+
+  lengths.forEach(len => {
+    let pool = allWordsMaster.filter(w => w.word.length === len);
+    let available = pool.filter(w => !recentWords.includes(w.word));
+    if (available.length === 0) {
+      // Reset for this length if exhausted, by removing all words of this length from history
+      recentWords = recentWords.filter(rw => rw.length !== len);
+      available = pool;
+    }
+
+    // Separate into normal and rare categories to reduce their appearance ratio
+    const rareCats = ['ناڤێ مرۆڤان', 'وەسف (هەڤالناڤ)', 'کار (چاوگ)'];
+    const normalWords = available.filter(w => !rareCats.includes(w.category));
+    const rareWords = available.filter(w => rareCats.includes(w.category));
+
+    let word;
+    // 75% chance to pick a normal word if available, otherwise pick a rare word (25% chance)
+    if (normalWords.length > 0 && Math.random() < 0.75) {
+      word = normalWords[Math.floor(Math.random() * normalWords.length)];
+    } else if (rareWords.length > 0) {
+      word = rareWords[Math.floor(Math.random() * rareWords.length)];
+    } else if (normalWords.length > 0) {
+      word = normalWords[Math.floor(Math.random() * normalWords.length)];
+    }
+
+    if (word) selectedWords.push(word);
+  });
+
+  // Update history
+  recentWords = [...recentWords, ...selectedWords.map(w => w.word)];
+  const maxLock = 1646; // Exactly the total number of 3,4,5,6 letter words
+  if (recentWords.length > maxLock) {
+    recentWords = recentWords.slice(recentWords.length - maxLock);
+  }
+
+  try {
+    localStorage.setItem('recentBattleWords', JSON.stringify(recentWords));
+  } catch (_e) {
+    // ignore
+  }
+
+  return selectedWords.map(w => ({
+    word: w.word,
+    hint: w.hint,
+    category: w.category
+  }));
+};
+
+/**
+ * Saves a list of words to the local history to prevent repetition for guests.
+ */
+export const saveWordsToHistory = (wordsArray) => {
+  if (!wordsArray || !wordsArray.length) return;
+  try {
+    let recentWords = [];
+    const saved = localStorage.getItem('recentBattleWords');
+    if (saved) recentWords = JSON.parse(saved);
+    
+    recentWords = [...recentWords, ...wordsArray];
+    const maxLock = 1646; // Exactly the total number of 3,4,5,6 letter words
+    if (recentWords.length > maxLock) {
+      recentWords = recentWords.slice(recentWords.length - maxLock);
+    }
+    
+    localStorage.setItem('recentBattleWords', JSON.stringify(recentWords));
+  } catch (_e) {
+    // ignore
+  }
+};

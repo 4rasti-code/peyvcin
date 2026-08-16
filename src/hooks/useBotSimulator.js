@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
-import { getUnifiedWords } from "../data/wordList";
+
 import { STATUS } from "../data/constants";
 
 // Helper to evaluate colors exactly like Wordle
 function evaluateGuess(guessString, targetString) {
   const guess = guessString.split('');
   const target = targetString.split('');
-  const colors = Array(5).fill(STATUS.INCORRECT); 
-  const statuses = Array(5).fill(3); // 3 = absent
+  const len = targetString.length;
+  const colors = Array(len).fill(STATUS.INCORRECT); 
+  const statuses = Array(len).fill(3); // 3 = absent
   const targetLetterCount = {};
 
   target.forEach(l => {
@@ -57,8 +58,12 @@ export default function useBotSimulator({
   // Load dictionary once
   useEffect(() => {
     if (isBot && dictionaryRef.current.length === 0) {
-      const words = getUnifiedWords().filter(w => w.word && w.word.length === 5);
-      dictionaryRef.current = words.map(w => w.word);
+      // Import the full master list to allow any length
+      import('../data/wordList').then(module => {
+        if (module.allWordsMaster) {
+          dictionaryRef.current = module.allWordsMaster.map(w => w.word);
+        }
+      });
     }
   }, [isBot]);
 
@@ -104,11 +109,13 @@ export default function useBotSimulator({
       if (currentAttempt >= 4 && Math.random() < winChance) {
          pickedWord = targetWord;
       } else {
-         const dict = dictionaryRef.current;
-         if (dict.length > 0) {
-           pickedWord = dict[Math.floor(Math.random() * dict.length)];
+      // Pick a random word that matches the target length
+      const lengthAppropriateDict = dictionaryRef.current.filter(w => w.length === targetWord.length);
+      let pool = lengthAppropriateDict.length > 0 ? lengthAppropriateDict : [targetWord]; 
+         if (pool.length > 0) {
+           pickedWord = pool[Math.floor(Math.random() * pool.length)];
          } else {
-           pickedWord = "سڵاوە"; // Failsafe fallback
+           pickedWord = targetWord; // Failsafe fallback
          }
       }
 
@@ -118,9 +125,9 @@ export default function useBotSimulator({
       let charIndex = 0;
       
       const typeInterval = setInterval(() => {
-        if (charIndex < 5) {
+        if (targetWord && charIndex < targetWord.length) {
           // Move cursor forward
-          opponentLiveCursor?.set(charIndex + 1 > 4 ? 4 : charIndex + 1);
+          opponentLiveCursor?.set(charIndex + 1 > targetWord.length - 1 ? targetWord.length - 1 : charIndex + 1);
           charIndex++;
         } else {
           clearInterval(typeInterval);

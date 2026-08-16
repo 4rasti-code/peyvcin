@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useMotionValue, motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { getUnifiedWords } from '../data/wordList';
+import { getEscalatingUnifiedWords, saveWordsToHistory } from '../data/wordList';
 import { triggerHaptic } from '../utils/haptics';
 import { useGame } from './GameContext';
 import { useUser } from './AuthContext';
@@ -875,6 +875,19 @@ export const MultiplayerProvider = ({ children }) => {
     }
   }, [isGameBoardMounted, multiplayerState]);
 
+  // Track the last match ID we saved words for to prevent duplicate saves
+  const lastSavedMatchIdRef = useRef(null);
+
+  useEffect(() => {
+    if (multiplayerState === 'playing' && activeMatch?.id && activeMatch.id !== lastSavedMatchIdRef.current) {
+      if (activeMatch.words && activeMatch.words.length > 0) {
+        saveWordsToHistory(activeMatch.words);
+        lastSavedMatchIdRef.current = activeMatch.id;
+        console.log('[Multiplayer] Saved match words to local history to prevent repetition.');
+      }
+    }
+  }, [multiplayerState, activeMatch]);
+
   // 3.5 MATCH STARTING BUFFER EFFECT (DYNAMIC SYNC & SAFETY FALLBACK)
   useEffect(() => {
     let timeoutId;
@@ -1305,23 +1318,11 @@ export const MultiplayerProvider = ({ children }) => {
       let selectedRiddles = [];
 
       try {
-        const { data: sequencedWords, error: wordError } = await supabase
-          .rpc('get_multiplayer_words_sequenced');
-
-        if (!wordError && sequencedWords?.length > 0) {
-          selectedWords = sequencedWords.map(e => e.word);
-          selectedRiddles = sequencedWords.map(e => e.hint || 'No riddle');
-        } else {
-          throw new Error('DB Sequenced Fetch Error or Empty');
-        }
-      } catch (_) {
-        console.log('[Multiplayer] Using local fallback for sequenced words.');
-        const localWords = getUnifiedWords();
-        const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
-        // Shuffle local words randomly instead of sorting alphabetically to prevent repetition
-        const fallback = [...fiveLetterLocal].sort(() => Math.random() - 0.5).slice(0, 5);
-        selectedWords = fallback.map(w => w.word);
-        selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+        const localWords = getEscalatingUnifiedWords();
+        selectedWords = localWords.map(w => w.word);
+        selectedRiddles = localWords.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+      } catch (err) {
+        console.error('[Multiplayer] Failed to get escalating words:', err);
       }
 
       const { data: newMatch, error: createError } = await supabase
@@ -1381,19 +1382,11 @@ export const MultiplayerProvider = ({ children }) => {
     let selectedRiddles = [];
 
     try {
-      const { data: sequencedWords, error: wordError } = await supabase.rpc('get_multiplayer_words_sequenced');
-      if (!wordError && sequencedWords?.length > 0) {
-        selectedWords = sequencedWords.map(e => e.word);
-        selectedRiddles = sequencedWords.map(e => e.hint || 'No riddle');
-      } else {
-        throw new Error('DB Sequenced Fetch Error');
-      }
-    } catch (_) {
-      const localWords = getUnifiedWords();
-      const fiveLetterLocal = localWords.filter(w => w.word && w.word.length === 5);
-      const fallback = [...fiveLetterLocal].sort(() => Math.random() - 0.5).slice(0, 5);
-      selectedWords = fallback.map(w => w.word);
-      selectedRiddles = fallback.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+      const localWords = getEscalatingUnifiedWords();
+      selectedWords = localWords.map(w => w.word);
+      selectedRiddles = localWords.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+    } catch (err) {
+      console.error('[Multiplayer] Failed to get escalating words for private:', err);
     }
 
     const { data: newMatch, error: createError } = await supabase

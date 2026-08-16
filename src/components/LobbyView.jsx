@@ -460,23 +460,56 @@ const LobbyView = memo(({
 
     const getBusyModeText = (mode) => {
       switch (mode) {
-        case 'classic': return "د پەیڤۆک دایە";
-        case 'hard_words': return "د دژوار دایە";
-        case 'word_fever': return "د تایا پەیڤان دایە";
-        case 'mamak': return "د مامک دایە";
-        case 'multiplayer': return "د هەڤڕکی دایە";
+        case 'classic': return "پەیڤۆک";
+        case 'hard_words': return "پەیڤێن دژوار";
+        case 'word_fever': return "تایا پەیڤان";
+        case 'mamak': return "مامک";
+        case 'multiplayer': return "ھەڤڕکی";
         default: return "یاریێ دکەت";
+      }
+    };
+
+    const getBusyIcon = (mode) => {
+      switch (mode) {
+        case 'classic': return (
+          <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-0.5">
+            <ClassicIcon className="w-4 h-4 drop-shadow-sm opacity-90" />
+          </div>
+        );
+        case 'hard_words': return (
+          <div className="relative w-4 h-4 flex items-center justify-center transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-0.5">
+            <div className="absolute transform scale-[0.35] origin-center">
+              <CubeIcon className="" />
+            </div>
+          </div>
+        );
+        case 'word_fever': return (
+          <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-12">
+            <TimerIcon className="w-4 h-4 drop-shadow-sm opacity-90" />
+          </div>
+        );
+        case 'mamak': return (
+          <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-0.5">
+            <MamakIcon className="w-4 h-4 drop-shadow-sm opacity-90" />
+          </div>
+        );
+        case 'multiplayer': return (
+          <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-3">
+            <ClashingSwords className="w-4 h-4 drop-shadow-sm opacity-90" />
+          </div>
+        );
+        default: return <span className="material-symbols-outlined text-[15px] group-hover:scale-110 transition-all">sports_esports</span>;
       }
     };
 
     const getBusyColorClass = (mode) => {
       switch (mode) {
-        case 'classic': return "bg-[#ffcc00] border-[#cc9900] shadow-[0_0_10px_rgba(255,204,0,0.4)] text-amber-950";
-        case 'hard_words': return "bg-[#ef4444] border-[#dc2626] shadow-[0_0_10px_rgba(239,68,68,0.4)] text-white";
-        case 'word_fever': return "bg-[#0ea5e9] border-[#0284c7] shadow-[0_0_10px_rgba(14,165,233,0.4)] text-white";
-        case 'mamak': return "bg-[#22c55e] border-[#16a34a] shadow-[0_0_10px_rgba(34,197,94,0.4)] text-white";
-        case 'multiplayer': return "bg-[linear-gradient(90deg,#2563eb_50%,#dc2626_50%)] border-transparent bg-clip-padding shadow-[0_0_10px_rgba(139,92,246,0.4)] text-white";
-        default: return "bg-mono-200 dark:bg-mono-700 border-mono-300 dark:border-mono-600 text-mono-600 dark:text-mono-300";
+        case 'classic': return "bg-[#ffcc00] shadow-[0_3px_0_#cc9900] border-none text-amber-950";
+        case 'hard_words': return "bg-[#ef4444] shadow-[0_3px_0_#dc2626] border-none text-white";
+        case 'word_fever': return "bg-[#0ea5e9] shadow-[0_3px_0_#0284c7] border-none text-white";
+        case 'mamak': return "bg-[#22c55e] shadow-[0_3px_0_#16a34a] border-none text-white";
+        case 'multiplayer': return "bg-[linear-gradient(90deg,#2563eb_50%,#dc2626_50%)] shadow-[0_3px_0_#7c3aed] border-none text-white";
+        default: return "bg-mono-200 dark:bg-mono-700 shadow-[0_3px_0_#d4d4d8] dark:shadow-[0_3px_0_#3f3f46] border-none text-mono-600 dark:text-mono-300";
       }
     };
 
@@ -561,21 +594,23 @@ const LobbyView = memo(({
               handleSendInviteToUser(profile.id);
             }
           }}
-          className={`px-4 py-2 rounded-md font-bold text-xs transition-all flex items-center justify-center gap-1.5 min-w-22.5 border ${
+          className={`group px-4 py-2 rounded-md transition-all flex items-center justify-center gap-1.5 min-w-25 ${
             busyMode
-              ? `${getBusyColorClass(busyMode)} cursor-default`
+              ? `${getBusyColorClass(busyMode)} cursor-default px-2`
               : isSent
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border-transparent cursor-default'
+                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-transparent font-bold text-xs cursor-default'
                 : isBlocked
-                  ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border-red-100 dark:border-red-900/30'
-                  : 'bg-blue-600 hover:bg-blue-700 border-transparent text-white shadow-md cursor-pointer'
+                  ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30 font-bold text-xs'
+                  : 'bg-blue-600 hover:bg-blue-700 border border-transparent text-white shadow-md cursor-pointer font-bold text-xs'
             }`}
         >
           {busyMode ? (
-            <>
-              <span className="material-symbols-outlined text-[15px]">sports_esports</span>
-              {getBusyModeText(busyMode)}
-            </>
+            <div className="w-full flex items-center justify-between gap-3" dir="ltr">
+              <span className="font-heading font-black text-sm drop-shadow-sm pt-0.75">
+                {getBusyModeText(busyMode)}
+              </span>
+              {getBusyIcon(busyMode)}
+            </div>
           ) : isSent ? (
             <>
               <span className="material-symbols-outlined text-[15px]">check</span>
