@@ -556,7 +556,7 @@ const CustomAudioPlayer = ({ src, isMe }) => {
   );
 };
 
-const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [] }) {
+const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [], onImageClick }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -593,7 +593,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             <div 
                className="absolute inset-0 z-10 cursor-pointer bg-black/0 transition-colors duration-200 group-hover:bg-black/10 dark:group-hover:bg-white/5" 
                onContextMenu={e => e.preventDefault()} 
-               onClick={(e) => { e.stopPropagation(); setFullscreenImage(url); }} 
+               onClick={(e) => { e.stopPropagation(); if (onImageClick) onImageClick(url); }} 
             />
           </div>
         );
@@ -2163,6 +2163,7 @@ export default function SocialHubView({
                     onReact={handleReact}
                     onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
                     onProfileClick={setSelectedPlayer}
+                    onImageClick={setFullscreenImage}
                   />
                 ))}
               </AnimatePresence>
@@ -2275,6 +2276,7 @@ export default function SocialHubView({
                         onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
                         onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
                         onProfileClick={setSelectedPlayer}
+                        onImageClick={setFullscreenImage}
                       />
                     ))}
 
@@ -2926,7 +2928,7 @@ export default function SocialHubView({
             onClick={() => setFullscreenImage(null)}
           >
             {/* Top Action Bar */}
-            <div className="w-full h-16 flex items-center justify-between px-4 bg-gradient-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
+            <div className="w-full h-16 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
               <button 
                 onClick={() => setFullscreenImage(null)}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
