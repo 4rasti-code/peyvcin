@@ -1016,6 +1016,23 @@ export default function SocialHubView({
       try {
         let combined = [];
 
+        // Fetch users registered in the last 15 minutes
+        const fifteenMinsAgoDate = new Date(Date.now() - 900000).toISOString();
+        const { data: recentProfiles, error } = await supabase
+          .from('profiles')
+          .select('id, nickname, created_at')
+          .gte('created_at', fifteenMinsAgoDate);
+
+        if (!error && recentProfiles) {
+          recentProfiles.forEach(p => {
+            combined.push({
+              id: p.id,
+              text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname || 'مێهڤان'}!`,
+              created_at: p.created_at
+            });
+          });
+        }
+
         // Sort by timestamp old to new
         combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
         
@@ -2071,11 +2088,15 @@ export default function SocialHubView({
 
       {/* Welcome Marquee Container */}
       {activeTab === 'global' && (
-        <div className="w-full bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 overflow-hidden shrink-0 flex items-center justify-center h-7 md:h-8" dir="ltr">
+        <div className="w-full relative overflow-hidden shrink-0 flex items-center h-8 md:h-10 bg-mono-100/50 dark:bg-[#080808] border-b border-mono-200 dark:border-white/5 backdrop-blur-md shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]" dir="ltr">
+          {/* Edge fading gradients */}
+          <div className="absolute top-0 left-0 bottom-0 w-6 md:w-10 bg-linear-to-r from-mono-100 dark:from-[#080808] to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 bottom-0 w-6 md:w-10 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-10 pointer-events-none"></div>
+          
           {marqueeAnnouncements.length > 0 && (
             <div className="w-full relative flex items-center overflow-hidden">
-              <div className="animate-marquee font-black text-[11px] md:text-[12px] text-primary/80 whitespace-nowrap" dir="rtl">
-                {marqueeAnnouncements.map(a => a.text).join(' • ')}
+              <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:drop-shadow-[0_0_8px_rgba(0,255,204,0.5)] whitespace-nowrap tracking-wide" dir="rtl">
+                {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0')}
               </div>
             </div>
           )}

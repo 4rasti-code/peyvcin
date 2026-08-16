@@ -2324,5 +2324,11 @@ html, body {
 .animate-marquee {
   display: inline-block;
   white-space: nowrap;
-  animation: marquee-scroll 30s linear infinite;
+  animation: marquee-scroll 18s linear infinite; /* Faster on mobile */
+}
+
+@media (min-width: 768px) {
+  .animate-marquee {
+    animation: marquee-scroll 30s linear infinite; /* Original speed on desktop */
+  }
 }
