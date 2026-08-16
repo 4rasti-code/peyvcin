@@ -17,6 +17,34 @@ import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
 
+export const renderPreviewText = (text) => {
+  if (!text) return 'نامەک ل ڤێرێیە';
+  
+  if (text.includes('[VOICE:')) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#00a884]">mic</span> دەنگ</span>;
+  }
+  
+  if (text.includes('[IMAGE:')) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنەیەک</span>;
+  }
+  
+  if (text.includes('[MEDAL_SHARE:')) {
+    const match = text.match(/\[MEDAL_SHARE:(.*?)\]/);
+    if (match && match[1]) {
+      const medalId = match[1];
+      const medal = MEDALS.find(m => m.id === medalId);
+      return (
+        <span className="flex items-center gap-1">
+          <span className="material-symbols-outlined text-[14px] text-amber-500">military_tech</span>
+          {medal ? medal.title : 'پلەیەک'}
+        </span>
+      );
+    }
+  }
+  
+  return text;
+};
+
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
   const timerRef = useRef();
@@ -763,7 +791,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
       {/* Quoted Message (Reply) */}
       {m.reply_to_text && !isDeleted && (
         <div className={`mb-1 max-w-[70%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic line-clamp-1 truncate ${isMe ? 'mr-2' : 'ml-2'}`}>
-          {m.reply_to_text}
+          {renderPreviewText(m.reply_to_text)}
         </div>
       )}
 
@@ -2436,13 +2464,7 @@ export default function SocialHubView({
                             <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
                               <span className="material-symbols-outlined text-[14px]">chat</span>
                               <span className="truncate flex items-center gap-1">
-                                {chat.lastMsg && chat.lastMsg.includes('[VOICE:') ? (
-                                  <><span className="material-symbols-outlined text-[13px] text-[#00a884]">mic</span> دەنگ</>
-                                ) : chat.lastMsg && chat.lastMsg.includes('[IMAGE:') ? (
-                                  <><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنەیەک</>
-                                ) : (
-                                  chat.lastMsg || 'نامەک ل ڤێرێیە'
-                                )}
+                                {renderPreviewText(chat.lastMsg)}
                               </span>
                             </div>
                           </div>
@@ -2540,7 +2562,7 @@ export default function SocialHubView({
               >
                 <div className="flex-1 min-w-0 border-r-4 border-primary/50 pr-3 py-1">
                   <p className="text-[10px] font-black text-primary uppercase  mb-0.5">بەرسڤدانا نامەیێ</p>
-                  <p className="text-xs text-mono-600 dark:text-mono-400 truncate">{replyingTo.content || replyingTo.text}</p>
+                  <div className="text-xs text-mono-600 dark:text-mono-400 truncate flex items-center">{renderPreviewText(replyingTo.content || replyingTo.text)}</div>
                 </div>
                 <button
                   onClick={() => { playBubblePopSound(); setReplyingTo(null); }}
