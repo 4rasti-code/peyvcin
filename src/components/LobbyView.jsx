@@ -494,6 +494,7 @@ const LobbyView = memo(({
             <Avatar 
               src={profile.avatar_url} 
               size="md" 
+              badgeSize="sm"
               border={false} 
               level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} 
               className="border-[2.5px] border-green-500 shadow-sm"
