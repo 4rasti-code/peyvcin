@@ -15,6 +15,7 @@ import { getLevelTier, getLevelData } from '../utils/progression';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import { MEDALS } from '../constants/medals';
 
 // Custom Long Press Hook for WhatsApp-like gestures
 function useLongPress(onLongPress, onClick, ms = 500) {
@@ -569,7 +570,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|\[VOICE:.*?\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -593,6 +594,22 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         const url = part.substring(7, part.length - 1);
         return <CustomAudioPlayer key={i} src={url} isMe={isMe} />;
       }
+      if (part.startsWith('[MEDAL_SHARE:') && part.endsWith(']')) {
+        const medalId = part.substring(13, part.length - 1);
+        const medal = MEDALS.find(m => m.id === medalId);
+        if (!medal) return <span key={i} className="text-xs text-mono-500 italic block mt-1">[پلە نەهاتە دیتن]</span>;
+        
+        const MedalIcon = medal.IconComponent;
+        return (
+          <div key={i} className="mt-2 mb-1 flex items-center gap-3 p-3 rounded-lg bg-linear-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-sm" dir="rtl">
+             <MedalIcon className={`w-10 h-10 ${medal.color} drop-shadow-md shrink-0`} />
+             <div className="flex flex-col min-w-0">
+                <span className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-500 font-bold mb-0.5">پلەیەکا نوی وەرگرت!</span>
+                <span className={`text-sm sm:text-[15px] font-black truncate w-full ${medal.color}`}>{medal.name}</span>
+             </div>
+          </div>
+        );
+      }
       if (part.match(/^https?:\/\//)) {
         return (
           <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold" onClick={e => e.stopPropagation()} dir="ltr">
@@ -600,7 +617,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
           </a>
         );
       }
-      return part;
+      return <span key={i}>{part}</span>;
     });
   };
 

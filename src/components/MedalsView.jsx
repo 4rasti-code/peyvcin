@@ -6,6 +6,7 @@ import { useAudio } from '../context/AudioContext';
 import { useGame } from '../context/GameContext';
 import { useUser } from '../context/AuthContext';
 import CinematicAchievementOverlay from './CinematicAchievementOverlay';
+import { supabase } from '../lib/supabase';
 
 export default function MedalsView({ onViewChange }) {
    const { playSettingsCloseSound } = useAudio();
@@ -13,6 +14,21 @@ export default function MedalsView({ onViewChange }) {
    const { claimedMedals, claimMedal, level, playerStats } = useGame();
 
    const [activeOverlay, setActiveOverlay] = useState(null);
+   const [sharedMedals, setSharedMedals] = useState({});
+
+   const shareMedalToGlobalChat = async (medalId) => {
+      if (!profileData?.id) return;
+      try {
+         await supabase.from('messages').insert([{
+            content: `[MEDAL_SHARE:${medalId}]`,
+            user_id: profileData.id,
+            user_nickname: profileData.nickname || 'یاریزان'
+         }]);
+         setSharedMedals(prev => ({ ...prev, [medalId]: true }));
+      } catch (err) {
+         console.error("Failed to share medal:", err);
+      }
+   };
 
    const handleClaimMedal = (medal) => {
       setActiveOverlay(medal);
@@ -120,11 +136,30 @@ export default function MedalsView({ onViewChange }) {
                               {m.name}
                            </span>
 
-                           <div className={`w-full py-2 px-3 relative flex items-center gap-1.5 overflow-hidden ${isUnlocked ? 'bg-blue-500/10 dark:bg-blue-500/20' : 'bg-mono-300/30 dark:bg-[#111116]'} border-l-4 ${isUnlocked ? 'border-blue-500' : 'border-mono-400 dark:border-mono-700'}`}>
-                              {isUnlocked && <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400 shrink-0">check_circle</span>}
-                              <span className={`block text-[12px] sm:text-[13px] font-bold leading-tight ${isUnlocked ? 'text-blue-700 dark:text-blue-200' : 'text-mono-500 dark:text-mono-500'}`}>
-                                 {isUnlocked ? 'ئەڤ پلەیە هاتیە وەرگرتن' : m.tooltip}
-                              </span>
+                           <div className={`w-full py-2 px-3 relative flex items-center justify-between overflow-hidden ${isUnlocked ? 'bg-blue-500/10 dark:bg-blue-500/20' : 'bg-mono-300/30 dark:bg-[#111116]'} border-l-4 ${isUnlocked ? 'border-blue-500' : 'border-mono-400 dark:border-mono-700'}`}>
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                 {isUnlocked && <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400 shrink-0">check_circle</span>}
+                                 <span className={`block text-[12px] sm:text-[13px] font-bold leading-tight ${isUnlocked ? 'text-blue-700 dark:text-blue-200' : 'text-mono-500 dark:text-mono-500'} truncate`}>
+                                    {isUnlocked ? 'ئەڤ پلەیە هاتیە وەرگرتن' : m.tooltip}
+                                 </span>
+                              </div>
+                              
+                              {isUnlocked && !isClaimable && (
+                                 <button
+                                    onClick={(e) => { e.stopPropagation(); triggerHaptic(10); shareMedalToGlobalChat(m.id); }}
+                                    disabled={sharedMedals[m.id]}
+                                    className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black transition-all ${
+                                       sharedMedals[m.id] 
+                                          ? 'bg-mono-200 dark:bg-mono-800 text-mono-400 cursor-not-allowed' 
+                                          : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95 shadow-sm'
+                                    }`}
+                                 >
+                                    <span className="material-symbols-outlined text-[14px]">
+                                       {sharedMedals[m.id] ? 'done_all' : 'share'}
+                                    </span>
+                                    {sharedMedals[m.id] ? 'هاتە بەلاڤکرن' : 'بەلاڤکرن د چاتێ دا'}
+                                 </button>
+                              )}
                            </div>
                         </div>
                      </Motion.div>
@@ -142,6 +177,7 @@ export default function MedalsView({ onViewChange }) {
                   medalId={activeOverlay.id}
                   onContinue={() => {
                      claimMedal(activeOverlay.id, activeOverlay.rewardAmount);
+                     shareMedalToGlobalChat(activeOverlay.id); // Automatic sharing
                      setActiveOverlay(null);
                   }}
                />
