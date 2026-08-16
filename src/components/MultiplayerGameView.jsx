@@ -557,29 +557,18 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 )}
               </AnimatePresence>
             </div>
-            <div className="flex-1 flex flex-col min-w-0 items-end justify-center" style={{ containerType: 'inline-size' }}>
               {(() => {
                 const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
                 const myStyle = NAME_STYLES[equippedNameStyle] || {};
                 const myBundle = BUNDLES[equippedBundle] || BUNDLES['default'];
                 
                 const name = userNickname || 'یاریزان';
-                const nameLen = Math.max(name.length, 1);
-                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
-                const isWideFont = wideFonts.includes(equippedFont);
-                
-                const baselineLen = isWideFont ? 4 : 7.5;
-                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
-                const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
-                const charWidthFactor = isWideFont ? 1.2 : 0.75;
-                const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                    className={`text-[12px] xs:text-[13px] sm:text-[15px] font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
                     style={{
-                      ...(myBundle.id !== 'default' ? {} : myFont.style),
-                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
+                      ...(myBundle.id !== 'default' ? {} : myFont.style)
                     }}
                   >
                     {name}
@@ -663,29 +652,19 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mt-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth }}
           >
-            <div className="flex-1 flex flex-col min-w-0 items-start justify-center" style={{ containerType: 'inline-size' }}>
+            <div className="flex-1 flex flex-col min-w-0 items-start justify-center">
               {(() => {
                 const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
                 const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
                 const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
                 
                 const name = opponent?.nickname || 'چاڤەڕێ';
-                const nameLen = Math.max(name.length, 1);
-                const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
-                const isWideFont = wideFonts.includes(opponent?.equipped_font);
-                
-                const baselineLen = isWideFont ? 4 : 7.5;
-                const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
-                const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
-                const charWidthFactor = isWideFont ? 1.2 : 0.75;
-                const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                    className={`text-[12px] xs:text-[13px] sm:text-[15px] font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
                     style={{
-                      ...(oppBundle.id !== 'default' ? {} : oppFont.style),
-                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
+                      ...(oppBundle.id !== 'default' ? {} : oppFont.style)
                     }}
                   >
                     {name}
