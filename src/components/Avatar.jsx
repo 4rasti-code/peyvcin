@@ -61,16 +61,16 @@ const Avatar = memo(({
 
   const getBadgeStyles = (s) => {
     switch (s) {
-      case 'xs': return { w: 14, h: 16, text: 'text-[6px]', top: '-top-0.5', left: '-left-1' };
-      case 'sm': return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
-      case 'md': return { w: 22, h: 25, text: 'text-[9px]', top: '-top-1', left: '-left-1.5' };
-      case 'lg': return { w: 26, h: 30, text: 'text-[10px]', top: '-top-1', left: '-left-2' };
-      case 'xl': return { w: 32, h: 37, text: 'text-[12px]', top: '-top-1.5', left: '-left-2.5' };
-      case '2xl': return { w: 40, h: 46, text: 'text-[14px]', top: '-top-2', left: '-left-3' };
-      case '3xl': return { w: 48, h: 55, text: 'text-[16px]', top: '-top-2.5', left: '-left-3.5' };
-      case '4xl': return { w: 56, h: 64, text: 'text-[20px]', top: '-top-3', left: '-left-4' };
-      case 'full': return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
-      default: return { w: 22, h: 25, text: 'text-[9px]', top: '-top-1', left: '-left-1.5' };
+      case 'xs': return { w: 12, h: 14, text: 'text-[5px]', top: '-top-0.5', left: '-left-0.5' };
+      case 'sm': return { w: 15, h: 18, text: 'text-[7px]', top: '-top-0.5', left: '-left-1' };
+      case 'md': return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
+      case 'lg': return { w: 22, h: 25, text: 'text-[9px]', top: '-top-1', left: '-left-1.5' };
+      case 'xl': return { w: 28, h: 32, text: 'text-[11px]', top: '-top-1', left: '-left-2' };
+      case '2xl': return { w: 34, h: 39, text: 'text-[13px]', top: '-top-1.5', left: '-left-2.5' };
+      case '3xl': return { w: 42, h: 48, text: 'text-[15px]', top: '-top-2', left: '-left-3' };
+      case '4xl': return { w: 50, h: 57, text: 'text-[18px]', top: '-top-2.5', left: '-left-3.5' };
+      case 'full': return { w: 16, h: 19, text: 'text-[7px]', top: '-top-0.5', left: '-left-1' };
+      default: return { w: 18, h: 21, text: 'text-[8px]', top: '-top-0.5', left: '-left-1' };
     }
   };
   const badge = getBadgeStyles(size);
