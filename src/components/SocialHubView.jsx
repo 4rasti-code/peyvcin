@@ -2968,63 +2968,65 @@ export default function SocialHubView({
       </AnimatePresence>
 
       {/* Fullscreen Image Viewer Overlay (In-Chat) */}
-      <AnimatePresence>
-        {fullscreenImage && createPortal(
-          <Motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-            transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-0 z-99999 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
-            onClick={() => setFullscreenImage(null)}
-          >
-            {/* Top Action Bar */}
-            <div className="w-full h-16 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
-              <button 
-                onClick={() => setFullscreenImage(null)}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
-              >
-                <span className="material-symbols-outlined">arrow_back</span>
-              </button>
-              <button 
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  try {
-                    const response = await fetch(fullscreenImage);
-                    const blob = await response.blob();
-                    const blobUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = `Peyvok_Image_${Date.now()}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                  } catch (err) {
-                    console.error("Failed to download image", err);
-                  }
-                }}
-                className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
-              >
-                <span className="material-symbols-outlined">download</span>
-              </button>
-            </div>
-            
-            {/* Image Container */}
-            <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
-              <img 
-                src={fullscreenImage} 
-                alt="Fullscreen Preview" 
-                className="w-full h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm"
-                draggable="false"
-                onContextMenu={e => e.preventDefault()}
-                onClick={e => e.stopPropagation()}
-              />
-            </div>
-          </Motion.div>,
-          document.body
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {fullscreenImage && (
+            <Motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+              transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed inset-0 z-99999 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
+              onClick={() => setFullscreenImage(null)}
+            >
+              {/* Top Action Bar */}
+              <div className="w-full h-16 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
+                <button 
+                  onClick={() => setFullscreenImage(null)}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+                >
+                  <span className="material-symbols-outlined">arrow_back</span>
+                </button>
+                <button 
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    try {
+                      const response = await fetch(fullscreenImage);
+                      const blob = await response.blob();
+                      const blobUrl = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = blobUrl;
+                      link.download = `Peyvok_Image_${Date.now()}.png`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      URL.revokeObjectURL(blobUrl);
+                    } catch (err) {
+                      console.error("Failed to download image", err);
+                    }
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+                >
+                  <span className="material-symbols-outlined">download</span>
+                </button>
+              </div>
+              
+              {/* Image Container */}
+              <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
+                <img 
+                  src={fullscreenImage} 
+                  alt="Fullscreen Preview" 
+                  className="w-full h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm"
+                  draggable="false"
+                  onContextMenu={e => e.preventDefault()}
+                  onClick={e => e.stopPropagation()}
+                />
+              </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }
