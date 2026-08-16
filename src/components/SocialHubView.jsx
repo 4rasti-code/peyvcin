@@ -2094,7 +2094,7 @@ export default function SocialHubView({
           {marqueeAnnouncements.length > 0 && (
             <div className="w-full relative flex items-center z-0">
               <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:[text-shadow:0_0_8px_rgba(0,255,204,0.6)] whitespace-nowrap tracking-wide py-2" dir="rtl">
-                {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0')}
+                {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0')}
               </div>
             </div>
           )}
