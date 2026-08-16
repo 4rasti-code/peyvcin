@@ -101,12 +101,12 @@ export default function useBotSimulator({
       const currentAttempt = guessCountRef.current + 1;
       let pickedWord = '';
       
-      // Bot Strategy:
-      // Attempts 1-3: Random words
-      // Attempts 4-6: Calculate a chance to win
-      const winChance = 0.05 + (normalizedLevel * 0.002); // 5% base + 0.2% per level (up to ~15%)
+      // Bot Strategy for Multiplayer (3 attempts limit):
+      // Attempt 1: Random word
+      // Attempt 2-3: Calculate a chance to win based on level
+      const winChance = 0.05 + (normalizedLevel * 0.008); // 5% base + 0.8% per level (up to ~45%)
       
-      if (currentAttempt >= 4 && Math.random() < winChance) {
+      if (currentAttempt >= 2 && Math.random() < winChance) {
          pickedWord = targetWord;
       } else {
       // Pick a random word that matches the target length
@@ -163,8 +163,8 @@ export default function useBotSimulator({
             });
           } else {
              guessCountRef.current += 1;
-             if (guessCountRef.current >= 6) {
-                // Bot failed 6 times
+             if (guessCountRef.current >= 3) {
+                // Bot failed 3 times
                 setActiveMatchGuarded(prev => {
                   if (!prev) return prev;
                   if (prev.p1_failed) {
