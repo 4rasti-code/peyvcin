@@ -1056,7 +1056,6 @@ export default function SocialHubView({
 
     return () => {
       supabase.removeChannel(welcomeSub);
-      supabase.removeChannel(dbAnnouncementsSub);
       clearInterval(cleanupInterval);
     };
   }, [isVisible]);
