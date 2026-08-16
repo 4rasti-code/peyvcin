@@ -2974,7 +2974,7 @@ export default function SocialHubView({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
             transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
-            className="absolute inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
+            className="fixed inset-0 z-[999] flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
             onClick={() => setFullscreenImage(null)}
           >
             {/* Top Action Bar */}
