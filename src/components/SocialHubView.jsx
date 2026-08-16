@@ -41,6 +41,11 @@ const renderPreviewText = (text) => {
       );
     }
   }
+  if (text.startsWith('[BATTLE_RESULT]') || 
+      (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(text) && (text.includes('🟩') || text.includes('🟨') || text.includes('⬛') || text.includes('⬜')))
+  ) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#c9b458]">sports_esports</span> ئەنجامێن یاریێ</span>;
+  }
   
   return text;
 };
@@ -790,8 +795,16 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
       {/* Quoted Message (Reply) */}
       {m.reply_to_text && !isDeleted && (
-        <div className={`mb-1 max-w-[70%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic ${isMe ? 'mr-2' : 'ml-2'}`}>
-          {renderFormattedText(m.reply_to_text)}
+        <div className={`mb-1 max-w-[85%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic overflow-hidden ${isMe ? 'mr-2' : 'ml-2'}`}>
+          {m.reply_to_text.startsWith('[BATTLE_RESULT]')
+            ? <div className="scale-[0.85] origin-right opacity-80 -my-2"><BattleResultRenderer text={m.reply_to_text} isMe={isMe} onProfileClick={onProfileClick} /></div>
+            : (
+                (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
+                (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
+              )
+                ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
+                : renderFormattedText(m.reply_to_text)
+          }
         </div>
       )}
 
