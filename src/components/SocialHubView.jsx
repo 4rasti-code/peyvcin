@@ -1016,19 +1016,21 @@ export default function SocialHubView({
       try {
         let combined = [];
 
-        // Fetch users registered in the last 15 minutes
+        // Fetch users registered in the last 15 minutes (using updated_at as proxy for new accounts with 0 xp)
         const fifteenMinsAgoDate = new Date(Date.now() - 900000).toISOString();
         const { data: recentProfiles, error } = await supabase
           .from('profiles')
-          .select('id, nickname, created_at')
-          .gte('created_at', fifteenMinsAgoDate);
+          .select('id, nickname, updated_at')
+          .eq('xp', 0)
+          .eq('level', 1)
+          .gte('updated_at', fifteenMinsAgoDate);
 
         if (!error && recentProfiles) {
           recentProfiles.forEach(p => {
             combined.push({
               id: p.id,
               text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname || 'مێهڤان'}!`,
-              created_at: p.created_at
+              created_at: p.updated_at
             });
           });
         }
