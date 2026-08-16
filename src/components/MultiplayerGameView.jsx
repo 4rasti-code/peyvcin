@@ -575,7 +575,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-hidden text-ellipsis w-full ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: dynamicFontSize
@@ -681,7 +681,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-hidden text-ellipsis w-full ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: dynamicFontSize
