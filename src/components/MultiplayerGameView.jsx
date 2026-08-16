@@ -521,7 +521,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pb-6 sm:pb-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
           <div 
             className={`flex items-center justify-between gap-2 mb-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
-            style={{ width: gridWidth, minWidth: '250px' }}
+            style={{ width: gridWidth, minWidth: '230px' }}
           >
             <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
               {opponentHasFailed && !iHaveFailed && pressureTimer !== null && pressureTimer > 0 && (
@@ -613,7 +613,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md p-1.5 rounded-md border relative z-10 transition-all duration-300 ease-out`}
             style={{ 
               width: gridWidth,
-              minWidth: '250px'
+              minWidth: '230px'
             }}
           >
             {/* Player Score Box (Right in RTL) */}
@@ -661,7 +661,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
           </div>
           <div 
             className={`flex items-center justify-between gap-2 mt-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
-            style={{ width: gridWidth, minWidth: '250px' }}
+            style={{ width: gridWidth, minWidth: '230px' }}
           >
             <div className="flex-1 flex flex-col min-w-0 items-start justify-center">
               {(() => {
