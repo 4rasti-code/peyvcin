@@ -163,8 +163,8 @@ export default function useBotSimulator({
             });
           } else {
              guessCountRef.current += 1;
-             if (guessCountRef.current >= 3) {
-                // Bot failed 3 times
+             if (guessCountRef.current >= 6) {
+                // Bot failed 6 times
                 setActiveMatchGuarded(prev => {
                   if (!prev) return prev;
                   if (prev.p1_failed) {
