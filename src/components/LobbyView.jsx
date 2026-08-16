@@ -303,23 +303,22 @@ const LobbyView = memo(({
       const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
       const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
 
-      const threeMinsAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+      if (onlineIds.length === 0) {
+        setOnlineProfiles([]);
+        setLoadingOnline(false);
+        return;
+      }
+
       let profilesQuery = supabase
         .from('profiles')
         .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle, claimed_medals')
+        .in('id', onlineIds)
         .neq('id', user?.id || '')
         .neq('nickname', 'Admin_4rasti')
         .neq('nickname', 'ADMIN_PEYVOK')
         .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
         .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
-        .order('updated_at', { ascending: false })
         .limit(50);
-
-      if (onlineIds.length > 0) {
-        profilesQuery = profilesQuery.or(`id.in.(${onlineIds.join(',')}),updated_at.gte.${threeMinsAgo}`);
-      } else {
-        profilesQuery = profilesQuery.gte('updated_at', threeMinsAgo);
-      }
 
       const [profilesRes, friendsRes, trackRes] = await Promise.all([
         profilesQuery,
