@@ -303,56 +303,65 @@ const LobbyView = memo(({
       const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
       const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
 
+      const threeMinsAgo = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+      let profilesQuery = supabase
+        .from('profiles')
+        .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle, claimed_medals')
+        .neq('id', user?.id || '')
+        .neq('nickname', 'Admin_4rasti')
+        .neq('nickname', 'ADMIN_PEYVOK')
+        .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+        .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
+        .order('updated_at', { ascending: false })
+        .limit(50);
+
       if (onlineIds.length > 0) {
-        const [profilesRes, friendsRes, trackRes] = await Promise.all([
-          supabase
-            .from('profiles')
-            .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle, claimed_medals')
-            .in('id', onlineIds)
-            .neq('nickname', 'Admin_4rasti')
-            .neq('nickname', 'ADMIN_PEYVOK')
-            .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
-            .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4'),
-          supabase
-            .from('friendships')
-            .select('user_id, friend_id')
-            .eq('status', 'accepted')
-            .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
-          supabase
-            .from('invite_tracking')
-            .select('receiver_id, blocked_until, strike_count')
-            .eq('sender_id', user?.id)
-        ]);
+        profilesQuery = profilesQuery.or(`id.in.(${onlineIds.join(',')}),updated_at.gte.${threeMinsAgo}`);
+      } else {
+        profilesQuery = profilesQuery.gte('updated_at', threeMinsAgo);
+      }
 
-        if (!profilesRes.error && profilesRes.data) {
-          const friendIds = new Set();
-          if (friendsRes.data) {
-            friendsRes.data.forEach(f => {
-              friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
-            });
-          }
+      const [profilesRes, friendsRes, trackRes] = await Promise.all([
+        profilesQuery,
+        supabase
+          .from('friendships')
+          .select('user_id, friend_id')
+          .eq('status', 'accepted')
+          .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
+        supabase
+          .from('invite_tracking')
+          .select('receiver_id, blocked_until, strike_count')
+          .eq('sender_id', user?.id)
+      ]);
 
-          if (trackRes && trackRes.data) {
-            const cooldowns = {};
-            const strikes = {};
-            const now = new Date();
-            trackRes.data.forEach(row => {
-              if (row.blocked_until && new Date(row.blocked_until) > now) {
-                cooldowns[row.receiver_id] = row.blocked_until;
-              }
-              strikes[row.receiver_id] = row.strike_count || 0;
-            });
-            setInviteCooldowns(cooldowns);
-            setInviteStrikes(strikes);
-          }
-
-          const profilesWithFriendStatus = profilesRes.data.map(p => ({
-            ...p,
-            isFriend: friendIds.has(p.id)
-          }));
-
-          setOnlineProfiles(profilesWithFriendStatus);
+      if (!profilesRes.error && profilesRes.data) {
+        const friendIds = new Set();
+        if (friendsRes.data) {
+          friendsRes.data.forEach(f => {
+            friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
+          });
         }
+
+        if (trackRes && trackRes.data) {
+          const cooldowns = {};
+          const strikes = {};
+          const now = new Date();
+          trackRes.data.forEach(row => {
+            if (row.blocked_until && new Date(row.blocked_until) > now) {
+              cooldowns[row.receiver_id] = row.blocked_until;
+            }
+            strikes[row.receiver_id] = row.strike_count || 0;
+          });
+          setInviteCooldowns(cooldowns);
+          setInviteStrikes(strikes);
+        }
+
+        const profilesWithFriendStatus = profilesRes.data.map(p => ({
+          ...p,
+          isFriend: friendIds.has(p.id)
+        }));
+
+        setOnlineProfiles(profilesWithFriendStatus);
       } else {
         setOnlineProfiles([]);
       }
