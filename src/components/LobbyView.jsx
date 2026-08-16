@@ -18,6 +18,7 @@ import ClipboardIcon from './ClipboardIcon';
 import LuckyWheelIcon from './LuckyWheelIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import ReportIcon from './ReportIcon';
+import { MEDALS } from '../constants/medals';
 import DownloadIcon from './DownloadIcon';
 import TutorialIcon from './TutorialIcon';
 import { getLevelFromXP } from '../utils/progression';
@@ -287,80 +288,80 @@ const LobbyView = memo(({
     }
   };
 
+  const fetchOnlineProfiles = useCallback(async () => {
+    setLoadingOnline(true);
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
+      const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
+
+      if (onlineIds.length > 0) {
+        const [profilesRes, friendsRes, trackRes] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle, claimed_medals')
+            .in('id', onlineIds)
+            .neq('nickname', 'Admin_4rasti')
+            .neq('nickname', 'ADMIN_PEYVOK')
+            .neq('nickname', 'پەیڤۆک')
+            .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
+            .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
+            .limit(50),
+          supabase
+            .from('friendships')
+            .select('user_id, friend_id')
+            .eq('status', 'accepted')
+            .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
+          supabase
+            .from('invite_tracking')
+            .select('receiver_id, blocked_until, strike_count')
+            .eq('sender_id', user?.id)
+        ]);
+
+        if (!profilesRes.error && profilesRes.data) {
+          const friendIds = new Set();
+          if (friendsRes.data) {
+            friendsRes.data.forEach(f => {
+              friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
+            });
+          }
+
+          if (trackRes && trackRes.data) {
+            const cooldowns = {};
+            const strikes = {};
+            const now = new Date();
+            trackRes.data.forEach(row => {
+              if (row.blocked_until && new Date(row.blocked_until) > now) {
+                cooldowns[row.receiver_id] = row.blocked_until;
+              }
+              strikes[row.receiver_id] = row.strike_count || 0;
+            });
+            setInviteCooldowns(cooldowns);
+            setInviteStrikes(strikes);
+          }
+
+          const profilesWithFriendStatus = profilesRes.data.map(p => ({
+            ...p,
+            isFriend: friendIds.has(p.id)
+          }));
+
+          setOnlineProfiles(profilesWithFriendStatus);
+        }
+      } else {
+        setOnlineProfiles([]);
+      }
+    } catch (err) {
+      console.error("Error fetching online profiles", err);
+    } finally {
+      setLoadingOnline(false);
+    }
+  }, [onlineUsers, user?.id]);
+
   useEffect(() => {
     if (showMultiplayerModal && inviteStep === 'invite') {
-      const fetchOnlineProfiles = async () => {
-        setLoadingOnline(true);
-        try {
-          const { supabase } = await import('../lib/supabase');
-          const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
-          const onlineIds = Array.from(onlineUsers || new Set()).filter(id => id !== user?.id && id !== BOT_ID);
-
-          if (onlineIds.length > 0) {
-            const [profilesRes, friendsRes, trackRes] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('id, nickname, avatar_url, xp, equipped_font, equipped_name_style, equipped_bundle')
-                .in('id', onlineIds)
-                .neq('nickname', 'Admin_4rasti')
-                .neq('nickname', 'ADMIN_PEYVOK')
-                .neq('nickname', 'پەیڤۆک')
-                .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
-                .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
-                .limit(50),
-              supabase
-                .from('friendships')
-                .select('user_id, friend_id')
-                .eq('status', 'accepted')
-                .or(`user_id.eq.${user?.id},friend_id.eq.${user?.id}`),
-              supabase
-                .from('invite_tracking')
-                .select('receiver_id, blocked_until, strike_count')
-                .eq('sender_id', user?.id)
-            ]);
-
-            if (!profilesRes.error && profilesRes.data) {
-              const friendIds = new Set();
-              if (friendsRes.data) {
-                friendsRes.data.forEach(f => {
-                  friendIds.add(f.user_id === user?.id ? f.friend_id : f.user_id);
-                });
-              }
-
-              if (trackRes && trackRes.data) {
-                const cooldowns = {};
-                const strikes = {};
-                const now = new Date();
-                trackRes.data.forEach(row => {
-                  if (row.blocked_until && new Date(row.blocked_until) > now) {
-                    cooldowns[row.receiver_id] = row.blocked_until;
-                  }
-                  strikes[row.receiver_id] = row.strike_count || 0;
-                });
-                setInviteCooldowns(cooldowns);
-                setInviteStrikes(strikes);
-              }
-
-              const profilesWithFriendStatus = profilesRes.data.map(p => ({
-                ...p,
-                isFriend: friendIds.has(p.id)
-              }));
-
-              setOnlineProfiles(profilesWithFriendStatus);
-            }
-          } else {
-            setOnlineProfiles([]);
-          }
-        } catch (err) {
-          console.error("Error fetching online profiles", err);
-        } finally {
-          setLoadingOnline(false);
-        }
-      };
-
       fetchOnlineProfiles();
     }
-  }, [showMultiplayerModal, inviteStep, onlineUsers, user?.id]);
+  }, [showMultiplayerModal, inviteStep, fetchOnlineProfiles]);
 
   const handleSendInviteToUser = async (targetUserId) => {
     triggerHaptic(10);
@@ -515,6 +516,24 @@ const LobbyView = memo(({
                 >
                   {name}
                 </span>
+              );
+            })()}
+            {(() => {
+              const getHighestMedal = () => {
+                if (!profile.claimed_medals || profile.claimed_medals.length === 0) return MEDALS[0];
+                const claimedIds = new Set(profile.claimed_medals);
+                for (let i = MEDALS.length - 1; i >= 0; i--) {
+                  if (claimedIds.has(MEDALS[i].id)) return MEDALS[i];
+                }
+                return MEDALS[0];
+              };
+              const highestMedal = getHighestMedal();
+              const MedalIcon = highestMedal.IconComponent;
+              return (
+                <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
+                  <MedalIcon className={`w-3.5 h-3.5 ${highestMedal.color}`} />
+                  <span>{highestMedal.name}</span>
+                </div>
               );
             })()}
           </div>
@@ -946,12 +965,23 @@ const LobbyView = memo(({
                     <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors">
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
-                    <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex-1 flex items-center justify-center gap-2 mr-4">
-                      یاریزانێن سەرهێل {onlineProfiles.length > 0 && <span className="text-sm text-mono-500 dark:text-mono-400">({onlineProfiles.length})</span>}
-                      {loadingOnline && onlineProfiles.length > 0 && (
-                        <span className="material-symbols-outlined animate-spin text-sm text-blue-500">sync</span>
-                      )}
-                    </h3>
+                    <div className="flex-1 flex items-center justify-center gap-2 mr-4">
+                      <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex items-center gap-2">
+                        یاریزانێن سەرهێل {onlineProfiles.length > 0 && <span className="text-sm text-mono-500 dark:text-mono-400">({onlineProfiles.length})</span>}
+                      </h3>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          triggerHaptic(10);
+                          fetchOnlineProfiles();
+                        }}
+                        disabled={loadingOnline}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-mono-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all disabled:opacity-50"
+                        title="نویکرنەڤە"
+                      >
+                        <span className={`material-symbols-outlined text-[20px] ${loadingOnline ? 'animate-spin text-blue-500' : ''}`}>sync</span>
+                      </button>
+                    </div>
                   </div>
 
                   <div className={`overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
