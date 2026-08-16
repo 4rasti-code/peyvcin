@@ -977,8 +977,8 @@ export const MultiplayerProvider = ({ children }) => {
         const oppScore = isP1 ? activeMatch?.p2_score : activeMatch?.p1_score;
 
         let result = 'draw';
-        if (myScore - oppScore >= 2) result = 'victory';
-        else if (oppScore - myScore >= 2) result = 'defeat';
+        if (myScore > oppScore) result = 'victory';
+        else if (oppScore > myScore) result = 'defeat';
         else result = 'draw';
 
         console.log(`[Multiplayer] Sync found finished match. Scores: ${myScore}-${oppScore}. Result: ${result}.`);
