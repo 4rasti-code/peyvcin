@@ -543,8 +543,8 @@ const LobbyView = memo(({
               const MedalIcon = latestMedal.IconComponent;
               return (
                 <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                  <MedalIcon className={`${latestMedal.id === 'palawan' ? 'w-[11px] h-[11px]' : 'w-3.5 h-3.5'} ${latestMedal.color}`} />
-                  <span className="pt-[1px]">{latestMedal.name}</span>
+                  <MedalIcon className={`${latestMedal.id === 'palawan' ? 'w-2.75 h-2.75' : 'w-3.5 h-3.5'} ${latestMedal.color}`} />
+                  <span className="pt-px">{latestMedal.name}</span>
                 </div>
               );
             })()}
@@ -984,7 +984,7 @@ const LobbyView = memo(({
                         {onlineProfiles.length > 0 && (
                           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm" dir="ltr">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none pt-[1px]">
+                            <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none pt-px">
                               {toKuDigits(onlineProfiles.length)}
                             </span>
                           </div>
