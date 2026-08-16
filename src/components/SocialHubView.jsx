@@ -590,7 +590,7 @@ const CustomAudioPlayer = ({ src, isMe }) => {
   );
 };
 
-const SingleAnimatedEmoji = memo(({ emoji }) => {
+const SingleAnimatedEmoji = memo(({ emoji, className = "inline-block object-contain w-[1em] h-[1em]" }) => {
   const [error, setError] = useState(false);
   
   const hexCode = React.useMemo(() => {
@@ -604,13 +604,13 @@ const SingleAnimatedEmoji = memo(({ emoji }) => {
     return codePoints.join('_');
   }, [emoji]);
 
-  if (error || !hexCode) return <span>{emoji}</span>;
+  if (error || !hexCode) return <span className={className}>{emoji}</span>;
 
   return (
     <img 
       src={`https://fonts.gstatic.com/s/e/notoemoji/latest/${hexCode}/512.webp`}
       alt={emoji}
-      className="inline-block object-contain w-[1em] h-[1em]"
+      className={className}
       onError={() => setError(true)}
     />
   );
@@ -1005,6 +1005,7 @@ export default function SocialHubView({
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
@@ -2770,14 +2771,48 @@ export default function SocialHubView({
               />
 
               {(selectedChat && !isRecording) && (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                  title="وێنەیەک بهنێرە"
-                >
-                  <span className="material-symbols-outlined font-black text-xl">image</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showEmojiPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
+                    title="ئێمۆجی"
+                  >
+                    <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
+                  </button>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                    title="وێنەیەک بهنێرە"
+                  >
+                    <span className="material-symbols-outlined font-black text-xl">image</span>
+                  </button>
+
+                  {/* Emoji Picker Popup */}
+                  <AnimatePresence>
+                    {showEmojiPicker && (
+                      <Motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-[300px]"
+                        dir="ltr"
+                      >
+                        <div className="grid grid-cols-5 gap-2">
+                          {['😂', '❤️', '🔥', '👍', '👏', '🤯', '🧠', '🤦‍♀️', '🤷‍♀️', '🥺', '😍', '😭', '😡', '🤬', '😎', '🎉', '💩', '💀', '👀', '💯'].map(emoji => (
+                            <button
+                              key={emoji}
+                              onClick={() => setNewMessage(prev => prev + emoji)}
+                              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-mono-200 dark:hover:bg-mono-800 transition-colors text-3xl active:scale-90"
+                            >
+                              <SingleAnimatedEmoji emoji={emoji} className="inline-block object-contain w-[1em] h-[1em]" />
+                            </button>
+                          ))}
+                        </div>
+                      </Motion.div>
+                    )}
+                  </AnimatePresence>
+                </>
               )}
             </div>
           </div>
