@@ -102,7 +102,7 @@ const UpdateNotesModal = ({ user, onComplete }) => {
                                  🟢
                               </div>
                               <div className="flex flex-col pt-0.5">
-                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">یاریزانێن ئۆنلاین و مژویل</h3>
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">یاریزانێن ئۆنلاین</h3>
                                  <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
                                     یاریزانێن مژویل ب ئاشکرایی دیار دبن و داخازنامە بۆ ناچن. هەڤالێن تە ژی هەردەم ل سەرێ لیستێ نە دگەل نویترین پلەیا تە.
                                  </p>
