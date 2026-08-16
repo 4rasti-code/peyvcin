@@ -108,8 +108,8 @@ export default function MedalsView({ onViewChange }) {
                      games_won: profileData?.games_won || 0,
                      flawless_wins: profileData?.flawless_wins || 0
                   };
-                  const isUnlocked = m.condition(displayData);
-                  const isClaimable = isUnlocked && !claimedMedals.includes(m.id);
+                  const isUnlocked = claimedMedals.includes(m.id) || m.condition(displayData);
+                  const isClaimable = !claimedMedals.includes(m.id) && m.condition(displayData);
 
                   return (
                      <Motion.div
