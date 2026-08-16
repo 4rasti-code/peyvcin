@@ -466,7 +466,7 @@ const LobbyView = memo(({
     return <span className="text-[11px] whitespace-nowrap">{timeLeft}</span>;
   };
 
-  const renderProfileRow = (profile, index) => {
+  const renderProfileRow = (profile) => {
     const isSent = sentInvites.has(profile.id);
     const blockedUntil = inviteCooldowns[profile.id];
     const isBlocked = blockedUntil && new Date(blockedUntil) > new Date();
