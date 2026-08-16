@@ -563,12 +563,19 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user?.id]);
 
+  const currentBusyModeRef = useRef(null);
+
   const updatePresenceStatus = useCallback(async (busyMode) => {
-    if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined' && user?.id) {
-      const isAdmin = user?.email === '4rasti@gmail.com';
-      if (!isAdmin) {
-        await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: busyMode });
+    currentBusyModeRef.current = busyMode;
+    try {
+      if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined' && user?.id) {
+        const isAdmin = user?.email === '4rasti@gmail.com';
+        if (!isAdmin) {
+          await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: busyMode });
+        }
       }
+    } catch (e) {
+      console.error("Presence track error:", e);
     }
   }, [user?.id, user?.email]);
 
@@ -618,7 +625,7 @@ export const AuthProvider = ({ children }) => {
     }).subscribe(async (status) => {
       if (status === 'SUBSCRIBED' && isMounted) {
         if (!isAdmin) {
-          await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString() });
+          await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
         }
       }
     });
