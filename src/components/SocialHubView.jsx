@@ -2793,7 +2793,7 @@ export default function SocialHubView({
                           className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
                           dir="ltr"
                         >
-                        <div className="grid grid-cols-5 gap-2 max-h-[200px] overflow-y-auto no-scrollbar">
+                        <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
                           {['😂', '❤️', '🔥', '👍', '👏', '😍', '😭', '🥺', '😡', '🤬', '🤦‍♀️', '🤷‍♀️', '🤯', '😎', '💩', '💀', '👀', '💯', '🙏', '🤫', '🏆', '👑', '💪', '✌️', '🎯', '⚔️', '🛡️', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🎉'].map(emoji => (
                             <button
                               key={emoji}
