@@ -1165,7 +1165,20 @@ export const MultiplayerProvider = ({ children }) => {
         setOpponentGuarded(botOpponent);
 
         setActiveMatchGuarded(prev => {
-          const fallbackWords = (prev && prev.words && prev.words.length > 0) ? prev.words : ["سڵاو", "یاری", "کوردی", "زانی", "باشە"];
+          let fallbackWords = prev?.words;
+          let fallbackRiddles = prev?.riddles;
+
+          if (!fallbackWords || fallbackWords.length === 0) {
+            try {
+              const localEscalating = getEscalatingUnifiedWords();
+              fallbackWords = localEscalating.map(w => w.word);
+              fallbackRiddles = localEscalating.map(w => w.hint || 'پەیڤێ بدۆزەوە');
+            } catch (err) {
+              console.error('[Multiplayer] Fallback escalating words error:', err);
+              fallbackWords = ["پەیڤ", "ڕاست", "پەیڤۆک", "کورد", "کوردستان"];
+              fallbackRiddles = ["", "", "", "", ""];
+            }
+          }
 
           return {
             ...prev,
@@ -1176,7 +1189,7 @@ export const MultiplayerProvider = ({ children }) => {
             status: 'playing',
             isBot: true,
             words: fallbackWords,
-            riddles: (prev && prev.riddles && prev.riddles.length > 0) ? prev.riddles : fallbackWords.map(() => ""),
+            riddles: fallbackRiddles,
             current_word_index: 0,
             p1_score: 0,
             p2_score: 0,
