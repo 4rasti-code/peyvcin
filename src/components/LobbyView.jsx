@@ -452,7 +452,7 @@ const LobbyView = memo(({
 
     const getBusyModeText = (mode) => {
       switch (mode) {
-        case 'classic': return "د کلاسیك دایە";
+        case 'classic': return "د پەیڤۆک دایە";
         case 'hard_words': return "د دژوار دایە";
         case 'word_fever': return "د تایا پەیڤان دایە";
         case 'mamak': return "د مامک دایە";
@@ -463,7 +463,7 @@ const LobbyView = memo(({
 
     const getBusyColorClass = (mode) => {
       switch (mode) {
-        case 'classic': return "bg-sky-500 border-sky-400/50 shadow-[0_0_10px_rgba(14,165,233,0.3)] text-white";
+        case 'classic': return "bg-[#ffcc00] border-[#cc9900] shadow-[0_0_10px_rgba(255,204,0,0.4)] text-amber-950";
         case 'hard_words': return "bg-red-500 border-red-400/50 shadow-[0_0_10px_rgba(239,68,68,0.3)] text-white";
         case 'word_fever': return "bg-orange-500 border-orange-400/50 shadow-[0_0_10px_rgba(249,115,22,0.3)] text-white";
         case 'mamak': return "bg-purple-500 border-purple-400/50 shadow-[0_0_10px_rgba(168,85,247,0.3)] text-white";
