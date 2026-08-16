@@ -572,7 +572,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
                 
-                const charWidthFactor = isWideFont ? 1.3 : 0.75;
+                const charWidthFactor = isWideFont ? 1.5 : 0.9;
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
@@ -680,7 +680,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
                 
-                const charWidthFactor = isWideFont ? 1.3 : 0.75;
+                const charWidthFactor = isWideFont ? 1.5 : 0.9;
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
