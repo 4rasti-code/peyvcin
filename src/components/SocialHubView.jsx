@@ -2794,7 +2794,7 @@ export default function SocialHubView({
                           dir="ltr"
                         >
                         <div className="grid grid-cols-5 gap-2">
-                          {['😂', '❤️', '🔥', '👍', '👏', '🤯', '🧠', '🤦‍♀️', '🤷‍♀️', '🥺', '😍', '😭', '😡', '🤬', '😎', '🎉', '💩', '💀', '👀', '💯'].map(emoji => (
+                          {['😂', '❤️', '🔥', '👍', '👏', '🏆', '👑', '💪', '✌️', '⚔️', '🛡️', '🎯', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🤯', '😎', '🎉', '💀', '👀', '💯'].map(emoji => (
                             <button
                               key={emoji}
                               onClick={() => setNewMessage(prev => prev + emoji)}
