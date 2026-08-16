@@ -623,7 +623,7 @@ const AnimatedEmojiRenderer = memo(({ text }) => {
         const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
         return Array.from(segmenter.segment(text)).map(s => s.segment).filter(s => s.trim().length > 0);
       }
-    } catch(e) { }
+    } catch(_e) { /* ignore */ }
     return Array.from(text).filter(s => s.trim().length > 0);
   }, [text]);
 
