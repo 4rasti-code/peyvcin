@@ -120,9 +120,10 @@ export default function MedalsView({ onViewChange }) {
                               {m.name}
                            </span>
 
-                           <div className={`w-full py-2 px-3 relative overflow-hidden ${isUnlocked ? 'bg-blue-500/10 dark:bg-blue-500/20' : 'bg-mono-300/30 dark:bg-[#111116]'} border-l-4 ${isUnlocked ? 'border-blue-500' : 'border-mono-400 dark:border-mono-700'}`}>
+                           <div className={`w-full py-2 px-3 relative flex items-center gap-1.5 overflow-hidden ${isUnlocked ? 'bg-blue-500/10 dark:bg-blue-500/20' : 'bg-mono-300/30 dark:bg-[#111116]'} border-l-4 ${isUnlocked ? 'border-blue-500' : 'border-mono-400 dark:border-mono-700'}`}>
+                              {isUnlocked && <span className="material-symbols-outlined text-[16px] text-blue-600 dark:text-blue-400 shrink-0">check_circle</span>}
                               <span className={`block text-[12px] sm:text-[13px] font-bold leading-tight ${isUnlocked ? 'text-blue-700 dark:text-blue-200' : 'text-mono-500 dark:text-mono-500'}`}>
-                                 {m.tooltip}
+                                 {isUnlocked ? 'ئەڤ پلەیە هاتیە وەرگرتن' : m.tooltip}
                               </span>
                            </div>
                         </div>
