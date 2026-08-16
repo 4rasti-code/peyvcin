@@ -519,20 +519,18 @@ const LobbyView = memo(({
               );
             })()}
             {(() => {
-              const getHighestMedal = () => {
+              const getLatestMedal = () => {
                 if (!profile.claimed_medals || profile.claimed_medals.length === 0) return MEDALS[0];
-                const claimedIds = new Set(profile.claimed_medals);
-                for (let i = MEDALS.length - 1; i >= 0; i--) {
-                  if (claimedIds.has(MEDALS[i].id)) return MEDALS[i];
-                }
-                return MEDALS[0];
+                const latestId = profile.claimed_medals[profile.claimed_medals.length - 1];
+                const found = MEDALS.find(m => m.id === latestId);
+                return found || MEDALS[0];
               };
-              const highestMedal = getHighestMedal();
-              const MedalIcon = highestMedal.IconComponent;
+              const latestMedal = getLatestMedal();
+              const MedalIcon = latestMedal.IconComponent;
               return (
                 <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                  <MedalIcon className={`w-3.5 h-3.5 ${highestMedal.color}`} />
-                  <span>{highestMedal.name}</span>
+                  <MedalIcon className={`w-3.5 h-3.5 ${latestMedal.color}`} />
+                  <span>{latestMedal.name}</span>
                 </div>
               );
             })()}
