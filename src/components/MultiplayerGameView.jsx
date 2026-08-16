@@ -557,7 +557,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 )}
               </AnimatePresence>
             </div>
-            <div className="flex-1 flex flex-col min-w-0 items-end justify-center">
+            <div className="flex-1 flex flex-col min-w-0 items-end justify-center" style={{ containerType: 'inline-size' }}>
               {(() => {
                 const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
                 const myStyle = NAME_STYLES[equippedNameStyle] || {};
@@ -571,14 +571,16 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const baselineLen = isWideFont ? 4 : 7.5;
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = myFont.style?.fontSize ? parseFloat(myFont.style.fontSize) : 1.4;
-                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+                
+                const charWidthFactor = isWideFont ? 1.3 : 0.75;
+                const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-hidden text-ellipsis w-full ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
-                      fontSize: dynamicFontSize
+                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
                     }}
                   >
                     {name}
@@ -663,7 +665,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             className={`flex items-center justify-between gap-2 mt-2 h-14 relative ${isDark ? 'bg-white/5 border-white/10' : 'bg-white/60 border-slate-200'} border rounded-md px-4 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out`}
             style={{ width: gridWidth, minWidth: '230px' }}
           >
-            <div className="flex-1 flex flex-col min-w-0 items-start justify-center">
+            <div className="flex-1 flex flex-col min-w-0 items-start justify-center" style={{ containerType: 'inline-size' }}>
               {(() => {
                 const oppFont = NAME_FONTS[opponent?.equipped_font] || NAME_FONTS['default-ku'];
                 const oppStyle = NAME_STYLES[opponent?.equipped_name_style] || {};
@@ -677,14 +679,16 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const baselineLen = isWideFont ? 4 : 7.5;
                 const scaleFactor = Math.min(1.15, Math.max(0.25, baselineLen / nameLen));
                 const baseSize = oppFont.style?.fontSize ? parseFloat(oppFont.style.fontSize) : 1.4;
-                const dynamicFontSize = `${baseSize * scaleFactor}em`;
+                
+                const charWidthFactor = isWideFont ? 1.3 : 0.75;
+                const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
                   <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-hidden text-ellipsis w-full ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
-                      fontSize: dynamicFontSize
+                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
                     }}
                   >
                     {name}
