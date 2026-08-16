@@ -520,7 +520,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         {/* TOP HALF: YOUR GRID */}
         <div className={`flex-1 min-h-0 flex flex-col items-center justify-center p-1 pb-6 sm:pb-1 ${isDark ? 'bg-white/5' : 'bg-white/60'}`}>
           <div 
-            className={`flex items-center justify-between gap-3 mb-3 h-15 relative ${isDark ? 'bg-mono-900/70 border-mono-700/80 shadow-[0_8px_30px_rgba(0,0,0,0.6)] ring-1 ring-white/5' : 'bg-white/85 border-slate-300 shadow-lg'} border rounded-md px-4 backdrop-blur-lg transition-all duration-300 ease-out`}
+            className={`flex items-center justify-between gap-3 mb-3 h-15 relative ${isDark ? 'bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] ring-1 ring-black/50' : 'bg-white/90 border-white shadow-[0_8px_32px_rgba(0,0,0,0.1)] ring-1 ring-black/5'} border rounded-md px-4 backdrop-blur-xl transition-all duration-300 ease-out`}
             style={{ width: gridWidth, minWidth: '230px' }}
           >
             <div className="relative flex items-center justify-center w-10 h-10 shrink-0">
@@ -612,7 +612,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
           {/* Score & Round Elements */}
           <div 
-            className={`flex items-center justify-between ${isDark ? 'bg-black/80 border-mono-800' : 'bg-white/90 border-slate-200 shadow-sm'} backdrop-blur-md p-1.5 rounded-md border relative z-10 transition-all duration-300 ease-out`}
+            className={`flex items-center justify-between ${isDark ? 'bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] ring-1 ring-black/50' : 'bg-white/90 border-white shadow-[0_8px_32px_rgba(0,0,0,0.1)] ring-1 ring-black/5'} backdrop-blur-xl p-1.5 rounded-md border relative z-10 transition-all duration-300 ease-out`}
             style={{ 
               width: gridWidth,
               minWidth: '230px'
@@ -662,7 +662,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
             />
           </div>
           <div 
-            className={`flex items-center justify-between gap-3 mt-3 h-15 relative ${isDark ? 'bg-mono-900/70 border-mono-700/80 shadow-[0_8px_30px_rgba(0,0,0,0.6)] ring-1 ring-white/5' : 'bg-white/85 border-slate-300 shadow-lg'} border rounded-md px-4 backdrop-blur-lg transition-all duration-300 ease-out`}
+            className={`flex items-center justify-between gap-3 mt-3 h-15 relative ${isDark ? 'bg-white/10 border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.6)] ring-1 ring-black/50' : 'bg-white/90 border-white shadow-[0_8px_32px_rgba(0,0,0,0.1)] ring-1 ring-black/5'} border rounded-md px-4 backdrop-blur-xl transition-all duration-300 ease-out`}
             style={{ width: gridWidth, minWidth: '230px' }}
           >
             <div className="flex-1 flex flex-col min-w-0 items-start justify-center" style={{ containerType: 'inline-size' }}>
