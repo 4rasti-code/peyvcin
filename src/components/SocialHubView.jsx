@@ -601,11 +601,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         
         const MedalIcon = medal.IconComponent;
         return (
-          <div key={i} className="mt-2 mb-1 flex items-center gap-3 p-3 rounded-lg bg-linear-to-r from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-sm" dir="rtl">
-             <MedalIcon className={`w-10 h-10 ${medal.color} drop-shadow-md shrink-0`} />
-             <div className="flex flex-col min-w-0">
-                <span className="text-[10px] sm:text-[11px] text-amber-600 dark:text-amber-500 font-bold mb-0.5">پلەیەکا نوی وەرگرت!</span>
-                <span className={`text-sm sm:text-[15px] font-black truncate w-full ${medal.color}`}>{medal.name}</span>
+          <div key={i} className="mt-2 mb-1 flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-linear-to-b from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-sm w-full max-w-56 mx-auto" dir="rtl">
+             <MedalIcon className={`w-20 h-20 ${medal.color} drop-shadow-xl shrink-0`} />
+             <div className="flex flex-col items-center text-center w-full">
+                <span className="text-[11px] sm:text-[12px] text-amber-600 dark:text-amber-500 font-bold mb-1">پلەیەکا نوی وەرگرت!</span>
+                <span className={`text-lg sm:text-xl font-black w-full ${medal.color}`} style={{ whiteSpace: 'normal', wordBreak: 'keep-all' }}>{medal.name}</span>
              </div>
           </div>
         );
