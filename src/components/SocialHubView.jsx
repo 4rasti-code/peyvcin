@@ -995,34 +995,7 @@ export default function SocialHubView({
     // Fetch historical data from the last 15 minutes
     const fetchHistoricalAnnouncements = async () => {
       try {
-        const fifteenMinsAgoISO = new Date(Date.now() - 900000).toISOString();
-        
-        // Fetch DB announcements
-        const { data: dbData, error: dbError } = await supabase
-          .from('global_announcements')
-          .select('id, text, created_at')
-          .gte('created_at', fifteenMinsAgoISO);
-
-        // Fetch recent users
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, nickname, created_at')
-          .gte('created_at', fifteenMinsAgoISO);
-
         let combined = [];
-        if (!dbError && dbData) {
-          combined = [...combined, ...dbData];
-        }
-        
-        if (!profilesError && profilesData) {
-          const welcomeMsgs = profilesData
-            .map(p => ({
-              id: p.id,
-              text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${p.nickname || 'مێهڤان'}!`,
-              created_at: p.created_at
-            }));
-          combined = [...combined, ...welcomeMsgs];
-        }
 
         // Sort by timestamp old to new
         combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -1074,12 +1047,7 @@ export default function SocialHubView({
       })
       .subscribe();
 
-    const dbAnnouncementsSub = supabase.channel('public:global_announcements')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_announcements' }, (payload) => {
-        if (payload.new) {
-          setMarqueeAnnouncements(prev => [...prev, payload.new]);
-        }
-      }).subscribe();
+
 
     const cleanupInterval = setInterval(() => {
       const fifteenMinsAgo = new Date(Date.now() - 900000).getTime();

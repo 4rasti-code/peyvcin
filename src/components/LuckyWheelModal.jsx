@@ -237,6 +237,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
     if (wonReward.type === 'hint') updateInventory({ hintCount: wonReward.amount }, true, true);
     if (wonReward.type === 'skip') updateInventory({ skipCount: wonReward.amount }, true, true);
     if (wonReward.type === 'magnet') updateInventory({ magnetCount: wonReward.amount }, true, true);
+    if (wonReward.type === 'spinTicket') updateInventory({ spinTicketCount: wonReward.amount }, true, true);
     if (wonReward.type === 'mystery_box') {
       const fetchAndAddBox = async () => {
         try {

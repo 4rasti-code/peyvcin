@@ -47,10 +47,7 @@ export default function AchievementToastManager() {
 
     // Level up broadcast check
     if (previousLevelRef.current !== null && computedLevel > previousLevelRef.current) {
-      supabase.from('global_announcements').insert({
-        type: 'level',
-        text: `یاریزان ${profileData.nickname || 'نەناسریای'} گەهشتە ئاستێ ${computedLevel}! ⭐`
-      }).then();
+
     }
     previousLevelRef.current = computedLevel;
 
@@ -68,10 +65,7 @@ export default function AchievementToastManager() {
         newUnlocked.push(medal);
         previouslyUnlocked.push(medal.id);
 
-        supabase.from('global_announcements').insert({
-          type: 'medal',
-          text: `یاریزان ${profileData.nickname || 'نەناسریای'} مەدالیایەکا نوی وەرگرت! 🏆`
-        }).then();
+
       }
     });
 
