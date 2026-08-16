@@ -1208,7 +1208,10 @@ export default function SocialHubView({
     localStorage.setItem('activeChatTab', activeTab);
 
     // Sync URL without triggering full page reload
-    window.history.replaceState(null, '', '/social_hub/' + activeTab);
+    const targetUrl = '/social_hub/' + activeTab;
+    if (window.location.pathname !== targetUrl) {
+      window.history.replaceState(null, '', targetUrl);
+    }
 
     if (activeTab === 'global') {
       const now = new Date().toISOString();

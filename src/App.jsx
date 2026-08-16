@@ -447,12 +447,21 @@ export default function App() {
   }, [location.pathname]);
 
   // Sync State -> URL (Handles internal navigateTo calls)
+  const lastNavRef = useRef({ path: '', time: 0 });
   useEffect(() => {
     const path = location.pathname.replace(/^\/+/, '') || 'lobby';
     let view = path;
     if (path.startsWith('social_hub')) view = 'social_hub';
     if (view !== currentView) {
-      navigate('/' + currentView, { replace: true });
+      const now = Date.now();
+      const targetPath = '/' + currentView;
+      // Prevent rapid identical navigations (React Router loop guard)
+      if (lastNavRef.current.path === targetPath && now - lastNavRef.current.time < 300) {
+        console.warn('[App] Blocked rapid navigate loop to', targetPath);
+        return;
+      }
+      lastNavRef.current = { path: targetPath, time: now };
+      navigate(targetPath, { replace: true });
     }
   }, [currentView, navigate, location.pathname]);
 

@@ -374,12 +374,12 @@ const LobbyView = memo(({
   useEffect(() => {
     if (showMultiplayerModal && inviteStep === 'invite') {
       fetchOnlineProfiles(false);
-      
+
       // Setup 5-second background polling so it always stays perfectly in sync without manual refresh
       const interval = setInterval(() => {
         fetchOnlineProfiles(true);
       }, 5000);
-      
+
       return () => clearInterval(interval);
     }
   }, [showMultiplayerModal, inviteStep, fetchOnlineProfiles]);
@@ -537,12 +537,12 @@ const LobbyView = memo(({
           }}
         >
           <div className="relative shrink-0 mr-1">
-            <Avatar 
-              src={profile.avatar_url} 
-              size="md" 
+            <Avatar
+              src={profile.avatar_url}
+              size="md"
               badgeSize="sm"
-              border={false} 
-              level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} 
+              border={false}
+              level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null}
               className="border-[2.5px] border-green-500 shadow-sm"
             />
             <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-[2.5px] border-white dark:border-mono-800 rounded-full shadow-sm z-20"></div>
@@ -587,7 +587,7 @@ const LobbyView = memo(({
               };
               const latestMedal = getLatestMedal();
               if (!latestMedal) return null;
-              
+
               const MedalIcon = latestMedal.IconComponent;
               return (
                 <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
@@ -608,22 +608,23 @@ const LobbyView = memo(({
               handleSendInviteToUser(profile.id);
             }
           }}
-          className={`group px-4 py-2 rounded-md transition-all flex items-center justify-center gap-1.5 min-w-25 ${
-            busyMode
-              ? `${getBusyColorClass(busyMode)} cursor-default px-2`
+          className={`group rounded-md transition-all flex items-center justify-center gap-1 ${busyMode
+              ? `${getBusyColorClass(busyMode)} cursor-default px-2 py-2.5`
               : isSent
-                ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-transparent font-bold text-xs cursor-default'
+                ? 'px-4 py-2 min-w-20 bg-green-500/10 text-green-600 dark:text-green-400 border border-transparent font-bold text-[11px] cursor-default'
                 : isBlocked
-                  ? 'bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30 font-bold text-xs'
-                  : 'bg-blue-600 hover:bg-blue-700 border border-transparent text-white shadow-md cursor-pointer font-bold text-xs'
+                  ? 'px-4 py-2 min-w-20 bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30 font-bold text-[11px]'
+                  : 'px-4 py-2 min-w-20 bg-blue-600 hover:bg-blue-700 border border-transparent text-white shadow-md cursor-pointer font-bold text-[11px]'
             }`}
         >
           {busyMode ? (
-            <div className="w-full flex items-center justify-between gap-3" dir="ltr">
-              <span className="font-heading font-black text-sm drop-shadow-sm pt-0.75">
+            <div className="flex items-center justify-center gap-1" dir="ltr">
+              <span className="font-heading font-black text-[10px] drop-shadow-sm pt-0.75 whitespace-nowrap">
                 {getBusyModeText(busyMode)}
               </span>
-              {getBusyIcon(busyMode)}
+              <div className="scale-75">
+                {getBusyIcon(busyMode)}
+              </div>
             </div>
           ) : isSent ? (
             <>
@@ -1027,7 +1028,7 @@ const LobbyView = memo(({
                     <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors shrink-0">
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
-                    
+
                     <div className="flex-1 flex justify-center items-center">
                       <h3 className="text-lg font-black text-mono-900 dark:text-white flex items-center gap-2">
                         یاریزانێن سەرهێل
@@ -1056,7 +1057,7 @@ const LobbyView = memo(({
                     </button>
                   </div>
 
-                  <div className="overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300">
+                  <div className="overflow-y-auto h-80 sm:h-100 pr-2 custom-scrollbar space-y-2 mb-3 transition-opacity duration-300">
                     {loadingOnline && onlineProfiles.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full opacity-50">
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
@@ -1105,7 +1106,7 @@ const LobbyView = memo(({
                   <div className="shrink-0 mt-auto pt-2 border-t border-mono-200 dark:border-mono-800">
                     <button
                       onClick={() => setShowMultiplayerModal(false)}
-                      className="w-full py-3 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm"
+                      className="w-full py-2 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm"
                     >
                       داخستن
                     </button>
