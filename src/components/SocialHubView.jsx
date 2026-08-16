@@ -578,15 +578,23 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
       if (part.startsWith('[IMAGE:') && part.endsWith(']')) {
         const url = part.substring(7, part.length - 1);
         return (
-          <div key={i} className="relative block mt-2 mb-2 w-full max-w-60" onContextMenu={e => e.preventDefault()}>
+          <div key={i} className="relative block mt-2 mb-2 w-full max-w-64 aspect-auto overflow-hidden rounded-2xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-black/5 dark:border-white/5 group bg-mono-200 dark:bg-mono-800" onContextMenu={e => e.preventDefault()}>
+            {/* Smooth Skeleton Loader background while loading */}
+            <div className="absolute inset-0 animate-pulse bg-mono-300 dark:bg-mono-700 pointer-events-none" />
             <img
               src={url}
               alt="Attachment"
-              className="w-auto h-auto max-w-full max-h-72 rounded-sm shadow-sm border border-black/10 dark:border-white/10 object-contain pointer-events-none select-none"
+              className="relative z-0 w-full h-auto max-h-80 object-cover pointer-events-none select-none transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
               draggable="false"
+              onLoad={(e) => { if (e.target.previousSibling) e.target.previousSibling.style.display = 'none'; }}
             />
-            <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} onClick={e => e.stopPropagation()} />
+            {/* The transparent overlay that prevents right click but handles fullscreen click */}
+            <div 
+               className="absolute inset-0 z-10 cursor-pointer bg-black/0 transition-colors duration-200 group-hover:bg-black/10 dark:group-hover:bg-white/5" 
+               onContextMenu={e => e.preventDefault()} 
+               onClick={(e) => { e.stopPropagation(); setFullscreenImage(url); }} 
+            />
           </div>
         );
       }
@@ -918,6 +926,7 @@ export default function SocialHubView({
 
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingImagePreview, setPendingImagePreview] = useState(null);
+  const [fullscreenImage, setFullscreenImage] = useState(null);
   const [isImageEditorOpen, setIsImageEditorOpen] = useState(false);
 
   // --- Voice Notes State ---
@@ -2902,6 +2911,64 @@ export default function SocialHubView({
               setIsImageEditorOpen(false);
             }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen Image Viewer Overlay (In-Chat) */}
+      <AnimatePresence>
+        {fullscreenImage && (
+          <Motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
+            className="absolute inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
+            onClick={() => setFullscreenImage(null)}
+          >
+            {/* Top Action Bar */}
+            <div className="w-full h-16 flex items-center justify-between px-4 bg-gradient-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
+              <button 
+                onClick={() => setFullscreenImage(null)}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+              >
+                <span className="material-icons-round">arrow_back</span>
+              </button>
+              <button 
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  try {
+                    const response = await fetch(fullscreenImage);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = `Peyvok_Image_${Date.now()}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                  } catch (err) {
+                    console.error("Failed to download image", err);
+                  }
+                }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+              >
+                <span className="material-icons-round">download</span>
+              </button>
+            </div>
+            
+            {/* Image Container */}
+            <div className="flex-1 w-full flex items-center justify-center p-4 pt-16">
+              <img 
+                src={fullscreenImage} 
+                alt="Fullscreen Preview" 
+                className="max-w-full max-h-full object-contain pointer-events-auto shadow-2xl rounded-sm"
+                draggable="false"
+                onContextMenu={e => e.preventDefault()}
+                onClick={e => e.stopPropagation()}
+              />
+            </div>
+          </Motion.div>
         )}
       </AnimatePresence>
     </div>
