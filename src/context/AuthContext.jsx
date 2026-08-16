@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }) => {
   const [onlineCount, setOnlineCount] = useState(1);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
+  const [presenceKey, setPresenceKey] = useState(0);
   const presenceChannelRef = useRef(null);
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
@@ -586,6 +587,10 @@ export const AuthProvider = ({ children }) => {
     }, 1000);
   }, [user?.id, user?.email]);
 
+  const forceRefreshPresence = useCallback(() => {
+    setPresenceKey(k => k + 1);
+  }, []);
+
   // NEW: Global App Presence Tracking
   useEffect(() => {
     if (!user?.id) return;
@@ -604,6 +609,14 @@ export const AuthProvider = ({ children }) => {
 
     // Initial ping
     pingPresence();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        pingPresence();
+        setPresenceKey(k => k + 1); // Force full channel recreation to fix dead WebSockets on mobile wake
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     // Ping every 2 minutes
     const heartbeatInterval = setInterval(pingPresence, 2 * 60 * 1000);
@@ -645,12 +658,13 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       clearInterval(heartbeatInterval);
       isMounted = false;
       presenceChannel.untrack();
       supabase.removeChannel(presenceChannel);
     };
-  }, [user?.id, user?.email]);
+  }, [user?.id, user?.email, presenceKey]);
 
   const completeOnboarding = useCallback(async (nickname) => {
     if (!user?.id) return { success: false, error: "Must be logged in" };
@@ -811,12 +825,15 @@ export const AuthProvider = ({ children }) => {
     lastProfileUpdate, setLastProfileUpdate,
     onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
-    isProfileLoaded
+    isProfileLoaded, forceRefreshPresence
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
-    equippedBundle, ownedBundles, syncProfile,
-    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus
+    // System states
+    loadingAuth, isSyncingProfile,
+    
+    // Actions
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus, forceRefreshPresence
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
