@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { MEDALS } from '../constants/medals';
 import { triggerHaptic } from '../utils/haptics';
@@ -16,15 +16,35 @@ export default function MedalsView({ onViewChange }) {
    const [activeOverlay, setActiveOverlay] = useState(null);
    const [sharedMedals, setSharedMedals] = useState({});
 
+   useEffect(() => {
+      if (profileData?.id) {
+         try {
+            const stored = localStorage.getItem(`shared_medals_${profileData.id}`);
+            if (stored) {
+               setSharedMedals(JSON.parse(stored));
+            }
+         } catch (e) {
+            console.error("Failed to load shared medals:", e);
+         }
+      }
+   }, [profileData?.id]);
+
    const shareMedalToGlobalChat = async (medalId) => {
       if (!profileData?.id) return;
+      if (sharedMedals[medalId]) return; // Prevent multiple shares
       try {
          await supabase.from('messages').insert([{
             content: `[MEDAL_SHARE:${medalId}]`,
             user_id: profileData.id,
             user_nickname: profileData.nickname || 'یاریزان'
          }]);
-         setSharedMedals(prev => ({ ...prev, [medalId]: true }));
+         setSharedMedals(prev => {
+            const next = { ...prev, [medalId]: true };
+            try {
+               localStorage.setItem(`shared_medals_${profileData.id}`, JSON.stringify(next));
+            } catch (e) {}
+            return next;
+         });
       } catch (err) {
          console.error("Failed to share medal:", err);
       }
