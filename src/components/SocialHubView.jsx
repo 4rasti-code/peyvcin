@@ -927,6 +927,8 @@ export default function SocialHubView({
         setActiveTab('private');
       } else if (initialTab) {
         setActiveTab(initialTab);
+      } else {
+        setActiveTab('global');
       }
     }
   }, [initialChatPartner, initialTab, isVisible]);
