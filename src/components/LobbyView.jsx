@@ -296,8 +296,8 @@ const LobbyView = memo(({
     }
   };
 
-  const fetchOnlineProfiles = useCallback(async () => {
-    setLoadingOnline(true);
+  const fetchOnlineProfiles = useCallback(async (isBackgroundSync = false) => {
+    if (!isBackgroundSync) setLoadingOnline(true);
     try {
       const { supabase } = await import('../lib/supabase');
       const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
@@ -367,13 +367,20 @@ const LobbyView = memo(({
     } catch (err) {
       console.error("Error fetching online profiles", err);
     } finally {
-      setLoadingOnline(false);
+      if (!isBackgroundSync) setLoadingOnline(false);
     }
   }, [onlineUsers, user?.id]);
 
   useEffect(() => {
     if (showMultiplayerModal && inviteStep === 'invite') {
-      fetchOnlineProfiles();
+      fetchOnlineProfiles(false);
+      
+      // Setup 5-second background polling so it always stays perfectly in sync without manual refresh
+      const interval = setInterval(() => {
+        fetchOnlineProfiles(true);
+      }, 5000);
+      
+      return () => clearInterval(interval);
     }
   }, [showMultiplayerModal, inviteStep, fetchOnlineProfiles]);
 
