@@ -196,6 +196,7 @@ export default function PublicProfileModal({
   const safeLevel = levelData.level;
   const progressRatio = levelData.progressPercent;
   const nextLevelXP = Math.round(levelData.nextLevelBase);
+  const globalTier = getLevelTier(safeLevel);
 
   // Online Status Logic: Consider online if active in the last 3 minutes
   const isOnline = isBot || isMe || onlineUsers?.has(displayData.id) || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
@@ -598,29 +599,49 @@ export default function PublicProfileModal({
                 <div className="flex items-center justify-center gap-3" dir="rtl">
                   {/* Friend Action */}
                   {relStatus === 'friend' && !effectiveIsBlocked && (
-                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="لابرنا ھەڤالینیێ">
+                    <button 
+                      onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(true); }} 
+                      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${globalTier.isLegendary ? 'text-slate-900 border-none hover:opacity-90' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`}
+                      style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
+                      title="لابرنا ھەڤالینیێ">
                       <span className="material-symbols-outlined text-[20px]">how_to_reg</span>
                     </button>
                   )}
                   {relStatus === 'none' && !effectiveIsBlocked && (
-                    <button onClick={handleSendFriendRequest} className="w-10 h-10 rounded-full bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950 flex items-center justify-center hover:opacity-90 transition-all shadow-md" title="ببە ھەڤاڵ">
+                    <button 
+                      onClick={handleSendFriendRequest} 
+                      className={`w-10 h-10 rounded-full flex items-center justify-center hover:opacity-90 transition-all shadow-md ${globalTier.isLegendary ? 'text-slate-900 border-none' : 'bg-mono-900 dark:bg-slate-100 text-mono-50 dark:text-slate-950'}`}
+                      style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
+                      title="ببە ھەڤاڵ">
                       <span className="material-symbols-outlined text-[20px]">person_add</span>
                     </button>
                   )}
                   {relStatus === 'pending_sent' && !effectiveIsBlocked && (
-                    <button onClick={handleDeclineFriendRequest} className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all shadow-sm" title="پەشێمان بوون">
+                    <button 
+                      onClick={handleDeclineFriendRequest} 
+                      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${globalTier.isLegendary ? 'text-slate-900 border-none hover:opacity-90' : 'bg-amber-500/10 border-amber-500/20 text-amber-500 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`}
+                      style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
+                      title="پەشێمان بوون">
                       <span className="material-symbols-outlined text-[20px]">hourglass_top</span>
                     </button>
                   )}
 
                   {/* Report Action */}
-                  <button onClick={() => { triggerHaptic(10); setShowReportConfirm(true); }} className="w-10 h-10 rounded-full bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/40 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/20 transition-all shadow-sm" title="ڕیپۆرتکرن / سکاڵا">
+                  <button 
+                    onClick={() => { triggerHaptic(10); setShowReportConfirm(true); }} 
+                    className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${globalTier.isLegendary ? 'text-slate-900 border-none hover:opacity-90' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/20'}`}
+                    style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
+                    title="ڕیپۆرتکرن / سکاڵا">
                     <span className="material-symbols-outlined text-[20px]">flag</span>
                   </button>
 
                   {/* Block Action */}
                   {onToggleBlock && (
-                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20'}`} title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
+                    <button 
+                      onClick={() => { triggerHaptic(10); setShowBlockConfirm(true); }} 
+                      className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all shadow-sm ${globalTier.isLegendary ? 'text-slate-900 border-none hover:opacity-90' : (effectiveIsBlocked ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-mono-100 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-500 dark:text-white/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20')}`}
+                      style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
+                      title={effectiveIsBlocked ? 'لابرنا بلۆکی' : 'بلۆککرن'}>
                       <span className="material-symbols-outlined text-[20px]">{effectiveIsBlocked ? 'block' : 'person_off'}</span>
                     </button>
                   )}
@@ -676,7 +697,12 @@ export default function PublicProfileModal({
               <div className="px-2 pb-2">
                 <button
                   onClick={() => { triggerHaptic(10); setShowFullStats(true); }}
-                  className="w-full py-2.5 mt-2 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 text-mono-900 dark:text-white font-black text-sm hover:bg-mono-200 dark:hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm"
+                  className={`w-full py-2.5 mt-2 rounded-md font-black text-sm active:scale-95 transition-all flex items-center justify-center gap-2 font-rabar shadow-sm ${
+                    globalTier.isLegendary 
+                      ? 'border-none text-slate-900 hover:opacity-90' 
+                      : 'bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 text-mono-900 dark:text-white hover:bg-mono-200 dark:hover:bg-white/10'
+                  }`}
+                  style={globalTier.isLegendary ? { background: `linear-gradient(135deg, ${globalTier.stop1}, ${globalTier.stop2})`, filter: `drop-shadow(0 2px 8px ${globalTier.shadow})` } : {}}
                 >
                   <span className="material-symbols-outlined text-[18px]">query_stats</span>
                   <span>ئامار</span>
