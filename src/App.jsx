@@ -194,7 +194,7 @@ export default function App() {
     ownedAvatars, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts,
     equippedBundle, ownedBundles,
     unlockedThemes: _unlockedThemes, currentTheme,
-    updateProfile, profileData, syncProfile
+    updateProfile, profileData, syncProfile, updatePresenceStatus
   } = useUser();
 
   const {
@@ -606,6 +606,20 @@ export default function App() {
       hasForcedGameViewRef.current = false;
     }
   }, [multiplayerState, currentView]);
+
+  // Update presence status globally when entering/leaving games
+  useEffect(() => {
+    let busyMode = null;
+    if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
+      busyMode = 'multiplayer';
+    } else if (currentView === 'game') {
+      busyMode = gameMode;
+    }
+    
+    if (updatePresenceStatus) {
+      updatePresenceStatus(busyMode);
+    }
+  }, [currentView, gameMode, multiplayerState, updatePresenceStatus]);
 
   // CLEANUP: Ensure multiplayer state is reset when navigating away from results
   useEffect(() => {

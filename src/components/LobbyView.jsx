@@ -115,7 +115,7 @@ const LobbyView = memo(({
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
-  const { user, userNickname, userAvatar, onlineUsers, onlineCount, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
+  const { user, userNickname, userAvatar, onlineUsers, onlineUserStatuses, onlineCount, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
 
@@ -448,7 +448,7 @@ const LobbyView = memo(({
     const isSent = sentInvites.has(profile.id);
     const blockedUntil = inviteCooldowns[profile.id];
     const isBlocked = blockedUntil && new Date(blockedUntil) > new Date();
-    const busyMode = busyUsers[profile.id];
+    const busyMode = onlineUserStatuses?.[profile.id] || busyUsers[profile.id];
 
     const getBusyModeText = (mode) => {
       switch (mode) {
