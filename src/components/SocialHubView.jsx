@@ -2933,7 +2933,7 @@ export default function SocialHubView({
                 onClick={() => setFullscreenImage(null)}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
               >
-                <span className="material-icons-round">arrow_back</span>
+                <span className="material-symbols-outlined">arrow_back</span>
               </button>
               <button 
                 onClick={async (e) => {
@@ -2955,7 +2955,7 @@ export default function SocialHubView({
                 }}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
               >
-                <span className="material-icons-round">download</span>
+                <span className="material-symbols-outlined">download</span>
               </button>
             </div>
             
