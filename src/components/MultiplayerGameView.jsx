@@ -557,6 +557,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 )}
               </AnimatePresence>
             </div>
+            <div className="flex-1 flex flex-col min-w-0 items-end justify-center">
               {(() => {
                 const myFont = NAME_FONTS[equippedFont] || NAME_FONTS['default-ku'];
                 const myStyle = NAME_STYLES[equippedNameStyle] || {};
