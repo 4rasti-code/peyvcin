@@ -612,14 +612,14 @@ export default function App() {
     let busyMode = 'idle';
     if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
       busyMode = 'multiplayer';
-    } else if (currentView === 'game') {
+    } else if (currentView === 'game' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
       busyMode = gameMode;
     }
     
     if (updatePresenceStatus) {
       updatePresenceStatus(busyMode);
     }
-  }, [currentView, gameMode, multiplayerState, updatePresenceStatus]);
+  }, [currentView, gameMode, multiplayerState, isVictory, isDefeat, isWordFeverResultVisible, updatePresenceStatus]);
 
   // CLEANUP: Ensure multiplayer state is reset when navigating away from results
   useEffect(() => {
