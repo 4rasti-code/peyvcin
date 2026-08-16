@@ -144,10 +144,21 @@ export default function useBotSimulator({
 
             setActiveMatchGuarded(prev => {
               if (!prev) return prev;
+              
+              const newP1Score = prev.p1_score || 0;
+              const newP2Score = (prev.p2_score || 0) + 1;
+              const newIndex = (prev.current_word_index || 0) + 1;
+              const totalWords = prev.words?.length || 5;
+              const scoreDiff = Math.abs(newP1Score - newP2Score);
+              const isMatchEnd = scoreDiff >= 2 || newIndex >= totalWords;
+
               return {
                  ...prev,
-                 p2_score: (prev.p2_score || 0) + 1,
-                 current_word_index: (prev.current_word_index || 0) + 1
+                 p2_score: newP2Score,
+                 current_word_index: newIndex,
+                 status: isMatchEnd ? 'finished' : prev.status,
+                 p1_failed: false,
+                 p2_failed: false
               };
             });
           } else {
@@ -157,7 +168,18 @@ export default function useBotSimulator({
                 setActiveMatchGuarded(prev => {
                   if (!prev) return prev;
                   if (prev.p1_failed) {
-                     return { ...prev, p1_failed: false, p2_failed: false, current_word_index: (prev.current_word_index || 0) + 1 };
+                     const newIndex = (prev.current_word_index || 0) + 1;
+                     const totalWords = prev.words?.length || 5;
+                     const scoreDiff = Math.abs((prev.p1_score || 0) - (prev.p2_score || 0));
+                     const isMatchEnd = scoreDiff >= 2 || newIndex >= totalWords;
+
+                     return { 
+                       ...prev, 
+                       p1_failed: false, 
+                       p2_failed: false, 
+                       current_word_index: newIndex,
+                       status: isMatchEnd ? 'finished' : prev.status
+                     };
                   }
                   return { ...prev, p2_failed: true };
                 });

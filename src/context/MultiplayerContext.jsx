@@ -199,10 +199,22 @@ export const MultiplayerProvider = ({ children }) => {
         // Locally advance round for P1 win
         setActiveMatchGuarded(prev => {
           if (!prev) return prev;
+          
+          const newP1Score = (prev.p1_score || 0) + 1;
+          const newP2Score = prev.p2_score || 0;
+          const newIndex = (prev.current_word_index || 0) + 1;
+          const totalWords = prev.words?.length || 5;
+          const scoreDiff = Math.abs(newP1Score - newP2Score);
+          
+          const isMatchEnd = scoreDiff >= 2 || newIndex >= totalWords;
+
           return {
             ...prev,
-            p1_score: (prev.p1_score || 0) + 1,
-            current_word_index: (prev.current_word_index || 0) + 1
+            p1_score: newP1Score,
+            current_word_index: newIndex,
+            status: isMatchEnd ? 'finished' : prev.status,
+            p1_failed: false,
+            p2_failed: false
           };
         });
       }
@@ -246,11 +258,17 @@ export const MultiplayerProvider = ({ children }) => {
         if (!prev) return prev;
         // If bot already failed, advance the round (draw). Else, just mark P1 as failed.
         if (prev.p2_failed) {
+          const newIndex = (prev.current_word_index || 0) + 1;
+          const totalWords = prev.words?.length || 5;
+          const scoreDiff = Math.abs((prev.p1_score || 0) - (prev.p2_score || 0));
+          const isMatchEnd = scoreDiff >= 2 || newIndex >= totalWords;
+
           return {
             ...prev,
-            p1_failed: true,
+            p1_failed: false,
             p2_failed: false,
-            current_word_index: (prev.current_word_index || 0) + 1
+            current_word_index: newIndex,
+            status: isMatchEnd ? 'finished' : prev.status
           };
         }
         return { ...prev, p1_failed: true };
