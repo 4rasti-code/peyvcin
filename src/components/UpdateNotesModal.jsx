@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const UPDATE_VERSION = 'v2.7.0'; // Change this string to force the modal to show again for all users
+const UPDATE_VERSION = 'v2.8.0'; // Change this string to force the modal to show again for all users
 
-const UPDATE_RELEASE_DATE = new Date('2026-08-10T00:00:00Z');
+const UPDATE_RELEASE_DATE = new Date('2026-08-16T00:00:00Z');
 
 const UpdateNotesModal = ({ user, onComplete }) => {
    const [isVisible, setIsVisible] = useState(false);
@@ -86,12 +86,12 @@ const UpdateNotesModal = ({ user, onComplete }) => {
                            {/* Item 1 */}
                            <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
                               <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                                 🎯
+                                 🎮
                               </div>
                               <div className="flex flex-col pt-0.5">
-                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">سیستەمێ لێگەڕیانا زیرەک</h3>
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">یاسایێن نوی یێن هەڤڕکیێ</h3>
                                  <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
-                                    لێگەڕیانا گشتی یا زیرەک بووی! نۆکە دێ ب ئۆتۆماتیکی کەڤیە بەرامبەر یاریزانێن کو د هەمان ئاستێ تە دا، دا یاری یەکسانتر بیت.
+                                    نۆکە پەیڤێن (٣، ٤، ٥، ٦) پیتی دێ دەرکەڤن ب ڕێژەیا (٧٥٪ ئاسایی و ٢٥٪ زەحمەت). هەروەسا کۆمەکا مەزن یا پەیڤێن نوی بتنێ بۆ هەڤڕکیێ هاتنە زێدەکرن!
                                  </p>
                               </div>
                            </div>
@@ -99,12 +99,12 @@ const UpdateNotesModal = ({ user, onComplete }) => {
                            {/* Item 2 */}
                            <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
                               <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                                 🎤
+                                 🟢
                               </div>
                               <div className="flex flex-col pt-0.5">
-                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">هنارتنا نامەیێن دەنگی (ڤۆیس)</h3>
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">یاریزانێن ئۆنلاین و مژویل</h3>
                                  <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
-                                    تایبەتمەندییا ڤۆیسێ هاتە زێدەکرن! نۆکە دشێی ب ساناهی نامەیێن دەنگی د بەشێ چاتێ دا بۆ هەڤالان بهنێری.
+                                    یاریزانێن مژویل ب ئاشکرایی دیار دبن و داخازنامە بۆ ناچن. هەڤالێن تە ژی هەردەم ل سەرێ لیستێ نە دگەل نویترین پلەیا تە.
                                  </p>
                               </div>
                            </div>
@@ -112,12 +112,12 @@ const UpdateNotesModal = ({ user, onComplete }) => {
                            {/* Item 3 */}
                            <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
                               <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                                 🔧
+                                 👥
                               </div>
                               <div className="flex flex-col pt-0.5">
-                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">چارەسەرکرنا کێشەیێن گشتی</h3>
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">بەشێ چات و پێزانینان</h3>
                                  <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
-                                    کێشەیا دەنگێن نۆتیفیکەیشنان هاتە چارەسەرکرن، ل گەل باشترکرنا دیزاین و خێرایییا ئەپی ب گشتی.
+                                    شریتەکا پێزانینان د ناڤ چاتیدا هاتە زێدەکرن. وێنە گەلەک ب لەز د ناڤ چاتیدا ڤەدبن و تو دشێی نویترین پلەیا خوە ژی ب کارتا جوان د ناڤ چاتیدا بەلاڤ بکەی.
                                  </p>
                               </div>
                            </div>
