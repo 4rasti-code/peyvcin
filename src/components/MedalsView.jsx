@@ -99,7 +99,15 @@ export default function MedalsView({ onViewChange }) {
                className="flex flex-col gap-3"
             >
                {MEDALS.map((m) => {
-                  const displayData = { ...(profileData || {}), ...(playerStats || {}), level };
+                  const displayData = { 
+                     ...(profileData || {}), 
+                     ...(playerStats || {}), 
+                     level,
+                     daily_streak: profileData?.daily_streak || 0,
+                     total_words_found: profileData?.total_words_found || 0,
+                     games_won: profileData?.games_won || 0,
+                     flawless_wins: profileData?.flawless_wins || 0
+                  };
                   const isUnlocked = m.condition(displayData);
                   const isClaimable = isUnlocked && !claimedMedals.includes(m.id);
 
@@ -168,20 +176,13 @@ export default function MedalsView({ onViewChange }) {
                                  </span>
                               </div>
                               
-                              {isUnlocked && !isClaimable && (
+                              {isUnlocked && !isClaimable && !sharedMedals[m.id] && (
                                  <button
                                     onClick={(e) => { e.stopPropagation(); triggerHaptic(10); shareMedalToGlobalChat(m.id); }}
-                                    disabled={sharedMedals[m.id]}
-                                    className={`shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black transition-all ${
-                                       sharedMedals[m.id] 
-                                          ? 'bg-mono-200 dark:bg-mono-800 text-mono-400 cursor-not-allowed' 
-                                          : 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95 shadow-sm'
-                                    }`}
+                                    className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-black transition-all bg-blue-500 text-white hover:bg-blue-600 active:scale-95 shadow-sm"
                                  >
-                                    <span className="material-symbols-outlined text-[14px]">
-                                       {sharedMedals[m.id] ? 'done_all' : 'share'}
-                                    </span>
-                                    {sharedMedals[m.id] ? 'هاتە بەلاڤکرن' : 'بەلاڤکرن د چاتێ دا'}
+                                    <span className="material-symbols-outlined text-[14px]">share</span>
+                                    بەلاڤکرن د چاتێ دا
                                  </button>
                               )}
                            </div>

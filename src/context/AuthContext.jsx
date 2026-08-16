@@ -91,7 +91,8 @@ export const AuthProvider = ({ children }) => {
         .from('profiles')
         .select(`
           inventory, claimed_medals, last_notified_level,
-          statistics, solved_words
+          statistics, solved_words,
+          games_won, games_played, flawless_wins, total_words_found, pvp_wins, fever_highscore
         `)
         .eq('id', userId);
 
@@ -623,7 +624,7 @@ export const AuthProvider = ({ children }) => {
 
         const statuses = {};
         Object.values(latestPresence).forEach(p => {
-          if (p.busy_mode) statuses[p.user_id] = p.busy_mode;
+          if (p.busy_mode && p.busy_mode !== 'idle') statuses[p.user_id] = p.busy_mode;
         });
         setOnlineUsers(users);
         setOnlineUserStatuses(statuses);

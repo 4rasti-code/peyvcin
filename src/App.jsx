@@ -609,7 +609,7 @@ export default function App() {
 
   // Update presence status globally when entering/leaving games
   useEffect(() => {
-    let busyMode = null;
+    let busyMode = 'idle';
     if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
       busyMode = 'multiplayer';
     } else if (currentView === 'game') {

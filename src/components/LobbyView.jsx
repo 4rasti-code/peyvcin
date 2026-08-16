@@ -313,8 +313,7 @@ const LobbyView = memo(({
             .neq('nickname', 'ADMIN_PEYVOK')
             .neq('nickname', 'پەیڤۆک')
             .neq('id', '9a813c24-b662-477d-a74a-6f822d17bbf1')
-            .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4')
-            .limit(50),
+            .neq('id', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4'),
           supabase
             .from('friendships')
             .select('user_id, friend_id')
