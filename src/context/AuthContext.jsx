@@ -829,10 +829,7 @@ export const AuthProvider = ({ children }) => {
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
-    // System states
-    loadingAuth, isSyncingProfile,
-    
-    // Actions
+    equippedBundle, ownedBundles, syncProfile,
     updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus, forceRefreshPresence
   ]);
 
