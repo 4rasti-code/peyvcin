@@ -105,23 +105,17 @@ export default function StatsView({
   const globalDist = useMemo(() => {
     const dist = { "1":0, "2":0, "3":0, "4":0, "5":0, "6":0 };
     
-    // Fallback: If the structure is flat (legacy), handle it directly
-    const hasAnyGuessKey = Object.keys(stats.rawDistribution).some(k => ['1','2','3','4','5','6'].includes(k));
-    const hasModeKeys = Object.keys(stats.rawDistribution).some(k => ['classic','mamak','hard_words','word_fever'].includes(k));
-    
-    if (hasAnyGuessKey && !hasModeKeys) {
-      Object.entries(stats.rawDistribution).forEach(([key, val]) => {
-        if (dist[key] !== undefined && typeof val === 'number') dist[key] += val;
-      });
-      return dist;
-    }
-
-    Object.values(stats.rawDistribution).forEach(modeData => {
-      // Handle nested playerStats structure
-      const modeDist = modeData?.guess_distribution || modeData || {};
-      Object.entries(modeDist).forEach(([key, val]) => {
-        if (dist[key] !== undefined && typeof val === 'number') dist[key] += val;
-      });
+    Object.entries(stats.rawDistribution).forEach(([key, modeData]) => {
+      // If the key is a direct guess number (old flat structure)
+      if (['1','2','3','4','5','6'].includes(key)) {
+         if (typeof modeData === 'number') dist[key] += modeData;
+      } else {
+         // Handle nested mode structures
+         const modeDist = modeData?.guess_distribution || modeData || {};
+         Object.entries(modeDist).forEach(([k, val]) => {
+           if (dist[k] !== undefined && typeof val === 'number') dist[k] += val;
+         });
+      }
     });
     return dist;
   }, [stats.rawDistribution]);
@@ -365,18 +359,21 @@ export default function StatsView({
               const dist = {};
               for (let i = 1; i <= mode.maxAttempts; i++) dist[i.toString()] = 0;
               
-              let modeData = stats.rawDistribution[mode.id] || {};
-              
-              // Fallback: Show flat distribution under Classic mode if any guess key exists
-              if (mode.id === 'classic' && Object.keys(stats.rawDistribution).some(k => ['1','2','3','4','5','6'].includes(k))) {
-                modeData = stats.rawDistribution;
+              if (mode.id === 'classic') {
+                const newClassicDist = stats.rawDistribution['classic']?.guess_distribution || stats.rawDistribution['classic'] || {};
+                for (let i = 1; i <= mode.maxAttempts; i++) {
+                  const key = i.toString();
+                  const oldVal = typeof stats.rawDistribution[key] === 'number' ? stats.rawDistribution[key] : 0;
+                  const newVal = typeof newClassicDist[key] === 'number' ? newClassicDist[key] : 0;
+                  dist[key] = oldVal + newVal;
+                }
+              } else {
+                const modeData = stats.rawDistribution[mode.id] || {};
+                const rawModeDist = modeData.guess_distribution || modeData || {};
+                Object.entries(rawModeDist).forEach(([key, val]) => {
+                  if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
+                });
               }
-              
-              const rawModeDist = modeData.guess_distribution || modeData || {};
-
-              Object.entries(rawModeDist).forEach(([key, val]) => {
-                if (dist[key] !== undefined && typeof val === 'number') dist[key] = val;
-              });
               
               const maxValue = Math.max(...Object.values(dist), 1);
 
