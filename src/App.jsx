@@ -607,20 +607,6 @@ export default function App() {
     }
   }, [multiplayerState, currentView]);
 
-  // Update presence status globally when entering/leaving games
-  useEffect(() => {
-    let busyMode = 'idle';
-    if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
-      busyMode = 'multiplayer';
-    } else if (currentView === 'game' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
-      busyMode = gameMode;
-    }
-    
-    if (updatePresenceStatus) {
-      updatePresenceStatus(busyMode);
-    }
-  }, [currentView, gameMode, multiplayerState, isVictory, isDefeat, isWordFeverResultVisible, updatePresenceStatus]);
-
   // CLEANUP: Ensure multiplayer state is reset when navigating away from results
   useEffect(() => {
     const mainViews = ['store', 'social_hub', 'leaderboard', 'stats', 'dictionary', 'profile'];
@@ -829,6 +815,20 @@ export default function App() {
       }
     }
   });
+
+  // Update presence status globally when entering/leaving games
+  useEffect(() => {
+    let busyMode = 'idle';
+    if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
+      busyMode = 'multiplayer';
+    } else if (currentView === 'game' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
+      busyMode = gameMode;
+    }
+    
+    if (updatePresenceStatus) {
+      updatePresenceStatus(busyMode);
+    }
+  }, [currentView, gameMode, multiplayerState, isVictory, isDefeat, isWordFeverResultVisible, updatePresenceStatus]);
 
   // --- UNIFIED AUTOMATIC BACKGROUND MUSIC (BGM) CONTROLLER ---
   const lastBgmActionRef = useRef(null);
