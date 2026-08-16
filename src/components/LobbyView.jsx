@@ -528,7 +528,7 @@ const LobbyView = memo(({
     };
 
     return (
-      <div key={`${profile.id}-${index}`} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
+      <div key={profile.id} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
         <div
           className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 mr-2"
           onClick={() => {
@@ -1056,7 +1056,7 @@ const LobbyView = memo(({
                     </button>
                   </div>
 
-                  <div className={`overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
+                  <div className="overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300">
                     {loadingOnline && onlineProfiles.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full opacity-50">
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
