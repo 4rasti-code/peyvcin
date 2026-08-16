@@ -104,7 +104,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
    const tier = getLevelTier(safeLevel);
 
-   const displayData = { ...(profileData || {}), ...(profileData?.statistics || {}), level: safeLevel };
+
    const getLatestMedal = () => {
       if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return MEDALS[0];
       const latestId = profileData.claimed_medals[profileData.claimed_medals.length - 1];
