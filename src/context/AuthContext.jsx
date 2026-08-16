@@ -569,7 +569,7 @@ export const AuthProvider = ({ children }) => {
   const updatePresenceStatus = useCallback(async (busyMode) => {
     currentBusyModeRef.current = busyMode;
     try {
-      if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined' && user?.id) {
+      if (presenceChannelRef.current && user?.id) {
         const isAdmin = user?.email === '4rasti@gmail.com';
         if (!isAdmin) {
           await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: busyMode });
