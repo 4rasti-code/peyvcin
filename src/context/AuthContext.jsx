@@ -13,6 +13,8 @@ export const AuthProvider = ({ children }) => {
   const [visualProgress, setVisualProgress] = useState(0);
   const [onlineCount, setOnlineCount] = useState(1);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
+  const presenceChannelRef = useRef(null);
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
@@ -561,6 +563,15 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user?.id]);
 
+  const updatePresenceStatus = useCallback(async (busyMode) => {
+    if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined' && user?.id) {
+      const isAdmin = user?.email === '4rasti@gmail.com';
+      if (!isAdmin) {
+        await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: busyMode });
+      }
+    }
+  }, [user?.id, user?.email]);
+
   // NEW: Global App Presence Tracking
   useEffect(() => {
     if (!user?.id) return;
@@ -585,19 +596,23 @@ export const AuthProvider = ({ children }) => {
 
     let isMounted = true;
     const presenceChannel = supabase.channel('global:app_presence');
+    presenceChannelRef.current = presenceChannel;
 
     presenceChannel.on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
       if (isMounted) {
         const users = new Set();
+        const statuses = {};
         Object.values(state).forEach(presences => {
           presences.forEach(p => {
             if (p.user_id && p.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && p.user_id !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && p.user_id !== user.id) {
               users.add(p.user_id);
+              if (p.busy_mode) statuses[p.user_id] = p.busy_mode;
             }
           });
         });
         setOnlineUsers(users);
+        setOnlineUserStatuses(statuses);
         setOnlineCount(users.size);
       }
     }).subscribe(async (status) => {
@@ -773,14 +788,14 @@ export const AuthProvider = ({ children }) => {
     equippedFont, setEquippedFont, ownedFonts, setOwnedFonts,
     equippedBundle, setEquippedBundle, ownedBundles, setOwnedBundles,
     lastProfileUpdate, setLastProfileUpdate,
-    onlineCount, onlineUsers,
+    onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
     isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
     equippedBundle, ownedBundles, syncProfile,
-    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
