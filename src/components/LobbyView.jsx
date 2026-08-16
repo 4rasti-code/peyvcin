@@ -967,27 +967,37 @@ const LobbyView = memo(({
                 </>
               ) : (
                 <>
-                  <div className="flex items-center gap-2 mb-4 shrink-0">
-                    <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors">
+                  <div className="flex items-center justify-between mb-5 shrink-0 px-1">
+                    <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors shrink-0">
                       <span className="material-symbols-outlined text-xl">arrow_back</span>
                     </button>
-                    <div className="flex-1 flex items-center justify-center gap-2 mr-4">
-                      <h3 className="text-lg font-black text-center text-mono-900 dark:text-white flex items-center gap-2">
-                        یاریزانێن سەرهێل {onlineProfiles.length > 0 && <span className="text-sm text-mono-500 dark:text-mono-400">({onlineProfiles.length})</span>}
+                    
+                    <div className="flex-1 flex justify-center items-center">
+                      <h3 className="text-lg font-black text-mono-900 dark:text-white flex items-center gap-2">
+                        یاریزانێن سەرهێل
+                        {onlineProfiles.length > 0 && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm" dir="ltr">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
+                            <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none pt-[1px]">
+                              {toKuDigits(onlineProfiles.length)}
+                            </span>
+                          </div>
+                        )}
                       </h3>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          triggerHaptic(10);
-                          fetchOnlineProfiles();
-                        }}
-                        disabled={loadingOnline}
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-mono-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all disabled:opacity-50"
-                        title="نویکرنەڤە"
-                      >
-                        <span className={`material-symbols-outlined text-[20px] ${loadingOnline ? 'animate-spin text-blue-500' : ''}`}>sync</span>
-                      </button>
                     </div>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        triggerHaptic(10);
+                        fetchOnlineProfiles();
+                      }}
+                      disabled={loadingOnline}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${loadingOnline ? 'bg-blue-500/10 text-blue-500' : 'bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 text-mono-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm'}`}
+                      title="نویکرنەڤە"
+                    >
+                      <span className={`material-symbols-outlined text-[18px] ${loadingOnline ? 'animate-spin' : ''}`}>sync</span>
+                    </button>
                   </div>
 
                   <div className={`overflow-y-auto h-62.5 pr-2 custom-scrollbar space-y-2 mb-4 transition-opacity duration-300 ${loadingOnline ? 'opacity-50' : 'opacity-100'}`}>
