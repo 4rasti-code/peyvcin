@@ -961,20 +961,35 @@ const LobbyView = memo(({
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
                     ) : onlineProfiles.length > 0 ? (
-                      <>
-                        {onlineProfiles.some(p => p.isFriend) && (
+                      (() => {
+                        const isProfileBusy = (p) => !!(onlineUserStatuses?.[p.id] || busyUsers[p.id]);
+                        const friendsNotInGame = onlineProfiles.filter(p => p.isFriend && !isProfileBusy(p));
+                        const othersNotInGame = onlineProfiles.filter(p => !p.isFriend && !isProfileBusy(p));
+                        const playersInGame = onlineProfiles.filter(p => isProfileBusy(p));
+
+                        return (
                           <>
-                            <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
-                            {onlineProfiles.filter(p => p.isFriend).map(renderProfileRow)}
+                            {friendsNotInGame.length > 0 && (
+                              <>
+                                <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
+                                {friendsNotInGame.map(renderProfileRow)}
+                              </>
+                            )}
+                            {othersNotInGame.length > 0 && (
+                              <>
+                                <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${friendsNotInGame.length > 0 ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
+                                {othersNotInGame.map(renderProfileRow)}
+                              </>
+                            )}
+                            {playersInGame.length > 0 && (
+                              <>
+                                <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${(friendsNotInGame.length > 0 || othersNotInGame.length > 0) ? 'mt-4' : 'mt-2'}`}>د یاریێ دانە</div>
+                                {playersInGame.map(renderProfileRow)}
+                              </>
+                            )}
                           </>
-                        )}
-                        {onlineProfiles.some(p => !p.isFriend) && (
-                          <>
-                            <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${onlineProfiles.some(p => p.isFriend) ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
-                            {onlineProfiles.filter(p => !p.isFriend).map(renderProfileRow)}
-                          </>
-                        )}
-                      </>
+                        );
+                      })()
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-center px-4">
                         <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
