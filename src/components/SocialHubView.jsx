@@ -17,7 +17,7 @@ import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
 
-export const renderPreviewText = (text) => {
+const renderPreviewText = (text) => {
   if (!text) return 'نامەک ل ڤێرێیە';
   
   if (text.includes('[VOICE:')) {
