@@ -21,10 +21,12 @@ export default function MedalsView({ onViewChange }) {
          try {
             const stored = localStorage.getItem(`shared_medals_${profileData.id}`);
             if (stored) {
-               setSharedMedals(JSON.parse(stored));
+               setTimeout(() => {
+                  setSharedMedals(JSON.parse(stored));
+               }, 0);
             }
-         } catch (e) {
-            console.error("Failed to load shared medals:", e);
+         } catch (_e) {
+            console.error("Failed to load shared medals:", _e);
          }
       }
    }, [profileData?.id]);
@@ -42,7 +44,9 @@ export default function MedalsView({ onViewChange }) {
             const next = { ...prev, [medalId]: true };
             try {
                localStorage.setItem(`shared_medals_${profileData.id}`, JSON.stringify(next));
-            } catch (e) {}
+            } catch (_err) {
+               // Ignore local storage errors
+            }
             return next;
          });
       } catch (err) {
