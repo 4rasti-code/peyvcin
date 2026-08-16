@@ -606,7 +606,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`w-10 h-10 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center`}>
+                    <div className={`${myReaction.replace(/\\u200E|\\u200F|\\uFE0F/g, '').length <= 3 ? 'w-10 h-10 rounded-full' : 'px-3 py-1.5 rounded-[12px] whitespace-nowrap'} ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl flex items-center justify-center`}>
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -784,7 +784,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`w-10 h-10 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center`}>
+                    <div className={`${opponentReaction.replace(/\\u200E|\\u200F|\\uFE0F/g, '').length <= 3 ? 'w-10 h-10 rounded-full' : 'px-3 py-1.5 rounded-[12px] whitespace-nowrap'} ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl flex items-center justify-center`}>
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>

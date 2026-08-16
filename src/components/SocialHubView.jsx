@@ -601,6 +601,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
   const msgContent = m.content || m.text || '';
   const isMentioned = !isMe && currentUserNickname && msgContent.includes(`@${currentUserNickname}`);
   const isOnlyVoice = /^\s*\[VOICE:.*?\]\s*$/.test(msgContent);
+  const isOnlyEmoji = /^[\p{Emoji}\s]+$/u.test(msgContent) && msgContent.trim().length > 0 && !/[a-zA-Z0-9\u0600-\u06FF]/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
@@ -805,10 +806,13 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               e.preventDefault();
               onLongPress(m, e.clientX, e.clientY);
             }}
-            className={`message-bubble px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap transition-all relative cursor-pointer active:scale-[0.98] select-none shadow-sm ${isMe
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && isOnlyEmoji) 
+              ? 'text-[54px] leading-none bg-transparent shadow-none border-none px-1 py-1 drop-shadow-sm' 
+              : `px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap shadow-sm ${isMe
               ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
               : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
-              } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
+              }`
+            } ${isDeleted ? 'px-3 py-1.5 rounded-md opacity-60 italic text-[13px] bg-mono-100 dark:bg-mono-800' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
 
             {/* Quoted Message (Reply) */}
@@ -827,7 +831,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             )}
 
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
-            {!isDeleted && (
+            {!isDeleted && !isOnlyEmoji && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -852,7 +856,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             )}
 
             <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-1'}`}>
-              <div className={`text-[9px] font-bold opacity-70 ${isMe ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
+              <div className={`text-[9px] font-bold opacity-70 ${(isMe && !isOnlyEmoji) ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
               {isMe && !isDeleted && (
