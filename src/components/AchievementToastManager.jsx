@@ -4,7 +4,6 @@ import { useUser } from '../context/AuthContext';
 import { MEDALS } from '../constants/medals';
 import { triggerHaptic } from '../utils/haptics';
 import { getLevelFromXP } from '../utils/progression';
-import { supabase } from '../lib/supabase';
 import { 
   playNoberaSfx, 
   playPalawanSfx, 
@@ -45,10 +44,7 @@ export default function AchievementToastManager() {
        return;
     }
 
-    // Level up broadcast check
-    if (previousLevelRef.current !== null && computedLevel > previousLevelRef.current) {
-
-    }
+    // Level up broadcast check removed
     previousLevelRef.current = computedLevel;
 
     const claimedMedals = profileData?.claimed_medals || [];
