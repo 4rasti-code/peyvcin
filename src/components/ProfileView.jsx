@@ -106,13 +106,13 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
 
    const getLatestMedal = () => {
-      if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return MEDALS[0];
+      if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return null;
       const latestId = profileData.claimed_medals[profileData.claimed_medals.length - 1];
-      return MEDALS.find(m => m.id === latestId) || MEDALS[0];
+      return MEDALS.find(m => m.id === latestId) || null;
    };
 
    const bestMedal = getLatestMedal();
-   const isBestUnlocked = profileData?.claimed_medals?.includes(bestMedal.id);
+   const isBestUnlocked = bestMedal ? profileData?.claimed_medals?.includes(bestMedal.id) : false;
 
    const isLoading = !user || userNickname === 'یاریزان';
 
@@ -407,7 +407,9 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      <div
                         className="w-12 h-12 flex items-center justify-center shrink-0"
                      >
-                        <bestMedal.IconComponent className={`w-10 h-10 ${!isBestUnlocked ? 'brightness-90 contrast-125' : 'drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]'}`} disabled={!isBestUnlocked} isBadge={true} />
+                        {bestMedal && (
+                           <bestMedal.IconComponent className={`w-10 h-10 ${!isBestUnlocked ? 'brightness-90 contrast-125' : 'drop-shadow-[0_3px_5px_rgba(0,0,0,0.6)]'}`} disabled={!isBestUnlocked} isBadge={true} />
+                        )}
                      </div>
 
                      {/* Center: Name */}

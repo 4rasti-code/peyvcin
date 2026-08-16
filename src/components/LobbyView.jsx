@@ -534,12 +534,13 @@ const LobbyView = memo(({
             })()}
             {(() => {
               const getLatestMedal = () => {
-                if (!profile.claimed_medals || profile.claimed_medals.length === 0) return MEDALS[0];
+                if (!profile.claimed_medals || profile.claimed_medals.length === 0) return null;
                 const latestId = profile.claimed_medals[profile.claimed_medals.length - 1];
-                const found = MEDALS.find(m => m.id === latestId);
-                return found || MEDALS[0];
+                return MEDALS.find(m => m.id === latestId) || null;
               };
               const latestMedal = getLatestMedal();
+              if (!latestMedal) return null;
+              
               const MedalIcon = latestMedal.IconComponent;
               return (
                 <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
