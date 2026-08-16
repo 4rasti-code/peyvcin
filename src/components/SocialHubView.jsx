@@ -3010,11 +3010,11 @@ export default function SocialHubView({
             </div>
             
             {/* Image Container */}
-            <div className="flex-1 w-full flex items-center justify-center p-4 pt-16">
+            <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
               <img 
                 src={fullscreenImage} 
                 alt="Fullscreen Preview" 
-                className="max-w-full max-h-full object-contain pointer-events-auto shadow-2xl rounded-sm"
+                className="w-full h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm"
                 draggable="false"
                 onContextMenu={e => e.preventDefault()}
                 onClick={e => e.stopPropagation()}
