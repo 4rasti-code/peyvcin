@@ -2770,7 +2770,7 @@ export default function SocialHubView({
                 onChange={handleImageUpload}
               />
 
-              {(selectedChat && !isRecording) && (
+              {!isRecording && (
                 <>
                   <button
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -2778,14 +2778,6 @@ export default function SocialHubView({
                     title="ئێمۆجی"
                   >
                     <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
-                  </button>
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploadingImage}
-                    className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                    title="وێنەیەک بهنێرە"
-                  >
-                    <span className="material-symbols-outlined font-black text-xl">image</span>
                   </button>
 
                   {/* Emoji Picker Popup */}
@@ -2813,6 +2805,17 @@ export default function SocialHubView({
                     )}
                   </AnimatePresence>
                 </>
+              )}
+
+              {(selectedChat && !isRecording) && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                  title="وێنەیەک بهنێرە"
+                >
+                  <span className="material-symbols-outlined font-black text-xl">image</span>
+                </button>
               )}
             </div>
           </div>
