@@ -2753,6 +2753,7 @@ export default function SocialHubView({
                   onFocus={() => {
                     setIsKeyboardVisible(true);
                     onKeyboardToggle?.(true);
+                    setShowEmojiPicker(false);
                   }}
                   onBlur={() => {
                     setIsKeyboardVisible(false);
@@ -2783,13 +2784,15 @@ export default function SocialHubView({
                   {/* Emoji Picker Popup */}
                   <AnimatePresence>
                     {showEmojiPicker && (
-                      <Motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
-                        dir="ltr"
-                      >
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} onTouchStart={() => setShowEmojiPicker(false)} />
+                        <Motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
+                          dir="ltr"
+                        >
                         <div className="grid grid-cols-5 gap-2">
                           {['😂', '❤️', '🔥', '👍', '👏', '🤯', '🧠', '🤦‍♀️', '🤷‍♀️', '🥺', '😍', '😭', '😡', '🤬', '😎', '🎉', '💩', '💀', '👀', '💯'].map(emoji => (
                             <button
@@ -2801,7 +2804,8 @@ export default function SocialHubView({
                             </button>
                           ))}
                         </div>
-                      </Motion.div>
+                        </Motion.div>
+                      </>
                     )}
                   </AnimatePresence>
                 </>
