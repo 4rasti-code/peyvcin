@@ -190,12 +190,68 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   // --- PRESSURE TIMER LOGIC ---
   const iHaveFailed = guesses.length >= 3;
+  const getAnimatedEmojiUrl = (reaction) => {
+    const map = {
+      '😂': '1f602',
+      '😡': '1f621',
+      '👏': '1f44f',
+      '🤯': '1f92f',
+      '💔': '1f494',
+      '🧠': '1f9e0'
+    };
+    const code = map[reaction];
+    return code ? `https://fonts.gstatic.com/s/e/notoemoji/latest/${code}/512.webp` : null;
+  };
+
   const renderReactionContent = (rawReaction) => {
     if (!rawReaction) return null;
     const reaction = rawReaction.replace(/\u200E|\u200F|\uFE0F/g, '');
     
     if (reaction.length <= 3) {
-      return <span className="text-[26px] leading-none drop-shadow-sm">{reaction}</span>;
+      const webpUrl = getAnimatedEmojiUrl(reaction);
+      if (webpUrl) {
+        return (
+          <img 
+            src={webpUrl} 
+            alt={reaction} 
+            className="w-8 h-8 object-contain drop-shadow-sm"
+          />
+        );
+      }
+
+      let animationProps = {};
+      switch (reaction) {
+        case '😂':
+          animationProps = { animate: { rotate: [0, -15, 15, -15, 15, 0], scale: [1, 1.2, 1.2, 1.2, 1.2, 1] }, transition: { duration: 1.5, repeat: Infinity } };
+          break;
+        case '😡':
+          animationProps = { animate: { x: [0, -4, 4, -4, 4, 0], y: [0, 2, -2, 2, -2, 0] }, transition: { duration: 0.3, repeat: Infinity } };
+          break;
+        case '👏':
+          animationProps = { animate: { scale: [1, 1.3, 1], y: [0, -5, 0] }, transition: { duration: 0.5, repeat: Infinity } };
+          break;
+        case '🤯':
+          animationProps = { animate: { scale: [1, 1.4, 1], rotate: [0, 5, -5, 0] }, transition: { duration: 1.2, repeat: Infinity } };
+          break;
+        case '💔':
+          animationProps = { animate: { scale: [1, 0.8, 1.1, 1], rotate: [0, -10, 10, 0] }, transition: { duration: 1.5, repeat: Infinity } };
+          break;
+        case '🧠':
+          animationProps = { animate: { scale: [1, 1.15, 1] }, transition: { duration: 0.8, repeat: Infinity } };
+          break;
+        default:
+          animationProps = { animate: { scale: [1, 1.1, 1] }, transition: { duration: 1, repeat: Infinity } };
+          break;
+      }
+
+      return (
+        <Motion.span 
+          className="text-[26px] leading-none drop-shadow-sm inline-block"
+          {...animationProps}
+        >
+          {reaction}
+        </Motion.span>
+      );
     }
     
     return <span className="text-[13px] sm:text-[14px] font-extrabold text-mono-900 dark:text-white leading-tight drop-shadow-sm">{reaction}</span>;
@@ -550,7 +606,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`w-10 h-10 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center`}>
                       {renderReactionContent(myReaction)}
                     </div>
                   </Motion.div>
@@ -728,7 +784,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     transition={{ duration: 0.5, type: "spring", bounce: 0.5 }}
                     className="absolute inset-0 m-auto flex items-center justify-center z-100 pointer-events-none"
                   >
-                    <div className={`px-3.5 py-1.5 sm:px-4 sm:py-2 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center min-w-max max-w-50`}>
+                    <div className={`w-10 h-10 ${isDark ? 'bg-mono-800 border-mono-700' : 'bg-white border-mono-200'} border shadow-xl rounded-full flex items-center justify-center`}>
                       {renderReactionContent(opponentReaction)}
                     </div>
                   </Motion.div>

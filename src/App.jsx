@@ -1,6 +1,6 @@
 // Deployment Trigger: Ensuring timer removal is live
 import React, { useState, useEffect, useRef, useCallback, Suspense, lazy, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
 import OneSignal from 'react-onesignal';
@@ -177,7 +177,6 @@ const ScrollingMatchFinder = ({ opponent }) => {
 export default function App() {
   const [isUpdateNotesCleared, setIsUpdateNotesCleared] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [isFontsLoaded, setIsFontsLoaded] = useState(false);
 
@@ -437,33 +436,6 @@ export default function App() {
     };
   }, [currentTheme]);
 
-  // Sync URL -> State (Initial Load & Back Button)
-  // Sync URL -> State (Handles Initial Load & Back/Forward Buttons)
-  useEffect(() => {
-    const path = location.pathname.replace(/^\/+/, '') || 'lobby';
-    let view = path;
-    if (path.startsWith('social_hub')) view = 'social_hub';
-    setCurrentView(prev => prev !== view ? view : prev);
-  }, [location.pathname]);
-
-  // Sync State -> URL (Handles internal navigateTo calls)
-  const lastNavRef = useRef({ path: '', time: 0 });
-  useEffect(() => {
-    const path = location.pathname.replace(/^\/+/, '') || 'lobby';
-    let view = path;
-    if (path.startsWith('social_hub')) view = 'social_hub';
-    if (view !== currentView) {
-      const now = Date.now();
-      const targetPath = '/' + currentView;
-      // Prevent rapid identical navigations (React Router loop guard)
-      if (lastNavRef.current.path === targetPath && now - lastNavRef.current.time < 300) {
-        console.warn('[App] Blocked rapid navigate loop to', targetPath);
-        return;
-      }
-      lastNavRef.current = { path: targetPath, time: now };
-      navigate(targetPath, { replace: true });
-    }
-  }, [currentView, navigate, location.pathname]);
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -636,14 +608,14 @@ export default function App() {
   useEffect(() => {
     const currentCount = notificationsList.length;
     if (currentCount > prevNotifCount.current) {
-      const latest = notificationsList[0];
-      if (latest && latest.type === 'message') {
-        const isGameOn = currentView === 'game' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'playing' || multiplayerState === 'match_starting';
-        if (!isGameOn) {
+      const isGameOn = currentView === 'game' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'playing' || multiplayerState === 'match_starting';
+      if (!isGameOn) {
+        const latest = notificationsList[0];
+        if (latest && latest.type === 'message') {
           playMessageSound();
+        } else {
+          playNotifSound();
         }
-      } else {
-        playNotifSound();
       }
     }
     prevNotifCount.current = currentCount;
