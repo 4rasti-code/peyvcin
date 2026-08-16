@@ -793,20 +793,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         );
       })()}
 
-      {/* Quoted Message (Reply) */}
-      {m.reply_to_text && !isDeleted && (
-        <div className={`mb-1 max-w-[85%] text-[10px] p-2 rounded-xl bg-mono-100/50 dark:bg-white/5 border-r-4 border-primary/40 text-mono-600 dark:text-white/50 italic overflow-hidden ${isMe ? 'mr-2' : 'ml-2'}`}>
-          {m.reply_to_text.startsWith('[BATTLE_RESULT]')
-            ? <div className="scale-[0.85] origin-right opacity-80 -my-2"><BattleResultRenderer text={m.reply_to_text} isMe={isMe} onProfileClick={onProfileClick} /></div>
-            : (
-                (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
-                (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
-              )
-                ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
-                : renderFormattedText(m.reply_to_text)
-          }
-        </div>
-      )}
+
 
       <div className={`group/msg relative max-w-[85%] flex items-center gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`} onContextMenu={(e) => e.preventDefault()}>
         <div className="relative group/bubble flex flex-col items-end">
@@ -822,6 +809,21 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
+
+            {/* Quoted Message (Reply) */}
+            {m.reply_to_text && !isDeleted && (
+              <div className={`mb-2 w-full text-[10px] p-1.5 px-2.5 rounded-lg bg-black/5 dark:bg-white/5 border-r-4 border-primary/60 text-current opacity-80 italic overflow-hidden`}>
+                {m.reply_to_text.startsWith('[BATTLE_RESULT]')
+                  ? <div className="scale-[0.85] origin-right opacity-80 -my-2"><BattleResultRenderer text={m.reply_to_text} isMe={isMe} onProfileClick={onProfileClick} /></div>
+                  : (
+                      (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
+                      (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
+                    )
+                      ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
+                      : renderFormattedText(m.reply_to_text)
+                }
+              </div>
+            )}
 
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
             {!isDeleted && (
