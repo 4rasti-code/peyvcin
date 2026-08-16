@@ -543,7 +543,7 @@ const LobbyView = memo(({
               const MedalIcon = latestMedal.IconComponent;
               return (
                 <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                  <MedalIcon className={`${latestMedal.id === 'palawan' ? 'w-2.75 h-2.75' : 'w-3.5 h-3.5'} ${latestMedal.color}`} />
+                  <MedalIcon className={`${latestMedal.id === 'palawan' ? 'w-2.75 h-2.75' : 'w-4 h-4'} ${latestMedal.color}`} />
                   <span className="pt-px">{latestMedal.name}</span>
                 </div>
               );
