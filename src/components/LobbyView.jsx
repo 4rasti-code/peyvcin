@@ -467,7 +467,7 @@ const LobbyView = memo(({
         case 'hard_words': return "bg-[#ef4444] border-[#dc2626] shadow-[0_0_10px_rgba(239,68,68,0.4)] text-white";
         case 'word_fever': return "bg-[#0ea5e9] border-[#0284c7] shadow-[0_0_10px_rgba(14,165,233,0.4)] text-white";
         case 'mamak': return "bg-[#22c55e] border-[#16a34a] shadow-[0_0_10px_rgba(34,197,94,0.4)] text-white";
-        case 'multiplayer': return "bg-blue-600 border-blue-500/50 shadow-[0_0_10px_rgba(37,99,235,0.4)] text-white";
+        case 'multiplayer': return "bg-[linear-gradient(90deg,#2563eb_50%,#dc2626_50%)] border-transparent shadow-[0_0_10px_rgba(37,99,235,0.4)] text-white";
         default: return "bg-mono-200 dark:bg-mono-700 border-mono-300 dark:border-mono-600 text-mono-600 dark:text-mono-300";
       }
     };
