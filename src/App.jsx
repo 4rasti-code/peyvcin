@@ -821,7 +821,7 @@ export default function App() {
     let busyMode = 'idle';
     if (multiplayerState === 'playing' || multiplayerState === 'match_starting' || multiplayerState === 'syncing' || multiplayerState === 'searching' || multiplayerState === 'waiting' || multiplayerState === 'found') {
       busyMode = 'multiplayer';
-    } else if (currentView === 'game' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
+    } else if (currentView === 'game' && gameMode !== 'multiplayer' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
       busyMode = gameMode;
     }
     

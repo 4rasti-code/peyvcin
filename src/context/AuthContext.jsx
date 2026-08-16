@@ -566,18 +566,24 @@ export const AuthProvider = ({ children }) => {
 
   const currentBusyModeRef = useRef(null);
 
-  const updatePresenceStatus = useCallback(async (busyMode) => {
+  const trackTimeoutRef = useRef(null);
+
+  const updatePresenceStatus = useCallback((busyMode) => {
     currentBusyModeRef.current = busyMode;
-    try {
-      if (presenceChannelRef.current && user?.id) {
-        const isAdmin = user?.email === '4rasti@gmail.com';
-        if (!isAdmin) {
-          await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: busyMode });
+    if (trackTimeoutRef.current) clearTimeout(trackTimeoutRef.current);
+    
+    trackTimeoutRef.current = setTimeout(async () => {
+      try {
+        if (presenceChannelRef.current && user?.id) {
+          const isAdmin = user?.email === '4rasti@gmail.com';
+          if (!isAdmin) {
+            await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
+          }
         }
+      } catch (e) {
+        console.error("Presence track error:", e);
       }
-    } catch (e) {
-      console.error("Presence track error:", e);
-    }
+    }, 1000);
   }, [user?.id, user?.email]);
 
   // NEW: Global App Presence Tracking
