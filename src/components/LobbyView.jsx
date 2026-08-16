@@ -490,12 +490,18 @@ const LobbyView = memo(({
             setSelectedProfile(profile);
           }}
         >
-          <div className="w-8 h-8 rounded-full bg-mono-200 dark:bg-mono-700 border-2 border-green-500 relative shrink-0">
-            <Avatar src={profile.avatar_url} size="full" border={false} level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white dark:border-mono-800 rounded-full"></div>
+          <div className="relative shrink-0 mr-1">
+            <Avatar 
+              src={profile.avatar_url} 
+              size="md" 
+              border={false} 
+              level={profile.xp !== undefined ? getLevelFromXP(profile.xp) : null} 
+              className="border-[2.5px] border-green-500 shadow-sm"
+            />
+            <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-[2.5px] border-white dark:border-mono-800 rounded-full shadow-sm z-20"></div>
           </div>
           <div
-            className="flex flex-col items-start flex-1 min-w-0 pr-1"
+            className="flex flex-col items-start flex-1 min-w-0 pr-2"
             style={{ containerType: 'inline-size' }}
           >
             {(() => {
