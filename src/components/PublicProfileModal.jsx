@@ -15,6 +15,7 @@ import StatsView from './StatsView';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import { MEDALS } from '../constants/medals';
 
 export default function PublicProfileModal({
   profile,
@@ -377,17 +378,14 @@ export default function PublicProfileModal({
   const mastery = getMastery(displayData);
 
   // Medals Configuration
-  const medals = [
-    { id: 'nobera', name: 'سەرەتایی', condition: (d) => (d.level || 1) >= 10, color: 'text-slate-300', glow: '', IconComponent: Level10Icon, tooltip: 'ئاستێ ١٠ ب دەستڤە بینە' },
-    { id: 'palawan', name: 'پەهلەوان', condition: (d) => (d.games_won || 0) >= 100, color: 'text-yellow-400', glow: '', IconComponent: PahlawanIcon, tooltip: '١٠٠ یارییان ببە دا ببیە پەهلەوان!' },
-    { id: 'expert', name: 'شارەزا', condition: (d) => (d.level || 1) >= 50, color: 'text-emerald-400', glow: '', IconComponent: SharezaCompassIcon, tooltip: 'ئاستێ ٥٠ ب دەستڤە بینە' },
-    { id: 'mamosta', name: 'مامۆستا', condition: (d) => (d.daily_streak || 0) >= 200, color: 'text-cyan-400', glow: '', IconComponent: MamostaBookIcon, tooltip: 'زنجیرەیا نۆکە بگەهینە ٢٠٠ زنجیرەیان' },
-    { id: 'shanazi_kurdistan', name: 'شانازیا کوردستانێ', condition: (d) => (d.kurdish_words_completed || 0) >= 1000, color: 'text-blue-400', glow: '', IconComponent: KurdishShieldIcon, tooltip: '١٠٠٠ پەیڤێن دیتین' },
-    { id: 'shanazi_jihani', name: 'شاهێ پەیڤان', condition: (d) => (d.words_without_hints || 0) >= 1000, color: 'text-purple-400', glow: '', IconComponent: KingOfTheLettersIcon, tooltip: '١٠٠٠ پەیڤێن بێهاریکاری ببینە' },
-  ];
+  const getLatestMedal = () => {
+    if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return MEDALS[0];
+    const latestId = profileData.claimed_medals[profileData.claimed_medals.length - 1];
+    return MEDALS.find(m => m.id === latestId) || MEDALS[0];
+  };
 
-  const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
-  const isBestUnlocked = bestMedal.condition(displayData);
+  const bestMedal = getLatestMedal();
+  const isBestUnlocked = profileData?.claimed_medals?.includes(bestMedal.id);
 
   const effectiveIsBlocked = internalBlocked || isBlocked;
 

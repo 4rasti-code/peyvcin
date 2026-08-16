@@ -105,9 +105,14 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    const tier = getLevelTier(safeLevel);
 
    const displayData = { ...(profileData || {}), ...(profileData?.statistics || {}), level: safeLevel };
-   const medals = MEDALS;
-   const bestMedal = [...medals].reverse().find(m => m.condition(displayData)) || medals[0];
-   const isBestUnlocked = bestMedal.condition(displayData);
+   const getLatestMedal = () => {
+      if (!profileData?.claimed_medals || profileData.claimed_medals.length === 0) return MEDALS[0];
+      const latestId = profileData.claimed_medals[profileData.claimed_medals.length - 1];
+      return MEDALS.find(m => m.id === latestId) || MEDALS[0];
+   };
+
+   const bestMedal = getLatestMedal();
+   const isBestUnlocked = profileData?.claimed_medals?.includes(bestMedal.id);
 
    const isLoading = !user || userNickname === 'یاریزان';
 
