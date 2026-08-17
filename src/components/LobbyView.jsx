@@ -247,16 +247,30 @@ const LobbyView = memo(({
   const broadcastInviteEvent = async (targetUserId, event, payload) => {
     const topic = `user_invites_${targetUserId}`;
     let channel = supabase.getChannels().find(c => c.topic === `realtime:${topic}`);
+    
     if (channel && channel.state === 'joined') {
       await channel.send({ type: 'broadcast', event, payload });
-    } else {
-      if (!channel) channel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
-      channel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.send({ type: 'broadcast', event, payload });
-        }
-      });
+      return;
     }
+
+    if (channel) {
+      supabase.removeChannel(channel);
+    }
+
+    const newChannel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
+    newChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        try {
+          await newChannel.send({ type: 'broadcast', event, payload });
+        } catch (e) {
+          console.error("Broadcast send failed", e);
+        } finally {
+          setTimeout(() => {
+            supabase.removeChannel(newChannel);
+          }, 1000);
+        }
+      }
+    });
   };
 
   const handleHostCancelInvite = async () => {
