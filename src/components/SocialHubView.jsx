@@ -3299,8 +3299,8 @@ export default function SocialHubView({
                   maxScale={5}
                   centerOnInit={true}
                   centerZoomedOut={true}
-                  wheel={{ step: 0.05, smoothStep: 0.005 }}
-                  pinch={{ step: 5 }}
+                  wheel={{ step: 0.03 }}
+                  doubleClick={{ step: 1 }}
                 >
                   {() => (
                     <TransformComponent 
@@ -3328,5 +3328,9 @@ export default function SocialHubView({
     </div>
   );
 }
+
+
+
+
 
 
