@@ -76,22 +76,21 @@ export const PresenceProvider = ({ children }) => {
       const newOnlineUsers = new Set();
       const newStatuses = {};
 
-      Object.keys(state).forEach(userId => {
-        if (userId !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && userId !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && userId !== user.id) {
-          newOnlineUsers.add(userId);
-          
-          // Since it's keyed by user_id, state[userId] is an array of presences for that user.
-          // We can just grab the first one since they all belong to the same user and tabs sync state.
-          // Or find the one with the newest online_at if they have conflicting tabs.
-          let latestPresence = state[userId][0];
-          for (let i = 1; i < state[userId].length; i++) {
-             if (new Date(state[userId][i].online_at) > new Date(latestPresence.online_at)) {
-                 latestPresence = state[userId][i];
-             }
-          }
+      Object.keys(state).forEach(presenceKey => {
+        let latestPresence = state[presenceKey][0];
+        for (let i = 1; i < state[presenceKey].length; i++) {
+           if (new Date(state[presenceKey][i].online_at) > new Date(latestPresence.online_at)) {
+               latestPresence = state[presenceKey][i];
+           }
+        }
+
+        const realId = latestPresence.user_id || presenceKey;
+
+        if (realId !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && realId !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && realId !== user.id) {
+          newOnlineUsers.add(realId);
 
           if (latestPresence?.busy_mode && latestPresence.busy_mode !== 'idle') {
-            newStatuses[userId] = latestPresence.busy_mode;
+            newStatuses[realId] = latestPresence.busy_mode;
           }
         }
       });
