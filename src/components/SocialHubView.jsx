@@ -690,7 +690,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               alt="Attachment"
               className="relative z-0 w-full h-auto max-h-80 object-cover pointer-events-none select-none transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
-              draggable="false"
+              draggable="false"`r`n                          onLoad={() => centerView()}
               onLoad={(e) => { if (e.target.previousSibling) e.target.previousSibling.style.display = 'none'; }}
             />
             {/* The transparent overlay that prevents right click but handles fullscreen click */}
@@ -3299,11 +3299,11 @@ export default function SocialHubView({
                   maxScale={5}
                   centerOnInit={true}
                   centerZoomedOut={false}
-                    limitToBounds={false}
+                  limitToBounds={false}
                   wheel={{ step: 0.005 }}
                   doubleClick={{ step: 1 }}
                 >
-                  {() => (
+                  {({ centerView }) => (
                     <TransformComponent 
                       wrapperStyle={{ width: "100%", height: "100%" }} 
                       contentStyle={{ width: "max-content", height: "max-content" }}
@@ -3314,6 +3314,7 @@ export default function SocialHubView({
                         style={{ maxWidth: "100vw", maxHeight: "100vh" }}
                         className="object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
                         draggable="false"
+                        onLoad={() => centerView()}
                         onContextMenu={e => e.preventDefault()}
                         onClick={e => e.stopPropagation()}
                       />
@@ -3329,6 +3330,7 @@ export default function SocialHubView({
     </div>
   );
 }
+
 
 
 
