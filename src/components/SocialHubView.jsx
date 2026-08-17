@@ -9,6 +9,7 @@ import Avatar from './Avatar';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
 import ImageEditorModal from './ImageEditorModal';
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useInView } from 'react-intersection-observer';
 import { toKuDigits } from '../utils/formatters';
 import ClashingSwords from './ClashingSwords';
@@ -3292,14 +3293,29 @@ export default function SocialHubView({
 
               {/* Image Container */}
               <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
-                <img
-                  src={fullscreenImage}
-                  alt="Fullscreen Preview"
-                  className="w-full h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm"
-                  draggable="false"
-                  onContextMenu={e => e.preventDefault()}
-                  onClick={e => e.stopPropagation()}
-                />
+                <TransformWrapper
+                  initialScale={1}
+                  minScale={0.5}
+                  maxScale={5}
+                  centerOnInit={true}
+                  wheel={{ step: 0.1 }}
+                >
+                  {() => (
+                    <TransformComponent 
+                      wrapperStyle={{ width: '100%', height: '100%' }} 
+                      contentStyle={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                    >
+                      <img
+                        src={fullscreenImage}
+                        alt="Fullscreen Preview"
+                        className="max-w-full max-h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
+                        draggable="false"
+                        onContextMenu={e => e.preventDefault()}
+                        onClick={e => e.stopPropagation()}
+                      />
+                    </TransformComponent>
+                  )}
+                </TransformWrapper>
               </div>
             </Motion.div>
           )}

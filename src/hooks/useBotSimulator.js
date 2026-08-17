@@ -86,8 +86,17 @@ export default function useBotSimulator({
 
     const normalizedLevel = Math.min(Math.max(userLevel || 1, 1), 50);
     
-    // Thinking delay decreases as level increases (4s to 1.5s)
-    const baseDelay = Math.max(1500, 4000 - (normalizedLevel * 50)); 
+    const isFirstAttempt = guessCountRef.current === 0;
+    
+    // First attempt takes longer to simulate initial human thought
+    // Level 1: ~7s, Level 50: ~3s
+    const initialDelay = Math.max(3000, 7000 - (normalizedLevel * 80));
+    
+    // Subsequent attempts are faster
+    // Level 1: ~4s, Level 50: ~1s
+    const subsequentDelay = Math.max(1000, 4000 - (normalizedLevel * 60));
+    
+    const baseDelay = isFirstAttempt ? initialDelay : subsequentDelay;
     const thinkingDelay = Math.random() * 1000 + baseDelay;
 
     currentTimeoutRef.current = setTimeout(() => {
@@ -97,12 +106,21 @@ export default function useBotSimulator({
       const currentAttempt = guessCountRef.current + 1;
       let pickedWord = '';
       
-      // Dynamic win chance based on attempt and level
+      // Dynamic win chance based on attempt and level (Gradual smooth scaling)
       let winChance = 0;
-      if (currentAttempt === 2) {
-        winChance = 0.10 + (normalizedLevel * 0.005); // Level 1: 10%, Level 50: 35%
-      } else if (currentAttempt === 3) {
-        winChance = 0.20 + (normalizedLevel * 0.01); // Level 1: 20%, Level 50: 70%
+      if (currentAttempt > 1) {
+        // levelProgress goes from 0 (Level 1) to 1 (Level 50)
+        const levelProgress = (normalizedLevel - 1) / 49;
+        
+        // Base chance based on attempt number (Multiplayer is max 3 attempts per round)
+        let baseChance = 0;
+        if (currentAttempt === 2) baseChance = 0.25;
+        else if (currentAttempt >= 3) baseChance = 0.70;
+
+        // Level scaling multiplier: 
+        // At L1, it uses 0.6x the base chance. At L50, it uses 1.8x the base chance.
+        const levelMultiplier = 0.6 + (levelProgress * 1.2); 
+        winChance = baseChance * levelMultiplier;
       }
       
       if (currentAttempt > 1 && Math.random() < winChance) {
@@ -111,15 +129,16 @@ export default function useBotSimulator({
         const lengthAppropriateDict = dictionaryRef.current.filter(w => w.length === targetWord.length);
         const pool = lengthAppropriateDict.length > 0 ? lengthAppropriateDict : [targetWord];
         
-        // Smart guess logic
-        let overlapTarget = 0;
-        if (normalizedLevel > 10) overlapTarget = 1;
-        if (normalizedLevel > 20) overlapTarget = 2;
-        if (normalizedLevel > 35) overlapTarget = 3;
-        if (normalizedLevel > 45) overlapTarget = 4;
+        // Smart guess logic - Continuous gradual scaling based on level
+        const maxOverlap = targetWord.length;
+        const levelProgress = (normalizedLevel - 1) / 49;
         
-        overlapTarget += (Math.random() > 0.5 ? 1 : -1);
-        overlapTarget = Math.max(0, Math.min(overlapTarget, targetWord.length));
+        // Quadratic curve makes it start slow (dumb) and accelerate at higher levels
+        const expectedOverlap = Math.pow(levelProgress, 1.5) * maxOverlap; 
+        
+        // Add slight randomness around the expected overlap
+        let overlapTarget = Math.round(expectedOverlap + (Math.random() * 2 - 1));
+        overlapTarget = Math.max(0, Math.min(overlapTarget, maxOverlap));
 
         let foundWord = null;
         for (let i = 0; i < 30; i++) {
@@ -153,7 +172,14 @@ export default function useBotSimulator({
           const hesitation = Math.random() < 0.1 ? 600 : 0;
           
           typeTimeoutRef.current = setTimeout(() => {
-            liveArr[charIndex] = 0; // 0 = typed (unconfirmed)
+            // Send the actual evaluated color live to match the human broadcast logic
+            const letterColor = colors[charIndex];
+            let statusCode = 0;
+            if (letterColor === 'CORRECT') statusCode = 1;
+            else if (letterColor === 'WRONG_POS') statusCode = 2;
+            else if (letterColor === 'INCORRECT') statusCode = 3;
+            
+            liveArr[charIndex] = statusCode; 
             setOpponentLiveStatuses([...liveArr]);
             opponentLiveCursor?.set(Math.min(charIndex + 1, targetWord.length - 1));
             charIndex++;
