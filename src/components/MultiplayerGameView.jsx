@@ -90,6 +90,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   }, [activeMatch, currentRound]);
 
   // Initialize Bot Simulator
+  const isGameActive = multiplayerState === 'playing' && !showCinematicOverlay && !roundMessage;
+
   useBotSimulator({
     isBot: opponent?.isBot,
     multiplayerState,
@@ -865,6 +867,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     </div>
   );
 }
+
+
 
 
 

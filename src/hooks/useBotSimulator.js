@@ -39,6 +39,7 @@ function evaluateGuess(guessString, targetString) {
 export default function useBotSimulator({
   isBot,
   multiplayerState,
+  isGameActive,
   targetWord,
   userLevel,
   setOpponentGuesses,
@@ -83,7 +84,7 @@ export default function useBotSimulator({
   }, [activeMatch, opponentLiveCursor, setOpponentLiveStatuses]);
 
   useEffect(() => {
-    if (!isBot || multiplayerState !== 'playing' || !targetWord || isTypingRef.current) return;
+    if (!isBot || !isGameActive || !targetWord || isTypingRef.current) return;
     if (activeMatchRef.current?.p2_failed) return;
 
     const normalizedLevel = Math.min(Math.max(userLevel || 1, 1), 50);
@@ -255,9 +256,11 @@ export default function useBotSimulator({
       if (typeTimeoutRef.current) clearTimeout(typeTimeoutRef.current);
     };
   }, [
-    isBot, multiplayerState, targetWord, userLevel, 
+    isBot, multiplayerState,
+  isGameActive, targetWord, userLevel, 
     opponentLiveCursor, setActiveMatchGuarded, setOpponentGuesses, setOpponentLiveStatuses,
     setWinnerNickname, opponentGuessesLength
   ]);
 }
+
 
