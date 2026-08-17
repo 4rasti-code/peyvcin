@@ -98,7 +98,17 @@ export const PresenceProvider = ({ children }) => {
           }
         });
 
-        setOnlineUsers(newOnlineUsers);
+        setOnlineUsers(prev => {
+          if (prev.size !== newOnlineUsers.size) return newOnlineUsers;
+          let isDifferent = false;
+          for (const id of newOnlineUsers) {
+            if (!prev.has(id)) {
+              isDifferent = true;
+              break;
+            }
+          }
+          return isDifferent ? newOnlineUsers : prev;
+        });
         setOnlineUserStatuses(newStatuses);
         setOnlineCount(newOnlineUsers.size);
       });

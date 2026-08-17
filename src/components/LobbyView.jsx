@@ -387,18 +387,23 @@ const LobbyView = memo(({
     }
   }, [onlineUsers, user?.id]);
 
+  const fetchOnlineProfilesRef = useRef(fetchOnlineProfiles);
+  useEffect(() => {
+    fetchOnlineProfilesRef.current = fetchOnlineProfiles;
+  }, [fetchOnlineProfiles]);
+
   useEffect(() => {
     if (showMultiplayerModal && inviteStep === 'invite') {
-      fetchOnlineProfiles(false);
+      fetchOnlineProfilesRef.current(false);
 
       // Setup 5-second background polling so it always stays perfectly in sync without manual refresh
       const interval = setInterval(() => {
-        fetchOnlineProfiles(true);
+        fetchOnlineProfilesRef.current(true);
       }, 5000);
 
       return () => clearInterval(interval);
     }
-  }, [showMultiplayerModal, inviteStep, fetchOnlineProfiles]);
+  }, [showMultiplayerModal, inviteStep]);
 
   const handleSendInviteToUser = async (targetUserId) => {
     triggerHaptic(10);
