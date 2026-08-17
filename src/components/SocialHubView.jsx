@@ -3294,11 +3294,12 @@ export default function SocialHubView({
               {/* Image Container */}
               <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
                 <TransformWrapper
-                  initialScale={1}
-                  minScale={0.5}
+                  initialScale={0.5}
+                  minScale={0.1}
                   maxScale={5}
                   centerOnInit={true}
-                  centerZoomedOut={true}
+                  centerZoomedOut={false}
+                    limitToBounds={false}
                   wheel={{ step: 0.005 }}
                   doubleClick={{ step: 1 }}
                 >
@@ -3328,6 +3329,10 @@ export default function SocialHubView({
     </div>
   );
 }
+
+
+
+
 
 
 
