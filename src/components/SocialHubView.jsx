@@ -648,10 +648,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
   const isMentioned = !isMe && currentUserNickname && msgContent.includes(`@${currentUserNickname}`);
   const isOnlyVoice = /^\s*\[VOICE:.*?\]\s*$/.test(msgContent);
   const isOnlyEmoji = /^[\p{Emoji}\s]+$/u.test(msgContent) && msgContent.trim().length > 0 && !/[a-zA-Z0-9\u0600-\u06FF]/.test(msgContent);
+  const isOnlySticker = /^\s*\[STICKER:.*?\]\s*$/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -677,6 +678,12 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                onClick={(e) => { e.stopPropagation(); if (onImageClick) onImageClick(url); }} 
             />
           </div>
+        );
+      }
+      if (part.startsWith('[STICKER:') && part.endsWith(']')) {
+        const url = part.substring(9, part.length - 1);
+        return (
+          <img key={i} src={url} alt="Sticker" className="w-20 md:w-24 h-auto object-contain pointer-events-none select-none drop-shadow-md" loading="lazy" />
         );
       }
       if (part.startsWith('[VOICE:') && part.endsWith(']')) {
@@ -709,6 +716,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
       return <span key={i}>{part}</span>;
     });
   };
+
 
   useEffect(() => {
     if (inView && !isMe && !m.is_read && onSeen) {
@@ -852,7 +860,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               e.preventDefault();
               onLongPress(m, e.clientX, e.clientY);
             }}
-            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && isOnlyEmoji) 
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker)) 
               ? 'text-[54px] leading-none bg-transparent shadow-none border-none px-1 py-1 drop-shadow-sm' 
               : `px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap shadow-sm ${isMe
               ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
@@ -877,7 +885,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             )}
 
             {/* Chevron Button inside bubble (WhatsApp Web Style) */}
-            {!isDeleted && !isOnlyEmoji && (
+            {!isDeleted && !isOnlyEmoji && !isOnlySticker && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -902,7 +910,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             )}
 
             <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-1'}`}>
-              <div className={`text-[9px] font-bold opacity-70 ${(isMe && !isOnlyEmoji) ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
+              <div className={`text-[9px] font-bold opacity-70 ${(isMe && !isOnlyEmoji && !isOnlySticker) ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
               {isMe && !isDeleted && (
@@ -1019,6 +1027,13 @@ export default function SocialHubView({
   const fileInputRef = useRef(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  // --- GIF Picker State ---
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifSearchQuery, setGifSearchQuery] = useState('');
+  const [gifResults, setGifResults] = useState([]);
+  const [isGifLoading, setIsGifLoading] = useState(false);
+  const gifSearchTimeoutRef = useRef(null);
+
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingImagePreview, setPendingImagePreview] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
@@ -1053,6 +1068,33 @@ export default function SocialHubView({
       }
     }
   }, [initialChatPartner, initialTab, isVisible]);
+
+  // Handle GIF Search
+  useEffect(() => {
+    if (!showGifPicker) return;
+    const fetchGifs = async () => {
+      setIsGifLoading(true);
+      try {
+        const apiKey = 'Gc7131jiJuvI7IdN0HZ1D7nh0ow5BU6g'; // Working API key
+        const endpoint = gifSearchQuery.trim() 
+          ? `https://api.giphy.com/v1/stickers/search?api_key=${apiKey}&q=${encodeURIComponent(gifSearchQuery)}&limit=21`
+          : `https://api.giphy.com/v1/stickers/trending?api_key=${apiKey}&limit=21`;
+          
+        const res = await fetch(endpoint);
+        const json = await res.json();
+        setGifResults(json.data || []);
+      } catch (err) {
+        console.warn("Failed to fetch GIFs", err);
+      } finally {
+        setIsGifLoading(false);
+      }
+    };
+
+    if (gifSearchTimeoutRef.current) clearTimeout(gifSearchTimeoutRef.current);
+    gifSearchTimeoutRef.current = setTimeout(fetchGifs, 500);
+    
+    return () => clearTimeout(gifSearchTimeoutRef.current);
+  }, [showGifPicker, gifSearchQuery]);
 
   // Real-time Top 3 Daily Players for Badges & Marquee Announcer
   useEffect(() => {
@@ -1939,14 +1981,15 @@ export default function SocialHubView({
   };
   // -------------------------
 
-  const handleSendMessage = async () => {
-    if ((!newMessage.trim() && !pendingImage) || !user?.id) return;
+  const handleSendMessage = async (e, overrideContent = null) => {
+    const msgToProcess = overrideContent || newMessage.trim();
+    if ((!msgToProcess && !pendingImage) || !user?.id) return;
 
     const currentUserId = user?.id;
     triggerHaptic(15);
     playMessageSentSound();
 
-    let finalMsgContent = newMessage.trim();
+    let finalMsgContent = msgToProcess;
     let uploadedImageUrl = null;
 
     if (pendingImage) {
@@ -1979,7 +2022,7 @@ export default function SocialHubView({
     }
 
     // Clear input immediately for better UX
-    setNewMessage('');
+    if (!overrideContent) setNewMessage('');
     if (pendingImagePreview) URL.revokeObjectURL(pendingImagePreview);
     setPendingImage(null);
     setPendingImagePreview(null);
@@ -2754,6 +2797,7 @@ export default function SocialHubView({
                     setIsKeyboardVisible(true);
                     onKeyboardToggle?.(true);
                     setShowEmojiPicker(false);
+                    setShowGifPicker(false);
                   }}
                   onBlur={() => {
                     setIsKeyboardVisible(false);
@@ -2774,12 +2818,79 @@ export default function SocialHubView({
               {!isRecording && (
                 <>
                   <button
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
+                    className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showGifPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
+                    title="GIF & Stickers"
+                  >
+                    <span className="material-symbols-outlined font-black text-2xl">gif_box</span>
+                  </button>
+                  <button
+                    onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
                     className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showEmojiPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
                     title="ئێمۆجی"
                   >
                     <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
                   </button>
+
+                  {/* GIF Picker Popup */}
+                  <AnimatePresence>
+                    {showGifPicker && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowGifPicker(false)} onTouchStart={() => setShowGifPicker(false)} />
+                        <Motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          className="absolute bottom-full mb-3 left-0 md:-left-10 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
+                          dir="rtl"
+                        >
+                          <input
+                            type="text"
+                            placeholder="ل ستیکەران بگەڕە..."
+                            value={gifSearchQuery}
+                            onChange={(e) => setGifSearchQuery(e.target.value)}
+                            className="w-full bg-mono-100 dark:bg-mono-800 border-none rounded-md px-3 py-2 text-sm font-rabar mb-3 focus:ring-2 focus:ring-primary/50 outline-none text-mono-900 dark:text-mono-100 placeholder-mono-500"
+                          />
+                          <div className="h-56 overflow-y-auto no-scrollbar relative rounded-md">
+                            {isGifLoading ? (
+                              <div className="absolute inset-0 flex items-center justify-center bg-mono-50/50 dark:bg-mono-900/50 z-10">
+                                <div className="w-8 h-8 border-4 border-mono-200 dark:border-mono-700 border-t-primary rounded-full animate-spin" />
+                              </div>
+                            ) : null}
+                            
+                            <div className="columns-3 gap-2 space-y-2">
+                              {gifResults.map(gif => {
+                                const gifUrl = gif.images?.fixed_width?.url || gif.images?.original?.url;
+                                return (
+                                  <div 
+                                    key={gif.id} 
+                                    onClick={() => {
+                                      if (gifUrl) {
+                                        handleSendMessage(null, `[STICKER:${gifUrl}]`);
+                                        setShowGifPicker(false);
+                                      }
+                                    }}
+                                    className="break-inside-avoid cursor-pointer hover:scale-105 active:scale-95 transition-transform"
+                                  >
+                                    <img src={gifUrl} alt={gif.title} className="w-full h-auto rounded-md bg-mono-100 dark:bg-mono-800" loading="lazy" />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {!isGifLoading && gifResults.length === 0 && (
+                              <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70">
+                                چ ستیکەر نەهاتنە دیتن
+                              </div>
+                            )}
+                          </div>
+                          <div className="mt-2 text-center w-full flex justify-center opacity-30 pointer-events-none select-none">
+                             <span className="text-[9px] font-black tracking-widest">POWERED BY GIPHY</span>
+                          </div>
+                        </Motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
 
                   {/* Emoji Picker Popup */}
                   <AnimatePresence>
