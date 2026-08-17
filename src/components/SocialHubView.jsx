@@ -3304,8 +3304,8 @@ export default function SocialHubView({
                   doubleClick={{ step: 1 }}
                 >
                   {({ centerView }) => (
-                    <TransformComponent 
-                      wrapperStyle={{ width: "100%", height: "100%" }} 
+                    <TransformComponent
+                      wrapperStyle={{ width: "100%", height: "100%" }}
                       contentStyle={{ width: "max-content", height: "max-content" }}
                     >
                       <img

@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
   const [onlineCount, setOnlineCount] = useState(1);
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
-  const [presenceKey, setPresenceKey] = useState(0);
   const presenceChannelRef = useRef(null);
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
@@ -573,9 +572,9 @@ export const AuthProvider = ({ children }) => {
     currentBusyModeRef.current = busyMode;
     if (trackTimeoutRef.current) clearTimeout(trackTimeoutRef.current);
     
-    trackTimeoutRef.current = setTimeout(async () => {
+    const sendTrackRequest = async () => {
       try {
-        if (presenceChannelRef.current && user?.id) {
+        if (presenceChannelRef.current && user?.id && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED')) {
           const isAdmin = user?.email === '4rasti@gmail.com';
           if (!isAdmin) {
             await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
@@ -584,11 +583,22 @@ export const AuthProvider = ({ children }) => {
       } catch (e) {
         console.error("Presence track error:", e);
       }
-    }, 1000);
+    };
+
+    if (busyMode === 'idle') {
+      sendTrackRequest();
+    } else {
+      trackTimeoutRef.current = setTimeout(sendTrackRequest, 1000);
+    }
   }, [user?.id, user?.email]);
 
   const forceRefreshPresence = useCallback(() => {
-    setPresenceKey(k => k + 1);
+    if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined') {
+      const activeUser = authStateRef.current.user;
+      if (activeUser && activeUser.email !== '4rasti@gmail.com') {
+        presenceChannelRef.current.track({ user_id: activeUser.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current }).catch(() => {});
+      }
+    }
   }, []);
 
   // NEW: Global App Presence Tracking
@@ -610,10 +620,17 @@ export const AuthProvider = ({ children }) => {
     // Initial ping
     pingPresence();
 
-    const handleVisibilityChange = () => {
+    const handleVisibilityChange = async () => {
       if (document.visibilityState === 'visible') {
         pingPresence();
-        setPresenceKey(k => k + 1); // Force full channel recreation to fix dead WebSockets on mobile wake
+        // Safe Re-tracking: Re-fire track on the existing channel instead of recreating it
+        if (presenceChannelRef.current && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED') && !isAdmin) {
+          try {
+            await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
+          } catch (e) {
+            console.error("Presence re-track failed on visibility change:", e);
+          }
+        }
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
@@ -664,7 +681,7 @@ export const AuthProvider = ({ children }) => {
       presenceChannel.untrack();
       supabase.removeChannel(presenceChannel);
     };
-  }, [user?.id, user?.email, presenceKey]);
+  }, [user?.id, user?.email]);
 
   const completeOnboarding = useCallback(async (nickname) => {
     if (!user?.id) return { success: false, error: "Must be logged in" };

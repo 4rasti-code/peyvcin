@@ -476,7 +476,8 @@ const LobbyView = memo(({
     const isSent = sentInvites.has(profile.id);
     const blockedUntil = inviteCooldowns[profile.id];
     const isBlocked = blockedUntil && new Date(blockedUntil) > new Date();
-    const busyMode = onlineUserStatuses?.[profile.id] || busyUsers[profile.id];
+    const rawBusyMode = onlineUserStatuses?.[profile.id] || busyUsers[profile.id];
+    const busyMode = rawBusyMode === 'idle' ? null : rawBusyMode;
 
     const getBusyModeText = (mode) => {
       switch (mode) {
