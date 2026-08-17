@@ -3260,7 +3260,7 @@ export default function SocialHubView({
               onClick={() => setFullscreenImage(null)}
             >
               {/* Top Action Bar */}
-              <div className="w-full h-16 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
+              <div className="w-full py-4 pt-12 md:pt-4 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
                 <button
                   onClick={() => setFullscreenImage(null)}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
@@ -3298,17 +3298,20 @@ export default function SocialHubView({
                   minScale={0.5}
                   maxScale={5}
                   centerOnInit={true}
-                  wheel={{ step: 0.1 }}
+                  centerZoomedOut={true}
+                  wheel={{ step: 0.05, smoothStep: 0.005 }}
+                  pinch={{ step: 5 }}
                 >
                   {() => (
                     <TransformComponent 
-                      wrapperStyle={{ width: '100%', height: '100%' }} 
-                      contentStyle={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      wrapperStyle={{ width: "100%", height: "100%" }} 
+                      contentStyle={{ width: "max-content", height: "max-content" }}
                     >
                       <img
                         src={fullscreenImage}
                         alt="Fullscreen Preview"
-                        className="max-w-full max-h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
+                        style={{ maxWidth: "100vw", maxHeight: "100vh" }}
+                        className="object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
                         draggable="false"
                         onContextMenu={e => e.preventDefault()}
                         onClick={e => e.stopPropagation()}
@@ -3325,3 +3328,5 @@ export default function SocialHubView({
     </div>
   );
 }
+
+
