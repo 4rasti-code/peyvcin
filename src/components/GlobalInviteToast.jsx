@@ -25,18 +25,31 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
   const broadcastReply = async (hostId, event, payload) => {
     const topic = `host_replies_${hostId}`;
     let channel = supabase.getChannels().find(c => c.topic === `realtime:${topic}`);
+    
     if (channel && channel.state === 'joined') {
       await channel.send({ type: 'broadcast', event, payload });
-    } else {
-      if (!channel) channel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
-      channel.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.send({ type: 'broadcast', event, payload });
-        }
-      });
+      return;
     }
-  };
 
+    if (channel) {
+      supabase.removeChannel(channel);
+    }
+
+    const newChannel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
+    newChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        try {
+          await newChannel.send({ type: 'broadcast', event, payload });
+        } catch (e) {
+          console.error("Broadcast reply failed", e);
+        } finally {
+          setTimeout(() => {
+            supabase.removeChannel(newChannel);
+          }, 1000);
+        }
+      }
+    });
+  };
 
   const [invite, setInvite] = useState(null);
   const [cancelAlert, setCancelAlert] = useState(null);
@@ -55,9 +68,21 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
     channel.on(
       'broadcast',
       { event: 'match_invite' },
-      (payload) => {
+      async (payload) => {
         console.log('Received Invite Payload:', payload);
         const inviteData = payload.payload;
+
+        // VERIFY AGAINST GHOST INVITES: Check if room is actually still waiting
+        const { data: roomCheck } = await supabase
+          .from('online_matches')
+          .select('status')
+          .eq('id', inviteData.roomId)
+          .single();
+
+        if (!roomCheck || roomCheck.status !== 'private_waiting') {
+          console.warn('[GlobalInviteToast] Ignored ghost invite (room deleted or started).', inviteData.roomId);
+          return;
+        }
 
         const isBusy = currentViewRef.current === 'game' || (multiplayerStateRef.current && multiplayerStateRef.current !== 'idle');
 
