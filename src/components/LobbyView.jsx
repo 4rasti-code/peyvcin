@@ -118,7 +118,7 @@ const LobbyView = memo(({
 
   const { playDailyOpenSfx } = useAudio();
   const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
-  const { onlineUsers, onlineUserStatuses, onlineCount, forceRefreshPresence, reconnectPresence } = usePresence();
+  const { onlineUsers, onlineUserStatuses, onlineCount, reconnectPresence } = usePresence();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
 

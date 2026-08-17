@@ -14,7 +14,6 @@ export const PresenceProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
   const [onlineCount, setOnlineCount] = useState(0);
-  const [forceRefreshPresence, setForceRefreshPresence] = useState(0);
   const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
   const presenceChannelRef = useRef(null);
@@ -102,9 +101,6 @@ export const PresenceProvider = ({ children }) => {
         setOnlineUsers(newOnlineUsers);
         setOnlineUserStatuses(newStatuses);
         setOnlineCount(newOnlineUsers.size);
-        
-        // Expose a force refresh counter so LobbyView can re-fetch profiles instantly
-        setForceRefreshPresence(prev => prev + 1);
       });
 
       channel.subscribe(async (status) => {
@@ -179,7 +175,6 @@ export const PresenceProvider = ({ children }) => {
       onlineUserStatuses,
       onlineCount,
       updatePresenceStatus,
-      forceRefreshPresence,
       reconnectPresence
     }}>
       {children}
