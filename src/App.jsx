@@ -1038,6 +1038,10 @@ export default function App() {
             previewText = '🎤 نامەیەکا دەنگی';
           } else if (previewText.startsWith('[IMAGE:') && previewText.endsWith(']')) {
             previewText = '📷 وێنەیەک هنارت';
+          } else if (previewText.startsWith('[STICKER:') && previewText.endsWith(']')) {
+            previewText = '😃 ستیکەرەک هنارت';
+          } else if (previewText.match(/^https?:\/\//)) {
+            previewText = '🎞️ گیفەک هنارت';
           }
 
           setSocialNotifications(prev => ({

@@ -1451,6 +1451,10 @@ export const MultiplayerProvider = ({ children }) => {
 
   const hostAcceptJoiner = useCallback(async (joinerId) => {
     if (!matchId || !joinerId) return;
+    
+    // Explicitly update the DB as the host (who has RLS rights) so the receiver can access it
+    await supabase.from('online_matches').update({ player2_id: joinerId, status: 'playing' }).eq('id', matchId);
+
     const prof = await fetchOpponentProfile(joinerId);
     if (prof) {
       // Optimistically update local activeMatch to avoid waiting for polling
@@ -1467,61 +1471,50 @@ export const MultiplayerProvider = ({ children }) => {
     setOpponent(null);
     setOpponentGuesses([]);
     setMatchReward(null);
+    setMatchId(roomIdOrCode);
 
     try {
       if (supabase.realtime && !supabase.realtime.isConnected()) supabase.realtime.connect();
 
-      // Find the room securely
-      const { data: targetMatch, error: searchError } = await supabase
-        .from('online_matches')
-        .select('*')
-        .eq('id', roomIdOrCode)
-        .maybeSingle();
-
-      if (searchError || !targetMatch) {
-        console.error("[Multiplayer] Match not found or access denied:", searchError);
-        setErrorAlert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
-        setMultiplayerStateGuarded('idle');
-        return false;
-      }
-
-      // Atomic claim
-      const { data: joinedMatch, error: claimError } = await supabase
-        .from('online_matches')
-        .update({
-          player2_id: user.id,
-          status: 'playing'
-        })
-        .eq('id', targetMatch.id)
-        .is('player2_id', null)
-        .select()
-        .maybeSingle();
-
-      if (claimError || !joinedMatch) {
-        console.error("[Multiplayer] Match not found or access denied:", claimError);
-        setErrorAlert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
-        setMultiplayerStateGuarded('idle');
-        return false;
-      }
-
-      if (!claimError && joinedMatch) {
-        setMatchId(joinedMatch.id);
-        setActiveMatchGuarded(joinedMatch);
-        setCurrentWordIndex(joinedMatch.current_word_index || 0);
-
-        const hostProfile = await fetchOpponentProfile(joinedMatch.player1_id);
-        if (hostProfile) {
-          triggerHaptic([50, 50, 100]);
-        } else {
-          setMultiplayerStateGuarded('syncing');
+      // Poll for up to 10 seconds waiting for the host to update the DB and grant us access (bypassing RLS)
+      let foundMatch = null;
+      for (let i = 0; i < 20; i++) {
+        const { data } = await supabase
+          .from('online_matches')
+          .select('*')
+          .eq('id', roomIdOrCode)
+          .maybeSingle();
+        
+        if (data && data.player2_id === user.id) {
+          foundMatch = data;
+          break;
         }
-        return true;
+        await new Promise(res => setTimeout(res, 500));
       }
+
+      if (!foundMatch) {
+        console.error("[Multiplayer] Match not found or access denied (Host timeout)");
+        setErrorAlert("ببورە، ئەڤ ژوورە نەهاتە دیتن یان یا ب دوماهی هاتی.");
+        setMultiplayerStateGuarded('idle');
+        setMatchId(null);
+        return false;
+      }
+
+      setActiveMatchGuarded(foundMatch);
+      setCurrentWordIndex(foundMatch.current_word_index || 0);
+
+      const hostProfile = await fetchOpponentProfile(foundMatch.player1_id);
+      if (hostProfile) {
+        triggerHaptic([50, 50, 100]);
+      } else {
+        setMultiplayerStateGuarded('syncing');
+      }
+      return true;
+
+    } catch (err) {
+      console.error("[Multiplayer] Error joining private match:", err);
       setMultiplayerStateGuarded('idle');
-      return false;
-    } catch (error) {
-      console.error('[Multiplayer] Join Private Failed:', error);
-      setMultiplayerStateGuarded('idle');
+      setMatchId(null);
       return false;
     }
   }, [user?.id, setMultiplayerStateGuarded, setActiveMatchGuarded, fetchOpponentProfile]);

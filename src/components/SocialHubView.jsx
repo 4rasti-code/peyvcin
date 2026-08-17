@@ -19,14 +19,18 @@ import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
 
 const renderPreviewText = (text) => {
-  if (!text) return 'نامەک ل ڤێرێیە';
+  if (!text) return 'یێ ل سەر هێلێیە';
 
   if (text.includes('[VOICE:')) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#00a884]">mic</span> دەنگ</span>;
   }
 
   if (text.includes('[IMAGE:')) {
-    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنەیەک</span>;
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنە</span>;
+  }
+
+  if (text.includes('[STICKER:')) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">mood</span> ستیکەر</span>;
   }
 
   if (text.includes('[MEDAL_SHARE:')) {
@@ -37,10 +41,14 @@ const renderPreviewText = (text) => {
       return (
         <span className="flex items-center gap-1">
           <span className="material-symbols-outlined text-[14px] text-amber-500">military_tech</span>
-          {medal ? medal.title : 'پلەیەک'}
+          {medal ? medal.title || medal.name : 'پلەیەک'}
         </span>
       );
     }
+  }
+
+  if (text.match(/^https?:\/\//)) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">gif</span> گیف</span>;
   }
   if (text.startsWith('[BATTLE_RESULT]') ||
     (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(text) && (text.includes('🟩') || text.includes('🟨') || text.includes('⬛') || text.includes('⬜')))
@@ -1150,15 +1158,7 @@ export default function SocialHubView({
           .limit(3);
         if (!error && data) {
           const newTopIds = data.map(p => p.id);
-          setTopDailyPlayers(prev => {
-            if (user?.id && newTopIds.includes(user.id) && !prev.includes(user.id)) {
-              supabase.from('global_announcements').insert({
-                type: 'top3',
-                text: `یاریزان ${user.user_metadata?.nickname || 'نەناسریای'} گەهشتە ڕیزبەندییا سێ یەکەمێن ڕۆژێ! 🔥`
-              }).then();
-            }
-            return newTopIds;
-          });
+          setTopDailyPlayers(newTopIds);
         }
       } catch (e) {
         console.warn("Failed to fetch top daily players", e);
