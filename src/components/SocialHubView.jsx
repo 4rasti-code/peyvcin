@@ -220,7 +220,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
                 onClick={() => { onToggleFavorite(); onClose(); }}
                 className={`flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 transition-all rounded-md ${isFavorite ? 'text-red-500 hover:text-red-600 dark:text-red-400' : 'text-mono-900 dark:text-mono-200'}`}
               >
-                <span className="font-bold text-[13px]">{isFavorite ? 'لابرن ژ دڵخوازان' : 'زێدەکرن بۆ دڵخوازان'}</span>
+                <span className="font-bold text-[13px]">{isFavorite ? 'لابرن ژ پەسەندکرییان' : 'زێدەکرن بۆ پەسەندکرییان'}</span>
                 <span className="material-symbols-outlined text-[18px] text-yellow-500">{isFavorite ? 'heart_broken' : 'star'}</span>
               </button>
             </>
@@ -2906,13 +2906,13 @@ export default function SocialHubView({
                               onClick={() => setGifTab('trending')}
                               className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'trending' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
                             >
-                              🔥 باو
+                              🔥 بەربەلاڤ
                             </button>
                             <button 
                               onClick={() => setGifTab('favorites')}
                               className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'favorites' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
                             >
-                              ⭐ دڵخواز
+                              ⭐ پەسەندکری
                             </button>
                           </div>
                           
@@ -2966,7 +2966,7 @@ export default function SocialHubView({
 
                             {gifTab === 'favorites' && favoriteStickers.length === 0 && (
                               <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70 text-center px-4">
-                                چ ستیکەرێن دڵخواز نینن.<br/><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
+                                چ ستیکەرێن پەسەندکری نینن.<br/><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
                               </div>
                             )}
                           </div>
