@@ -147,7 +147,7 @@ const ChatWallpaperPattern = () => {
   );
 };
 
-function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose }) {
+function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose, isSticker = false, isFavorite = false, onToggleFavorite = null }) {
   return (
     <div
       className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4"
@@ -212,6 +212,19 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
             <span className="font-bold text-[13px]">ژبەرکرن</span>
             <span className="material-symbols-outlined text-[18px] text-mono-500">content_copy</span>
           </button>
+
+          {isSticker && onToggleFavorite && (
+            <>
+              <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+              <button
+                onClick={() => { onToggleFavorite(); onClose(); }}
+                className={`flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 transition-all rounded-md ${isFavorite ? 'text-red-500 hover:text-red-600 dark:text-red-400' : 'text-mono-900 dark:text-mono-200'}`}
+              >
+                <span className="font-bold text-[13px]">{isFavorite ? 'لابرن ژ دڵخوازان' : 'زێدەکرن بۆ دڵخوازان'}</span>
+                <span className="material-symbols-outlined text-[18px] text-yellow-500">{isFavorite ? 'heart_broken' : 'star'}</span>
+              </button>
+            </>
+          )}
 
           {isMe && (
             <>
@@ -1029,10 +1042,29 @@ export default function SocialHubView({
 
   // --- GIF Picker State ---
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [gifTab, setGifTab] = useState('trending'); // 'trending' | 'favorites'
   const [gifSearchQuery, setGifSearchQuery] = useState('');
   const [gifResults, setGifResults] = useState([]);
   const [isGifLoading, setIsGifLoading] = useState(false);
   const gifSearchTimeoutRef = useRef(null);
+
+  const [favoriteStickers, setFavoriteStickers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('peyvok_favorite_stickers');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const toggleFavoriteSticker = (url) => {
+    setFavoriteStickers(prev => {
+      const isFav = prev.includes(url);
+      const newFavs = isFav ? prev.filter(u => u !== url) : [url, ...prev];
+      localStorage.setItem('peyvok_favorite_stickers', JSON.stringify(newFavs));
+      return newFavs;
+    });
+  };
 
   const [pendingImage, setPendingImage] = useState(null);
   const [pendingImagePreview, setPendingImagePreview] = useState(null);
@@ -1071,14 +1103,14 @@ export default function SocialHubView({
 
   // Handle GIF Search
   useEffect(() => {
-    if (!showGifPicker) return;
+    if (!showGifPicker || gifTab !== 'trending') return;
     const fetchGifs = async () => {
       setIsGifLoading(true);
       try {
         const apiKey = 'Gc7131jiJuvI7IdN0HZ1D7nh0ow5BU6g'; // Working API key
         const endpoint = gifSearchQuery.trim() 
-          ? `https://api.giphy.com/v1/stickers/search?api_key=${apiKey}&q=${encodeURIComponent(gifSearchQuery)}&limit=21`
-          : `https://api.giphy.com/v1/stickers/trending?api_key=${apiKey}&limit=21`;
+          ? `https://api.giphy.com/v1/stickers/search?api_key=${apiKey}&q=${encodeURIComponent(gifSearchQuery)}&limit=21&rating=pg-13`
+          : `https://api.giphy.com/v1/stickers/trending?api_key=${apiKey}&limit=21&rating=pg-13`;
           
         const res = await fetch(endpoint);
         const json = await res.json();
@@ -1094,7 +1126,7 @@ export default function SocialHubView({
     gifSearchTimeoutRef.current = setTimeout(fetchGifs, 500);
     
     return () => clearTimeout(gifSearchTimeoutRef.current);
-  }, [showGifPicker, gifSearchQuery]);
+  }, [showGifPicker, gifSearchQuery, gifTab]);
 
   // Real-time Top 3 Daily Players for Badges & Marquee Announcer
   useEffect(() => {
@@ -2632,29 +2664,39 @@ export default function SocialHubView({
             }}
           />
         )}
-        {activeContextMenu && (
-          <MessageContextMenu
-            m={activeContextMenu.message}
-            x={activeContextMenu.x}
-            y={activeContextMenu.y}
-            isMe={selectedChat?.isBotChat ? activeContextMenu.message.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : activeContextMenu.message.user_id === user?.id}
-            onClose={() => setActiveContextMenu(null)}
-            onReport={handleReport}
-            onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
-            onReply={(msg) => {
-              triggerHaptic(10);
-              setReplyingTo(msg);
-              setTimeout(() => textareaRef.current?.focus(), 50);
-            }}
-            onCopy={(text) => {
-              navigator.clipboard.writeText(text);
-              triggerHaptic(50);
-              setShowCopySuccess(true);
-              setTimeout(() => setShowCopySuccess(false), 2000);
-            }}
-            onDelete={(msg) => handleDeleteMessage(msg)}
-          />
-        )}
+        {activeContextMenu && (() => {
+          const content = activeContextMenu.message.content || activeContextMenu.message.text || '';
+          const isSticker = /^\s*\[STICKER:(.*?)\]\s*$/.test(content);
+          const stickerUrl = isSticker ? content.match(/^\s*\[STICKER:(.*?)\]\s*$/)[1] : null;
+          const isFavorite = isSticker && favoriteStickers.includes(stickerUrl);
+
+          return (
+            <MessageContextMenu
+              m={activeContextMenu.message}
+              x={activeContextMenu.x}
+              y={activeContextMenu.y}
+              isMe={selectedChat?.isBotChat ? activeContextMenu.message.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : activeContextMenu.message.user_id === user?.id}
+              onClose={() => setActiveContextMenu(null)}
+              onReport={handleReport}
+              onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
+              onReply={(msg) => {
+                triggerHaptic(10);
+                setReplyingTo(msg);
+                setTimeout(() => textareaRef.current?.focus(), 50);
+              }}
+              onCopy={(text) => {
+                navigator.clipboard.writeText(text);
+                triggerHaptic(50);
+                setShowCopySuccess(true);
+                setTimeout(() => setShowCopySuccess(false), 2000);
+              }}
+              onDelete={(msg) => handleDeleteMessage(msg)}
+              isSticker={isSticker}
+              isFavorite={isFavorite}
+              onToggleFavorite={isSticker ? () => toggleFavoriteSticker(stickerUrl) : null}
+            />
+          );
+        })()}
       </AnimatePresence>
 
       {/* Copy Success Toast */}
@@ -2803,7 +2845,7 @@ export default function SocialHubView({
                     setIsKeyboardVisible(false);
                     onKeyboardToggle?.(false);
                   }}
-                  className="flex-1 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm"
+                  className="flex-1 min-w-0 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-3 py-2 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm self-stretch"
                 />
               )}
 
@@ -2816,22 +2858,37 @@ export default function SocialHubView({
               />
 
               {!isRecording && (
-                <>
+                <div className="flex items-center gap-1 shrink-0">
                   <button
                     onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
-                    className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showGifPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
+                    className={`w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showGifPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
                     title="GIF & Stickers"
                   >
                     <span className="material-symbols-outlined font-black text-2xl">gif_box</span>
                   </button>
                   <button
                     onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
-                    className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showEmojiPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
+                    className={`w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showEmojiPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
                     title="ئێمۆجی"
                   >
                     <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
                   </button>
+                  
+                  {selectedChat && (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingImage}
+                      className="w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
+                      title="وێنەیەک بهنێرە"
+                    >
+                      <span className="material-symbols-outlined font-black text-xl">image</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
+              {!isRecording && (
+                <>
                   {/* GIF Picker Popup */}
                   <AnimatePresence>
                     {showGifPicker && (
@@ -2844,12 +2901,30 @@ export default function SocialHubView({
                           className="absolute bottom-full mb-3 left-0 md:-left-10 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
                           dir="rtl"
                         >
+                          <div className="flex bg-mono-200/50 dark:bg-mono-800/50 p-1 rounded-md mb-2">
+                            <button 
+                              onClick={() => setGifTab('trending')}
+                              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'trending' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                            >
+                              🔥 باو
+                            </button>
+                            <button 
+                              onClick={() => setGifTab('favorites')}
+                              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'favorites' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                            >
+                              ⭐ دڵخواز
+                            </button>
+                          </div>
+                          
                           <input
                             type="text"
                             placeholder="ل ستیکەران بگەڕە..."
                             value={gifSearchQuery}
-                            onChange={(e) => setGifSearchQuery(e.target.value)}
-                            className="w-full bg-mono-100 dark:bg-mono-800 border-none rounded-md px-3 py-2 text-sm font-rabar mb-3 focus:ring-2 focus:ring-primary/50 outline-none text-mono-900 dark:text-mono-100 placeholder-mono-500"
+                            onChange={(e) => {
+                              setGifSearchQuery(e.target.value);
+                              if (e.target.value.trim() !== '') setGifTab('trending');
+                            }}
+                            className="w-full bg-mono-100 dark:bg-mono-800 border-none rounded-md px-3 py-2 text-sm font-rabar mb-2 focus:ring-2 focus:ring-primary/50 outline-none text-mono-900 dark:text-mono-100 placeholder-mono-500"
                           />
                           <div className="h-56 overflow-y-auto no-scrollbar relative rounded-md">
                             {isGifLoading ? (
@@ -2859,28 +2934,39 @@ export default function SocialHubView({
                             ) : null}
                             
                             <div className="columns-3 gap-2 space-y-2">
-                              {gifResults.map(gif => {
-                                const gifUrl = gif.images?.fixed_width?.url || gif.images?.original?.url;
+                              {(gifTab === 'favorites' ? favoriteStickers : gifResults).map((item, idx) => {
+                                const gifUrl = gifTab === 'favorites' ? item : (item.images?.fixed_width?.url || item.images?.original?.url);
+                                const keyId = gifTab === 'favorites' ? `fav-${idx}` : item.id;
                                 return (
                                   <div 
-                                    key={gif.id} 
+                                    key={keyId} 
                                     onClick={() => {
                                       if (gifUrl) {
                                         handleSendMessage(null, `[STICKER:${gifUrl}]`);
                                         setShowGifPicker(false);
                                       }
                                     }}
-                                    className="break-inside-avoid cursor-pointer hover:scale-105 active:scale-95 transition-transform"
+                                    className="relative group break-inside-avoid cursor-pointer hover:scale-105 active:scale-95 transition-transform"
                                   >
-                                    <img src={gifUrl} alt={gif.title} className="w-full h-auto rounded-md bg-mono-100 dark:bg-mono-800" loading="lazy" />
+                                    <img src={gifUrl} alt="Sticker" className="w-full h-auto rounded-md bg-mono-100 dark:bg-mono-800" loading="lazy" />
+                                    {/* Small fav icon in corner */}
+                                    {favoriteStickers.includes(gifUrl) && (
+                                      <div className="absolute top-1 right-1 text-yellow-400 drop-shadow-md text-sm pointer-events-none">⭐</div>
+                                    )}
                                   </div>
                                 );
                               })}
                             </div>
                             
-                            {!isGifLoading && gifResults.length === 0 && (
+                            {!isGifLoading && gifTab === 'trending' && gifResults.length === 0 && (
                               <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70">
                                 چ ستیکەر نەهاتنە دیتن
+                              </div>
+                            )}
+
+                            {gifTab === 'favorites' && favoriteStickers.length === 0 && (
+                              <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70 text-center px-4">
+                                چ ستیکەرێن دڵخواز نینن.<br/><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
                               </div>
                             )}
                           </div>
@@ -2920,17 +3006,6 @@ export default function SocialHubView({
                     )}
                   </AnimatePresence>
                 </>
-              )}
-
-              {(selectedChat && !isRecording) && (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  className="w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                  title="وێنەیەک بهنێرە"
-                >
-                  <span className="material-symbols-outlined font-black text-xl">image</span>
-                </button>
               )}
             </div>
           </div>
