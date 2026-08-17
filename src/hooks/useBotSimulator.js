@@ -55,6 +55,8 @@ export default function useBotSimulator({
   const roundIndexRef = useRef(-1);
   const typeTimeoutRef = useRef(null);
   const currentTimeoutRef = useRef(null);
+  const activeMatchRef = useRef(activeMatch);
+  useEffect(() => { activeMatchRef.current = activeMatch; }, [activeMatch]);
 
   // Load dictionary once
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function useBotSimulator({
 
   useEffect(() => {
     if (!isBot || multiplayerState !== 'playing' || !targetWord || isTypingRef.current) return;
-    if (activeMatch?.p2_failed) return;
+    if (activeMatchRef.current?.p2_failed) return;
 
     const normalizedLevel = Math.min(Math.max(userLevel || 1, 1), 50);
     
@@ -253,8 +255,9 @@ export default function useBotSimulator({
       if (typeTimeoutRef.current) clearTimeout(typeTimeoutRef.current);
     };
   }, [
-    isBot, multiplayerState, targetWord, userLevel, activeMatch, 
+    isBot, multiplayerState, targetWord, userLevel, 
     opponentLiveCursor, setActiveMatchGuarded, setOpponentGuesses, setOpponentLiveStatuses,
     setWinnerNickname, opponentGuessesLength
   ]);
 }
+
