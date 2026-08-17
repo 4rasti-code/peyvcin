@@ -2898,7 +2898,7 @@ export default function SocialHubView({
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute bottom-full mb-3 left-0 md:-left-10 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
+                          className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
                           dir="rtl"
                         >
                           <div className="flex bg-mono-200/50 dark:bg-mono-800/50 p-1 rounded-md mb-2">
@@ -2987,7 +2987,7 @@ export default function SocialHubView({
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
+                          className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
                           dir="ltr"
                         >
                           <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
