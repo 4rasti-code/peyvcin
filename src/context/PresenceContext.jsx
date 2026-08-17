@@ -109,13 +109,34 @@ export const PresenceProvider = ({ children }) => {
     });
 
     const handleVisibilityChange = async () => {
+      if (!presenceChannelRef.current) return;
+      
       if (document.visibilityState === 'visible') {
-        if (presenceChannelRef.current && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED') && !isAdmin) {
-          try {
-            await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
-          } catch (e) {
-            console.error("Presence re-track failed on visibility change:", e);
+        const state = presenceChannelRef.current.state;
+        
+        // 1. If connected normally, just update our presence timestamp to show we are back active
+        if (state === 'joined' || state === 'SUBSCRIBED') {
+          if (!isAdmin) {
+            try {
+              await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
+            } catch (e) {
+              console.error("Presence re-track failed:", e);
+            }
           }
+        } 
+        // 2. If the OS killed the connection while sleeping, FORCE a reconnection!
+        else if (state === 'closed' || state === 'errored' || state === 'CHANNEL_ERROR') {
+          presenceChannelRef.current.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED' && isMounted && !isAdmin) {
+              await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
+            }
+          });
+        }
+      } else {
+        // Optimization: When the user minimizes the app, instantly show them as offline to others
+        // This prevents them from receiving invites while they aren't looking at the screen.
+        if (!isAdmin && presenceChannelRef.current.state === 'joined') {
+          presenceChannelRef.current.untrack().catch(() => {});
         }
       }
     };
