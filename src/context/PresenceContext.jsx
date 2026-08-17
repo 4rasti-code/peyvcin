@@ -14,10 +14,16 @@ export const PresenceProvider = ({ children }) => {
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
   const [onlineCount, setOnlineCount] = useState(0);
+  const [forceRefreshPresence, setForceRefreshPresence] = useState(0);
+  const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
   const presenceChannelRef = useRef(null);
   const currentBusyModeRef = useRef('idle');
   const trackTimeoutRef = useRef(null);
+
+  const reconnectPresence = useCallback(() => {
+    setReconnectTrigger(prev => prev + 1);
+  }, []);
 
   // Expose the update status function
   const updatePresenceStatus = useCallback((busyMode) => {
@@ -170,7 +176,7 @@ export const PresenceProvider = ({ children }) => {
       }
       presenceChannelRef.current = null;
     };
-  }, [user]);
+  }, [user, reconnectTrigger]);
 
   return (
     <PresenceContext.Provider value={{
@@ -178,7 +184,8 @@ export const PresenceProvider = ({ children }) => {
       onlineUserStatuses,
       onlineCount,
       updatePresenceStatus,
-      forceRefreshPresence
+      forceRefreshPresence,
+      reconnectPresence
     }}>
       {children}
     </PresenceContext.Provider>

@@ -118,7 +118,7 @@ const LobbyView = memo(({
 
   const { playDailyOpenSfx } = useAudio();
   const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
-  const { onlineUsers, onlineUserStatuses, onlineCount, forceRefreshPresence } = usePresence();
+  const { onlineUsers, onlineUserStatuses, onlineCount, forceRefreshPresence, reconnectPresence } = usePresence();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
 
@@ -1070,6 +1070,7 @@ const LobbyView = memo(({
                       onClick={(e) => {
                         e.stopPropagation();
                         triggerHaptic(10);
+                        reconnectPresence();
                         forceRefreshPresence();
                         fetchOnlineProfiles();
                       }}
