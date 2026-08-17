@@ -188,16 +188,16 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -50, scale: 0.9, filter: 'blur(10px)' }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-[9999] flex justify-center px-4 pointer-events-none"
+            className="fixed top-safe-16 left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
           >
-            <div className="relative rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.3)] pointer-events-auto max-w-[340px] w-full p-[2px] overflow-hidden group">
+            <div className="relative rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.3)] pointer-events-auto max-w-85 w-full p-0.5 overflow-hidden group">
               {/* Spinning Glowing Border */}
-              <div className="absolute -inset-[100%] bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#3b82f6_25%,transparent_50%,#ef4444_75%,transparent_100%)] animate-[spin_4s_linear_infinite] opacity-100" />
+              <div className="absolute -inset-full bg-[conic-gradient(from_90deg_at_50%_50%,transparent_0%,#3b82f6_25%,transparent_50%,#ef4444_75%,transparent_100%)] animate-spin-4 linear infinite opacity-100" />
               
               {/* Inner Glass Card */}
               <div className="relative bg-mono-900/95 backdrop-blur-2xl rounded-[14px] p-4 flex flex-col gap-4 border border-white/10 z-10 overflow-hidden shadow-inner">
                 {/* Subtle top glare */}
-                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-white/20 to-transparent" />
 
                 <div className="relative z-10 flex items-center gap-3">
                   {/* Avatar with pulsing neon ring */}
@@ -216,12 +216,12 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                   
                   {/* Text Container */}
                   <div className="flex flex-col flex-1 min-w-0">
-                    <span className="text-blue-400 text-[10px] font-bold tracking-wider drop-shadow-sm mb-0.5 flex items-center gap-1">
+                    <span className="text-blue-400 text-xs font-bold tracking-wider drop-shadow-sm mb-0.5 flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
                       داخوازیا هەڤڕکیێ
                     </span>
-                    <p className="text-[13px] font-medium text-mono-200 leading-tight">
-                      <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200 drop-shadow-sm truncate block">{invite.hostName}</span> 
+                    <p className="text-sm font-medium text-mono-200 leading-tight">
+                      <span className="font-black text-transparent bg-clip-text bg-linear-to-r from-white to-blue-200 drop-shadow-sm truncate block">{invite.hostName}</span> 
                       داخوازا یاریێ ژ تە دکەت!
                     </p>
                   </div>
@@ -233,14 +233,14 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                     onClick={handleDecline}
                     className="flex-1 py-2.5 rounded-xl bg-mono-800/80 hover:bg-red-500/10 text-mono-400 hover:text-red-400 border border-white/5 hover:border-red-500/30 transition-all font-bold text-xs flex items-center justify-center gap-1.5 group/btn"
                   >
-                    <span className="material-symbols-outlined text-[16px] group-hover/btn:scale-110 transition-transform">close</span>
+                    <span className="material-symbols-outlined text-base group-hover/btn:scale-110 transition-transform">close</span>
                     ڕەتکرن
                   </button>
                   <button
                     onClick={handleAccept}
-                    className="flex-[1.5] py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white border border-blue-400/50 hover:border-white/50 transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] font-black text-xs flex items-center justify-center gap-1.5 group/btn"
+                    className="flex-[1.5] py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white border border-blue-400/50 hover:border-white/50 transition-all shadow-[0_0_15px_rgba(59,130,246,0.4)] hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] font-black text-xs flex items-center justify-center gap-1.5 group/btn"
                   >
-                    <span className="material-symbols-outlined text-[16px] animate-pulse">swords</span>
+                    <span className="material-symbols-outlined text-base animate-pulse">swords</span>
                     قەبوولکرن
                   </button>
                 </div>
@@ -251,7 +251,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
                     initial={{ width: "100%" }}
                     animate={{ width: "0%" }}
                     transition={{ duration: 15, ease: "linear" }}
-                    className="h-full bg-gradient-to-r from-red-500 via-purple-500 to-blue-500 opacity-90 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+                    className="h-full bg-linear-to-r from-red-500 via-purple-500 to-blue-500 opacity-90 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
                   />
                 </div>
               </div>
@@ -276,9 +276,9 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
               dir="rtl"
             >
               <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-red-500 text-2xl">error</span>
+                <span className="material-symbols-outlined text-red-500 text-3xl">cancel</span>
               </div>
-              <p className="text-sm font-bold text-mono-900 dark:text-white leading-relaxed">
+              <p className="text-mono-800 dark:text-white font-black text-sm">
                 داخوازنامە ژ لایێ <span className="text-red-500 dark:text-red-400 mx-1">{cancelAlert}</span> ڤە هاتە هەلوەشاندن
               </p>
             </Motion.div>
