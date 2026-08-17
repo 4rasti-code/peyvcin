@@ -3299,7 +3299,7 @@ export default function SocialHubView({
                   maxScale={5}
                   centerOnInit={true}
                   centerZoomedOut={true}
-                  wheel={{ step: 0.03 }}
+                  wheel={{ step: 0.005 }}
                   doubleClick={{ step: 1 }}
                 >
                   {() => (
@@ -3328,6 +3328,8 @@ export default function SocialHubView({
     </div>
   );
 }
+
+
 
 
 
