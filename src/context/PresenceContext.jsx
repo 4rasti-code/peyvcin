@@ -58,55 +58,65 @@ export const PresenceProvider = ({ children }) => {
     const isAdmin = user?.email === '4rasti@gmail.com';
     let isMounted = true;
 
-    // Optimization #2: Keyed Presence
-    const presenceChannel = supabase.channel('global:app_presence', {
-      config: {
-        presence: {
-          key: user.id
-        }
+    const initializeChannel = () => {
+      // Clean up old channel if it exists
+      if (presenceChannelRef.current) {
+        supabase.removeChannel(presenceChannelRef.current);
       }
-    });
-    presenceChannelRef.current = presenceChannel;
 
-    // Optimization #3: Efficient state management with keyed payloads
-    presenceChannel.on('presence', { event: 'sync' }, () => {
-      if (!isMounted) return;
-      const state = presenceChannel.presenceState();
-      
-      const newOnlineUsers = new Set();
-      const newStatuses = {};
-
-      Object.keys(state).forEach(presenceKey => {
-        let latestPresence = state[presenceKey][0];
-        for (let i = 1; i < state[presenceKey].length; i++) {
-           if (new Date(state[presenceKey][i].online_at) > new Date(latestPresence.online_at)) {
-               latestPresence = state[presenceKey][i];
-           }
-        }
-
-        const realId = latestPresence.user_id || presenceKey;
-
-        if (realId !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && realId !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && realId !== user.id) {
-          newOnlineUsers.add(realId);
-
-          if (latestPresence?.busy_mode && latestPresence.busy_mode !== 'idle') {
-            newStatuses[realId] = latestPresence.busy_mode;
+      // Optimization #2: Keyed Presence
+      const channel = supabase.channel('global:app_presence', {
+        config: {
+          presence: {
+            key: user.id
           }
         }
       });
+      presenceChannelRef.current = channel;
 
-      setOnlineUsers(newOnlineUsers);
-      setOnlineUserStatuses(newStatuses);
-      setOnlineCount(newOnlineUsers.size);
-    });
+      // Optimization #3: Efficient state management with keyed payloads
+      channel.on('presence', { event: 'sync' }, () => {
+        if (!isMounted) return;
+        const state = channel.presenceState();
+        
+        const newOnlineUsers = new Set();
+        const newStatuses = {};
 
-    presenceChannel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED' && isMounted) {
-        if (!isAdmin) {
-          await presenceChannel.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
+        Object.keys(state).forEach(presenceKey => {
+          let latestPresence = state[presenceKey][0];
+          for (let i = 1; i < state[presenceKey].length; i++) {
+             if (new Date(state[presenceKey][i].online_at) > new Date(latestPresence.online_at)) {
+                 latestPresence = state[presenceKey][i];
+             }
+          }
+
+          const realId = latestPresence.user_id || presenceKey;
+
+          if (realId !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && realId !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && realId !== user.id) {
+            newOnlineUsers.add(realId);
+
+            if (latestPresence?.busy_mode && latestPresence.busy_mode !== 'idle') {
+              newStatuses[realId] = latestPresence.busy_mode;
+            }
+          }
+        });
+
+        setOnlineUsers(newOnlineUsers);
+        setOnlineUserStatuses(newStatuses);
+        setOnlineCount(newOnlineUsers.size);
+      });
+
+      channel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED' && isMounted) {
+          if (!isAdmin) {
+            await channel.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
+          }
         }
-      }
-    });
+      });
+    };
+
+    // Initial setup
+    initializeChannel();
 
     const handleVisibilityChange = async () => {
       if (!presenceChannelRef.current) return;
@@ -124,13 +134,10 @@ export const PresenceProvider = ({ children }) => {
             }
           }
         } 
-        // 2. If the OS killed the connection while sleeping, FORCE a reconnection!
+        // 2. If the OS killed the connection while sleeping, rebuild the entire channel!
         else if (state === 'closed' || state === 'errored' || state === 'CHANNEL_ERROR') {
-          presenceChannelRef.current.subscribe(async (status) => {
-            if (status === 'SUBSCRIBED' && isMounted && !isAdmin) {
-              await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
-            }
-          });
+          console.warn("[Presence] Channel dead on wake. Rebuilding...");
+          initializeChannel();
         }
       } else {
         // Optimization: When the user minimizes the app, instantly show them as offline to others
