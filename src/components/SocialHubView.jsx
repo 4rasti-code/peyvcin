@@ -168,7 +168,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         className="relative z-10 w-full max-w-55"
         style={{
           position: 'fixed',
-          top: Math.max(10, Math.min(y - 20, window.innerHeight - 220)),
+          top: Math.max(10, Math.min(y - 20, window.innerHeight - 280)),
           ...(isMe
             ? { right: Math.min(window.innerWidth - 230, Math.max(10, window.innerWidth - x - 40)) }
             : { left: Math.min(window.innerWidth - 230, Math.max(10, x - 40)) }
