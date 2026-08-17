@@ -119,12 +119,27 @@ export const PresenceProvider = ({ children }) => {
         }
       }
     };
+    
+    // Optimization: Instant disconnect on tab close
+    const handleBeforeUnload = () => {
+      if (presenceChannelRef.current) {
+        // Run untrack and remove synchronously
+        presenceChannelRef.current.untrack();
+        supabase.removeChannel(presenceChannelRef.current);
+      }
+    };
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       isMounted = false;
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      supabase.removeChannel(presenceChannel);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (presenceChannelRef.current) {
+        presenceChannelRef.current.untrack();
+        supabase.removeChannel(presenceChannelRef.current);
+      }
       presenceChannelRef.current = null;
     };
   }, [user]);
