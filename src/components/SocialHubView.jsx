@@ -690,7 +690,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               alt="Attachment"
               className="relative z-0 w-full h-auto max-h-80 object-cover pointer-events-none select-none transition-transform duration-500 ease-out group-hover:scale-[1.03]"
               style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none' }}
-              draggable="false"`r`n                          onLoad={() => centerView()}
+              draggable="false"
               onLoad={(e) => { if (e.target.previousSibling) e.target.previousSibling.style.display = 'none'; }}
             />
             {/* The transparent overlay that prevents right click but handles fullscreen click */}
