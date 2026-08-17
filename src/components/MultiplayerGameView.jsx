@@ -95,6 +95,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   useBotSimulator({
     isBot: opponent?.isBot,
     multiplayerState,
+    isGameActive,
     targetWord,
     userLevel,
     setOpponentGuesses,
@@ -867,6 +868,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     </div>
   );
 }
+
 
 
 
