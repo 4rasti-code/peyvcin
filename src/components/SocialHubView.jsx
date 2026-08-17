@@ -1105,9 +1105,10 @@ export default function SocialHubView({
         setActiveTab('private');
       } else if (initialTab) {
         setActiveTab(initialTab);
-      } else {
-        setActiveTab('global');
       }
+    } else {
+      // Reset selected chat when leaving the view so the user isn't annoyed by returning to it
+      setSelectedChat(null);
     }
   }, [initialChatPartner, initialTab, isVisible]);
 

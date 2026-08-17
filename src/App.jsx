@@ -599,6 +599,13 @@ export default function App() {
     }
   }, [currentView, multiplayerState, cancelMatch]);
 
+  // CLEANUP: Reset social hub active chat partner when leaving the view
+  useEffect(() => {
+    if (currentView !== 'social_hub') {
+      setActiveChatPartner(null);
+    }
+  }, [currentView]);
+
   const [notificationsList, setNotificationsList] = useState([]);
   const [socialNotifications, setSocialNotifications] = useState({ unreadMessages: 0, pendingRequests: 0, unreadGlobal: 0 });
   const [hasUnreadGlobalMessage, setHasUnreadGlobalMessage] = useState(false);
