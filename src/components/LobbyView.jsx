@@ -1071,7 +1071,6 @@ const LobbyView = memo(({
                         e.stopPropagation();
                         triggerHaptic(10);
                         reconnectPresence();
-                        forceRefreshPresence();
                         fetchOnlineProfiles();
                       }}
                       disabled={loadingOnline}

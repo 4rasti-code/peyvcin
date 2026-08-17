@@ -50,14 +50,6 @@ export const PresenceProvider = ({ children }) => {
     }
   }, [user]);
 
-  const forceRefreshPresence = useCallback(() => {
-    if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined') {
-      if (user && user.email !== '4rasti@gmail.com') {
-        presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() }).catch(() => {});
-      }
-    }
-  }, [user]);
-
   useEffect(() => {
     if (!user?.id) return;
 
@@ -110,6 +102,9 @@ export const PresenceProvider = ({ children }) => {
         setOnlineUsers(newOnlineUsers);
         setOnlineUserStatuses(newStatuses);
         setOnlineCount(newOnlineUsers.size);
+        
+        // Expose a force refresh counter so LobbyView can re-fetch profiles instantly
+        setForceRefreshPresence(prev => prev + 1);
       });
 
       channel.subscribe(async (status) => {
