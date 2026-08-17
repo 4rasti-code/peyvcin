@@ -65,7 +65,7 @@ export const PresenceProvider = ({ children }) => {
       }
 
       // Optimization #2: Keyed Presence
-      const channel = supabase.channel('global:app_presence', {
+      const channel = supabase.channel('global:app_presence_v2', {
         config: {
           presence: {
             key: user.id
