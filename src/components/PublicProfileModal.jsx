@@ -10,7 +10,7 @@ import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
 import { getLevelTier } from '../utils/progression';
 import { useAudio } from '../context/AudioContext';
-import { useUser } from '../context/AuthContext';
+import { usePresence } from '../context/PresenceContext';
 import StatsView from './StatsView';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
@@ -45,7 +45,7 @@ export default function PublicProfileModal({
   const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [rewardAmount, setRewardAmount] = useState(0);
   const [claiming, setClaiming] = useState(false);
-  const { onlineUsers } = useUser();
+  const { onlineUsers } = usePresence();
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
   const [isMe, setIsMe] = useState(false);
   const [internalBlocked, setInternalBlocked] = useState(false);

@@ -11,10 +11,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authProgress, setAuthProgress] = useState(0);
   const [visualProgress, setVisualProgress] = useState(0);
-  const [onlineCount, setOnlineCount] = useState(1);
-  const [onlineUsers, setOnlineUsers] = useState(new Set());
-  const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
-  const presenceChannelRef = useRef(null);
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
@@ -564,124 +560,7 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user?.id]);
 
-  const currentBusyModeRef = useRef(null);
 
-  const trackTimeoutRef = useRef(null);
-
-  const updatePresenceStatus = useCallback((busyMode) => {
-    currentBusyModeRef.current = busyMode;
-    if (trackTimeoutRef.current) clearTimeout(trackTimeoutRef.current);
-    
-    const sendTrackRequest = async () => {
-      try {
-        if (presenceChannelRef.current && user?.id && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED')) {
-          const isAdmin = user?.email === '4rasti@gmail.com';
-          if (!isAdmin) {
-            await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
-          }
-        }
-      } catch (e) {
-        console.error("Presence track error:", e);
-      }
-    };
-
-    if (busyMode === 'idle') {
-      sendTrackRequest();
-    } else {
-      trackTimeoutRef.current = setTimeout(sendTrackRequest, 1000);
-    }
-  }, [user?.id, user?.email]);
-
-  const forceRefreshPresence = useCallback(() => {
-    if (presenceChannelRef.current && presenceChannelRef.current.state === 'joined') {
-      const activeUser = authStateRef.current.user;
-      if (activeUser && activeUser.email !== '4rasti@gmail.com') {
-        presenceChannelRef.current.track({ user_id: activeUser.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current }).catch(() => {});
-      }
-    }
-  }, []);
-
-  // NEW: Global App Presence Tracking
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const isAdmin = user?.email === '4rasti@gmail.com';
-
-    // Heartbeat to update `updated_at` in profiles table so friends see us as online
-    const pingPresence = async () => {
-      if (isAdmin) return;
-      try {
-        await supabase.from('profiles').update({ updated_at: new Date().toISOString() }).eq('id', user.id);
-      } catch (e) {
-        console.error("Presence ping failed:", e);
-      }
-    };
-
-    // Initial ping
-    pingPresence();
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        pingPresence();
-        // Safe Re-tracking: Re-fire track on the existing channel instead of recreating it
-        if (presenceChannelRef.current && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED') && !isAdmin) {
-          try {
-            await presenceChannelRef.current.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
-          } catch (e) {
-            console.error("Presence re-track failed on visibility change:", e);
-          }
-        }
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    // Ping every 2 minutes
-    const heartbeatInterval = setInterval(pingPresence, 2 * 60 * 1000);
-
-    let isMounted = true;
-    const presenceChannel = supabase.channel('global:app_presence');
-    presenceChannelRef.current = presenceChannel;
-
-    presenceChannel.on('presence', { event: 'sync' }, () => {
-      const state = presenceChannel.presenceState();
-      if (isMounted) {
-        const users = new Set();
-        const latestPresence = {};
-        Object.values(state).forEach(presences => {
-          presences.forEach(p => {
-            if (p.user_id && p.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && p.user_id !== '66bbf4d5-333a-4748-8529-ecd5bae9f3a4' && p.user_id !== user.id) {
-              users.add(p.user_id);
-              if (!latestPresence[p.user_id] || new Date(p.online_at) > new Date(latestPresence[p.user_id].online_at)) {
-                latestPresence[p.user_id] = p;
-              }
-            }
-          });
-        });
-
-        const statuses = {};
-        Object.values(latestPresence).forEach(p => {
-          if (p.busy_mode && p.busy_mode !== 'idle') statuses[p.user_id] = p.busy_mode;
-        });
-        setOnlineUsers(users);
-        setOnlineUserStatuses(statuses);
-        setOnlineCount(users.size);
-      }
-    }).subscribe(async (status) => {
-      if (status === 'SUBSCRIBED' && isMounted) {
-        if (!isAdmin) {
-          await presenceChannel.track({ user_id: user.id, online_at: new Date().toISOString(), busy_mode: currentBusyModeRef.current });
-        }
-      }
-    });
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearInterval(heartbeatInterval);
-      isMounted = false;
-      presenceChannel.untrack();
-      supabase.removeChannel(presenceChannel);
-    };
-  }, [user?.id, user?.email]);
 
   const completeOnboarding = useCallback(async (nickname) => {
     if (!user?.id) return { success: false, error: "Must be logged in" };
@@ -840,14 +719,13 @@ export const AuthProvider = ({ children }) => {
     equippedFont, setEquippedFont, ownedFonts, setOwnedFonts,
     equippedBundle, setEquippedBundle, ownedBundles, setOwnedBundles,
     lastProfileUpdate, setLastProfileUpdate,
-    onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus,
     syncProfile, refreshProfile: syncProfile, updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus,
-    isProfileLoaded, forceRefreshPresence
+    isProfileLoaded
   }), [
     user, loadingAuth, loading, visualProgress, userNickname, userAvatar, city, isInKurdistan,
     countryCode, ownedAvatars, hapticEnabled, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts, 
     equippedBundle, ownedBundles, syncProfile,
-    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate, onlineCount, onlineUsers, onlineUserStatuses, updatePresenceStatus, forceRefreshPresence
+    updateProfile, completeOnboarding, handleToggleBlock, checkBlockStatus, profileData, lastProfileUpdate, lastNicknameUpdate
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

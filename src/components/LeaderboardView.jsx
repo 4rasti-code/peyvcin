@@ -9,6 +9,7 @@ import { FilsIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { useUser } from '../context/AuthContext';
+import { usePresence } from '../context/PresenceContext';
 import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP, getLevelTier, getLevelData } from '../utils/progression';
@@ -27,11 +28,12 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
     lastProfileUpdate,
     handleToggleBlock: toggleBlockInContext,
     loadingAuth,
-    onlineCount,
     equippedNameStyle,
     equippedFont,
     equippedBundle
   } = useUser();
+
+  const { onlineCount } = usePresence();
 
   const {
     currentXP: userXP,

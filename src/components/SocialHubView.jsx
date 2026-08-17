@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
+import { usePresence } from '../context/PresenceContext';
 import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
@@ -1009,9 +1010,9 @@ export default function SocialHubView({
     userNickname,
     userAvatar,
     handleToggleBlock: toggleBlockInContext,
-    loadingAuth,
-    onlineUsers
+    loadingAuth
   } = useUser();
+  const { onlineUsers } = usePresence();
   const {
     playNotifSound,
     playMessageSound: _playMessageSound,

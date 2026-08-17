@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter as Router } from 'react-router-dom'
 import './index.css'
 import { AuthProvider } from './context/AuthContext';
+import { PresenceProvider } from './context/PresenceContext';
 import { AudioProvider } from './context/AudioContext';
 import { GameProvider } from './context/GameContext';
 import { MultiplayerProvider } from './context/MultiplayerContext';
@@ -15,13 +16,15 @@ const renderApp = () => {
       <GlobalErrorBoundary>
         <Router>
           <AuthProvider>
-            <AudioProvider>
-              <GameProvider>
-                <MultiplayerProvider>
-                  <App />
-                </MultiplayerProvider>
-              </GameProvider>
-            </AudioProvider>
+            <PresenceProvider>
+              <AudioProvider>
+                <GameProvider>
+                  <MultiplayerProvider>
+                    <App />
+                  </MultiplayerProvider>
+                </GameProvider>
+              </AudioProvider>
+            </PresenceProvider>
           </AuthProvider>
         </Router>
       </GlobalErrorBoundary>

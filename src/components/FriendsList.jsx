@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
 import { useUser } from '../context/AuthContext';
+import { usePresence } from '../context/PresenceContext';
 import { useAudio } from '../context/AudioContext';
 import { motion as Motion } from 'framer-motion';
 import PublicProfileModal from './PublicProfileModal';
@@ -11,7 +12,8 @@ export default function FriendsList({
   onOpenChat, 
   onRequireActionComplete // Optional callback for parent
 }) {
-  const { user, onlineUsers, loading: loadingAuth, handleToggleBlock } = useUser();
+  const { user, loading: loadingAuth, handleToggleBlock } = useUser();
+  const { onlineUsers } = usePresence();
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [pendingSentIds, setPendingSentIds] = useState(new Set());

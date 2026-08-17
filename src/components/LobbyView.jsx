@@ -5,6 +5,7 @@ import { DerhemIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { useAudio } from '../context/AudioContext';
 import { useUser } from '../context/AuthContext';
+import { usePresence } from '../context/PresenceContext';
 import { useGame } from '../context/GameContext';
 import Avatar from './Avatar';
 import ClashingSwords from './ClashingSwords';
@@ -116,7 +117,8 @@ const LobbyView = memo(({
   const inviteTimerRef = useRef(null);
 
   const { playDailyOpenSfx } = useAudio();
-  const { user, userNickname, userAvatar, onlineUsers, onlineUserStatuses, onlineCount, profileData, equippedFont, equippedNameStyle, equippedBundle, forceRefreshPresence } = useUser();
+  const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
+  const { onlineUsers, onlineUserStatuses, onlineCount, forceRefreshPresence } = usePresence();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
 

@@ -79,6 +79,7 @@ const MedalsView = lazyWithRetry(() => import('./components/MedalsView'));
 
 import { useGame } from './context/GameContext';
 import { useUser } from './context/AuthContext';
+import { usePresence } from './context/PresenceContext';
 import { useAudio } from './context/AudioContext';
 import VictoryOverlay from './components/VictoryOverlay';
 import CoinAnimation from './components/CoinAnimation';
@@ -193,8 +194,9 @@ export default function App() {
     ownedAvatars, equippedNameStyle, ownedNameStyles, equippedFont, ownedFonts,
     equippedBundle, ownedBundles,
     unlockedThemes: _unlockedThemes, currentTheme,
-    updateProfile, profileData, syncProfile, updatePresenceStatus
+    updateProfile, profileData, syncProfile
   } = useUser();
+  const { updatePresenceStatus } = usePresence();
 
   const {
     appSoundsEnabled,
