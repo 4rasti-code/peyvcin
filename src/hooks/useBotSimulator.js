@@ -93,14 +93,14 @@ export default function useBotSimulator({
     
     // First attempt takes longer to simulate initial human thought
     // Level 1: ~7s, Level 50: ~3s
-    const initialDelay = Math.max(3000, 7000 - (normalizedLevel * 80));
+    const initialDelay = 4000;
     
     // Subsequent attempts are faster
     // Level 1: ~4s, Level 50: ~1s
     const subsequentDelay = Math.max(1000, 4000 - (normalizedLevel * 60));
     
     const baseDelay = isFirstAttempt ? initialDelay : subsequentDelay;
-    const thinkingDelay = Math.random() * 1000 + baseDelay;
+    const thinkingDelay = isFirstAttempt ? initialDelay : (Math.random() * 1000 + baseDelay);
 
     currentTimeoutRef.current = setTimeout(() => {
       if (multiplayerState !== 'playing') return;
@@ -172,7 +172,7 @@ export default function useBotSimulator({
 
         if (targetWord && charIndex < targetWord.length) {
           // Occasional hesitation (10% chance to pause)
-          const hesitation = Math.random() < 0.1 ? 600 : 0;
+          const hesitation = Math.random() < 0.15 ? (Math.random() * 500 + 1500) : 0;
           
           typeTimeoutRef.current = setTimeout(() => {
             // Send the actual evaluated color live to match the human broadcast logic
@@ -262,5 +262,7 @@ export default function useBotSimulator({
     setWinnerNickname, opponentGuessesLength
   ]);
 }
+
+
 
 
