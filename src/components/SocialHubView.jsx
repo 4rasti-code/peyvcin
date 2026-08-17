@@ -20,15 +20,15 @@ import { MEDALS } from '../constants/medals';
 
 const renderPreviewText = (text) => {
   if (!text) return 'نامەک ل ڤێرێیە';
-  
+
   if (text.includes('[VOICE:')) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#00a884]">mic</span> دەنگ</span>;
   }
-  
+
   if (text.includes('[IMAGE:')) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">photo_camera</span> وێنەیەک</span>;
   }
-  
+
   if (text.includes('[MEDAL_SHARE:')) {
     const match = text.match(/\[MEDAL_SHARE:(.*?)\]/);
     if (match && match[1]) {
@@ -42,12 +42,12 @@ const renderPreviewText = (text) => {
       );
     }
   }
-  if (text.startsWith('[BATTLE_RESULT]') || 
-      (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(text) && (text.includes('🟩') || text.includes('🟨') || text.includes('⬛') || text.includes('⬜')))
+  if (text.startsWith('[BATTLE_RESULT]') ||
+    (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(text) && (text.includes('🟩') || text.includes('🟨') || text.includes('⬛') || text.includes('⬜')))
   ) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#c9b458]">sports_esports</span> ئەنجامێن یاریێ</span>;
   }
-  
+
   return text;
 };
 
@@ -605,7 +605,7 @@ const CustomAudioPlayer = ({ src, isMe }) => {
 
 const SingleAnimatedEmoji = memo(({ emoji, className = "inline-block object-contain w-[1em] h-[1em]" }) => {
   const [error, setError] = useState(false);
-  
+
   const hexCode = React.useMemo(() => {
     let codePoints = [];
     for (let char of emoji) {
@@ -620,7 +620,7 @@ const SingleAnimatedEmoji = memo(({ emoji, className = "inline-block object-cont
   if (error || !hexCode) return <span className={className}>{emoji}</span>;
 
   return (
-    <img 
+    <img
       src={`https://fonts.gstatic.com/s/e/notoemoji/latest/${hexCode}/512.webp`}
       alt={emoji}
       className={className}
@@ -636,7 +636,7 @@ const AnimatedEmojiRenderer = memo(({ text }) => {
         const segmenter = new Intl.Segmenter('en', { granularity: 'grapheme' });
         return Array.from(segmenter.segment(text)).map(s => s.segment).filter(s => s.trim().length > 0);
       }
-    } catch(_e) { /* ignore */ }
+    } catch (_e) { /* ignore */ }
     return Array.from(text).filter(s => s.trim().length > 0);
   }, [text]);
 
@@ -685,10 +685,10 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               onLoad={(e) => { if (e.target.previousSibling) e.target.previousSibling.style.display = 'none'; }}
             />
             {/* The transparent overlay that prevents right click but handles fullscreen click */}
-            <div 
-               className="absolute inset-0 z-10 cursor-pointer bg-black/0 transition-colors duration-200 group-hover:bg-black/10 dark:group-hover:bg-white/5" 
-               onContextMenu={e => e.preventDefault()} 
-               onClick={(e) => { e.stopPropagation(); if (onImageClick) onImageClick(url); }} 
+            <div
+              className="absolute inset-0 z-10 cursor-pointer bg-black/0 transition-colors duration-200 group-hover:bg-black/10 dark:group-hover:bg-white/5"
+              onContextMenu={e => e.preventDefault()}
+              onClick={(e) => { e.stopPropagation(); if (onImageClick) onImageClick(url); }}
             />
           </div>
         );
@@ -707,15 +707,15 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         const medalId = part.substring(13, part.length - 1);
         const medal = MEDALS.find(m => m.id === medalId);
         if (!medal) return <span key={i} className="text-xs text-mono-500 italic block mt-1">[پلە نەهاتە دیتن]</span>;
-        
+
         const MedalIcon = medal.IconComponent;
         return (
           <div key={i} className="mt-2 mb-1 flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-linear-to-b from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-sm w-full max-w-56 mx-auto" dir="rtl">
-             <MedalIcon size={80} className={`w-20 h-20 ${medal.color} drop-shadow-xl shrink-0`} />
-             <div className="flex flex-col items-center text-center w-full">
-                <span className="text-[11px] sm:text-[12px] text-amber-600 dark:text-amber-500 font-bold mb-1">پلەیەکا نوی وەرگرت!</span>
-                <span className={`text-lg sm:text-xl font-black w-full ${medal.color}`} style={{ whiteSpace: 'normal', wordBreak: 'keep-all' }}>{medal.name}</span>
-             </div>
+            <MedalIcon size={80} className={`w-20 h-20 ${medal.color} drop-shadow-xl shrink-0`} />
+            <div className="flex flex-col items-center text-center w-full">
+              <span className="text-[11px] sm:text-[12px] text-amber-600 dark:text-amber-500 font-bold mb-1">پلەیەکا نوی وەرگرت!</span>
+              <span className={`text-lg sm:text-xl font-black w-full ${medal.color}`} style={{ whiteSpace: 'normal', wordBreak: 'keep-all' }}>{medal.name}</span>
+            </div>
           </div>
         );
       }
@@ -873,13 +873,13 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               e.preventDefault();
               onLongPress(m, e.clientX, e.clientY);
             }}
-            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker)) 
-              ? 'text-[54px] leading-none bg-transparent shadow-none border-none px-1 py-1 drop-shadow-sm' 
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker))
+              ? 'text-[54px] leading-none bg-transparent shadow-none border-none px-1 py-1 drop-shadow-sm'
               : `px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap shadow-sm ${isMe
-              ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
-              : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
+                ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
+                : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
               }`
-            } ${isDeleted ? 'px-3 py-1.5 rounded-md opacity-60 italic text-[13px] bg-mono-100 dark:bg-mono-800' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
+              } ${isDeleted ? 'px-3 py-1.5 rounded-md opacity-60 italic text-[13px] bg-mono-100 dark:bg-mono-800' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
 
             {/* Quoted Message (Reply) */}
@@ -888,11 +888,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                 {m.reply_to_text.startsWith('[BATTLE_RESULT]')
                   ? <div className="scale-[0.85] origin-right opacity-80 -my-2"><BattleResultRenderer text={m.reply_to_text} isMe={isMe} onProfileClick={onProfileClick} /></div>
                   : (
-                      (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
-                      (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
-                    )
-                      ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
-                      : renderFormattedText(m.reply_to_text)
+                    (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
+                    (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
+                  )
+                    ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
+                    : renderFormattedText(m.reply_to_text)
                 }
               </div>
             )}
@@ -1108,10 +1108,10 @@ export default function SocialHubView({
       setIsGifLoading(true);
       try {
         const apiKey = 'Gc7131jiJuvI7IdN0HZ1D7nh0ow5BU6g'; // Working API key
-        const endpoint = gifSearchQuery.trim() 
+        const endpoint = gifSearchQuery.trim()
           ? `https://api.giphy.com/v1/stickers/search?api_key=${apiKey}&q=${encodeURIComponent(gifSearchQuery)}&limit=21&rating=pg-13`
           : `https://api.giphy.com/v1/stickers/trending?api_key=${apiKey}&limit=21&rating=pg-13`;
-          
+
         const res = await fetch(endpoint);
         const json = await res.json();
         setGifResults(json.data || []);
@@ -1124,7 +1124,7 @@ export default function SocialHubView({
 
     if (gifSearchTimeoutRef.current) clearTimeout(gifSearchTimeoutRef.current);
     gifSearchTimeoutRef.current = setTimeout(fetchGifs, 500);
-    
+
     return () => clearTimeout(gifSearchTimeoutRef.current);
   }, [showGifPicker, gifSearchQuery, gifTab]);
 
@@ -1215,7 +1215,7 @@ export default function SocialHubView({
 
         // Sort by timestamp old to new
         combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-        
+
         setMarqueeAnnouncements(combined);
       } catch (e) {
         console.warn("Failed to fetch historical announcements", e);
@@ -1239,14 +1239,14 @@ export default function SocialHubView({
         if (newProfile && newProfile.nickname) {
           // Only process updates for users created in the last 2 minutes
           const isNewUser = newProfile.created_at && (Date.now() - new Date(newProfile.created_at).getTime() < 120000);
-          
+
           if (isNewUser) {
             setMarqueeAnnouncements(prev => {
               const alreadyWelcomed = prev.some(a => a.id === newProfile.id && a.text.includes('ب خێرهاتی'));
               if (alreadyWelcomed) {
                 // Update the placeholder 'مێهڤان' with the actual nickname (e.g. بێناڤ ٢٨٠٤)
-                return prev.map(a => 
-                  (a.id === newProfile.id && a.text.includes('ب خێرهاتی')) 
+                return prev.map(a =>
+                  (a.id === newProfile.id && a.text.includes('ب خێرهاتی'))
                     ? { ...a, text: `🎉 ب خێرهاتی بۆ پەیڤۆک، ${newProfile.nickname}!` }
                     : a
                 );
@@ -1582,7 +1582,7 @@ export default function SocialHubView({
         .limit(30);
       if (error) throw error;
       let msgs = data ? data.reverse() : []; // Reverse to show ascending
-      
+
       const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
       if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
         const hts = localStorage.getItem(`hidden_chat_${user.id}_${partnerId}`);
@@ -1590,7 +1590,7 @@ export default function SocialHubView({
           msgs = msgs.filter(m => new Date(m.created_at).getTime() > parseInt(hts, 10));
         }
       }
-      
+
       setChatMessages(msgs);
     } catch (err) {
       console.error("Chat history fetch error:", err);
@@ -2290,7 +2290,7 @@ export default function SocialHubView({
               </div>
             </div>
           )}
-          
+
           {/* Edge fading gradients (placed after text to ensure they render on top of the transform stacking context) */}
           <div className="absolute top-0 left-0 bottom-0 w-10 md:w-16 bg-linear-to-r from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
           <div className="absolute top-0 right-0 bottom-0 w-10 md:w-16 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
@@ -2873,7 +2873,7 @@ export default function SocialHubView({
                   >
                     <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
                   </button>
-                  
+
                   {selectedChat && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
@@ -2902,20 +2902,20 @@ export default function SocialHubView({
                           dir="rtl"
                         >
                           <div className="flex bg-mono-200/50 dark:bg-mono-800/50 p-1 rounded-md mb-2">
-                            <button 
+                            <button
                               onClick={() => setGifTab('trending')}
                               className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'trending' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
                             >
                               🔥 بەربەلاڤ
                             </button>
-                            <button 
+                            <button
                               onClick={() => setGifTab('favorites')}
                               className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'favorites' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
                             >
                               ⭐ پەسەندکری
                             </button>
                           </div>
-                          
+
                           <input
                             type="text"
                             placeholder="ل ستیکەران بگەڕە..."
@@ -2932,14 +2932,14 @@ export default function SocialHubView({
                                 <div className="w-8 h-8 border-4 border-mono-200 dark:border-mono-700 border-t-primary rounded-full animate-spin" />
                               </div>
                             ) : null}
-                            
+
                             <div className="columns-3 gap-2 space-y-2">
                               {(gifTab === 'favorites' ? favoriteStickers : gifResults).map((item, idx) => {
                                 const gifUrl = gifTab === 'favorites' ? item : (item.images?.fixed_width?.url || item.images?.original?.url);
                                 const keyId = gifTab === 'favorites' ? `fav-${idx}` : item.id;
                                 return (
-                                  <div 
-                                    key={keyId} 
+                                  <div
+                                    key={keyId}
                                     onClick={() => {
                                       if (gifUrl) {
                                         handleSendMessage(null, `[STICKER:${gifUrl}]`);
@@ -2957,7 +2957,7 @@ export default function SocialHubView({
                                 );
                               })}
                             </div>
-                            
+
                             {!isGifLoading && gifTab === 'trending' && gifResults.length === 0 && (
                               <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70">
                                 چ ستیکەر نەهاتنە دیتن
@@ -2966,12 +2966,12 @@ export default function SocialHubView({
 
                             {gifTab === 'favorites' && favoriteStickers.length === 0 && (
                               <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70 text-center px-4">
-                                چ ستیکەرێن پەسەندکری نینن.<br/><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
+                                چ ستیکەرێن پەسەندکری نینن.<br /><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
                               </div>
                             )}
                           </div>
                           <div className="mt-2 text-center w-full flex justify-center opacity-30 pointer-events-none select-none">
-                             <span className="text-[9px] font-black tracking-widest">POWERED BY GIPHY</span>
+                            <span className="text-[9px] font-black tracking-widest">POWERED BY GIPHY</span>
                           </div>
                         </Motion.div>
                       </>
@@ -2990,17 +2990,17 @@ export default function SocialHubView({
                           className="absolute bottom-full mb-3 left-0 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
                           dir="ltr"
                         >
-                        <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
-                          {['😂', '❤️', '🔥', '👍', '👏', '😍', '😭', '🥺', '😡', '🤬', '🤦‍♀️', '🤷‍♀️', '🤯', '😎', '💩', '💀', '👀', '💯', '🙏', '🤫', '🏆', '👑', '💪', '✌️', '🎯', '⚔️', '🛡️', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🎉'].map(emoji => (
-                            <button
-                              key={emoji}
-                              onClick={() => setNewMessage(prev => prev + emoji)}
-                              className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-mono-200 dark:hover:bg-mono-800 transition-colors text-3xl active:scale-90"
-                            >
-                              <SingleAnimatedEmoji emoji={emoji} className="inline-block object-contain w-[1em] h-[1em]" />
-                            </button>
-                          ))}
-                        </div>
+                          <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
+                            {['😂', '❤️', '🔥', '👍', '👏', '😍', '😭', '🥺', '😡', '🤬', '🤦‍♀️', '🤷‍♀️', '🤯', '😎', '💩', '💀', '👀', '💯', '🙏', '🤫', '🏆', '👑', '💪', '✌️', '🎯', '⚔️', '🛡️', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🎉'].map(emoji => (
+                              <button
+                                key={emoji}
+                                onClick={() => setNewMessage(prev => prev + emoji)}
+                                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-mono-200 dark:hover:bg-mono-800 transition-colors text-3xl active:scale-90"
+                              >
+                                <SingleAnimatedEmoji emoji={emoji} className="inline-block object-contain w-[1em] h-[1em]" />
+                              </button>
+                            ))}
+                          </div>
                         </Motion.div>
                       </>
                     )}
@@ -3176,9 +3176,9 @@ export default function SocialHubView({
                       const myId = user?.id;
                       const partnerId = chatToDelete?.id;
                       if (!myId || !partnerId) return;
-                      
+
                       const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
-                      
+
                       if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
                         // Hide locally for admins so their messages are preserved
                         localStorage.setItem(`hidden_chat_${myId}_${partnerId}`, Date.now().toString());
@@ -3260,13 +3260,13 @@ export default function SocialHubView({
             >
               {/* Top Action Bar */}
               <div className="w-full h-16 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
-                <button 
+                <button
                   onClick={() => setFullscreenImage(null)}
                   className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
                 >
                   <span className="material-symbols-outlined">arrow_back</span>
                 </button>
-                <button 
+                <button
                   onClick={async (e) => {
                     e.stopPropagation();
                     try {
@@ -3289,12 +3289,12 @@ export default function SocialHubView({
                   <span className="material-symbols-outlined">download</span>
                 </button>
               </div>
-              
+
               {/* Image Container */}
               <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
-                <img 
-                  src={fullscreenImage} 
-                  alt="Fullscreen Preview" 
+                <img
+                  src={fullscreenImage}
+                  alt="Fullscreen Preview"
                   className="w-full h-full object-contain pointer-events-auto drop-shadow-2xl rounded-sm"
                   draggable="false"
                   onContextMenu={e => e.preventDefault()}

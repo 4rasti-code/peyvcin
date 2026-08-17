@@ -148,7 +148,7 @@ const LobbyView = memo(({
       let blockedUntil = null;
 
       if (newStrikes >= 3) {
-        blockedUntil = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 min block
+        blockedUntil = new Date(Date.now() + 2.5 * 60 * 1000).toISOString(); // 2.5 min block
         newStrikes = 0; // Reset for next time after block expires
         setInviteCooldowns(prev => ({ ...prev, [targetId]: blockedUntil }));
       }
@@ -454,11 +454,17 @@ const LobbyView = memo(({
       const update = () => {
         const ms = new Date(blockedUntil) - new Date();
         if (ms <= 0) { setTimeLeft(''); return; }
-        const mins = Math.ceil(ms / 60000);
-        setTimeLeft(`${toKuDigits(mins)} خولەک`);
+        const totalSecs = Math.ceil(ms / 1000);
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        if (mins > 0) {
+          setTimeLeft(`${toKuDigits(mins)}:${toKuDigits(secs).padStart(2, '٠')}`);
+        } else {
+          setTimeLeft(`${toKuDigits(secs)} چرکە`);
+        }
       };
       update();
-      const int = setInterval(update, 60000);
+      const int = setInterval(update, 1000);
       return () => clearInterval(int);
     }, [blockedUntil]);
 
