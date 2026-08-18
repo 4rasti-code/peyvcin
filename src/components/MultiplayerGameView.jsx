@@ -820,7 +820,6 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               )}
               {(() => {
                 const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
-                const oppInVoice = Object.keys(remoteUsers).length > 0;
                 return (
                   <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''}`}>
                     <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" border={oppBundle.id === 'default'} />
