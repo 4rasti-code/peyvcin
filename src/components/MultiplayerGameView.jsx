@@ -586,7 +586,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                         e.stopPropagation();
                         toggleMute();
                       }}
-                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isMuted ? 'text-red-500 hover:bg-red-500/10' : (isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900')} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
                     >
                       <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {isMuted ? 'mic_off' : 'mic'}
@@ -599,7 +599,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                         e.stopPropagation();
                         toggleDeafen();
                       }}
-                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDeafened ? 'text-red-500 hover:bg-red-500/10' : (isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900')} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
                     >
                       <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {isDeafened ? 'volume_off' : 'volume_up'}

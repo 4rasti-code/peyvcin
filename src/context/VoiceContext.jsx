@@ -175,7 +175,8 @@ export const VoiceProvider = ({ children }) => {
   const toggleMute = useCallback(async () => {
     if (localAudioTrack) {
       const newMutedState = !isMuted;
-      await localAudioTrack.setMuted(newMutedState);
+      // Using setEnabled instead of setMuted completely turns off the hardware mic LED
+      await localAudioTrack.setEnabled(!newMutedState);
       setIsMuted(newMutedState);
     }
   }, [localAudioTrack, isMuted]);
