@@ -59,7 +59,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     toggleDeafen,
     isMuted,
     isDeafened,
-    isInChannel
+    isInChannel,
+    isVoiceReady
   } = useVoice();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
@@ -159,14 +160,14 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
   // Agora Voice Auto-Join & Strict Cleanup
   useEffect(() => {
-    if (multiplayerState === 'playing' && activeMatch?.id) {
+    if (multiplayerState === 'playing' && activeMatch?.id && isVoiceReady) {
       joinVoiceChannel(activeMatch.id);
     }
     
     return () => {
       leaveVoiceChannel();
     };
-  }, [multiplayerState, activeMatch?.id, joinVoiceChannel, leaveVoiceChannel]);
+  }, [multiplayerState, activeMatch?.id, isVoiceReady, joinVoiceChannel, leaveVoiceChannel]);
 
   // Expose Game Board Readiness
   useEffect(() => {

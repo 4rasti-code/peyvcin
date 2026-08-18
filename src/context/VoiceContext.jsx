@@ -175,11 +175,15 @@ export const VoiceProvider = ({ children }) => {
     });
   }, [isDeafened, remoteUsers]);
 
+  const isVoiceReady = !!appId && !!clientRef.current;
+
   const value = {
     client,
+    isVoiceReady,
     isInChannel,
     isMuted,
     isDeafened,
+    isVoiceReady,
     remoteUsers,
     joinVoiceChannel,
     leaveVoiceChannel,
