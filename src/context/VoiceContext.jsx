@@ -113,9 +113,6 @@ export const VoiceProvider = ({ children }) => {
 
     const handleVolumeIndicator = (volumes) => {
       setActiveSpeakers(prev => {
-        const next = { ...prev };
-        let changed = false;
-        
         // Reset all to false first if they aren't in this volume batch
         // Or we just build a fresh object based on who is speaking
         const currentSpeakers = {};
