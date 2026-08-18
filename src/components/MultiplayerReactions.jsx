@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { useMultiplayer } from '../context/MultiplayerContext';
 import { useVoice } from '../context/VoiceContext';
-import { useUser } from '../context/AuthContext';
 import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 
@@ -34,8 +33,7 @@ const QUICK_CHATS = [
 
 export default function MultiplayerReactions() {
   const { broadcastReaction, opponent } = useMultiplayer();
-  const { user } = useUser();
-  const { activeSpeakers, isMuted, isDeafened } = useVoice();
+  const { activeSpeakers, isDeafened } = useVoice();
   const { playPopSound } = useAudio();
   const [isQuickChatOpen, setIsQuickChatOpen] = useState(false);
   const quickChatRef = useRef(null);
@@ -57,9 +55,7 @@ export default function MultiplayerReactions() {
     setIsQuickChatOpen(false);
   };
 
-  const isLocalSpeaking = !isMuted && activeSpeakers?.[user?.id];
   const isRemoteSpeaking = !isDeafened && activeSpeakers?.[opponent?.id];
-  const isAnyoneSpeaking = isLocalSpeaking || isRemoteSpeaking;
 
   return (
     <>
@@ -68,7 +64,7 @@ export default function MultiplayerReactions() {
         
         {/* Quick Chat Menu & Toggle */}
         <div className="relative flex justify-center w-full" ref={quickChatRef}>
-          {isAnyoneSpeaking && <SpeakingIndicator />}
+          {isRemoteSpeaking && <SpeakingIndicator />}
           <button
             onClick={() => {
               triggerHaptic(10);
