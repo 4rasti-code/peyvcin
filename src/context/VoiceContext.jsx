@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import { supabase } from '../lib/supabase';
-import toast from 'react-hot-toast';
 
 // Disable log upload to prevent adblocker ERR_BLOCKED_BY_CLIENT spam
 AgoraRTC.disableLogUpload();
@@ -207,9 +206,9 @@ export const VoiceProvider = ({ children }) => {
         // We set muted to true since they have no mic
         setIsMuted(true);
         if (micError.name === 'NotAllowedError' || (micError.message && micError.message.includes('Permission denied'))) {
-          toast.error("ڕێگەت بە مایک نەداوە! بۆیە دەنگت ناچێتە لای یاریزانەکە. تکایە لە ڕێکخستنەکان مایک بکەرەوە.", { duration: 6000, position: 'top-center' });
+          alert("ڕێگەت بە مایک نەداوە! بۆیە دەنگت ناچێتە لای یاریزانەکە. تکایە لە ڕێکخستنەکان مایک بکەرەوە.");
         } else {
-          toast.error("کێشەیەک لە مایکەکەتدا هەیە، بۆیە دەنگت ناچێت.", { duration: 5000, position: 'top-center' });
+          alert("کێشەیەک لە مایکەکەتدا هەیە، بۆیە دەنگت ناچێت.");
         }
       }
       
@@ -263,7 +262,7 @@ export const VoiceProvider = ({ children }) => {
   const toggleMute = useCallback(async () => {
     if (!localAudioTrack) {
       console.warn("No local audio track to mute/unmute");
-      toast.error("مایکەکەت ئیش ناکات، تکایە دڵنیابە کە ڕێگەت داوە مایک بەکاربێت.", { duration: 4000 });
+      alert("مایکەکەت ئیش ناکات، تکایە دڵنیابە کە ڕێگەت داوە مایک بەکاربێت.");
       return;
     }
     const newMutedState = !isMuted;
