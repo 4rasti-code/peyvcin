@@ -117,7 +117,7 @@ export const VoiceProvider = ({ children }) => {
         // Or we just build a fresh object based on who is speaking
         const currentSpeakers = {};
         volumes.forEach(vol => {
-          if (vol.level > 5) {
+          if (vol.level > 15) {
             // vol.uid is numeric for remote, or string if custom uid, but for local it might be 0? 
             // Agora uses 0 or the string UID for local user in volume indicator sometimes depending on config.
             // Usually uid is what we provided.

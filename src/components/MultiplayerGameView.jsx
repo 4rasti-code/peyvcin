@@ -718,7 +718,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     >
                       {name}
                     </span>
-                    {activeSpeakers?.[user?.id] && <SpeakingIndicator />}
+                    {!isMuted && activeSpeakers?.[user?.id] && <SpeakingIndicator />}
                   </div>
                 );
               })()}
@@ -829,7 +829,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     >
                       {name}
                     </span>
-                    {activeSpeakers?.[opponent?.id] && <SpeakingIndicator />}
+                    {!isDeafened && activeSpeakers?.[opponent?.id] && <SpeakingIndicator />}
                   </div>
                 );
               })()}
