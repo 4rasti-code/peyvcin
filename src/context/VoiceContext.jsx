@@ -125,6 +125,13 @@ export const VoiceProvider = ({ children }) => {
       return;
     }
     
+    // Prevent "Client already in connecting/connected state" error
+    const state = clientRef.current.connectionState;
+    if (state === 'CONNECTING' || state === 'CONNECTED' || state === 'RECONNECTING') {
+      console.log(`[VoiceContext] Skipping join, client is already ${state}`);
+      return;
+    }
+    
     try {
       // Use a token if available, otherwise pass null for testing if tokens are disabled on Agora dashboard
       await clientRef.current.join(appId, channelName, null, uid);
