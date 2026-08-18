@@ -2,6 +2,9 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import { supabase } from '../lib/supabase';
 
+// Disable log upload to prevent adblocker ERR_BLOCKED_BY_CLIENT spam
+AgoraRTC.disableLogUpload();
+
 const VoiceContext = createContext(null);
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -60,9 +63,6 @@ export const VoiceProvider = ({ children }) => {
   // Initialize client and setup event listeners
   useEffect(() => {
     if (!appId) return;
-
-    // Disable log upload to prevent adblocker ERR_BLOCKED_BY_CLIENT spam
-    AgoraRTC.disableLogUpload();
     
     const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
     
