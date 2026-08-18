@@ -188,7 +188,7 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-[9999] flex justify-center px-4 pointer-events-none"
+            className="fixed top-[calc(env(safe-area-inset-top,0px)+16px)] left-0 right-0 z-9999 flex justify-center px-4 pointer-events-none"
           >
             <div className="bg-mono-100 dark:bg-mono-900 rounded-md p-4 shadow-xl border border-mono-200 dark:border-mono-800 max-w-[320px] w-full pointer-events-auto flex flex-col gap-4 relative overflow-hidden" dir="rtl">
               
