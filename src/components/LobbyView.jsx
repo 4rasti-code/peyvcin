@@ -129,12 +129,27 @@ const LobbyView = memo(({
     }
   }, [multiplayerState]);
 
-  // Sync local visual state with profile data initially if not set
+  // Enforce DB truth for location matchmaking state
   useEffect(() => {
-    if (profileData?.latitude != null && localStorage.getItem('use_location_matchmaking') === null) {
-      localStorage.setItem('use_location_matchmaking', 'true');
+    if (profileData) {
+      const hasLocationInDB = profileData.latitude != null && profileData.longitude != null;
+      
+      if (!hasLocationInDB) {
+        // Force OFF if no location in DB (user skipped LocationPrompt or didn't allow GPS)
+        setLocalLocationEnabled(false);
+        localStorage.setItem('use_location_matchmaking', 'false');
+      } else {
+        // Default to ON if they have location, unless explicitly turned off
+        const localPref = localStorage.getItem('use_location_matchmaking');
+        if (localPref === null) {
+          setLocalLocationEnabled(true);
+          localStorage.setItem('use_location_matchmaking', 'true');
+        } else {
+          setLocalLocationEnabled(localPref === 'true');
+        }
+      }
     }
-  }, [profileData]);
+  }, [profileData?.latitude, profileData?.longitude]);
 
   const recordInviteStrike = useCallback(async (targetId) => {
     if (!user?.id || !targetId) return;
