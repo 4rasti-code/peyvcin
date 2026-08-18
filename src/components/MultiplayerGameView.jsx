@@ -94,9 +94,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   const { level: userLevel } = useGame();
 
   const tickAudioRef = React.useRef(null);
+  const leaveTimeoutRef = React.useRef(null);
 
   // Auto-join voice channel when match starts
   useEffect(() => {
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
+
     if (isVoiceReady && activeMatch?.id && !isInChannel && !opponent?.isBot) {
       joinVoiceChannel(activeMatch.id, user?.id);
     }
@@ -105,7 +111,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   // Leave voice channel on unmount
   useEffect(() => {
     return () => {
-      leaveVoiceChannel();
+      leaveTimeoutRef.current = setTimeout(() => {
+        leaveVoiceChannel();
+      }, 500);
     };
   }, [leaveVoiceChannel]);
 
