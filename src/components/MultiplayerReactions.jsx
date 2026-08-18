@@ -7,10 +7,15 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 
 const SpeakingIndicator = () => (
-  <div className="flex items-end justify-center gap-0.5 h-3.5 shrink-0 absolute -top-7 left-1/2 -translate-x-1/2 drop-shadow-[0_0_3px_rgba(250,204,21,0.8)]">
-    <div className="w-1 bg-yellow-400 rounded-t h-1.5 animate-[pulse_0.8s_ease-in-out_infinite]"></div>
-    <div className="w-1 bg-yellow-400 rounded-t h-3.5 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.2s]"></div>
-    <div className="w-1 bg-yellow-400 rounded-t h-2 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.4s]"></div>
+  <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex items-center justify-center w-6 h-6">
+    {/* Ripple effect */}
+    <span className="absolute inset-0 flex items-center justify-center">
+      <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-yellow-400 opacity-60"></span>
+    </span>
+    {/* Microphone Icon */}
+    <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-black shadow-[0_0_5px_rgba(250,204,21,0.8)]">
+      <span className="material-symbols-outlined font-bold" style={{ fontSize: '13px' }}>mic</span>
+    </span>
   </div>
 );
 
