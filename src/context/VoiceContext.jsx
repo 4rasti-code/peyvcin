@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AgoraRTC from 'agora-rtc-sdk-ng';
-import { supabase } from '../services/supabaseService';
+import { supabase } from '../lib/supabase';
 
 const VoiceContext = createContext(null);
 
