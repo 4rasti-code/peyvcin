@@ -33,7 +33,7 @@ export const VoiceProvider = ({ children }) => {
   const remoteUsersRef = useRef({});
   const [activeSpeakers, setActiveSpeakers] = useState({});
   const [appId, setAppId] = useState(null);
-  
+
   const clientRef = useRef(null);
 
   // Fetch Agora App ID from Supabase on mount
@@ -46,19 +46,19 @@ export const VoiceProvider = ({ children }) => {
           .select('value')
           .eq('key', 'agora_app_id')
           .single();
-          
+
         if (error) {
           console.error("Failed to fetch Agora App ID from Supabase:", error);
           setAppId('c1d5e8e055f44d5fa88d6193fd8c471c'); // Unsecure fallback
           return;
         }
-        
+
         if (data && data.value) {
           // If the DB still has the old secure token, force the unsecure one for now
           if (data.value === 'abd8d6e8729546f69c47ebfc8a617069') {
-             setAppId('c1d5e8e055f44d5fa88d6193fd8c471c');
+            setAppId('c1d5e8e055f44d5fa88d6193fd8c471c');
           } else {
-             setAppId(data.value);
+            setAppId(data.value);
           }
         } else {
           setAppId('c1d5e8e055f44d5fa88d6193fd8c471c'); // Unsecure fallback
@@ -67,7 +67,7 @@ export const VoiceProvider = ({ children }) => {
         console.error("Error fetching Agora App ID:", err);
       }
     };
-    
+
     fetchAppId();
   }, []);
 
@@ -76,14 +76,14 @@ export const VoiceProvider = ({ children }) => {
   // Initialize client and setup event listeners
   useEffect(() => {
     if (!appId) return;
-    
+
     const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-    
+
     // Defer the state update to avoid synchronous setState inside an effect
     Promise.resolve().then(() => {
       setClient(agoraClient);
     });
-    
+
     clientRef.current = agoraClient;
 
     const handleUserPublished = async (user, mediaType) => {
@@ -132,19 +132,19 @@ export const VoiceProvider = ({ children }) => {
             currentSpeakers[speakerUid] = true;
           }
         });
-        
+
         // Check if changed
         if (Object.keys(currentSpeakers).length !== Object.keys(prev).length) {
-           return currentSpeakers;
+          return currentSpeakers;
         }
-        
+
         for (const uid in currentSpeakers) {
-           if (!prev[uid]) return currentSpeakers;
+          if (!prev[uid]) return currentSpeakers;
         }
         for (const uid in prev) {
-           if (!currentSpeakers[uid]) return currentSpeakers;
+          if (!currentSpeakers[uid]) return currentSpeakers;
         }
-        
+
         return prev; // No change
       });
     };
@@ -186,14 +186,14 @@ export const VoiceProvider = ({ children }) => {
       console.warn("Agora client or App ID not ready");
       return;
     }
-    
+
     if (isJoiningRef.current) {
       console.log("[VoiceContext] Skipping join, another join is currently in progress");
       return;
     }
-    
+
     isJoiningRef.current = true;
-    
+
     // Prevent "Client already in connecting/connected state" error
     const state = clientRef.current.connectionState;
     if (state === 'CONNECTED') {
@@ -218,11 +218,11 @@ export const VoiceProvider = ({ children }) => {
       isJoiningRef.current = false;
       return;
     }
-    
+
     try {
       // Use a token if available, otherwise pass null for testing if tokens are disabled on Agora dashboard
       await clientRef.current.join(appId, channelName, null, uid);
-      
+
       try {
         const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
         audioTrack.setVolume(200); // Boost local microphone capture volume
@@ -239,9 +239,9 @@ export const VoiceProvider = ({ children }) => {
           alert("کێشەیەک لە مایکەکەتدا هەیە، بۆیە دەنگت ناچێت.");
         }
       }
-      
+
       setIsInChannel(true);
-      
+
     } catch (error) {
       const errMsg = error?.message || '';
       if (error?.code === 'OPERATION_ABORTED' || errMsg.includes('OPERATION_ABORTED') || errMsg.includes('cancel token') || errMsg.includes('WS_ABORT') || errMsg.includes('LEAVE') || errMsg.includes('INVALID_OPERATION') || errMsg.includes('already in connecting/connected state')) {
@@ -261,7 +261,7 @@ export const VoiceProvider = ({ children }) => {
         localAudioTrack.close();
         setLocalAudioTrack(null);
       }
-      
+
       if (clientRef.current) {
         try {
           if (clientRef.current.connectionState === 'CONNECTED') {
@@ -270,7 +270,7 @@ export const VoiceProvider = ({ children }) => {
         } catch (e) {
           console.debug("Silent swallow: unpublish ignored:", e);
         }
-        
+
         try {
           // Always call leave to clear CONNECTING or CONNECTED states from previous renders
           await clientRef.current.leave();
@@ -278,7 +278,7 @@ export const VoiceProvider = ({ children }) => {
           console.debug("Silent swallow: leave ignored:", e);
         }
       }
-      
+
       setIsInChannel(false);
       setRemoteUsers({});
       setIsMuted(false);

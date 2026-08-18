@@ -121,6 +121,19 @@ const UpdateNotesModal = ({ user, onComplete }) => {
                                  </p>
                               </div>
                            </div>
+
+                           {/* Item 4 */}
+                           <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-3 border border-mono-200/50 dark:border-white/5 flex gap-3 items-start transition-all duration-300 hover:scale-[1.02] hover:shadow-md group">
+                              <div className="w-10 h-10 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl border border-amber-500/20 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                                 🎤
+                              </div>
+                              <div className="flex flex-col pt-0.5">
+                                 <h3 className="text-[13px] font-black text-amber-600 dark:text-amber-400 mb-0.5">سیستەمێ ڤۆیس چات</h3>
+                                 <p className="text-[11px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed">
+                                    نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی!
+                                 </p>
+                              </div>
+                           </div>
                         </div>
                      </div>
 

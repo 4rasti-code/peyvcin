@@ -49,6 +49,10 @@ const renderPreviewText = (text) => {
     }
   }
 
+  if (text.includes('[VOICE_FEATURE_CARD]')) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-amber-500">campaign</span> تایبەتمەندییا نوی</span>;
+  }
+
   if (text.match(/^https?:\/\//)) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">gif</span> گیف</span>;
   }
@@ -675,7 +679,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|\[VOICE_FEATURE_CARD\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -729,6 +733,31 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
           </div>
         );
       }
+
+      if (part === '[VOICE_FEATURE_CARD]') {
+        return (
+          <div key={i} className="my-2 bg-linear-to-b from-mono-white to-amber-50/30 dark:from-mono-900 dark:to-[#0f0a05] rounded-lg border border-amber-500/50 w-65 xs:w-[280px] sm:w-[320px] pt-5 pb-3 px-3 overflow-hidden flex flex-col relative transition-colors duration-500 shadow-xl shadow-amber-500/10 cursor-default" dir="rtl" onClick={e => e.stopPropagation()}>
+             <div className="absolute -top-4 -right-2 z-20 opacity-20 pointer-events-none">
+                <span className="material-symbols-outlined text-[64px] text-amber-500">campaign</span>
+             </div>
+             <h2 className="text-[14px] font-black text-mono-900 dark:text-white mb-2 relative z-10">
+                تایبەتمەندییا نوی!
+             </h2>
+             <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-2.5 border border-mono-200/50 dark:border-white/5 flex gap-2.5 items-start relative z-10 hover:scale-[1.02] transition-transform">
+                <div className="w-9 h-9 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-lg border border-amber-500/20 shadow-inner">
+                   🎤
+                </div>
+                <div className="flex flex-col pt-0.5 min-w-0">
+                   <h3 className="text-[12px] font-black text-amber-600 dark:text-amber-400 mb-0.5 truncate">سیستەمێ ڤۆیس چات</h3>
+                   <p className="text-[10.5px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed whitespace-normal wrap-break-word">
+                      نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی!
+                   </p>
+                </div>
+             </div>
+          </div>
+        );
+      }
+
       if (part.match(/^https?:\/\//)) {
         return (
           <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold" onClick={e => e.stopPropagation()} dir="ltr">
@@ -1219,6 +1248,15 @@ export default function SocialHubView({
         // Sort by timestamp old to new
         combined.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
+        const voiceUpdateExpiry = new Date('2026-08-19T23:59:59Z');
+        if (new Date() < voiceUpdateExpiry) {
+          combined.push({
+            id: 'voice-update-announcement',
+            text: '🎤 تایبەتمەندییا نوی: نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی! 🗣️',
+            created_at: new Date().toISOString()
+          });
+        }
+
         setMarqueeAnnouncements(combined);
       } catch (e) {
         console.warn("Failed to fetch historical announcements", e);
@@ -1280,7 +1318,7 @@ export default function SocialHubView({
 
     const cleanupInterval = setInterval(() => {
       const fifteenMinsAgo = new Date(Date.now() - 900000).getTime();
-      setMarqueeAnnouncements(prev => prev.filter(a => new Date(a.created_at).getTime() > fifteenMinsAgo));
+      setMarqueeAnnouncements(prev => prev.filter(a => a.id === 'voice-update-announcement' || new Date(a.created_at).getTime() > fifteenMinsAgo));
     }, 60000);
 
     return () => {
