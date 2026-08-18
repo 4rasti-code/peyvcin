@@ -56,7 +56,9 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     joinVoiceChannel,
     leaveVoiceChannel,
     toggleMute,
+    toggleDeafen,
     isMuted,
+    isDeafened,
     isInChannel,
     remoteUsers
   } = useVoice();
@@ -563,6 +565,32 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                       ڕێنمایی
                     </button>
 
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMute();
+                      }}
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        {isMuted ? 'mic_off' : 'mic'}
+                      </span>
+                      بێدەنگکردنی خۆت
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleDeafen();
+                      }}
+                      className={`flex items-center gap-3 px-4 py-3 text-[13px] font-black font-rabar transition-colors ${isDark ? 'text-white/80 hover:bg-white/10 hover:text-white' : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'} ${isInChannel ? '' : 'opacity-50 pointer-events-none'}`}
+                    >
+                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        {isDeafened ? 'volume_off' : 'volume_up'}
+                      </span>
+                      بێدەنگکردنی بەرامبەر
+                    </button>
+
                     <div className={`h-px w-full ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
 
                     <button
@@ -617,18 +645,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   </svg>
                 </div>
               )}
-              <div className={`transition-all duration-300 ${myReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} relative`}>
+              <div className={`transition-all duration-300 ${myReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
                 <Avatar src={userAvatar} size="sm" />
-                {isInChannel && (
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); toggleMute(); }}
-                    className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-mono-800 ${isMuted ? 'bg-red-500' : 'bg-mono-700 hover:bg-mono-600'} shadow-md transition-colors z-20`}
-                  >
-                    <span className="material-symbols-outlined text-[12px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      {isMuted ? 'mic_off' : 'mic'}
-                    </span>
-                  </button>
-                )}
               </div>
               <AnimatePresence mode="popLayout">
                 {myReaction && (
@@ -804,15 +822,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
                 const oppInVoice = Object.keys(remoteUsers).length > 0;
                 return (
-                  <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''} relative`}>
+                  <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''}`}>
                     <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" border={oppBundle.id === 'default'} />
-                    {oppInVoice && (
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-mono-800 bg-emerald-500 shadow-md z-20">
-                        <span className="material-symbols-outlined text-[12px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
-                          volume_up
-                        </span>
-                      </div>
-                    )}
                   </div>
                 );
               })()}

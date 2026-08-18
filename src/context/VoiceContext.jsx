@@ -19,6 +19,8 @@ export const VoiceProvider = ({ children }) => {
   const [isInChannel, setIsInChannel] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [remoteUsers, setRemoteUsers] = useState({});
+  const [isDeafened, setIsDeafened] = useState(false);
+  const isDeafenedRef = useRef(false);
   const [appId, setAppId] = useState(null);
   
   const clientRef = useRef(null);
@@ -70,7 +72,13 @@ export const VoiceProvider = ({ children }) => {
       await agoraClient.subscribe(user, mediaType);
       if (mediaType === 'audio') {
         user.audioTrack?.play();
-        setRemoteUsers(prev => ({ ...prev, [user.uid]: user }));
+        setRemoteUsers(prev => {
+          // If we are currently deafened, mute this new user immediately
+          if (isDeafenedRef.current && user.audioTrack) {
+            user.audioTrack.setVolume(0);
+          }
+          return { ...prev, [user.uid]: user };
+        });
       }
     };
 
@@ -156,14 +164,27 @@ export const VoiceProvider = ({ children }) => {
     }
   }, [localAudioTrack, isMuted]);
 
+  const toggleDeafen = useCallback(() => {
+    const newDeafenedState = !isDeafened;
+    setIsDeafened(newDeafenedState);
+    isDeafenedRef.current = newDeafenedState;
+    Object.values(remoteUsers).forEach(user => {
+      if (user.audioTrack) {
+        user.audioTrack.setVolume(newDeafenedState ? 0 : 100);
+      }
+    });
+  }, [isDeafened, remoteUsers]);
+
   const value = {
     client,
     isInChannel,
     isMuted,
+    isDeafened,
     remoteUsers,
     joinVoiceChannel,
     leaveVoiceChannel,
-    toggleMute
+    toggleMute,
+    toggleDeafen
   };
 
   return (
