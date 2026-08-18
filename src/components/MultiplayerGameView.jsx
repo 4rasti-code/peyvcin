@@ -59,8 +59,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     toggleDeafen,
     isMuted,
     isDeafened,
-    isInChannel,
-    remoteUsers
+    isInChannel
   } = useVoice();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
