@@ -1061,11 +1061,11 @@ const LobbyView = memo(({
                       <h3 className="text-lg font-black text-mono-900 dark:text-white flex items-center gap-2">
                         یاریزانێن سەرهێل
                         {onlineProfiles.length > 0 && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm" dir="ltr">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_4px_rgba(16,185,129,0.5)]"></div>
-                            <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums leading-none pt-px">
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
+                            <span className="text-xs font-black tabular-nums pt-0.5">
                               {toKuDigits(onlineProfiles.length)}
                             </span>
+                            <span className="material-symbols-outlined text-[14px]">group</span>
                           </div>
                         )}
                       </h3>
