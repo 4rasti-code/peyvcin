@@ -158,8 +158,18 @@ export const VoiceProvider = ({ children }) => {
       }
       
       if (clientRef.current) {
-        await clientRef.current.unpublish();
-        await clientRef.current.leave();
+        if (clientRef.current.connectionState === 'CONNECTED') {
+          try {
+            await clientRef.current.unpublish();
+          } catch (e) {
+            console.warn("Unpublish ignored:", e);
+          }
+        }
+        try {
+          await clientRef.current.leave();
+        } catch (e) {
+          console.warn("Leave ignored:", e);
+        }
       }
       
       setIsInChannel(false);
