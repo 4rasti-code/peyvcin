@@ -90,6 +90,7 @@ export const VoiceProvider = ({ children }) => {
       await agoraClient.subscribe(user, mediaType);
       if (mediaType === 'audio') {
         if (!isDeafenedRef.current && user.audioTrack) {
+          user.audioTrack.setVolume(400); // Boost remote playback volume significantly
           user.audioTrack.play();
         }
         setRemoteUsers(prev => {
@@ -154,6 +155,7 @@ export const VoiceProvider = ({ children }) => {
       Object.values(remoteUsersRef.current).forEach(user => {
         if (user.audioTrack && !user.audioTrack.isPlaying) {
           try {
+            user.audioTrack.setVolume(400); // Ensure volume is boosted when unlocking
             user.audioTrack.play();
           } catch (e) {
             console.debug("Silent swallow: attempt to unlock audio failed", e);
@@ -199,6 +201,7 @@ export const VoiceProvider = ({ children }) => {
       if (!localAudioTrack) {
         try {
           const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+          audioTrack.setVolume(200); // Boost local microphone capture volume
           setLocalAudioTrack(audioTrack);
           await clientRef.current.publish([audioTrack]);
           setIsMuted(false);
@@ -222,6 +225,7 @@ export const VoiceProvider = ({ children }) => {
       
       try {
         const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        audioTrack.setVolume(200); // Boost local microphone capture volume
         setLocalAudioTrack(audioTrack);
         await clientRef.current.publish([audioTrack]);
         setIsMuted(false);
@@ -304,6 +308,7 @@ export const VoiceProvider = ({ children }) => {
         if (newDeafenedState) {
           user.audioTrack.stop();
         } else {
+          user.audioTrack.setVolume(400); // Re-apply boost just in case
           user.audioTrack.play();
         }
       }
