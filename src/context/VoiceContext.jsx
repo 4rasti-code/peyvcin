@@ -38,11 +38,16 @@ export const VoiceProvider = ({ children }) => {
           
         if (error) {
           console.error("Failed to fetch Agora App ID from Supabase:", error);
+          // Fallback to the ID provided by the user if DB permission is blocked
+          setAppId('abd8d6e8729546f69c47ebfc8a617069');
           return;
         }
         
         if (data && data.value) {
           setAppId(data.value);
+        } else {
+          // Fallback if key doesn't exist
+          setAppId('abd8d6e8729546f69c47ebfc8a617069');
         }
       } catch (err) {
         console.error("Error fetching Agora App ID:", err);
