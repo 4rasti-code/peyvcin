@@ -694,14 +694,16 @@ export const MultiplayerProvider = ({ children }) => {
         'broadcast',
         { event: 'I_AM_READY' },
         () => {
-          // Rely strictly on stateRef to avoid stale closures. Host is in private_lobby.
-          const isHost = stateRef.current === 'private_lobby';
-          if (isHost) {
-            console.log('[Multiplayer] Receiver is fully ready. Syncing match start...');
+          // Rely strictly on stateRef to avoid stale closures.
+          const currentState = stateRef.current;
+          if (currentState === 'private_lobby' || currentState === 'match_starting' || currentState === 'playing') {
+            console.log(`[Multiplayer] Receiver is fully ready. Syncing match start... (Host State: ${currentState})`);
             if (channel.state === 'joined' || channel.state === 'SUBSCRIBED') {
               channel.send({ type: 'broadcast', event: 'START_MATCH_TIMER' });
             }
-            setMultiplayerStateGuarded('match_starting');
+            if (currentState === 'private_lobby') {
+              setMultiplayerStateGuarded('match_starting');
+            }
           }
         }
       )
@@ -822,8 +824,6 @@ export const MultiplayerProvider = ({ children }) => {
           const handleTransition = () => {
             const currentState = stateRef.current;
             if (currentState === 'private_lobby' || currentState === 'joining' || currentState === 'syncing') {
-              // Direct invite transition: Wait for explicit broadcast handshake!
-              // Do NOT automatically set 'match_starting' here, otherwise desync occurs.
               if (currentState === 'joining') {
                 setMultiplayerStateGuarded('syncing');
               }
@@ -863,7 +863,9 @@ export const MultiplayerProvider = ({ children }) => {
               .maybeSingle();
 
             if (error || !opponentProfile) {
-              setMultiplayerStateGuarded('syncing');
+              if (stateRef.current !== 'match_starting' && stateRef.current !== 'playing') {
+                setMultiplayerStateGuarded('syncing');
+              }
             } else {
               setOpponent(opponentProfile);
               setOpponentGuarded(opponentProfile);
@@ -885,13 +887,13 @@ export const MultiplayerProvider = ({ children }) => {
   }, [activeMatch, opponent, user?.id, setMultiplayerStateGuarded, setOpponentGuarded, setActiveMatchGuarded]);
 
   useEffect(() => {
-    if (isGameBoardMounted) {
+    if (multiplayerState === 'match_starting' && isGameBoardMounted && !isOpponentBackgroundReady) {
       console.log('[Multiplayer] Local background is 100% ready. Broadcasting to opponent...');
       if (channelRef.current && (channelRef.current.state === 'joined' || channelRef.current.state === 'SUBSCRIBED')) {
         channelRef.current.send({ type: 'broadcast', event: 'CLIENT_BACKGROUND_READY' });
       }
     }
-  }, [isGameBoardMounted, multiplayerState]);
+  }, [multiplayerState, isGameBoardMounted, isOpponentBackgroundReady]);
 
   // Track the last match ID we saved words for to prevent duplicate saves
   const lastSavedMatchIdRef = useRef(null);
