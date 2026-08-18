@@ -4,6 +4,7 @@ import { supabase } from '../services/supabaseService';
 
 const VoiceContext = createContext(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useVoice = () => {
   const context = useContext(VoiceContext);
   if (!context) {
@@ -57,7 +58,12 @@ export const VoiceProvider = ({ children }) => {
     AgoraRTC.disableLogUpload();
     
     const agoraClient = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
-    setClient(agoraClient);
+    
+    // Defer the state update to avoid synchronous setState inside an effect
+    Promise.resolve().then(() => {
+      setClient(agoraClient);
+    });
+    
     clientRef.current = agoraClient;
 
     const handleUserPublished = async (user, mediaType) => {
