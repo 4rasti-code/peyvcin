@@ -168,7 +168,8 @@ export const VoiceProvider = ({ children }) => {
       setIsInChannel(true);
       
     } catch (error) {
-      if (error?.code === 'OPERATION_ABORTED' || error?.message?.includes('OPERATION_ABORTED') || error?.message?.includes('cancel token')) {
+      const errMsg = error?.message || '';
+      if (error?.code === 'OPERATION_ABORTED' || errMsg.includes('OPERATION_ABORTED') || errMsg.includes('cancel token') || errMsg.includes('WS_ABORT') || errMsg.includes('LEAVE')) {
         console.debug("Silent swallow: Join aborted during unmount:", error);
         return;
       }
