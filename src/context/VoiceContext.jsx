@@ -122,7 +122,22 @@ export const VoiceProvider = ({ children }) => {
     
     // Prevent "Client already in connecting/connected state" error
     const state = clientRef.current.connectionState;
-    if (state === 'CONNECTING' || state === 'CONNECTED' || state === 'RECONNECTING') {
+    if (state === 'CONNECTED') {
+      console.log("[VoiceContext] Client already connected, restoring state");
+      if (!localAudioTrack) {
+        try {
+          const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+          setLocalAudioTrack(audioTrack);
+          await clientRef.current.publish([audioTrack]);
+          setIsMuted(false);
+        } catch (e) {
+          console.error("Failed to restore audio track:", e);
+        }
+      }
+      setIsInChannel(true);
+      return;
+    }
+    if (state === 'CONNECTING' || state === 'RECONNECTING') {
       console.log(`[VoiceContext] Skipping join, client is already ${state}`);
       return;
     }
