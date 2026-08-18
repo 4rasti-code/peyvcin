@@ -4,6 +4,8 @@ import { supabase } from '../lib/supabase';
 
 // Disable log upload to prevent adblocker ERR_BLOCKED_BY_CLIENT spam
 AgoraRTC.disableLogUpload();
+// Set log level to ERROR to prevent console spam (0: DEBUG, 1: INFO, 2: WARNING, 3: ERROR, 4: NONE)
+AgoraRTC.setLogLevel(3);
 
 const VoiceContext = createContext(null);
 
