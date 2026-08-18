@@ -1034,13 +1034,19 @@ export default function App() {
 
           let senderName = 'کەسەک';
           let avatarUrl = null;
-          try {
-            const { data } = await supabase.from('profiles').select('nickname, avatar_url').eq('id', payload.new.user_id).single();
-            if (data) {
-              senderName = data.nickname || senderName;
-              avatarUrl = data.avatar_url;
-            }
-          } catch (_e) { console.warn(_e); }
+          
+          if (payload.new.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1') {
+            senderName = 'پەیڤۆک Peyvok';
+            avatarUrl = '/Peyvok-logo-01.png';
+          } else {
+            try {
+              const { data } = await supabase.from('profiles').select('nickname, avatar_url').eq('id', payload.new.user_id).single();
+              if (data) {
+                senderName = data.nickname || senderName;
+                avatarUrl = data.avatar_url;
+              }
+            } catch (_e) { console.warn(_e); }
+          }
 
           let previewText = payload.new.content || 'نامەیەک بۆ تە هنارت';
           if (previewText.startsWith('[VOICE:') && previewText.endsWith(']')) {
