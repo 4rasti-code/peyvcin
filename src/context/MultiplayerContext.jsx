@@ -939,7 +939,8 @@ export const MultiplayerProvider = ({ children }) => {
       if (timeoutId) clearTimeout(timeoutId);
       if (cancelFallbackId) clearTimeout(cancelFallbackId);
     };
-  }, [multiplayerState, isGameBoardMounted, isOpponentBackgroundReady, setMultiplayerStateGuarded, cancelMatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [multiplayerState, isGameBoardMounted, isOpponentBackgroundReady, setMultiplayerStateGuarded]);
 
   // 4. GAME SYNC EFFECT: Handle round transitions and match results
   useEffect(() => {
