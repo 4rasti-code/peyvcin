@@ -6,6 +6,7 @@ import { useMultiplayer } from '../context/MultiplayerContext';
 import { useUser } from '../context/AuthContext';
 import { useAudio } from '../context/AudioContext';
 import { useGame } from '../context/GameContext';
+import { useVoice } from '../context/VoiceContext';
 import useGameLogic from '../hooks/useGameLogic';
 import useBotSimulator from '../hooks/useBotSimulator';
 import Avatar from './Avatar';
@@ -50,6 +51,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     setActiveMatchGuarded,
     setWinnerNickname
   } = useMultiplayer();
+
+  const {
+    joinVoiceChannel,
+    leaveVoiceChannel,
+    toggleMute,
+    isMuted,
+    isInChannel,
+    remoteUsers
+  } = useVoice();
 
   // Prioritize Prop over Context to force re-renders from App.jsx
   const opponent = propOpponent || contextOpponent;
@@ -145,6 +155,17 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     };
   }, [showCinematicOverlay, multiplayerState, playStartSound]);
 
+
+  // Agora Voice Auto-Join & Strict Cleanup
+  useEffect(() => {
+    if (multiplayerState === 'playing' && activeMatch?.id) {
+      joinVoiceChannel(activeMatch.id);
+    }
+    
+    return () => {
+      leaveVoiceChannel();
+    };
+  }, [multiplayerState, activeMatch?.id, joinVoiceChannel, leaveVoiceChannel]);
 
   // Expose Game Board Readiness
   useEffect(() => {
@@ -596,8 +617,18 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                   </svg>
                 </div>
               )}
-              <div className={`transition-all duration-300 ${myReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'}`}>
+              <div className={`transition-all duration-300 ${myReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} relative`}>
                 <Avatar src={userAvatar} size="sm" />
+                {isInChannel && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); toggleMute(); }}
+                    className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-mono-800 ${isMuted ? 'bg-red-500' : 'bg-mono-700 hover:bg-mono-600'} shadow-md transition-colors z-20`}
+                  >
+                    <span className="material-symbols-outlined text-[12px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      {isMuted ? 'mic_off' : 'mic'}
+                    </span>
+                  </button>
+                )}
               </div>
               <AnimatePresence mode="popLayout">
                 {myReaction && (
@@ -771,9 +802,17 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               )}
               {(() => {
                 const oppBundle = BUNDLES[opponent?.equipped_bundle] || BUNDLES['default'];
+                const oppInVoice = Object.keys(remoteUsers).length > 0;
                 return (
-                  <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''}`}>
+                  <div className={`transition-all duration-300 rounded-full ${opponentReaction ? 'opacity-0 scale-75' : 'opacity-100 scale-100'} ${oppBundle.id !== 'default' ? oppBundle.avatarRing : ''} relative`}>
                     <Avatar src={activeMatch?.opp_avatar_url || opponent?.avatar_url} size="sm" border={oppBundle.id === 'default'} />
+                    {oppInVoice && (
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center border-2 border-mono-800 bg-emerald-500 shadow-md z-20">
+                        <span className="material-symbols-outlined text-[12px] text-white" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          volume_up
+                        </span>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
