@@ -30,6 +30,7 @@ export const VoiceProvider = ({ children }) => {
   const [remoteUsers, setRemoteUsers] = useState({});
   const [isDeafened, setIsDeafened] = useState(false);
   const isDeafenedRef = useRef(false);
+  const remoteUsersRef = useRef({});
   const [activeSpeakers, setActiveSpeakers] = useState({});
   const [appId, setAppId] = useState(null);
   
@@ -88,13 +89,13 @@ export const VoiceProvider = ({ children }) => {
     const handleUserPublished = async (user, mediaType) => {
       await agoraClient.subscribe(user, mediaType);
       if (mediaType === 'audio') {
-        user.audioTrack?.play();
+        if (!isDeafenedRef.current && user.audioTrack) {
+          user.audioTrack.play();
+        }
         setRemoteUsers(prev => {
-          // If we are currently deafened, mute this new user immediately
-          if (isDeafenedRef.current && user.audioTrack) {
-            user.audioTrack.setVolume(0);
-          }
-          return { ...prev, [user.uid]: user };
+          const next = { ...prev, [user.uid]: user };
+          remoteUsersRef.current = next;
+          return next;
         });
       }
     };
@@ -103,6 +104,7 @@ export const VoiceProvider = ({ children }) => {
       setRemoteUsers(prev => {
         const next = { ...prev };
         delete next[user.uid];
+        remoteUsersRef.current = next;
         return next;
       });
     };
@@ -111,6 +113,7 @@ export const VoiceProvider = ({ children }) => {
       setRemoteUsers(prev => {
         const next = { ...prev };
         delete next[user.uid];
+        remoteUsersRef.current = next;
         return next;
       });
     };
@@ -144,6 +147,23 @@ export const VoiceProvider = ({ children }) => {
         return prev; // No change
       });
     };
+
+    // Global tap-to-resume for iOS Safari autoplay policy
+    const handleGlobalClick = () => {
+      if (isDeafenedRef.current) return;
+      Object.values(remoteUsersRef.current).forEach(user => {
+        if (user.audioTrack && !user.audioTrack.isPlaying) {
+          try {
+            user.audioTrack.play();
+          } catch (e) {
+            console.debug("Silent swallow: attempt to unlock audio failed", e);
+          }
+        }
+      });
+    };
+
+    document.addEventListener('click', handleGlobalClick);
+    document.addEventListener('touchstart', handleGlobalClick);
 
     agoraClient.enableAudioVolumeIndicator();
     agoraClient.on('volume-indicator', handleVolumeIndicator);
@@ -281,7 +301,11 @@ export const VoiceProvider = ({ children }) => {
     isDeafenedRef.current = newDeafenedState;
     Object.values(remoteUsers).forEach(user => {
       if (user.audioTrack) {
-        user.audioTrack.setVolume(newDeafenedState ? 0 : 100);
+        if (newDeafenedState) {
+          user.audioTrack.stop();
+        } else {
+          user.audioTrack.play();
+        }
       }
     });
   }, [isDeafened, remoteUsers]);
