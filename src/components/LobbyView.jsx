@@ -1061,7 +1061,7 @@ const LobbyView = memo(({
                       <h3 className="text-[17px] font-black text-mono-900 dark:text-white flex items-center gap-2.5">
                         یاریزانێن سەرهێل
                         {onlineProfiles.length > 0 && (
-                          <div className="flex items-center justify-center gap-1 px-2.5 h-[26px] rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
+                          <div className="flex items-center justify-center gap-1 px-2.5 h-6.5 rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
                             <span className="text-[13px] font-black tabular-nums mt-0.5">
                               {toKuDigits(onlineProfiles.length)}
                             </span>
