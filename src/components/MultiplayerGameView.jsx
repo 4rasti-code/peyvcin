@@ -19,10 +19,10 @@ import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 
 const SpeakingIndicator = () => (
-  <div className="flex items-end justify-center gap-[2px] h-3 ml-2 shrink-0">
-    <div className="w-[3px] bg-green-500 rounded-t-sm h-1.5 animate-[pulse_1s_ease-in-out_infinite]"></div>
-    <div className="w-[3px] bg-green-500 rounded-t-sm h-3 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.3s]"></div>
-    <div className="w-[3px] bg-green-500 rounded-t-sm h-2 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.6s]"></div>
+  <div className="flex items-end justify-center gap-0.5 h-3 ml-2 shrink-0">
+    <div className="w-0.75 bg-green-500 rounded-t-sm h-1.5 animate-[pulse_1s_ease-in-out_infinite]"></div>
+    <div className="w-0.75 bg-green-500 rounded-t-sm h-3 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.3s]"></div>
+    <div className="w-0.75 bg-green-500 rounded-t-sm h-2 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.6s]"></div>
   </div>
 );
 
