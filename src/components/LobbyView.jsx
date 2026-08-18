@@ -1052,17 +1052,10 @@ const LobbyView = memo(({
                         triggerHaptic(10);
                         setInviteStep('invite');
                       }}
-                      className="w-full h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors relative"
+                      className="w-full h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
                     >
                       <span className="material-symbols-outlined">person_add</span>
                       داخوازکرنا تایبەت
-                      
-                      <div className="absolute left-4 flex items-center justify-center gap-1 px-2 h-6 rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
-                        <span className="text-[12px] font-black tabular-nums mt-0.5">
-                          {toKuDigits(onlineProfiles.length)}
-                        </span>
-                        <span className="material-symbols-outlined text-[14px]">person</span>
-                      </div>
                     </button>
                     <button
                       onClick={() => setShowMultiplayerModal(false)}
