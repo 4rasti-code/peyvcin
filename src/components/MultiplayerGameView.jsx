@@ -63,6 +63,20 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     isVoiceReady
   } = useVoice();
 
+  // Auto-join voice channel when match starts
+  useEffect(() => {
+    if (isVoiceReady && activeMatch?.id && !isInChannel && !opponent?.isBot) {
+      joinVoiceChannel(activeMatch.id, user?.id);
+    }
+  }, [isVoiceReady, activeMatch?.id, isInChannel, opponent?.isBot, joinVoiceChannel, user?.id]);
+
+  // Leave voice channel on unmount
+  useEffect(() => {
+    return () => {
+      leaveVoiceChannel();
+    };
+  }, [leaveVoiceChannel]);
+
   // Prioritize Prop over Context to force re-renders from App.jsx
   const opponent = propOpponent || contextOpponent;
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
