@@ -18,6 +18,14 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 
+const SpeakingIndicator = () => (
+  <div className="flex items-end justify-center gap-[2px] h-3 ml-2 shrink-0">
+    <div className="w-[3px] bg-green-500 rounded-t-sm h-1.5 animate-[pulse_1s_ease-in-out_infinite]"></div>
+    <div className="w-[3px] bg-green-500 rounded-t-sm h-3 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.3s]"></div>
+    <div className="w-[3px] bg-green-500 rounded-t-sm h-2 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.6s]"></div>
+  </div>
+);
+
 export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay: _onOpenHowToPlay }) {
   const {
     activeMatch,
@@ -60,7 +68,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     isMuted,
     isDeafened,
     isInChannel,
-    isVoiceReady
+    isVoiceReady,
+    activeSpeakers
   } = useVoice();
 
 
@@ -699,15 +708,18 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
-                  <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
-                    style={{
-                      ...(myBundle.id !== 'default' ? {} : myFont.style),
-                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
-                    }}
-                  >
-                    {name}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span 
+                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                      style={{
+                        ...(myBundle.id !== 'default' ? {} : myFont.style),
+                        fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
+                      }}
+                    >
+                      {name}
+                    </span>
+                    {activeSpeakers?.[user?.id] && <SpeakingIndicator />}
+                  </div>
                 );
               })()}
             </div>
@@ -807,15 +819,18 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
-                  <span 
-                    className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
-                    style={{
-                      ...(oppBundle.id !== 'default' ? {} : oppFont.style),
-                      fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
-                    }}
-                  >
-                    {name}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span 
+                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                      style={{
+                        ...(oppBundle.id !== 'default' ? {} : oppFont.style),
+                        fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
+                      }}
+                    >
+                      {name}
+                    </span>
+                    {activeSpeakers?.[opponent?.id] && <SpeakingIndicator />}
+                  </div>
                 );
               })()}
             </div>

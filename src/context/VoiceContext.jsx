@@ -26,6 +26,7 @@ export const VoiceProvider = ({ children }) => {
   const [remoteUsers, setRemoteUsers] = useState({});
   const [isDeafened, setIsDeafened] = useState(false);
   const isDeafenedRef = useRef(false);
+  const [activeSpeakers, setActiveSpeakers] = useState({});
   const [appId, setAppId] = useState(null);
   
   const clientRef = useRef(null);
@@ -110,11 +111,48 @@ export const VoiceProvider = ({ children }) => {
       });
     };
 
+    const handleVolumeIndicator = (volumes) => {
+      setActiveSpeakers(prev => {
+        const next = { ...prev };
+        let changed = false;
+        
+        // Reset all to false first if they aren't in this volume batch
+        // Or we just build a fresh object based on who is speaking
+        const currentSpeakers = {};
+        volumes.forEach(vol => {
+          if (vol.level > 5) {
+            // vol.uid is numeric for remote, or string if custom uid, but for local it might be 0? 
+            // Agora uses 0 or the string UID for local user in volume indicator sometimes depending on config.
+            // Usually uid is what we provided.
+            const speakerUid = vol.uid;
+            currentSpeakers[speakerUid] = true;
+          }
+        });
+        
+        // Check if changed
+        if (Object.keys(currentSpeakers).length !== Object.keys(prev).length) {
+           return currentSpeakers;
+        }
+        
+        for (const uid in currentSpeakers) {
+           if (!prev[uid]) return currentSpeakers;
+        }
+        for (const uid in prev) {
+           if (!currentSpeakers[uid]) return currentSpeakers;
+        }
+        
+        return prev; // No change
+      });
+    };
+
+    agoraClient.enableAudioVolumeIndicator();
+    agoraClient.on('volume-indicator', handleVolumeIndicator);
     agoraClient.on('user-published', handleUserPublished);
     agoraClient.on('user-unpublished', handleUserUnpublished);
     agoraClient.on('user-left', handleUserLeft);
 
     return () => {
+      agoraClient.off('volume-indicator', handleVolumeIndicator);
       agoraClient.off('user-published', handleUserPublished);
       agoraClient.off('user-unpublished', handleUserUnpublished);
       agoraClient.off('user-left', handleUserLeft);
@@ -249,6 +287,7 @@ export const VoiceProvider = ({ children }) => {
     isMuted,
     isDeafened,
     remoteUsers,
+    activeSpeakers,
     joinVoiceChannel,
     leaveVoiceChannel,
     toggleMute,
