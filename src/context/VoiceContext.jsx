@@ -153,14 +153,19 @@ export const VoiceProvider = ({ children }) => {
       }
       
       if (clientRef.current) {
-        if (clientRef.current.connectionState === 'CONNECTED') {
-          try {
+        try {
+          if (clientRef.current.connectionState === 'CONNECTED') {
             await clientRef.current.unpublish();
-            await clientRef.current.leave();
-          } catch (e) {
-            // Silently swallow expected race condition errors as requested
-            console.debug("Silent swallow: unpublish/leave ignored:", e);
           }
+        } catch (e) {
+          console.debug("Silent swallow: unpublish ignored:", e);
+        }
+        
+        try {
+          // Always call leave to clear CONNECTING or CONNECTED states from previous renders
+          await clientRef.current.leave();
+        } catch (e) {
+          console.debug("Silent swallow: leave ignored:", e);
         }
       }
       
