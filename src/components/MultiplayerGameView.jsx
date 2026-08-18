@@ -708,7 +708,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
+                    {!isMuted && activeSpeakers?.[user?.id] && <SpeakingIndicator />}
                     <span 
                       className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
                       style={{
@@ -718,7 +719,6 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     >
                       {name}
                     </span>
-                    {!isMuted && activeSpeakers?.[user?.id] && <SpeakingIndicator />}
                   </div>
                 );
               })()}
@@ -819,7 +819,8 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                 const maxCqi = 100 / (nameLen * charWidthFactor);
 
                 return (
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2">
+                    {!isDeafened && activeSpeakers?.[opponent?.id] && <SpeakingIndicator />}
                     <span 
                       className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
                       style={{
@@ -829,7 +830,6 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                     >
                       {name}
                     </span>
-                    {!isDeafened && activeSpeakers?.[opponent?.id] && <SpeakingIndicator />}
                   </div>
                 );
               })()}
