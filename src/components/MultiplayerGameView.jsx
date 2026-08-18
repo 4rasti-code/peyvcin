@@ -575,7 +575,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                       <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {isMuted ? 'mic_off' : 'mic'}
                       </span>
-                      بێدەنگکردنی خۆت
+                      بێدەنگکرنا خۆ
                     </button>
 
                     <button
@@ -588,7 +588,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                       <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {isDeafened ? 'volume_off' : 'volume_up'}
                       </span>
-                      بێدەنگکردنی بەرامبەر
+                      بێدەنگکرنا هەڤڕکی
                     </button>
 
                     <div className={`h-px w-full ${isDark ? 'bg-white/10' : 'bg-slate-200'}`} />
