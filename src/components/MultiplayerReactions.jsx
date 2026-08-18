@@ -32,8 +32,8 @@ const QUICK_CHATS = [
 ];
 
 export default function MultiplayerReactions() {
-  const { broadcastReaction, opponent } = useMultiplayer();
-  const { activeSpeakers, isDeafened } = useVoice();
+  const { broadcastReaction } = useMultiplayer();
+  const { activeSpeakers, isDeafened, remoteUsers } = useVoice();
   const { playPopSound } = useAudio();
   const [isQuickChatOpen, setIsQuickChatOpen] = useState(false);
   const quickChatRef = useRef(null);
@@ -55,7 +55,8 @@ export default function MultiplayerReactions() {
     setIsQuickChatOpen(false);
   };
 
-  const isRemoteSpeaking = !isDeafened && activeSpeakers?.[opponent?.id];
+  const isOpponentSpeaking = Object.keys(activeSpeakers).some(uid => !!remoteUsers[uid]);
+  const isRemoteSpeaking = !isDeafened && isOpponentSpeaking;
 
   return (
     <>
