@@ -409,16 +409,10 @@ const LobbyView = memo(({
 
   useEffect(() => {
     if (showMultiplayerModal && inviteStep === 'invite') {
+      // Pass false to briefly spin the refresh icon, showing live sync activity
       fetchOnlineProfilesRef.current(false);
-
-      // Setup 5-second background polling so it always stays perfectly in sync without manual refresh
-      const interval = setInterval(() => {
-        fetchOnlineProfilesRef.current(true);
-      }, 5000);
-
-      return () => clearInterval(interval);
     }
-  }, [showMultiplayerModal, inviteStep]);
+  }, [showMultiplayerModal, inviteStep, onlineUsers]);
 
   const handleSendInviteToUser = async (targetUserId) => {
     triggerHaptic(10);
@@ -1107,44 +1101,48 @@ const LobbyView = memo(({
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
-                    ) : onlineProfiles.length > 0 ? (
-                      (() => {
-                        const isProfileBusy = (p) => !!(onlineUserStatuses?.[p.id] || busyUsers[p.id]);
-                        const friendsNotInGame = onlineProfiles.filter(p => p.isFriend && !isProfileBusy(p));
-                        const othersNotInGame = onlineProfiles.filter(p => !p.isFriend && !isProfileBusy(p));
-                        const playersInGame = onlineProfiles.filter(p => isProfileBusy(p));
-
+                    ) : (() => {
+                      const activeProfiles = onlineProfiles.filter(p => onlineUsers?.has(p.id));
+                      
+                      if (activeProfiles.length === 0) {
                         return (
-                          <>
-                            {friendsNotInGame.length > 0 && (
-                              <>
-                                <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
-                                {friendsNotInGame.map(renderProfileRow)}
-                              </>
-                            )}
-                            {othersNotInGame.length > 0 && (
-                              <>
-                                <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${friendsNotInGame.length > 0 ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
-                                {othersNotInGame.map(renderProfileRow)}
-                              </>
-                            )}
-                            {playersInGame.length > 0 && (
-                              <>
-                                <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${(friendsNotInGame.length > 0 || othersNotInGame.length > 0) ? 'mt-4' : 'mt-2'}`}>د یاریێ دانە</div>
-                                {playersInGame.map(renderProfileRow)}
-                              </>
-                            )}
-                          </>
+                          <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                            <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
+                              <span className="material-symbols-outlined text-2xl">person_off</span>
+                            </div>
+                            <p className="text-sm font-medium text-mono-600 dark:text-mono-400">چ یاریزانێن دی نۆکە سەرهێل نینە.</p>
+                          </div>
                         );
-                      })()
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                        <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
-                          <span className="material-symbols-outlined text-2xl">person_off</span>
-                        </div>
-                        <p className="text-sm font-medium text-mono-600 dark:text-mono-400">چ یاریزانێن دی نۆکە سەرهێل نینە.</p>
-                      </div>
-                    )}
+                      }
+
+                      const isProfileBusy = (p) => !!(onlineUserStatuses?.[p.id] || busyUsers[p.id]);
+                      const friendsNotInGame = activeProfiles.filter(p => p.isFriend && !isProfileBusy(p));
+                      const othersNotInGame = activeProfiles.filter(p => !p.isFriend && !isProfileBusy(p));
+                      const playersInGame = activeProfiles.filter(p => isProfileBusy(p));
+
+                      return (
+                        <>
+                          {friendsNotInGame.length > 0 && (
+                            <>
+                              <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
+                              {friendsNotInGame.map(renderProfileRow)}
+                            </>
+                          )}
+                          {othersNotInGame.length > 0 && (
+                            <>
+                              <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${friendsNotInGame.length > 0 ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
+                              {othersNotInGame.map(renderProfileRow)}
+                            </>
+                          )}
+                          {playersInGame.length > 0 && (
+                            <>
+                              <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${(friendsNotInGame.length > 0 || othersNotInGame.length > 0) ? 'mt-4' : 'mt-2'}`}>د یاریێ دانە</div>
+                              {playersInGame.map(renderProfileRow)}
+                            </>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
 
                   <div className="shrink-0 mt-auto pt-2 border-t border-mono-200 dark:border-mono-800">

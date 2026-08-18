@@ -71,6 +71,16 @@ export const PresenceProvider = ({ children }) => {
       });
       presenceChannelRef.current = channel;
 
+      // System Event Listener for silent drops/errors
+      channel.on('system', { event: '*' }, (payload) => {
+        if (payload?.type === 'error' || payload?.event === 'error' || payload?.status === 'error') {
+          console.warn("[Presence] System error detected on channel. Rebuilding...", payload);
+          setTimeout(() => {
+            if (isMounted) initializeChannel();
+          }, 1000);
+        }
+      });
+
       // Optimization #3: Efficient state management with keyed payloads
       channel.on('presence', { event: 'sync' }, () => {
         if (!isMounted) return;
@@ -125,31 +135,29 @@ export const PresenceProvider = ({ children }) => {
     // Initial setup
     initializeChannel();
 
+    // Heartbeat / Periodic Hard-Sync for long-lived sessions
+    const heartbeatInterval = setInterval(() => {
+      console.log("[Presence] Heartbeat triggered. Hard-syncing presence state...");
+      if (isMounted) initializeChannel();
+    }, 3.5 * 60 * 1000); // 3.5 minutes
+
+    let visibilityWakeTimeout = null;
+
     const handleVisibilityChange = async () => {
-      if (!presenceChannelRef.current) return;
-      
       if (document.visibilityState === 'visible') {
-        const state = presenceChannelRef.current.state;
-        
-        // 1. If connected normally, just update our presence timestamp to show we are back active
-        if (state === 'joined' || state === 'SUBSCRIBED') {
-          if (!isAdmin) {
-            try {
-              await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
-            } catch (e) {
-              console.error("Presence re-track failed:", e);
-            }
+        // Sleep state could make the connection a zombie. Treat it as completely untrustworthy.
+        console.log("[Presence] App woke up. Aggressively rebuilding channel...");
+        if (visibilityWakeTimeout) clearTimeout(visibilityWakeTimeout);
+        visibilityWakeTimeout = setTimeout(() => {
+          if (isMounted) {
+            initializeChannel();
           }
-        } 
-        // 2. If the OS killed the connection while sleeping, rebuild the entire channel!
-        else if (state === 'closed' || state === 'errored' || state === 'CHANNEL_ERROR') {
-          console.warn("[Presence] Channel dead on wake. Rebuilding...");
-          initializeChannel();
-        }
+        }, 800); // Small timeout to allow network adapter to reconnect
       } else {
         // Optimization: When the user minimizes the app, instantly show them as offline to others
         // This prevents them from receiving invites while they aren't looking at the screen.
-        if (!isAdmin && presenceChannelRef.current.state === 'joined') {
+        if (visibilityWakeTimeout) clearTimeout(visibilityWakeTimeout);
+        if (!isAdmin && presenceChannelRef.current?.state === 'joined') {
           presenceChannelRef.current.untrack().catch(() => {});
         }
       }
@@ -169,6 +177,8 @@ export const PresenceProvider = ({ children }) => {
 
     return () => {
       isMounted = false;
+      clearInterval(heartbeatInterval);
+      if (visibilityWakeTimeout) clearTimeout(visibilityWakeTimeout);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       if (presenceChannelRef.current) {

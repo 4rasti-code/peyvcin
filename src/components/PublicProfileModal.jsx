@@ -198,8 +198,8 @@ export default function PublicProfileModal({
   const nextLevelXP = Math.round(levelData.nextLevelBase);
   const globalTier = getLevelTier(safeLevel);
 
-  // Online Status Logic: Consider online if active in the last 3 minutes
-  const isOnline = isBot || isMe || onlineUsers?.has(displayData.id) || (displayData.updated_at && (new Date() - new Date(displayData.updated_at)) < 3 * 60 * 1000);
+  // Online Status Logic: Strictly rely on global PresenceContext
+  const isOnline = isBot || isMe || onlineUsers?.has(displayData.id);
 
   // Mastery Logic
   const getMastery = (d) => {
@@ -512,9 +512,7 @@ export default function PublicProfileModal({
                 )}
 
                 {/* Online Indicator on Avatar Edge */}
-                {isOnline && (
-                  <div className="absolute bottom-2 right-2 w-7 h-7 bg-emerald-500 border-4 border-mono-white dark:border-black rounded-full z-20" />
-                )}
+                <div className={`absolute bottom-2 right-2 w-7 h-7 ${isOnline ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-slate-600'} border-4 border-mono-white dark:border-black rounded-full z-20 transition-all duration-300`} />
               </div>
             </div>
           );

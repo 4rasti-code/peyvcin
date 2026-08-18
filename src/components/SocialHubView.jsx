@@ -737,23 +737,23 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
       if (part === '[VOICE_FEATURE_CARD]') {
         return (
           <div key={i} className="my-2 bg-linear-to-b from-mono-white to-amber-50/30 dark:from-mono-900 dark:to-[#0f0a05] rounded-lg border border-amber-500/50 w-65 xs:w-[280px] sm:w-[320px] pt-5 pb-3 px-3 overflow-hidden flex flex-col relative transition-colors duration-500 shadow-xl shadow-amber-500/10 cursor-default" dir="rtl" onClick={e => e.stopPropagation()}>
-             <div className="absolute -top-4 -right-2 z-20 opacity-20 pointer-events-none">
-                <span className="material-symbols-outlined text-[64px] text-amber-500">campaign</span>
-             </div>
-             <h2 className="text-[14px] font-black text-mono-900 dark:text-white mb-2 relative z-10">
-                تایبەتمەندییا نوی!
-             </h2>
-             <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-2.5 border border-mono-200/50 dark:border-white/5 flex gap-2.5 items-start relative z-10 hover:scale-[1.02] transition-transform">
-                <div className="w-9 h-9 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-lg border border-amber-500/20 shadow-inner">
-                   🎤
-                </div>
-                <div className="flex flex-col pt-0.5 min-w-0">
-                   <h3 className="text-[12px] font-black text-amber-600 dark:text-amber-400 mb-0.5 truncate">سیستەمێ ڤۆیس چات</h3>
-                   <p className="text-[10.5px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed whitespace-normal wrap-break-word">
-                      نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی!
-                   </p>
-                </div>
-             </div>
+            <div className="absolute -top-4 -right-2 z-20 opacity-20 pointer-events-none">
+              <span className="material-symbols-outlined text-[64px] text-amber-500">campaign</span>
+            </div>
+            <h2 className="text-[14px] font-black text-mono-900 dark:text-white mb-2 relative z-10">
+              تایبەتمەندییا نوی!
+            </h2>
+            <div className="bg-linear-to-br from-mono-100/80 to-white/50 dark:from-[#252525]/80 dark:to-[#181818]/40 backdrop-blur-md rounded-md p-2.5 border border-mono-200/50 dark:border-white/5 flex gap-2.5 items-start relative z-10 hover:scale-[1.02] transition-transform">
+              <div className="w-9 h-9 shrink-0 rounded-lg bg-amber-500/10 flex items-center justify-center text-lg border border-amber-500/20 shadow-inner">
+                🎤
+              </div>
+              <div className="flex flex-col pt-0.5 min-w-0">
+                <h3 className="text-[12px] font-black text-amber-600 dark:text-amber-400 mb-0.5 truncate">سیستەمێ ڤۆیس چات</h3>
+                <p className="text-[10.5px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed whitespace-normal wrap-break-word">
+                  نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی!
+                </p>
+              </div>
+            </div>
           </div>
         );
       }
@@ -1645,104 +1645,135 @@ export default function SocialHubView({
     if (!user?.id) return;
     const currentUserId = user.id;
 
-    const globalSub = supabase.channel('public:messages:global').on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
-      if (payload.eventType === 'INSERT') {
-        const newMsg = payload.new;
-        if (newMsg.user_id !== currentUserId) {
-          playNotifSound();
-          if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
-        }
-        setMessages(prev => {
-          if (prev.some(m => m.id === newMsg.id)) return prev;
-          return [...prev, newMsg];
-        });
-        // Removed individual profile fetch here to prevent IO overload. 
-        // The checkMessageUsers useEffect will batch-fetch the missing avatar.
-      } else if (payload.eventType === 'UPDATE') {
-        setMessages(prev => prev.map(m => m.id === payload.new.id ? { ...m, ...payload.new } : m));
-      } else if (payload.eventType === 'DELETE') {
-        setMessages(prev => prev.filter(m => m.id !== payload.old.id));
-      }
-    }).subscribe();
+    let globalSub = null;
+    let privateMsgSub = null;
+    let typingChannel = null;
+    let isMounted = true;
 
+    const initializeChatChannels = () => {
+      if (globalSub) supabase.removeChannel(globalSub);
+      if (privateMsgSub) supabase.removeChannel(privateMsgSub);
+      if (typingChannel) supabase.removeChannel(typingChannel);
 
-
-    const privateMsgSub = supabase.channel('private:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
-      let involvedPayload = payload.new || payload.old;
-      if (!involvedPayload) return;
-      const isPrivate = involvedPayload.receiver_id !== null;
-      const involvesMe = involvedPayload.user_id === currentUserId || involvedPayload.receiver_id === currentUserId;
-      if (!isPrivate || !involvesMe) return;
-
-      if (payload.eventType === 'INSERT') {
-        const newMsg = payload.new;
-        if (newMsg.user_id !== currentUserId) {
-          // No longer playing sound if we are already viewing the chat
-        }
-
-        if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
-          setChatMessages(prev => {
+      globalSub = supabase.channel('public:messages:global').on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: 'receiver_id=is.null' }, (payload) => {
+        if (!isMounted) return;
+        if (payload.eventType === 'INSERT') {
+          const newMsg = payload.new;
+          if (newMsg.user_id !== currentUserId) {
+            playNotifSound();
+            if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
+          }
+          setMessages(prev => {
             if (prev.some(m => m.id === newMsg.id)) return prev;
             return [...prev, newMsg];
           });
+          // Removed individual profile fetch here to prevent IO overload. 
+          // The checkMessageUsers useEffect will batch-fetch the missing avatar.
+        } else if (payload.eventType === 'UPDATE') {
+          setMessages(prev => prev.map(m => m.id === payload.new.id ? { ...m, ...payload.new } : m));
+        } else if (payload.eventType === 'DELETE') {
+          setMessages(prev => prev.filter(m => m.id !== payload.old.id));
         }
+      }).subscribe();
 
-        const partnerId = newMsg.user_id === currentUserId ? newMsg.receiver_id : newMsg.user_id;
-        setPrivateChats(prev => {
-          const existingIdx = prev.findIndex(c => c.id === partnerId);
-          if (existingIdx > -1) {
-            let newConvos = [...prev];
-            const chat = { ...newConvos[existingIdx] };
-            chat.lastMsg = newMsg.content;
-            chat.time = newMsg.created_at;
-            if (newMsg.user_id !== currentUserId && (!selectedChatRef.current || selectedChatRef.current.id !== partnerId || activeTabRef.current !== 'private')) {
-              chat.unreadCount = (chat.unreadCount || 0) + 1;
-              setUnreadMessageCount(c => c + 1);
-            }
-            newConvos.splice(existingIdx, 1);
-            newConvos.unshift(chat);
-            return newConvos;
-          } else {
-            fetchPrivateConversations();
-            return prev;
+      privateMsgSub = supabase.channel('private:messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+        if (!isMounted) return;
+        let involvedPayload = payload.new || payload.old;
+        if (!involvedPayload) return;
+        const isPrivate = involvedPayload.receiver_id !== null;
+        const involvesMe = involvedPayload.user_id === currentUserId || involvedPayload.receiver_id === currentUserId;
+        if (!isPrivate || !involvesMe) return;
+
+        if (payload.eventType === 'INSERT') {
+          const newMsg = payload.new;
+          if (newMsg.user_id !== currentUserId) {
+            // No longer playing sound if we are already viewing the chat
           }
-        });
-      } else if (payload.eventType === 'UPDATE') {
-        const updatedMsg = payload.new;
-        if (selectedChatRef.current && (updatedMsg.user_id === selectedChatRef.current.id || updatedMsg.receiver_id === selectedChatRef.current.id)) {
-          setChatMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m));
-        }
-        if (updatedMsg.is_read && updatedMsg.user_id === currentUserId) {
-          const partnerId = updatedMsg.receiver_id;
-          setPrivateChats(prev => {
-            return prev.map(c => {
-              if (c.id === partnerId && c.unreadCount > 0) {
-                return { ...c, unreadCount: Math.max(0, c.unreadCount - 1) };
-              }
-              return c;
+
+          if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
+            setChatMessages(prev => {
+              if (prev.some(m => m.id === newMsg.id)) return prev;
+              return [...prev, newMsg];
             });
+          }
+
+          const partnerId = newMsg.user_id === currentUserId ? newMsg.receiver_id : newMsg.user_id;
+          setPrivateChats(prev => {
+            const existingIdx = prev.findIndex(c => c.id === partnerId);
+            if (existingIdx > -1) {
+              let newConvos = [...prev];
+              const chat = { ...newConvos[existingIdx] };
+              chat.lastMsg = newMsg.content;
+              chat.time = newMsg.created_at;
+              if (newMsg.user_id !== currentUserId && (!selectedChatRef.current || selectedChatRef.current.id !== partnerId || activeTabRef.current !== 'private')) {
+                chat.unreadCount = (chat.unreadCount || 0) + 1;
+                setUnreadMessageCount(c => c + 1);
+              }
+              newConvos.splice(existingIdx, 1);
+              newConvos.unshift(chat);
+              return newConvos;
+            } else {
+              fetchPrivateConversations();
+              return prev;
+            }
           });
+        } else if (payload.eventType === 'UPDATE') {
+          const updatedMsg = payload.new;
+          if (selectedChatRef.current && (updatedMsg.user_id === selectedChatRef.current.id || updatedMsg.receiver_id === selectedChatRef.current.id)) {
+            setChatMessages(prev => prev.map(m => m.id === updatedMsg.id ? { ...m, ...updatedMsg } : m));
+          }
+          if (updatedMsg.is_read && updatedMsg.user_id === currentUserId) {
+            const partnerId = updatedMsg.receiver_id;
+            setPrivateChats(prev => {
+              return prev.map(c => {
+                if (c.id === partnerId && c.unreadCount > 0) {
+                  return { ...c, unreadCount: Math.max(0, c.unreadCount - 1) };
+                }
+                return c;
+              });
+            });
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const oldMsg = payload.old;
+          if (selectedChatRef.current) {
+            setChatMessages(prev => prev.filter(m => m.id !== oldMsg.id));
+          }
         }
-      } else if (payload.eventType === 'DELETE') {
-        const oldMsg = payload.old;
-        if (selectedChatRef.current) {
-          setChatMessages(prev => prev.filter(m => m.id !== oldMsg.id));
-        }
+      }).subscribe();
+
+      typingChannel = supabase.channel(`typing-${currentUserId}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
+        if (!isMounted) return;
+        if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(true);
+      }).on('broadcast', { event: 'stop' }, ({ payload }) => {
+        if (!isMounted) return;
+        if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(false);
+      }).subscribe();
+
+      typingChannelRef.current = typingChannel;
+    };
+
+    initializeChatChannels();
+
+    let visibilityWakeTimeout = null;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (visibilityWakeTimeout) clearTimeout(visibilityWakeTimeout);
+        visibilityWakeTimeout = setTimeout(() => {
+          if (isMounted) initializeChatChannels();
+        }, 800);
       }
-    }).subscribe();
+    };
 
-    const typingChannel = supabase.channel(`typing-${currentUserId}`).on('broadcast', { event: 'typing' }, ({ payload }) => {
-      if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(true);
-    }).on('broadcast', { event: 'stop' }, ({ payload }) => {
-      if (selectedChatRef.current && payload.sender_id === selectedChatRef.current.id) setPartnerIsTyping(false);
-    }).subscribe();
-
-    typingChannelRef.current = typingChannel;
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      supabase.removeChannel(globalSub);
-      supabase.removeChannel(privateMsgSub);
-      supabase.removeChannel(typingChannel);
+      isMounted = false;
+      if (visibilityWakeTimeout) clearTimeout(visibilityWakeTimeout);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (globalSub) supabase.removeChannel(globalSub);
+      if (privateMsgSub) supabase.removeChannel(privateMsgSub);
+      if (typingChannel) supabase.removeChannel(typingChannel);
     };
   }, [user?.id, fetchPrivateConversations, playNotifSound, _playMessageSound]);
 
@@ -2641,6 +2672,7 @@ export default function SocialHubView({
                               <Avatar
                                 src={chat.avatar_url}
                                 lastActive={chat.updated_at}
+                                isOnline={onlineUsers?.has(chat.id)}
                                 showStatus={true}
                                 size="md"
                                 border={false}
