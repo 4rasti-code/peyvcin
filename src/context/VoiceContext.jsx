@@ -160,7 +160,7 @@ export const VoiceProvider = ({ children }) => {
       }
       console.error("Error joining voice channel:", error);
     }
-  }, [appId]);
+  }, [appId, localAudioTrack]);
 
   const leaveVoiceChannel = useCallback(async () => {
     try {
