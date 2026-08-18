@@ -65,6 +65,8 @@ export const VoiceProvider = ({ children }) => {
     fetchAppId();
   }, []);
 
+  const isJoiningRef = useRef(false);
+
   // Initialize client and setup event listeners
   useEffect(() => {
     if (!appId) return;
@@ -92,22 +94,19 @@ export const VoiceProvider = ({ children }) => {
       }
     };
 
-    const handleUserUnpublished = (user, mediaType) => {
-      if (mediaType === 'audio') {
-        user.audioTrack?.stop();
-        setRemoteUsers(prev => {
-          const newUsers = { ...prev };
-          delete newUsers[user.uid];
-          return newUsers;
-        });
-      }
+    const handleUserUnpublished = (user) => {
+      setRemoteUsers(prev => {
+        const next = { ...prev };
+        delete next[user.uid];
+        return next;
+      });
     };
 
     const handleUserLeft = (user) => {
       setRemoteUsers(prev => {
-        const newUsers = { ...prev };
-        delete newUsers[user.uid];
-        return newUsers;
+        const next = { ...prev };
+        delete next[user.uid];
+        return next;
       });
     };
 
@@ -128,6 +127,13 @@ export const VoiceProvider = ({ children }) => {
       return;
     }
     
+    if (isJoiningRef.current) {
+      console.log("[VoiceContext] Skipping join, another join is currently in progress");
+      return;
+    }
+    
+    isJoiningRef.current = true;
+    
     // Prevent "Client already in connecting/connected state" error
     const state = clientRef.current.connectionState;
     if (state === 'CONNECTED') {
@@ -143,10 +149,12 @@ export const VoiceProvider = ({ children }) => {
         }
       }
       setIsInChannel(true);
+      isJoiningRef.current = false;
       return;
     }
     if (state === 'CONNECTING' || state === 'RECONNECTING') {
       console.log(`[VoiceContext] Skipping join, client is already ${state}`);
+      isJoiningRef.current = false;
       return;
     }
     
@@ -169,11 +177,13 @@ export const VoiceProvider = ({ children }) => {
       
     } catch (error) {
       const errMsg = error?.message || '';
-      if (error?.code === 'OPERATION_ABORTED' || errMsg.includes('OPERATION_ABORTED') || errMsg.includes('cancel token') || errMsg.includes('WS_ABORT') || errMsg.includes('LEAVE')) {
-        console.debug("Silent swallow: Join aborted during unmount:", error);
-        return;
+      if (error?.code === 'OPERATION_ABORTED' || errMsg.includes('OPERATION_ABORTED') || errMsg.includes('cancel token') || errMsg.includes('WS_ABORT') || errMsg.includes('LEAVE') || errMsg.includes('INVALID_OPERATION') || errMsg.includes('already in connecting/connected state')) {
+        console.debug("Silent swallow: Join aborted during unmount or concurrency:", error);
+      } else {
+        console.error("Error joining voice channel:", error);
       }
-      console.error("Error joining voice channel:", error);
+    } finally {
+      isJoiningRef.current = false;
     }
   }, [appId, localAudioTrack]);
 
