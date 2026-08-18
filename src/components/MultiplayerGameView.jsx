@@ -575,7 +575,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
                       <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                         {isMuted ? 'mic_off' : 'mic'}
                       </span>
-                      بێدەنگکرنا خۆ
+                      بێدەنگکرنا خوە
                     </button>
 
                     <button
