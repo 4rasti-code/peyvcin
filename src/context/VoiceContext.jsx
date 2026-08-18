@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import { supabase } from '../lib/supabase';
+import toast from 'react-hot-toast';
 
 // Disable log upload to prevent adblocker ERR_BLOCKED_BY_CLIENT spam
 AgoraRTC.disableLogUpload();
@@ -205,6 +206,11 @@ export const VoiceProvider = ({ children }) => {
         console.warn("Could not create/publish microphone track. User might have denied permission or has no mic:", micError);
         // We set muted to true since they have no mic
         setIsMuted(true);
+        if (micError.name === 'NotAllowedError' || (micError.message && micError.message.includes('Permission denied'))) {
+          toast.error("ڕێگەت بە مایک نەداوە! بۆیە دەنگت ناچێتە لای یاریزانەکە. تکایە لە ڕێکخستنەکان مایک بکەرەوە.", { duration: 6000, position: 'top-center' });
+        } else {
+          toast.error("کێشەیەک لە مایکەکەتدا هەیە، بۆیە دەنگت ناچێت.", { duration: 5000, position: 'top-center' });
+        }
       }
       
       setIsInChannel(true);
@@ -255,12 +261,15 @@ export const VoiceProvider = ({ children }) => {
   }, [localAudioTrack]);
 
   const toggleMute = useCallback(async () => {
-    if (localAudioTrack) {
-      const newMutedState = !isMuted;
-      // Using setEnabled instead of setMuted completely turns off the hardware mic LED
-      await localAudioTrack.setEnabled(!newMutedState);
-      setIsMuted(newMutedState);
+    if (!localAudioTrack) {
+      console.warn("No local audio track to mute/unmute");
+      toast.error("مایکەکەت ئیش ناکات، تکایە دڵنیابە کە ڕێگەت داوە مایک بەکاربێت.", { duration: 4000 });
+      return;
     }
+    const newMutedState = !isMuted;
+    // Using setEnabled instead of setMuted completely turns off the hardware mic LED
+    await localAudioTrack.setEnabled(!newMutedState);
+    setIsMuted(newMutedState);
   }, [localAudioTrack, isMuted]);
 
   const toggleDeafen = useCallback(() => {
