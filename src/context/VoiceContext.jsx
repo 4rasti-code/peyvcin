@@ -139,8 +139,11 @@ export const VoiceProvider = ({ children }) => {
       setIsMuted(false);
       
     } catch (error) {
+      if (error?.code === 'OPERATION_ABORTED' || error?.message?.includes('OPERATION_ABORTED') || error?.message?.includes('cancel token')) {
+        console.debug("Silent swallow: Join aborted during unmount:", error);
+        return;
+      }
       console.error("Error joining voice channel:", error);
-      throw error;
     }
   }, [appId]);
 
