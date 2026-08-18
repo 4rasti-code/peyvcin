@@ -149,7 +149,7 @@ const LobbyView = memo(({
         }
       }
     }
-  }, [profileData?.latitude, profileData?.longitude]);
+  }, [profileData]);
 
   const recordInviteStrike = useCallback(async (targetId) => {
     if (!user?.id || !targetId) return;
