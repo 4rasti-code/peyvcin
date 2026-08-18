@@ -60,8 +60,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
     isMuted,
     isDeafened,
     isInChannel,
-    isVoiceReady,
-    activeSpeakers
+    isVoiceReady
   } = useVoice();
 
 
