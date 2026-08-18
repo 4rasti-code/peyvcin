@@ -6,12 +6,12 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 
 const SpeakingIndicator = () => (
-  <div className="flex items-center justify-center w-6 h-6">
+  <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center justify-center w-7 h-7">
     <span className="absolute flex items-center justify-center">
-      <span className="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-yellow-400 opacity-60"></span>
+      <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-yellow-400 opacity-60"></span>
     </span>
-    <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-yellow-400 text-black shadow-[0_0_5px_rgba(250,204,21,0.8)]">
-      <span className="material-symbols-outlined font-bold" style={{ fontSize: '13px', marginLeft: '1px' }}>volume_up</span>
+    <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-yellow-400 text-black shadow-[0_0_5px_rgba(250,204,21,0.8)]">
+      <span className="material-symbols-outlined font-bold" style={{ fontSize: '15px', marginLeft: '1px' }}>volume_up</span>
     </span>
   </div>
 );
@@ -61,10 +61,7 @@ export default function MultiplayerReactions() {
       {/* SENDING UI: Unified Vertical List on the right side */}
       <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex flex-col items-center bg-white/70 dark:bg-black/60 backdrop-blur-xl py-1 px-0 rounded-md border border-slate-200/50 dark:border-white/10 pointer-events-auto z-8002 shadow-xl transition-all duration-300">
         
-        {/* Speaking Indicator Area (Fixed height to prevent jumping) */}
-        <div className="w-full h-8 flex items-center justify-center transition-opacity duration-300">
-          {isRemoteSpeaking && <SpeakingIndicator />}
-        </div>
+        {isRemoteSpeaking && <SpeakingIndicator />}
 
         {/* Quick Chat Menu & Toggle */}
         <div className="relative flex justify-center w-full" ref={quickChatRef}>
