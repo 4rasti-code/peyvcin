@@ -182,16 +182,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
   }, [showCinematicOverlay, multiplayerState, playStartSound]);
 
 
-  // Agora Voice Auto-Join & Strict Cleanup
-  useEffect(() => {
-    if (multiplayerState === 'playing' && activeMatch?.id && isVoiceReady) {
-      joinVoiceChannel(activeMatch.id);
-    }
-    
-    return () => {
-      leaveVoiceChannel();
-    };
-  }, [multiplayerState, activeMatch?.id, isVoiceReady, joinVoiceChannel, leaveVoiceChannel]);
+
 
   // Expose Game Board Readiness
   useEffect(() => {
