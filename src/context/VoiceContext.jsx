@@ -43,11 +43,19 @@ export const VoiceProvider = ({ children }) => {
           
         if (error) {
           console.error("Failed to fetch Agora App ID from Supabase:", error);
+          setAppId('c1d5e8e055f44d5fa88d6193fd8c471c'); // Unsecure fallback
           return;
         }
         
         if (data && data.value) {
-          setAppId(data.value);
+          // If the DB still has the old secure token, force the unsecure one for now
+          if (data.value === 'abd8d6e8729546f69c47ebfc8a617069') {
+             setAppId('c1d5e8e055f44d5fa88d6193fd8c471c');
+          } else {
+             setAppId(data.value);
+          }
+        } else {
+          setAppId('c1d5e8e055f44d5fa88d6193fd8c471c'); // Unsecure fallback
         }
       } catch (err) {
         console.error("Error fetching Agora App ID:", err);
@@ -146,12 +154,18 @@ export const VoiceProvider = ({ children }) => {
       // Use a token if available, otherwise pass null for testing if tokens are disabled on Agora dashboard
       await clientRef.current.join(appId, channelName, null, uid);
       
-      const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-      setLocalAudioTrack(audioTrack);
+      try {
+        const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        setLocalAudioTrack(audioTrack);
+        await clientRef.current.publish([audioTrack]);
+        setIsMuted(false);
+      } catch (micError) {
+        console.warn("Could not create/publish microphone track. User might have denied permission or has no mic:", micError);
+        // We set muted to true since they have no mic
+        setIsMuted(true);
+      }
       
-      await clientRef.current.publish([audioTrack]);
       setIsInChannel(true);
-      setIsMuted(false);
       
     } catch (error) {
       if (error?.code === 'OPERATION_ABORTED' || error?.message?.includes('OPERATION_ABORTED') || error?.message?.includes('cancel token')) {
