@@ -7,6 +7,7 @@ import { PresenceProvider } from './context/PresenceContext';
 import { AudioProvider } from './context/AudioContext';
 import { GameProvider } from './context/GameContext';
 import { MultiplayerProvider } from './context/MultiplayerContext';
+import { VoiceProvider } from './context/VoiceContext';
 import GlobalErrorBoundary from './components/GlobalErrorBoundary';
 import App from './App.jsx'
 
@@ -19,9 +20,11 @@ const renderApp = () => {
             <PresenceProvider>
               <AudioProvider>
                 <GameProvider>
-                  <MultiplayerProvider>
-                    <App />
-                  </MultiplayerProvider>
+                  <VoiceProvider>
+                    <MultiplayerProvider>
+                      <App />
+                    </MultiplayerProvider>
+                  </VoiceProvider>
                 </GameProvider>
               </AudioProvider>
             </PresenceProvider>
