@@ -6,13 +6,10 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 
 const SpeakingIndicator = () => (
-  <div className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center justify-center w-7 h-7">
-    <span className="absolute flex items-center justify-center">
-      <span className="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-yellow-400 opacity-60"></span>
-    </span>
-    <span className="relative flex h-6 w-6 items-center justify-center rounded-full bg-yellow-400 text-black shadow-[0_0_5px_rgba(250,204,21,0.8)]">
-      <span className="material-symbols-outlined font-bold" style={{ fontSize: '15px', marginLeft: '1px' }}>volume_up</span>
-    </span>
+  <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-end justify-center gap-0.5 h-4">
+    <div className="w-[3px] bg-yellow-400 rounded-t-sm h-2 animate-[pulse_0.8s_ease-in-out_infinite] shadow-[0_0_4px_rgba(250,204,21,0.8)]"></div>
+    <div className="w-[3px] bg-yellow-400 rounded-t-sm h-4 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.2s] shadow-[0_0_4px_rgba(250,204,21,0.8)]"></div>
+    <div className="w-[3px] bg-yellow-400 rounded-t-sm h-3 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.4s] shadow-[0_0_4px_rgba(250,204,21,0.8)]"></div>
   </div>
 );
 
