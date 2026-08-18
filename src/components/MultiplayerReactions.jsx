@@ -7,10 +7,10 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 
 const SpeakingIndicator = () => (
-  <div className="flex items-end justify-center gap-0.5 h-3 shrink-0 absolute -top-4 left-1/2 -translate-x-1/2">
-    <div className="w-0.75 bg-green-500 rounded-t-sm h-1.5 animate-[pulse_1s_ease-in-out_infinite]"></div>
-    <div className="w-0.75 bg-green-500 rounded-t-sm h-3 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.3s]"></div>
-    <div className="w-0.75 bg-green-500 rounded-t-sm h-2 animate-[pulse_1s_ease-in-out_infinite] [animation-delay:-0.6s]"></div>
+  <div className="flex items-end justify-center gap-0.5 h-3.5 shrink-0 absolute -top-7 left-1/2 -translate-x-1/2 drop-shadow-[0_0_3px_rgba(250,204,21,0.8)]">
+    <div className="w-1 bg-yellow-400 rounded-t h-1.5 animate-[pulse_0.8s_ease-in-out_infinite]"></div>
+    <div className="w-1 bg-yellow-400 rounded-t h-3.5 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.2s]"></div>
+    <div className="w-1 bg-yellow-400 rounded-t h-2 animate-[pulse_0.8s_ease-in-out_infinite] [animation-delay:-0.4s]"></div>
   </div>
 );
 
