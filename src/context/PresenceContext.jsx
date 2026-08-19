@@ -10,7 +10,7 @@ export const usePresence = () => {
 };
 
 export const PresenceProvider = ({ children }) => {
-  const { user } = useUser();
+  const { user, userNickname } = useUser();
   const [onlineUsers, setOnlineUsers] = useState(new Set());
   const [onlineUserStatuses, setOnlineUserStatuses] = useState({});
   const [onlineCount, setOnlineCount] = useState(0);
@@ -32,7 +32,12 @@ export const PresenceProvider = ({ children }) => {
     const sendTrackRequest = async () => {
       try {
         if (presenceChannelRef.current && user?.id && (presenceChannelRef.current.state === 'joined' || presenceChannelRef.current.state === 'SUBSCRIBED')) {
-          const isAdmin = user?.email === '4rasti@gmail.com';
+          const isAdmin = user?.email === '4rasti@gmail.com' 
+            || userNickname === 'Admin_4rasti' 
+            || userNickname === 'ADMIN_PEYVOK' 
+            || user?.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' 
+            || user?.id === '66bbf4d5-333a-4748-8529-ecd5bae9f3a4';
+            
           if (!isAdmin) {
             await presenceChannelRef.current.track({ busy_mode: currentBusyModeRef.current, online_at: new Date().toISOString() });
           }
@@ -47,12 +52,16 @@ export const PresenceProvider = ({ children }) => {
     } else {
       trackTimeoutRef.current = setTimeout(sendTrackRequest, 1000);
     }
-  }, [user]);
+  }, [user, userNickname]);
 
   useEffect(() => {
     if (!user?.id) return;
 
-    const isAdmin = user?.email === '4rasti@gmail.com';
+    const isAdmin = user?.email === '4rasti@gmail.com' 
+      || userNickname === 'Admin_4rasti' 
+      || userNickname === 'ADMIN_PEYVOK' 
+      || user?.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' 
+      || user?.id === '66bbf4d5-333a-4748-8529-ecd5bae9f3a4';
     let isMounted = true;
 
     const initializeChannel = () => {
@@ -187,7 +196,7 @@ export const PresenceProvider = ({ children }) => {
       }
       presenceChannelRef.current = null;
     };
-  }, [user, reconnectTrigger]);
+  }, [user, userNickname, reconnectTrigger]);
 
   return (
     <PresenceContext.Provider value={{

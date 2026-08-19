@@ -9,6 +9,7 @@ import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import DataDeletion from './DataDeletion';
 import ReportModal from './ReportModal';
+import WordSuggestionModal from './WordSuggestionModal';
 import { playBackSfx } from '../utils/audio';
 import { supabase } from '../lib/supabase';
 
@@ -30,6 +31,7 @@ function SettingsModal({
    const [isHelpCenterOpen, setIsHelpCenterOpen] = React.useState(false);
    const [isBlockedModalOpen, setIsBlockedModalOpen] = React.useState(false);
    const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
+   const [isWordSuggestionModalOpen, setIsWordSuggestionModalOpen] = React.useState(false);
    const [activePolicyModal, setActivePolicyModal] = React.useState(null);
    const { user, handleToggleBlock } = useUser();
 
@@ -177,6 +179,13 @@ function SettingsModal({
                               </div>
                               <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
                            </button>
+                           <button onClick={() => { triggerHaptic(10); setIsWordSuggestionModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
+                              <div className="flex items-center gap-3">
+                                 <span className="material-symbols-outlined text-lg text-amber-500 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">lightbulb</span>
+                                 <span className="text-[14px] font-bold text-mono-700 dark:text-mono-300 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">پێشنیارکرنا پەیڤێ</span>
+                              </div>
+                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+                           </button>
                            <button onClick={() => { triggerHaptic(10); setActivePolicyModal('terms'); }} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
                               <div className="flex items-center gap-3">
                                  <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">description</span>
@@ -210,7 +219,7 @@ function SettingsModal({
                         </button>
 
                         <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
-                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v2.8.0</p>
+                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v3.0.0</p>
                         </div>
                      </div>
                   </Motion.div>
@@ -286,6 +295,16 @@ function SettingsModal({
                <ReportModal
                   isOpen={isReportModalOpen}
                   onClose={() => setIsReportModalOpen(false)}
+                  user={user}
+               />
+            )}
+         </AnimatePresence>
+
+         <AnimatePresence>
+            {isWordSuggestionModalOpen && (
+               <WordSuggestionModal
+                  isOpen={isWordSuggestionModalOpen}
+                  onClose={() => setIsWordSuggestionModalOpen(false)}
                   user={user}
                />
             )}

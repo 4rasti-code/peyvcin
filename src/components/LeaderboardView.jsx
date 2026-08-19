@@ -33,7 +33,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
     equippedBundle
   } = useUser();
 
-  const { onlineCount } = usePresence();
+  const { onlineCount, onlineUsers } = usePresence();
 
   const {
     currentXP: userXP,
@@ -437,7 +437,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
   return (
     <div
       onClick={handleBackgroundClick}
-      className="w-full max-w-full px-4 md:px-6 relative animate-in fade-in duration-700 bg-transparent overflow-hidden text-right transition-colors flex flex-col"
+      className="w-full max-w-full relative animate-in fade-in duration-700 bg-transparent overflow-hidden text-right transition-colors flex flex-col"
       style={{ height: '100dvh' }}
     >
 
@@ -445,136 +445,149 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
       <div className="relative z-10 flex flex-col h-full w-full">
         {/* FIXED HEADER CONTAINER */}
         <div 
-          className="shrink-0 bg-transparent md:pt-4 px-4 md:px-6 shadow-sm transition-colors relative z-50"
+          className="shrink-0 bg-transparent md:pt-4 px-0 shadow-sm transition-colors relative z-50"
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 8px) + 8px)' }}
         >
           {/* GAP FILLER: Extends background infinitely upwards to cover iOS notch or scroll bounce gaps */}
           <div className="absolute bottom-full -left-12.5 -right-12.5 h-125 bg-transparent pointer-events-none" />
           
-          <div className="flex flex-col items-center max-w-md mx-auto text-center relative">
-          <div className="z-30 relative mb-2 drop-shadow-sm">
-             <img 
-               src="/assets/leaderboard_icon-01.svg" 
-               alt="Leaderboard Crown" 
-               className="w-56 h-auto object-contain max-h-50"
-             />
+          <div className="flex flex-col items-center max-w-md mx-auto text-center relative py-4 mb-6 mt-2">
+            {/* Ambient Golden Glow Behind the Podium */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/20 rounded-full blur-[50px] z-10 pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-yellow-300/10 rounded-full blur-[30px] z-10 pointer-events-none" />
+            
+            <div className="z-30 relative drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)] animate-[float_6s_ease-in-out_infinite]">
+               <img 
+                 src="/assets/leaderboard_icon-01.svg" 
+                 alt="Leaderboard Crown" 
+                 className="w-60 h-auto object-contain max-h-56 relative z-20"
+               />
+            </div>
+          </div>
+
+        {/* LEADERBOARD FOLDER UI */}
+        <div>
+          <div className="w-full relative">
+          
+          {/* Main Tabs (Global / Daily) */}
+          <div className="flex items-end gap-1 relative z-20 px-4 md:px-6 max-w-2xl mx-auto w-full h-10.5 pt-0.5">
+            {['daily', 'general'].map((tab) => {
+              const isActive = (tab === 'general' && (view === 'global' || view === 'friends')) || (tab === 'daily' && view === 'daily');
+              
+              return (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    triggerHaptic(10);
+                    playTabSound();
+                    if (tab === 'daily') {
+                      setView('daily');
+                    } else {
+                      if (view !== 'friends') {
+                        setView('global');
+                      }
+                    }
+                  }}
+                  className={`w-1/2 font-black uppercase transition-all duration-200 outline-none tab-clash flex items-center justify-center
+                    ${isActive 
+                      ? 'tab-clash-active text-white h-full z-30 after:content-[\'\'] after:absolute after:-bottom-0.75 after:left-0 after:right-0 after:h-1.5 after:bg-[#3b82f6] after:z-10' 
+                      : 'tab-clash-inactive text-white/80 h-9 z-10 opacity-90 hover:opacity-100 cursor-pointer'
+                    }
+                  `}
+                >
+                  <span className={`relative z-20 font-rabar tracking-widest ${isActive ? 'drop-shadow-md' : 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]'}`}>
+                    {tab === 'general' ? 'گشتی' : 'ئەڤرۆ'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          
+          {/* Connecting Base wrapping the Sub Tabs */}
+          <div className="w-full bg-[#3b82f6] relative z-10 shadow-[inset_0_-4px_0_rgba(0,0,0,0.15),0_16px_32px_rgba(0,0,0,0.4)] pb-4 rounded-none border-2 border-b-4 border-black">
+             <div className="h-3 w-full" />
+             
+             {/* Sub-tabs / Indicator Area (Fixed height prevents layout jumping) */}
+             <div className="relative h-9.5 w-full">
+               <AnimatePresence mode="wait">
+                 {(view === 'global' || view === 'friends') ? (
+                    <Motion.div 
+                       key="subtabs"
+                       initial={{ opacity: 0 }}
+                       animate={{ opacity: 1 }}
+                       exit={{ opacity: 0 }}
+                       transition={{ duration: 0.2 }}
+                       className="absolute inset-0 flex justify-center items-start px-4 w-full"
+                    >
+                       <div className="flex items-center justify-center gap-3 w-full relative z-10 h-full px-4">
+                         {['global', 'friends'].map((subTab) => {
+                           const isSubActive = view === subTab;
+                           return (
+                             <button
+                               key={subTab}
+                               onClick={() => {
+                                 triggerHaptic(10);
+                                 playTabSound();
+                                 setView(subTab);
+                               }}
+                               className={`h-8 px-6 sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-all duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                 isSubActive
+                                   ? 'btn-clash-sm-blue text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] z-20'
+                                   : 'btn-clash-sm-slate text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] opacity-80 hover:opacity-100 z-10 scale-95'
+                               }`}
+                             >
+                               <span className={`relative z-20 ${isSubActive ? 'drop-shadow-md' : ''}`}>
+                                 {subTab === 'global' ? 'جیھانی' : 'ھەڤال'}
+                               </span>
+                             </button>
+                           );
+                         })}
+                       </div>
+                    </Motion.div>
+                 ) : view === 'daily' ? (
+                    <Motion.div 
+                       key="daily-indicator"
+                       initial={{ opacity: 0 }}
+                       animate={{ opacity: 1 }}
+                       exit={{ opacity: 0 }}
+                       transition={{ duration: 0.2 }}
+                       className="absolute inset-0 flex justify-center items-start px-4 w-full"
+                    >
+                       <div className="flex items-center justify-center w-full pt-2">
+                          <span 
+                            className="text-[18px] sm:text-[20px] font-black text-white font-rabar tracking-widest relative drop-shadow-md"
+                          >
+                             ئەڤرۆ ببە کەسێ ئێکێ!
+                          </span>
+                       </div>
+                    </Motion.div>
+                 ) : null}
+               </AnimatePresence>
+             </div>
           </div>
         </div>
-
-        {/* Top Tab Swapper - Synced Card Style */}
-        <div className="flex p-1 rounded-md border mb-3 w-full max-w-xs mx-auto relative z-30 shadow-sm transition-all overflow-hidden bg-mono-100 dark:bg-mono-900 border-mono-200 dark:border-mono-800 duration-300">
-          {['daily', 'general'].map((tab) => {
-            const isActive = tab === 'general' ? (view === 'global' || view === 'friends') : view === 'daily';
-            return (
-              <button
-                key={tab}
-                onClick={() => {
-                  triggerHaptic(10);
-                  playTabSound();
-                  if (tab === 'general' && view === 'daily') {
-                    setView('global');
-                  } else if (tab === 'daily') {
-                    setView('daily');
-                  }
-                }}
-                className={`flex-1 py-2.5 px-2 rounded-md font-black transition-all duration-300 relative z-10 ${isActive
-                  ? 'text-mono-50 dark:text-mono-50'
-                  : 'text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
-                  }`}
-              >
-                {isActive && (
-                  <Motion.div
-                    layoutId="activeTabIndicator"
-                    className="absolute inset-0 bg-mono-900 dark:bg-mono-800 rounded-sm shadow-sm"
-                    transition={{ type: "spring", bounce: 0.1, duration: 0.4 }}
-                  />
-                )}
-                <span className="relative z-20 uppercase tracking-normal font-rabar text-[13px] sm:text-[14px]">
-                  {tab === 'general' ? 'گشتی' : 'ئەڤرۆ'}
-                </span>
-              </button>
-            );
-          })}
         </div>
 
-        {/* Sub-tabs for General (Global / Friends) */}
-        <AnimatePresence mode="wait">
-          {(view === 'global' || view === 'friends') && (
-             <Motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex justify-center mb-4 px-4 overflow-hidden relative z-30 w-full mx-auto"
-             >
-                <div className="flex p-0.5 rounded-full border border-mono-200 dark:border-mono-800/80 bg-mono-100/50 dark:bg-mono-900/50 shadow-inner w-fit mx-auto transition-all duration-300">
-                  {['global', 'friends'].map((subTab) => {
-                    const isSubActive = view === subTab;
-                    return (
-                      <button
-                        key={subTab}
-                        onClick={() => {
-                          triggerHaptic(10);
-                          playTabSound();
-                          setView(subTab);
-                        }}
-                        className={`py-1 px-5 rounded-full font-black transition-all duration-300 relative z-10 ${isSubActive
-                          ? 'text-white'
-                          : 'text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'
-                          }`}
-                      >
-                        {isSubActive && (
-                          <Motion.div
-                            layoutId="activeSubTabIndicator"
-                            className="absolute inset-0 bg-mono-800 dark:bg-mono-700 rounded-full shadow-sm"
-                            transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                          />
-                        )}
-                        <span className="relative z-20 uppercase tracking-normal font-rabar text-[10px] sm:text-[11px]">
-                          {subTab === 'global' ? 'جیھانی' : 'ھەڤال'}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-             </Motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Daily Competition Indicator */}
-        <AnimatePresence mode="wait">
-          {view === 'daily' && (
-             <Motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex flex-col items-center justify-center mb-4 px-4 overflow-hidden relative z-30 w-full max-w-xs mx-auto"
-             >
-                <div className="bg-mono-100 dark:bg-mono-800/80 rounded-full px-4 py-1.5 flex items-center gap-1.5 border border-mono-200 dark:border-mono-700 shadow-sm">
-                   <span className="material-symbols-outlined text-[#a855f7] text-[16px] animate-pulse">timer</span>
-                   <span className="text-[11px] font-bold text-mono-600 dark:text-mono-300 font-rabar pt-0.5">پێشبڕکێیا ئەڤرۆ (ڕۆژانە نوی دبیت)</span>
-                </div>
-             </Motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Live Stats - Background-less */}
-        <div className="flex items-center justify-center gap-4 px-4 pb-2 relative z-30 w-full max-w-xs mx-auto">
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+        {/* Live Stats - 3D Badges */}
+        <div className="flex items-center justify-center gap-3 px-4 mt-4 pb-2 relative z-30 w-full max-w-sm mx-auto" dir="rtl">
+          
+          {/* Online Badge */}
+          <div className="btn-clash-sm btn-clash-sm-slate flex items-center justify-center h-7 px-3 gap-1.5 shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-95 opacity-95">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
             </span>
-            <span className="text-[11.5px] font-bold text-mono-500 dark:text-mono-400 font-rabar pt-0.5">ئۆنڵاین:</span>
-            <span className="text-[13px] font-black text-mono-900 dark:text-white tabular-nums drop-shadow-sm">{toKuDigits(onlineCount)}</span>
+            <span className="text-[11px] font-bold text-white/80 font-rabar pt-0.5 whitespace-nowrap drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">ئۆنڵاین:</span>
+            <span className="text-[12px] font-black text-white tabular-nums drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">{toKuDigits(onlineCount)}</span>
           </div>
           
-          <div className="w-px h-3 bg-mono-300 dark:bg-mono-700"></div>
-          
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[14px] text-mono-400 dark:text-mono-500">group</span>
-            <span className="text-[11.5px] font-bold text-mono-500 dark:text-mono-400 font-rabar pt-0.5">هەمی:</span>
-            <span className="text-[13px] font-black text-mono-900 dark:text-white tabular-nums drop-shadow-sm">{totalPlayersCount > 0 ? toKuDigits(totalPlayersCount) : '-'}</span>
+          {/* Total Badge */}
+          <div className="btn-clash-sm btn-clash-sm-slate flex items-center justify-center h-7 px-3 gap-1 shadow-[0_2px_4px_rgba(0,0,0,0.3)] scale-95 opacity-95">
+            <span className="material-symbols-outlined text-[14px] text-white/70">group</span>
+            <span className="text-[11px] font-bold text-white/80 font-rabar pt-0.5 whitespace-nowrap drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">هەمی:</span>
+            <span className="text-[12px] font-black text-white tabular-nums drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">{totalPlayersCount > 0 ? toKuDigits(totalPlayersCount) : '-'}</span>
           </div>
+          
         </div>
         </div> {/* END FIXED HEADER */}
 
@@ -582,7 +595,11 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden -mx-4 px-4 md:-mx-6 md:px-6 pb-24"
+          className="flex-1 overflow-y-auto overflow-x-hidden px-4 md:px-6 pb-24 relative z-10"
+          style={{
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 24px, black 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 24px, black 100%)'
+          }}
         >
           <div className="pt-6">
             <AnimatePresence mode="wait">
@@ -610,7 +627,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="space-y-3 px-1 md:px-0 max-w-2xl mx-auto"
+              className="space-y-4 px-1 md:px-0 max-w-2xl mx-auto"
             >
               {(view === 'daily' ? dailyLeaders : leaders).map((player, index) => {
                 // Sequential Ranking based on the list index (matches exact spot)
@@ -673,11 +690,15 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     }
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP, equipped_name_style: effectiveNameStyle }); }}
-                    className={`flex flex-row items-center justify-between p-[clamp(0.5rem,2vw,0.625rem)] px-[clamp(0.75rem,3vw,1.25rem)] rounded-md border relative transition-all cursor-pointer duration-300 ${
+                    className={`flex flex-row items-center justify-between p-[clamp(0.5rem,2vw,0.625rem)] px-[clamp(0.75rem,3vw,1.25rem)] relative transition-all cursor-pointer duration-300 ${
+                      bundleObj.id === 'default' 
+                        ? 'btn-clash btn-clash-pale text-mono-900' 
+                        : `rounded-md border ${bundleObj.cardBg}`
+                    } ${
                       isMe
-                        ? 'bg-primary/10 dark:bg-primary/20 border-primary ring-1 ring-primary/50 shadow-[0_0_12px_rgba(var(--primary),0.4)] text-mono-900 dark:text-mono-50 z-20'
-                        : 'bg-mono-white dark:bg-mono-800 border-mono-200 dark:border-mono-700 text-mono-900 dark:text-mono-50'
-                    } ${bundleObj.id !== 'default' ? bundleObj.cardBg : ''}`}
+                        ? 'ring-[3px] ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20'
+                        : 'z-10'
+                    }`}
                     style={{
                       zIndex: isTop3 ? 30 : 1 // Ensure top 3 cards have higher z-index for floating crowns, but strictly below sticky header (z-50)
                     }}
@@ -697,7 +718,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                         </div>
                       ) : (
                         <span className={`font-black italic tracking-normal relative z-10 text-[clamp(1.1rem,6vw,1.5rem)] ${
-                          bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900 dark:text-mono-50'
+                          bundleObj.id !== 'default' ? 'text-white drop-shadow-md' : 'text-mono-900'
                         }`}>
                           {toKuDigits(rank)}
                         </span>
@@ -744,13 +765,15 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                         </div>
 
                         {/* Clean Avatar */}
-                        <div className={`w-[clamp(1.75rem,10vw,2.5rem)] h-[clamp(1.75rem,10vw,2.5rem)] rounded-full overflow-hidden shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : 'border border-mono-200 dark:border-white/10'}`}>
+                        <div className={`w-[clamp(1.75rem,10vw,2.5rem)] h-[clamp(1.75rem,10vw,2.5rem)] rounded-full shadow-sm bg-mono-100 dark:bg-white/5 shrink-0 relative z-10 ${bundleObj.id !== 'default' ? bundleObj.avatarRing : 'border border-mono-200 dark:border-white/10'}`}>
                           <Avatar
                             src={effectiveAvatar}
                             updatedAt={isMe ? lastProfileUpdate : player.updated_at}
                             size="full"
                             className="rounded-full object-cover w-full h-full"
                             border={false}
+                            showStatus={true}
+                            isOnline={onlineUsers && onlineUsers.has(player.id)}
                           />
                         </div>
 
@@ -782,7 +805,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                         className={`font-black tracking-normal whitespace-nowrap leading-normal transition-all duration-300 pt-1 ${
                           bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')
                         } ${
-                        (!styleObj.class && bundleObj.id === 'default') ? 'text-mono-900 dark:text-mono-50' : ''
+                        (!styleObj.class && bundleObj.id === 'default') ? 'text-[#374961]' : ''
                       }`}>{effectiveNickname}</span>
                     </div>
 
@@ -790,11 +813,11 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     <div className="flex items-center shrink-0 pr-1">
                       {view === 'daily' ? (
                         <div className="flex flex-col items-center justify-center min-w-[clamp(2.5rem,14vw,3.5rem)] px-[clamp(0.25rem,1.5vw,0.5rem)] py-1.5">
-                          <span className={`text-[clamp(6px,2vw,8px)] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
-                            bundleObj.id !== 'default' ? 'text-white/80' : 'text-mono-400 dark:text-mono-500'
-                          }`}>ئێکس پی</span>
+                                <span className={`text-[clamp(6px,2vw,8px)] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
+                                  bundleObj.id !== 'default' ? 'text-white/80' : 'text-mono-700'
+                                }`}>ئێکس پی</span>
                           <span className={`text-[clamp(10px,3.5vw,13px)] font-black leading-none drop-shadow-sm tabular-nums ${
-                            bundleObj.id !== 'default' ? 'text-white' : 'text-[#a855f7] dark:text-[#c084fc]'
+                            bundleObj.id !== 'default' ? 'text-white' : 'text-[#a855f7]'
                           }`}>{toKuDigits(effectiveXP)}</span>
                         </div>
                       ) : (

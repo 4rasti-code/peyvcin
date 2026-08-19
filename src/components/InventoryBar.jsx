@@ -18,11 +18,11 @@ const InventoryBar = ({
   hideSkip = false,
   className = ""
 }) => {
-  const countColor = "text-mono-950 dark:text-mono-100";
-  const sepColor = "bg-mono-200 dark:bg-white/10";
+  const countColor = isShop ? "text-white drop-shadow-sm" : "text-mono-950 dark:text-mono-100";
+  const sepColor = isShop ? "bg-white/20" : "bg-mono-200 dark:bg-white/10";
 
   return (
-    <div className={`flex items-center justify-center min-h-[56px] py-2 w-full ${className}`}>
+    <div className={`flex items-center justify-center min-h-14 py-2 w-full ${className}`}>
       <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 py-1 px-1 sm:px-4 h-auto">
         
         {/* Hint Item */}

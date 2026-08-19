@@ -27,6 +27,7 @@ import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
 import InstallGuideModal from './InstallGuideModal';
+import WordSuggestionModal from './WordSuggestionModal';
 import OnboardingOverlay from './OnboardingOverlay';
 import AdBanner from './AdBanner';
 import { supabase } from '../lib/supabase';
@@ -99,6 +100,7 @@ const LobbyView = memo(({
   const [showMysteryBox, setShowMysteryBox] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [tourCompleted, setTourCompleted] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [inviteStep, setInviteStep] = useState('select');
@@ -118,7 +120,7 @@ const LobbyView = memo(({
 
   const { playDailyOpenSfx } = useAudio();
   const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
-  const { onlineUsers, onlineUserStatuses, onlineCount, reconnectPresence } = usePresence();
+  const { onlineUsers, onlineUserStatuses, reconnectPresence } = usePresence();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
 
@@ -408,10 +410,11 @@ const LobbyView = memo(({
   }, [fetchOnlineProfiles]);
 
   useEffect(() => {
-    if (showMultiplayerModal && inviteStep === 'invite') {
-      // Pass false to briefly spin the refresh icon, showing live sync activity
-      fetchOnlineProfilesRef.current(false);
-    }
+    // If the modal is open, we pass false so it spins the refresh icon to show live sync.
+    // If the modal is closed, we pass true to fetch silently in the background, 
+    // ensuring activeProfiles is always populated for the Multiplayer Card badge.
+    const isModalOpen = showMultiplayerModal && inviteStep === 'invite';
+    fetchOnlineProfilesRef.current(!isModalOpen);
   }, [showMultiplayerModal, inviteStep, onlineUsers]);
 
   const handleSendInviteToUser = async (targetUserId) => {
@@ -681,13 +684,27 @@ const LobbyView = memo(({
     );
   };
 
+  const activeProfiles = React.useMemo(() => {
+    // --- DEBUG LOGS FOR GHOST USER ---
+    const rawIds = Array.from(onlineUsers || new Set());
+    console.log("Raw Online IDs from PresenceContext:", rawIds);
+    console.log("Fetched Profiles from Supabase:", onlineProfiles);
+    
+    const fetchedIds = onlineProfiles.map(p => p.id);
+    const missingIds = rawIds.filter(id => !fetchedIds.includes(id));
+    console.log("Missing ID(s) (in presence but not in profiles):", missingIds);
+    // ---------------------------------
+
+    return onlineProfiles.filter(p => onlineUsers?.has(p.id));
+  }, [onlineProfiles, onlineUsers]);
+
   return (
     <Motion.div
       variants={containerVariants}
       initial="hidden"
       animate="show"
       onClick={handleBackgroundClick}
-      className="flex-1 w-full max-w-full px-4 pt-4 pb-4 overflow-x-hidden bg-transparent relative h-full bg-trigger-zone transition-colors duration-500"
+      className="flex-1 w-full max-w-full px-4 pt-4 pb-28 md:pb-32 overflow-x-hidden bg-transparent relative h-full bg-trigger-zone transition-colors duration-500"
     >
 
 
@@ -702,13 +719,13 @@ const LobbyView = memo(({
 
         {/* Middle Column (Cards) - Optimized for both Mobile and Desktop */}
         <div className="w-full max-w-3xl mx-auto px-2 sm:px-4 md:px-6 relative z-10">
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6 md:gap-8">
 
             {/* Top Rewards & Menus Area */}
-            <div className="flex flex-col items-center justify-center w-full mb-6 md:mb-8 -mt-10 md:-mt-14 relative z-20 gap-8 md:gap-12">
+            <div className="flex flex-col items-center justify-center w-full mb-6 md:mb-8 -mt-6 md:-mt-10 relative z-20 gap-8 md:gap-12">
 
               {/* --- ROW 1 (Pills) --- */}
-              <div className="flex flex-row flex-wrap items-center justify-center gap-2 sm:gap-3 md:gap-4 w-full">
+              <div className="flex flex-row flex-nowrap items-center justify-center gap-1.5 min-[375px]:gap-2 sm:gap-3 md:gap-6 w-full mt-1 px-1">
 
                 {/* Download */}
                 <Motion.button
@@ -718,10 +735,23 @@ const LobbyView = memo(({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
-                  className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-cyan-400 dark:border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(34,211,238,0.15)] cursor-pointer backdrop-blur-sm"
+                  className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-cyan"
                 >
-                  <span className="material-symbols-outlined text-[8px] md:text-[10px] text-cyan-500 dark:text-cyan-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]">download</span>
-                  <span className="text-[7px] md:text-[9px] font-bold font-heading text-cyan-500 dark:text-cyan-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(34,211,238,0.6)] tracking-wide pt-px">داگرتنا یاریێ</span>
+                  <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">download</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">داگرتن</span>
+                </Motion.button>
+
+                {/* Word Suggestion */}
+                <Motion.button
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { triggerHaptic(10); setIsWordModalOpen(true); }}
+                  className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-green"
+                >
+                  <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">edit_document</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">پەیڤ</span>
                 </Motion.button>
 
                 {/* Report */}
@@ -731,10 +761,10 @@ const LobbyView = memo(({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }}
-                  className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-amber-400 dark:border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(251,191,36,0.15)] cursor-pointer backdrop-blur-sm"
+                  className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-orange"
                 >
-                  <span className="material-symbols-outlined text-[8px] md:text-[10px] text-amber-500 dark:text-amber-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]">campaign</span>
-                  <span className="text-[7px] md:text-[9px] font-bold font-heading text-amber-500 dark:text-amber-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] tracking-wide pt-px">ئاریشە و پێشنیار</span>
+                  <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">campaign</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">پێشنیار</span>
                 </Motion.button>
 
                 {/* Tutorial */}
@@ -744,10 +774,10 @@ const LobbyView = memo(({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic(10); if (onOpenHowToPlay) onOpenHowToPlay(); }}
-                  className="flex flex-row items-center justify-center gap-1 px-1.5 py-0 md:px-2 md:py-0 rounded-full border border-purple-400 dark:border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 transition-colors shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.15)] cursor-pointer backdrop-blur-sm"
+                  className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-purple"
                 >
-                  <span className="material-symbols-outlined text-[8px] md:text-[10px] text-purple-500 dark:text-purple-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)]">help</span>
-                  <span className="text-[7px] md:text-[9px] font-bold font-heading text-purple-500 dark:text-purple-400 drop-shadow-none dark:drop-shadow-[0_0_8px_rgba(168,85,247,0.6)] tracking-wide pt-px">فێرکاری</span>
+                  <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">help</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">فێرکاری</span>
                 </Motion.button>
 
               </div>
@@ -765,10 +795,10 @@ const LobbyView = memo(({
                     triggerHaptic(15);
                     onDailyRewardClick?.();
                   }}
-                  className="flex flex-col items-center justify-center cursor-pointer relative pb-4 md:pb-5"
+                  className="flex flex-col items-center justify-center cursor-pointer relative pb-5 md:pb-7"
                 >
-                  <div className="relative flex items-center justify-center w-9 h-9 md:w-12 md:h-12 shrink-0 z-10">
-                    <ClipboardIcon className={`w-9 h-9 md:w-12 md:h-12 translate-y-0.75 md:translate-y-[4.5px] ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                  <div className="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10">
+                    <ClipboardIcon className={`w-12 h-12 md:w-16 md:h-16 translate-y-0.75 md:translate-y-[4.5px] ${!isDailyAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
                   {!isDailyAvailable && (
                     <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
@@ -792,10 +822,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowLuckyWheel(true);
                   }}
-                  className="flex flex-col items-center justify-center cursor-pointer relative pb-4 md:pb-5"
+                  className="flex flex-col items-center justify-center cursor-pointer relative pb-5 md:pb-7"
                 >
-                  <div className="relative flex items-center justify-center w-7 h-7 md:w-10 md:h-10 shrink-0 z-10">
-                    <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-7 h-7 md:w-10 md:h-10 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                  <div className="relative flex items-center justify-center w-11 h-11 md:w-14 md:h-14 shrink-0 z-10">
+                    <LuckyWheelIcon isIdleAnimated={isLuckyWheelAvailable} className={`w-11 h-11 md:w-14 md:h-14 ${!isLuckyWheelAvailable ? 'grayscale opacity-80' : 'drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
                   {!isLuckyWheelAvailable && (
                     <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
@@ -819,10 +849,10 @@ const LobbyView = memo(({
                     playDailyOpenSfx();
                     setShowMysteryBox(true);
                   }}
-                  className="flex flex-col items-center justify-center cursor-pointer relative pb-4 md:pb-5"
+                  className="flex flex-col items-center justify-center cursor-pointer relative pb-5 md:pb-7"
                 >
-                  <div className="relative flex items-center justify-center w-9 h-9 md:w-12 md:h-12 shrink-0 z-10">
-                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-9 h-9 md:w-12 md:h-12 translate-y-1.25 md:translate-y-1.75 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
+                  <div className="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10">
+                    <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-12 h-12 md:w-16 md:h-16 translate-y-1.25 md:translate-y-1.75 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
                   {!isMysteryBoxAvailable && (
                     <div className="absolute -bottom-2 md:-bottom-3 left-1/2 -translate-x-1/2 z-20">
@@ -842,25 +872,16 @@ const LobbyView = memo(({
                   setInviteStep('select');
                 }}
                 {...bentoMotionProps}
-                className="w-full block relative h-25 md:h-32.5 rounded-md border-none group bg-transparent"
+                className="w-full block relative h-25 md:h-32.5 group bg-transparent btn-clash btn-clash-split"
               >
-                {/* 3D Split Shadow Layer */}
-                <div
-                  className="absolute inset-0 rounded-md translate-y-1.25"
-                  style={{ background: 'linear-gradient(90deg, #1d4ed8 50%, #b91c1c 50%)' }}
-                />
 
                 {/* Main Button Content Layer */}
-                <div className="absolute inset-0 rounded-md overflow-hidden">
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }}
-                  />
-                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+                <div className="absolute inset-0 rounded-md overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
                   <div className="relative z-10 grid grid-cols-2 h-full">
                     <div className="flex items-center justify-center">
                       <div className="flex flex-col items-center text-center">
-                        <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">ھەڤڕکی</h3>
+                        <h3 className="text-2xl md:text-[34px] font-black font-salar text-white drop-shadow-md text-stroke-clash">هـەڤڕکی</h3>
                       </div>
                     </div>
                     <div className="flex items-center justify-center relative">
@@ -870,10 +891,10 @@ const LobbyView = memo(({
                     </div>
                   </div>
 
-                  <div className="absolute bottom-1.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/20 hover:bg-black/40 transition-colors backdrop-blur-md px-2 py-0.5 rounded-sm border border-white/10 shadow-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_6px_#4ade80] animate-pulse"></span>
+                  <div className="absolute bottom-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/40 hover:bg-black/50 transition-colors backdrop-blur-sm px-2 py-0.5 rounded-md border-t-2 border-t-black/60 border-b border-b-white/10 border-x border-x-black/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-online-glow"></span>
                     <span className="text-[10px] font-bold text-white/95 mt-0.5" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                      {toKuDigits(onlineCount)}
+                      {toKuDigits(activeProfiles.length)}
                     </span>
                   </div>
                 </div>
@@ -885,11 +906,15 @@ const LobbyView = memo(({
                 variants={itemVariants}
                 onClick={() => { triggerHaptic(10); onStartClassic(); }}
                 {...bentoMotionProps}
-                className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#ffcc00] shadow-[0_5px_0_#cc9900] border-none"
+                className="w-full block relative h-25 md:h-32.5 btn-clash btn-clash-yellow"
               >
+                {/* Pattern Overlay */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+                </div>
                 <div className="relative z-10 flex items-center justify-between px-8 h-full">
                   <div className="flex flex-col items-start text-right">
-                    <h3 className="text-2xl md:text-[34px] font-black font-heading text-amber-950 drop-shadow-md">پەیڤۆک</h3>
+                    <h3 className="text-2xl md:text-[34px] font-black font-salar text-white drop-shadow-md text-stroke-clash-brown">پەیڤـۆک</h3>
                   </div>
                   <div className="flex items-center justify-center relative">
                     <div className="transition-all duration-300 ease-out">
@@ -905,11 +930,15 @@ const LobbyView = memo(({
                 variants={itemVariants}
                 onClick={() => { triggerHaptic(10); onStartMamak(); }}
                 {...bentoMotionProps}
-                className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#22c55e] shadow-[0_5px_0_#16a34a] border-none"
+                className="w-full block relative h-25 md:h-32.5 btn-clash btn-clash-green"
               >
+                {/* Pattern Overlay */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+                </div>
                 <div className="relative z-10 flex items-center justify-between px-8 h-full">
                   <div className="flex flex-col items-start text-right">
-                    <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">مامک</h3>
+                    <h3 className="text-2xl md:text-[34px] font-black font-salar text-white drop-shadow-md text-stroke-clash">مـامـك</h3>
                   </div>
                   <div className="flex items-center justify-center relative">
                     <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
@@ -925,11 +954,15 @@ const LobbyView = memo(({
                 variants={itemVariants}
                 onClick={() => { triggerHaptic(10); onStartHardWords(); }}
                 {...bentoMotionProps}
-                className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#ef4444] shadow-[0_5px_0_#dc2626] border-none"
+                className="w-full block relative h-25 md:h-32.5 btn-clash btn-clash-red"
               >
+                {/* Pattern Overlay */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+                </div>
                 <div className="relative z-10 flex items-center justify-between px-8 h-full">
                   <div className="flex flex-col items-start text-right">
-                    <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">پەیڤێن دژوار</h3>
+                    <h3 className="text-2xl md:text-[34px] font-black font-salar text-white drop-shadow-md text-stroke-clash">پەیڤـێن دژوار</h3>
                   </div>
                   <div className="flex items-center justify-center relative">
                     <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-translate-y-1">
@@ -945,11 +978,15 @@ const LobbyView = memo(({
                 variants={itemVariants}
                 onClick={() => { triggerHaptic(10); onStartWordFever(); }}
                 {...bentoMotionProps}
-                className="w-full block relative h-20 md:h-27.5 rounded-md overflow-hidden bg-[#0ea5e9] shadow-[0_5px_0_#0284c7] border-none"
+                className="w-full block relative h-25 md:h-32.5 btn-clash btn-clash-cyan"
               >
+                {/* Pattern Overlay */}
+                <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                  <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+                </div>
                 <div className="relative z-10 flex items-center justify-between px-8 h-full">
                   <div className="flex flex-col items-start text-right">
-                    <h3 className="text-2xl md:text-[34px] font-black font-heading text-white drop-shadow-md">تایا پەیڤان</h3>
+                    <h3 className="text-2xl md:text-[34px] font-black font-salar text-white drop-shadow-md text-stroke-clash">تایا  پەیڤـان</h3>
                   </div>
                   <div className="flex items-center justify-center relative">
                     <div className="transition-all duration-300 ease-out group-hover:scale-110 group-hover:-rotate-12">
@@ -1069,10 +1106,10 @@ const LobbyView = memo(({
                     <div className="flex-1 flex justify-center items-center">
                       <h3 className="text-[17px] font-black text-mono-900 dark:text-white flex items-center gap-2.5">
                         یاریزانێن سەرهێل
-                        {onlineProfiles.length > 0 && (
+                        {activeProfiles.length > 0 && (
                           <div className="flex items-center justify-center gap-1 px-2.5 h-6.5 rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
                             <span className="text-[13px] font-black tabular-nums mt-0.5">
-                              {toKuDigits(onlineProfiles.length)}
+                              {toKuDigits(activeProfiles.length)}
                             </span>
                             <span className="material-symbols-outlined text-[16px]">person</span>
                           </div>
@@ -1096,14 +1133,12 @@ const LobbyView = memo(({
                   </div>
 
                   <div className="overflow-y-auto h-80 sm:h-100 pr-2 custom-scrollbar space-y-2 mb-3 transition-opacity duration-300">
-                    {loadingOnline && onlineProfiles.length === 0 ? (
+                    {loadingOnline && activeProfiles.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full opacity-50">
                         <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
                         <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
                       </div>
                     ) : (() => {
-                      const activeProfiles = onlineProfiles.filter(p => onlineUsers?.has(p.id));
-                      
                       if (activeProfiles.length === 0) {
                         return (
                           <div className="flex flex-col items-center justify-center h-full text-center px-4">
@@ -1339,6 +1374,14 @@ const LobbyView = memo(({
             key="report-modal"
             isOpen={isReportModalOpen}
             onClose={() => setIsReportModalOpen(false)}
+            user={user}
+          />
+        )}
+        {isWordModalOpen && (
+          <WordSuggestionModal 
+            key="word-modal"
+            isOpen={isWordModalOpen}
+            onClose={() => setIsWordModalOpen(false)}
             user={user}
           />
         )}

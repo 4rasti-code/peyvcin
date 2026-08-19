@@ -8,6 +8,11 @@
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
 
+  <!-- Preload Google Fonts to prevent splash screen flicker -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+
   <script>
     window.__SPLASH_START_TIME__ = Date.now();
     (function () {
@@ -32,12 +37,61 @@
   <meta name="apple-mobile-web-app-title" content="Peyvok" />
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap');
+
     html,
     body {
       background-color: #f8fafc !important;
       background: #f8fafc !important;
       margin: 0;
       padding: 0;
+    }
+
+    /* Mimic Tailwind CSS reset for the splash screen */
+    #splash-screen * {
+      box-sizing: border-box;
+      line-height: 1.5;
+    }
+
+    /* SPLASH SCREEN UI ELEMENTS */
+    .splash-text-main {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: bold;
+      font-family: 'Vazirmatn', sans-serif;
+      color: #ca8a04;
+    }
+    .splash-text-sub {
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      font-family: 'Vazirmatn', sans-serif;
+      color: #737373;
+      opacity: 0.5;
+    }
+    .splash-track {
+      width: 100%;
+      height: 24px;
+      background-color: #e5e7eb;
+      border-radius: 6px;
+      padding: 2px;
+      border: 1px solid #d1d5db;
+    }
+
+    /* Dark Mode Overrides */
+    @media (prefers-color-scheme: dark) {
+      .splash-text-main { color: rgba(234, 179, 8, 0.9); }
+      .splash-text-sub { color: #a3a3a3; }
+      .splash-track {
+        background-color: rgba(17, 24, 39, 0.8);
+        border: 1px solid #1f2937;
+      }
+    }
+    html.dark .splash-text-main { color: rgba(234, 179, 8, 0.9); }
+    html.dark .splash-text-sub { color: #a3a3a3; }
+    html.dark .splash-track {
+      background-color: rgba(17, 24, 39, 0.8);
+      border: 1px solid #1f2937;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -216,8 +270,13 @@
   <div id="root">
     <!-- NATIVE INSTANT SPLASH SCREEN (Replaced by React on load) -->
     <div id="splash-screen" style="gap: 32px;">
-      <div class="splash-orb-1"></div>
-      <div class="splash-orb-2"></div>
+      <!-- Background Image -->
+      <div style="position: absolute; inset: 0; background-image: url('/assets/kurdistan_bg.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat; z-index: 0;"></div>
+      <!-- Dark Overlay -->
+      <div style="position: absolute; inset: 0; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); z-index: 1;"></div>
+      
+      <div class="splash-orb-1" style="z-index: 2;"></div>
+      <div class="splash-orb-2" style="z-index: 2;"></div>
       <div
         style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px; position: relative; z-index: 10;">
         <svg viewBox="0 0 180 50" class="splash-classic-icon" xmlns="http://www.w3.org/2000/svg">
@@ -285,22 +344,21 @@
       </div>
 
       <div
-        style="display: flex; flex-direction: column; align-items: center; width: 320px; position: relative; z-index: 10;">
+        style="display: flex; flex-direction: column; align-items: center; width: 320px; gap: 8px; position: relative; z-index: 10;">
         <div
-          style="display: flex; width: 100%; align-items: center; justify-content: space-between; padding-left: 8px; padding-right: 8px; margin-bottom: 12px; position: relative;">
-          <span class="splash-text" dir="rtl" style="visibility: hidden;">چاڤەڕێبە...</span>
-          <span
-            style="font-size: 24px; font-weight: 900; color: #eab308; font-family: monospace; letter-spacing: 0; visibility: hidden;"
-            dir="ltr">٠٪</span>
-          <div
-            style="position: absolute; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none;">
-            <span class="splash-text" dir="rtl">نویکرن...</span>
+          style="display: flex; width: 100%; align-items: center; justify-content: center; padding-left: 8px; padding-right: 8px; margin-bottom: 4px;">
+          <span dir="rtl" class="splash-text-main">چاڤەڕێبە...</span>
+        </div>
+        <div class="splash-track" style="position: relative;">
+          <div style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 10;">
+            <span
+              style="font-size: 12px; font-weight: 900; color: white; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-variant-numeric: tabular-nums; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));"
+              dir="ltr">٠٪</span>
           </div>
         </div>
-        <div
-          style="width: 100%; height: 16px; background-color: rgba(255,255,255,0.05); border-radius: 9999px; padding: 2px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); visibility: hidden;">
+        <div style="height: 24px; margin-top: 12px; display: flex; align-items: center; justify-content: center;">
+          <span class="splash-text-sub">گرێدان ب سێرڤەران...</span>
         </div>
-        <div style="height: 24px; margin-top: 12px;"></div>
       </div>
     </div>
   </div>

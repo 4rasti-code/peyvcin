@@ -256,10 +256,15 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
          </div>
 
          <div className="mb-4 text-center flex flex-col items-center relative z-10 bg-trigger-zone w-full">
-            <div className={`relative w-full aspect-square sm:aspect-2/1 sm:max-h-95 overflow-hidden border-b border-mono-200 dark:border-mono-800 group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-mono-white dark:bg-black'}`}>
+            <div 
+               className={`relative w-full aspect-square sm:aspect-2/1 sm:max-h-95 overflow-hidden group transition-colors duration-300 ${bundleObj.id !== 'default' ? bundleObj.cardBg : 'bg-linear-to-b from-[#0b1329] via-[#112542] to-[#18395f]'}`}
+            >
 
                {/* 1. Texture Layer */}
-               <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.08] bg-[url('https://www.transparenttextures.com/patterns/hexellence.png')] pointer-events-none"></div>
+               <div 
+                  className="absolute inset-0 opacity-[0.06] pointer-events-none mix-blend-overlay" 
+                  style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/hexellence.png')" }}
+               ></div>
 
 
                {/* 3. Top Header: Save & Badges */}
@@ -271,7 +276,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                         whileTap={{ scale: 0.9 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
                         onClick={(e) => { e.stopPropagation(); triggerHaptic(10); onOpenSettings?.(); }}
-                        className="w-12 h-12 flex items-center justify-center text-mono-600 dark:text-mono-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all -ml-2"
+                        className="w-12 h-12 flex items-center justify-center text-white/80 hover:text-emerald-400 transition-all -ml-2"
                      >
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '36px', height: '36px' }}>
                            <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
@@ -301,12 +306,21 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
                {/* 4. Central Avatar Section - Maximum Top Position with Progress Ring */}
                <div className="absolute top-0 left-0 right-0 h-[68%] sm:h-[70%] flex items-center justify-center z-30 pointer-events-none">
-                  <Motion.div
-                     className="relative pointer-events-auto cursor-pointer group/avatar p-2 mt-8 sm:mt-8"
-                     whileHover={{ scale: 1.05 }}
-                     whileTap={{ scale: 0.95 }}
-                     onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
-                  >
+                  
+                  {/* Wrapper for effects and avatar so effects don't scale on hover */}
+                  <div className="relative flex items-center justify-center p-2 mt-8 sm:mt-8 w-full h-full">
+                     
+                     {/* Magical Ethereal Glow */}
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 z-0 pointer-events-none opacity-40 mix-blend-screen" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(95, 180, 255, 1) 0%, rgba(59, 130, 246, 0.4) 40%, transparent 70%)' }}></div>
+                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 z-0 pointer-events-none opacity-60 mix-blend-overlay" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, transparent 70%)' }}></div>
+
+                     <Motion.div
+                        className="relative pointer-events-auto cursor-pointer group/avatar z-10"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
+                     >
+
                      {/* LOOT GLOW / MAGIC BURST (LEGENDARY ONLY) */}
                      {tier.isLegendary && (
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -398,10 +412,11 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                         </div>
                      </div>
                   </Motion.div>
+                  </div>
                </div>
 
                {/* 5. Bottom Info Dock */}
-               <div className={`absolute top-[68%] sm:top-auto sm:bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 border-t border-white/10 text-white' : 'bg-mono-50/95 dark:bg-mono-900/95 border-t border-mono-200 dark:border-mono-800'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 sm:pt-6 flex flex-col justify-end shadow-sm`} dir="rtl">
+               <div className={`absolute top-[68%] sm:top-auto sm:bottom-0 left-0 right-0 z-40 ${bundleObj.id !== 'default' ? 'bg-black/10 dark:bg-black/20 text-white shadow-[0_-8px_20px_rgba(0,0,0,0.3)]' : 'bg-[#365a8c] shadow-[0_-8px_25px_rgba(0,0,0,0.4)]'} backdrop-blur-xl px-3 pb-4 sm:pb-3 pt-2 sm:pt-6 flex flex-col justify-end`} dir="rtl">
                   <div className="flex flex-row items-center justify-between w-full sm:max-w-md sm:mx-auto mb-3.5 px-2 sm:px-6" dir="ltr">
                      {/* Left: Medal Badge */}
                      <div
@@ -415,8 +430,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                      {/* Center: Name */}
                      <div className="w-full text-center relative z-10 px-4">
                         <span
-                           className={`text-[22px] font-black leading-tight overflow-visible whitespace-nowrap w-full text-center transition-all duration-500 ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
-                           style={{ paddingBottom: '0.2em', ...(bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: tier.stop1 }), ...fontObj.style }) }}
+                           className={`text-[22px] font-black leading-tight overflow-visible whitespace-nowrap w-full text-center transition-all duration-500 drop-shadow-sm ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                           style={{ paddingBottom: '0.2em', ...(bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: 'white' }), ...fontObj.style }) }}
                         >
                            {userNickname || 'بێناڤ'}
                         </span>
@@ -472,8 +487,8 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                                  <div className="flex flex-col items-center z-10 w-full mt-0.5">
                                     <span className="text-[7px] font-black text-orange-400 uppercase leading-none mb-0.5 opacity-80">ستریك</span>
                                     <div className="flex items-baseline gap-0.5">
-                                       <span className={`text-sm font-black leading-none tabular-nums ${bundleObj.id !== 'default' ? 'text-white' : 'text-mono-900 dark:text-mono-100'}`}>{toKuDigits(dailyStreak || 0)}</span>
-                                       <span className={`text-[8px] font-bold ${bundleObj.id !== 'default' ? 'text-white/70' : 'text-mono-600 dark:text-mono-400'}`}>ڕۆژ</span>
+                                       <span className="text-sm font-black leading-none tabular-nums text-white">{toKuDigits(dailyStreak || 0)}</span>
+                                       <span className="text-[8px] font-bold text-white/70">ڕۆژ</span>
                                     </div>
                                  </div>
                               </Motion.div>
@@ -486,39 +501,40 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   <div className="grid grid-cols-3 gap-4 px-4" dir="ltr">
 
                      <div
-                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                        className="btn-clash-sm flex flex-col items-center justify-center py-2 transition-all duration-500"
                         style={{
-                           backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.12)`,
-                           borderColor: `${tier.stop1}30`
+                           backgroundColor: tier.stop1,
+                           boxShadow: `inset 0 2px 0px rgba(255, 255, 255, 0.45), inset 0 -2px 0px rgba(0, 0, 0, 0.15), 0 0 0 1px ${tier.stop2}, 0 1px 0 1px ${tier.stop2}, 0 2px 0 1px ${tier.stop2}, 0 0 0 1.5px #000, 0 1px 0 1.5px #000, 0 2px 0 1.5px #000`
                         }}
                      >
-                        <span className={`text-[10px] font-black uppercase mb-0.5 opacity-60 ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-300 text-mono-600'}`}>XP سەرجەمێ</span>
-                        <span className={`text-[13px] font-black tabular-nums leading-none ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-100 text-mono-900'}`}>
-                           {isLoading ? <div className="w-6 h-2 bg-mono-100 dark:bg-mono-800 animate-pulse rounded"></div> : toKuDigits(currentXP || 0)}
+                        <span className="text-[10px] font-black uppercase mb-0.5 text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">XP سەرجەمێ</span>
+                        <span className="text-[13px] font-black tabular-nums leading-none text-white drop-shadow-sm">
+                           {isLoading ? <div className="w-6 h-2 bg-white/20 animate-pulse rounded"></div> : toKuDigits(currentXP || 0)}
                         </span>
                      </div>
 
                      <div
-                        className="flex flex-col items-center justify-center py-2 rounded-md border border-white/5 shadow-sm transition-all duration-500 backdrop-blur-md"
+                        className="btn-clash-sm flex flex-col items-center justify-center py-2 transition-all duration-500"
                         style={{
-                           backgroundColor: `rgba(${parseInt(tier.stop1.slice(1, 3), 16)}, ${parseInt(tier.stop1.slice(3, 5), 16)}, ${parseInt(tier.stop1.slice(5, 7), 16)}, 0.22)`,
-                           borderColor: `${tier.stop1}40`
+                           backgroundColor: tier.stop1,
+                           boxShadow: `inset 0 2px 0px rgba(255, 255, 255, 0.45), inset 0 -2px 0px rgba(0, 0, 0, 0.15), 0 0 0 1px ${tier.stop2}, 0 1px 0 1px ${tier.stop2}, 0 2px 0 1px ${tier.stop2}, 0 0 0 1.5px #000, 0 1px 0 1.5px #000, 0 2px 0 1.5px #000`
                         }}
                      >
-                        <span className={`text-[10px] font-black uppercase mb-0.5 opacity-60 ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-300 text-mono-600'}`}>ڕێزبەندی</span>
-                        <span className={`text-[13px] font-black tabular-nums leading-none ${bundleObj.id !== 'default' ? 'text-white' : 'dark:text-mono-100 text-mono-900'}`}>
+                        <span className="text-[10px] font-black uppercase mb-0.5 text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">ڕێزبەندی</span>
+                        <span className="text-[13px] font-black tabular-nums leading-none text-white drop-shadow-sm">
                            {isLoading ? '...' : `#${toKuDigits(userRank || 0)}`}
                         </span>
                      </div>
 
                      <div
-                        className={`flex flex-col items-center justify-center py-2 rounded-md border border-white/10 shadow-sm transition-all duration-500 backdrop-blur-md ${isLoading ? 'animate-pulse opacity-50' : ''}`}
+                        className={`btn-clash-sm flex flex-col items-center justify-center py-2 transition-all duration-500 ${isLoading ? 'animate-pulse opacity-50' : ''}`}
                         style={{
-                           backgroundColor: tier.stop1
+                           backgroundColor: tier.stop1,
+                           boxShadow: `inset 0 2px 0px rgba(255, 255, 255, 0.45), inset 0 -2px 0px rgba(0, 0, 0, 0.15), 0 0 0 1px ${tier.stop2}, 0 1px 0 1px ${tier.stop2}, 0 2px 0 1px ${tier.stop2}, 0 0 0 1.5px #000, 0 1px 0 1.5px #000, 0 2px 0 1.5px #000`
                         }}
                      >
-                        <span className={`text-[10px] font-black uppercase mb-0.5 ${bundleObj.id !== 'default' ? 'text-white/90' : 'text-mono-950/80'}`}>پەیڤێن دیتی</span>
-                        <span className={`text-[13px] font-black leading-none tabular-nums ${bundleObj.id !== 'default' ? 'text-white' : 'text-mono-950'}`}>
+                        <span className="text-[10px] font-black uppercase mb-0.5 text-white/90 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">پەیڤێن دیتی</span>
+                        <span className="text-[13px] font-black leading-none tabular-nums text-white drop-shadow-sm">
                            {isLoading ? '...' : toKuDigits(solvedWords?.length || 0)}
                         </span>
                      </div>
@@ -531,80 +547,75 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
             <Motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center">
 
                {/* Friends Button (Tab Design) */}
-               <div className="flex p-1 bg-mono-100 dark:bg-mono-900 rounded-md relative shadow-sm border border-mono-200 dark:border-mono-800 transition-colors duration-300 w-full max-w-sm mx-auto mt-2 mb-4" dir="rtl">
+               <div className="flex w-full max-w-sm mx-auto mt-3 mb-6 px-4" dir="rtl">
                   <button
                      onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
                      onClick={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
-                     className="w-full py-2.5 rounded-sm bg-black dark:bg-mono-800 shadow-md text-mono-50 font-black text-[14px] flex items-center justify-center gap-2 transition-all relative z-10 hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                     className="w-full h-12 btn-clash btn-clash-blue text-white font-black text-[15px] sm:text-[16px] font-rabar tracking-widest flex items-center justify-center gap-2 outline-none active:translate-y-1"
                   >
-                     <span className="material-symbols-outlined text-[20px]">group</span>
-                     لیستا هەڤالان
+                     <span className="material-symbols-outlined text-[22px] drop-shadow-sm mb-0.5">group</span>
+                     <span className="drop-shadow-md">لیستا هەڤالان</span>
                      {pendingFriendsCount > 0 && (
-                        <div className="absolute -top-2 -right-2 bg-red-500 min-w-5.5 h-5.5 rounded-full flex items-center justify-center border-2 border-white dark:border-[#141414] z-20 shadow-md px-1">
-                           <span className="text-[11px] font-black text-white leading-none mt-0.5">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
+                        <div className="absolute -top-3 -right-2 bg-red-500 min-w-6 h-6 rounded-full flex items-center justify-center border-2 border-[#141414] shadow-[0_2px_4px_rgba(0,0,0,0.5)] z-20 px-1 animate-pulse">
+                           <span className="text-[12px] font-black text-white leading-none mt-0.5 drop-shadow-md">{pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}</span>
                         </div>
                      )}
                   </button>
                </div>
 
                {/* Quick Actions (Stats, Missions, Medals, Dictionary) */}
-               <div className="flex flex-row items-center justify-between gap-2 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10 px-4">
+               <div className="flex flex-row items-center justify-between gap-3 w-full max-w-sm mx-auto mt-6 mb-4 relative z-10 px-4">
 
                   {/* Stats */}
-                  <Motion.button
-                     whileHover={{ scale: 1.05, y: -2 }}
-                     whileTap={{ scale: 0.95 }}
+                  <button
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(10); }}
                      onClick={() => { triggerHaptic(15); onViewChange('stats'); }}
-                     className="flex flex-col items-center justify-center transition-all group"
+                     className="flex flex-col items-center justify-center flex-1 aspect-square max-w-18 btn-clash btn-clash-slate text-white outline-none active:translate-y-1"
                   >
-                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-[#8b5cf6] transition-colors mb-2">
+                     <span className="material-symbols-outlined text-[28px] sm:text-[32px] drop-shadow-sm mb-1 text-mono-200">
                         bar_chart
                      </span>
-                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئامار</span>
-                  </Motion.button>
+                     <span className="text-[10px] sm:text-[11px] font-black uppercase drop-shadow-md font-rabar text-mono-200">ئامار</span>
+                  </button>
 
                   {/* Missions */}
-                  <Motion.button
-                     whileHover={{ scale: 1.05, y: -2 }}
-                     whileTap={{ scale: 0.95 }}
+                  <button
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(10); }}
                      onClick={() => { triggerHaptic(15); onViewChange('achievements'); }}
-                     className="flex flex-col items-center justify-center transition-all group"
+                     className="flex flex-col items-center justify-center flex-1 aspect-square max-w-18 btn-clash btn-clash-slate text-white outline-none active:translate-y-1"
                   >
-                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-yellow-500 transition-colors mb-2">
+                     <span className="material-symbols-outlined text-[28px] sm:text-[32px] drop-shadow-sm mb-1 text-mono-200">
                         track_changes
                      </span>
-                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">ئەرک</span>
-                  </Motion.button>
+                     <span className="text-[10px] sm:text-[11px] font-black uppercase drop-shadow-md font-rabar text-mono-200">ئەرک</span>
+                  </button>
 
                   {/* Rank (New Button) */}
-                  <Motion.button
-                     whileHover={{ scale: 1.05, y: -2 }}
-                     whileTap={{ scale: 0.95 }}
+                  <button
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(10); }}
                      onClick={() => { triggerHaptic(15); onViewChange('medals'); }}
-                     className="flex flex-col items-center justify-center transition-all group relative"
+                     className="flex flex-col items-center justify-center flex-1 aspect-square max-w-18 btn-clash btn-clash-slate text-white outline-none active:translate-y-1 relative"
                   >
                      {hasUnclaimedMedals && (
-                        <div className="absolute top-0 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-mono-white dark:border-black z-20 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" />
+                        <div className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#141414] shadow-md z-20 animate-pulse" />
                      )}
-                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-amber-500 transition-colors mb-2">
+                     <span className="material-symbols-outlined text-[28px] sm:text-[32px] drop-shadow-sm mb-1 text-mono-200">
                         military_tech
                      </span>
-                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">پلە</span>
-                  </Motion.button>
+                     <span className="text-[10px] sm:text-[11px] font-black uppercase drop-shadow-md font-rabar text-mono-200">پلە</span>
+                  </button>
 
                   {/* Dictionary */}
-                  <Motion.button
-                     whileHover={{ scale: 1.05, y: -2 }}
-                     whileTap={{ scale: 0.95 }}
+                  <button
+                     onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(10); }}
                      onClick={() => { triggerHaptic(15); onViewChange('dictionary'); }}
-                     className="flex flex-col items-center justify-center transition-all group"
+                     className="flex flex-col items-center justify-center flex-1 aspect-square max-w-18 btn-clash btn-clash-slate text-white outline-none active:translate-y-1"
                   >
-                     <span className="material-symbols-outlined text-mono-500 dark:text-mono-400 text-[48px] sm:text-[56px] group-hover:text-cyan-500 transition-colors mb-2">
+                     <span className="material-symbols-outlined text-[28px] sm:text-[32px] drop-shadow-sm mb-1 text-mono-200">
                         menu_book
                      </span>
-                     <span className="text-[12px] sm:text-[14px] font-black text-mono-500 dark:text-mono-400 group-hover:text-mono-900 dark:group-hover:text-white uppercase">فەرهەنگ</span>
-                  </Motion.button>
-
+                     <span className="text-[10px] sm:text-[11px] font-black uppercase drop-shadow-md font-rabar text-mono-200">فەرهەنگ</span>
+                  </button>
                </div>
 
 

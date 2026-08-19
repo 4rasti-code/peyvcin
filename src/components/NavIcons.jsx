@@ -36,9 +36,8 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
         </linearGradient>
       </defs>
       <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft shadow */}
-        <ellipse cx="50" cy="85" rx="35" ry="8" className="fill-blue-900/20 dark:fill-blue-900/40" />
-        
+        {/* Soft shadow removed */}
+
         {/* User Body (Smooth Shoulders) */}
         <path d="M 15 85 C 15 65, 30 55, 50 55 C 70 55, 85 65, 85 85 Z" fill="url(#userGrad)" />
         <path d="M 15 85 C 15 65, 30 55, 50 55 C 70 55, 85 65, 85 85 Z" fill="url(#userGlare)" />
@@ -50,9 +49,7 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
         {/* Head shadow on body */}
         <path d="M 36 55 C 44 60, 56 60, 64 55 C 60 52, 40 52, 36 55 Z" fill="#000000" opacity="0.15" />
         
-        {/* Glossy Edge / Highlight for premium feel */}
-        <path d="M 15 85 C 15 65, 30 55, 50 55 C 70 55, 85 65, 85 85 Z" className="stroke-white/30" fill="none" strokeWidth="2" />
-        <circle cx="50" cy="35" r="20" className="stroke-white/30" fill="none" strokeWidth="2" />
+        {/* Glossy Edge / Highlight for premium feel removed */}
       </g>
     </IconWrapper>
   );
@@ -72,15 +69,14 @@ export function NavLobbyIcon({ className = "w-10 h-10", isActive = false }) {
   return (
     <IconWrapper isActive={isActive} className={className}>
       <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft shadow */}
-        <ellipse cx="50" cy="85" rx="40" ry="6" className="fill-mono-900/20 dark:fill-black/40" />
-        
+        {/* Soft shadow removed */}
+
         {/* Triggers (Only two, slightly shorter) */}
-        <rect x="18" y="24" width="14" height="10" rx="3" className="fill-mono-900 dark:fill-mono-200" />
-        <rect x="68" y="24" width="14" height="10" rx="3" className="fill-mono-900 dark:fill-mono-200" />
+        <rect x="18" y="24" width="14" height="10" rx="3" className="fill-mono-200" />
+        <rect x="68" y="24" width="14" height="10" rx="3" className="fill-mono-200" />
         
         {/* Main Body (Flawless Geometric Primitives merged into a beautiful silhouette) */}
-        <g className="fill-mono-900 dark:fill-mono-200">
+        <g className="fill-mono-200">
           {/* Grips (Flaring outwards perfectly) */}
           <rect x="12" y="35" width="24" height="42" rx="12" transform="rotate(20 24 35)" />
           <rect x="64" y="35" width="24" height="42" rx="12" transform="rotate(-20 76 35)" />
@@ -97,7 +93,7 @@ export function NavLobbyIcon({ className = "w-10 h-10", isActive = false }) {
         </g>
         
         {/* D-Pad (4 Distinct Thick Blocks) - Left side */}
-        <g className="fill-mono-100 dark:fill-mono-800">
+        <g className="fill-mono-800">
           <rect x="21" y="34" width="4" height="6" rx="1" /> {/* Top */}
           <rect x="21" y="46" width="4" height="6" rx="1" /> {/* Bottom */}
           <rect x="14" y="41" width="6" height="4" rx="1" /> {/* Left */}
@@ -111,21 +107,21 @@ export function NavLobbyIcon({ className = "w-10 h-10", isActive = false }) {
         <circle cx="70" cy="44" r="3.5" fill="#22c55e" /> {/* Left / Green */}
         
         {/* Select / Start / Analog Buttons */}
-        <rect x="41" y="40" width="6" height="2" rx="1" className="fill-mono-100 dark:fill-mono-800" /> {/* Select */}
-        <path d="M 55 39 L 59 41 L 55 43 Z" className="fill-mono-100 dark:fill-mono-800" /> {/* Start */}
+        <rect x="41" y="40" width="6" height="2" rx="1" className="fill-mono-800" /> {/* Select */}
+        <path d="M 55 39 L 59 41 L 55 43 Z" className="fill-mono-800" /> {/* Start */}
         <rect x="48" y="48" width="4" height="2" rx="1" fill="#ef4444" /> {/* Analog Light */}
         
         {/* Joysticks (Solid analog sticks, dark gray, sitting perfectly on the bottom bulges) */}
         {/* Base shadow */}
-        <circle cx="35" cy="59" r="8" className="fill-mono-950/40 dark:fill-black/40" />
-        <circle cx="65" cy="59" r="8" className="fill-mono-950/40 dark:fill-black/40" />
+        <circle cx="35" cy="59" r="8" className="fill-black/40" />
+        <circle cx="65" cy="59" r="8" className="fill-black/40" />
         
         {/* Joysticks */}
-        <circle cx="35" cy="58" r="8" className="fill-mono-700 dark:fill-mono-400" />
-        <circle cx="35" cy="58" r="4" className="fill-mono-900 dark:fill-mono-200" />
+        <circle cx="35" cy="58" r="8" className="fill-mono-400" />
+        <circle cx="35" cy="58" r="4" className="fill-mono-200" />
         
-        <circle cx="65" cy="58" r="8" className="fill-mono-700 dark:fill-mono-400" />
-        <circle cx="65" cy="58" r="4" className="fill-mono-900 dark:fill-mono-200" />
+        <circle cx="65" cy="58" r="8" className="fill-mono-400" />
+        <circle cx="65" cy="58" r="4" className="fill-mono-200" />
       </g>
     </IconWrapper>
   );
@@ -154,9 +150,8 @@ export function NavStoreIcon({ className = "w-10 h-10", isActive = false }) {
         </linearGradient>
       </defs>
       <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft ground shadow */}
-        <ellipse cx="50" cy="85" rx="36" ry="6" className="fill-mono-900/20 dark:fill-black/40" />
-        
+        {/* Soft ground shadow removed */}
+
         {/* Building Base */}
         <rect x="20" y="30" width="60" height="52" rx="6" fill="url(#buildingGrad)" />
         
@@ -215,18 +210,15 @@ export function NavChatIcon({ className = "w-10 h-10", isActive = false }) {
         </linearGradient>
       </defs>
       <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft shadow */}
-        <ellipse cx="45" cy="88" rx="32" ry="6" fill="rgba(0,0,0,0.2)" />
-        
+        {/* Soft shadow removed */}
+
         {/* Back Bubble (Grey) */}
         <path d="M 38 35 C 38 23, 48 15, 60 15 C 72 15, 82 23, 82 35 C 82 47, 72 55, 60 55 L 45 62 L 48 52 C 42 48, 38 42, 38 35 Z" fill="url(#chatGrey)" />
-        <path d="M 40 35 C 40 25, 49 17, 60 17 C 71 17, 80 25, 80 35 C 80 45, 71 53, 60 53 L 49 58 L 51 51 C 45 47, 40 42, 40 35 Z" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity="0.8" />
         
         {/* Front Bubble (Blue/Cyan) */}
         <path d="M 20 54 C 20 38, 33 28, 50 28 C 67 28, 80 38, 80 54 C 80 70, 67 80, 50 80 L 28 88 L 33 76 C 25 71, 20 63, 20 54 Z" fill="url(#chatGlobalGrad)" />
         
-        {/* Inner Glass Edge */}
-        <path d="M 22 54 C 22 40, 34 30, 50 30 C 66 30, 78 40, 78 54 C 78 68, 66 78, 50 78 L 32 84 L 36 74 C 29 70, 22 63, 22 54 Z" fill="none" stroke="url(#chatGlare)" strokeWidth="2" />
+        {/* Inner Glass Edge removed */}
         
         {/* Typing Dots */}
         <circle cx="36" cy="54" r="4.5" fill="#ffffff" />

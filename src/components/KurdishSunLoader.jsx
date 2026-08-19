@@ -20,24 +20,27 @@ const KurdishSunLoader = ({ progress = 0, statusText = null }) => {
       {/* Modern Progress Section */}
       <div className="w-80 flex flex-col items-center gap-2">
         {/* Status Text & Percentage Layout */}
-        <div className="flex w-full items-center justify-between px-2">
+        <div className="flex w-full items-center justify-center px-2 mb-1">
             <span className="text-sm font-bold text-yellow-600 dark:text-yellow-500/90 font-rabar">
                 چاڤەڕێبە...
-            </span>
-            <span className="text-xl font-black text-yellow-500 tabular-nums font-mono drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]" dir="ltr">
-                {toKuDigits(Math.round(progress))}٪
             </span>
         </div>
 
         {/* The Track */}
-        <div className="w-full h-4 bg-white/5 dark:bg-black/20 rounded-full overflow-hidden border border-white/10 dark:border-white/5 relative shadow-inner p-0.5">
+        <div className="w-full h-6 bg-mono-200 dark:bg-mono-900/80 rounded-md overflow-hidden border border-mono-300 dark:border-mono-800 relative p-0.5">
           {/* The Filling Bar */}
           <Motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ type: "spring", stiffness: 40, damping: 15 }}
-            className="h-full rounded-full bg-linear-to-r from-yellow-600 via-yellow-400 to-yellow-200 shadow-[0_0_15px_rgba(234,179,8,0.6)]"
+            className="h-full rounded-sm bg-yellow-500 relative"
           />
+          {/* Percentage inside the bar */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+            <span className="text-xs font-black text-white tabular-nums font-mono drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" dir="ltr">
+                {toKuDigits(Math.round(progress))}٪
+            </span>
+          </div>
         </div>
 
         {/* Subtle sub-text based on progress */}

@@ -201,6 +201,14 @@
 }
 
 @font-face {
+  font-family: 'UniSalar_F_68';
+  src: url('./assets/fonts/UniSalar_F_68.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'UniMahan Ashkan';
   src: url('./assets/fonts/UniMahan Ashkan.ttf') format('truetype');
   font-weight: normal;
@@ -520,6 +528,401 @@ html.dark #root {
 
   .font-rabar {
     font-family: 'Vazirmatn', 'sans-serif';
+  }
+
+  .font-salar {
+    font-family: 'UniSalar_F_68', 'Vazirmatn', 'sans-serif';
+  }
+
+  .text-stroke-clash {
+    text-shadow: 
+      -1px -1px 0 #000,
+       0   -1px 0 #000,
+       1px -1px 0 #000,
+       1px  0   0 #000,
+       1px  1px 0 #000,
+       0    1px 0 #000,
+      -1px  1px 0 #000,
+      -1px  0   0 #000,
+       0    1.5px 0 #000,
+       0    2px 0 #000,
+       0    2.5px 0 #000,
+       0    3px 0 #000;
+  }
+  @media (min-width: 768px) {
+    .text-stroke-clash {
+      text-shadow: 
+        -1.5px -1.5px 0 #000,
+         0     -1.5px 0 #000,
+         1.5px -1.5px 0 #000,
+         1.5px  0     0 #000,
+         1.5px  1.5px 0 #000,
+         0      1.5px 0 #000,
+        -1.5px  1.5px 0 #000,
+        -1.5px  0     0 #000,
+         0      2px 0 #000,
+         0      2.5px 0 #000,
+         0      3px 0 #000,
+         0      3.5px 0 #000,
+         0      4px 0 #000,
+         0      4.5px 0 #000;
+    }
+  }
+
+  .text-stroke-clash-brown {
+    text-shadow: 
+      -1px -1px 0 #3b1c0a,
+       0   -1px 0 #3b1c0a,
+       1px -1px 0 #3b1c0a,
+       1px  0   0 #3b1c0a,
+       1px  1px 0 #3b1c0a,
+       0    1px 0 #3b1c0a,
+      -1px  1px 0 #3b1c0a,
+      -1px  0   0 #3b1c0a,
+       0    1.5px 0 #3b1c0a,
+       0    2px 0 #3b1c0a,
+       0    2.5px 0 #3b1c0a,
+       0    3px 0 #3b1c0a;
+  }
+
+  .btn-clash {
+    border-radius: 0.75rem;
+    position: relative;
+    transition: transform 0.1s ease-out;
+  }
+
+  .btn-clash::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 9px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .btn-clash-yellow {
+    background-color: #facc15;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #ca8a04,
+      0 1px 0 2px #ca8a04,
+      0 2px 0 2px #ca8a04,
+      0 3px 0 2px #ca8a04,
+      0 4px 0 2px #ca8a04,
+      0 5px 0 2px #ca8a04,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-pale {
+    background-color: #fff9d6;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.75),
+      0 0 0 2px #d4ba58,
+      0 1px 0 2px #d4ba58,
+      0 0 0 3px #000,
+      0 1px 0 3px #000;
+  }
+
+  .btn-clash-green {
+    background-color: #22c55e;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.35),
+      0 0 0 2px #15803d,
+      0 1px 0 2px #15803d,
+      0 2px 0 2px #15803d,
+      0 3px 0 2px #15803d,
+      0 4px 0 2px #15803d,
+      0 5px 0 2px #15803d,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-red {
+    background-color: #ef4444;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.35),
+      0 0 0 2px #b91c1c,
+      0 1px 0 2px #b91c1c,
+      0 2px 0 2px #b91c1c,
+      0 3px 0 2px #b91c1c,
+      0 4px 0 2px #b91c1c,
+      0 5px 0 2px #b91c1c,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-purple {
+    background-color: #9333ea;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #6b21a8,
+      0 1px 0 2px #6b21a8,
+      0 2px 0 2px #6b21a8,
+      0 3px 0 2px #6b21a8,
+      0 4px 0 2px #6b21a8,
+      0 5px 0 2px #6b21a8,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-cyan {
+    background-color: #0ea5e9;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.35),
+      0 0 0 2px #0369a1,
+      0 1px 0 2px #0369a1,
+      0 2px 0 2px #0369a1,
+      0 3px 0 2px #0369a1,
+      0 4px 0 2px #0369a1,
+      0 5px 0 2px #0369a1,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-sand {
+    background-color: #dcb77b;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #b48d4c,
+      0 1px 0 2px #b48d4c,
+      0 2px 0 2px #b48d4c,
+      0 3px 0 2px #b48d4c,
+      0 4px 0 2px #b48d4c,
+      0 5px 0 2px #b48d4c,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-navy {
+    background-color: #1e3a8a;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #172554,
+      0 1px 0 2px #172554,
+      0 2px 0 2px #172554,
+      0 3px 0 2px #172554,
+      0 4px 0 2px #172554,
+      0 5px 0 2px #172554,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-pink {
+    background-color: #be185d;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #831843,
+      0 1px 0 2px #831843,
+      0 2px 0 2px #831843,
+      0 3px 0 2px #831843,
+      0 4px 0 2px #831843,
+      0 5px 0 2px #831843,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-indigo {
+    background-color: #312e81;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #1e1b4b,
+      0 1px 0 2px #1e1b4b,
+      0 2px 0 2px #1e1b4b,
+      0 3px 0 2px #1e1b4b,
+      0 4px 0 2px #1e1b4b,
+      0 5px 0 2px #1e1b4b,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-slate {
+    background-color: #334155;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.25),
+      0 0 0 2px #0f172a,
+      0 1px 0 2px #0f172a,
+      0 2px 0 2px #0f172a,
+      0 3px 0 2px #0f172a,
+      0 4px 0 2px #0f172a,
+      0 5px 0 2px #0f172a,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-blue {
+    background-color: #3b82f6;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #1d4ed8,
+      0 1px 0 2px #1d4ed8,
+      0 2px 0 2px #1d4ed8,
+      0 3px 0 2px #1d4ed8,
+      0 4px 0 2px #1d4ed8,
+      0 5px 0 2px #1d4ed8,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  /* Miniature Clash Buttons */
+  .btn-clash-sm {
+    border-radius: 0.5rem; /* rounded rectangle instead of pill */
+    position: relative;
+    transition: transform 0.1s ease-out;
+  }
+  
+  .btn-clash-sm::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    width: 6px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Small Text Stroke for Icons/Pills */
+  .text-stroke-clash-sm {
+    text-shadow: 
+      -1px -1px 0 #000,
+       1px -1px 0 #000,
+      -1px  1px 0 #000,
+       1px  1px 0 #000,
+       0    2px 0 #000;
+  }
+
+  .btn-clash-sm-cyan {
+    background-color: #0ea5e9;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #0369a1,
+      0 1px 0 1px #0369a1,
+      0 2px 0 1px #0369a1,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-orange {
+    background-color: #f59e0b;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #b45309,
+      0 1px 0 1px #b45309,
+      0 2px 0 1px #b45309,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-purple {
+    background-color: #a855f7;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #7e22ce,
+      0 1px 0 1px #7e22ce,
+      0 2px 0 1px #7e22ce,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-green {
+    background-color: #22c55e;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #15803d,
+      0 1px 0 1px #15803d,
+      0 2px 0 1px #15803d,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-split {
+    background: linear-gradient(90deg, #2563eb 50%, #dc2626 50%);
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.35),
+      inset 0 -6px 0px rgba(0, 0, 0, 0.25),
+      0 0 0 2px #0f0f0f,
+      0 5px 0 2px #0f0f0f;
+  }
+
+  @media (min-width: 768px) {
+    .text-stroke-clash-brown {
+      text-shadow: 
+        -1.5px -1.5px 0 #3b1c0a,
+         0     -1.5px 0 #3b1c0a,
+         1.5px -1.5px 0 #3b1c0a,
+         1.5px  0     0 #3b1c0a,
+         1.5px  1.5px 0 #3b1c0a,
+         0      1.5px 0 #3b1c0a,
+        -1.5px  1.5px 0 #3b1c0a,
+        -1.5px  0     0 #3b1c0a,
+         0      2px 0 #3b1c0a,
+         0      2.5px 0 #3b1c0a,
+         0      3px 0 #3b1c0a,
+         0      3.5px 0 #3b1c0a,
+         0      4px 0 #3b1c0a,
+         0      4.5px 0 #3b1c0a;
+    }
   }
 
   .font-ui {
@@ -1569,7 +1972,7 @@ input[type="range"]:active::-moz-range-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* 🚨 CLEAN iOS PWA FULLSCREEN 🚨 */
+/* ط¸â€¹ط¹ط›ط¹â€کط¢آ¨ CLEAN iOS PWA FULLSCREEN ط¸â€¹ط¹ط›ط¹â€کط¢آ¨ */
 html, body {
   min-height: 100vh;
   margin: 0;
@@ -1769,7 +2172,7 @@ input[type="range"]:active::-moz-range-thumb {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* 🚨 CLEAN iOS PWA FULLSCREEN 🚨 */
+/* ط¸â€¹ط¹ط›ط¹â€کط¢آ¨ CLEAN iOS PWA FULLSCREEN ط¸â€¹ط¹ط›ط¹â€کط¢آ¨ */
 html, body {
   min-height: 100vh;
   margin: 0;
@@ -2163,11 +2566,11 @@ html, body {
   text-shadow: 0 0 2px #f472b6, 0 0 4px #db2777 !important;
   background: 
     linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.7) 25%, transparent 30%, transparent 35%, rgba(255,255,255,0.4) 40%, transparent 45%),
-    radial-gradient(circle at 30% 70%, #f9a8d4 0%, transparent 50%),
-    radial-gradient(circle at 70% 30%, #ec4899 0%, transparent 50%),
-    radial-gradient(circle at 10% 20%, #db2777 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, #be185d 0%, transparent 40%),
-    linear-gradient(to right, #f472b6, #fb7185);
+    radial-gradient(circle at 30% 70%, #fdf2f8 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, #f9a8d4 0%, transparent 50%),
+    radial-gradient(circle at 10% 20%, #f472b6 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, #db2777 0%, transparent 40%),
+    linear-gradient(to right, #fb7185, #ec4899);
   background-size: 200% 200%, 150% 150%, 150% 150%, 150% 150%, 150% 150%, 100% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -2175,7 +2578,7 @@ html, body {
   color: transparent !important;
 }
 .princess-liquid-effect::before {
-  content: '★';
+  content: '♥';
   top: 50%;
   left: -5px;
   transform: translateY(-50%) rotate(-15deg);
@@ -2207,27 +2610,6 @@ html, body {
   filter: 
     drop-shadow(0px 1px 3px rgba(244, 113, 182, 0.7))
     drop-shadow(0px 2px 8px rgba(219, 39, 119, 0.6));
-}
-@media (prefers-color-scheme: dark) {
-  html:not(.light) .princess-liquid-effect,
-  body:not(.light) .princess-liquid-effect {
-    background: 
-      linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.8) 25%, transparent 30%, transparent 35%, rgba(255,255,255,0.5) 40%, transparent 45%),
-      radial-gradient(circle at 30% 70%, #fdf2f8 0%, transparent 50%),
-      radial-gradient(circle at 70% 30%, #f9a8d4 0%, transparent 50%),
-      radial-gradient(circle at 10% 20%, #f472b6 0%, transparent 40%),
-      radial-gradient(circle at 90% 80%, #db2777 0%, transparent 40%),
-      linear-gradient(to right, #fb7185, #ec4899);
-    background-size: 200% 200%, 150% 150%, 150% 150%, 150% 150%, 150% 150%, 100% 100%;
-    animation: hq-makeup-swirl 8s ease-in-out infinite alternate;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent !important;
-    filter: 
-      drop-shadow(0px 1px 3px rgba(244, 113, 182, 0.7))
-      drop-shadow(0px 2px 8px rgba(219, 39, 119, 0.6));
-  }
 }
 
 @keyframes hq-makeup-swirl {
@@ -2333,4 +2715,121 @@ html, body {
   .animate-marquee {
     animation: marquee-scroll 30s linear infinite; /* Original speed on desktop */
   }
+}
+
+/* Leaderboard Folder Tab Fillets */
+.tab-fillet-right::before {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  right: -12px;
+  width: 12px;
+  height: 15px;
+  background: radial-gradient(circle at top right, transparent 12px, var(--fillet-color, #365a8c) 12.5px);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.tab-fillet-left::before {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: -12px;
+  width: 12px;
+  height: 15px;
+  background: radial-gradient(circle at top left, transparent 12px, var(--fillet-color, #365a8c) 12.5px);
+  z-index: 10;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+
+  .tab-clash {
+    border-top-left-radius: 0.75rem;
+    border-top-right-radius: 0.75rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    position: relative;
+    transition: all 0.1s ease-out;
+  }
+  
+  .tab-clash::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    width: 8px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .tab-clash-active {
+    background-color: #3b82f6;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 -2px 0 2px #000,
+      -2px 0 0 2px #000,
+      2px 0 0 2px #000;
+  }
+
+  .tab-clash-inactive {
+    background-color: #334155;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.25),
+      0 -2px 0 2px #000,
+      -2px 0 0 2px #000,
+      2px 0 0 2px #000;
+  }
+
+
+  .btn-clash-sm-blue {
+    background-color: #3b82f6;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #1d4ed8,
+      0 1px 0 1px #1d4ed8,
+      0 2px 0 1px #1d4ed8,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-slate {
+    background-color: #334155;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.25),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #0f172a,
+      0 1px 0 1px #0f172a,
+      0 2px 0 1px #0f172a,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+@keyframes online-glow {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+    box-shadow: 0 0 4px rgba(74, 222, 128, 0.8), 0 0 8px rgba(74, 222, 128, 0.4); 
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.35);
+    box-shadow: 0 0 6px rgba(74, 222, 128, 0.6), 0 0 12px rgba(74, 222, 128, 0.4); 
+  }
+}
+.animate-online-glow {
+  animation: online-glow 0.8s ease-in-out infinite;
+  transform-origin: center center;
 }

@@ -30,34 +30,39 @@ const SHOP_ITEMS = {
 const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
   const getDynamicStyles = (id) => {
     switch (id) {
-      case 'hint_pack': return 'bg-[#98A3F8] shadow-[0_4px_0_#7A85D9] dark:bg-[#98A3F8]/90 dark:shadow-[0_4px_0_rgba(122,133,217,0.8)]';
-      case 'attractor_field': return 'bg-[#A2E263] shadow-[0_4px_0_#85C14B] dark:bg-[#A2E263]/90 dark:shadow-[0_4px_0_rgba(133,193,75,0.8)]';
-      case 'full_skip': return 'bg-[#FF9F1C] shadow-[0_4px_0_#E68A00] dark:bg-[#FF9F1C]/90 dark:shadow-[0_4px_0_rgba(230,138,0,0.8)]';
-      default: return 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626]';
+      case 'hint_pack': return 'btn-clash-cyan';
+      case 'attractor_field': return 'btn-clash-green';
+      case 'full_skip': return 'btn-clash-yellow';
+      default: return 'btn-clash-cyan';
     }
   };
 
   const dynamicClass = getDynamicStyles(item.id);
 
   return (
-    <div className="flex items-stretch gap-2 sm:gap-3 w-full">
+    <div className="flex items-stretch gap-2 sm:gap-3 w-full mb-3">
       {/* Info Card (Right Side in RTL) */}
-      <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1`}>
-        <div className="w-11 h-11 rounded-md bg-white/20 dark:bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/30">
+      <div className={`flex-1 min-w-0 relative btn-clash ${dynamicClass} rounded-[0.75rem] flex items-center px-3 sm:px-4 py-3 gap-2 sm:gap-3 pointer-events-none`}>
+        {/* Carbon Fiber Overlay */}
+        <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
+        </div>
+
+        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-lg bg-black/20 flex items-center justify-center text-white shrink-0 relative z-10 border border-white/20 shadow-inner">
           {item.id === 'hint_pack' ? (
-            <HintIcon className="w-7 h-7 drop-shadow-md" />
+            <HintIcon className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow-md" />
           ) : item.id === 'attractor_field' ? (
-            <MagnetIcon className="w-7 h-7 drop-shadow-md" />
+            <MagnetIcon className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow-md" />
           ) : item.id === 'full_skip' ? (
-            <SkipIcon className="w-7 h-7 drop-shadow-md" />
+            <SkipIcon className="w-7 h-7 sm:w-8 sm:h-8 drop-shadow-md" />
           ) : (
-            <span className="material-symbols-outlined text-[24px] drop-shadow-md text-white">{item.icon}</span>
+            <span className="material-symbols-outlined text-[24px] sm:text-[28px] drop-shadow-md text-white">{item.icon}</span>
           )}
         </div>
 
         <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
-          <h3 className="text-[16px] font-black text-white dark:text-mono-50 mb-0.5 leading-tight truncate drop-shadow-sm">{item.name}</h3>
-          <p className="text-[11px] font-bold text-white/90 dark:text-mono-200 leading-tight truncate">{item.description}</p>
+          <h3 className="text-[17px] sm:text-[19px] font-black text-white mb-0.5 leading-tight whitespace-normal wrap-break-word text-stroke-clash-sm drop-shadow-md">{item.name}</h3>
+          <p className="text-[11px] sm:text-[12px] font-bold text-white/90 leading-tight whitespace-normal wrap-break-word drop-shadow-sm">{item.description}</p>
         </div>
       </div>
 
@@ -71,12 +76,17 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
             triggerHaptic([50, 30, 50]);
           }
         }}
-        className={`group shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-white/30 dark:border-white/10 ${!canAfford ? 'opacity-80 active:translate-y-1 active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110'}`}
+        className={`group shrink-0 w-21 sm:w-24 relative btn-clash ${dynamicClass} rounded-[0.75rem] flex flex-col items-center justify-center gap-1.5 px-2 py-3 transition-all duration-150 border-0 ${!canAfford ? 'opacity-80 grayscale-30 cursor-not-allowed' : 'hover:brightness-110 active:scale-[0.96] active:translate-y-1'}`}
       >
-        <div className="flex flex-col items-center leading-none relative z-10">
-          <span className="text-[17px] font-black text-white drop-shadow-sm">{toKuDigits(item.price || 0)}</span>
+        {/* Carbon Fiber Overlay */}
+        <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay" />
         </div>
-        <div className={`w-5 h-5 flex items-center justify-center text-white relative z-10 group-hover:rotate-12 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-md'}`}>
+
+        <div className="flex flex-col items-center leading-none relative z-10">
+          <span className="text-[18px] sm:text-[20px] font-black text-white text-stroke-clash-sm drop-shadow-md">{toKuDigits(item.price || 0)}</span>
+        </div>
+        <div className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white relative z-10 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-md group-hover:rotate-12'}`}>
           {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'dinar' ? <DinarIcon /> : <FilsIcon />}
         </div>
       </button>
@@ -110,14 +120,15 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
 
   const getNameStyleDynamicClass = (id) => {
     switch (id) {
-      case 'gold-gradient': return 'bg-slate-50 shadow-[0_4px_0_#FBBF24] dark:bg-mono-900 dark:shadow-[0_4px_0_#B45309] border-transparent';
-      case 'neon-purple': return 'bg-slate-50 shadow-[0_4px_0_#E879F9] dark:bg-mono-900 dark:shadow-[0_4px_0_#C026D3] border-transparent';
-      case 'fire': return 'bg-slate-50 shadow-[0_4px_0_#FB923C] dark:bg-mono-900 dark:shadow-[0_4px_0_#C2410C] border-transparent';
-      case 'ocean': return 'bg-slate-50 shadow-[0_4px_0_#38BDF8] dark:bg-mono-900 dark:shadow-[0_4px_0_#0369A1] border-transparent';
-      case 'princess': return 'bg-slate-50 shadow-[0_4px_0_#F472B6] dark:bg-mono-900 dark:shadow-[0_4px_0_#BE185D] border-transparent';
-      case 'kurdistan': return 'bg-slate-50 shadow-[0_4px_0_#4ADE80] dark:bg-mono-900 dark:shadow-[0_4px_0_#15803D] border-transparent';
-      case 'mehfira-kurdi': return 'bg-slate-50 shadow-[0_4px_0_#133c45] dark:bg-mono-900 dark:shadow-[0_4px_0_#0c252a] border-transparent';
-      default: return 'bg-mono-white shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626] border-mono-200/50 dark:border-mono-800/50';
+      case 'gold-gradient': return 'btn-clash-purple';
+      case 'neon-purple': return 'btn-clash-navy';
+      case 'fire': return 'btn-clash-blue';
+      case 'ocean': return 'btn-clash-sand';
+      case 'princess': return 'btn-clash-pink';
+      case 'kurdistan': return 'btn-clash-slate';
+      case 'mehfira-kurdi': return 'btn-clash-teal';
+      case 'hologram': return 'btn-clash-indigo';
+      default: return 'bg-slate-50 shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626]';
     }
   };
 
@@ -166,7 +177,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
       className="flex-1 w-full px-4 pt-6 pb-30 max-w-full flex flex-col gap-6 animate-in fade-in duration-700 overflow-x-hidden relative bg-trigger-zone transition-colors"
     >
 
-      <div className="relative z-20 shrink-0 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md py-3 px-4 shadow-sm overflow-hidden group transition-colors duration-300">
+      <div className="relative z-20 shrink-0 bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md py-3 px-4 shadow-sm overflow-hidden group transition-colors duration-300">
         <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-transparent opacity-50" />
         <div className="relative z-10 flex flex-col items-center">
           <InventoryBar
@@ -183,7 +194,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
         <div className="flex flex-col gap-6 mt-2">
           {/* PowerUps Section */}
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-white drop-shadow-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[22px]">bolt</span>
               هاریکار
             </h2>
@@ -197,7 +208,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
 
           {/* Name Styles Section */}
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-white drop-shadow-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[22px]">palette</span>
               کارتێکەرێن ناڤی
             </h2>
@@ -209,11 +220,16 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                 const dynamicClass = getNameStyleDynamicClass(style.id);
 
                 return (
-                  <div key={style.id} className="flex items-stretch gap-2 sm:gap-3 w-full">
+                  <div key={style.id} className="flex items-stretch gap-2 sm:gap-3 w-full mb-3">
                     {/* Info Card (Right Side in RTL) */}
-                    <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'border-primary/50 ring-1 ring-primary/10' : 'border-mono-200/50 dark:border-mono-800/50'}`}>
-                      <div className="flex-1 text-right min-w-0 flex items-center justify-center">
-                        <span className={`text-[17px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
+                    <div className={`flex-1 min-w-0 relative btn-clash ${dynamicClass} rounded-[0.75rem] flex items-center px-3 sm:px-4 py-3 gap-2 sm:gap-3 pointer-events-none ${isEquipped ? 'ring-2 ring-primary/40' : ''}`}>
+                      {/* Carbon Fiber Overlay */}
+                      <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+                      </div>
+                      
+                      <div className="flex-1 text-center min-w-0 flex items-center justify-center relative z-10">
+                        <span className={`text-[26px] sm:text-[28px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
                       </div>
                     </div>
 
@@ -221,9 +237,12 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                     {isOwned ? (
                       <button
                         onClick={() => { triggerHaptic(10); onEquipNameStyle(style.id); }}
-                        className={`shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center font-bold text-[11px] sm:text-[13px] rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200 dark:border-mono-800 ${dynamicClass} active:translate-y-1 active:shadow-[0_0px_0_transparent] ${isEquipped ? 'bg-primary/10 text-primary border-primary/50' : 'text-mono-600 dark:text-mono-300'}`}
+                        className={`shrink-0 w-21 sm:w-24 relative btn-clash ${dynamicClass} rounded-[0.75rem] flex items-center justify-center font-bold text-[12px] sm:text-[14px] px-2 py-3 transition-all duration-150 border-0 ${isEquipped ? 'text-primary' : 'text-mono-600 dark:text-mono-300 hover:brightness-105 active:scale-[0.96] active:translate-y-1'}`}
                       >
-                        {isEquipped ? 'چالاکە' : 'بکاربینە'}
+                        <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden pointer-events-none">
+                          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+                        </div>
+                        <span className="relative z-10 drop-shadow-sm">{isEquipped ? 'بەکارهێنراوە' : 'بەکارهێنان'}</span>
                       </button>
                     ) : (
                       <button
@@ -235,18 +254,22 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                             triggerHaptic([50, 30, 50]);
                           }
                         }}
-                        className={`group shrink-0 w-21.25 sm:w-23.75 flex items-center justify-center gap-1.5 sm:gap-2 px-1 sm:px-2 py-3 ${dynamicClass} rounded-[8px] transition-all duration-150 relative mb-1 border-2 border-mono-200/50 dark:border-mono-800/50 ${!canAfford ? 'opacity-80 active:translate-y-1 active:shadow-[0_0px_0_transparent] cursor-not-allowed' : 'active:translate-y-1 active:shadow-[0_0px_0_transparent] dark:active:shadow-[0_0px_0_transparent] hover:scale-[1.04] hover:brightness-110 text-mono-700 dark:text-mono-200'}`}
+                        className={`group shrink-0 w-21 sm:w-24 relative btn-clash ${dynamicClass} rounded-[0.75rem] flex flex-col items-center justify-center gap-1.5 px-2 py-3 transition-all duration-150 border-0 ${!canAfford ? 'opacity-80 grayscale-30 cursor-not-allowed' : 'hover:brightness-110 active:scale-[0.96] active:translate-y-1'}`}
                       >
+                        <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden pointer-events-none">
+                          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
+                        </div>
+                        
                         {style.price === 0 ? (
                           <div className="flex flex-col items-center leading-none relative z-10">
-                            <span className="text-[11px] font-bold text-green-500">بکاربینە</span>
+                            <span className="text-[12px] font-bold text-green-500 drop-shadow-sm">بێبەرامبەر</span>
                           </div>
                         ) : (
                           <>
                             <div className="flex flex-col items-center leading-none relative z-10">
-                              <span className="text-[14px] sm:text-[15px] font-black tabular-nums">{toKuDigits(style.price)}</span>
+                              <span className="text-[18px] sm:text-[20px] font-black text-white text-stroke-clash-sm drop-shadow-md tabular-nums">{toKuDigits(style.price)}</span>
                             </div>
-                            <div className={`w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center shrink-0 relative z-10 group-hover:rotate-12 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-sm'}`}>
+                            <div className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white shrink-0 relative z-10 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-md group-hover:rotate-12'}`}>
                               {renderCurrencyIcon(style.currency)}
                             </div>
                           </>
@@ -263,7 +286,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
           {/* Fonts Section */}
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+              <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-white drop-shadow-sm flex items-center gap-2">
                 <span className="material-symbols-outlined text-primary text-[22px]">text_fields</span>
                 فۆنت
               </h2>
@@ -369,7 +392,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
 
           {/* Avatars Section */}
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-white drop-shadow-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[22px]">face</span>
               ئێمۆجی
             </h2>
@@ -385,7 +408,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
 
           {/* Bundles Section */}
           <div className="bg-mono-white/5 dark:bg-mono-900/40 border border-mono-200/50 dark:border-mono-800/50 rounded-md p-4 shadow-sm flex flex-col gap-4">
-            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-mono-900 dark:text-mono-100 flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[18px] font-rabar font-black text-white drop-shadow-sm flex items-center gap-2">
               <span className="material-symbols-outlined text-primary text-[22px]">layers</span>
               پاکێج
             </h2>
@@ -472,9 +495,9 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
         </div>
 
         {/* Store Compliance Virtual Currency Disclaimer */}
-        <div className="relative z-20 mt-6 px-4 py-3 bg-mono-100/50 dark:bg-mono-900/50 border border-mono-200 dark:border-mono-800 rounded-md text-center shadow-inner">
-          <p className="text-[9px] sm:text-[10px] font-bold text-mono-500 dark:text-mono-400 leading-relaxed max-w-sm mx-auto">
-            فلس، درهەم، و دینار دراڤێن خەیالی یێن ناڤ یاریێ نە و چ بهایەکێ ڕاستەقینە یان مادی نینە. ئەڤ یارییە چ پەیوەندی ب قومارێ و گۆڕینا دراڤی ب پارێ ڕاستەقینە ڤە نینە.
+        <div className="relative z-20 mt-6 px-4 py-3 bg-black/20 border border-white/10 dark:bg-mono-900/50 dark:border-mono-800 rounded-md text-center shadow-inner">
+          <p className="text-[9px] sm:text-[10px] font-bold text-white/70 dark:text-mono-400 leading-relaxed max-w-sm mx-auto">
+            فلس، درهەم، و دینار دراڤێن خەیالی یێن ناڤ یاریێ نە و چ بهایەکی ڕاستەقینە یان مادی نینە. ئەڤ یارییە چ پەیوەندی ب قومارێ و گۆڕینا دراڤی ب پارێ ڕاستەقینە ڤە نییە.
           </p>
         </div>
       </div>

@@ -814,7 +814,7 @@ export default function App() {
     } else if (currentView === 'game' && gameMode !== 'multiplayer' && !isVictory && !isDefeat && !isWordFeverResultVisible) {
       busyMode = gameMode;
     }
-    
+
     if (updatePresenceStatus) {
       updatePresenceStatus(busyMode);
     }
@@ -1034,7 +1034,7 @@ export default function App() {
 
           let senderName = 'کەسەک';
           let avatarUrl = null;
-          
+
           if (payload.new.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1') {
             senderName = 'پەیڤۆک Peyvok';
             avatarUrl = '/Peyvok-logo-01.png';
@@ -1701,7 +1701,7 @@ export default function App() {
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
-    <div className="flex-1 flex flex-col w-full h-dvh items-center justify-start bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-black transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl">
+    <div className="flex-1 flex flex-col w-full h-dvh items-center justify-start bg-mono-white text-mono-900 dark:bg-mono-950 dark:text-mono-50 md:bg-mono-white dark:md:bg-mono-950 transition-colors duration-500 font-noto-sans-arabic overflow-hidden" dir="rtl">
 
       {/* GLOBAL LOADING OVERLAY */}
       <AnimatePresence>
@@ -1710,17 +1710,21 @@ export default function App() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="fixed inset-0 flex flex-col items-center justify-center bg-linear-to-b from-mono-50 to-mono-200 dark:from-mono-950 dark:to-black transition-colors duration-500 gap-8 overflow-hidden"
+            className="fixed inset-0 flex flex-col items-center justify-center gap-8 overflow-hidden"
             style={{ zIndex: 99999 }}
           >
-            {/* Background Premium Glow Orbs */}
-            <div className="absolute top-[10%] left-[10%] w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, transparent 70%)' }} />
-            <div className="absolute bottom-[10%] right-[10%] w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)' }} />
+            {/* Background Image Layer */}
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: "url('/assets/kurdistan_bg.jpg')" }}
+            />
+            {/* Dark Overlay for Text/Logo Contrast */}
+            <div className="absolute inset-0 bg-black/30 dark:bg-black/40 backdrop-blur-[2px]" />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
-              <ClassicIcon className="w-64 h-24" continuous={true} />
+              <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
             </div>
-            <div className="relative z-10">
+            <div className="relative z-10 drop-shadow-xl">
               <KurdishSunLoader
                 progress={displayProgress}
                 statusText={customStatus}
@@ -1731,14 +1735,26 @@ export default function App() {
       </AnimatePresence>
       <Analytics />
       {user && currentView === 'lobby' && profileData?.has_completed_install_guide !== false && <UpdateNotesModal user={user} onComplete={() => setIsUpdateNotesCleared(true)} />}
-      {!isLoadingScreenVisible && user && isUpdateNotesCleared && <LocationPrompt user={user} profileData={profileData} onComplete={() => {}} />}
-      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-black transition-colors duration-500`}>
+      {!isLoadingScreenVisible && user && isUpdateNotesCleared && <LocationPrompt user={user} profileData={profileData} onComplete={() => { }} />}
+      <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-mono-950 transition-colors duration-500`}>
         {/* Background Image Layer for all main tabs */}
         {['lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (
-          <div
-            className="absolute inset-0 z-0 opacity-[0.08] dark:opacity-20 pointer-events-none transition-all duration-500"
-            style={{ backgroundImage: `url('/lobby_bg.jpg')`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
-          />
+          <>
+            <div
+              className="absolute inset-0 z-0 pointer-events-none transition-all duration-500"
+              style={{
+                backgroundImage: `url('/assets/peyvok_clash_pattern.svg')`,
+                backgroundSize: '48px 48px',
+                backgroundRepeat: 'repeat'
+              }}
+            />
+            <div
+              className="absolute inset-0 z-0 pointer-events-none opacity-90"
+              style={{
+                background: 'radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(0,0,0,0.5) 75%, rgba(0,0,0,0.8) 100%)'
+              }}
+            />
+          </>
         )}
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
@@ -1802,7 +1818,7 @@ export default function App() {
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-        <main className={`flex-1 flex flex-col ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+        <main className={`flex-1 flex flex-col ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'leaderboard' || currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
               onAuthSuccess={async (u) => {
@@ -2139,11 +2155,10 @@ export default function App() {
                     }
                   }
                 }}
-                className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/80' : 'bg-white/95'} backdrop-blur-2xl p-1.5 pl-3 rounded-full border ${
-                  pushNotification.type === 'message' 
+                className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/80' : 'bg-white/95'} backdrop-blur-2xl p-1.5 pl-3 rounded-full border ${pushNotification.type === 'message'
                     ? 'border-blue-500/50 shadow-[0_10px_40px_rgba(59,130,246,0.6)]'
                     : 'border-red-500/50 shadow-[0_10px_40px_rgba(239,68,68,0.6)]'
-                } flex items-center gap-3 cursor-pointer overflow-hidden`}
+                  } flex items-center gap-3 cursor-pointer overflow-hidden`}
               >
                 {/* Shrinking Timeout Bar - Only for competitive/friend requests */}
                 {pushNotification.type !== 'message' && (
