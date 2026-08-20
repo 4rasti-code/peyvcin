@@ -136,6 +136,7 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
   } catch (err) {
     if (err.name !== 'AbortError' && err.message !== 'Share canceled') {
       console.error('Error sharing:', err);
+      alert('Error sharing: ' + (err.message || JSON.stringify(err)));
     } else {
       return false; // User cancelled
     }
@@ -147,6 +148,7 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
     return 'clipboard';
   } catch (err) {
     console.error('Failed to copy:', err);
+    alert('Failed to copy: ' + (err.message || JSON.stringify(err)));
     return false;
   }
 };
