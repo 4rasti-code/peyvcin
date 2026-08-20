@@ -122,7 +122,7 @@ const WordFeverResultOverlay = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
         >
-          <div className="absolute -top-[9999px] -left-[9999px] pointer-events-none">
+          <div className="absolute -top-[200vh] -left-[200vw] pointer-events-none">
              <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
                <GameResultRenderer text={fullTextForCapture} />
              </div>
