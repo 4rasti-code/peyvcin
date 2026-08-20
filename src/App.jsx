@@ -1909,8 +1909,7 @@ export default function App() {
             </div>
           )}
 
-          {currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) && (
-            <div className="flex-1 flex flex-col overflow-hidden relative h-full">
+          <div className={currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}>
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
                 {/* Question Section */}
@@ -1981,8 +1980,7 @@ export default function App() {
                   hapticEnabled={hapticEnabled}
                 />
               </div>
-            </div>
-          )}
+          </div>
 
           <Suspense fallback={['social_hub', 'leaderboard', 'store', 'stats', 'achievements', 'medals', 'dictionary', 'profile', 'admin_panel'].includes(currentView) ? <KurdishSunLoader /> : null}>
             {user?.id && (
