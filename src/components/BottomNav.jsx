@@ -39,11 +39,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                     if (isSettings) onSettingsToggle();
                     else {
                       setLocalActive(tab.id);
-                      setTimeout(() => {
-                        React.startTransition(() => {
-                          setCurrentView(tab.id);
-                        });
-                      }, 5);
+                      setCurrentView(tab.id);
                     }
                   }}
                   className={`group relative flex-1 h-24 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive

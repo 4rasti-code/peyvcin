@@ -1846,8 +1846,8 @@ export default function App() {
           )}
 
           {/* 2. MAIN VIEWS (LOBBY / GAME / SOCIAL) */}
-          {currentView === 'lobby' && (multiplayerState === 'idle' || multiplayerState === 'private_lobby' || multiplayerState === 'match_starting') && (
-            <>
+          {(multiplayerState === 'idle' || multiplayerState === 'private_lobby' || multiplayerState === 'match_starting') && (
+            <div className={currentView === 'lobby' ? 'contents' : 'hidden'}>
               <LobbyView
                 onStartClassic={() => {
                   forceResumeAudio();
@@ -1906,7 +1906,7 @@ export default function App() {
                   پەنێڵی ئەدمین
                 </button>
               )}
-            </>
+            </div>
           )}
 
           {currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) && (
