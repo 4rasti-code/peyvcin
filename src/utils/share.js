@@ -107,8 +107,8 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
 
       await Share.share({
         title: 'پەیڤۆک',
-        text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
-        url: savedFile.uri,
+        text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nhttps://www.peyvokgame.com`,
+        files: [savedFile.uri],
       });
       return true;
     } else {
