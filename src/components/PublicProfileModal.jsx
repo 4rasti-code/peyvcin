@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Avatar from './Avatar';
 import FlagBadge from './FlagBadge';
@@ -11,7 +11,7 @@ import { useGame } from '../context/GameContext';
 import { getLevelTier } from '../utils/progression';
 import { useAudio } from '../context/AudioContext';
 import { usePresence } from '../context/PresenceContext';
-import StatsView from './StatsView';
+const StatsView = lazy(() => import('./StatsView'));
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
@@ -393,11 +393,13 @@ export default function PublicProfileModal({
   if (showFullStats) {
     return (
       <div className="fixed inset-0 z-100 bg-mono-white dark:bg-black overflow-y-auto">
-        <StatsView
-          profileData={displayData}
-          playerStats={playerStats}
-          onViewChange={() => setShowFullStats(false)}
-        />
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><span className="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span></div>}>
+          <StatsView
+            profileData={displayData}
+            playerStats={playerStats}
+            onViewChange={() => setShowFullStats(false)}
+          />
+        </Suspense>
       </div>
     );
   }
