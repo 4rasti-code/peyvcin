@@ -4,7 +4,7 @@ import confetti from 'canvas-confetti';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
-import { generateWordleGrid, shareGameResult } from '../utils/share';
+import { generateWordleGrid, shareGameResult, precomputeShareImage } from '../utils/share';
 import ResultStats from './ResultStats';
 import GameResultRenderer from './GameResultRenderer';
 
@@ -51,9 +51,21 @@ const WordFeverResultOverlay = ({
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
   const [globalShareStatus, setGlobalShareStatus] = useState(null);
+  const [precomputedDataUrl, setPrecomputedDataUrl] = useState(null);
   const isWin = type === 'win';
   const hasTriggeredRef = useRef(false);
   const captureRef = useRef(null);
+
+  useEffect(() => {
+    // Precompute share image for Safari
+    const timer = setTimeout(async () => {
+      if (captureRef.current) {
+        const url = await precomputeShareImage(captureRef.current);
+        if (url) setPrecomputedDataUrl(url);
+      }
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (isVisible && isWin && !hasTriggeredRef.current) {
@@ -252,9 +264,10 @@ const WordFeverResultOverlay = ({
                   triggerHaptic(10);
                   const grid = generateWordleGrid(guesses, solvedWord);
                   const result = await shareGameResult({
-                    title: isWin ? 'من شیام هەمی پەیڤێن Word Fever ببینم! ⚡' : 'من تاقیكرنا Word Fever ئەنجامدا! 🔥',
+                    title: isWin ? 'یێ سەرکەفت بووی د یارییا Word Fever دا! 🏆' : 'تە دۆڕاند د یارییا Word Fever دا! 💔',
                     grid: grid,
-                    node: captureRef.current
+                    node: captureRef.current,
+                    precomputedDataUrl: precomputedDataUrl
                   });
                   
                   if (result === 'clipboard') {

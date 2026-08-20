@@ -67,32 +67,69 @@ import { Capacitor } from '@capacitor/core';
 import * as htmlToImage from 'html-to-image';
 
 /**
+ * Synchronously converts a base64 Data URI to a Blob to prevent losing transient activation in Safari.
+ */
+const dataURItoBlobSync = (dataURI) => {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+};
+
+/**
+ * Precomputes the share image so it's ready before the user clicks share.
+ * @param {HTMLElement} node - The DOM node to capture.
+ * @returns {Promise<string>} The Data URL.
+ */
+export const precomputeShareImage = async (node) => {
+  if (!node) return null;
+  try {
+    return await htmlToImage.toPng(node, {
+      quality: 1.0,
+      pixelRatio: 2,
+      useCORS: true,
+      allowTaint: true,
+      cacheBust: true,
+    });
+  } catch (err) {
+    console.error('Failed to precompute share image', err);
+    return null;
+  }
+};
+
+/**
  * Shares the game result using Web Share API or Native Capacitor Share.
- * @param {Object} options - { title, grid, node }
+ * @param {Object} options - { title, grid, node, precomputedDataUrl }
  * @returns {Promise<boolean>} True if shared/copied, false otherwise.
  */
-export const shareGameResult = async ({ title, grid, node, isDark = document.documentElement.classList.contains('dark') }) => {
+export const shareGameResult = async ({ title, grid, node, precomputedDataUrl, isDark = document.documentElement.classList.contains('dark') }) => {
   const fullText = `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nwww.peyvokgame.com`;
 
   try {
-    let dataUrl = null;
-    if (node) {
-      // Capture the high quality image from the exact DOM node
-      dataUrl = await htmlToImage.toPng(node, {
-        quality: 1.0,
-        pixelRatio: 2, // Retina quality for crisp text
-        useCORS: true,
-        allowTaint: true,
-        cacheBust: true, // Prevents caching issues with images
-      });
-    } else {
-      // Fallback to the old canvas generator if no DOM node is provided
-      const imageBlob = await generateShareImageCanvas(`${title}\n\n${grid}`, isDark);
-      dataUrl = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(imageBlob);
-      });
+    let dataUrl = precomputedDataUrl || null;
+    if (!dataUrl) {
+      if (node) {
+        // Capture the high quality image from the exact DOM node
+        dataUrl = await htmlToImage.toPng(node, {
+          quality: 1.0,
+          pixelRatio: 2, // Retina quality for crisp text
+          useCORS: true,
+          allowTaint: true,
+          cacheBust: true, // Prevents caching issues with images
+        });
+      } else {
+        // Fallback to the old canvas generator if no DOM node is provided
+        const imageBlob = await generateShareImageCanvas(`${title}\n\n${grid}`, isDark);
+        dataUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(imageBlob);
+        });
+      }
     }
 
     if (Capacitor.isNativePlatform()) {
@@ -112,9 +149,8 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
       });
       return true;
     } else {
-      // WEB BROWSER: Convert Data URL to Blob and share
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
+      // WEB BROWSER: Convert Data URL to Blob SYNCHRONOUSLY to prevent Safari NotAllowedError
+      const blob = dataURItoBlobSync(dataUrl);
       const file = new File([blob], 'peyvok-result.png', { type: 'image/png' });
 
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {

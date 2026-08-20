@@ -5,7 +5,7 @@ import confetti from 'canvas-confetti';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
-import { generateWordleGrid, shareGameResult } from '../utils/share';
+import { generateWordleGrid, shareGameResult, precomputeShareImage } from '../utils/share';
 import GameResultRenderer from './GameResultRenderer';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
@@ -56,8 +56,20 @@ const VictoryOverlay = ({
 }) => {
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
   const [globalShareStatus, setGlobalShareStatus] = useState(null);
+  const [precomputedDataUrl, setPrecomputedDataUrl] = useState(null);
   const hasTriggeredRef = useRef(false);
   const captureRef = useRef(null);
+
+  useEffect(() => {
+    // Generate the share image in the background as soon as the overlay appears
+    const timer = setTimeout(async () => {
+      if (captureRef.current) {
+        const url = await precomputeShareImage(captureRef.current);
+        if (url) setPrecomputedDataUrl(url);
+      }
+    }, 1500); // Wait 1.5s for fonts/animations to settle
+    return () => clearTimeout(timer);
+  }, []);
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -309,7 +321,8 @@ const VictoryOverlay = ({
                     const result = await shareGameResult({
                       title: title,
                       grid: grid,
-                      node: captureRef.current
+                      node: captureRef.current,
+                      precomputedDataUrl: precomputedDataUrl
                     });
                     
                     if (result === 'clipboard') {
