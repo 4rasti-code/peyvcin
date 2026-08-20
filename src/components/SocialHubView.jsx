@@ -2558,26 +2558,26 @@ export default function SocialHubView({
                     {privateChats.length === 0 && !loading ? (
                       <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
                       <div className="flex flex-col items-center space-y-4 opacity-50">
-                        <span className="material-symbols-outlined text-6xl text-mono-400">forum</span>
+                        <span className="material-symbols-outlined text-6xl text-white/50">forum</span>
                         <div className="text-center">
-                          <div className="font-black text-lg text-mono-900 dark:text-mono-50">ھیچ نامەیەک نینە</div>
-                          <div className="text-xs font-bold font-rabar text-mono-500">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                          <div className="font-black text-lg text-mono-50">ھیچ نامەیەک نینە</div>
+                          <div className="text-xs font-bold font-rabar text-white/60">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
                         </div>
                         <button
                           onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
-                          className="px-6 py-2 bg-mono-100 dark:bg-mono-900 rounded-md text-xs font-black border border-mono-200 dark:border-mono-800 shadow-sm"
+                          className="px-6 py-2 bg-mono-900 text-white rounded-md text-xs font-black border border-mono-800 shadow-sm"
                         >
                           دیتنا ھەڤالان
                         </button>
                       </div>
 
-                      <div className="w-full max-w-sm p-4 rounded-xl bg-[#e6f1f8] dark:bg-[#1e2d3b] border-2 border-[#b9d2e1] dark:border-[#2a3f54] flex flex-col items-center gap-3 shadow-[0_4px_0_#b9d2e1] dark:shadow-[0_4px_0_#15202b] mx-auto mb-2">
+                      <div className="w-full max-w-sm p-4 rounded-xl bg-[#1e2d3b] border-2 border-[#2a3f54] flex flex-col items-center gap-3 shadow-[0_4px_0_#15202b] mx-auto mb-2">
                         <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center border-2 border-green-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.3)]">
                           <span className="material-symbols-outlined text-2xl text-white font-black drop-shadow-md">person_add</span>
                         </div>
                         <div className="text-center">
-                          <h4 className="text-[14px] font-black font-rabar text-[#1f2937] dark:text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">ھەڤالێن خوە داخواز بکە</h4>
-                          <p className="text-[11px] font-bold text-[#4b5563] dark:text-[#9ca3af] mt-1 px-4 leading-relaxed">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
+                          <h4 className="text-[14px] font-black font-rabar text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">ھەڤالێن خوە داخواز بکە</h4>
+                          <p className="text-[11px] font-bold text-[#9ca3af] mt-1 px-4 leading-relaxed">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
                         </div>
                         <button
                           onClick={async () => {
