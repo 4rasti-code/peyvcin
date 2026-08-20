@@ -20,8 +20,12 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 w-full z-40 pb-[env(safe-area-inset-bottom)] pointer-events-none" dir="rtl">
-      {/* Background fill for safe area */}
-      <div className="absolute inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-[#1a9bf0] w-full max-w-screen-sm md:max-w-240 mx-auto -z-10 pointer-events-auto" />
+      {/* Background fill for safe area - match tab colors */}
+      <div className="absolute inset-x-0 bottom-0 h-[calc(env(safe-area-inset-bottom)+1px)] w-full max-w-screen-sm md:max-w-240 mx-auto -z-10 flex pointer-events-auto">
+        {tabs.map((tab) => (
+          <div key={`safe-fill-${tab.id}`} className={`flex-1 h-full ${localActive === tab.id ? 'bg-[#1a9bf0]' : 'bg-[#155694]'}`} />
+        ))}
+      </div>
 
       <div className="relative h-28 flex items-end justify-center w-full max-w-screen-sm md:max-w-240 mx-auto pointer-events-auto">
         <LayoutGroup>
