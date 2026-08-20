@@ -123,7 +123,7 @@ const ChatWallpaperPattern = memo(() => {
   const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
   
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-center gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
+    <div className="fixed -top-[200px] -left-[200px] -right-[200px] h-[1500px] z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-start gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
       {Array.from({ length: 900 }).map((_, i) => {
         const item = ALL_ICONS[i % ALL_ICONS.length];
         const Icon = item;
