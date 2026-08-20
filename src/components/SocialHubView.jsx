@@ -7,6 +7,7 @@ import { usePresence } from '../context/PresenceContext';
 import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import Avatar from './Avatar';
+import GameResultRenderer from './GameResultRenderer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
 import ImageEditorModal from './ImageEditorModal';
@@ -19,6 +20,7 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, XPIcon, SpinTicketIcon } from './CurrencyIcon';
 
 const renderPreviewText = (text) => {
   if (!text) return 'یێ ل سەر هێلێیە';
@@ -115,53 +117,70 @@ function useLongPress(onLongPress, onClick, ms = 500) {
   };
 }
 
-const ChatWallpaperPattern = () => {
+const ChatWallpaperPattern = memo(() => {
+  const GAME_ICONS = [FilsIcon, HintIcon, MagnetIcon, DinarIcon, XPIcon, SpinTicketIcon, DerhemIcon];
+  const MATERIAL_ICONS = ['forum', 'sports_esports', 'extension', 'emoji_emotions', 'favorite', 'payments', 'local_fire_department', 'bolt', 'star', 'menu_book', 'smart_toy', 'send', 'mail', 'trophy'];
+  const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
+  
   return (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.08] dark:opacity-[0.1] z-0" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="chat-pattern" x="0" y="0" width="200" height="200" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
-          <g fill="currentColor">
-            {/* Square tile for a letter */}
-            <rect x="20" y="20" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(10 34 34)" />
-            <text x="34" y="40" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(10 34 34)">پ</text>
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-center gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
+      {Array.from({ length: 900 }).map((_, i) => {
+        const item = ALL_ICONS[i % ALL_ICONS.length];
+        const Icon = item;
+        
+        // Randomize staggering and offsets slightly for a more "doodle" like scattered feel
+        const yOffset = i % 2 === 0 ? '6px' : '-6px';
+        const xOffset = i % 3 === 0 ? '3px' : '0px';
 
-            {/* Just a letter */}
-            <text x="120" y="40" fontFamily="Rabar, sans-serif" fontSize="24" fontWeight="bold" transform="rotate(-15 120 40)">ە</text>
-
-            {/* Another tile */}
-            <rect x="150" y="90" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-10 164 104)" />
-            <text x="164" y="110" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-10 164 104)">ی</text>
-
-            {/* A letter */}
-            <text x="50" y="120" fontFamily="Rabar, sans-serif" fontSize="22" fontWeight="bold" transform="rotate(20 50 120)">ڤ</text>
-
-            {/* Two connected tiles */}
-            <rect x="80" y="150" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-5 94 164)" />
-            <text x="94" y="170" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-5 94 164)">ۆ</text>
-
-            <rect x="108" y="150" width="28" height="28" rx="4" fill="none" stroke="currentColor" strokeWidth="2" transform="rotate(-5 122 164)" />
-            <text x="122" y="170" fontFamily="Rabar, sans-serif" fontSize="18" fontWeight="bold" textAnchor="middle" transform="rotate(-5 122 164)">ک</text>
-
-            {/* Magnifying glass looking at a letter */}
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" transform="translate(150, 10) scale(1.2)" opacity="0.6" />
-
-            {/* Star/Score */}
-            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" transform="translate(20, 150) scale(0.8) rotate(-15)" opacity="0.6" />
-
-            {/* A few scattered small dots for texture */}
-            <circle cx="80" cy="50" r="2" opacity="0.4" />
-            <circle cx="30" cy="100" r="1.5" opacity="0.4" />
-            <circle cx="180" cy="160" r="2" opacity="0.4" />
-            <circle cx="130" cy="110" r="1.5" opacity="0.4" />
-          </g>
-        </pattern>
-      </defs>
-      <rect x="0" y="0" width="100%" height="100%" fill="url(#chat-pattern)" className="text-mono-900 dark:text-mono-100" />
-    </svg>
+        return (
+          <div key={i} className="shrink-0 text-white" style={{ transform: `translate(${xOffset}, ${yOffset})` }}>
+            {typeof item === 'string' ? (
+              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>{item}</span>
+            ) : (
+              <Icon size={14} disabled={true} />
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
-};
+});
 
-function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose, isSticker = false, isFavorite = false, onToggleFavorite = null }) {
+
+
+function MessageContextMenu({ m, rect, isMe, onReact, onReply, onCopy, onDelete, onReport, onClose, isSticker = false, isFavorite = false, onToggleFavorite = null }) {
+  const menuHeight = 220; // approximate max height of the context menu
+  const menuWidth = 192; // max-w-48
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  
+  // Decide Y position intelligently:
+  // 1. If there's space above the message (at least menuHeight), put it above.
+  // 2. If there's space below the message, put it below.
+  // 3. Otherwise, vertically center it on screen (it will overlap the message, but won't overlap top/bottom bars).
+  let finalTop = null;
+  let finalBottom = null;
+  let originY = '';
+
+  if (rect.top > menuHeight + 20) {
+    // Fits above
+    finalBottom = screenH - rect.top + 10;
+    originY = 'bottom';
+  } else if (screenH - rect.bottom > menuHeight + 20) {
+    // Fits below
+    finalTop = rect.bottom + 10;
+    originY = 'top';
+  } else {
+    // Doesn't fit above or below (huge message). Center it on screen.
+    finalTop = (screenH - menuHeight) / 2;
+    originY = 'top';
+  }
+
+  // Decide X position:
+  let finalRight = isMe ? Math.min(screenW - menuWidth, Math.max(10, screenW - rect.right)) : null;
+  let finalLeft = !isMe ? Math.min(screenW - menuWidth, Math.max(10, rect.left)) : null;
+  let originX = isMe ? 'right' : 'left';
+
   return (
     <div
       className="fixed inset-0 z-100 flex flex-col items-center justify-center p-4"
@@ -176,22 +195,21 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
       />
 
       <Motion.div
-        initial={{ scale: 0.8, opacity: 0, y: 20 }}
+        initial={{ scale: 0.8, opacity: 0, y: originY === 'bottom' ? 20 : -20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.8, opacity: 0, y: 20 }}
-        className="relative z-10 w-full max-w-55"
+        exit={{ scale: 0.8, opacity: 0, y: originY === 'bottom' ? 20 : -20 }}
+        className="relative z-10 w-full max-w-48"
         style={{
           position: 'fixed',
-          top: Math.max(80, Math.min(y - 20, window.innerHeight - 280)),
-          ...(isMe
-            ? { right: Math.min(window.innerWidth - 230, Math.max(10, window.innerWidth - x - 40)) }
-            : { left: Math.min(window.innerWidth - 230, Math.max(10, x - 40)) }
-          ),
-          transformOrigin: isMe ? 'top right' : 'top left'
+          top: finalTop !== null ? finalTop : undefined,
+          bottom: finalBottom !== null ? finalBottom : undefined,
+          left: finalLeft !== null ? finalLeft : undefined,
+          right: finalRight !== null ? finalRight : undefined,
+          transformOrigin: `${originY} ${originX}`
         }}
       >
         {/* Reactions Header */}
-        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md mb-2 p-2 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar shadow-2xl">
+        <div className="bg-white border border-black/10 rounded-[20px] shadow-[0_4px_0_#b4becd] mb-2 p-1.5 flex items-center justify-between gap-1 overflow-x-auto no-scrollbar">
           {['❤️', '😂', '👍', '🔥', '😮', '🙏'].map((emoji, idx) => (
             <Motion.button
               key={emoji}
@@ -200,7 +218,7 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0, transition: { delay: idx * 0.05 } }}
               onClick={() => { onReact(emoji); onClose(); }}
-              className="w-8 h-8 flex items-center justify-center text-[18px] transition-colors cursor-pointer"
+              className="w-8 h-8 flex items-center justify-center text-[20px] transition-colors cursor-pointer"
             >
               {emoji}
             </Motion.button>
@@ -208,60 +226,60 @@ function MessageContextMenu({ m, x, y, isMe, onReact, onReply, onCopy, onDelete,
         </div>
 
         {/* Action List */}
-        <div className="bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md p-1.5 flex flex-col gap-1 shadow-2xl">
+        <div className="bg-white border border-black/10 rounded-[20px] shadow-[0_4px_0_#b4becd] p-1 flex flex-col gap-0.5">
           <button
             onClick={() => { onReply(m); onClose(); }}
-            className="flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
+            className="flex items-center justify-between w-full py-2 px-3 hover:bg-slate-100 active:bg-slate-200 text-slate-800 transition-all rounded-2xl"
           >
-            <span className="font-bold text-[13px]">بەرسڤدان</span>
-            <span className="material-symbols-outlined text-[18px] text-mono-500">reply</span>
+            <span className="font-bold text-[12px]">بەرسڤدان</span>
+            <span className="material-symbols-outlined text-[13px] text-slate-400">reply</span>
           </button>
 
-          <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+          <div className="h-px bg-slate-200/60 mx-2" />
 
           <button
             onClick={() => { onCopy(m.content || m.text); onClose(); }}
-            className="flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 text-mono-900 dark:text-mono-200 transition-all rounded-md"
+            className="flex items-center justify-between w-full py-2 px-3 hover:bg-slate-100 active:bg-slate-200 text-slate-800 transition-all rounded-2xl"
           >
-            <span className="font-bold text-[13px]">ژبەرکرن</span>
-            <span className="material-symbols-outlined text-[18px] text-mono-500">content_copy</span>
+            <span className="font-bold text-[12px]">ژبەرکرن</span>
+            <span className="material-symbols-outlined text-[13px] text-slate-400">content_copy</span>
           </button>
 
           {isSticker && onToggleFavorite && (
             <>
-              <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+              <div className="h-px bg-slate-200/60 mx-2" />
               <button
                 onClick={() => { onToggleFavorite(); onClose(); }}
-                className={`flex items-center justify-between w-full py-2 px-3 hover:bg-mono-100 dark:hover:bg-white/10 active:bg-mono-200 dark:active:bg-white/20 transition-all rounded-md ${isFavorite ? 'text-red-500 hover:text-red-600 dark:text-red-400' : 'text-mono-900 dark:text-mono-200'}`}
+                className={`flex items-center justify-between w-full py-2 px-3 hover:bg-slate-100 active:bg-slate-200 transition-all rounded-2xl ${isFavorite ? 'text-red-500 hover:text-red-600' : 'text-slate-800'}`}
               >
-                <span className="font-bold text-[13px]">{isFavorite ? 'لابرن ژ پەسەندکرییان' : 'زێدەکرن بۆ پەسەندکرییان'}</span>
-                <span className="material-symbols-outlined text-[18px] text-yellow-500">{isFavorite ? 'heart_broken' : 'star'}</span>
+                <span className="font-bold text-[12px]">{isFavorite ? 'لابرن ژ پەسەندکرییان' : 'زێدەکرن بۆ پەسەندکرییان'}</span>
+                <span className="material-symbols-outlined text-[13px] text-yellow-500">{isFavorite ? 'heart_broken' : 'star'}</span>
               </button>
             </>
           )}
 
           {isMe && (
             <>
-              <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+              <div className="h-px bg-slate-200/60 mx-2" />
               <button
                 onClick={() => { onDelete(m); onClose(); }}
-                className="flex items-center justify-between w-full py-2 px-3 hover:bg-red-50 dark:hover:bg-red-500/10 active:bg-red-100 dark:active:bg-red-500/20 text-red-500 transition-all rounded-md"
+                className="flex items-center justify-between w-full py-2 px-3 hover:bg-red-50 active:bg-red-100 text-red-500 transition-all rounded-2xl"
               >
-                <span className="font-bold text-[13px]">ژێبرن</span>
-                <span className="material-symbols-outlined text-[18px]">delete</span>
+                <span className="font-bold text-[12px]">ژێبرن</span>
+                <span className="material-symbols-outlined text-[13px]">delete</span>
               </button>
             </>
           )}
 
           {!isMe && onReport && (
             <>
-              <div className="h-px bg-mono-200/50 dark:bg-white/5 mx-2" />
+              <div className="h-px bg-slate-200/60 mx-2" />
               <button
                 onClick={() => { onReport(m); onClose(); }}
-                className="flex items-center justify-between w-full py-2 px-3 hover:bg-orange-50 dark:hover:bg-orange-500/10 active:bg-orange-100 dark:active:bg-orange-500/20 text-orange-500 transition-all rounded-md"
+                className="flex items-center justify-between w-full py-2 px-3 hover:bg-orange-50 active:bg-orange-100 text-orange-500 transition-all rounded-2xl"
               >
-                <span className="font-bold text-[13px]">ڕاپۆرتکرن</span>
-                <span className="material-symbols-outlined text-[18px]">flag</span>
+                <span className="font-bold text-[12px]">ڕاپۆرتکرن</span>
+                <span className="material-symbols-outlined text-[13px]">flag</span>
               </button>
             </>
           )}
@@ -316,33 +334,11 @@ const BattleResultRenderer = ({ text, onProfileClick: _onProfileClick }) => {
   }
 
   return (
-    <div className="flex flex-col mt-3 mb-1 mx-auto cursor-default w-full max-w-100 rounded-sm shadow-lg border border-black/20 relative overflow-hidden" onClick={e => e.stopPropagation()}>
+    <div className="flex flex-col mt-3 mb-2 mx-auto cursor-default w-full max-w-100 btn-clash btn-clash-split relative overflow-hidden" onClick={e => e.stopPropagation()}>
 
-      {/* Background 50/50 Split */}
+      {/* Background Pattern (Carbon Fibre) matching Lobby */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(90deg, #2563eb 50%, #dc2626 50%)' }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.25),transparent_70%)] pointer-events-none mix-blend-overlay" />
-
-        {/* Swords Pattern */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.2] mix-blend-overlay" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="swords-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-              <g stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                <line x1="14" y1="14" x2="28" y2="28" />
-                <line x1="12" y1="16" x2="16" y2="12" />
-                <line x1="10" y1="10" x2="14" y2="14" />
-                <line x1="26" y1="14" x2="12" y2="28" />
-                <line x1="24" y1="12" x2="28" y2="16" />
-                <line x1="30" y1="10" x2="26" y2="14" />
-              </g>
-              <rect x="19" y="27" width="2" height="2" fill="#ffffff" transform="rotate(45, 20, 28)" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#swords-pattern)" />
-        </svg>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20 mix-blend-overlay pointer-events-none" />
 
         {/* Sword Light Sweep Effect */}
         <div className="absolute inset-0 overflow-hidden rounded-sm pointer-events-none">
@@ -380,7 +376,7 @@ const BattleResultRenderer = ({ text, onProfileClick: _onProfileClick }) => {
 
           {/* Name (Flexible but STRICTLY limited so it doesn't touch others) */}
           <div className="flex-1 px-1.5 flex justify-start min-w-0">
-            <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-left" dir="auto">
+            <span className="truncate text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-left" dir="auto">
               {leftPlayer.name}
             </span>
           </div>
@@ -413,7 +409,7 @@ const BattleResultRenderer = ({ text, onProfileClick: _onProfileClick }) => {
 
           {/* Name (Flexible but STRICTLY limited) */}
           <div className="flex-1 px-1.5 flex justify-end min-w-0">
-            <span className="truncate max-w-18.75 sm:max-w-23.75 text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-right" dir="auto">
+            <span className="truncate text-[11px] md:text-xs font-bold text-white drop-shadow-sm text-right" dir="auto">
               {rightPlayer.name}
             </span>
           </div>
@@ -442,56 +438,7 @@ const BattleResultRenderer = ({ text, onProfileClick: _onProfileClick }) => {
   );
 };
 
-const GameResultRenderer = ({ text, isMe }) => {
-  const lines = text.trim().split('\n');
-  const title = lines[0]; // e.g., "تەماشەی ئەنجامێن من بکەن!"
-  const gridLines = lines.slice(1).filter(l => l.trim().length > 0);
 
-  return (
-    <div className="flex flex-col gap-2 my-1 cursor-default" onClick={e => e.stopPropagation()}>
-      <div className="text-sm font-black text-center text-primary dark:text-sky-400 mb-1">{title}</div>
-      <div className="flex flex-col gap-0.75 items-center">
-        {gridLines.map((line, rIdx) => {
-          const blocks = line.split(' ').filter(b => b.trim().length > 0);
-          return (
-            <div key={rIdx} className="flex gap-0.75 justify-center">
-              {blocks.map((block, cIdx) => {
-                const hasCorrect = block.includes('🟩');
-                const hasWrongPos = block.includes('🟨');
-                const hasAbsent = block.includes('⬛') || block.includes('⬜');
-
-                const letter = block.replace(/[🟩🟨⬛⬜]/gu, '').trim();
-                const isEmpty = letter === '';
-
-                let bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
-                let textColor = "text-black dark:text-white";
-
-                if (hasCorrect) {
-                  bgColor = "bg-[#6aaa64] dark:bg-[#538d4e] border-[#6aaa64] dark:border-[#538d4e]";
-                  textColor = "text-white";
-                } else if (hasWrongPos) {
-                  bgColor = "bg-[#c9b458] dark:bg-[#b59f3b] border-[#c9b458] dark:border-[#b59f3b]";
-                  textColor = "text-white";
-                } else if (hasAbsent) {
-                  bgColor = "bg-[#D4D4D4] dark:bg-[#262626] border-[#A3A3A3] dark:border-[#4b4b4b]";
-                  textColor = isMe ? "text-white" : "text-mono-900 dark:text-white";
-                } else if (isEmpty) {
-                  bgColor = "bg-transparent border-[#E5E5E5] dark:border-[#373737]";
-                }
-
-                return (
-                  <div key={cIdx} className={`w-5.5 h-5.5 rounded-[3px] flex items-center justify-center font-bold text-[10px] ${bgColor} ${textColor} border-[1.5px] uppercase leading-none`}>
-                    {letter}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
 
 const CustomAudioPlayer = ({ src, isMe }) => {
   const audioRef = useRef(null);
@@ -676,6 +623,8 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
   const isOnlyVoice = /^\s*\[VOICE:.*?\]\s*$/.test(msgContent);
   const isOnlyEmoji = /^[\p{Emoji}\s]+$/u.test(msgContent) && msgContent.trim().length > 0 && !/[a-zA-Z0-9\u0600-\u06FF]/.test(msgContent);
   const isOnlySticker = /^\s*\[STICKER:.*?\]\s*$/.test(msgContent);
+  const isMatchResult = msgContent.startsWith('[BATTLE_RESULT]') || ((msgContent.includes('🟩') || msgContent.includes('🟨') || msgContent.includes('⬛') || msgContent.includes('⬜')) && /پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(msgContent));
+  const isMedalShare = /^\s*\[MEDAL_SHARE:.*?\]\s*$/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
@@ -724,11 +673,14 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
         const MedalIcon = medal.IconComponent;
         return (
-          <div key={i} className="mt-2 mb-1 flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-linear-to-b from-amber-500/10 to-orange-500/5 border border-amber-500/20 shadow-sm w-full max-w-56 mx-auto" dir="rtl">
-            <MedalIcon size={80} className={`w-20 h-20 ${medal.color} drop-shadow-xl shrink-0`} />
-            <div className="flex flex-col items-center text-center w-full">
-              <span className="text-[11px] sm:text-[12px] text-amber-600 dark:text-amber-500 font-bold mb-1">پلەیەکا نوی وەرگرت!</span>
-              <span className={`text-lg sm:text-xl font-black w-full ${medal.color}`} style={{ whiteSpace: 'normal', wordBreak: 'keep-all' }}>{medal.name}</span>
+          <div key={i} className="relative flex flex-col items-center justify-center mt-1 -mb-1 mx-auto w-full" dir="rtl">
+            {/* The Medal/Rank Icon */}
+            <MedalIcon size={84} className={`relative z-20 w-24 h-24 ${medal.color} drop-shadow-[0_6px_6px_rgba(0,0,0,0.3)] mb-2`} />
+            
+            {/* Text Pill below the medal */}
+            <div className="relative bg-[#1e293b] rounded-[10px] px-4 py-2 flex flex-col items-center z-10 shadow-[0_4px_0_#0f172a] border border-[#334155] min-w-28 max-w-48 w-fit">
+              <span className="text-[10px] text-white/60 font-bold mb-0.5">پلەیەکا نوی وەرگرت!</span>
+              <span className={`text-[15px] font-black ${medal.color} text-center leading-tight`} style={{ whiteSpace: 'normal', wordBreak: 'keep-all' }}>{medal.name}</span>
             </div>
           </div>
         );
@@ -780,7 +732,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
     if (isDeleted) return;
     triggerHaptic(20);
     const rect = e.target.closest('.message-bubble')?.getBoundingClientRect();
-    onLongPress(m, rect?.left + rect?.width / 2, rect?.top);
+    if (rect) onLongPress(m, rect);
   });
 
   return (
@@ -800,7 +752,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
           ? headerBundleObj.cardBg
           : isPremiumStyle
             ? headerNameStyleObj.cardBg
-            : 'bg-mono-100/90 dark:bg-mono-800/60 border border-mono-200/60 dark:border-white/5';
+            : 'bg-mono-100/90 border border-mono-200/60';
 
         return (
           <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
@@ -904,21 +856,38 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
 
       <div className={`group/msg relative max-w-[85%] flex items-center gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`} onContextMenu={(e) => e.preventDefault()}>
-        <div className="relative group/bubble flex flex-col items-end">
+        
+        {/* Chevron Button outside bubble */}
+        {!isDeleted && !isOnlyEmoji && !isOnlySticker && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.target.closest('.group\\/msg')?.querySelector('.message-bubble')?.getBoundingClientRect();
+              if (rect) onLongPress(m, rect);
+            }}
+            className={`flex opacity-60 hover:opacity-100 md:opacity-0 md:group-hover/msg:opacity-100 transition-all active:scale-95 w-5 h-5 items-center justify-center rounded-full bg-white border border-black/10 shadow-[0_2px_0_#b4becd] text-slate-500 hover:text-slate-800 shrink-0`}
+          >
+            <span className="material-symbols-outlined text-[14px]">keyboard_arrow_down</span>
+          </button>
+        )}
+
+        <div className={`relative group/bubble flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
           <div
             {...bind}
             onContextMenu={(e) => {
               if (isDeleted) return;
               e.preventDefault();
-              onLongPress(m, e.clientX, e.clientY);
+              const rect = e.target.closest('.message-bubble')?.getBoundingClientRect();
+              if (rect) onLongPress(m, rect);
             }}
-            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker))
-              ? 'text-[54px] leading-none bg-transparent shadow-none border-none px-1 py-1 drop-shadow-sm'
-              : `px-3 py-1.5 pt-2 rounded-md text-[13px] font-rabar font-light wrap-break-word whitespace-pre-wrap shadow-sm ${isMe
-                ? 'bg-mono-900 text-white dark:bg-mono-800 dark:text-white rounded-tr-none border border-mono-700/50'
-                : 'bg-white text-mono-900 dark:bg-mono-900 dark:text-white rounded-tl-none border border-mono-200 dark:border-mono-800'
+            style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare))
+              ? `bg-transparent shadow-none border-none p-0 ${(isOnlyEmoji || isOnlySticker) ? 'text-[54px] leading-none drop-shadow-sm' : ''}`
+              : `px-3.5 pt-3.5 pb-1 rounded-[20px] text-[13.5px] font-rabar font-bold wrap-break-word whitespace-pre-wrap border border-black/10 shadow-[0_4px_0_#b4becd] ${isMe
+                ? 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-right-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-t before:border-r before:border-black/10 before:rotate-45'
+                : 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-left-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-b before:border-l before:border-black/10 before:rotate-45'
               }`
-              } ${isDeleted ? 'px-3 py-1.5 rounded-md opacity-60 italic text-[13px] bg-mono-100 dark:bg-mono-800' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
+              } ${isDeleted ? 'opacity-60 italic' : ''} ${isMentioned ? 'ring-2 ring-primary ring-offset-2 dark:ring-offset-mono-900 shadow-md shadow-primary/20' : ''}`}
           >
 
             {/* Quoted Message (Reply) */}
@@ -930,24 +899,13 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                     (m.reply_to_text.includes('🟩') || m.reply_to_text.includes('🟨') || m.reply_to_text.includes('⬛') || m.reply_to_text.includes('⬜')) &&
                     (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.reply_to_text))
                   )
-                    ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} isMe={isMe} /></div>
+                    ? <div className="scale-[0.85] origin-right opacity-80 -my-1"><GameResultRenderer text={m.reply_to_text} /></div>
                     : renderFormattedText(m.reply_to_text)
                 }
               </div>
             )}
 
-            {/* Chevron Button inside bubble (WhatsApp Web Style) */}
-            {!isDeleted && !isOnlyEmoji && !isOnlySticker && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onLongPress(m, e.clientX, e.clientY);
-                }}
-                className={`absolute top-0.5 flex opacity-20 hover:opacity-100 transition-opacity w-6 h-6 items-center justify-center rounded-full bg-white/80 dark:bg-black/50 text-mono-500 hover:text-mono-900 dark:text-mono-400 dark:hover:text-white backdrop-blur-sm shadow-sm z-10 ${isMe ? 'left-0.5' : 'right-0.5'}`}
-              >
-                <span className="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
-              </button>
-            )}
+
 
             {isDeleted ? 'ئەڤ نامەیە هاتە ژێبرن' : (
               (m.content || m.text).startsWith('[BATTLE_RESULT]')
@@ -957,38 +915,39 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                   (/پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(m.content || m.text)) &&
                   m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1'
                 )
-                  ? <GameResultRenderer text={m.content || m.text} isMe={isMe} />
+                  ? <GameResultRenderer text={m.content || m.text} />
                   : (isOnlyEmoji ? <AnimatedEmojiRenderer text={m.content || m.text} /> : renderFormattedText(m.content || m.text))
             )}
 
-            <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-1'}`}>
-              <div className={`text-[9px] font-bold opacity-70 ${(isMe && !isOnlyEmoji && !isOnlySticker) ? 'text-mono-200' : 'text-mono-500 dark:text-mono-400'}`}>
+            <div className={`flex items-center justify-end gap-1 ${isOnlyVoice ? 'absolute bottom-1 left-3 z-20' : 'mt-0.5'}`}>
+              <div className={`text-[9px] font-bold opacity-70 ${(isMe && !isOnlyEmoji && !isOnlySticker) ? 'text-slate-600' : 'text-slate-600'}`}>
                 {new Date(m.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
               </div>
               {isMe && !isDeleted && (
                 <div className="flex items-center">
                   {m.receiver_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-                    <span className="material-symbols-outlined text-[14px] text-mono-300 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
+                    <span className="material-symbols-outlined text-[14px] text-slate-500 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
                   ) : m.is_read ? (
-                    <span className="material-symbols-outlined text-[14px] text-primary font-bold" style={{ fontSize: '14px' }}>done_all</span>
+                    <span className="material-symbols-outlined text-[14px] text-blue-500 font-bold" style={{ fontSize: '14px' }}>done_all</span>
                   ) : m.id?.startsWith?.('temp-') ? (
-                    <span className="material-symbols-outlined text-[14px] text-mono-300 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
+                    <span className="material-symbols-outlined text-[14px] text-slate-500 font-bold opacity-40" style={{ fontSize: '14px' }}>done</span>
                   ) : (
-                    <span className="material-symbols-outlined text-[14px] text-mono-300 font-bold" style={{ fontSize: '14px' }}>done_all</span>
+                    <span className="material-symbols-outlined text-[14px] text-slate-500 font-bold" style={{ fontSize: '14px' }}>done_all</span>
                   )}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Reactions Display - Transparent */}
+          {/* Reactions Display */}
           {m.reactions && Object.keys(m.reactions).length > 0 && !isDeleted && (
-            <div className={`flex flex-wrap gap-2 mt-1 ${isMe ? 'justify-end' : 'justify-start'}`} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <div className={`flex flex-wrap gap-2 ${isMedalShare ? '-mt-1 relative z-30' : isMatchResult ? '-mt-3 relative z-30' : 'mt-1'} ${isMe ? 'justify-end' : 'justify-start'}`} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
               {Object.entries(m.reactions).map(([emoji, users]) => {
+                const isReactedByMe = users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId);
                 return (
                   <div
                     key={emoji}
-                    className={`group relative flex items-center gap-1 text-[11px] font-black transition-all cursor-help select-none ${users.some(u => (typeof u === 'string' ? u : u.id) === currentUserId) ? 'text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'text-mono-500/80 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                    className={`group relative flex items-center gap-0.5 px-1.5 py-px rounded-md transition-all cursor-help select-none ${isReactedByMe ? 'bg-[#f0f9ff] border border-primary/30 shadow-[0_2px_0_#bae6fd] text-primary' : 'bg-white border border-black/10 shadow-[0_2px_0_#b4becd] text-[#1e293b] active:scale-95 active:translate-y-px active:shadow-[0_1px_0_#b4becd]'}`}
                     onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -996,8 +955,8 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                       onReactionLongPress?.(m, emoji, e.clientX, e.clientY);
                     }}
                   >
-                    <span className="text-[13px] leading-none drop-shadow-sm pointer-events-none">{emoji}</span>
-                    <span className="text-[10px] tabular-nums mt-0.5 pointer-events-none">{users.length}</span>
+                    <span className="text-[10px] leading-none drop-shadow-sm pointer-events-none">{emoji}</span>
+                    <span className="text-[9px] font-black tabular-nums mt-px pointer-events-none">{users.length}</span>
 
                     {/* Custom Tooltip for Desktop Hover */}
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2.5 py-1.5 bg-mono-900 dark:bg-mono-100 text-mono-50 dark:text-mono-900 text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap transition-all scale-95 group-hover:scale-100 z-100 shadow-lg border border-white/10 dark:border-black/10 hidden md:block">
@@ -1020,8 +979,8 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 }, (prev, next) => {
   return prev.m === next.m &&
     prev.isMe === next.isMe &&
-    JSON.stringify(prev.reactionUsers) === JSON.stringify(next.reactionUsers) &&
-    JSON.stringify(prev.topDailyPlayers) === JSON.stringify(next.topDailyPlayers) &&
+    prev.reactionUsers === next.reactionUsers &&
+    prev.topDailyPlayers === next.topDailyPlayers &&
     prev.showNickname === next.showNickname;
 });
 
@@ -1664,7 +1623,12 @@ export default function SocialHubView({
             if (activeTabRef.current !== 'global') setNewGlobalCount(prev => prev + 1);
           }
           setMessages(prev => {
-            if (prev.some(m => m.id === newMsg.id)) return prev;
+            const existingIdx = prev.findIndex(m => m.id === newMsg.id);
+            if (existingIdx > -1) {
+              const next = [...prev];
+              next[existingIdx] = { ...next[existingIdx], ...newMsg, isPending: false };
+              return next;
+            }
             return [...prev, newMsg];
           });
           // Removed individual profile fetch here to prevent IO overload. 
@@ -1692,7 +1656,12 @@ export default function SocialHubView({
 
           if (selectedChatRef.current && (newMsg.user_id === selectedChatRef.current.id || newMsg.receiver_id === selectedChatRef.current.id)) {
             setChatMessages(prev => {
-              if (prev.some(m => m.id === newMsg.id)) return prev;
+              const existingIdx = prev.findIndex(m => m.id === newMsg.id);
+              if (existingIdx > -1) {
+                const next = [...prev];
+                next[existingIdx] = { ...next[existingIdx], ...newMsg, isPending: false };
+                return next;
+              }
               return [...prev, newMsg];
             });
           }
@@ -2148,10 +2117,12 @@ export default function SocialHubView({
         };
 
         // Optimistic update for Global
-        setMessages(prev => [...prev, { ...payload, created_at: new Date().toISOString(), id: 'temp-' + Date.now() }]);
+        const msgId = crypto.randomUUID();
+        setMessages(prev => [...prev, { ...payload, created_at: new Date().toISOString(), id: msgId, isPending: true }]);
         setReplyingTo(null); // Clear reply state
 
         const { error } = await supabase.from('messages').insert([{
+          id: msgId,
           content: payload.content,
           user_id: payload.user_id,
           user_nickname: payload.user_nickname,
@@ -2162,7 +2133,6 @@ export default function SocialHubView({
           console.error("Global send error:", error);
           throw error;
         }
-        fetchGlobalMessages();
       } else if (selectedChat) {
         const partnerId = selectedChat.id;
         const isBotChat = selectedChat.isBotChat;
@@ -2170,14 +2140,16 @@ export default function SocialHubView({
         const myNickname = isBotChat ? 'پەیڤۆک' : (userNickname || 'یاریزان');
 
         // Optimistic update for Private
+        const msgId = crypto.randomUUID();
         const tempMsg = {
+          id: msgId,
           content: finalMsgContent,
           user_id: myId,
           receiver_id: partnerId,
           reply_to_id: replyingTo?.id,
           reply_to_text: replyingTo?.content || replyingTo?.text,
           created_at: new Date().toISOString(),
-          id: 'temp-' + Date.now()
+          isPending: true
         };
         setChatMessages(prev => [...prev, tempMsg]);
         setReplyingTo(null); // Clear reply state after sending
@@ -2185,6 +2157,7 @@ export default function SocialHubView({
         const { data: insertedMsg, error } = await supabase
           .from('messages')
           .insert([{
+            id: msgId,
             content: finalMsgContent,
             user_id: myId,
             user_nickname: myNickname,
@@ -2299,1107 +2272,1173 @@ export default function SocialHubView({
   };
 
   return (
-    <div className={`fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 ${isKeyboardVisible ? 'pb-0' : 'pb-[calc(110px+env(safe-area-inset-bottom))]'}`} dir="rtl">
+    <div className={`fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-0`} dir="rtl">
       <div className="flex-1 flex flex-col w-full overflow-hidden relative">
-      {/* Tabs - Sharp Segmented Style with Shadow */}
-      <div className="pb-2 w-full shrink-0" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
-        <div className="flex p-1 bg-mono-100 dark:bg-mono-900 relative shadow-sm border-b border-mono-200 dark:border-mono-800 transition-colors duration-300">
-          {[
-            {
-              id: 'global',
-              label: 'نامەیێن گشتی',
-              icon: 'public',
-              badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0
-                ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length
-                : (newGlobalCount > 0 ? -1 : 0)
-            },
-            { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                triggerHaptic(10);
-                playTabSound();
-                setActiveTab(tab.id);
-                setSelectedChat(null);
-                if (tab.id === 'global') {
-                  setNewGlobalCount(0); // clear local mentions/count on view
-                }
-              }}
-              className={`flex-1 py-2.5 rounded-sm flex items-center justify-center gap-2 transition-all relative z-10 ${activeTab === tab.id ? 'text-mono-50 font-black dark:text-mono-50' : 'text-mono-600 hover:text-mono-900 dark:text-mono-400 dark:hover:text-mono-100'}`}
-            >
-              <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-              <span className="text-xs font-black">{tab.label}</span>
-              {tab.badge > 0 && (
-                <span className="absolute -top-1 right-2 min-w-4 h-4 bg-red-500 rounded-full border border-white/20 flex items-center justify-center px-1 ring-2 ring-mono-200 dark:ring-mono-800 shadow-sm z-20">
-                  <span className="text-[10px] text-white font-black leading-none mt-0.5">
-                    {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
+        {/* Tabs - Clash Royale Style */}
+        <div className="w-full bg-[#3b82f6] relative z-20 shadow-[inset_0_-4px_0_rgba(0,0,0,0.15),0_8px_16px_rgba(0,0,0,0.2)] pb-4 rounded-none border-b-4 border-black" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
+          <div className="h-2 w-full" />
+          <div className="relative h-9.5 w-full">
+            <div className="flex items-center justify-center gap-3 w-full relative z-10 h-full px-4">
+            {[
+              {
+                id: 'global',
+                label: 'نامەیێن گشتی',
+                icon: 'public',
+                badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0
+                  ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length
+                  : (newGlobalCount > 0 ? -1 : 0)
+              },
+              { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
+            ].map(tab => {
+              const isActive = activeTab === tab.id;
+              return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  triggerHaptic(10);
+                  playTabSound();
+                  setActiveTab(tab.id);
+                  setSelectedChat(null);
+                  if (tab.id === 'global') {
+                    setNewGlobalCount(0); // clear local mentions/count on view
+                  }
+                }}
+                className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-all duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                  isActive
+                    ? 'btn-clash-sm-blue text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] z-20'
+                    : 'btn-clash-sm-slate text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] opacity-80 hover:opacity-100 z-10 scale-95'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px] drop-shadow-md">{tab.icon}</span>
+                <span className={`relative z-20 ${isActive ? 'drop-shadow-md' : ''}`}>{tab.label}</span>
+                
+                {/* Badges */}
+                {tab.badge > 0 && (
+                  <span className="absolute -top-2 -right-1 min-w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center px-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_0_#b91c1c,0_1px_2px_#000] z-20 border border-black/80">
+                    <span className="text-[10px] text-white font-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] leading-none mt-0.5">
+                      {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
+                    </span>
                   </span>
-                </span>
-              )}
-              {tab.badge === -1 && (
-                <span className="absolute top-1 right-3 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></span>
-              )}
-            </button>
-          ))}
-          {/* Sliding Active Background - Sharp Edges */}
-          <div
-            className="absolute top-1 bottom-1 transition-all duration-300 ease-out bg-black dark:bg-mono-800 rounded-sm z-0 shadow-md"
-            style={{
-              width: 'calc(50% - 4px)',
-              right: activeTab === 'global' ? '4px' : '50%'
-            }}
-          />
+                )}
+                {tab.badge === -1 && (
+                  <span className="absolute top-1 right-3 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></span>
+                )}
+              </button>
+              );
+            })}
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Welcome Marquee Container */}
-      {activeTab === 'global' && (
-        <div className="w-full relative overflow-hidden shrink-0 flex items-center h-8 md:h-10 bg-mono-100/50 dark:bg-[#080808] border-b border-mono-200 dark:border-white/5 backdrop-blur-md shadow-[inset_0_2px_10px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]" dir="ltr">
-          {marqueeAnnouncements.length > 0 && (
-            <div className="w-full relative flex items-center z-0">
-              <div className="animate-marquee font-black text-[12px] md:text-[13px] text-primary dark:text-[#00ffcc] dark:[text-shadow:0_0_8px_rgba(0,255,204,0.6)] whitespace-nowrap tracking-wide py-2" dir="rtl">
-                {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0')}
+        {/* Welcome Marquee Container */}
+        {activeTab === 'global' && (
+          <div className="w-full relative overflow-hidden shrink-0 flex items-center h-8 md:h-10 bg-[#e6f1f8] border-b-2 border-black/20 shadow-[inset_0_2px_4px_rgba(255,255,255,0.8)]" dir="ltr">
+            {marqueeAnnouncements.length > 0 && (
+              <div className="w-full relative flex items-center z-0">
+                <div className="animate-marquee font-black text-[12px] md:text-[13px] text-[#1f2937] drop-shadow-[0_1px_0_rgba(255,255,255,0.8)] whitespace-nowrap tracking-wide py-2" dir="rtl">
+                  {marqueeAnnouncements.map(a => a.text).join('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0✦\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0')}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        <AnimatePresence>
+          {connectionError && (
+            <Motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-4 mb-2"
+            >
+              <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-md p-2 flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[16px]">cloud_off</span>
+                <span className="text-xs font-black">ئاریشەیەک د پەیوەندیێ دا هەیە... بزاڤا دووبارە دکەین</span>
+              </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content Area - Layout Engine */}
+        <div className="flex-1 overflow-hidden relative flex flex-col">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-mono-white dark:bg-black z-10 transition-colors duration-500">
+              <div className="w-10 h-10 border-4 border-mono-200 dark:border-mono-800 border-t-primary rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Global Chat View */}
+          {activeTab === 'global' && (
+            <div className="flex-1 relative overflow-hidden bg-[#eaf2f8] dark:bg-[#16212b] transition-colors duration-500">
+              <ChatWallpaperPattern />
+
+              <div
+                ref={messagesContainerRef}
+                className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
+              >
+                <div className="mt-auto flex-none" />
+                <AnimatePresence initial={false}>
+                  {messages.map((m, idx) => (
+                    <MessageItem
+                      key={m.id || idx}
+                      m={m}
+                      isMe={m.user_id === user?.id}
+                      currentUserId={user?.id}
+                      currentUserNickname={userNickname}
+                      showNickname={true}
+                      reactionUsers={reactionUsers}
+                      topDailyPlayers={topDailyPlayers}
+                      onLongPress={(msg, rect) => setActiveContextMenu({ message: msg, rect, isPrivate: false })}
+                      onReact={handleReact}
+                      onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
+                      onProfileClick={setSelectedPlayer}
+                      onImageClick={setFullscreenImage}
+                    />
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           )}
 
-          {/* Edge fading gradients (placed after text to ensure they render on top of the transform stacking context) */}
-          <div className="absolute top-0 left-0 bottom-0 w-10 md:w-16 bg-linear-to-r from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
-          <div className="absolute top-0 right-0 bottom-0 w-10 md:w-16 bg-linear-to-l from-mono-100 dark:from-[#080808] to-transparent z-20 pointer-events-none"></div>
-        </div>
-      )}
-
-      <AnimatePresence>
-        {connectionError && (
-          <Motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="px-4 mb-2"
-          >
-            <div className="bg-orange-500/10 border border-orange-500/20 text-orange-500 rounded-md p-2 flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-[16px]">cloud_off</span>
-              <span className="text-xs font-black">ئاریشەیەک د پەیوەندیێ دا هەیە... بزاڤا دووبارە دکەین</span>
-            </div>
-          </Motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Content Area - Layout Engine */}
-      <div className="flex-1 overflow-hidden relative flex flex-col">
-        {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-mono-white dark:bg-black z-10 transition-colors duration-500">
-            <div className="w-10 h-10 border-4 border-mono-200 dark:border-mono-800 border-t-primary rounded-full animate-spin" />
-          </div>
-        )}
-
-        {/* Global Chat View */}
-        {activeTab === 'global' && (
-          <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-black/50 transition-colors duration-500">
-            <ChatWallpaperPattern />
-
-            <div
-              ref={messagesContainerRef}
-              className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
-            >
-              <div className="mt-auto flex-none" />
-              <AnimatePresence initial={false}>
-                {messages.map((m, idx) => (
-                  <MessageItem
-                    key={m.id || idx}
-                    m={m}
-                    isMe={m.user_id === user?.id}
-                    currentUserId={user?.id}
-                    currentUserNickname={userNickname}
-                    showNickname={true}
-                    reactionUsers={reactionUsers}
-                    topDailyPlayers={topDailyPlayers}
-                    onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: false })}
-                    onReact={handleReact}
-                    onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
-                    onProfileClick={setSelectedPlayer}
-                    onImageClick={setFullscreenImage}
-                  />
-                ))}
-              </AnimatePresence>
-            </div>
-          </div>
-        )}
 
 
-
-        {/* Private Chat View - Complex Layout Support */}
-        {activeTab === 'private' && (
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {selectedChat ? (
-              <div className="flex-1 flex flex-col overflow-hidden bg-mono-50 dark:bg-black">
-                <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between z-10 shadow-sm transition-colors duration-300">
-                  <div className="flex items-center gap-3">
-                    <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
-                      {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
-                          <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
-                          <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
-                        </div>
-                      ) : (
-                        <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
-                      )}
-                      <div className="flex flex-col items-start">
-                        <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">
-                          {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
-                        </span>
-                        <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
-                          {onlineUsers?.has(selectedChat.id) ? 'سەرهێلە' : (() => {
-                            if (!selectedChat.updated_at) return 'دەرهێل';
-                            const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
-                            if (diff < 60) return 'دوماهیک دیتن چەند چرکەیەک ژبەری نۆکە';
-                            if (diff < 3600) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 60))} خولەک ژبەری نۆکە`;
-                            if (diff < 86400) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 3600))} دەمژمێر ژبەری نۆکە`;
-                            return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 86400))} ڕۆژ ژبەری نۆکە`;
-                          })()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Clear Chat Button (For Normal Players) */}
-                  {selectedChat.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <button
-                      onClick={() => {
-                        triggerHaptic(20);
-                        setChatToDelete(selectedChat);
-                        setShowDeleteConfirm(true);
-                      }}
-                      className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm shrink-0 ml-1"
-                      title="ژێبرنا نامەیان"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">delete</span>
-                    </button>
-                  )}
-
-                  {/* Report Button (For Peyvok Bot ONLY) */}
-                  {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
-                    <button
-                      onClick={() => {
-                        triggerHaptic(20);
-                        setIsReportModalOpen(true);
-                      }}
-                      className="h-8 px-3 rounded-full bg-primary/10 text-primary flex items-center justify-center gap-1.5 hover:bg-primary hover:text-white transition-all shadow-sm shrink-0 ml-1"
-                      title="هنارتنا ڕاپۆرت یان پێشنیار"
-                    >
-                      <span className="material-symbols-outlined text-[17px]">report</span>
-                      <span className="text-[11px] font-bold">ڕاپۆرت</span>
-                    </button>
-                  )}
-                </div>
-                <div className="flex-1 relative overflow-hidden bg-mono-50 dark:bg-mono-900 transition-colors duration-500">
-                  <ChatWallpaperPattern />
-
-                  <div
-                    ref={messagesContainerRef}
-                    className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
-                  >
-                    <div className="mt-auto flex-none" />
-                    {/* Disappearing Messages Notice */}
-                    <div className="flex justify-center mb-4 mt-2">
-                      <div className="bg-mono-200/60 dark:bg-mono-800/60 backdrop-blur-md border border-mono-300/30 dark:border-mono-700/30 text-mono-600 dark:text-mono-300 text-[11.5px] leading-relaxed text-center px-4 py-2.5 rounded-xl max-w-[90%] shadow-sm flex items-start gap-2.5" dir="rtl">
-                        <span className="material-symbols-outlined text-[18px] shrink-0 text-mono-500 mt-0.5">schedule</span>
-                        <span>نامەیێن ڤی چاتی پشتی ٢٤ دەمژمێران ژ دەمێ هنارتنێ دێ ب شێوەیەکێ ئۆتۆماتیکی ژێ چن.</span>
-                      </div>
-                    </div>
-
-                    {chatMessages.map((m, idx) => (
-                      <MessageItem
-                        key={m.id || idx}
-                        m={m}
-                        isMe={selectedChat?.isBotChat ? m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : m.user_id === user?.id}
-                        currentUserId={selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id}
-                        currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
-                        reactionUsers={reactionUsers}
-                        topDailyPlayers={topDailyPlayers}
-                        onSeen={async (id) => {
-                          const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
-                          if (m.user_id !== myId && !m.is_read) {
-                            await supabase
-                              .from('messages')
-                              .update({ is_read: true })
-                              .eq('id', id);
-                          }
-                        }}
-                        onLongPress={(msg, x, y) => setActiveContextMenu({ message: msg, x, y, isPrivate: true })}
-                        onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
-                        onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
-                        onProfileClick={setSelectedPlayer}
-                        onImageClick={setFullscreenImage}
-                      />
-                    ))}
-
-                    {partnerIsTyping && (
-                      <Motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="flex items-center gap-2 mb-4 w-fit"
-                      >
-                        <div className="bg-white dark:bg-mono-900 px-3.5 py-2 rounded-md rounded-tl-none border border-mono-200 dark:border-mono-800 flex items-center gap-3 shadow-sm relative overflow-hidden" dir="ltr">
-
-                          <Motion.span
-                            animate={{ opacity: [0.6, 1, 0.6] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            className="text-[11px] font-bold text-mono-500 dark:text-mono-300 tracking-wide"
-                            dir="rtl"
-                          >
-                            دنڤیسیت...
-                          </Motion.span>
-
-                          <div className="flex gap-1.5 items-center">
-                            <Motion.span
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0, ease: "easeInOut" }}
-                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
-                            />
-                            <Motion.span
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.15, ease: "easeInOut" }}
-                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
-                            />
-                            <Motion.span
-                              animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
-                              transition={{ repeat: Infinity, duration: 0.9, delay: 0.3, ease: "easeInOut" }}
-                              className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
-                            />
+          {/* Private Chat View - Complex Layout Support */}
+          {activeTab === 'private' && (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {selectedChat ? (
+                <div className="flex-1 flex flex-col overflow-hidden bg-mono-50 dark:bg-black">
+                  <div className="shrink-0 p-3 bg-mono-white dark:bg-mono-900 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between z-10 shadow-sm transition-colors duration-300">
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => { playBubblePopSound(); setSelectedChat(null); }} className="material-symbols-outlined text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-mono-100">arrow_back</button>
+                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => { triggerHaptic(10); playBubblePopSound(); setSelectedPlayer(selectedChat); }}>
+                        {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
+                            <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
+                            <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover hidden dark:block" />
                           </div>
-
+                        ) : (
+                          <Avatar src={selectedChat.avatar_url} lastActive={selectedChat.updated_at} isOnline={onlineUsers?.has(selectedChat.id)} showStatus={true} size="sm" />
+                        )}
+                        <div className="flex flex-col items-start">
+                          <span className="font-black text-sm hover:text-primary transition-colors text-mono-900 dark:text-mono-100">
+                            {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک Peyvok' : selectedChat.nickname}
+                          </span>
+                          <span className="text-[10px] text-mono-500 dark:text-mono-400 font-medium">
+                            {onlineUsers?.has(selectedChat.id) ? 'سەرهێلە' : (() => {
+                              if (!selectedChat.updated_at) return 'دەرهێل';
+                              const diff = Math.floor((new Date() - new Date(selectedChat.updated_at)) / 1000);
+                              if (diff < 60) return 'دوماهیک دیتن چەند چرکەیەک ژبەری نۆکە';
+                              if (diff < 3600) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 60))} خولەک ژبەری نۆکە`;
+                              if (diff < 86400) return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 3600))} دەمژمێر ژبەری نۆکە`;
+                              return `دوماهیک دیتن ${toKuDigits(Math.floor(diff / 86400))} ڕۆژ ژبەری نۆکە`;
+                            })()}
+                          </span>
                         </div>
-                      </Motion.div>
+                      </div>
+                    </div>
+
+                    {/* Clear Chat Button (For Normal Players) */}
+                    {selectedChat.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                      <button
+                        onClick={() => {
+                          triggerHaptic(20);
+                          setChatToDelete(selectedChat);
+                          setShowDeleteConfirm(true);
+                        }}
+                        className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm shrink-0 ml-1"
+                        title="ژێبرنا نامەیان"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                      </button>
+                    )}
+
+                    {/* Report Button (For Peyvok Bot ONLY) */}
+                    {selectedChat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
+                      <button
+                        onClick={() => {
+                          triggerHaptic(20);
+                          setIsReportModalOpen(true);
+                        }}
+                        className="h-8 px-3 rounded-full bg-primary/10 text-primary flex items-center justify-center gap-1.5 hover:bg-primary hover:text-white transition-all shadow-sm shrink-0 ml-1"
+                        title="هنارتنا ڕاپۆرت یان پێشنیار"
+                      >
+                        <span className="material-symbols-outlined text-[17px]">report</span>
+                        <span className="text-[11px] font-bold">ڕاپۆرت</span>
+                      </button>
                     )}
                   </div>
+                  <div className="flex-1 relative overflow-hidden bg-[#eaf2f8] dark:bg-[#16212b] transition-colors duration-500">
+                    <ChatWallpaperPattern />
+
+                    <div
+                      ref={messagesContainerRef}
+                      className="relative z-10 flex-1 h-full overflow-y-auto p-4 flex flex-col space-y-4 no-scrollbar"
+                    >
+                      <div className="mt-auto flex-none" />
+                      {/* Disappearing Messages Notice */}
+                      <div className="flex justify-center mb-4 mt-2">
+                        <div className="bg-mono-200/60 dark:bg-mono-800/60 backdrop-blur-md border border-mono-300/30 dark:border-mono-700/30 text-mono-600 dark:text-mono-300 text-[11.5px] leading-relaxed text-center px-4 py-2.5 rounded-xl max-w-[90%] shadow-sm flex items-start gap-2.5" dir="rtl">
+                          <span className="material-symbols-outlined text-[18px] shrink-0 text-mono-500 mt-0.5">schedule</span>
+                          <span>نامەیێن ڤی چاتی پشتی ٢٤ دەمژمێران ژ دەمێ هنارتنێ دێ ب شێوەیەکێ ئۆتۆماتیکی ژێ چن.</span>
+                        </div>
+                      </div>
+
+                      {chatMessages.map((m, idx) => (
+                        <MessageItem
+                          key={m.id || idx}
+                          m={m}
+                          isMe={selectedChat?.isBotChat ? m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : m.user_id === user?.id}
+                          currentUserId={selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id}
+                          currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
+                          reactionUsers={reactionUsers}
+                          topDailyPlayers={topDailyPlayers}
+                          onSeen={async (id) => {
+                            const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
+                            if (m.user_id !== myId && !m.is_read) {
+                              await supabase
+                                .from('messages')
+                                .update({ is_read: true })
+                                .eq('id', id);
+                            }
+                          }}
+                          onLongPress={(msg, rect) => setActiveContextMenu({ message: msg, rect, isPrivate: true })}
+                          onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
+                          onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
+                          onProfileClick={setSelectedPlayer}
+                          onImageClick={setFullscreenImage}
+                        />
+                      ))}
+
+                      {partnerIsTyping && (
+                        <Motion.div
+                          initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          className="flex items-center gap-2 mb-4 w-fit"
+                        >
+                          <div className="bg-white dark:bg-mono-900 px-3.5 py-2 rounded-md rounded-tl-none border border-mono-200 dark:border-mono-800 flex items-center gap-3 shadow-sm relative overflow-hidden" dir="ltr">
+
+                            <Motion.span
+                              animate={{ opacity: [0.6, 1, 0.6] }}
+                              transition={{ repeat: Infinity, duration: 1.5 }}
+                              className="text-[11px] font-bold text-mono-500 dark:text-mono-300 tracking-wide"
+                              dir="rtl"
+                            >
+                              دنڤیسیت...
+                            </Motion.span>
+
+                            <div className="flex gap-1.5 items-center">
+                              <Motion.span
+                                animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                                transition={{ repeat: Infinity, duration: 0.9, delay: 0, ease: "easeInOut" }}
+                                className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                              />
+                              <Motion.span
+                                animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                                transition={{ repeat: Infinity, duration: 0.9, delay: 0.15, ease: "easeInOut" }}
+                                className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                              />
+                              <Motion.span
+                                animate={{ y: [0, -5, 0], scale: [1, 1.2, 1], opacity: [0.3, 1, 0.3] }}
+                                transition={{ repeat: Infinity, duration: 0.9, delay: 0.3, ease: "easeInOut" }}
+                                className="w-1.5 h-1.5 bg-[#00d26a] rounded-full shadow-[0_0_4px_rgba(0,210,106,0.6)]"
+                              />
+                            </div>
+
+                          </div>
+                        </Motion.div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 relative overflow-hidden bg-[#eaf2f8] dark:bg-[#16212b] transition-colors duration-500">
+                  <ChatWallpaperPattern />
+                  <div className="absolute inset-0 overflow-y-auto p-4 space-y-3 no-scrollbar z-10 flex flex-col">
+                    {privateChats.length === 0 && !loading ? (
+                      <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
+                      <div className="flex flex-col items-center space-y-4 opacity-50">
+                        <span className="material-symbols-outlined text-6xl text-mono-400">forum</span>
+                        <div className="text-center">
+                          <div className="font-black text-lg text-mono-900 dark:text-mono-50">ھیچ نامەیەک نینە</div>
+                          <div className="text-xs font-bold font-rabar text-mono-500">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                        </div>
+                        <button
+                          onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
+                          className="px-6 py-2 bg-mono-100 dark:bg-mono-900 rounded-md text-xs font-black border border-mono-200 dark:border-mono-800 shadow-sm"
+                        >
+                          دیتنا ھەڤالان
+                        </button>
+                      </div>
+
+                      <div className="w-full max-w-sm p-4 rounded-xl bg-[#e6f1f8] dark:bg-[#1e2d3b] border-2 border-[#b9d2e1] dark:border-[#2a3f54] flex flex-col items-center gap-3 shadow-[0_4px_0_#b9d2e1] dark:shadow-[0_4px_0_#15202b] mx-auto mb-2">
+                        <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center border-2 border-green-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.3)]">
+                          <span className="material-symbols-outlined text-2xl text-white font-black drop-shadow-md">person_add</span>
+                        </div>
+                        <div className="text-center">
+                          <h4 className="text-[14px] font-black font-rabar text-[#1f2937] dark:text-white drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">ھەڤالێن خوە داخواز بکە</h4>
+                          <p className="text-[11px] font-bold text-[#4b5563] dark:text-[#9ca3af] mt-1 px-4 leading-relaxed">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            triggerHaptic(10);
+                            const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
+                            const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
+                            if (navigator.share) {
+                              try {
+                                // Only send URL for strict apps like Snapchat
+                                await navigator.share({ url: shareLink });
+                              } catch (err) {
+                                if (err.name !== 'AbortError') {
+                                  navigator.clipboard.writeText(shareText);
+                                  alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                                }
+                              }
+                            } else {
+                              navigator.clipboard.writeText(shareText);
+                              alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                            }
+                          }}
+                          className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-base">share</span>
+                          بەلاڤکرنا لینکێ یاریێ
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    privateChats.map((chat, index) => {
+                      const isBot = chat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
+                      return (
+                        <div
+                          key={`${chat.id}-${index}`}
+                          onClick={async () => {
+                            setSelectedChat(chat);
+                            if (chat.unreadCount > 0 && user?.id) {
+                              // Optimistically update
+                              setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
+                              setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
+
+                              const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
+                              await supabase
+                                .from('messages')
+                                .update({ is_read: true })
+                                .eq('user_id', partnerId)
+                                .eq('receiver_id', user.id)
+                                .eq('is_read', false);
+                            }
+                          }}
+                          className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
+                            ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
+                            : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
+                            }`}
+                        >
+                          {isBot && (
+                            <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
+                          )}
+                          {/* Left Group: Avatar + Content */}
+                          <div className="flex flex-1 items-center justify-start gap-3 min-w-0 relative z-10">
+                            {/* Avatar */}
+                            <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
+                              {isBot ? (
+                                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
+                                  <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
+                                  <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+                                </div>
+                              ) : (
+                                <Avatar
+                                  src={chat.avatar_url}
+                                  lastActive={chat.updated_at}
+                                  isOnline={onlineUsers?.has(chat.id)}
+                                  showStatus={true}
+                                  size="md"
+                                  border={false}
+                                  className="transition-all"
+                                />
+                              )}
+                            </div>
+
+                            {/* Name and Message */}
+                            <div className="flex flex-col items-start min-w-0 flex-1">
+                              <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
+                                ? 'text-white'
+                                : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
+                                }`}>
+                                {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
+                              </span>
+                              <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
+                                <span className="material-symbols-outlined text-[14px]">chat</span>
+                                <span className="truncate flex items-center gap-1">
+                                  {renderPreviewText(chat.lastMsg)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Right Side: Time and Indicator */}
+                          <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
+                            <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-400 dark:text-mono-500'}`}>
+                              {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            {chat.unreadCount > 0 && (
+                              <div className={`w-5 h-5 text-[10px] font-black rounded-full flex items-center justify-center ${isBot ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
+                                {toKuDigits(chat.unreadCount)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar">
-                {privateChats.length === 0 && !loading ? (
-                  <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
-                    <div className="flex flex-col items-center space-y-4 opacity-50">
-                      <span className="material-symbols-outlined text-6xl text-mono-400">forum</span>
-                      <div className="text-center">
-                        <div className="font-black text-lg text-mono-900 dark:text-mono-50">ھیچ نامەیەک نینە</div>
-                        <div className="text-xs font-bold font-rabar text-mono-500">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
-                      </div>
-                      <button
-                        onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
-                        className="px-6 py-2 bg-mono-100 dark:bg-mono-900 rounded-md text-xs font-black border border-mono-200 dark:border-mono-800 shadow-sm"
-                      >
-                        دیتنا ھەڤالان
-                      </button>
-                    </div>
+            )}
+            </div>
+          )}
+        </div>
 
-                    <div className="w-full max-w-sm p-4 rounded-xl bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex flex-col items-center gap-3 shadow-sm mx-auto">
-                      <div className="w-10 h-10 rounded-full bg-green-100/50 dark:bg-green-900/30 flex items-center justify-center border border-green-200/50 dark:border-green-800/30">
-                        <span className="material-symbols-outlined text-xl text-green-600 dark:text-green-400 font-bold">person_add</span>
-                      </div>
-                      <div className="text-center">
-                        <h4 className="text-[14px] font-black font-rabar text-mono-900 dark:text-white">ھەڤالێن خوە داخواز بکە</h4>
-                        <p className="text-[11px] font-bold text-mono-500 mt-1 px-4">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
-                      </div>
-                      <button
-                        onClick={async () => {
-                          triggerHaptic(10);
-                          const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
-                          const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
-                          if (navigator.share) {
-                            try {
-                              // Only send URL for strict apps like Snapchat
-                              await navigator.share({ url: shareLink });
-                            } catch (err) {
-                              if (err.name !== 'AbortError') {
-                                navigator.clipboard.writeText(shareText);
-                                alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
-                              }
-                            }
-                          } else {
-                            navigator.clipboard.writeText(shareText);
-                            alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
-                          }
-                        }}
-                        className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
-                      >
-                        <span className="material-symbols-outlined text-base">share</span>
-                        بەلاڤکرنا لینکێ یاریێ
+        {/* Public Profile Modal */}
+        <AnimatePresence>
+          {selectedPlayer && (
+            <PublicProfileModal
+              profile={selectedPlayer}
+              currentUser={user}
+              onClose={() => setSelectedPlayer(null)}
+              onToggleBlock={handleToggleBlock}
+              onOpenChat={(player) => {
+                setSelectedPlayer(null);
+                setActiveTab('private');
+                setSelectedChat(player);
+              }}
+              onActionComplete={() => {
+                fetchPrivateConversations();
+              }}
+            />
+          )}
+          {activeContextMenu && (() => {
+            const content = activeContextMenu.message.content || activeContextMenu.message.text || '';
+            const isSticker = /^\s*\[STICKER:(.*?)\]\s*$/.test(content);
+            const stickerUrl = isSticker ? content.match(/^\s*\[STICKER:(.*?)\]\s*$/)[1] : null;
+            const isFavorite = isSticker && favoriteStickers.includes(stickerUrl);
+
+            return (
+              <MessageContextMenu
+                m={activeContextMenu.message}
+                rect={activeContextMenu.rect}
+                isMe={selectedChat?.isBotChat ? activeContextMenu.message.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : activeContextMenu.message.user_id === user?.id}
+                onClose={() => setActiveContextMenu(null)}
+                onReport={handleReport}
+                onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
+                onReply={(msg) => {
+                  triggerHaptic(10);
+                  setReplyingTo(msg);
+                  setTimeout(() => textareaRef.current?.focus(), 50);
+                }}
+                onCopy={(text) => {
+                  navigator.clipboard.writeText(text);
+                  triggerHaptic(50);
+                  setShowCopySuccess(true);
+                  setTimeout(() => setShowCopySuccess(false), 2000);
+                }}
+                onDelete={(msg) => handleDeleteMessage(msg)}
+                isSticker={isSticker}
+                isFavorite={isFavorite}
+                onToggleFavorite={isSticker ? () => toggleFavoriteSticker(stickerUrl) : null}
+              />
+            );
+          })()}
+        </AnimatePresence>
+
+        {/* Copy Success Toast */}
+        <AnimatePresence>
+          {showCopySuccess && (
+            <Motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              className="fixed bottom-32 left-1/2 -translate-x-1/2 z-200 bg-emerald-500 text-white px-4 py-2 rounded-full text-xs font-black flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">check_circle</span>
+              ھاتە ژبەرکرن
+            </Motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Input Area - WhatsApp Pill Style Swapped */}
+        {(activeTab === 'global' || selectedChat) && (
+          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-[calc(110px+env(safe-area-inset-bottom))]'} md:pb-0 bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-45 transition-colors duration-300`}>
+            {/* Reply Preview Box */}
+            <AnimatePresence>
+              {replyingTo && (
+                <Motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="px-4 py-2 bg-mono-100/80 dark:bg-mono-900/80 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between gap-3 overflow-hidden"
+                >
+                  <div className="flex-1 min-w-0 border-r-4 border-primary/50 pr-3 py-1">
+                    <p className="text-[10px] font-black text-primary uppercase  mb-0.5">بەرسڤدانا نامەیێ</p>
+                    <div className="text-xs text-mono-600 dark:text-mono-400 truncate flex items-center">{renderPreviewText(replyingTo.content || replyingTo.text)}</div>
+                  </div>
+                  <button
+                    onClick={() => { playBubblePopSound(); setReplyingTo(null); }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center bg-mono-200 dark:bg-mono-800 hover:bg-mono-300 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-400 transition-colors"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                </Motion.div>
+              )}
+            </AnimatePresence>
+            <div className="bg-[#1a9bf0] dark:bg-[#1a9bf0] z-10 shrink-0 relative transition-colors duration-500">
+
+
+              {/* Image Preview Container */}
+              {pendingImagePreview && (
+                <div className="px-4 pt-3 flex items-center justify-start" dir="rtl">
+                  <div className="relative rounded-lg overflow-hidden border border-mono-200 dark:border-mono-700 shadow-sm bg-mono-100 dark:bg-mono-900 w-24 h-24 sm:w-32 sm:h-32">
+                    <img src={pendingImagePreview} alt="Preview" className="w-full h-full object-cover" />
+
+                    {/* Close button */}
+                    <button
+                      onClick={() => {
+                        URL.revokeObjectURL(pendingImagePreview);
+                        setPendingImage(null);
+                        setPendingImagePreview(null);
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                      }}
+                      className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[16px] font-bold">close</span>
+                    </button>
+
+                    {/* Edit button */}
+                    <button
+                      onClick={() => setIsImageEditorOpen(true)}
+                      className="absolute top-1 left-1 w-6 h-6 rounded-full bg-primary/80 text-white flex items-center justify-center hover:bg-primary transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[14px] font-bold">edit</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-3 pb-3 flex gap-2 items-center">
+                {(newMessage.trim() || pendingImage || isUploadingImage || !selectedChat) ? (
+                  <button
+                    onClick={handleSendMessage}
+                    onPointerDown={(e) => e.preventDefault()}
+                    disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
+                    className={`relative w-10.5 h-10.5 flex items-center justify-center rounded-[10px] border border-[#0a203e] transition-all shrink-0 after:absolute after:top-0.5 after:right-0.75 after:w-2.5 after:h-2 after:bg-white/40 after:rounded-full after:blur-[1px] ${(newMessage.trim() || pendingImage || isUploadingImage)
+                      ? 'bg-linear-to-b from-[#8de635] to-[#4ab400] shadow-[0_4px_0_#388500,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#388500,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:brightness-110'
+                      : 'bg-linear-to-b from-[#56c6ff] to-[#259cf3] shadow-[0_4px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] opacity-70 grayscale-20 cursor-not-allowed'}`}
+                    title="ھنارتن"
+                  >
+                    {isUploadingImage ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10" />
+                    ) : (
+                      <svg viewBox="0 0 32 32" className="w-6.5 h-6.5 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10" style={{ transform: 'translateX(-1px)' }}>
+                        <path d="M4 14 L28 4 L17 28 L13 18 Z" fill="url(#sendGrad)" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                        <path d="M28 4 L13 18" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+                        <defs>
+                          <linearGradient id="sendGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#e2e8f0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={isRecording ? stopRecording : startRecording}
+                    disabled={isUploadingImage}
+                    className={`relative w-10.5 h-10.5 flex items-center justify-center rounded-[10px] border border-[#0a203e] transition-all shrink-0 after:absolute after:top-0.5 after:right-0.75 after:w-2.5 after:h-2 after:bg-white/40 after:rounded-full after:blur-[1px] ${isRecording
+                      ? 'bg-linear-to-b from-[#ff5e5e] to-[#e60000] shadow-[0_4px_0_#b30000,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#b30000,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] animate-pulse'
+                      : 'bg-linear-to-b from-[#56c6ff] to-[#259cf3] shadow-[0_4px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] hover:brightness-110'}`}
+                    title={isRecording ? "هنارتنا دەنگی" : "تۆمارکرنا دەنگی"}
+                  >
+                    {isUploadingImage ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin relative z-10" />
+                    ) : isRecording ? (
+                      <svg viewBox="0 0 32 32" className="w-6.5 h-6.5 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10" style={{ transform: 'translateX(-1px)' }}>
+                        <path d="M4 14 L28 4 L17 28 L13 18 Z" fill="url(#sendGradRec)" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                        <path d="M28 4 L13 18" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+                        <defs>
+                          <linearGradient id="sendGradRec" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#e2e8f0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 32 32" className="w-6.5 h-6.5 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10">
+                        <path d="M16 3 C13 3 11 5 11 9 L11 15 C11 19 13 21 16 21 C19 21 21 19 21 15 L21 9 C21 5 19 3 16 3 Z" fill="url(#micGrad)" stroke="#0f172a" strokeWidth="2" />
+                        <path d="M8 15 C8 20 11.5 24.5 16 25 C20.5 24.5 24 20 24 15" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+                        <path d="M16 25 L16 30 M11 30 L21 30" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+                        <defs>
+                          <linearGradient id="micGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#e2e8f0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    )}
+                  </button>
+                )}
+
+                {isRecording ? (
+                  <div className="flex-1 bg-linear-to-b from-[#2573bd] to-[#155694] border border-[#0a203e] rounded-[10px] px-4 py-2.5 h-10.5 flex items-center justify-between shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.15)]" dir="ltr">
+                    <button onClick={cancelRecording} className="text-white/60 hover:text-red-400 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/20">
+                      <span className="material-symbols-outlined font-black text-xl">delete</span>
+                    </button>
+                    <div className="flex items-center gap-3">
+                      <button onClick={pauseRecording} className={`text-white/60 hover:text-red-400 transition-colors w-8 h-8 flex items-center justify-center rounded-full ${isRecordingPaused ? 'bg-red-500/20 text-red-400' : 'hover:bg-black/20'}`}>
+                        <span className="material-symbols-outlined font-black text-xl">{isRecordingPaused ? 'play_arrow' : 'pause'}</span>
                       </button>
+                      <span className="text-sm font-bold text-red-500 font-inter min-w-9 text-center">{formatRecordingTime(recordingTime)}</span>
+                      <div className={`w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] ${isRecordingPaused ? 'opacity-50' : 'animate-pulse'}`} />
                     </div>
                   </div>
                 ) : (
-                  privateChats.map((chat, index) => {
-                    const isBot = chat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
-                    return (
-                      <div
-                        key={`${chat.id}-${index}`}
-                        onClick={async () => {
-                          setSelectedChat(chat);
-                          if (chat.unreadCount > 0 && user?.id) {
-                            // Optimistically update
-                            setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
-                            setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
+                  <textarea
+                    ref={textareaRef}
+                    rows="1"
+                    value={newMessage}
+                    onPaste={handlePaste}
+                    onChange={(e) => {
+                      handleInputChange(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                    }}
+                    onKeyDown={(e) => {
+                      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                      if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
+                    placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
+                    onFocus={() => {
+                      setIsKeyboardVisible(true);
+                      onKeyboardToggle?.(true);
+                      setShowEmojiPicker(false);
+                      setShowGifPicker(false);
+                    }}
+                    onBlur={() => {
+                      setIsKeyboardVisible(false);
+                      onKeyboardToggle?.(false);
+                    }}
+                    className="flex-1 min-w-0 bg-linear-to-b from-[#2573bd] to-[#155694] text-white placeholder-white/70 border border-[#0a203e] rounded-[10px] px-3.5 py-2.5 text-[13px] font-bold font-rabar focus:ring-2 focus:ring-white/30 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.15)] min-h-10.5"
+                  />
+                )}
 
-                            const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
-                            await supabase
-                              .from('messages')
-                              .update({ is_read: true })
-                              .eq('user_id', partnerId)
-                              .eq('receiver_id', user.id)
-                              .eq('is_read', false);
-                          }
-                        }}
-                        className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
-                          ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
-                          : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
-                          }`}
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleImageUpload}
+                />
+
+                {!isRecording && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
+                      className={`relative w-10.5 h-10.5 flex items-center justify-center rounded-[10px] bg-linear-to-b from-[#56c6ff] to-[#259cf3] border border-[#0a203e] transition-all shrink-0 hover:brightness-110 after:absolute after:top-0.5 after:right-0.75 after:w-2.5 after:h-2 after:bg-white/40 after:rounded-full after:blur-[1px] ${showGifPicker ? 'scale-95 translate-y-0.5 shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] brightness-95' : 'shadow-[0_4px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)]'}`}
+                      title="GIF & Stickers"
+                    >
+                      <svg viewBox="0 0 32 32" className="w-6 h-6 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10">
+                        <rect x="4" y="5" width="24" height="22" rx="4" fill="url(#gifGrad)" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                        <text x="16" y="21" fontFamily="sans-serif" fontWeight="900" fontSize="11" fill="#0f172a" textAnchor="middle">GIF</text>
+                        <defs>
+                          <linearGradient id="gifGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#e2e8f0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
+                      className={`relative w-10.5 h-10.5 flex items-center justify-center rounded-[10px] bg-linear-to-b from-[#56c6ff] to-[#259cf3] border border-[#0a203e] transition-all shrink-0 hover:brightness-110 after:absolute after:top-0.5 after:right-0.75 after:w-2.5 after:h-2 after:bg-white/40 after:rounded-full after:blur-[1px] ${showEmojiPicker ? 'scale-95 translate-y-0.5 shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] brightness-95' : 'shadow-[0_4px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)]'}`}
+                      title="ئێمۆجی"
+                    >
+                      <svg viewBox="0 0 32 32" className="w-6.5 h-6.5 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10">
+                        <path d="M6 10 C6 6 8 4 12 4 L20 4 C24 4 26 6 26 10 L26 18 C26 22 24 24 20 24 L15 24 L8 29 L9 24 C7 23 6 21 6 18 Z" fill="url(#emoteGrad)" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                        <circle cx="12" cy="12" r="2" fill="#0f172a" />
+                        <circle cx="20" cy="12" r="2" fill="#0f172a" />
+                        <path d="M11 16 Q16 22 21 16" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinecap="round" />
+                        <defs>
+                          <linearGradient id="emoteGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#e2e8f0" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </button>
+
+                    {selectedChat && (
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingImage}
+                        className="relative w-10.5 h-10.5 flex items-center justify-center rounded-[10px] bg-linear-to-b from-[#56c6ff] to-[#259cf3] border border-[#0a203e] transition-all shrink-0 hover:brightness-110 after:absolute after:top-0.5 after:right-0.75 after:w-2.5 after:h-2 after:bg-white/40 after:rounded-full after:blur-[1px] shadow-[0_4px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-2px_0_rgba(0,0,0,0.1)] active:scale-95 active:translate-y-0.5 active:shadow-[0_1px_0_#146bb1,inset_0_2px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.1)] disabled:opacity-50 disabled:grayscale"
+                        title="وێنەیەک بهنێرە"
                       >
-                        {isBot && (
-                          <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
-                        )}
-                        {/* Left Group: Avatar + Content */}
-                        <div className="flex flex-1 items-center justify-start gap-3 min-w-0 relative z-10">
-                          {/* Avatar */}
-                          <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
-                            {isBot ? (
-                              <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
-                                <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
-                                <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+                        <svg viewBox="0 0 32 32" className="w-6 h-6 drop-shadow-[0_2px_0_rgba(0,0,0,0.4)] relative z-10">
+                          <rect x="3" y="4" width="26" height="24" rx="4" fill="url(#imgGrad)" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                          <circle cx="21" cy="11" r="3" fill="#0f172a" />
+                          <path d="M3 24 L12 14 L18 20 L22 16 L29 24" fill="none" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+                          <defs>
+                            <linearGradient id="imgGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#ffffff" />
+                              <stop offset="100%" stopColor="#e2e8f0" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {!isRecording && (
+                  <>
+                    {/* GIF Picker Popup */}
+                    <AnimatePresence>
+                      {showGifPicker && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowGifPicker(false)} onTouchStart={() => setShowGifPicker(false)} />
+                          <Motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
+                            dir="rtl"
+                          >
+                            <div className="flex bg-mono-200/50 dark:bg-mono-800/50 p-1 rounded-md mb-2">
+                              <button
+                                onClick={() => setGifTab('trending')}
+                                className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'trending' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                              >
+                                🔥 بەربەلاڤ
+                              </button>
+                              <button
+                                onClick={() => setGifTab('favorites')}
+                                className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'favorites' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
+                              >
+                                ⭐ پەسەندکری
+                              </button>
+                            </div>
+
+                            <input
+                              type="text"
+                              placeholder="ل ستیکەران بگەڕە..."
+                              value={gifSearchQuery}
+                              onChange={(e) => {
+                                setGifSearchQuery(e.target.value);
+                                if (e.target.value.trim() !== '') setGifTab('trending');
+                              }}
+                              className="w-full bg-mono-100 dark:bg-mono-800 border-none rounded-md px-3 py-2 text-sm font-rabar mb-2 focus:ring-2 focus:ring-primary/50 outline-none text-mono-900 dark:text-mono-100 placeholder-mono-500"
+                            />
+                            <div className="h-56 overflow-y-auto no-scrollbar relative rounded-md">
+                              {isGifLoading ? (
+                                <div className="absolute inset-0 flex items-center justify-center bg-mono-50/50 dark:bg-mono-900/50 z-10">
+                                  <div className="w-8 h-8 border-4 border-mono-200 dark:border-mono-700 border-t-primary rounded-full animate-spin" />
+                                </div>
+                              ) : null}
+
+                              <div className="columns-3 gap-2 space-y-2">
+                                {(gifTab === 'favorites' ? favoriteStickers : gifResults).map((item, idx) => {
+                                  const gifUrl = gifTab === 'favorites' ? item : (item.images?.fixed_width?.url || item.images?.original?.url);
+                                  const keyId = gifTab === 'favorites' ? `fav-${idx}` : item.id;
+                                  return (
+                                    <div
+                                      key={keyId}
+                                      onClick={() => {
+                                        if (gifUrl) {
+                                          handleSendMessage(null, `[STICKER:${gifUrl}]`);
+                                          setShowGifPicker(false);
+                                        }
+                                      }}
+                                      className="relative group break-inside-avoid cursor-pointer hover:scale-105 active:scale-95 transition-transform"
+                                    >
+                                      <img src={gifUrl} alt="Sticker" className="w-full h-auto rounded-md bg-mono-100 dark:bg-mono-800" loading="lazy" />
+                                      {/* Small fav icon in corner */}
+                                      {favoriteStickers.includes(gifUrl) && (
+                                        <div className="absolute top-1 right-1 text-yellow-400 drop-shadow-md text-sm pointer-events-none">⭐</div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            ) : (
-                              <Avatar
-                                src={chat.avatar_url}
-                                lastActive={chat.updated_at}
-                                isOnline={onlineUsers?.has(chat.id)}
-                                showStatus={true}
-                                size="md"
-                                border={false}
-                                className="transition-all"
-                              />
-                            )}
-                          </div>
 
-                          {/* Name and Message */}
-                          <div className="flex flex-col items-start min-w-0 flex-1">
-                            <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
-                              ? 'text-white'
-                              : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
-                              }`}>
-                              {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
-                            </span>
-                            <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
-                              <span className="material-symbols-outlined text-[14px]">chat</span>
-                              <span className="truncate flex items-center gap-1">
-                                {renderPreviewText(chat.lastMsg)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                              {!isGifLoading && gifTab === 'trending' && gifResults.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70">
+                                  چ ستیکەر نەهاتنە دیتن
+                                </div>
+                              )}
 
-                        {/* Right Side: Time and Indicator */}
-                        <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
-                          <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-400 dark:text-mono-500'}`}>
-                            {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                          {chat.unreadCount > 0 && (
-                            <div className={`w-5 h-5 text-[10px] font-black rounded-full flex items-center justify-center ${isBot ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
-                              {toKuDigits(chat.unreadCount)}
+                              {gifTab === 'favorites' && favoriteStickers.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70 text-center px-4">
+                                  چ ستیکەرێن پەسەندکری نینن.<br /><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
+                            <div className="mt-2 text-center w-full flex justify-center opacity-30 pointer-events-none select-none">
+                              <span className="text-[9px] font-black tracking-widest">POWERED BY GIPHY</span>
+                            </div>
+                          </Motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Emoji Picker Popup */}
+                    <AnimatePresence>
+                      {showEmojiPicker && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} onTouchStart={() => setShowEmojiPicker(false)} />
+                          <Motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
+                            dir="ltr"
+                          >
+                            <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
+                              {['😂', '❤️', '🔥', '👍', '👏', '😍', '😭', '🥺', '😡', '🤬', '🤦‍♀️', '🤷‍♀️', '🤯', '😎', '💩', '💀', '👀', '💯', '🙏', '🤫', '🏆', '👑', '💪', '✌️', '🎯', '⚔️', '🛡️', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🎉'].map(emoji => (
+                                <button
+                                  key={emoji}
+                                  onClick={() => setNewMessage(prev => prev + emoji)}
+                                  className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-mono-200 dark:hover:bg-mono-800 transition-colors text-3xl active:scale-90"
+                                >
+                                  <SingleAnimatedEmoji emoji={emoji} className="inline-block object-contain w-[1em] h-[1em]" />
+                                </button>
+                              ))}
+                            </div>
+                          </Motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </>
                 )}
               </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Public Profile Modal */}
-      <AnimatePresence>
-        {selectedPlayer && (
-          <PublicProfileModal
-            profile={selectedPlayer}
-            currentUser={user}
-            onClose={() => setSelectedPlayer(null)}
-            onToggleBlock={handleToggleBlock}
-            onOpenChat={(player) => {
-              setSelectedPlayer(null);
-              setActiveTab('private');
-              setSelectedChat(player);
-            }}
-            onActionComplete={() => {
-              fetchPrivateConversations();
-            }}
-          />
-        )}
-        {activeContextMenu && (() => {
-          const content = activeContextMenu.message.content || activeContextMenu.message.text || '';
-          const isSticker = /^\s*\[STICKER:(.*?)\]\s*$/.test(content);
-          const stickerUrl = isSticker ? content.match(/^\s*\[STICKER:(.*?)\]\s*$/)[1] : null;
-          const isFavorite = isSticker && favoriteStickers.includes(stickerUrl);
-
-          return (
-            <MessageContextMenu
-              m={activeContextMenu.message}
-              x={activeContextMenu.x}
-              y={activeContextMenu.y}
-              isMe={selectedChat?.isBotChat ? activeContextMenu.message.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : activeContextMenu.message.user_id === user?.id}
-              onClose={() => setActiveContextMenu(null)}
-              onReport={handleReport}
-              onReact={(emoji) => handleReact(activeContextMenu.message.id, emoji, activeContextMenu.isPrivate)}
-              onReply={(msg) => {
-                triggerHaptic(10);
-                setReplyingTo(msg);
-                setTimeout(() => textareaRef.current?.focus(), 50);
-              }}
-              onCopy={(text) => {
-                navigator.clipboard.writeText(text);
-                triggerHaptic(50);
-                setShowCopySuccess(true);
-                setTimeout(() => setShowCopySuccess(false), 2000);
-              }}
-              onDelete={(msg) => handleDeleteMessage(msg)}
-              isSticker={isSticker}
-              isFavorite={isFavorite}
-              onToggleFavorite={isSticker ? () => toggleFavoriteSticker(stickerUrl) : null}
-            />
-          );
-        })()}
-      </AnimatePresence>
-
-      {/* Copy Success Toast */}
-      <AnimatePresence>
-        {showCopySuccess && (
-          <Motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-32 left-1/2 -translate-x-1/2 z-200 bg-emerald-500 text-white px-4 py-2 rounded-full text-xs font-black flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-sm">check_circle</span>
-            ھاتە ژبەرکرن
-          </Motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Input Area - WhatsApp Pill Style Swapped */}
-      {(activeTab === 'global' || selectedChat) && (
-        <div className="w-full shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-0 bg-mono-white dark:bg-black border-t border-mono-200 dark:border-mono-800 relative z-45 transition-colors duration-300">
-          {/* Reply Preview Box */}
-          <AnimatePresence>
-            {replyingTo && (
-              <Motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="px-4 py-2 bg-mono-100/80 dark:bg-mono-900/80 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between gap-3 overflow-hidden"
-              >
-                <div className="flex-1 min-w-0 border-r-4 border-primary/50 pr-3 py-1">
-                  <p className="text-[10px] font-black text-primary uppercase  mb-0.5">بەرسڤدانا نامەیێ</p>
-                  <div className="text-xs text-mono-600 dark:text-mono-400 truncate flex items-center">{renderPreviewText(replyingTo.content || replyingTo.text)}</div>
-                </div>
-                <button
-                  onClick={() => { playBubblePopSound(); setReplyingTo(null); }}
-                  className="w-8 h-8 rounded-full flex items-center justify-center bg-mono-200 dark:bg-mono-800 hover:bg-mono-300 dark:hover:bg-mono-700 text-mono-600 dark:text-mono-400 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">close</span>
-                </button>
-              </Motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="bg-mono-50 dark:bg-black/50 border-t border-mono-200 dark:border-mono-800 shrink-0 relative transition-colors duration-500">
-
-
-            {/* Image Preview Container */}
-            {pendingImagePreview && (
-              <div className="px-4 pt-3 flex items-center justify-start" dir="rtl">
-                <div className="relative rounded-lg overflow-hidden border border-mono-200 dark:border-mono-700 shadow-sm bg-mono-100 dark:bg-mono-900 w-24 h-24 sm:w-32 sm:h-32">
-                  <img src={pendingImagePreview} alt="Preview" className="w-full h-full object-cover" />
-
-                  {/* Close button */}
-                  <button
-                    onClick={() => {
-                      URL.revokeObjectURL(pendingImagePreview);
-                      setPendingImage(null);
-                      setPendingImagePreview(null);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
-                    }}
-                    className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[16px] font-bold">close</span>
-                  </button>
-
-                  {/* Edit button */}
-                  <button
-                    onClick={() => setIsImageEditorOpen(true)}
-                    className="absolute top-1 left-1 w-6 h-6 rounded-full bg-primary/80 text-white flex items-center justify-center hover:bg-primary transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[14px] font-bold">edit</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="p-3 pb-3 flex gap-2 items-center">
-              {(newMessage.trim() || pendingImage || isUploadingImage || !selectedChat) ? (
-                <button
-                  onClick={handleSendMessage}
-                  onPointerDown={(e) => e.preventDefault()}
-                  disabled={(!newMessage.trim() && !pendingImage && !isUploadingImage) || isUploadingImage}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${(newMessage.trim() || pendingImage || isUploadingImage) ? 'bg-[#00a884] text-white scale-100' : 'bg-mono-100 dark:bg-mono-800 text-mono-400 dark:text-mono-600 opacity-60 scale-95'}`}
-                  title="ھنارتن"
-                >
-                  {isUploadingImage ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <span className="material-symbols-outlined font-black text-xl">send</span>
-                  )}
-                </button>
-              ) : (
-                <button
-                  onClick={isRecording ? stopRecording : startRecording}
-                  disabled={isUploadingImage}
-                  className={`w-10 h-10 flex items-center justify-center rounded-md transition-all shrink-0 shadow-sm ${isRecording ? 'bg-red-500 text-white scale-110 shadow-red-500/30 shadow-lg' : 'bg-[#00a884] text-white scale-100 hover:bg-[#009071]'}`}
-                  title={isRecording ? "هنارتنا دەنگی" : "تۆمارکرنا دەنگی"}
-                >
-                  {isUploadingImage ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <span className="material-symbols-outlined font-black text-xl">{isRecording ? 'send' : 'mic'}</span>
-                  )}
-                </button>
-              )}
-
-              {isRecording ? (
-                <div className="flex-1 bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md px-4 py-2.5 h-10.5 flex items-center justify-between shadow-sm" dir="ltr">
-                  <button onClick={cancelRecording} className="text-mono-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-mono-200 dark:hover:bg-mono-800">
-                    <span className="material-symbols-outlined font-black text-xl">delete</span>
-                  </button>
-                  <div className="flex items-center gap-3">
-                    <button onClick={pauseRecording} className={`text-mono-400 hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full ${isRecordingPaused ? 'bg-red-500/10 text-red-500' : 'hover:bg-mono-200 dark:hover:bg-mono-800'}`}>
-                      <span className="material-symbols-outlined font-black text-xl">{isRecordingPaused ? 'play_arrow' : 'pause'}</span>
-                    </button>
-                    <span className="text-sm font-bold text-red-500 font-inter min-w-9 text-center">{formatRecordingTime(recordingTime)}</span>
-                    <div className={`w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] ${isRecordingPaused ? 'opacity-50' : 'animate-pulse'}`} />
-                  </div>
-                </div>
-              ) : (
-                <textarea
-                  ref={textareaRef}
-                  rows="1"
-                  value={newMessage}
-                  onPaste={handlePaste}
-                  onChange={(e) => {
-                    handleInputChange(e.target.value);
-                    e.target.style.height = 'auto';
-                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-                  }}
-                  onKeyDown={(e) => {
-                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
-                    if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
-                      e.preventDefault();
-                      handleSendMessage();
-                    }
-                  }}
-                  placeholder={selectedChat ? `نامەکێ بۆ ${selectedChat.nickname} بنڤێسە...` : "نامەکێ بنڤێسە..."}
-                  onFocus={() => {
-                    setIsKeyboardVisible(true);
-                    onKeyboardToggle?.(true);
-                    setShowEmojiPicker(false);
-                    setShowGifPicker(false);
-                  }}
-                  onBlur={() => {
-                    setIsKeyboardVisible(false);
-                    onKeyboardToggle?.(false);
-                  }}
-                  className="flex-1 min-w-0 bg-mono-100 dark:bg-mono-900 text-mono-900 dark:text-mono-50 placeholder-mono-500 border border-mono-200 dark:border-mono-800 rounded-md px-3 py-2 text-sm font-bold font-rabar focus:ring-2 focus:ring-primary/20 transition-all duration-300 outline-none resize-none overflow-y-auto no-scrollbar shadow-sm self-stretch"
-                />
-              )}
-
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                style={{ display: 'none' }}
-                onChange={handleImageUpload}
-              />
-
-              {!isRecording && (
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    onClick={() => { setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); }}
-                    className={`w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showGifPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
-                    title="GIF & Stickers"
-                  >
-                    <span className="material-symbols-outlined font-black text-2xl">gif_box</span>
-                  </button>
-                  <button
-                    onClick={() => { setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); }}
-                    className={`w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent hover:bg-mono-200 dark:hover:bg-mono-700 ${showEmojiPicker ? 'text-[#00a884]' : 'text-mono-400 dark:text-mono-500'}`}
-                    title="ئێمۆجی"
-                  >
-                    <span className="material-symbols-outlined font-black text-xl">sentiment_satisfied</span>
-                  </button>
-
-                  {selectedChat && (
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={isUploadingImage}
-                      className="w-9 h-9 flex items-center justify-center rounded-md transition-all shrink-0 bg-transparent text-[#00a884] hover:bg-mono-200 dark:hover:bg-mono-700 disabled:opacity-50"
-                      title="وێنەیەک بهنێرە"
-                    >
-                      <span className="material-symbols-outlined font-black text-xl">image</span>
-                    </button>
-                  )}
-                </div>
-              )}
-
-              {!isRecording && (
-                <>
-                  {/* GIF Picker Popup */}
-                  <AnimatePresence>
-                    {showGifPicker && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowGifPicker(false)} onTouchStart={() => setShowGifPicker(false)} />
-                        <Motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-80 md:w-96 flex flex-col"
-                          dir="rtl"
-                        >
-                          <div className="flex bg-mono-200/50 dark:bg-mono-800/50 p-1 rounded-md mb-2">
-                            <button
-                              onClick={() => setGifTab('trending')}
-                              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'trending' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
-                            >
-                              🔥 بەربەلاڤ
-                            </button>
-                            <button
-                              onClick={() => setGifTab('favorites')}
-                              className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${gifTab === 'favorites' ? 'bg-white dark:bg-mono-700 shadow-sm text-mono-900 dark:text-white' : 'text-mono-500 hover:text-mono-700 dark:hover:text-mono-300'}`}
-                            >
-                              ⭐ پەسەندکری
-                            </button>
-                          </div>
-
-                          <input
-                            type="text"
-                            placeholder="ل ستیکەران بگەڕە..."
-                            value={gifSearchQuery}
-                            onChange={(e) => {
-                              setGifSearchQuery(e.target.value);
-                              if (e.target.value.trim() !== '') setGifTab('trending');
-                            }}
-                            className="w-full bg-mono-100 dark:bg-mono-800 border-none rounded-md px-3 py-2 text-sm font-rabar mb-2 focus:ring-2 focus:ring-primary/50 outline-none text-mono-900 dark:text-mono-100 placeholder-mono-500"
-                          />
-                          <div className="h-56 overflow-y-auto no-scrollbar relative rounded-md">
-                            {isGifLoading ? (
-                              <div className="absolute inset-0 flex items-center justify-center bg-mono-50/50 dark:bg-mono-900/50 z-10">
-                                <div className="w-8 h-8 border-4 border-mono-200 dark:border-mono-700 border-t-primary rounded-full animate-spin" />
-                              </div>
-                            ) : null}
-
-                            <div className="columns-3 gap-2 space-y-2">
-                              {(gifTab === 'favorites' ? favoriteStickers : gifResults).map((item, idx) => {
-                                const gifUrl = gifTab === 'favorites' ? item : (item.images?.fixed_width?.url || item.images?.original?.url);
-                                const keyId = gifTab === 'favorites' ? `fav-${idx}` : item.id;
-                                return (
-                                  <div
-                                    key={keyId}
-                                    onClick={() => {
-                                      if (gifUrl) {
-                                        handleSendMessage(null, `[STICKER:${gifUrl}]`);
-                                        setShowGifPicker(false);
-                                      }
-                                    }}
-                                    className="relative group break-inside-avoid cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                                  >
-                                    <img src={gifUrl} alt="Sticker" className="w-full h-auto rounded-md bg-mono-100 dark:bg-mono-800" loading="lazy" />
-                                    {/* Small fav icon in corner */}
-                                    {favoriteStickers.includes(gifUrl) && (
-                                      <div className="absolute top-1 right-1 text-yellow-400 drop-shadow-md text-sm pointer-events-none">⭐</div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            {!isGifLoading && gifTab === 'trending' && gifResults.length === 0 && (
-                              <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70">
-                                چ ستیکەر نەهاتنە دیتن
-                              </div>
-                            )}
-
-                            {gifTab === 'favorites' && favoriteStickers.length === 0 && (
-                              <div className="flex flex-col items-center justify-center h-full text-mono-500 text-sm font-bold opacity-70 text-center px-4">
-                                چ ستیکەرێن پەسەندکری نینن.<br /><span className="text-[10px] font-normal opacity-70 mt-1">ل چاتێ پەنجێ ل ستیکەرەکێ بگرە دا خەزن بکەی</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-2 text-center w-full flex justify-center opacity-30 pointer-events-none select-none">
-                            <span className="text-[9px] font-black tracking-widest">POWERED BY GIPHY</span>
-                          </div>
-                        </Motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Emoji Picker Popup */}
-                  <AnimatePresence>
-                    {showEmojiPicker && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setShowEmojiPicker(false)} onTouchStart={() => setShowEmojiPicker(false)} />
-                        <Motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute bottom-full mb-3 left-2 md:left-4 z-50 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-xl shadow-2xl p-3 w-75"
-                          dir="ltr"
-                        >
-                          <div className="grid grid-cols-5 gap-2 max-h-50 overflow-y-auto no-scrollbar">
-                            {['😂', '❤️', '🔥', '👍', '👏', '😍', '😭', '🥺', '😡', '🤬', '🤦‍♀️', '🤷‍♀️', '🤯', '😎', '💩', '💀', '👀', '💯', '🙏', '🤫', '🏆', '👑', '💪', '✌️', '🎯', '⚔️', '🛡️', '⚡', '🧠', '💡', '📚', '☀️', '🦅', '🏔️', '🎉'].map(emoji => (
-                              <button
-                                key={emoji}
-                                onClick={() => setNewMessage(prev => prev + emoji)}
-                                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-mono-200 dark:hover:bg-mono-800 transition-colors text-3xl active:scale-90"
-                              >
-                                <SingleAnimatedEmoji emoji={emoji} className="inline-block object-contain w-[1em] h-[1em]" />
-                              </button>
-                            ))}
-                          </div>
-                        </Motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
-                </>
-              )}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
-      <AnimatePresence>
-        {activeReactionModal && activeReactionModal.message && activeReactionModal.message.reactions && (
-          <div className="fixed inset-0 z-150 flex flex-col items-center justify-center p-4">
+        {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
+        <AnimatePresence>
+          {activeReactionModal && activeReactionModal.message && activeReactionModal.message.reactions && (
+            <div className="fixed inset-0 z-150 flex flex-col items-center justify-center p-4">
+              <Motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setActiveReactionModal(null)}
+                className="absolute inset-0 bg-transparent"
+              />
+              <Motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 10 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 10 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="relative z-10 w-full max-w-65 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
+                style={activeReactionModal.x && activeReactionModal.y ? {
+                  position: 'fixed',
+                  top: Math.max(20, Math.min(activeReactionModal.y, window.innerHeight - 300)),
+                  left: Math.max(20, Math.min(activeReactionModal.x - 130, window.innerWidth - 280)),
+                  transformOrigin: activeReactionModal.message.user_id === user?.id ? 'bottom right' : 'bottom left'
+                } : {}}
+              >
+                <div className="flex flex-col p-3 pb-2 border-b border-mono-200 dark:border-mono-800 shrink-0">
+                  <h3 className="font-sans font-bold text-[13px] text-mono-600 dark:text-mono-300 mb-2 text-right w-full" dir="rtl">
+                    {toKuDigits(Object.values(activeReactionModal.message.reactions).flat().length)} کارڤەدان
+                  </h3>
+
+                  {/* Tabs for Emojis */}
+                  <div className="flex items-center justify-start gap-1 overflow-x-auto no-scrollbar shrink-0" dir="rtl">
+                    {Object.entries(activeReactionModal.message.reactions).map(([emoji, users]) => (
+                      <button
+                        key={emoji}
+                        onClick={() => setActiveReactionModal(prev => ({ ...prev, activeTab: emoji }))}
+                        className={`flex items-center justify-center gap-1.5 min-w-12 px-2 h-7 rounded-full font-bold text-[12px] whitespace-nowrap transition-colors border ${activeReactionModal.activeTab === emoji ? 'border-mono-300 dark:border-mono-600 bg-mono-100 dark:bg-mono-800 text-mono-900 dark:text-white' : 'border-transparent text-mono-500 hover:bg-mono-100 dark:hover:bg-mono-800'}`}
+                      >
+                        <span className="mt-0.5">{emoji}</span>
+                        <span className="text-[11px] tabular-nums mt-0.5">{toKuDigits(users.length)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Users List */}
+                <div className="p-2 overflow-y-auto no-scrollbar flex-1 max-h-50" dir="rtl">
+                  {Object.entries(activeReactionModal.message.reactions)
+                    .filter(([emoji]) => activeReactionModal.activeTab === 'all' || activeReactionModal.activeTab === emoji)
+                    .flatMap(([emoji, users]) => users.map(u => ({ emoji, user: u })))
+                    .map(({ emoji, user: u }, idx) => {
+                      const id = typeof u === 'string' ? u : u.id;
+                      const reactionData = reactionUsers[id];
+                      const uName = typeof u !== 'string' ? u.name : null;
+                      const name = reactionData?.nickname || (uName !== 'بێناڤ' ? uName : null) || 'بێناڤ';
+                      const avatarUrl = reactionData?.avatar_url;
+
+                      const isMeReaction = id === user?.id;
+
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-mono-50 dark:hover:bg-mono-800/50 transition-colors ${isMeReaction ? 'cursor-pointer' : ''}`}
+                          onClick={isMeReaction ? (e) => {
+                            e.stopPropagation();
+                            handleReact(activeReactionModal.message.id, emoji, activeReactionModal.isPrivate);
+
+                            // Optimistically update the modal's local state so the reaction disappears
+                            setActiveReactionModal(prev => {
+                              if (!prev) return prev;
+
+                              const newReactions = { ...prev.message.reactions };
+                              const usersArray = [...(newReactions[emoji] || [])];
+
+                              const userIdx = usersArray.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
+                              if (userIdx > -1) {
+                                usersArray.splice(userIdx, 1);
+                              }
+
+                              if (usersArray.length === 0) {
+                                delete newReactions[emoji];
+                              } else {
+                                newReactions[emoji] = usersArray;
+                              }
+
+                              if (Object.keys(newReactions).length === 0) {
+                                return null; // Close if no reactions left globally
+                              }
+
+                              let newTab = prev.activeTab;
+                              if (!newReactions[emoji] && prev.activeTab === emoji) {
+                                newTab = 'all';
+                              }
+
+                              return {
+                                ...prev,
+                                activeTab: newTab,
+                                message: {
+                                  ...prev.message,
+                                  reactions: newReactions
+                                }
+                              };
+                            });
+                          } : undefined}
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-[#f0f2f5] dark:bg-mono-800 flex items-center justify-center text-mono-500 dark:text-mono-400 font-black text-xs uppercase shrink-0 shadow-sm border border-black/5 dark:border-white/5 overflow-hidden">
+                              {avatarUrl && avatarUrl !== 'default' ? (
+                                <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
+                              ) : (
+                                name.charAt(0)
+                              )}
+                            </div>
+                            <div className="flex flex-col items-start">
+                              <span className="font-sans font-medium text-mono-900 dark:text-mono-100 text-[12px]">
+                                {isMeReaction ? 'تو' : name}
+                              </span>
+                              {isMeReaction && (
+                                <span className="text-[10px] text-mono-500 dark:text-mono-400 mt-0.5">
+                                  ژێببە
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="w-6 h-6 flex items-center justify-center text-[15px]">
+                            {emoji}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </Motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* Delete Chat Confirmation Modal */}
+        <AnimatePresence>
+          {showDeleteConfirm && (
             <Motion.div
+              key="delete-chat-confirm-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setActiveReactionModal(null)}
-              className="absolute inset-0 bg-transparent"
-            />
-            <Motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 10 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 10 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative z-10 w-full max-w-65 bg-mono-50/95 dark:bg-mono-900/95 backdrop-blur-xl border border-mono-200/50 dark:border-white/10 rounded-md shadow-2xl flex flex-col max-h-[80vh] overflow-hidden"
-              style={activeReactionModal.x && activeReactionModal.y ? {
-                position: 'fixed',
-                top: Math.max(20, Math.min(activeReactionModal.y, window.innerHeight - 300)),
-                left: Math.max(20, Math.min(activeReactionModal.x - 130, window.innerWidth - 280)),
-                transformOrigin: activeReactionModal.message.user_id === user?.id ? 'bottom right' : 'bottom left'
-              } : {}}
+              className="fixed inset-0 z-110 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
             >
-              <div className="flex flex-col p-3 pb-2 border-b border-mono-200 dark:border-mono-800 shrink-0">
-                <h3 className="font-sans font-bold text-[13px] text-mono-600 dark:text-mono-300 mb-2 text-right w-full" dir="rtl">
-                  {toKuDigits(Object.values(activeReactionModal.message.reactions).flat().length)} کارڤەدان
-                </h3>
+              <Motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+                dir="rtl"
+              >
+                <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا نامەیان؟</h3>
+                <p className="text-[11px] font-bold text-center text-mono-500 dark:text-white/50 mb-5 leading-relaxed">
+                  ئەڤە دێ هەمی نامەیێن تە و ڤی کەسی ب ئێکجاری ژێبەت و دێ ل دەڤ کەسێ بەرامبەر ژی ڕەش بن. ئەڤ کارە ناهێتە زڤڕاندن.
+                </p>
+                <div className="flex gap-2.5 w-full">
+                  <button
+                    onClick={async () => {
+                      triggerHaptic(50);
+                      try {
+                        const myId = user?.id;
+                        const partnerId = chatToDelete?.id;
+                        if (!myId || !partnerId) return;
 
-                {/* Tabs for Emojis */}
-                <div className="flex items-center justify-start gap-1 overflow-x-auto no-scrollbar shrink-0" dir="rtl">
-                  {Object.entries(activeReactionModal.message.reactions).map(([emoji, users]) => (
-                    <button
-                      key={emoji}
-                      onClick={() => setActiveReactionModal(prev => ({ ...prev, activeTab: emoji }))}
-                      className={`flex items-center justify-center gap-1.5 min-w-12 px-2 h-7 rounded-full font-bold text-[12px] whitespace-nowrap transition-colors border ${activeReactionModal.activeTab === emoji ? 'border-mono-300 dark:border-mono-600 bg-mono-100 dark:bg-mono-800 text-mono-900 dark:text-white' : 'border-transparent text-mono-500 hover:bg-mono-100 dark:hover:bg-mono-800'}`}
-                    >
-                      <span className="mt-0.5">{emoji}</span>
-                      <span className="text-[11px] tabular-nums mt-0.5">{toKuDigits(users.length)}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                        const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
 
-              {/* Users List */}
-              <div className="p-2 overflow-y-auto no-scrollbar flex-1 max-h-50" dir="rtl">
-                {Object.entries(activeReactionModal.message.reactions)
-                  .filter(([emoji]) => activeReactionModal.activeTab === 'all' || activeReactionModal.activeTab === emoji)
-                  .flatMap(([emoji, users]) => users.map(u => ({ emoji, user: u })))
-                  .map(({ emoji, user: u }, idx) => {
-                    const id = typeof u === 'string' ? u : u.id;
-                    const reactionData = reactionUsers[id];
-                    const uName = typeof u !== 'string' ? u.name : null;
-                    const name = reactionData?.nickname || (uName !== 'بێناڤ' ? uName : null) || 'بێناڤ';
-                    const avatarUrl = reactionData?.avatar_url;
-
-                    const isMeReaction = id === user?.id;
-
-                    return (
-                      <div
-                        key={idx}
-                        className={`flex items-center justify-between p-1.5 rounded-lg hover:bg-mono-50 dark:hover:bg-mono-800/50 transition-colors ${isMeReaction ? 'cursor-pointer' : ''}`}
-                        onClick={isMeReaction ? (e) => {
-                          e.stopPropagation();
-                          handleReact(activeReactionModal.message.id, emoji, activeReactionModal.isPrivate);
-
-                          // Optimistically update the modal's local state so the reaction disappears
-                          setActiveReactionModal(prev => {
-                            if (!prev) return prev;
-
-                            const newReactions = { ...prev.message.reactions };
-                            const usersArray = [...(newReactions[emoji] || [])];
-
-                            const userIdx = usersArray.findIndex(u => (typeof u === 'string' ? u : u.id) === user?.id);
-                            if (userIdx > -1) {
-                              usersArray.splice(userIdx, 1);
-                            }
-
-                            if (usersArray.length === 0) {
-                              delete newReactions[emoji];
-                            } else {
-                              newReactions[emoji] = usersArray;
-                            }
-
-                            if (Object.keys(newReactions).length === 0) {
-                              return null; // Close if no reactions left globally
-                            }
-
-                            let newTab = prev.activeTab;
-                            if (!newReactions[emoji] && prev.activeTab === emoji) {
-                              newTab = 'all';
-                            }
-
-                            return {
-                              ...prev,
-                              activeTab: newTab,
-                              message: {
-                                ...prev.message,
-                                reactions: newReactions
-                              }
-                            };
+                        if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
+                          // Hide locally for admins so their messages are preserved
+                          localStorage.setItem(`hidden_chat_${myId}_${partnerId}`, Date.now().toString());
+                        } else {
+                          // Physically delete for normal users
+                          const { error } = await supabase.rpc('delete_chat_history', {
+                            user1_id: myId,
+                            user2_id: partnerId
                           });
-                        } : undefined}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-[#f0f2f5] dark:bg-mono-800 flex items-center justify-center text-mono-500 dark:text-mono-400 font-black text-xs uppercase shrink-0 shadow-sm border border-black/5 dark:border-white/5 overflow-hidden">
-                            {avatarUrl && avatarUrl !== 'default' ? (
-                              <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
-                            ) : (
-                              name.charAt(0)
-                            )}
-                          </div>
-                          <div className="flex flex-col items-start">
-                            <span className="font-sans font-medium text-mono-900 dark:text-mono-100 text-[12px]">
-                              {isMeReaction ? 'تو' : name}
-                            </span>
-                            {isMeReaction && (
-                              <span className="text-[10px] text-mono-500 dark:text-mono-400 mt-0.5">
-                                ژێببە
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="w-6 h-6 flex items-center justify-center text-[15px]">
-                          {emoji}
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </Motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+                          if (error) throw error;
+                        }
 
-      {/* Delete Chat Confirmation Modal */}
-      <AnimatePresence>
-        {showDeleteConfirm && (
-          <Motion.div
-            key="delete-chat-confirm-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-110 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
-          >
-            <Motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
-              dir="rtl"
-            >
-              <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا نامەیان؟</h3>
-              <p className="text-[11px] font-bold text-center text-mono-500 dark:text-white/50 mb-5 leading-relaxed">
-                ئەڤە دێ هەمی نامەیێن تە و ڤی کەسی ب ئێکجاری ژێبەت و دێ ل دەڤ کەسێ بەرامبەر ژی ڕەش بن. ئەڤ کارە ناهێتە زڤڕاندن.
-              </p>
-              <div className="flex gap-2.5 w-full">
-                <button
-                  onClick={async () => {
-                    triggerHaptic(50);
-                    try {
-                      const myId = user?.id;
-                      const partnerId = chatToDelete?.id;
-                      if (!myId || !partnerId) return;
-
-                      const PROTECTED_ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1'];
-
-                      if (PROTECTED_ADMIN_IDS.includes(partnerId)) {
-                        // Hide locally for admins so their messages are preserved
-                        localStorage.setItem(`hidden_chat_${myId}_${partnerId}`, Date.now().toString());
-                      } else {
-                        // Physically delete for normal users
-                        const { error } = await supabase.rpc('delete_chat_history', {
-                          user1_id: myId,
-                          user2_id: partnerId
-                        });
-                        if (error) throw error;
+                        setChatMessages([]);
+                        setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
+                        setSelectedChat(null);
+                      } catch (err) {
+                        console.error("Error clearing chat:", err);
+                        alert("شاشیەک ڕوویدا د ژێبرنا نامەیان دا.");
+                      } finally {
+                        setShowDeleteConfirm(false);
+                        setChatToDelete(null);
                       }
-
-                      setChatMessages([]);
-                      setPrivateChats(prev => prev.filter(c => c.id !== partnerId));
-                      setSelectedChat(null);
-                    } catch (err) {
-                      console.error("Error clearing chat:", err);
-                      alert("شاشیەک ڕوویدا د ژێبرنا نامەیان دا.");
-                    } finally {
-                      setShowDeleteConfirm(false);
-                      setChatToDelete(null);
-                    }
-                  }}
-                  className="flex-1 bg-red-500 text-white hover:bg-red-600 py-2.5 rounded-md text-[13px] font-bold transition-colors shadow-[0_4px_15px_rgba(239,68,68,0.25)]"
-                >
-                  ژێبرن
-                </button>
-                <button
-                  onClick={() => { triggerHaptic(10); setShowDeleteConfirm(false); setChatToDelete(null); }}
-                  className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors"
-                >
-                  پەشێمانم
-                </button>
-              </div>
-            </Motion.div>
-          </Motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Report Bug/Suggestion Modal */}
-      <AnimatePresence>
-        {isReportModalOpen && (
-          <ReportModal
-            isOpen={isReportModalOpen}
-            onClose={() => setIsReportModalOpen(false)}
-            user={user}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Image Editor Modal */}
-      <AnimatePresence>
-        {isImageEditorOpen && pendingImagePreview && (
-          <ImageEditorModal
-            imageUrl={pendingImagePreview}
-            onClose={() => setIsImageEditorOpen(false)}
-            onSave={(editedFile) => {
-              // Update pending image with the edited file
-              if (pendingImagePreview) URL.revokeObjectURL(pendingImagePreview);
-              setPendingImage(editedFile);
-              setPendingImagePreview(URL.createObjectURL(editedFile));
-              setIsImageEditorOpen(false);
-            }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Fullscreen Image Viewer Overlay (In-Chat) */}
-      {createPortal(
-        <AnimatePresence>
-          {fullscreenImage && (
-            <Motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed inset-0 z-99999 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
-              onClick={() => setFullscreenImage(null)}
-            >
-              {/* Top Action Bar */}
-              <div className="w-full py-4 pt-12 md:pt-4 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
-                <button
-                  onClick={() => setFullscreenImage(null)}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
-                >
-                  <span className="material-symbols-outlined">arrow_back</span>
-                </button>
-                <button
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    try {
-                      const response = await fetch(fullscreenImage);
-                      const blob = await response.blob();
-                      const blobUrl = URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = blobUrl;
-                      link.download = `Peyvok_Image_${Date.now()}.png`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      URL.revokeObjectURL(blobUrl);
-                    } catch (err) {
-                      console.error("Failed to download image", err);
-                    }
-                  }}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
-                >
-                  <span className="material-symbols-outlined">download</span>
-                </button>
-              </div>
-
-              {/* Image Container */}
-              <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
-                <TransformWrapper
-                  initialScale={0.5}
-                  minScale={0.1}
-                  maxScale={5}
-                  centerOnInit={true}
-                  centerZoomedOut={false}
-                  limitToBounds={false}
-                  wheel={{ step: 0.005 }}
-                  doubleClick={{ step: 1 }}
-                >
-                  {({ centerView }) => (
-                    <TransformComponent
-                      wrapperStyle={{ width: "100%", height: "100%" }}
-                      contentStyle={{ width: "max-content", height: "max-content" }}
-                    >
-                      <img
-                        src={fullscreenImage}
-                        alt="Fullscreen Preview"
-                        style={{ maxWidth: "100vw", maxHeight: "100vh" }}
-                        className="object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
-                        draggable="false"
-                        onLoad={() => centerView()}
-                        onContextMenu={e => e.preventDefault()}
-                        onClick={e => e.stopPropagation()}
-                      />
-                    </TransformComponent>
-                  )}
-                </TransformWrapper>
-              </div>
+                    }}
+                    className="flex-1 bg-red-500 text-white hover:bg-red-600 py-2.5 rounded-md text-[13px] font-bold transition-colors shadow-[0_4px_15px_rgba(239,68,68,0.25)]"
+                  >
+                    ژێبرن
+                  </button>
+                  <button
+                    onClick={() => { triggerHaptic(10); setShowDeleteConfirm(false); setChatToDelete(null); }}
+                    className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors"
+                  >
+                    پەشێمانم
+                  </button>
+                </div>
+              </Motion.div>
             </Motion.div>
           )}
-        </AnimatePresence>,
-        document.body
-      )}
+        </AnimatePresence>
+
+        {/* Report Bug/Suggestion Modal */}
+        <AnimatePresence>
+          {isReportModalOpen && (
+            <ReportModal
+              isOpen={isReportModalOpen}
+              onClose={() => setIsReportModalOpen(false)}
+              user={user}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Image Editor Modal */}
+        <AnimatePresence>
+          {isImageEditorOpen && pendingImagePreview && (
+            <ImageEditorModal
+              imageUrl={pendingImagePreview}
+              onClose={() => setIsImageEditorOpen(false)}
+              onSave={(editedFile) => {
+                // Update pending image with the edited file
+                if (pendingImagePreview) URL.revokeObjectURL(pendingImagePreview);
+                setPendingImage(editedFile);
+                setPendingImagePreview(URL.createObjectURL(editedFile));
+                setIsImageEditorOpen(false);
+              }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Fullscreen Image Viewer Overlay (In-Chat) */}
+        {createPortal(
+          <AnimatePresence>
+            {fullscreenImage && (
+              <Motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
+                className="fixed inset-0 z-99999 flex flex-col bg-black/95 backdrop-blur-xl overflow-hidden"
+                onClick={() => setFullscreenImage(null)}
+              >
+                {/* Top Action Bar */}
+                <div className="w-full py-4 pt-12 md:pt-4 flex items-center justify-between px-4 bg-linear-to-b from-black/80 to-transparent absolute top-0 left-0 z-10" onClick={e => e.stopPropagation()}>
+                  <button
+                    onClick={() => setFullscreenImage(null)}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">arrow_back</span>
+                  </button>
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      try {
+                        const response = await fetch(fullscreenImage);
+                        const blob = await response.blob();
+                        const blobUrl = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = `Peyvok_Image_${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                      } catch (err) {
+                        console.error("Failed to download image", err);
+                      }
+                    }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-black/40 text-white hover:bg-white/20 transition-colors"
+                  >
+                    <span className="material-symbols-outlined">download</span>
+                  </button>
+                </div>
+
+                {/* Image Container */}
+                <div className="flex-1 min-h-0 w-full flex items-center justify-center p-4 pt-20 pb-10">
+                  <TransformWrapper
+                    initialScale={0.5}
+                    minScale={0.1}
+                    maxScale={5}
+                    centerOnInit={true}
+                    centerZoomedOut={false}
+                    limitToBounds={false}
+                    wheel={{ step: 0.005 }}
+                    doubleClick={{ step: 1 }}
+                  >
+                    {({ centerView }) => (
+                      <TransformComponent
+                        wrapperStyle={{ width: "100%", height: "100%" }}
+                        contentStyle={{ width: "max-content", height: "max-content" }}
+                      >
+                        <img
+                          src={fullscreenImage}
+                          alt="Fullscreen Preview"
+                          style={{ maxWidth: "100vw", maxHeight: "100vh" }}
+                          className="object-contain pointer-events-auto drop-shadow-2xl rounded-sm cursor-grab active:cursor-grabbing"
+                          draggable="false"
+                          onLoad={() => centerView()}
+                          onContextMenu={e => e.preventDefault()}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      </TransformComponent>
+                    )}
+                  </TransformWrapper>
+                </div>
+              </Motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
       </div>
     </div>
   );

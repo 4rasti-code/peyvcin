@@ -117,6 +117,11 @@ const LobbyView = memo(({
     return localStorage.getItem('use_location_matchmaking') === 'true';
   });
   const inviteTimerRef = useRef(null);
+  const invitedUserProfileRef = useRef(null);
+
+  useEffect(() => {
+    invitedUserProfileRef.current = invitedUserProfile;
+  }, [invitedUserProfile]);
 
   const { playDailyOpenSfx } = useAudio();
   const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
@@ -205,12 +210,13 @@ const LobbyView = memo(({
 
   useEffect(() => {
     if (!user?.id || multiplayerState !== 'private_lobby') return;
+
     const channel = supabase.channel(`host_replies_${user.id}`, { config: { broadcast: { ack: true } } });
     channel.on('broadcast', { event: 'match_invite_rejected' }, (payload) => {
       if (payload.payload.roomId === activeMatch?.id) {
         cancelMatch();
-        setInviteAlert("وی کەسی داخوازنامە ڕەتکر");
-        if (invitedUserProfile) recordInviteStrike(invitedUserProfile.id);
+        setInviteAlert("ئەو کەسە داخوازنامە ڕەتکر");
+        if (invitedUserProfileRef.current) recordInviteStrike(invitedUserProfileRef.current.id);
         setInvitedUserProfile(null);
         if (inviteTimerRef.current) clearInterval(inviteTimerRef.current);
       }
@@ -219,8 +225,8 @@ const LobbyView = memo(({
         if (payload.payload.roomId === activeMatch?.id) {
           cancelMatch();
           const busyMode = payload.payload?.busyMode;
-          if (invitedUserProfile) {
-            const targetId = invitedUserProfile.id;
+          if (invitedUserProfileRef.current) {
+            const targetId = invitedUserProfileRef.current.id;
             setBusyUsers(prev => ({ ...prev, [targetId]: busyMode }));
             setTimeout(() => {
               setBusyUsers(prev => {
@@ -248,7 +254,7 @@ const LobbyView = memo(({
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user?.id, multiplayerState, activeMatch?.id, cancelMatch, hostAcceptJoiner, invitedUserProfile, recordInviteStrike]);
+  }, [user?.id, multiplayerState, activeMatch?.id, cancelMatch, hostAcceptJoiner, recordInviteStrike]);
 
   useEffect(() => {
     if (multiplayerState === 'private_lobby' && inviteTimeLeft === 0 && invitedUserProfile) {

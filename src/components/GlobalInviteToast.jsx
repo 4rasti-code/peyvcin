@@ -36,18 +36,24 @@ const GlobalInviteToast = ({ setGameMode, currentView, setCurrentView, gameMode 
     }
 
     const newChannel = supabase.channel(topic, { config: { broadcast: { ack: true } } });
-    newChannel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        try {
-          await newChannel.send({ type: 'broadcast', event, payload });
-        } catch (e) {
-          console.error("Broadcast reply failed", e);
-        } finally {
-          setTimeout(() => {
-            supabase.removeChannel(newChannel);
-          }, 1000);
+    
+    return new Promise((resolve) => {
+      newChannel.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          try {
+            await newChannel.send({ type: 'broadcast', event, payload });
+          } catch (e) {
+            console.error("Broadcast reply failed", e);
+          } finally {
+            setTimeout(() => {
+              supabase.removeChannel(newChannel);
+            }, 1000);
+            resolve();
+          }
+        } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          resolve();
         }
-      }
+      });
     });
   };
 

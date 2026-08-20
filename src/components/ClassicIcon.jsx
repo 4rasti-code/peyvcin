@@ -70,16 +70,28 @@ export default function ClassicIcon({ className = "w-16 h-16", continuous = fals
                 transformOrigin: `${t.x + 13}px ${t.y + 14}px`
               }}
             >
-              {/* Shadow / 3D Base */}
-              <rect x={t.x} y={t.y + 2} width="26" height="28" rx="6" fill={t.base} />
+              {/* Base Border / Bottom 3D Depth with thin black stroke */}
+              <rect x={t.x - 1} y={t.y - 1} width="28" height="31" rx="7" fill={t.base} stroke="#000000" strokeWidth="0.3" />
               
               {/* Main Face */}
-              <rect x={t.x} y={t.y} width="26" height="26" rx="6" fill={t.face} stroke="#ffffff" strokeWidth="0.5" strokeOpacity="0.9" />
+              <rect x={t.x} y={t.y} width="26" height="26" rx="6" fill={t.face} />
               
-              {/* Kurdish Letter */}
+              {/* Top Edge Reflection (Inset Top) */}
+              <path d={`M ${t.x + 2} ${t.y} 
+                       Q ${t.x} ${t.y} ${t.x} ${t.y + 2} 
+                       L ${t.x} ${t.y + 4} 
+                       L ${t.x + 26} ${t.y + 4} 
+                       L ${t.x + 26} ${t.y + 2} 
+                       Q ${t.x + 26} ${t.y} ${t.x + 24} ${t.y} Z`} 
+                    fill="#ffffff" opacity="0.45" />
+
+              {/* Mini Oval Reflection Top Right */}
+              <rect x={t.x + 18} y={t.y + 2.5} width="5" height="2.5" rx="1.25" fill="#ffffff" opacity="0.8" />
+              
+              {/* Kurdish Letter Fill */}
               <text 
                 x={t.x + 13} 
-                y={t.y + 14} 
+                y={t.y + 15} 
                 fill="#ffffff" 
                 fontSize="15" 
                 fontWeight="900" 

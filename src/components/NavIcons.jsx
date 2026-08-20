@@ -7,7 +7,7 @@ const svgProps = {
 };
 
 const IconWrapper = ({ children, isActive, className }) => (
-  <svg {...svgProps} className={`${className} transition-all duration-300 ${!isActive ? 'opacity-95 dark:opacity-70 scale-[0.90]' : 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] scale-110 -translate-y-1'}`}>
+  <svg {...svgProps} className={`${className} transition-all duration-300 ${!isActive ? 'opacity-100 scale-[0.90]' : 'drop-shadow-[0_4px_8px_rgba(0,0,0,0.2)] dark:drop-shadow-[0_4px_8px_rgba(0,0,0,0.4)] scale-110 -translate-y-1'}`}>
     {children}
   </svg>
 );
@@ -16,7 +16,7 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
   // If the user has a custom avatar, display it inside a circle
   if (avatarUrl) {
     return (
-      <div className={`${className} transition-all duration-300 rounded-full overflow-hidden border-[3px] ${isActive ? 'border-emerald-500 scale-110 -translate-y-1 shadow-[0_4px_12px_rgba(16,185,129,0.3)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.4)]' : 'border-mono-400 dark:border-mono-500 opacity-100 scale-95'}`}>
+      <div className={`${className} transition-all duration-300 rounded-full overflow-hidden border-[3px] ${isActive ? 'border-emerald-500 scale-90! -translate-y-1 shadow-[0_4px_12px_rgba(16,185,129,0.3)] dark:shadow-[0_4px_12px_rgba(16,185,129,0.4)]' : 'border-mono-400 dark:border-mono-500 opacity-100 scale-75!'}`}>
          <img src={avatarUrl} className="w-full h-full object-cover" alt="Profile" />
       </div>
     );
@@ -24,7 +24,7 @@ export function NavProfileIcon({ className = "w-10 h-10", isActive = false, avat
 
   // Premium, sleek default user profile SVG fallback
   return (
-    <IconWrapper isActive={isActive} className={className}>
+    <IconWrapper isActive={isActive} className={`${className} ${isActive ? 'scale-90!' : 'scale-75!'}`}>
       <defs>
         <linearGradient id="userGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#60a5fa" />
@@ -191,39 +191,27 @@ export function NavStoreIcon({ className = "w-10 h-10", isActive = false }) {
 }
 
 export function NavChatIcon({ className = "w-10 h-10", isActive = false }) {
-  // Premium, sleek Global Chat Bubbles (Cyan/Blue standard)
+  // Premium 3D Clash-style White Chat Bubble
   return (
     <IconWrapper isActive={isActive} className={className}>
       <defs>
-        <linearGradient id="chatGlobalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#2563eb" />
-        </linearGradient>
-        <linearGradient id="chatGrey" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#e2e8f0" />
-          <stop offset="50%" stopColor="#cbd5e1" />
-          <stop offset="100%" stopColor="#64748b" />
-        </linearGradient>
-        <linearGradient id="chatGlare" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
-          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        <linearGradient id="chatWhiteGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="60%" stopColor="#f4f4f5" />
+          <stop offset="100%" stopColor="#d4d4d8" />
         </linearGradient>
       </defs>
       <g style={{ transformOrigin: '50% 50%' }}>
-        {/* Soft shadow removed */}
-
-        {/* Back Bubble (Grey) */}
-        <path d="M 38 35 C 38 23, 48 15, 60 15 C 72 15, 82 23, 82 35 C 82 47, 72 55, 60 55 L 45 62 L 48 52 C 42 48, 38 42, 38 35 Z" fill="url(#chatGrey)" />
+        {/* Main Bubble (Original Shape, White) */}
+        <path 
+          d="M 20 54 C 20 38, 33 28, 50 28 C 67 28, 80 38, 80 54 C 80 70, 67 80, 50 80 L 28 88 L 33 76 C 25 71, 20 63, 20 54 Z" 
+          fill="url(#chatWhiteGrad)" 
+        />
         
-        {/* Front Bubble (Blue/Cyan) */}
-        <path d="M 20 54 C 20 38, 33 28, 50 28 C 67 28, 80 38, 80 54 C 80 70, 67 80, 50 80 L 28 88 L 33 76 C 25 71, 20 63, 20 54 Z" fill="url(#chatGlobalGrad)" />
-        
-        {/* Inner Glass Edge removed */}
-        
-        {/* Typing Dots */}
-        <circle cx="36" cy="54" r="4.5" fill="#ffffff" />
-        <circle cx="50" cy="54" r="4.5" fill="#ffffff" />
-        <circle cx="64" cy="54" r="4.5" fill="#ffffff" />
+        {/* Typing Dots (Black) */}
+        <circle cx="36" cy="54" r="4.5" fill="#18181b" />
+        <circle cx="50" cy="54" r="4.5" fill="#18181b" />
+        <circle cx="64" cy="54" r="4.5" fill="#18181b" />
       </g>
     </IconWrapper>
   );

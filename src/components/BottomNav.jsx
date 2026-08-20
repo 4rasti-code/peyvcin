@@ -21,9 +21,9 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
   return (
     <nav className="fixed bottom-0 left-0 right-0 w-full z-40 pb-[env(safe-area-inset-bottom)] pointer-events-none" dir="rtl">
       {/* Background fill for safe area */}
-      <div className="absolute inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] -z-10 pointer-events-auto" />
+      <div className="absolute inset-x-0 bottom-0 h-[env(safe-area-inset-bottom)] bg-[#1a9bf0] w-full max-w-screen-sm md:max-w-240 mx-auto -z-10 pointer-events-auto" />
 
-      <div className="relative h-28 flex items-end justify-center w-full max-w-150 mx-auto pointer-events-auto px-0.5">
+      <div className="relative h-28 flex items-end justify-center w-full max-w-screen-sm md:max-w-240 mx-auto pointer-events-auto">
         <LayoutGroup>
           {tabs.map((tab) => {
             const isActive = localActive === tab.id;
@@ -49,65 +49,30 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                       }, 5);
                     }
                   }}
-                  className={`group relative flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none overflow-hidden
+                  className={`group relative flex-1 h-24 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px]
                     ${isActive
-                      ? 'flex-[1.4] h-27.5 bg-linear-to-b from-[#40bcf7] to-[#1a9bf0] shadow-[0_4px_10px_rgba(0,0,0,0.3),inset_0_3px_0_rgba(255,255,255,0.4),inset_0_-4px_0_rgba(0,0,0,0.2)] rounded-t-[14px] z-20'
-                      : 'flex-1 h-24 bg-linear-to-b from-[#2573bd] to-[#155694] shadow-[0_4px_10px_rgba(0,0,0,0.3),inset_0_2px_0_rgba(255,255,255,0.2),inset_0_-4px_0_rgba(0,0,0,0.2)] hover:brightness-110 active:scale-95 rounded-t-[10px] z-10'
+                      ? 'bg-linear-to-b from-[#40bcf7] to-[#1a9bf0] shadow-[0_-10px_25px_rgba(0,0,0,0.45),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_3px_0_rgba(255,255,255,0.4)] z-20'
+                      : 'bg-linear-to-b from-[#2573bd] to-[#155694] shadow-[0_-8px_20px_rgba(0,0,0,0.35),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_2px_0_rgba(255,255,255,0.2)] hover:brightness-110 z-10'
                     }`}
                 >
-                  <div className={`relative flex justify-center items-center w-full transition-all duration-300 ${isActive ? 'mt-4' : 'h-full'}`}>
-                    {/* Badges and Notifications */}
-                    {tab.id === 'social_hub' && chatBadgeCount > 0 && (
-                      <Motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-1.5 -right-1 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] font-black font-sans rounded-full flex items-center justify-center border-2 border-[#0a203e] z-30 shadow-md"
-                      >
-                        {chatBadgeCount > 99 ? '99+' : chatBadgeCount}
-                      </Motion.div>
-                    )}
+                  <div className={`relative flex justify-center items-center w-full transition-all duration-300 ${isActive ? 'mt-1' : 'h-full'}`}>
+                    <div className={`pointer-events-none transition-all duration-300 relative z-10 flex items-center justify-center ${isActive ? 'scale-[1.45] -translate-y-4 drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]' : 'scale-[1.35] -translate-y-2 opacity-100'}`}>
+                      {/* Spotlight Glow behind active icon */}
+                      {isActive && (
+                        <Motion.div
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-[#40bcf7] opacity-50 rounded-full blur-[10px] -z-10"
+                        />
+                      )}
 
-                    {tab.id === 'profile' && pendingFriendsCount > 0 && (
-                      <Motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-1.5 -right-1 min-w-5 h-5 px-1 bg-amber-500 text-white text-[10px] font-black font-sans rounded-full flex items-center justify-center border-2 border-[#0a203e] z-30 shadow-md"
-                      >
-                        {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}
-                      </Motion.div>
-                    )}
-
-                    {tab.id === 'profile' && pendingFriendsCount === 0 && hasUnclaimedRewards && (
-                      <Motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-[#0a203e] z-30 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                      <Icon
+                        className="w-12 h-12 relative z-10"
+                        isActive={isActive}
+                        avatarUrl={userAvatarUrl}
                       />
-                    )}
-
-                    {tab.id === 'social_hub' && hasSilentGlobal && chatBadgeCount === 0 && (
-                      <Motion.div
-                        animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0a203e] z-30 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
-                      />
-                    )}
-
-                    {/* Spotlight Glow behind active icon */}
-                    {isActive && (
-                      <Motion.div
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3 }}
-                        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-[#7ae8ff] opacity-60 rounded-full blur-[14px] z-0"
-                      />
-                    )}
-
-                    <Icon
-                      className={`w-12 h-12 pointer-events-none transition-transform duration-300 relative z-10 ${isActive ? 'scale-125 mb-1' : 'scale-90 opacity-80'}`}
-                      isActive={isActive}
-                      avatarUrl={userAvatarUrl}
-                    />
+                    </div>
                   </div>
 
                   {/* Text Label */}
@@ -127,6 +92,60 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
             );
           })}
         </LayoutGroup>
+
+        {/* BADGE OVERLAY: Rendered on top of all tabs so they are never clipped by the active tab's z-index */}
+        <div className="absolute inset-0 h-28 flex items-end justify-center pointer-events-none z-50">
+          {tabs.map((tab) => {
+            const isActive = localActive === tab.id;
+            return (
+              <div key={`badge-overlay-${tab.id}`} className="relative flex-1 h-24 flex items-center justify-center">
+                <div className={`relative flex justify-center items-center w-full transition-all duration-300 ${isActive ? 'mt-1' : 'h-full'}`}>
+                  <div className={`relative flex items-center justify-center w-12 h-12 transition-all duration-300 ${isActive ? 'scale-[1.45] -translate-y-4' : 'scale-[1.35] -translate-y-2'}`}>
+                    {tab.id === 'social_hub' && chatBadgeCount > 0 && (
+                      <Motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-0 right-0 min-w-3.5 h-3.5 px-0.5 btn-clash-micro-red rounded-sm flex items-center justify-center pointer-events-none"
+                      >
+                        <span className="text-white text-[10px] font-black font-sans drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wider mt-0.5">
+                          {chatBadgeCount > 99 ? '99+' : chatBadgeCount}
+                        </span>
+                      </Motion.div>
+                    )}
+
+                    {tab.id === 'profile' && pendingFriendsCount > 0 && (
+                      <Motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-0 right-0 min-w-3.5 h-3.5 px-0.5 btn-clash-micro-red rounded-sm flex items-center justify-center pointer-events-none"
+                      >
+                        <span className="text-white text-[10px] font-black font-sans drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] tracking-wider mt-0.5">
+                          {pendingFriendsCount > 99 ? '99+' : pendingFriendsCount}
+                        </span>
+                      </Motion.div>
+                    )}
+
+                    {tab.id === 'profile' && pendingFriendsCount === 0 && hasUnclaimedRewards && (
+                      <Motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full border-2 border-[#0a203e] shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                      />
+                    )}
+
+                    {tab.id === 'social_hub' && hasSilentGlobal && chatBadgeCount === 0 && (
+                      <Motion.div
+                        animate={{ scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0a203e] shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

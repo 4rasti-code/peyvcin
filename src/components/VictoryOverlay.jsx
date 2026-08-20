@@ -6,6 +6,7 @@ import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
+import GameResultRenderer from './GameResultRenderer';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -56,29 +57,21 @@ const VictoryOverlay = ({
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
   const [globalShareStatus, setGlobalShareStatus] = useState(null);
   const hasTriggeredRef = useRef(false);
+  const captureRef = useRef(null);
 
   const formatTime = (ms) => {
-    if (!ms) return '0';
-    return (ms / 1000).toFixed(1);
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    if (minutes > 0) {
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `${seconds}`;
   };
 
   const generateTimeStr = (mode, ms) => {
-    if (!ms || ms <= 0 || mode === 'battle') return '';
-    
-    if (mode === 'word_fever') {
-      const takenSecs = ms / 1000;
-      const remainingSecs = Math.max(0, 30 - takenSecs).toFixed(1);
-      return ` ⏱️ ${remainingSecs} چرکە مابوون`;
-    }
-    
-    const totalSecs = ms / 1000;
-    if (totalSecs >= 60) {
-      const mins = Math.floor(totalSecs / 60);
-      const secs = Math.floor(totalSecs % 60);
-      return ` ⏱️ ${mins} خولەک و ${secs} چرکە`;
-    } else {
-      return ` ⏱️ ${totalSecs.toFixed(1)} چرکە`;
-    }
+    if (mode === 'word_fever' || mode === 'mamak') return '';
+    return ` ⏱ ${formatTime(ms)}`;
   };
 
   const isNewRecord = solveTimeMs > 0 && solveTimeMs <= (profileData?.fastest_solve_ms || Infinity);
@@ -125,6 +118,15 @@ const VictoryOverlay = ({
     }
   }, [isVisible, onNext, onHome, isDark]);
 
+  // Derived share text logic so we can render it in the hidden capture element
+  const gridForCapture = generateWordleGrid(guesses, solvedWord, gameMode === 'word_fever' ? 3 : 6);
+  const timeStrForCapture = generateTimeStr(gameMode, solveTimeMs);
+  const modeNamesForCapture = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
+  const modeNameForCapture = modeNamesForCapture[gameMode] || 'پەیڤۆک';
+  const fullTextForCapture = gameMode === 'word_fever' && streak > 0 
+    ? (guesses.length === 0 ? `${modeNameForCapture} 🔥 زنجیرە: ${streak}${timeStrForCapture}` : `${modeNameForCapture} 🔥 زنجیرە: ${streak}${timeStrForCapture}\n\n${gridForCapture}`)
+    : `${modeNameForCapture}${timeStrForCapture}\n\n${gridForCapture}`;
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -134,6 +136,13 @@ const VictoryOverlay = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6 overflow-y-auto"
         >
+          {/* Hidden capture container */}
+          <div className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none opacity-0">
+             <div style={{ width: '380px', padding: '20px', background: isDark ? '#000000' : '#ffffff' }} ref={captureRef}>
+               <GameResultRenderer text={fullTextForCapture} />
+             </div>
+          </div>
+
           <Motion.div
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -299,7 +308,8 @@ const VictoryOverlay = ({
                       : `تە سەرکەفتن ئینا د پەیڤۆک دا! 🎉${timeStr}`;
                     const result = await shareGameResult({
                       title: title,
-                      grid: grid
+                      grid: grid,
+                      node: captureRef.current
                     });
                     
                     if (result === 'clipboard') {

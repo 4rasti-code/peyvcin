@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
@@ -6,6 +6,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
+import GameResultRenderer from './GameResultRenderer';
 
 const AnimatedNumber = ({ value, prefix = "" }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -51,7 +52,8 @@ const WordFeverResultOverlay = ({
   const [shareStatus, setShareStatus] = useState(null); // null, 'success', 'copied'
   const [globalShareStatus, setGlobalShareStatus] = useState(null);
   const isWin = type === 'win';
-  const hasTriggeredRef = React.useRef(false);
+  const hasTriggeredRef = useRef(false);
+  const captureRef = useRef(null);
 
   useEffect(() => {
     if (isVisible && isWin && !hasTriggeredRef.current) {
@@ -95,6 +97,9 @@ const WordFeverResultOverlay = ({
     }
   }, [isVisible, isWin, onContinue, onHome]);
 
+  const gridForCapture = generateWordleGrid(guesses, solvedWord);
+  const fullTextForCapture = isWin ? `تایا پەیڤان\n\n${gridForCapture}` : `تایا پەیڤان\n\n${gridForCapture}`;
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -104,6 +109,12 @@ const WordFeverResultOverlay = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
         >
+          <div className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none opacity-0">
+             <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
+               <GameResultRenderer text={fullTextForCapture} />
+             </div>
+          </div>
+
           <Motion.div
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -242,7 +253,8 @@ const WordFeverResultOverlay = ({
                   const grid = generateWordleGrid(guesses, solvedWord);
                   const result = await shareGameResult({
                     title: isWin ? 'من شیام هەمی پەیڤێن Word Fever ببینم! ⚡' : 'من تاقیكرنا Word Fever ئەنجامدا! 🔥',
-                    grid: grid
+                    grid: grid,
+                    node: captureRef.current
                   });
                   
                   if (result === 'clipboard') {

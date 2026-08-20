@@ -17,14 +17,9 @@
     window.__SPLASH_START_TIME__ = Date.now();
     (function () {
       try {
-        var theme = localStorage.getItem('theme');
-        if (theme === 'light' || (!theme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-          document.documentElement.classList.add('light');
-          document.documentElement.classList.remove('dark');
-        } else {
-          document.documentElement.classList.add('dark');
-          document.documentElement.classList.remove('light');
-        }
+        // Lock to light mode for the new game interface
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
       } catch (e) { }
     })();
   </script>

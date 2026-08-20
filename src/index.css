@@ -896,6 +896,43 @@ html.dark #root {
       0 2px 0 1.5px #000;
   }
 
+  .btn-clash-sm-red {
+    background-color: #ef4444;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #b91c1c,
+      0 1px 0 1px #b91c1c,
+      0 2px 0 1px #b91c1c,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-micro-red {
+    background-color: #ef4444;
+    box-shadow: 
+      inset 0 1px 0px rgba(255, 255, 255, 0.3),
+      inset 0 -1px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #b91c1c,
+      0 1px 0 1px #b91c1c,
+      0 0 0 1px #000,
+      0 1px 0 1px #000;
+  }
+  .btn-clash-micro-red::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    right: 2px;
+    width: 4px;
+    height: 1.5px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 50%;
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 10;
+  }
+
   .btn-clash-split {
     background: linear-gradient(90deg, #2563eb 50%, #dc2626 50%);
     box-shadow: 

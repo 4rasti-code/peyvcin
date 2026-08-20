@@ -61,44 +61,84 @@ export const generateWordleGrid = (guesses, targetWord, maxAttempts = 6) => {
   return lines.join('\n');
 };
 
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
+import * as htmlToImage from 'html-to-image';
+
 /**
- * Shares the game result using Web Share API or Clipboard fallback.
- * @param {Object} options - { title, grid }
+ * Shares the game result using Web Share API or Native Capacitor Share.
+ * @param {Object} options - { title, grid, node }
  * @returns {Promise<boolean>} True if shared/copied, false otherwise.
  */
-export const shareGameResult = async ({ title, grid, isDark = document.documentElement.classList.contains('dark') }) => {
+export const shareGameResult = async ({ title, grid, node, isDark = document.documentElement.classList.contains('dark') }) => {
   const fullText = `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nwww.peyvokgame.com`;
 
   try {
-    // Generate the beautiful image
-    const imageBlob = await generateShareImageCanvas(`${title}\n\n${grid}`, isDark);
-    const file = new File([imageBlob], 'peyvok-result.png', { type: 'image/png' });
+    let dataUrl = null;
+    if (node) {
+      // Capture the high quality image from the exact DOM node
+      dataUrl = await htmlToImage.toPng(node, {
+        quality: 1.0,
+        pixelRatio: 2, // Retina quality for crisp text
+      });
+    } else {
+      // Fallback to the old canvas generator if no DOM node is provided
+      const imageBlob = await generateShareImageCanvas(`${title}\n\n${grid}`, isDark);
+      dataUrl = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(imageBlob);
+      });
+    }
 
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
+    if (Capacitor.isNativePlatform()) {
+      // NATIVE MOBILE: Write to Cache and share the native file URI
+      // This ensures compatibility with Instagram Stories and Snapchat
+      const fileName = `peyvok-result-${Date.now()}.png`;
+      const savedFile = await Filesystem.writeFile({
+        path: fileName,
+        data: dataUrl.split(',')[1],
+        directory: Directory.Cache,
+      });
+
+      await Share.share({
+        title: 'پەیڤۆک',
         text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
-        url: 'https://www.peyvokgame.com',
-        files: [file]
+        url: savedFile.uri,
       });
       return true;
-    } else if (navigator.share) {
-      // Fallback to text sharing if file sharing is not supported
-      // Only sending text and url for maximum compatibility
-      await navigator.share({
-        text: `${title}\n\n${grid}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
-        url: 'https://www.peyvokgame.com'
-      });
-      return true;
+    } else {
+      // WEB BROWSER: Convert Data URL to Blob and share
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], 'peyvok-result.png', { type: 'image/png' });
+
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
+          url: 'https://www.peyvokgame.com',
+          files: [file]
+        });
+        return true;
+      } else if (navigator.share) {
+        // Fallback to text sharing if browser doesn't support file sharing
+        await navigator.share({
+          text: fullText,
+          url: 'https://www.peyvokgame.com'
+        });
+        return true;
+      }
     }
   } catch (err) {
-    if (err.name !== 'AbortError') {
+    if (err.name !== 'AbortError' && err.message !== 'Share canceled') {
       console.error('Error sharing:', err);
     } else {
       return false; // User cancelled
     }
   }
 
-  // Fallback to clipboard
+  // Fallback to clipboard if sharing fails entirely
   try {
     await navigator.clipboard.writeText(fullText);
     return 'clipboard';
