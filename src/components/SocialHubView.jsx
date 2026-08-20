@@ -2303,7 +2303,7 @@ export default function SocialHubView({
                     setNewGlobalCount(0); // clear local mentions/count on view
                   }
                 }}
-                className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-all duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                   isActive
                     ? 'btn-clash-sm-blue text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] z-20'
                     : 'btn-clash-sm-slate text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] opacity-80 hover:opacity-100 z-10 scale-95'
