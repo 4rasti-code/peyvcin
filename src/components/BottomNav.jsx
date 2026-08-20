@@ -42,7 +42,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                       setCurrentView(tab.id);
                     }
                   }}
-                  className={`group relative flex-1 h-[88px] flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
+                  className={`group relative flex-1 h-22 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
                       ? 'bg-linear-to-b from-[#40bcf7] to-[#1a9bf0] shadow-[0_-10px_25px_rgba(0,0,0,0.45),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_3px_0_rgba(255,255,255,0.4)] z-20'
                       : 'bg-linear-to-b from-[#2573bd] to-[#155694] shadow-[0_-8px_20px_rgba(0,0,0,0.35),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_2px_0_rgba(255,255,255,0.2)] hover:brightness-110 z-10'
                     }`}
@@ -90,7 +90,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
           {tabs.map((tab) => {
             const isActive = localActive === tab.id;
             return (
-              <div key={`badge-overlay-${tab.id}`} className="relative flex-1 h-[88px] flex items-center justify-center">
+              <div key={`badge-overlay-${tab.id}`} className="relative flex-1 h-22 flex items-center justify-center">
                 <div className={`relative flex justify-center items-center w-full transition-all duration-300 ${isActive ? 'mt-1' : 'h-full'}`}>
                   <div className={`relative flex items-center justify-center w-12 h-12 transition-all duration-300 ${isActive ? 'scale-[1.45] -translate-y-4' : 'scale-[1.35] -translate-y-2'}`}>
                     {tab.id === 'social_hub' && chatBadgeCount > 0 && (
