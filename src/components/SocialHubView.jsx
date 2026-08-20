@@ -2662,11 +2662,11 @@ export default function SocialHubView({
                             <div className="flex flex-col items-start min-w-0 flex-1">
                               <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
                                 ? 'text-white'
-                                : 'text-mono-900 dark:text-mono-100 group-hover:text-primary'
+                                : 'text-mono-900 group-hover:text-primary'
                                 }`}>
                                 {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
                               </span>
-                              <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 dark:text-mono-50 font-black' : 'text-mono-500 dark:text-mono-400 font-bold')}`}>
+                              <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 font-black' : 'text-mono-500 font-bold')}`}>
                                 <span className="material-symbols-outlined text-[14px]">chat</span>
                                 <span className="truncate flex items-center gap-1">
                                   {renderPreviewText(chat.lastMsg)}
@@ -2677,7 +2677,7 @@ export default function SocialHubView({
 
                           {/* Right Side: Time and Indicator */}
                           <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
-                            <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-400 dark:text-mono-500'}`}>
+                            <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-500'}`}>
                               {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                             {chat.unreadCount > 0 && (
