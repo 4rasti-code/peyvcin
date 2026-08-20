@@ -2628,7 +2628,7 @@ export default function SocialHubView({
                                 .eq('is_read', false);
                             }
                           }}
-                          className={`flex items-center justify-between gap-4 p-3 cursor-pointer transition-all group relative overflow-hidden ${isBot
+                          className={`flex items-center justify-between gap-4 p-4 cursor-pointer transition-all group relative overflow-hidden ${isBot
                             ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
                             : 'bg-mono-white dark:bg-mono-900 border border-mono-200 dark:border-mono-800 rounded-md hover:bg-mono-50 dark:hover:bg-mono-800/50 active:scale-[0.98] shadow-sm'
                             }`}
