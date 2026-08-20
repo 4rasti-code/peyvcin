@@ -291,9 +291,7 @@ const WordFeverResultOverlay = ({
 
               {onShareToGlobal && (
                 <button
-                  disabled={!precomputedDataUrl && !Capacitor.isNativePlatform()}
                   onClick={async () => {
-                    if (!precomputedDataUrl && !Capacitor.isNativePlatform()) return;
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord);
                     const text = `تایا پەیڤان\n\n${grid}`;
