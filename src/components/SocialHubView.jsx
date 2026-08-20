@@ -2766,7 +2766,7 @@ export default function SocialHubView({
 
         {/* Input Area - WhatsApp Pill Style Swapped */}
         {(activeTab === 'global' || selectedChat) && (
-          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-[calc(110px+env(safe-area-inset-bottom))]'} md:pb-0 bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-45 transition-colors duration-300`}>
+          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-[120px]'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-45 transition-colors duration-300`}>
             {/* Reply Preview Box */}
             <AnimatePresence>
               {replyingTo && (
