@@ -123,7 +123,7 @@ const ChatWallpaperPattern = memo(() => {
   const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
   
   return (
-    <div className="fixed -top-[200px] -left-[200px] -right-[200px] h-[1500px] z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-start gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
+    <div className="fixed -top-50 -left-50 -right-50 h-375 z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-start gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
       {Array.from({ length: 900 }).map((_, i) => {
         const item = ALL_ICONS[i % ALL_ICONS.length];
         const Icon = item;
@@ -2766,7 +2766,7 @@ export default function SocialHubView({
 
         {/* Input Area - WhatsApp Pill Style Swapped */}
         {(activeTab === 'global' || selectedChat) && (
-          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-[120px]'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}>
+          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-30'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}>
             {/* Reply Preview Box */}
             <AnimatePresence>
               {replyingTo && (
