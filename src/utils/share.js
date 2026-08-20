@@ -81,6 +81,9 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
       dataUrl = await htmlToImage.toPng(node, {
         quality: 1.0,
         pixelRatio: 2, // Retina quality for crisp text
+        useCORS: true,
+        allowTaint: true,
+        cacheBust: true, // Prevents caching issues with images
       });
     } else {
       // Fallback to the old canvas generator if no DOM node is provided
