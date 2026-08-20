@@ -2305,8 +2305,8 @@ export default function SocialHubView({
                 }}
                 className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                   isActive
-                    ? 'btn-clash-sm-blue text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] z-20'
-                    : 'btn-clash-sm-slate text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] opacity-80 hover:opacity-100 z-10 scale-95'
+                    ? 'btn-clash-sm-blue text-white z-20'
+                    : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px] drop-shadow-md">{tab.icon}</span>
