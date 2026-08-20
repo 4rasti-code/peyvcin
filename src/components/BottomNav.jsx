@@ -20,7 +20,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 w-full z-40 pointer-events-none" dir="rtl">
-      <div className="relative h-[120px] flex items-end justify-center w-full max-w-screen-sm md:max-w-240 mx-auto pointer-events-auto">
+      <div className="relative h-30 flex items-end justify-center w-full max-w-screen-sm md:max-w-240 mx-auto pointer-events-auto">
         <LayoutGroup>
           {tabs.map((tab) => {
             const isActive = localActive === tab.id;
@@ -46,7 +46,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                       }, 5);
                     }
                   }}
-                  className={`group relative flex-1 h-[104px] flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
+                  className={`group relative flex-1 h-26 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
                       ? 'bg-linear-to-b from-[#40bcf7] to-[#1a9bf0] shadow-[0_-10px_25px_rgba(0,0,0,0.45),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_3px_0_rgba(255,255,255,0.4)] z-20'
                       : 'bg-linear-to-b from-[#2573bd] to-[#155694] shadow-[0_-8px_20px_rgba(0,0,0,0.35),inset_1px_0_1px_rgba(0,0,0,0.5),inset_-1px_0_1px_rgba(0,0,0,0.5),inset_0_2px_0_rgba(255,255,255,0.2)] hover:brightness-110 z-10'
                     }`}
@@ -90,11 +90,11 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
         </LayoutGroup>
 
         {/* BADGE OVERLAY: Rendered on top of all tabs so they are never clipped by the active tab's z-index */}
-        <div className="absolute inset-0 h-[120px] flex items-end justify-center pointer-events-none z-50">
+        <div className="absolute inset-0 h-30 flex items-end justify-center pointer-events-none z-50">
           {tabs.map((tab) => {
             const isActive = localActive === tab.id;
             return (
-              <div key={`badge-overlay-${tab.id}`} className="relative flex-1 h-[104px] flex items-center justify-center">
+              <div key={`badge-overlay-${tab.id}`} className="relative flex-1 h-26 flex items-center justify-center">
                 <div className={`relative flex justify-center items-center w-full transition-all duration-300 ${isActive ? 'mt-1' : 'h-full'}`}>
                   <div className={`relative flex items-center justify-center w-12 h-12 transition-all duration-300 ${isActive ? 'scale-[1.45] -translate-y-4' : 'scale-[1.35] -translate-y-2'}`}>
                     {tab.id === 'social_hub' && chatBadgeCount > 0 && (
