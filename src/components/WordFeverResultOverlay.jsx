@@ -121,7 +121,7 @@ const WordFeverResultOverlay = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
         >
-          <div className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none opacity-0">
+          <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none">
              <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
                <GameResultRenderer text={fullTextForCapture} />
              </div>
@@ -260,7 +260,9 @@ const WordFeverResultOverlay = ({
               </button>
 
               <button
+                disabled={!precomputedDataUrl && !Capacitor.isNativePlatform()}
                 onClick={async () => {
+                  if (!precomputedDataUrl && !Capacitor.isNativePlatform()) return;
                   triggerHaptic(10);
                   const grid = generateWordleGrid(guesses, solvedWord);
                   const result = await shareGameResult({
@@ -281,14 +283,16 @@ const WordFeverResultOverlay = ({
                 className="w-full h-9 bg-transparent text-mono-400 dark:text-white/30 rounded-lg font-bold text-xs flex items-center justify-center gap-2 hover:text-mono-600 dark:hover:text-white/50 transition-colors mt-1"
               >
                 <span className="material-symbols-outlined text-base">
-                  {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
+                  {(!precomputedDataUrl && !Capacitor.isNativePlatform()) ? 'hourglass_empty' : shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
                 </span>
-                {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'هاتە ناردن!' : 'بەلاڤ بکە'}
+                {(!precomputedDataUrl && !Capacitor.isNativePlatform()) ? 'ئامادەکرن...' : shareStatus === 'copied' ? 'کۆپی کرا!' : shareStatus === 'success' ? 'نێردرا!' : 'بەلاڤ بکە'}
               </button>
 
               {onShareToGlobal && (
                 <button
+                  disabled={!precomputedDataUrl && !Capacitor.isNativePlatform()}
                   onClick={async () => {
+                    if (!precomputedDataUrl && !Capacitor.isNativePlatform()) return;
                     triggerHaptic(10);
                     const grid = generateWordleGrid(guesses, solvedWord);
                     const text = `تایا پەیڤان\n\n${grid}`;
