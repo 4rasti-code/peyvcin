@@ -2554,7 +2554,7 @@ export default function SocialHubView({
               ) : (
                 <div className="flex-1 relative overflow-hidden bg-[#eaf2f8] dark:bg-[#16212b] transition-colors duration-500">
                   <ChatWallpaperPattern />
-                  <div className="absolute inset-0 overflow-y-auto p-4 space-y-3 no-scrollbar z-10 flex flex-col">
+                  <div className="absolute inset-0 overflow-y-auto p-4 pb-32 space-y-3 no-scrollbar z-10 flex flex-col">
                     {privateChats.length === 0 && !loading ? (
                       <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
                       <div className="flex flex-col items-center space-y-4 opacity-50">
