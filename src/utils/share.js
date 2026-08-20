@@ -89,11 +89,10 @@ export const precomputeShareImage = async (node) => {
   if (!node) return null;
   try {
     return await htmlToImage.toPng(node, {
-      quality: 1.0,
-      pixelRatio: 2,
+      quality: 0.9,
+      pixelRatio: 1,
       useCORS: true,
-      allowTaint: true,
-      cacheBust: true,
+      skipFonts: true, // Prevents slow network requests for fonts
     });
   } catch (err) {
     console.error('Failed to precompute share image', err);
@@ -115,11 +114,10 @@ export const shareGameResult = async ({ title, grid, node, precomputedDataUrl, i
       if (node) {
         // Capture the high quality image from the exact DOM node
         dataUrl = await htmlToImage.toPng(node, {
-          quality: 1.0,
-          pixelRatio: 2, // Retina quality for crisp text
+          quality: 0.9,
+          pixelRatio: 1,
           useCORS: true,
-          allowTaint: true,
-          cacheBust: true, // Prevents caching issues with images
+          skipFonts: true,
         });
       } else {
         // Fallback to the old canvas generator if no DOM node is provided
