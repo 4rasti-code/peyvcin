@@ -106,8 +106,8 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
       });
 
       await Share.share({
-        title: 'پەیڤۆک',
-        text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی\nhttps://www.peyvokgame.com`,
+        title: 'پەیڤۆک ئەنجام',
+        dialogTitle: 'بەلاڤکرنا ئەنجامان',
         files: [savedFile.uri],
       });
       return true;
@@ -119,8 +119,7 @@ export const shareGameResult = async ({ title, grid, node, isDark = document.doc
 
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
-          text: `${title}\n\nپەیڤۆک: یارییا پەیڤان ب کوردی`,
-          url: 'https://www.peyvokgame.com',
+          title: 'پەیڤۆک ئەنجام',
           files: [file]
         });
         return true;
