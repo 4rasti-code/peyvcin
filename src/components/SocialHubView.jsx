@@ -2272,7 +2272,7 @@ export default function SocialHubView({
   };
 
   return (
-    <div className={`fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-all duration-300 pb-0`} dir="rtl">
+    <div className={`fixed inset-0 md:relative md:inset-auto md:flex-1 md:w-full flex flex-col bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 overflow-hidden transition-colors duration-300 pb-0`} dir="rtl">
       <div className="flex-1 flex flex-col w-full overflow-hidden relative">
         {/* Tabs - Clash Royale Style */}
         <div className="w-full bg-[#3b82f6] relative z-20 shadow-[inset_0_-4px_0_rgba(0,0,0,0.15),0_8px_16px_rgba(0,0,0,0.2)] pb-4 rounded-none border-b-4 border-black" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
