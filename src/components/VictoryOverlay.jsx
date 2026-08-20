@@ -95,7 +95,7 @@ const VictoryOverlay = ({
       playSuccessSfx();
 
       const colors = [isDark ? '#34d399' : '#059669', '#facc15', '#3b82f6', '#ffffff'];
-      
+
       // Delay slightly to sync with modal entrance animation
       setTimeout(() => {
         const fireBurst = (x, y, count) => {
@@ -107,7 +107,7 @@ const VictoryOverlay = ({
             zIndex: 2000
           });
         };
-        
+
         // Single Burst: Center
         fireBurst(0.5, 0.6, 120);
 
@@ -135,7 +135,7 @@ const VictoryOverlay = ({
   const timeStrForCapture = generateTimeStr(gameMode, solveTimeMs);
   const modeNamesForCapture = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
   const modeNameForCapture = modeNamesForCapture[gameMode] || 'پەیڤۆک';
-  const fullTextForCapture = gameMode === 'word_fever' && streak > 0 
+  const fullTextForCapture = gameMode === 'word_fever' && streak > 0
     ? (guesses.length === 0 ? `${modeNameForCapture} 🔥 زنجیرە: ${streak}${timeStrForCapture}` : `${modeNameForCapture} 🔥 زنجیرە: ${streak}${timeStrForCapture}\n\n${gridForCapture}`)
     : `${modeNameForCapture}${timeStrForCapture}\n\n${gridForCapture}`;
 
@@ -150,9 +150,9 @@ const VictoryOverlay = ({
         >
           {/* Hidden capture container */}
           <div className="absolute top-0 left-0 w-0 h-0 overflow-hidden pointer-events-none opacity-0">
-             <div style={{ width: '380px', padding: '20px', background: isDark ? '#000000' : '#ffffff' }} ref={captureRef}>
-               <GameResultRenderer text={fullTextForCapture} />
-             </div>
+            <div style={{ width: '380px', padding: '20px', background: isDark ? '#000000' : '#ffffff' }} ref={captureRef}>
+              <GameResultRenderer text={fullTextForCapture} />
+            </div>
           </div>
 
           <Motion.div
@@ -283,7 +283,7 @@ const VictoryOverlay = ({
               )}
 
               {/* NYT Style Stats */}
-              <ResultStats 
+              <ResultStats
                 profileData={profileData}
                 playerStats={playerStats}
                 gameMode={gameMode}
@@ -324,7 +324,7 @@ const VictoryOverlay = ({
                       node: captureRef.current,
                       precomputedDataUrl: precomputedDataUrl
                     });
-                    
+
                     if (result === 'clipboard') {
                       setShareStatus('copied');
                       setTimeout(() => setShareStatus(null), 2000);
@@ -350,7 +350,7 @@ const VictoryOverlay = ({
                     const timeStr = generateTimeStr(gameMode, solveTimeMs);
                     const modeNames = { classic: 'پەیڤۆک', hard_words: 'پەیڤێن دژوار', word_fever: 'تایا پەیڤان', mamak: 'مامک', battle: 'هەڤڕکی' };
                     const modeName = modeNames[gameMode] || 'پەیڤۆک';
-                    const text = gameMode === 'word_fever' && streak > 0 
+                    const text = gameMode === 'word_fever' && streak > 0
                       ? (guesses.length === 0 ? `${modeName} 🔥 زنجیرە: ${streak}${timeStr}` : `${modeName} 🔥 زنجیرە: ${streak}${timeStr}\n\n${grid}`)
                       : `${modeName}${timeStr}\n\n${grid}`;
                     const success = await onShareToGlobal(text);
