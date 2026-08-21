@@ -1491,7 +1491,7 @@ export default function SocialHubView({
               return;
             }
             console.warn("WhatsApp RPC failed, falling back to basic fetch:", error);
-            const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(200);
+            const fallbackQuery = supabase.from('messages').select('*').or(`user_id.eq.${user?.id},receiver_id.eq.${user?.id}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
             const { data: fallbackData, error: fErr } = await (signal ? fallbackQuery.abortSignal(signal) : fallbackQuery);
             if (!fErr && fallbackData) {
               const convosMap = new Map();
@@ -1515,7 +1515,7 @@ export default function SocialHubView({
           // If user is Admin, fetch Bot's conversations (only if they aren't the bot itself)
           if (user?.email === '4rasti@gmail.com' && user?.id !== '9a813c24-b662-477d-a74a-6f822d17bbf1') {
             const BOT_ID = '9a813c24-b662-477d-a74a-6f822d17bbf1';
-            const botQuery = supabase.from('messages').select('*').or(`user_id.eq.${BOT_ID},receiver_id.eq.${BOT_ID}`).not('receiver_id', 'is', null).gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()).order('created_at', { ascending: false }).limit(200);
+            const botQuery = supabase.from('messages').select('*').or(`user_id.eq.${BOT_ID},receiver_id.eq.${BOT_ID}`).not('receiver_id', 'is', null).order('created_at', { ascending: false }).limit(200);
             const { data: botData, error: botErr } = await (signal ? botQuery.abortSignal(signal) : botQuery);
 
             if (!botErr && botData) {

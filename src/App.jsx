@@ -1492,6 +1492,7 @@ export default function App() {
         .select('*')
         .eq('receiver_id', user.id)
         .eq('is_read', false)
+        .gt('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false });
 
       // 2. Fetch pending requests
