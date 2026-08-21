@@ -238,9 +238,9 @@ export const VoiceProvider = ({ children }) => {
         // We set muted to true since they have no mic
         setIsMuted(true);
         if (micError.name === 'NotAllowedError' || (micError.message && micError.message.includes('Permission denied'))) {
-          alert("ڕێگەت بە مایک نەداوە! بۆیە دەنگت ناچێتە لای یاریزانەکە. تکایە لە ڕێکخستنەکان مایک بکەرەوە.");
+          console.warn("User denied microphone permission.");
         } else {
-          alert("کێشەیەک لە مایکەکەتدا هەیە، بۆیە دەنگت ناچێت.");
+          console.warn("Issue with microphone:", micError);
         }
       }
 
