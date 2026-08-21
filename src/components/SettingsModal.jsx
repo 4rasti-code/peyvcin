@@ -12,6 +12,7 @@ import ReportModal from './ReportModal';
 import WordSuggestionModal from './WordSuggestionModal';
 import { playBackSfx } from '../utils/audio';
 import { supabase } from '../lib/supabase';
+import { useVoice } from '../context/VoiceContext';
 
 function SettingsModal({
    isOpen,
@@ -34,6 +35,7 @@ function SettingsModal({
    const [isWordSuggestionModalOpen, setIsWordSuggestionModalOpen] = React.useState(false);
    const [activePolicyModal, setActivePolicyModal] = React.useState(null);
    const { user, handleToggleBlock } = useUser();
+   const { isMuted, toggleMute, isDeafened, toggleDeafen } = useVoice();
 
 
 
@@ -151,6 +153,46 @@ function SettingsModal({
                                     layout
                                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                     className={`w-3 h-3 rounded-sm ${hapticEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
+                                 />
+                              </button>
+                           </div>
+
+                           {/* Mic Toggle */}
+                           <div className="flex items-center justify-between py-3 group">
+                              <div className="flex items-center gap-3">
+                                 <span className={`material-symbols-outlined text-lg transition-colors ${!isMuted ? 'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-red-500'}`}>
+                                    {!isMuted ? 'mic' : 'mic_off'}
+                                 </span>
+                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">مایکڕۆفۆن</span>
+                              </div>
+                              <button
+                                 onClick={() => { triggerHaptic(10); toggleMute(); }}
+                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${!isMuted ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
+                              >
+                                 <Motion.div
+                                    layout
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    className={`w-3 h-3 rounded-sm ${!isMuted ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
+                                 />
+                              </button>
+                           </div>
+
+                           {/* Speaker Toggle */}
+                           <div className="flex items-center justify-between py-3 group">
+                              <div className="flex items-center gap-3">
+                                 <span className={`material-symbols-outlined text-lg transition-colors ${!isDeafened ? 'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-red-500'}`}>
+                                    {!isDeafened ? 'volume_up' : 'volume_off'}
+                                 </span>
+                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">بڵندگۆ (سپیکەر)</span>
+                              </div>
+                              <button
+                                 onClick={() => { triggerHaptic(10); toggleDeafen(); }}
+                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${!isDeafened ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
+                              >
+                                 <Motion.div
+                                    layout
+                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                    className={`w-3 h-3 rounded-sm ${!isDeafened ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
                                  />
                               </button>
                            </div>

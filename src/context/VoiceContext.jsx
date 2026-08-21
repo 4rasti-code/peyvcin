@@ -26,10 +26,10 @@ export const VoiceProvider = ({ children }) => {
   const [client, setClient] = useState(null);
   const [localAudioTrack, setLocalAudioTrack] = useState(null);
   const [isInChannel, setIsInChannel] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => localStorage.getItem('voice_muted') === 'true');
   const [remoteUsers, setRemoteUsers] = useState({});
-  const [isDeafened, setIsDeafened] = useState(false);
-  const isDeafenedRef = useRef(false);
+  const [isDeafened, setIsDeafened] = useState(() => localStorage.getItem('voice_deafened') === 'true');
+  const isDeafenedRef = useRef(localStorage.getItem('voice_deafened') === 'true');
   const remoteUsersRef = useRef({});
   const [activeSpeakers, setActiveSpeakers] = useState({});
   const [appId, setAppId] = useState(null);
@@ -202,9 +202,11 @@ export const VoiceProvider = ({ children }) => {
         try {
           const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
           audioTrack.setVolume(200); // Boost local microphone capture volume
+          const savedMuted = localStorage.getItem('voice_muted') === 'true';
+          await audioTrack.setEnabled(!savedMuted);
           setLocalAudioTrack(audioTrack);
           await clientRef.current.publish([audioTrack]);
-          setIsMuted(false);
+          setIsMuted(savedMuted);
         } catch (e) {
           console.error("Failed to restore audio track:", e);
         }
@@ -226,9 +228,11 @@ export const VoiceProvider = ({ children }) => {
       try {
         const audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
         audioTrack.setVolume(200); // Boost local microphone capture volume
+        const savedMuted = localStorage.getItem('voice_muted') === 'true';
+        await audioTrack.setEnabled(!savedMuted);
         setLocalAudioTrack(audioTrack);
         await clientRef.current.publish([audioTrack]);
-        setIsMuted(false);
+        setIsMuted(savedMuted);
       } catch (micError) {
         console.warn("Could not create/publish microphone track. User might have denied permission or has no mic:", micError);
         // We set muted to true since they have no mic
@@ -281,28 +285,28 @@ export const VoiceProvider = ({ children }) => {
 
       setIsInChannel(false);
       setRemoteUsers({});
-      setIsMuted(false);
+      // Do NOT force reset isMuted to false, keep the user's preference
     } catch (error) {
       console.error("Error leaving voice channel:", error);
     }
   }, [localAudioTrack]);
 
   const toggleMute = useCallback(async () => {
-    if (!localAudioTrack) {
-      console.warn("No local audio track to mute/unmute");
-      alert("مایکەکەت ئیش ناکات، تکایە دڵنیابە کە ڕێگەت داوە مایک بەکاربێت.");
-      return;
-    }
     const newMutedState = !isMuted;
-    // Using setEnabled instead of setMuted completely turns off the hardware mic LED
-    await localAudioTrack.setEnabled(!newMutedState);
     setIsMuted(newMutedState);
+    localStorage.setItem('voice_muted', newMutedState.toString());
+
+    if (localAudioTrack) {
+      // Using setEnabled instead of setMuted completely turns off the hardware mic LED
+      await localAudioTrack.setEnabled(!newMutedState);
+    }
   }, [localAudioTrack, isMuted]);
 
   const toggleDeafen = useCallback(() => {
     const newDeafenedState = !isDeafened;
     setIsDeafened(newDeafenedState);
     isDeafenedRef.current = newDeafenedState;
+    localStorage.setItem('voice_deafened', newDeafenedState.toString());
     Object.values(remoteUsers).forEach(user => {
       if (user.audioTrack) {
         if (newDeafenedState) {
