@@ -240,58 +240,116 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                   >
                      <Motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="w-full max-w-85 bg-mono-white dark:bg-mono-900 rounded-md p-6 border border-mono-200 dark:border-mono-800 shadow-2xl noise-grain font-rabar flex flex-col gap-5"
+                        className="w-full max-w-85 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
                         onClick={e => e.stopPropagation()}
                         dir="rtl"
                      >
-                        <h3 className="text-xl font-black text-mono-900 dark:text-white text-center w-full">گوهۆڕینا ناسناڤی</h3>
+                        {/* Inner 3D Highlight Layer (Tapered Top) */}
+                        <div 
+                           className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                           style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                        ></div>
+                        
+                        {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                        <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-                        <div className="space-y-2">
-                           <label className="text-[12px] font-black text-mono-500 block text-right px-1">ناسناڤی بنڤیسە</label>
-                           <input
-                              type="text"
-                              placeholder="ناسناڤ"
-                              value={draftNickname}
-                              onChange={(e) => {
-                                 const noSpaceVal = e.target.value.replace(/\s/g, '');
-                                 setDraftNickname(noSpaceVal);
-                                 if (saveError) setSaveError(null);
+                        {/* Glassy Header Highlight */}
+                        <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                        {/* Header */}
+                        <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-5 shrink-0">
+                           <h2 
+                              className="text-[22px] font-black text-white leading-none relative z-10 -translate-y-1 flex items-center gap-2" 
+                              style={{ 
+                                 textShadow: `
+                                    -2px -2px 0 #1a1c23, 2px -2px 0 #1a1c23,
+                                    -2px  2px 0 #1a1c23, 2px  2px 0 #1a1c23,
+                                    -2px  0px 0 #1a1c23, 2px  0px 0 #1a1c23,
+                                    0px  2px 0 #1a1c23, 0px -2px 0 #1a1c23,
+                                    0px 5px 0px #1a1c23, 0px 5px 10px rgba(0,0,0,0.4)
+                                 `
                               }}
-                              maxLength={20}
-                              className="w-full h-14 border rounded-md px-4 font-black font-rabar text-right text-[15px] transition-all outline-none bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-500 focus:border-primary focus:ring-1 focus:ring-primary"
-                              autoFocus
-                           />
-                           <AnimatePresence>
-                              {saveError && (
-                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">{saveError}</Motion.p>
-                              )}
-                              {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
-                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ٨ پیتان کێمتر بیت</Motion.p>
-                              )}
-                              {draftNickname.length > 15 && !saveError && (
-                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ١٥ پیتان زێدەتر بیت</Motion.p>
-                              )}
-                           </AnimatePresence>
-                        </div>
-
-                        <div className="flex items-center gap-3 pt-2">
+                           >
+                              گوهۆڕینا ناسناڤی
+                           </h2>
                            <button
                               onClick={() => {
                                  setDraftNickname(userNickname);
                                  setSaveError(null);
                                  setIsEditNicknameModalOpen(false);
                               }}
-                              className="flex-1 h-12 rounded-md font-black text-[13px] bg-mono-100 dark:bg-white/10 text-mono-700 dark:text-mono-300 hover:bg-mono-200 dark:hover:bg-white/20 transition-colors"
+                              className="absolute right-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
                            >
-                              هەلوەشاندن
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-md"></div>
+                              <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                                 <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                 <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                 <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                 <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                              </svg>
                            </button>
-                           <button
-                              onClick={handleSave}
-                              disabled={draftNickname.length < 8 || draftNickname.length > 15 || draftNickname === userNickname}
-                              className="flex-1 h-12 rounded-md font-black text-[13px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-600/20"
-                           >
-                              پاراستن
-                           </button>
+                        </div>
+
+                        {/* Main Content Area */}
+                        <div className="flex-1 self-stretch flex flex-col mx-3 sm:mx-4 mb-4 relative z-0">
+                           <div className="flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden p-4 shrink-0 z-10 gap-3">
+                              {/* Inner White Box 3D Highlight */}
+                              <div className="absolute inset-0 rounded-[10px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
+                              
+                              <div className="relative z-20 w-full flex flex-col gap-2">
+                                 <label className="text-[13px] font-black text-[#181a20] block text-right px-1">ناسناڤی بنڤیسە</label>
+                                 <div className="relative w-full">
+                                    <input
+                                       type="text"
+                                       placeholder="ناسناڤ"
+                                       value={draftNickname}
+                                       onChange={(e) => {
+                                          const noSpaceVal = e.target.value.replace(/\s/g, '');
+                                          setDraftNickname(noSpaceVal);
+                                          if (saveError) setSaveError(null);
+                                       }}
+                                       maxLength={20}
+                                       className="w-full h-12 rounded-[8px] bg-white border-[1.5px] border-[#a0a7b4] text-[#181a20] font-black font-rabar text-right text-[15px] px-3 outline-none focus:border-[#1e86ff] focus:ring-2 focus:ring-[#1e86ff]/20 transition-all placeholder:text-[#a0a7b4] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]"
+                                       autoFocus
+                                    />
+                                 </div>
+                                 <AnimatePresence>
+                                    {saveError && (
+                                       <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-[#ff3b3b] text-[11px] font-black px-1 mt-1 drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">{saveError}</Motion.p>
+                                    )}
+                                    {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
+                                       <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-[#ff3b3b] text-[11px] font-black px-1 mt-1 drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">نابیت ناسناڤ ژ ٨ پیتان کێمتر بیت</Motion.p>
+                                    )}
+                                    {draftNickname.length > 15 && !saveError && (
+                                       <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-[#ff3b3b] text-[11px] font-black px-1 mt-1 drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">نابیت ناسناڤ ژ ١٥ پیتان زێدەتر بیت</Motion.p>
+                                    )}
+                                 </AnimatePresence>
+                              </div>
+                              
+                              <div className="flex items-center gap-3 mt-2 relative z-20">
+                                 <button
+                                    onClick={() => {
+                                       setDraftNickname(userNickname);
+                                       setSaveError(null);
+                                       setIsEditNicknameModalOpen(false);
+                                    }}
+                                    className="flex-1 h-11 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] bg-[#a0a7b4] hover:bg-[#8d94a1] overflow-hidden relative shadow-[0_2px_0_#121316]"
+                                 >
+                                    <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar drop-shadow-md text-shadow-sm">
+                                       هەلوەشاندن
+                                    </span>
+                                 </button>
+                                 <button
+                                    onClick={handleSave}
+                                    disabled={draftNickname.length < 8 || draftNickname.length > 15 || draftNickname === userNickname}
+                                    className="flex-1 h-11 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden relative bg-[#24a85c] disabled:opacity-60 disabled:bg-[#727888] shadow-[0_2px_0_#121316]"
+                                 >
+                                    <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar drop-shadow-md text-shadow-sm">
+                                       پاراستن
+                                    </span>
+                                 </button>
+                              </div>
+                           </div>
                         </div>
                      </Motion.div>
                   </Motion.div>
