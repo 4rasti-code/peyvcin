@@ -55,7 +55,7 @@ const renderPreviewText = (text) => {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-amber-500">campaign</span> تایبەتمەندییا نوی</span>;
   }
 
-  if (text.includes('[TUTORIAL_SHARE]')) {
+  if (text.includes('[TUTORIAL_SHARE:')) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#3b82f6]">menu_book</span> فێرکاریا یاریێ</span>;
   }
 
@@ -121,27 +121,70 @@ function useLongPress(onLongPress, onClick, ms = 500) {
   };
 }
 
-const ChatWallpaperPattern = memo(() => {
-  const GAME_ICONS = [FilsIcon, HintIcon, MagnetIcon, DinarIcon, XPIcon, SpinTicketIcon, DerhemIcon];
-  const MATERIAL_ICONS = ['forum', 'sports_esports', 'extension', 'emoji_emotions', 'favorite', 'payments', 'local_fire_department', 'bolt', 'star', 'menu_book', 'smart_toy', 'send', 'mail', 'trophy'];
-  const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
-  
-  return (
-    <div className="fixed -top-50 -left-50 -right-50 h-375 z-0 overflow-hidden pointer-events-none opacity-[0.05] select-none flex flex-wrap justify-center items-start gap-1.5 p-0" style={{ transform: 'rotate(-10deg) scale(1.6)' }}>
-      {Array.from({ length: 900 }).map((_, i) => {
-        const item = ALL_ICONS[i % ALL_ICONS.length];
-        const Icon = item;
-        
-        // Randomize staggering and offsets slightly for a more "doodle" like scattered feel
-        const yOffset = i % 2 === 0 ? '6px' : '-6px';
-        const xOffset = i % 3 === 0 ? '3px' : '0px';
+const GAME_ICONS = [FilsIcon, HintIcon, MagnetIcon, DinarIcon, XPIcon, SpinTicketIcon, DerhemIcon];
+// More material icons to increase the "doodle" variety
+const MATERIAL_ICONS = ['forum', 'sports_esports', 'extension', 'emoji_emotions', 'favorite', 'payments', 'local_fire_department', 'bolt', 'star', 'menu_book', 'smart_toy', 'send', 'mail', 'trophy', 'rocket', 'music_note', 'local_cafe', 'brush', 'diamond', 'pets'];
+const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
 
+const ChatWallpaperPattern = memo(() => {
+  
+  const patternItems = React.useMemo(() => {
+    const items = [];
+    const cols = 50;
+    const rows = 50;
+    const cellSize = 60; // 3000 / 50 = 60px
+    
+    // Stable pseudo-random generator
+    const random = (seed) => {
+      let x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
+
+    let seed = 1;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const item = ALL_ICONS[seed % ALL_ICONS.length];
+        
+        // Jitter: random offset between -40% and 40% of cell size
+        const jitterX = (random(seed++) - 0.5) * 0.8 * cellSize;
+        const jitterY = (random(seed++) - 0.5) * 0.8 * cellSize;
+        
+        const left = (c * cellSize) + (cellSize / 2) + jitterX;
+        const top = (r * cellSize) + (cellSize / 2) + jitterY;
+        
+        const rotation = random(seed++) * 360;
+        const scale = 0.8 + (random(seed++) * 0.7); // 0.8 to 1.5
+        
+        items.push({ id: `${r}-${c}`, item, left, top, rotation, scale });
+      }
+    }
+    return items;
+  }, []);
+
+  return (
+    <div className="absolute z-0 pointer-events-none opacity-[0.06] select-none" 
+         style={{ 
+           width: '3000px', 
+           height: '3000px', 
+           left: '50%',
+           top: '50%',
+           marginLeft: '-1500px',
+           marginTop: '-1500px',
+           transform: 'rotate(-5deg)'
+         }}>
+      {patternItems.map(({ id, item, left, top, rotation, scale }) => {
+        const Icon = item;
         return (
-          <div key={i} className="shrink-0 text-white" style={{ transform: `translate(${xOffset}, ${yOffset})` }}>
+          <div key={id} className="absolute text-white" 
+               style={{ 
+                 left: `${left}px`, 
+                 top: `${top}px`, 
+                 transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})` 
+               }}>
             {typeof item === 'string' ? (
-              <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>{item}</span>
+              <span className="material-symbols-outlined block" style={{ fontSize: '18px' }}>{item}</span>
             ) : (
-              <Icon size={14} disabled={true} />
+              <Icon size={18} disabled={true} />
             )}
           </div>
         );
@@ -1261,8 +1304,9 @@ export default function SocialHubView({
     channel.on('presence', { event: 'sync' }, () => {
       const state = channel.presenceState();
       const viewers = [];
+      const ADMIN_IDS = ['e2052ae5-e2c7-4a08-9ba2-c33bc85b19ca', 'b082d89e-3daa-4067-9c20-506cd7b4994d', '9a813c24-b662-477d-a74a-6f822d17bbf1', '66bbf4d5-333a-4748-8529-ecd5bae9f3a4'];
       for (const key in state) {
-        if (key !== user.id && state[key].length > 0) {
+        if (key !== user.id && !ADMIN_IDS.includes(key) && state[key].length > 0) {
           viewers.push(state[key][0]);
         }
       }
@@ -2538,7 +2582,7 @@ export default function SocialHubView({
 
           {/* Global Chat View */}
           {activeTab === 'global' && (
-            <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500">
+            <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500 dark">
               <ChatWallpaperPattern />
 
               <div
@@ -2661,7 +2705,7 @@ export default function SocialHubView({
                       </button>
                     )}
                   </div>
-                  <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500">
+                  <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500 dark">
                     <ChatWallpaperPattern />
 
                     <div
@@ -2752,8 +2796,7 @@ export default function SocialHubView({
                   </div>
                 </div>
               ) : (
-                <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500">
-                  <ChatWallpaperPattern />
+                <div className="flex-1 relative overflow-hidden bg-[#16212b] transition-colors duration-500 dark">
                   <div className="absolute inset-0 overflow-y-auto p-4 pb-32 space-y-3 no-scrollbar z-10 flex flex-col">
                     {privateChats.length === 0 && !loading ? (
                       <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
