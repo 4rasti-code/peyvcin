@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { motion as Motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { playBackSfx, playTabSfx } from '../utils/audio';
-
 
 
 const DataDeletion = ({ onViewChange, onClose }) => {
@@ -89,115 +89,161 @@ const DataDeletion = ({ onViewChange, onClose }) => {
     const t = isKurdish ? content.ku : content.en;
 
     return (
-        <div className={`min-h-screen bg-mono-white dark:bg-black text-mono-900 dark:text-mono-50 ${isKurdish ? 'font-rabar' : 'font-body'} selection:bg-mono-900/30 dark:selection:bg-mono-50/30 p-4 sm:p-8 md:p-12 relative`} dir={isKurdish ? 'rtl' : 'ltr'}>
-            <div className="max-w-4xl mx-auto relative z-10">
-                {/* Header Section */}
-                <div className="flex flex-col items-center justify-center mb-16 gap-8">
-                    <div className="flex flex-col items-center justify-center group cursor-pointer" onClick={handleClose}>
-                        <div className="text-center">
-                            <h1 className="text-4xl font-bold text-mono-900 dark:text-white mb-1">{isKurdish ? 'پەیڤۆک' : 'Peyvok'}</h1>
-                            <p className="text-text-dim/60 text-xs font-bold uppercase tracking">{isKurdish ? 'ژێبرنا داتایان' : 'DATA DELETION'}</p>
-                        </div>
-                    </div>
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 sm:p-6 transition-colors duration-500 overflow-hidden" dir={isKurdish ? 'rtl' : 'ltr'}>
+            {/* Backdrop */}
+            <Motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={handleClose}
+                className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
+            />
 
-                    <div dir="ltr" className="flex bg-mono-100 dark:bg-black/40 p-1.5 rounded-md border border-mono-200 dark:border-white/5 backdrop-blur-md relative">
-                        <div
-                            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-mono-900 dark:bg-mono-50 rounded shadow-sm border border-mono-200 dark:border-white/10 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${!isKurdish ? 'left-1.5' : 'left-[50%]'}`}
-                        />
+            {/* Modal Content */}
+            <Motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                className="w-full max-w-2xl h-[90vh] flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Inner 3D Highlight Layer (Tapered Top) */}
+                <div 
+                    className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                    style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                ></div>
+                
+                {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                {/* Glassy Header Highlight */}
+                <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                {/* Header */}
+                <div className="w-full relative z-10 flex flex-col items-center justify-center pt-5 pb-3 shrink-0 gap-3">
+                    <h2 
+                        className="text-[26px] font-black text-white leading-none relative z-10 -translate-y-1 flex items-center gap-2" 
+                        style={{ 
+                            textShadow: `
+                                -2px -2px 0 #1a1c23, 2px -2px 0 #1a1c23,
+                                -2px  2px 0 #1a1c23, 2px  2px 0 #1a1c23,
+                                -2px  0px 0 #1a1c23, 2px  0px 0 #1a1c23,
+                                0px  2px 0 #1a1c23, 0px -2px 0 #1a1c23,
+                                0px 5px 0px #1a1c23, 0px 5px 10px rgba(0,0,0,0.4)
+                            `
+                        }}
+                    >
+                        {t.title}
+                    </h2>
+                    
+                    {/* Language Toggle - Clash Royale Tabs Style */}
+                    <div dir="ltr" className="flex items-center justify-center gap-3 w-64 max-w-full px-4 mb-1">
                         <button
                             onClick={() => handleLanguageChange(false)}
-                            className={`flex-1 relative z-10 px-6 py-2.5 rounded-md text-xs font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${!isKurdish ? 'text-mono-50 dark:text-mono-900' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
+                            className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                !isKurdish
+                                ? 'btn-clash-sm-blue text-white z-20'
+                                : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                            }`}
                         >
-                            English
+                            <span className={`relative z-20 ${!isKurdish ? 'drop-shadow-md' : ''}`}>English</span>
                         </button>
                         <button
                             onClick={() => handleLanguageChange(true)}
-                            className={`flex-1 relative z-10 px-6 py-2.5 rounded-md text-xs font-bold transition-colors duration-300 flex items-center justify-center gap-2 ${isKurdish ? 'text-mono-50 dark:text-mono-900' : 'text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-mono-50'}`}
+                            className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                isKurdish
+                                ? 'btn-clash-sm-blue text-white z-20'
+                                : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                            }`}
                         >
-                            <span>کوردی</span>
+                            <span className={`relative z-20 ${isKurdish ? 'drop-shadow-md' : ''}`}>کوردی</span>
                         </button>
-                    </div>
-                </div>
-
-                {/* Main Content Area */}
-                <div className="bg-mono-50 dark:bg-mono-900/50 backdrop-blur-2xl border border-mono-200 dark:border-white/5 rounded-md p-6 sm:p-10 relative overflow-hidden group text-start">
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-mono-500/50 to-transparent opacity-30" />
-
-                    <div className="space-y-8">
-                        <p className="text-sm text-mono-800 dark:text-white/90 leading-relaxed font-normal transition-all duration-700">
-                            {t.intro}
-                        </p>
-
-                        <section className="space-y-4 animate-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-3">
-                                <h3 className="text-lg font-medium text-mono-900 dark:text-white/90">{t.section1Title}</h3>
-                            </div>
-                            <div className="bg-white/5 border border-mono-200 dark:border-white/5 p-4 sm:p-6 rounded space-y-4">
-                                <p className="text-sm text-mono-800 dark:text-white/90 leading-relaxed font-normal">{t.section1Text}</p>
-                                <ul className="space-y-4">
-                                    {t.steps.map((step, i) => (
-                                        <li key={i} className="flex items-start gap-3 text-xs text-mono-800 dark:text-white/90 font-normal leading-relaxed">
-                                            <span className="material-symbols-outlined text-mono-900 dark:text-mono-50 text-xl mt-1">check_circle</span>
-                                            <span>{step}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </section>
-
-                        <section className="space-y-4 animate-in slide-in-from-bottom-4 delay-100 duration-700">
-                            <div className="flex items-center gap-3">
-                                <h3 className="text-lg font-medium text-mono-900 dark:text-white/90">{t.section2Title}</h3>
-                            </div>
-                            <div className="bg-white/5 border border-mono-200 dark:border-white/5 p-4 sm:p-6 rounded space-y-4">
-                                <p className="text-sm text-mono-800 dark:text-white/90 leading-relaxed font-normal">{t.section2Text}</p>
-                                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {t.deletedItems.map((item, i) => (
-                                        <li key={i} className="flex items-center gap-3 bg-mono-50 dark:bg-black/20 p-4 rounded-md border border-mono-200 dark:border-white/5">
-                                            <span className="material-symbols-outlined text-secondary text-xl">delete</span>
-                                            <span className="text-xs font-normal text-mono-800 dark:text-white/90">{item}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </section>
-
-                        <section className="space-y-4 animate-in slide-in-from-bottom-4 delay-200 duration-700">
-                            <div className="flex items-center gap-3">
-                                <h3 className="text-lg font-medium text-mono-900 dark:text-white/90">{t.section3Title}</h3>
-                            </div>
-                            <div className="bg-mono-50 dark:bg-mono-900 border border-mono-100 dark:border-mono-800 p-4 sm:p-6 rounded">
-                                <p className="text-sm text-mono-800 dark:text-white/90 leading-relaxed font-normal">
-                                    {t.section3Text}
-                                </p>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-
-                {/* Footer Section */}
-                <div className="mt-16 text-center space-y-8">
-                    <div className="flex flex-wrap items-center justify-center gap-6 text-mono-800 dark:text-white/90 font-medium text-[11px] uppercase antialiased">
-                        <button className="text-blue-600 dark:text-blue-400 font-bold pointer-events-none">{isKurdish ? 'ژێبرنا داتایان' : 'Data Deletion'}</button>
-                        <span className="w-1 h-1 rounded-md bg-white/10"></span>
-                        <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="text-mono-500 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-colors">{isKurdish ? 'سیاسەتا تایبەتمەندیێ' : 'Privacy Policy'}</button>
-                        <span className="w-1 h-1 rounded-md bg-white/10"></span>
-                        <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="text-mono-500 dark:text-white/50 hover:text-mono-900 dark:hover:text-white transition-colors">{isKurdish ? 'مەرجێن خزمەتگوزاریێ' : 'Terms of Service'}</button>
                     </div>
 
                     <button
                         onClick={handleClose}
-                        className="bg-mono-900 text-mono-50 dark:bg-mono-50 dark:text-mono-900 px-6 py-3 rounded-md font-bold text-xs uppercase hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 mx-auto mt-8"
+                        className="absolute right-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
                     >
-                        <span className="material-symbols-outlined text-xl">arrow_back</span>
-                        {t.backButton}
+                        <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-md"></div>
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                            <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                            <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                            <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                            <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                        </svg>
                     </button>
-
-                    <footer className="mt-12 text-center text-mono-500 dark:text-white/50 text-xs font-normal uppercase antialiased opacity-90">
-                        {isKurdish ? '© ٢٠٢٦ تیما پەیڤۆک • هاتیە دروستکرن بۆ کەلەپووری' : '© 2026 Peyvok Team • Built for Heritage'}
-                    </footer>
                 </div>
-            </div>
+
+                {/* Main Content Area */}
+                <div className="flex-1 self-stretch overflow-hidden flex flex-col mx-3 sm:mx-4 mb-4 relative z-0">
+                    <div className="flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden h-full z-10">
+                        {/* Inner White Box 3D Highlight */}
+                        <div className="absolute inset-0 rounded-[10px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-20"></div>
+                        
+                        <div className="relative z-10 w-full h-full overflow-y-auto custom-scrollbar p-5 sm:p-6">
+                            <p className={`text-[13px] text-[#4a5568] mb-6 leading-relaxed font-bold border-[#181a20] ${isKurdish ? 'border-r-4 pr-4' : 'border-l-4 pl-4'}`}>
+                                {t.intro}
+                            </p>
+
+                            <div className="space-y-6">
+                                {/* Section 1 */}
+                                <section className="relative">
+                                    <h3 className="text-[15px] font-black font-rabar text-[#181a20] mb-3 flex items-center gap-3">
+                                        {t.section1Title}
+                                    </h3>
+                                    <p className="text-[13px] font-bold text-[#4a5568] leading-relaxed mb-3">{t.section1Text}</p>
+                                    <ul className={`space-y-3 ${isKurdish ? 'pr-6' : 'pl-6'}`}>
+                                        {t.steps.map((step, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-[12px] font-bold text-[#4a5568]">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#1e86ff] mt-1.5 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"></div>
+                                                <span className="flex-1 leading-relaxed">{step}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+
+                                {/* Section 2 */}
+                                <section className="relative">
+                                    <h3 className="text-[15px] font-black font-rabar text-[#181a20] mb-3 flex items-center gap-3">
+                                        {t.section2Title}
+                                    </h3>
+                                    <p className="text-[13px] font-bold text-[#4a5568] leading-relaxed mb-3">{t.section2Text}</p>
+                                    <ul className={`space-y-3 ${isKurdish ? 'pr-6' : 'pl-6'}`}>
+                                        {t.deletedItems.map((item, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-[12px] font-bold text-[#4a5568]">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-[#e62b2b] mt-1.5 shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.3)]"></div>
+                                                <span className="flex-1 leading-relaxed">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+
+                                {/* Section 3 */}
+                                <section className="relative">
+                                    <h3 className="text-[15px] font-black font-rabar text-[#181a20] mb-3 flex items-center gap-3">
+                                        {t.section3Title}
+                                    </h3>
+                                    <p className="text-[13px] font-bold text-[#4a5568] leading-relaxed mb-3">{t.section3Text}</p>
+                                </section>
+                            </div>
+
+                            {/* Footer Links */}
+                            <div className="mt-10 pt-6 border-t-[1.5px] border-[#a0a7b4]/30 text-center space-y-6">
+                                <div className="flex flex-wrap items-center justify-center gap-4 text-[#4a5568] font-bold text-[11px] uppercase">
+                                    <button className="text-[#181a20] pointer-events-none">{isKurdish ? 'ژێبرنا داتایان' : 'Data Deletion'}</button>
+                                    <span className="w-1 h-1 rounded-full bg-[#a0a7b4]"></span>
+                                    <button onClick={() => handleNavigate('/privacy-policy', 'privacy')} className="hover:text-[#181a20] transition-colors">{isKurdish ? 'سیاسەتا تایبەتمەندیێ' : 'Privacy Policy'}</button>
+                                    <span className="w-1 h-1 rounded-full bg-[#a0a7b4]"></span>
+                                    <button onClick={() => handleNavigate('/terms-of-service', 'terms')} className="hover:text-[#181a20] transition-colors">{isKurdish ? 'مەرجێن خزمەتگوزاریێ' : 'Terms of Service'}</button>
+                                </div>
+                                <p className="text-[10px] text-[#727888] font-bold uppercase opacity-80">
+                                    {isKurdish ? '© ٢٠٢٦ تیما پەیڤۆک • هاتیە دروستکرن بۆ کەلەپووری' : '© 2026 Peyvok Team • Built for Heritage'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Motion.div>
         </div>
     );
 };

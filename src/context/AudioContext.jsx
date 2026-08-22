@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { safeStorageGet, safeStorageSet } from '../utils/safeParse';
+import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 import { 
   playPopSfx, 
@@ -41,7 +42,7 @@ import {
 const AudioContext = createContext();
 
 export const AudioProvider = ({ children }) => {
-  const { user } = useUser();
+  const { user, profileData } = useUser();
   const [appSfxVolume, setAppSfxVolume] = useState(() => {
     const saved = safeStorageGet('peyvchin_sfx_volume');
     return saved !== null ? Number(saved) : 20; 
@@ -61,6 +62,19 @@ export const AudioProvider = ({ children }) => {
 
   const appSoundsEnabled = appSfxVolume > 0;
   const audioStateRef = useRef({ user, appSfxVolume, bgMusicVolume });
+  const dbSyncTimeoutRef = useRef(null);
+
+  // Sync from DB to local when profile loads
+  useEffect(() => {
+    if (profileData?.sfx_volume !== undefined) {
+      setAppSfxVolumeGuarded(profileData.sfx_volume);
+      safeStorageSet('peyvchin_sfx_volume', profileData.sfx_volume.toString());
+    }
+    if (profileData?.bg_music_volume !== undefined) {
+      setBgMusicVolumeGuarded(profileData.bg_music_volume);
+      safeStorageSet('peyvchin_bg_music_volume', profileData.bg_music_volume.toString());
+    }
+  }, [profileData?.sfx_volume, profileData?.bg_music_volume, setAppSfxVolumeGuarded, setBgMusicVolumeGuarded]);
 
   useEffect(() => {
     audioStateRef.current = { user, appSfxVolume, bgMusicVolume };
@@ -98,17 +112,31 @@ export const AudioProvider = ({ children }) => {
   const playShanaziKurdistanSound = useCallback(() => playShanaziKurdistanSfx(appSoundsEnabled), [appSoundsEnabled]);
   const playShanaziJihaniSound = useCallback(() => playShanaziJihaniSfx(appSoundsEnabled), [appSoundsEnabled]);
 
+  const syncToDbDebounced = useCallback((updates) => {
+    if (!audioStateRef.current.user?.id) return;
+    if (dbSyncTimeoutRef.current) clearTimeout(dbSyncTimeoutRef.current);
+    dbSyncTimeoutRef.current = setTimeout(async () => {
+      try {
+        await supabase.from('profiles').update(updates).eq('id', audioStateRef.current.user.id);
+      } catch (e) {
+        console.warn("Failed to sync volume to DB", e);
+      }
+    }, 1000); // 1 second debounce
+  }, []);
+
   const updateMusicVolume = useCallback((val) => {
     setBgMusicVolumeGuarded(val);
     safeStorageSet('peyvchin_bg_music_volume', val.toString());
     setBackgroundMusicVolume(val / 100);
-  }, [setBgMusicVolumeGuarded]);
+    syncToDbDebounced({ bg_music_volume: val });
+  }, [setBgMusicVolumeGuarded, syncToDbDebounced]);
 
   const updateSfxVolume = useCallback((val) => {
     setAppSfxVolumeGuarded(val);
     safeStorageSet('peyvchin_sfx_volume', val.toString());
     import('../utils/audio').then(m => m.setSfxVolume(val / 100));
-  }, [setAppSfxVolumeGuarded]);
+    syncToDbDebounced({ sfx_volume: val });
+  }, [setAppSfxVolumeGuarded, syncToDbDebounced]);
 
   useEffect(() => { setBackgroundMusicVolume(bgMusicVolume / 100); }, [bgMusicVolume]);
 

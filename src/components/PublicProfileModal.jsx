@@ -775,7 +775,7 @@ export default function PublicProfileModal({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
               onClick={() => {
                 setShowReportConfirm(false);
                 setReportReasons([]);
@@ -788,67 +788,130 @@ export default function PublicProfileModal({
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+              className="relative w-full max-w-85 bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] border-4 border-[#121316] p-5 flex flex-col items-center overflow-hidden font-rabar"
               dir="rtl"
             >
+                {/* Inner 3D Highlight Layer (Tapered Top) */}
+                <div 
+                    className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                    style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                ></div>
+                
+                {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                {/* Glassy Header Highlight */}
+                <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+              <div className="relative z-10 w-full flex flex-col items-center pt-2">
               {showReportConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-4 drop-shadow-sm">ئەگەرێ سکاڵایێ چیە؟</h3>
-                  <div className="flex flex-col gap-1.5 w-full mb-4 max-h-[40vh] overflow-y-auto pr-1 custom-scrollbar">
-                    {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'یێن دیتر'].map(reason => (
-                      <label key={reason} className="flex items-center gap-3 cursor-pointer p-2 rounded-md hover:bg-mono-200 dark:hover:bg-white/5 transition-colors">
-                        <input 
-                          type="checkbox" 
-                          name="reportReason" 
-                          value={reason} 
-                          checked={reportReasons.includes(reason)} 
-                          onChange={(e) => { 
-                            triggerHaptic(5); 
-                            if (e.target.checked) {
-                              setReportReasons(prev => [...prev, reason]);
-                            } else {
-                              setReportReasons(prev => prev.filter(r => r !== reason));
-                            }
-                          }} 
-                          className="w-4 h-4 rounded-sm accent-primary cursor-pointer"
-                        />
-                        <span className="text-mono-700 dark:text-mono-300 text-xs font-bold">{reason}</span>
-                      </label>
-                    ))}
-                    
-                    {reportReasons.includes('یێن دیتر') && (
-                      <textarea
-                        value={customReason}
-                        onChange={(e) => setCustomReason(e.target.value)}
-                        placeholder="کێشەیێ ل ڤێرێ بنڤێسە..."
-                        className="w-full bg-mono-100 dark:bg-black/50 border border-mono-200 dark:border-white/10 rounded-md p-2.5 text-mono-900 dark:text-white text-[11px] font-bold mt-1 focus:outline-none focus:border-primary resize-none h-20 placeholder:text-mono-400 dark:placeholder:text-white/30"
-                      />
-                    )}
+                  <h3 className="text-[17px] font-black text-white mb-4 leading-none text-center" style={{ textShadow: '-1.5px -1.5px 0 #1a1c23, 1.5px -1.5px 0 #1a1c23, -1.5px 1.5px 0 #1a1c23, 1.5px 1.5px 0 #1a1c23, 0 3px 0 #1a1c23, 0 4px 6px rgba(0,0,0,0.4)' }}>ئەگەرێ سکاڵایێ چیە؟</h3>
+                  
+                  <div className="flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden w-full mb-5 border-[1.5px] border-[#181a20]">
+                      <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-20"></div>
+                      <div className="relative z-10 w-full max-h-[35vh] overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
+                        {['ئاخفتنێن نەجوان', 'ناڤێ نەجوان', 'فێلکرن', 'بێزارکرن', 'یێن دیتر'].map(reason => (
+                          <label key={reason} className="flex items-center gap-3 cursor-pointer p-2.5 rounded-[8px] bg-white border border-[#a0a7b4]/50 shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:border-[#1e86ff]/50 transition-colors group">
+                            <input 
+                              type="checkbox" 
+                              name="reportReason" 
+                              value={reason} 
+                              checked={reportReasons.includes(reason)} 
+                              onChange={(e) => { 
+                                triggerHaptic(5); 
+                                if (e.target.checked) {
+                                  setReportReasons(prev => [...prev, reason]);
+                                } else {
+                                  setReportReasons(prev => prev.filter(r => r !== reason));
+                                }
+                              }} 
+                              className="w-4 h-4 rounded-sm border-2 border-[#a0a7b4] text-[#1e86ff] focus:ring-[#1e86ff]/30 cursor-pointer shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)] transition-all"
+                            />
+                            <span className="text-[#181a20] text-[12px] font-black flex-1">{reason}</span>
+                          </label>
+                        ))}
+                        
+                        {reportReasons.includes('یێن دیتر') && (
+                          <textarea
+                            value={customReason}
+                            onChange={(e) => setCustomReason(e.target.value)}
+                            placeholder="کێشەیێ ل ڤێرێ بنڤێسە..."
+                            className="w-full bg-white border border-[#a0a7b4]/50 rounded-[8px] p-2.5 text-[#181a20] text-[11px] font-bold focus:outline-none focus:border-[#1e86ff] focus:ring-2 focus:ring-[#1e86ff]/20 resize-none h-20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] placeholder:text-[#a0a7b4]"
+                          />
+                        )}
+                      </div>
                   </div>
-                  <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || reportReasons.length === 0 || (reportReasons.includes('یێن دیتر') && !customReason.trim())} className="flex-1 text-white bg-primary hover:brightness-110 py-2.5 rounded-md text-[13px] font-black disabled:opacity-50 transition-all active:scale-95 shadow-sm">هنارتن</button>
-                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReasons([]); setCustomReason(""); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">پەشێمانبوون</button>
+                  
+                  <div className="flex gap-3 w-full">
+                    <button onClick={() => { triggerHaptic(10); setShowReportConfirm(false); setReportReasons([]); setCustomReason(""); }} className="flex-1 relative btn-clash-sm btn-clash-sm-slate text-white h-11 text-[13px] font-black">پەشێمانبوون</button>
+                    <button onClick={() => { triggerHaptic(10); handleReport(); }} disabled={reporting || reportReasons.length === 0 || (reportReasons.includes('یێن دیتر') && !customReason.trim())} className="flex-1 relative btn-clash-sm btn-clash-sm-blue text-white h-11 text-[13px] font-black disabled:opacity-50 disabled:grayscale">هنارتن</button>
                   </div>
                 </>
               )}
               {showBlockConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-5 drop-shadow-sm">تو پشتڕاستی ژ بلۆککرنا ڤی کەسی؟</h3>
-                  <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }} className="flex-1 text-white bg-red-500 hover:bg-red-600 py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ، بلۆک</button>
-                    <button onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                  <h3 className="text-[17px] font-black text-white mb-4 -mt-2 leading-none text-center relative z-20" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>
+                      تو پشتڕاستی ژ بلۆککرنا ڤی کەسی؟
+                  </h3>
+                  <div className="flex-1 self-stretch flex flex-col relative w-full rounded-[8px] bg-[#e3eef2] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden mt-2">
+                     {/* Inner White Box Highlight */}
+                     <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                     <div className="relative z-20 flex p-5 w-full gap-3">
+                        <button
+                            onClick={() => { triggerHaptic(10); setShowBlockConfirm(false); }}
+                            className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
+                            style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
+                        >
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                نەخێر
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => { triggerHaptic(10); onToggleBlock(effectiveIsBlocked); setShowBlockConfirm(false); }}
+                            className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#ff3b3b]"
+                            style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
+                        >
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                بەڵێ، بلۆک
+                            </span>
+                        </button>
+                     </div>
                   </div>
                 </>
               )}
               {showUnfriendConfirm && (
                 <>
-                  <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-5 drop-shadow-sm">تو پشتڕاستی ژ ژێبرانا ڤی هەڤالی؟</h3>
-                  <div className="flex gap-2.5 w-full">
-                    <button onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }} className="flex-1 text-white bg-red-500 hover:bg-red-600 py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm">بەڵێ</button>
-                    <button onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }} className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors">نەخێر</button>
+                  <h3 className="text-[17px] font-black text-white mb-4 -mt-2 leading-none text-center relative z-20" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>
+                      تو پشتڕاستی ژ ژێبرانا ڤی هەڤالی؟
+                  </h3>
+                  <div className="flex-1 self-stretch flex flex-col relative w-full rounded-[8px] bg-[#e3eef2] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden mt-2">
+                     {/* Inner White Box Highlight */}
+                     <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                     <div className="relative z-20 flex p-5 w-full gap-3">
+                        <button
+                            onClick={() => { triggerHaptic(10); setShowUnfriendConfirm(false); }}
+                            className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
+                            style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
+                        >
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                نەخێر
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => { handleUnfriend(); setShowUnfriendConfirm(false); }}
+                            className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#ff3b3b]"
+                            style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
+                        >
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                بەڵێ
+                            </span>
+                        </button>
+                     </div>
                   </div>
                 </>
               )}
+              </div>
             </Motion.div>
           </div>
         )}

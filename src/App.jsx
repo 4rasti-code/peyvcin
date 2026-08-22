@@ -1739,7 +1739,7 @@ export default function App() {
       {!isLoadingScreenVisible && user && isUpdateNotesCleared && <LocationPrompt user={user} profileData={profileData} onComplete={() => { }} />}
       <div className={`flex-1 flex flex-col w-full max-w-screen-sm md:max-w-240 mx-auto relative overflow-hidden bg-mono-white dark:bg-mono-950 transition-colors duration-500`}>
         {/* Background Image Layer for all main tabs */}
-        {['lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (
+        {['auth', 'lobby', 'store', 'social_hub', 'leaderboard', 'profile', 'stats', 'achievements', 'medals', 'dictionary'].includes(currentView) && (
           <>
             <div
               className="absolute inset-0 z-0 pointer-events-none transition-all duration-500"

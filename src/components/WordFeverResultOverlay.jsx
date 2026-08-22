@@ -72,7 +72,7 @@ const WordFeverResultOverlay = ({
     if (isVisible && isWin && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
       const colors = ['#0ea5e9', '#22d3ee', '#3b82f6', '#ffffff'];
-      
+
       setTimeout(() => {
         const fireBurst = (x, y, count) => {
           confetti({
@@ -83,10 +83,10 @@ const WordFeverResultOverlay = ({
             zIndex: 2000
           });
         };
-        
+
         fireBurst(0.5, 0.6, 120);
       }, 300);
-      
+
       triggerHaptic([30, 50, 30, 50, 60]);
       playSuccessSfx();
     } else if (isVisible && !isWin && !hasTriggeredRef.current) {
@@ -123,9 +123,9 @@ const WordFeverResultOverlay = ({
           className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
         >
           <div className="absolute -top-[200vh] -left-[200vw] pointer-events-none">
-             <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
-               <GameResultRenderer text={fullTextForCapture} />
-             </div>
+            <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
+              <GameResultRenderer text={fullTextForCapture} />
+            </div>
           </div>
 
           <Motion.div
@@ -194,43 +194,43 @@ const WordFeverResultOverlay = ({
               </div>
 
               {/* Stats Section */}
-              <ResultStats 
+              <ResultStats
                 profileData={breakdown?.profileData} // Use passed data if available
                 playerStats={breakdown?.playerStats}
                 gameMode="word_fever"
                 currentGuessCount={guesses.length}
               />
 
-                {/* Detailed Stats Breakdown (Horizontal & Reordered below XP) */}
-                <div className="flex items-center justify-between gap-1 pt-3 mt-1 border-t border-mono-200 dark:border-white/5">
-                  {/* Yellow (Wrong Position) */}
-                  <div className="flex flex-col items-center gap-1.5 flex-1 border-r border-mono-200 dark:border-white/5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
-                      <span className="text-[9px] font-black text-yellow-500 whitespace-nowrap">ڕاست/جهێ شاش</span>
-                    </div>
-                    <span className="text-sm font-black text-mono-900 dark:text-white leading-none">{breakdown?.yellowCount || 0}</span>
+              {/* Detailed Stats Breakdown (Horizontal & Reordered below XP) */}
+              <div className="flex items-center justify-between gap-1 pt-3 mt-1 border-t border-mono-200 dark:border-white/5">
+                {/* Yellow (Wrong Position) */}
+                <div className="flex flex-col items-center gap-1.5 flex-1 border-r border-mono-200 dark:border-white/5">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(250,204,21,0.4)]" />
+                    <span className="text-[9px] font-black text-yellow-500 whitespace-nowrap">ڕاست/جهێ شاش</span>
                   </div>
+                  <span className="text-sm font-black text-mono-900 dark:text-white leading-none">{breakdown?.yellowCount || 0}</span>
+                </div>
 
-                  {/* Green (Correct) */}
-                  <div className="flex flex-col items-center gap-1.5 flex-1 border-r border-mono-200 dark:border-white/5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                      <span className="text-[9px] font-black text-emerald-500 whitespace-nowrap">پیت ڕاست</span>
-                    </div>
-                    <span className="text-sm font-black text-mono-900 dark:text-white leading-none">{breakdown?.greenCount || 0}</span>
+                {/* Green (Correct) */}
+                <div className="flex flex-col items-center gap-1.5 flex-1 border-r border-mono-200 dark:border-white/5">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                    <span className="text-[9px] font-black text-emerald-500 whitespace-nowrap">پیت ڕاست</span>
                   </div>
+                  <span className="text-sm font-black text-mono-900 dark:text-white leading-none">{breakdown?.greenCount || 0}</span>
+                </div>
 
-                  {/* Gray (Wrong) */}
-                  <div className="flex flex-col items-center gap-1.5 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.4)]" />
-                      <span className="text-[9px] font-black text-mono-400 dark:text-slate-500 whitespace-nowrap">پیت شاش</span>
-                    </div>
-                    <span className="text-sm font-black text-mono-900 dark:text-white leading-none">-{breakdown?.grayCount || 0}</span>
+                {/* Gray (Wrong) */}
+                <div className="flex flex-col items-center gap-1.5 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.4)]" />
+                    <span className="text-[9px] font-black text-mono-400 dark:text-slate-500 whitespace-nowrap">پیت شاش</span>
                   </div>
+                  <span className="text-sm font-black text-mono-900 dark:text-white leading-none">-{breakdown?.grayCount || 0}</span>
                 </div>
               </div>
+            </div>
 
             {/* Action Buttons */}
             <div className="w-full flex flex-col gap-3">
@@ -272,7 +272,7 @@ const WordFeverResultOverlay = ({
                     node: captureRef.current,
                     precomputedDataUrl: precomputedDataUrl
                   });
-                  
+
                   if (result === 'clipboard') {
                     setShareStatus('copied');
                     setTimeout(() => setShareStatus(null), 2000);

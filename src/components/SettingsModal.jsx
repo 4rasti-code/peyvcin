@@ -12,7 +12,7 @@ import ReportModal from './ReportModal';
 import WordSuggestionModal from './WordSuggestionModal';
 import { playBackSfx } from '../utils/audio';
 import { supabase } from '../lib/supabase';
-import { useVoice } from '../context/VoiceContext';
+import AudioSettingsModal from './AudioSettingsModal';
 
 function SettingsModal({
    isOpen,
@@ -33,9 +33,10 @@ function SettingsModal({
    const [isBlockedModalOpen, setIsBlockedModalOpen] = React.useState(false);
    const [isReportModalOpen, setIsReportModalOpen] = React.useState(false);
    const [isWordSuggestionModalOpen, setIsWordSuggestionModalOpen] = React.useState(false);
+   const [isAudioSettingsModalOpen, setIsAudioSettingsModalOpen] = React.useState(false);
+   const [isAccountManagementModalOpen, setIsAccountManagementModalOpen] = React.useState(false);
    const [activePolicyModal, setActivePolicyModal] = React.useState(null);
    const { user, handleToggleBlock } = useUser();
-   const { isMuted, toggleMute, isDeafened, toggleDeafen } = useVoice();
 
 
 
@@ -67,202 +68,202 @@ function SettingsModal({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-100 flex flex-col bg-mono-white dark:bg-black transition-colors duration-500 overflow-hidden"
+                  className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 sm:p-6 transition-colors duration-500 overflow-hidden"
                   onClick={onClose}
                >
                   <Motion.div
-                     initial={{ opacity: 0, y: 40 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     exit={{ opacity: 0, y: 40 }}
-                     className="w-full px-4 sm:px-12 md:px-24 lg:px-48 mx-auto flex flex-col h-full relative font-rabar transition-colors duration-500"
+                     className="w-full max-w-105 h-auto max-h-[90vh] flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
                      onClick={e => e.stopPropagation()}
                      dir="rtl"
                   >
-                     {/* Compact Header */}
-                     <div className="p-6 pt-[calc(env(safe-area-inset-top)+16px)] sm:pt-[calc(env(safe-area-inset-top)+16px)] pb-4 flex items-center justify-end shrink-0">
+                     {/* Inner 3D Highlight Layer (Tapered Top) */}
+                     <div 
+                        className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                        style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                     ></div>
+                     
+                     {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                     <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                     {/* Glassy Header Highlight (stops at middle of text) */}
+                     <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                     {/* Clash Royale Header (Inside Card) */}
+                     <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-3 shrink-0">
+                        <h2 
+                           className="text-[28px] font-black text-white leading-none relative z-10 -translate-y-2" 
+                           style={{ 
+                              textShadow: `
+                                 -2px -2px 0 #1a1c23,
+                                  2px -2px 0 #1a1c23,
+                                 -2px  2px 0 #1a1c23,
+                                  2px  2px 0 #1a1c23,
+                                 -2px  0px 0 #1a1c23,
+                                  2px  0px 0 #1a1c23,
+                                  0px  2px 0 #1a1c23,
+                                  0px -2px 0 #1a1c23,
+                                  0px 5px 0px #1a1c23, 
+                                  0px 5px 10px rgba(0,0,0,0.4)
+                              `
+                           }}
+                        >
+                           ڕێکخستن
+                        </h2>
                         <button
                            onClick={onClose}
-                           className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/5 flex items-center justify-center text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white transition-all active:scale-90 border border-mono-100 dark:border-white/10"
+                           className="absolute right-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
                         >
-                           <span className="material-symbols-outlined text-lg">close</span>
+                           {/* Glass Reflection Highlight */}
+                           <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                           <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                           </svg>
                         </button>
                      </div>
 
-                     <div className="p-6 pt-2 pb-12 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
-                        <AccountSettings updateProfile={updateProfile} onDeleteAccount={() => setShowDeleteConfirm(true)} />
-
-                        <div className="flex items-center w-full pt-4 pb-2">
-                           <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
-                           <span className="px-4 text-[13px] font-black font-rabar text-mono-400 dark:text-mono-500">ڕێکخستن</span>
-                           <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
-                        </div>
-                        {/* 1. AUDIO & HAPTICS */}
-                        <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
-
-                           {/* SFX Toggle */}
-                           <div className="flex items-center justify-between py-3 group">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                                    {appSfxVolume > 0 ? 'volume_up' : 'volume_off'}
-                                 </span>
-                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">کارتێکەرێن دەنگی</span>
-                              </div>
-                              <button
-                                 onClick={() => { triggerHaptic(10); onAppSfxVolumeChange(appSfxVolume > 0 ? 0 : 100); }}
-                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${appSfxVolume > 0 ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                              >
-                                 <Motion.div
-                                    layout
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`w-3 h-3 rounded-sm ${appSfxVolume > 0 ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                 />
-                              </button>
-                           </div>
-
-                           {/* Music Toggle */}
-                           <div className="flex items-center justify-between py-3 group">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                                    {bgMusicVolume > 0 ? 'music_note' : 'music_off'}
-                                 </span>
-                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">مۆزیکا پاشبنەمایی</span>
-                              </div>
-                              <button
-                                 onClick={() => { triggerHaptic(10); onBgMusicVolumeChange(bgMusicVolume > 0 ? 0 : 3); }}
-                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${bgMusicVolume > 0 ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                              >
-                                 <Motion.div
-                                    layout
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`w-3 h-3 rounded-sm ${bgMusicVolume > 0 ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                 />
-                              </button>
-                           </div>
-
-                           {/* Haptic Toggle */}
-                           <div className="flex items-center justify-between py-3 group">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">vibration</span>
-                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">لەرزین</span>
-                              </div>
-                              <button
-                                 onClick={() => { triggerHaptic(10); onHapticToggle(); }}
-                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${hapticEnabled ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                              >
-                                 <Motion.div
-                                    layout
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`w-3 h-3 rounded-sm ${hapticEnabled ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                 />
-                              </button>
-                           </div>
-
-                           {/* Mic Toggle */}
-                           <div className="flex items-center justify-between py-3 group">
-                              <div className="flex items-center gap-3">
-                                 <span className={`material-symbols-outlined text-lg transition-colors ${!isMuted ? 'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-red-500'}`}>
-                                    {!isMuted ? 'mic' : 'mic_off'}
-                                 </span>
-                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">مایکڕۆفۆن</span>
-                              </div>
-                              <button
-                                 onClick={() => { triggerHaptic(10); toggleMute(); }}
-                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${!isMuted ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                              >
-                                 <Motion.div
-                                    layout
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`w-3 h-3 rounded-sm ${!isMuted ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                 />
-                              </button>
-                           </div>
-
-                           {/* Speaker Toggle */}
-                           <div className="flex items-center justify-between py-3 group">
-                              <div className="flex items-center gap-3">
-                                 <span className={`material-symbols-outlined text-lg transition-colors ${!isDeafened ? 'text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-red-500'}`}>
-                                    {!isDeafened ? 'volume_up' : 'volume_off'}
-                                 </span>
-                                 <span className="text-[13px] font-bold text-mono-800 dark:text-mono-200">بڵندگۆ (سپیکەر)</span>
-                              </div>
-                              <button
-                                 onClick={() => { triggerHaptic(10); toggleDeafen(); }}
-                                 className={`w-10 h-5 rounded-sm p-1 transition-all duration-300 flex items-center ${!isDeafened ? 'bg-green-600/20 justify-end' : 'bg-red-600/20 justify-start'}`}
-                              >
-                                 <Motion.div
-                                    layout
-                                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                    className={`w-3 h-3 rounded-sm ${!isDeafened ? 'bg-green-600' : 'bg-red-600'} shadow-sm`}
-                                 />
-                              </button>
+                     {/* Main Content Area - Scrollable Wrapper */}
+                     <div className="flex-1 self-stretch overflow-y-auto custom-scrollbar flex flex-col mx-3 sm:mx-4 mb-3 relative z-0">
+                        
+                        {/* CONTAINER 1: Profile & Quick Edit */}
+                        <div className="flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_6px_12px_rgba(0,0,0,0.15)] overflow-hidden p-4 sm:p-5 shrink-0 z-20">
+                           {/* Inner White Box 3D Highlight */}
+                           <div className="absolute inset-0 rounded-[10px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
+                           <div className="relative z-20 w-full">
+                              <AccountSettings 
+                                 updateProfile={updateProfile} 
+                                 onDeleteAccount={() => setShowDeleteConfirm(true)} 
+                                 isAccountManagementModalOpen={isAccountManagementModalOpen}
+                                 setIsAccountManagementModalOpen={setIsAccountManagementModalOpen}
+                              />
                            </div>
                         </div>
 
-                        {/* HELP & FEEDBACK SECTION */}
-                        <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
-                           <button onClick={() => { triggerHaptic(10); setIsBlockedModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">block</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">لیستا بلۆککریان</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+                        {/* CONTAINER 2: Settings Grid */}
+                        <div className="flex flex-col relative rounded-b-[10px] bg-[#e3eef2] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden p-4 sm:p-5 pt-10 pb-8 sm:pb-10 shrink-0 z-10 -mt-4">
+                           {/* Inner White Box 3D Highlight */}
+                           <div className="absolute inset-0 rounded-b-[10px] border-[2.5px] border-t-transparent border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                           <div className="relative z-20 flex flex-col h-full">
+                              {/* 1. ACCOUNT, AUDIO & BLOCKED USERS */}
+                              <div className="grid grid-cols-2 items-center justify-center gap-3 w-full relative mt-1">
+                                 <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setIsAccountManagementModalOpen(true);
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>ڕێکخستنێن هژمارێ</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setIsHelpCenterOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">help</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">سەنتەرێ هاریکاریێ</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setIsAudioSettingsModalOpen(true);
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>ڕێکخستنێن دەنگی</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setIsReportModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">feedback</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">فیدباک</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                        </div>
+
+                        {/* Divider Line */}
+                        <div className="w-full flex justify-center pt-6 pb-10">
+                           <div className="w-3/4 h-0.5 bg-[#a0a7b4] opacity-50 rounded-full"></div>
+                        </div>
+
+                        {/* HELP & LEGAL SECTION */}
+                        <div className="grid grid-cols-2 gap-3 w-full relative">
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setIsHelpCenterOpen(true);
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>سەنتەرێ هاریکاریێ</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setIsWordSuggestionModalOpen(true); }} className="flex items-center justify-between py-3 w-full group transition-colors">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-amber-500 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">lightbulb</span>
-                                 <span className="text-[14px] font-bold text-mono-700 dark:text-mono-300 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">پێشنیارکرنا پەیڤێ</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setIsReportModalOpen(true);
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>ئاریشە و پێشنیار</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setActivePolicyModal('terms'); }} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">description</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">مەرجێن خزمەتگوزاریێ</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setActivePolicyModal('terms');
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>مەرجێن خزمەتگوزاریێ</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setActivePolicyModal('privacy'); }} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">policy</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">سیاسەتا تایبەتمەندیێ</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setActivePolicyModal('privacy');
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>سیاسەتا تایبەتمەندیێ</span>
                            </button>
-                           <button onClick={() => { triggerHaptic(10); setActivePolicyModal('deletion'); }} className="flex items-center justify-between py-3 w-full group transition-colors border-t border-mono-100 dark:border-white/5">
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-lg text-mono-400 dark:text-mono-500 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">delete_forever</span>
-                                 <span className="text-[13px] font-bold font-rabar text-mono-800 dark:text-mono-200">ژێبرنا داتایان</span>
-                              </div>
-                              <span className="material-symbols-outlined text-[16px] text-mono-300 dark:text-mono-600">chevron_left</span>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setActivePolicyModal('deletion');
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#a0a7b4] to-[#727888] hover:from-[#b0b7c4] hover:to-[#828898] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#4a5568] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>ژێبرنا داتایان</span>
+                           </button>
+
+                           <button
+                              onClick={() => { 
+                                 triggerHaptic(10); 
+                                 setIsBlockedModalOpen(true);
+                              }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#a0a7b4] to-[#727888] hover:from-[#b0b7c4] hover:to-[#828898] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#4a5568] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>لیستا بلۆککریان</span>
                            </button>
                         </div>
 
                         {/* Compact Logout Button */}
-                        <button
-                           onClick={() => { triggerHaptic(15); onPlaySound?.(); onLogout(); }}
-                           className="w-full h-11 rounded-md font-black text-[12px] transition-all active:scale-95 flex items-center justify-center gap-2.5 bg-red-500/5 text-red-500 hover:bg-red-500/10 border border-red-500/10 mt-2"
-                        >
-                           <span className="material-symbols-outlined text-lg">logout</span>
-                           دەرکەفتن ژ ھەژمارێ
-                        </button>
-
-                        <div className="mt-8 flex flex-col items-center gap-1 opacity-50 pb-8">
-                           <p className="text-[8px] font-black tracking-[0.4em] uppercase text-mono-400">Peyvok v3.0.0</p>
+                        <div className="mt-auto pt-8 w-full">
+                           <button
+                              onClick={() => { triggerHaptic(15); onPlaySound?.(); onLogout(); }}
+                              className="relative w-full h-7 rounded-[8px] font-black font-rabar text-[13px] transition-all flex items-center justify-center gap-2 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#960f0f] text-white active:scale-95 cursor-pointer"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                              <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>دەرکەفتن ژ ھەژمارێ</span>
+                           </button>
                         </div>
+                           </div>
+                        </div>
+                     </div>
+                     {/* Footer Area (On Dark Gray Background) */}
+                     <div className="w-full shrink-0 flex flex-col items-center justify-center pb-4 -mt-1">
+                        <p className="text-[10px] font-black tracking-widest text-white" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 rgba(0,0,0,0.8)' }}>
+                           Peyvok v3.0.0
+                        </p>
                      </div>
                   </Motion.div>
                </Motion.div>
@@ -302,29 +303,94 @@ function SettingsModal({
                   className="fixed inset-0 z-110 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
                >
                   <Motion.div
-                     initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                     key="delete-confirm-overlay-styled"
+                     initial={{ scale: 0.95, opacity: 0, y: 10 }}
                      animate={{ scale: 1, opacity: 1, y: 0 }}
-                     exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                     className="relative w-full max-w-75 bg-mono-50 dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md p-5 flex flex-col items-center shadow-2xl overflow-hidden"
+                     exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                     className="w-full max-w-85 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
                      dir="rtl"
                   >
-                     <h3 className="text-sm font-bold font-rabar text-mono-900 dark:text-white mb-3 drop-shadow-sm">تو پشتڕاستی ژ ژێبرنا ڤێ هژمارێ؟</h3>
-                     <p className="text-[11px] font-bold text-center text-mono-500 dark:text-white/50 mb-5 leading-relaxed">
-                        ئەگەر ڤێ کردارێ ئەنجام بدەی, هەمی داتا و پێشکەفتنێن تە دێ ب یەکجاری هێنە ژێبرن و ڤەگەڕاندن تێدا نینە.
-                     </p>
-                     <div className="flex gap-2.5 w-full">
-                        <button
-                           onClick={() => { triggerHaptic(10); handleDeleteAccount(); }}
-                           className="flex-1 text-white bg-red-500 hover:bg-red-600 py-2.5 rounded-md text-[13px] font-black transition-all active:scale-95 shadow-sm"
+                     {/* Inner 3D Highlight Layer (Tapered Top) */}
+                     <div 
+                        className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                        style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                     ></div>
+                     
+                     {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                     <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                     {/* Glassy Header Highlight (stops at middle of text) */}
+                     <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                     <div className="w-full relative flex items-center justify-center pt-4 pb-4 shrink-0">
+                        <h2 
+                           className="text-[20px] font-black text-white leading-none relative z-10" 
+                           style={{ 
+                              textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                           }}
                         >
-                           بەلێ، ژێببە
-                        </button>
+                           ژێبرنا هژمارێ
+                        </h2>
+                        
                         <button
-                           onClick={() => { triggerHaptic(10); setShowDeleteConfirm(false); }}
-                           className="flex-1 text-mono-700 dark:text-mono-300 bg-mono-200 hover:bg-mono-300 dark:bg-mono-800 dark:hover:bg-mono-700 py-2.5 rounded-md text-[13px] font-bold transition-colors"
+                           onClick={() => {
+                              triggerHaptic(10);
+                              setShowDeleteConfirm(false);
+                           }}
+                           className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
                         >
-                           نەخێر
+                           <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                           <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                           </svg>
                         </button>
+                     </div>
+                     
+                     {/* Content Area */}
+                     <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                        {/* Inner White Box Highlight */}
+                        <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                        
+                        <div className="relative z-20 flex flex-col items-center p-5 pt-6">
+                           <p className="text-[13px] font-bold text-center text-[#3a404a] mb-6 leading-relaxed">
+                              تو پشتڕاستی ژ ژێبرنا ڤێ هژمارێ؟ هەمی داتا و پێشکەفتنێن تە دێ ب یەکجاری هێنە ژێبرن و ڤەگەڕاندن تێدا نینە.
+                           </p>
+                           
+                           <div className="flex flex-col gap-3 w-full mt-2">
+                              <button
+                                 onClick={() => { triggerHaptic(10); handleDeleteAccount(); }}
+                                 className="relative w-full h-8 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#ff3b3b]"
+                                 style={{
+                                    boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                 }}
+                              >
+                                 <span 
+                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                 >
+                                    بەلێ، ژێببە
+                                 </span>
+                              </button>
+
+                              <button
+                                 onClick={() => { triggerHaptic(10); setShowDeleteConfirm(false); }}
+                                 className="relative w-full h-8 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
+                                 style={{
+                                    boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                 }}
+                              >
+                                 <span 
+                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                 >
+                                    نەخێر
+                                 </span>
+                              </button>
+                           </div>
+                        </div>
                      </div>
                   </Motion.div>
                </Motion.div>
@@ -351,6 +417,17 @@ function SettingsModal({
                />
             )}
          </AnimatePresence>
+         
+         <AudioSettingsModal 
+            isOpen={isAudioSettingsModalOpen}
+            onClose={() => setIsAudioSettingsModalOpen(false)}
+            appSfxVolume={appSfxVolume}
+            onAppSfxVolumeChange={onAppSfxVolumeChange}
+            bgMusicVolume={bgMusicVolume}
+            onBgMusicVolumeChange={onBgMusicVolumeChange}
+            hapticEnabled={hapticEnabled}
+            onHapticToggle={onHapticToggle}
+         />
       </>
    );
 }

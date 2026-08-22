@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
@@ -22,6 +22,7 @@ import FriendsList from './FriendsList';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import CrSlider from './CrSlider';
 
 export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount, initialFriendsModalOpen, onFriendsModalConsumed, isVisible }) {
    const {
@@ -40,6 +41,15 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
    const [draftAvatar, setDraftAvatar] = useState(userAvatar);
 
    const [saveSuccess, setSaveSuccess] = useState(false);
+   const [cropSize, setCropSize] = useState({ width: 300, height: 300 });
+
+   const cropperContainerRef = useCallback((node) => {
+      if (node) {
+         const { width } = node.getBoundingClientRect();
+         setCropSize({ width, height: width });
+      }
+   }, []);
+
    const [isUploading, setIsUploading] = useState(false);
    const fileInputRef = useRef(null);
 
@@ -618,114 +628,118 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   </button>
                </div>
 
-
-
                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
             </Motion.div>
          </div>
+
          {isCropModalOpen && createPortal(
-            <div className="fixed inset-0 z-10000 flex items-center justify-center p-4 bg-black/90 overflow-hidden" dir="rtl">
+            <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4 sm:p-6 transition-colors duration-500 overflow-hidden" dir="rtl">
                <Motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
-                  className="bg-mono-white dark:bg-black rounded-md w-full max-w-2xl overflow-hidden relative border border-mono-200 dark:border-mono-800 transition-colors duration-300 shadow-2xl flex flex-col max-h-[90vh]"
+                  exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                  className="w-full max-w-100 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden max-h-[95vh]"
+                  onClick={e => e.stopPropagation()}
                >
+                  {/* Inner 3D Highlight Layer */}
+                  <div 
+                     className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                     style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                  ></div>
+                  
+                  {/* Inner 3D Shadow Layer */}
+                  <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                  {/* Glassy Header Highlight */}
+                  <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
                   {/* Header */}
-                  <div className="p-5 border-b border-mono-200 dark:border-mono-800 flex items-center justify-between bg-mono-50 dark:bg-mono-900/50 relative z-10 shadow-sm">
-                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-linear-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/30 shadow-inner">
-                           <span className="material-symbols-outlined text-primary text-xl font-bold">crop</span>
-                        </div>
-                        <h3 className="text-mono-900 dark:text-white font-black font-rabar text-[16px]">بڕینا وێنەی</h3>
-                     </div>
-                     <button
-                        onClick={() => setIsCropModalOpen(false)}
-                        className="w-10 h-10 rounded-2xl flex items-center justify-center text-mono-400 hover:text-mono-900 dark:text-mono-500 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-mono-800 transition-all border border-transparent hover:border-mono-300 dark:hover:border-mono-700 active:scale-95"
+                  <div className="w-full relative flex items-center justify-center pt-3 pb-4 shrink-0">
+                     <h2 
+                        className="text-[20px] font-black text-white leading-none relative z-10" 
+                        style={{ 
+                           textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                        }}
                      >
-                        <span className="material-symbols-outlined text-xl">close</span>
+                        بڕینا وێنەی
+                     </h2>
+                     <button
+                        onClick={() => {
+                           setIsCropModalOpen(false);
+                           setImageToCrop(null);
+                        }}
+                        className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                     >
+                        <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                           <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                           <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                           <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                           <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                        </svg>
                      </button>
                   </div>
 
-                  {/* Cropper Container */}
-                  <div className="relative w-full flex-1 min-h-75 h-[50vh] bg-black overflow-hidden cursor-move touch-none">
-                     <Cropper
-                        image={imageToCrop}
-                        crop={crop}
-                        zoom={zoom}
-                        aspect={1}
-                        onCropChange={setCrop}
-                        onCropComplete={onCropComplete}
-                        onZoomChange={setZoom}
-                        showGrid={false}
-                        cropShape="round"
-                        restrictPosition={true}
-                        style={{
-                           containerStyle: { background: '#000', padding: 0 },
-                           cropAreaStyle: {
-                              border: '2px solid rgba(255,255,255,0.5)'
-                           }
-                        }}
-                     />
-                  </div>
-
-                  {/* Controls */}
-                  <div className="p-8 space-y-6 relative z-10 bg-mono-50 dark:bg-mono-900">
-                     <div className="space-y-4">
-                        <div className="flex items-center justify-between px-1">
-                           <span className="text-[10px] font-black text-white/40 uppercase ]">نێزیکرن و دویرکرنا وێنەی</span>
-                           <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-[12px] font-black tabular-nums border border-primary/30">
-                              {zoom.toFixed(1)}x
-                           </span>
-                        </div>
-
-                        <div className="relative flex items-center h-8 group">
-                           <input
-                              type="range"
-                              id="avatar-zoom"
-                              name="avatar-zoom"
-                              aria-label="Zoom avatar image"
-                              min={1}
-                              max={3}
-                              step={0.01}
-                              value={zoom}
-                              onChange={(e) => setZoom(parseFloat(e.target.value))}
-                              className="w-full h-1.5 bg-white/20 rounded-full appearance-none cursor-pointer outline-none
-                                 [&::-webkit-slider-thumb]:appearance-none 
-                                 [&::-webkit-slider-thumb]:w-6 
-                                 [&::-webkit-slider-thumb]:h-6 
-                                 [&::-webkit-slider-thumb]:rounded-full 
-                                 [&::-webkit-slider-thumb]:bg-primary 
-                                 [&::-webkit-slider-thumb]:border-2 
-                                 [&::-webkit-slider-thumb]:border-white 
-                                 [&::-webkit-slider-thumb]:transition-all
-                                 [&::-webkit-slider-thumb]:hover:scale-110
-                                 [&::-moz-range-thumb]:w-6 
-                                 [&::-moz-range-thumb]:h-6 
-                                 [&::-moz-range-thumb]:rounded-full 
-                                 [&::-moz-range-thumb]:bg-primary 
-                                 [&::-moz-range-thumb]:border-2 
-                                 [&::-moz-range-thumb]:border-white"
+                  {/* Main Content Area (White Box Wrapper) */}
+                  <div className="flex-1 self-stretch flex flex-col relative mx-2.5 sm:mx-3 mb-4 rounded-[12px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                     {/* Inner White Box 3D Highlight */}
+                     <div className="absolute inset-0 rounded-[12px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                     
+                     <div className="flex flex-col z-0 relative">
+                        {/* Cropper takes full width of the white box */}
+                        <div ref={cropperContainerRef} className="relative w-full aspect-square bg-[#121316] overflow-hidden cursor-move touch-none border-b-[2.5px] border-black/10">
+                           <Cropper
+                              image={imageToCrop}
+                              crop={crop}
+                              zoom={zoom}
+                              aspect={1}
+                              onCropChange={setCrop}
+                              onCropComplete={onCropComplete}
+                              onZoomChange={setZoom}
+                              showGrid={false}
+                              cropShape="round"
+                              restrictPosition={true}
+                              objectFit="auto-cover"
+                              cropSize={cropSize}
+                              style={{
+                                 containerStyle: { background: '#121316', padding: 0 },
+                                 cropAreaStyle: { border: 'none' }
+                              }}
                            />
                         </div>
-                     </div>
 
-                     <div className="flex flex-col gap-3 pt-2">
-                        <button
-                           onClick={handleConfirmCrop}
-                           className="w-full h-14 rounded-md bg-linear-to-b from-green-500 to-green-600 border-b-4 border-green-700 text-white font-black text-sm active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center gap-2 shadow-lg"
-                        >
-                           <span className="material-symbols-outlined text-xl">check_circle</span>
-                           پاراستن
-                        </button>
-                        <button
-                           onClick={() => {
-                              setIsCropModalOpen(false);
-                              setImageToCrop(null);
-                           }}
-                           className="w-full h-12 rounded-md bg-white/5 dark:bg-black/20 text-red-500 font-bold text-xs hover:bg-white/10 dark:hover:bg-white/5 active:scale-95 transition-all border-2 border-red-500/20 hover:border-red-500/40"
-                        >
-                           هەلوەشاندن
-                        </button>
+                        {/* Controls underneath cropper */}
+                        <div className="p-4 sm:p-5 flex flex-col gap-5 bg-[#e6ebf0]">
+                           {/* Zoom Slider */}
+                           <div className="flex items-center gap-3">
+                              <span className="text-[14px] font-black font-rabar text-[#3a404a] min-w-max">نێزیکرن:</span>
+                              <div className="relative flex-1 flex items-center h-12">
+                                 <CrSlider 
+                                    value={((zoom - 1) / 2) * 100} 
+                                    onChange={(percentage) => setZoom(1 + (percentage / 100) * 2)} 
+                                 />
+                              </div>
+                              <span className="px-2 py-0.5 rounded-md bg-white text-[#40ea00] text-[13px] font-black tabular-nums border-[1.5px] border-[#c0c6cc] shadow-sm min-w-10 text-center" dir="ltr">
+                                 {zoom.toFixed(1)}x
+                              </span>
+                           </div>
+
+                           {/* Save Button */}
+                           <div className="flex justify-center w-full pt-1">
+                              <button
+                                 onClick={handleConfirmCrop}
+                                 disabled={isUploading}
+                                 className="relative w-32.5 h-7 bg-[#40ea00] rounded-[8px] border-[1.5px] border-[#121316] flex items-center justify-center font-black active:scale-95 transition-transform overflow-hidden disabled:opacity-50 shrink-0"
+                                 style={{
+                                    boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                 }}
+                              >
+                                 <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-wide" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                    {isUploading ? 'بارکرن...' : 'پاراستن'}
+                                 </span>
+                              </button>
+                           </div>
+                        </div>
                      </div>
                   </div>
                </Motion.div>

@@ -147,7 +147,7 @@ export const AuthProvider = ({ children }) => {
         .select(`
           id, nickname, avatar_url, fils, derhem, dinar, xp,
           is_kurdistan, country_code,
-          last_nickname_update, haptic_enabled, magnets, hints, skips,
+          last_nickname_update, haptic_enabled, sfx_volume, bg_music_volume, magnets, hints, skips,
           onboarded,
           daily_streak, reward_streak, last_reward_claimed_at, last_streak_at,
           last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,

@@ -69,7 +69,7 @@ const OnboardingOverlay = ({ steps, onComplete }) => {
       </svg>
 
       {/* Click Blocker outside cutout */}
-      <div className="absolute inset-0 z-10" onClick={handleNext} />
+      <div className="absolute inset-0 z-10" />
 
       {/* The Cutout Interactive Area */}
       <div 
@@ -112,25 +112,43 @@ const OnboardingOverlay = ({ steps, onComplete }) => {
         }}
       >
 
-        <div className="bg-white dark:bg-mono-900 p-6 rounded-md shadow-2xl border border-mono-200 dark:border-mono-800 flex flex-col items-center text-center w-full relative overflow-hidden transition-colors duration-300">
-          <h3 className="font-black text-xl mb-2 text-primary">{step.title}</h3>
-          <p className="text-[14px] font-medium text-mono-600 dark:text-mono-300 leading-relaxed mb-6">{step.text}</p>
+        <div className="w-full flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden z-50 p-6 text-center">
+          {/* Inner 3D Highlight Layer (Tapered Top) */}
+          <div 
+            className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+            style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+          ></div>
           
-          <div className={`flex items-center w-full ${steps.length > 1 ? 'justify-between' : 'justify-center'}`}>
-            {steps.length > 1 && (
-              <div className="flex gap-1.5">
-                {steps.map((_, i) => (
-                  <div key={i} className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentStep ? 'bg-primary scale-125' : 'bg-mono-200 dark:bg-mono-700'}`} />
-                ))}
-              </div>
-            )}
-            
-            <button 
-               onClick={handleNext} 
-               className="pointer-events-auto bg-primary text-white px-8 py-2.5 rounded-md font-black text-[15px] shadow-md shadow-primary/30 active:scale-95 transition-all hover:bg-primary/90 flex items-center justify-center min-w-30"
-            >
-               {currentStep < steps.length - 1 ? 'بەردەوامبە' : 'تێگەهشتم'}
-            </button>
+          {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+          <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+          {/* Glassy Header Highlight */}
+          <div className="absolute top-1.5 inset-x-1.5 h-12 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+          <h3 
+             className="text-[22px] font-black text-[#2bd873] leading-none mb-4 relative z-10"
+             style={{ textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)` }}
+          >
+             {step.title}
+          </h3>
+          {/* Inner Content Area */}
+          <div className="w-full flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_6px_12px_rgba(0,0,0,0.15)] overflow-hidden p-4 sm:p-5 shrink-0 z-20">
+             {/* Inner White Box 3D Highlight */}
+             <div className="absolute inset-0 rounded-[10px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
+             
+             <p className="text-[14px] font-black text-[#181a20] leading-relaxed mb-6 relative z-20 drop-shadow-[0_1px_0_rgba(255,255,255,0.8)] px-1">
+                {step.text}
+             </p>
+             
+             {steps.length > 1 && (
+               <div className="flex items-center justify-center w-full relative z-20 pb-2">
+                 <div className="flex gap-1.5">
+                   {steps.map((_, i) => (
+                     <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border border-black/40 shadow-sm ${i === currentStep ? 'bg-[#24a85c] scale-125' : 'bg-[#4b5162]'}`} />
+                   ))}
+                 </div>
+               </div>
+             )}
           </div>
         </div>
 

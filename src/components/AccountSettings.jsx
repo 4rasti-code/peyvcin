@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../lib/supabase';
+
 import { useUser } from '../context/AuthContext';
 import { triggerHaptic } from '../utils/haptics';
 import { COUNTRIES } from '../data/countries';
@@ -9,9 +9,15 @@ import FlagBadge from './FlagBadge';
 import { toKuDigits } from '../utils/formatters';
 import UpgradeAccountModal from './UpgradeAccountModal';
 import LinkEmailModal from './LinkEmailModal';
+import AccountManagementModal from './AccountManagementModal';
+import Avatar from './Avatar';
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from '../utils/imageUtils';
+import { supabase } from '../lib/supabase';
+import CrSlider from './CrSlider';
 
-export default function AccountSettings({ updateProfile, onDeleteAccount }) {
-   const { user, userNickname, countryCode, isInKurdistan, lastNicknameUpdate } = useUser();
+export default function AccountSettings({ updateProfile, onDeleteAccount, isAccountManagementModalOpen, setIsAccountManagementModalOpen }) {
+   const { user, userNickname, userAvatar, countryCode, isInKurdistan, lastNicknameUpdate } = useUser();
 
    const [draftNickname, setDraftNickname] = useState(userNickname);
    const [prevUserNickname, setPrevUserNickname] = useState(userNickname);
@@ -42,15 +48,79 @@ export default function AccountSettings({ updateProfile, onDeleteAccount }) {
    const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
    const [isLinkEmailModalOpen, setIsLinkEmailModalOpen] = useState(false);
 
+   const fileInputRef = useRef(null);
+   const [imageToCrop, setImageToCrop] = useState(null);
+   const [crop, setCrop] = useState({ x: 0, y: 0 });
+   const [zoom, setZoom] = useState(1);
+   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+   const [isUploading, setIsUploading] = useState(false);
+   const [cropSize, setCropSize] = useState({ width: 300, height: 300 });
+
+   const cropperContainerRef = useCallback((node) => {
+      if (node) {
+         const { width } = node.getBoundingClientRect();
+         setCropSize({ width, height: width });
+      }
+   }, []);
+
+   const handleImageUpload = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+         setImageToCrop(reader.result);
+         setIsCropModalOpen(true);
+         setZoom(1);
+         setCrop({ x: 0, y: 0 });
+      };
+      reader.readAsDataURL(file);
+      e.target.value = null;
+   };
+
+   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+   }, []);
+
+   const handleConfirmCrop = async () => {
+      if (!imageToCrop || !croppedAreaPixels) return;
+      try {
+         setIsUploading(true);
+         const blob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+         
+         const fileExt = 'jpg';
+         const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
+         
+         const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+
+         if (uploadError) throw uploadError;
+
+         const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+
+         await updateProfile({ avatar_url: publicUrl });
+         
+         setIsCropModalOpen(false);
+         triggerHaptic([20, 10, 20]);
+      } catch (err) {
+         setSaveError(err.message || 'شاشیەک ڕوویدا د سەیڤکرنا وێنەی دا');
+      } finally {
+         setIsUploading(false);
+      }
+   };
+
    let isHardLocked = false;
    let daysRemaining = 0;
-   
+
    if (lastNicknameUpdate) {
       const lastUpdate = new Date(lastNicknameUpdate);
       const now = new Date();
       const diffTime = Math.abs(now - lastUpdate);
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (diffDays < 14) {
          isHardLocked = true;
          daysRemaining = 14 - diffDays;
@@ -65,357 +135,454 @@ export default function AccountSettings({ updateProfile, onDeleteAccount }) {
       try {
          setSaveError(null);
          triggerHaptic([20, 10, 20]);
-         const updates = { 
-            country_code: draftCountryCode, 
-            is_kurdistan: draftIsInKurdistan 
+         const updates = {
+            country_code: draftCountryCode,
+            is_kurdistan: draftIsInKurdistan
          };
-         
+
          if (draftNickname !== userNickname) {
             updates.nickname = draftNickname;
             updates.last_nickname_update = new Date().toISOString();
          }
-         
+
          await updateProfile(updates);
-         
+
          setIsEditNicknameModalOpen(false);
          setIsEditCountryModalOpen(false);
-      } catch (err) { 
+      } catch (err) {
          setSaveError(err.message || 'شاشیەک ڕوویدا');
       }
    };
 
 
 
-   const selectedCountry = COUNTRIES.find(c => c.code === countryCode);
-   const selectedCountryName = isInKurdistan ? 'کوردستان' : (selectedCountry ? selectedCountry.name : 'ھەلبژێرە');
-
    return (
       <div className="space-y-4">
          {/* 4. ACCOUNT SETTINGS SECTION */}
-         <div className="px-4 py-2 rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5 relative">
+         <div className="w-full flex flex-col items-center justify-center gap-4 mt-2">
             
-            <div className="w-full flex flex-col transition-all py-3 border-b border-mono-100 dark:border-white/5">
-               <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                     <button
-                        onClick={() => { 
-                           if (user?.is_anonymous) return;
-                           triggerHaptic(10); 
-                           if (isHardLocked) {
-                              setShowLockToast(true);
-                              setTimeout(() => setShowLockToast(false), 3000);
-                              return;
-                           }
-                           setIsEditNicknameModalOpen(true);
-                        }}
-                        className={`px-4 py-2.5 rounded-md font-bold font-rabar text-[12px] transition-all flex items-center gap-2 shrink-0 ${user?.is_anonymous || isHardLocked ? 'bg-mono-100 dark:bg-mono-800/50 text-mono-400 cursor-not-allowed' : 'bg-mono-100 dark:bg-white/10 text-mono-800 dark:text-mono-100 hover:bg-mono-200 dark:hover:bg-white/20 active:scale-95'}`}
-                     >
-                        <span>{user?.is_anonymous ? 'قوفلکریە' : 'بگوهۆڕە'}</span>
-                        {user?.is_anonymous || isHardLocked ? <span className="material-symbols-outlined text-[14px]">lock</span> : <span className="material-symbols-outlined text-[14px]">edit_square</span>}
-                     </button>
-                  </div>
-                  <span className={`text-[17px] font-bold font-rabar text-mono-900 dark:text-white ${isHardLocked || user?.is_anonymous ? 'opacity-50' : ''}`}>{userNickname}</span>
-               </div>
-               
-               {user?.is_anonymous && (
-                  <div className="flex flex-col items-end mt-1 w-full">
-                     <span className="text-[11px] font-bold font-rabar text-mono-500">هیڤیە بۆ گۆهۆڕینا ناسناڤی، خوە تۆمار بکە</span>
-                  </div>
-               )}
-               
-               <AnimatePresence>
-                  {showLockToast && (
-                     <Motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        className="fixed inset-0 z-1000 flex items-center justify-center p-6 pointer-events-none"
-                     >
-                        <div className="bg-amber-500 text-slate-950 px-6 py-4 rounded-md font-black font-rabar text-[13px] shadow-2xl flex items-center gap-3 border-2 border-white/30 backdrop-blur-sm pointer-events-auto">
-                           <span className="material-symbols-outlined text-xl">lock</span>
-                           تو نەشێی ناسناڤێ خوە بگوهۆڕی هەتا {toKuDigits(daysRemaining)} ڕۆژێن دی
-                        </div>
-                     </Motion.div>
-                  )}
-               </AnimatePresence>
-
-               {isEditNicknameModalOpen && createPortal(
-                  <AnimatePresence>
-                     <Motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-1100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-                        onClick={() => setIsEditNicknameModalOpen(false)}
-                     >
-                        <Motion.div
-                           initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                           className="w-full max-w-[340px] bg-mono-white dark:bg-mono-900 rounded-md p-6 border border-mono-200 dark:border-mono-800 shadow-2xl noise-grain font-rabar flex flex-col gap-5"
-                           onClick={e => e.stopPropagation()}
-                           dir="rtl"
-                        >
-                           <h3 className="text-xl font-black text-mono-900 dark:text-white text-center w-full">گوهۆڕینا ناسناڤی</h3>
-                           
-                           <div className="space-y-2">
-                              <label className="text-[12px] font-black text-mono-500 block text-right px-1">ناسناڤی بنڤیسە</label>
-                              <input
-                                 type="text"
-                                 placeholder="ناسناڤ"
-                                 value={draftNickname}
-                                 onChange={(e) => {
-                                    const noSpaceVal = e.target.value.replace(/\s/g, '');
-                                    setDraftNickname(noSpaceVal);
-                                    if (saveError) setSaveError(null);
-                                 }}
-                                 maxLength={20}
-                                 className="w-full h-14 border rounded-md px-4 font-black font-rabar text-right text-[15px] transition-all outline-none bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-500 focus:border-primary focus:ring-1 focus:ring-primary"
-                                 autoFocus
-                              />
-                              <AnimatePresence>
-                                 {saveError && (
-                                    <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">{saveError}</Motion.p>
-                                 )}
-                                 {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
-                                    <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ٨ پیتان کێمتر بیت</Motion.p>
-                                 )}
-                                 {draftNickname.length > 15 && !saveError && (
-                                    <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ١٥ پیتان زێدەتر بیت</Motion.p>
-                                 )}
-                              </AnimatePresence>
-                           </div>
-
-                           <div className="flex items-center gap-3 pt-2">
-                              <button
-                                 onClick={() => {
-                                    setDraftNickname(userNickname);
-                                    setSaveError(null);
-                                    setIsEditNicknameModalOpen(false);
-                                 }}
-                                 className="flex-1 h-12 rounded-md font-black text-[13px] bg-mono-100 dark:bg-white/10 text-mono-700 dark:text-mono-300 hover:bg-mono-200 dark:hover:bg-white/20 transition-colors"
-                              >
-                                 هەلوەشاندن
-                              </button>
-                              <button
-                                 onClick={handleSave}
-                                 disabled={draftNickname.length < 8 || draftNickname.length > 15 || draftNickname === userNickname}
-                                 className="flex-1 h-12 rounded-md font-black text-[13px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-600/20"
-                              >
-                                 پاراستن
-                              </button>
-                           </div>
-                        </Motion.div>
-                     </Motion.div>
-                  </AnimatePresence>,
-                  document.body
-               )}
-            </div>
-
-            <div className="w-full flex items-center justify-between transition-all py-3">
-               <div className="flex items-center gap-2">
+            {/* AVATAR SECTION */}
+            <div className="relative">
+               <div className="relative p-1 bg-[#e3eef2] dark:bg-white/10 rounded-full border-[1.5px] border-[#181a20] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),0_4px_6px_rgba(0,0,0,0.2)]">
+                  <Avatar src={userAvatar} size="xl" className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover" />
                   <button
-                     onClick={() => { 
-                        triggerHaptic(10); 
-                        setIsEditCountryModalOpen(true);
-                     }}
-                     className="px-4 py-2.5 rounded-md font-bold font-rabar text-[12px] transition-all flex items-center gap-2 shrink-0 bg-mono-100 dark:bg-white/10 text-mono-800 dark:text-mono-100 hover:bg-mono-200 dark:hover:bg-white/20 active:scale-95"
+                     onClick={() => { triggerHaptic(10); fileInputRef.current?.click(); }}
+                     disabled={isUploading}
+                     className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] border-[1.5px] border-[#181a20] flex items-center justify-center text-white shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] active:scale-95 transition-transform disabled:opacity-50"
                   >
-                     <span>بگوهۆڕە</span>
-                     <span className="material-symbols-outlined text-[14px]">edit_square</span>
+                     <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                     <span className="material-symbols-outlined text-[15px] relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>{isUploading ? 'hourglass_empty' : 'edit'}</span>
                   </button>
                </div>
-               <div className="flex items-center gap-2 flex-row-reverse">
-                  <FlagBadge countryCode={countryCode} isInKurdistan={isInKurdistan} size="sm" />
-                  <span className="text-[17px] font-bold font-rabar text-mono-900 dark:text-white">{selectedCountryName}</span>
-               </div>
+               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
+            </div>
 
-               {isEditCountryModalOpen && createPortal(
-                  <AnimatePresence>
+            <div className="flex flex-row items-center justify-center gap-3 w-full relative">
+
+            <button
+               onClick={() => {
+                  triggerHaptic(10);
+                  if (user?.is_anonymous) {
+                     setIsUpgradeModalOpen(true);
+                     return;
+                  }
+                  if (isHardLocked) {
+                     setShowLockToast(true);
+                     setTimeout(() => setShowLockToast(false), 3000);
+                     return;
+                  }
+                  setIsEditNicknameModalOpen(true);
+               }}
+               className={`relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden ${isHardLocked
+                     ? 'bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] opacity-60 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white cursor-not-allowed'
+                     : 'bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer'
+                  }`}
+            >
+               {/* Glass Reflection Highlight */}
+               <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+               <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>ناڤێ خوە بگوهۆڕە</span>
+            </button>
+
+            <button
+               onClick={() => {
+                  triggerHaptic(10);
+                  setIsEditCountryModalOpen(true);
+               }}
+               className="relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+            >
+               {/* Glass Reflection Highlight */}
+               <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+               <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>وەلاتێ خوە بگوهۆڕە</span>
+            </button>
+            </div>
+            <AnimatePresence>
+               {showLockToast && (
+                  <Motion.div
+                     initial={{ opacity: 0, scale: 0.9 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     exit={{ opacity: 0, scale: 0.9 }}
+                     className="fixed inset-0 z-1000 flex items-center justify-center p-6 pointer-events-none"
+                  >
+                     <div className="bg-amber-500 text-slate-950 px-6 py-4 rounded-md font-black font-rabar text-[13px] shadow-2xl flex items-center gap-3 border-2 border-white/30 backdrop-blur-sm pointer-events-auto">
+                        <span className="material-symbols-outlined text-xl">lock</span>
+                        تو نەشێی ناسناڤێ خوە بگوهۆڕی هەتا {toKuDigits(daysRemaining)} ڕۆژێن دی
+                     </div>
+                  </Motion.div>
+               )}
+            </AnimatePresence>
+
+            {isEditNicknameModalOpen && createPortal(
+               <AnimatePresence>
+                  <Motion.div
+                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                     className="fixed inset-0 z-1100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+                     onClick={() => setIsEditNicknameModalOpen(false)}
+                  >
                      <Motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-1100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-                        onClick={() => setIsEditCountryModalOpen(false)}
+                        initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                        className="w-full max-w-85 bg-mono-white dark:bg-mono-900 rounded-md p-6 border border-mono-200 dark:border-mono-800 shadow-2xl noise-grain font-rabar flex flex-col gap-5"
+                        onClick={e => e.stopPropagation()}
+                        dir="rtl"
                      >
-                        <Motion.div
-                           initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                           className="w-full max-w-[340px] bg-mono-white dark:bg-mono-900 rounded-md p-6 border border-mono-200 dark:border-mono-800 shadow-2xl noise-grain font-rabar flex flex-col gap-5"
-                           onClick={e => e.stopPropagation()}
-                           dir="rtl"
-                        >
-                           <h3 className="text-xl font-black text-mono-900 dark:text-white text-center w-full">گوهۆڕینا وەڵاتی</h3>
+                        <h3 className="text-xl font-black text-mono-900 dark:text-white text-center w-full">گوهۆڕینا ناسناڤی</h3>
+
+                        <div className="space-y-2">
+                           <label className="text-[12px] font-black text-mono-500 block text-right px-1">ناسناڤی بنڤیسە</label>
+                           <input
+                              type="text"
+                              placeholder="ناسناڤ"
+                              value={draftNickname}
+                              onChange={(e) => {
+                                 const noSpaceVal = e.target.value.replace(/\s/g, '');
+                                 setDraftNickname(noSpaceVal);
+                                 if (saveError) setSaveError(null);
+                              }}
+                              maxLength={20}
+                              className="w-full h-14 border rounded-md px-4 font-black font-rabar text-right text-[15px] transition-all outline-none bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 text-mono-900 dark:text-white placeholder:text-mono-400 dark:placeholder:text-mono-500 focus:border-primary focus:ring-1 focus:ring-primary"
+                              autoFocus
+                           />
+                           <AnimatePresence>
+                              {saveError && (
+                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">{saveError}</Motion.p>
+                              )}
+                              {draftNickname.length > 0 && draftNickname.length < 8 && !saveError && (
+                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ٨ پیتان کێمتر بیت</Motion.p>
+                              )}
+                              {draftNickname.length > 15 && !saveError && (
+                                 <Motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="text-rose-500 text-[10px] font-black px-1">نابیت ناسناڤ ژ ١٥ پیتان زێدەتر بیت</Motion.p>
+                              )}
+                           </AnimatePresence>
+                        </div>
+
+                        <div className="flex items-center gap-3 pt-2">
+                           <button
+                              onClick={() => {
+                                 setDraftNickname(userNickname);
+                                 setSaveError(null);
+                                 setIsEditNicknameModalOpen(false);
+                              }}
+                              className="flex-1 h-12 rounded-md font-black text-[13px] bg-mono-100 dark:bg-white/10 text-mono-700 dark:text-mono-300 hover:bg-mono-200 dark:hover:bg-white/20 transition-colors"
+                           >
+                              هەلوەشاندن
+                           </button>
+                           <button
+                              onClick={handleSave}
+                              disabled={draftNickname.length < 8 || draftNickname.length > 15 || draftNickname === userNickname}
+                              className="flex-1 h-12 rounded-md font-black text-[13px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-600/20"
+                           >
+                              پاراستن
+                           </button>
+                        </div>
+                     </Motion.div>
+                  </Motion.div>
+               </AnimatePresence>,
+               document.body
+            )}
+
+            {/* Edit Modals are rendered here as portals */}
+
+            {isEditCountryModalOpen && createPortal(
+               <AnimatePresence>
+                  <Motion.div
+                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                     className="fixed inset-0 z-1100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+                     onClick={() => setIsEditCountryModalOpen(false)}
+                  >
+                     <Motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="w-full max-w-85 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
+                        onClick={e => e.stopPropagation()}
+                        dir="rtl"
+                     >
+                        {/* Inner 3D Highlight Layer (Tapered Top) */}
+                        <div 
+                           className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                           style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                        ></div>
+                        
+                        {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                        <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                        {/* Glassy Header Highlight (stops at middle of text) */}
+                        <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                        {/* Header Area */}
+                        <div className="w-full relative flex items-center justify-center pt-4 pb-4 shrink-0">
+                           <h2 
+                              className="text-[20px] font-black text-white leading-none relative z-10" 
+                              style={{ 
+                                 textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                              }}
+                           >
+                              گوهۆڕینا وەڵاتی
+                           </h2>
                            
-                           <div className="space-y-2">
-                              <label className="text-[12px] font-black text-mono-500 block text-right px-1">وەڵاتێ خوە هەلبژێرە</label>
-                              <div className="p-1.5 max-h-[220px] overflow-y-auto custom-scrollbar bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/10 rounded-md">
-                                 <button onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); }} className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-mono-100 dark:hover:bg-mono-800 w-full transition-colors flex-row-reverse">
+                           <button
+                              onClick={() => {
+                                 triggerHaptic(10);
+                                 setDraftCountryCode(countryCode);
+                                 setDraftIsInKurdistan(isInKurdistan);
+                                 setSaveError(null);
+                                 setIsEditCountryModalOpen(false);
+                              }}
+                              className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                           >
+                              <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                              <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                                 <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                 <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                 <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                 <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                              </svg>
+                           </button>
+                        </div>
+                        
+                        {/* Content Area */}
+                        <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                           {/* Inner White Box Highlight */}
+                           <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                           
+                           <div className="relative z-20 flex flex-col p-4">
+                              <label className="text-[14px] font-black text-[#3a404a] block text-right px-1 mb-2">وەڵاتێ خوە هەلبژێرە</label>
+                              <div className="p-1.5 max-h-55 overflow-y-auto custom-scrollbar bg-white/50 border-[1.5px] border-[#c0c5cc] rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]">
+                                 <button 
+                                    onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); }} 
+                                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm w-full transition-colors flex-row-reverse border-[1.5px] ${draftIsInKurdistan ? 'bg-[#3b82f6]/10 border-[#3b82f6] shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'border-transparent hover:bg-black/5'}`}
+                                 >
                                     <FlagBadge isInKurdistan={true} size="xs" />
-                                    <span className="flex-1 text-right text-[14px] font-bold font-rabar text-mono-900 dark:text-mono-100">کوردستان</span>
-                                    {draftIsInKurdistan && <span className="material-symbols-outlined text-[18px] text-primary">check_circle</span>}
+                                    <span className="flex-1 text-right text-[14px] font-black font-rabar text-[#3a404a]">کوردستان</span>
+                                    {draftIsInKurdistan && (
+                                       <div className="w-5 h-5 rounded-full bg-[#3b82f6] border border-[#2563eb] flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                                          <span className="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+                                       </div>
+                                    )}
                                  </button>
                                  {COUNTRIES.map((country) => (
-                                    <button key={country.code} onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); }} className="flex items-center gap-2.5 px-3 py-2 rounded-md hover:bg-mono-100 dark:hover:bg-mono-800 w-full transition-colors flex-row-reverse">
+                                    <button 
+                                       key={country.code} 
+                                       onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); }} 
+                                       className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm w-full transition-colors flex-row-reverse border-[1.5px] ${(!draftIsInKurdistan && draftCountryCode === country.code) ? 'bg-[#3b82f6]/10 border-[#3b82f6] shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'border-transparent hover:bg-black/5'}`}
+                                    >
                                        <FlagBadge countryCode={country.code} size="xs" />
-                                       <span className="flex-1 text-right text-[14px] font-bold font-rabar text-mono-900 dark:text-mono-100">{country.name}</span>
-                                       {!draftIsInKurdistan && draftCountryCode === country.code && <span className="material-symbols-outlined text-[18px] text-primary">check_circle</span>}
+                                       <span className="flex-1 text-right text-[14px] font-black font-rabar text-[#3a404a]">{country.name}</span>
+                                       {!draftIsInKurdistan && draftCountryCode === country.code && (
+                                          <div className="w-5 h-5 rounded-full bg-[#3b82f6] border border-[#2563eb] flex items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                                             <span className="material-symbols-outlined text-[14px] text-white font-bold">check</span>
+                                          </div>
+                                       )}
                                     </button>
                                  ))}
                               </div>
-                           </div>
+                              
+                              {/* Buttons */}
+                              <div className="flex items-center gap-3 mt-4">
+                                 <button
+                                    onClick={() => {
+                                       triggerHaptic(10);
+                                       setDraftCountryCode(countryCode);
+                                       setDraftIsInKurdistan(isInKurdistan);
+                                       setSaveError(null);
+                                       setIsEditCountryModalOpen(false);
+                                    }}
+                                    className="relative flex-1 h-9 rounded-md flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
+                                    style={{
+                                       boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                    }}
+                                 >
+                                    <span 
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                       style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                    >
+                                       هەلوەشاندن
+                                    </span>
+                                 </button>
 
-                           <div className="flex items-center gap-3 pt-2">
-                              <button
-                                 onClick={() => {
-                                    setDraftCountryCode(countryCode);
-                                    setDraftIsInKurdistan(isInKurdistan);
-                                    setSaveError(null);
-                                    setIsEditCountryModalOpen(false);
-                                 }}
-                                 className="flex-1 h-12 rounded-md font-black text-[13px] bg-mono-100 dark:bg-white/10 text-mono-700 dark:text-mono-300 hover:bg-mono-200 dark:hover:bg-white/20 transition-colors"
-                              >
-                                 هەلوەشاندن
-                              </button>
-                              <button
-                                 onClick={handleSave}
-                                 disabled={draftCountryCode === countryCode && draftIsInKurdistan === isInKurdistan}
-                                 className="flex-1 h-12 rounded-md font-black text-[13px] bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-green-600/20"
-                              >
-                                 پاراستن
-                              </button>
+                                 <button
+                                    onClick={handleSave}
+                                    disabled={draftCountryCode === countryCode && draftIsInKurdistan === isInKurdistan}
+                                    className="relative flex-1 h-9 rounded-md flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#22c55e] disabled:opacity-60 disabled:active:scale-100 disabled:grayscale-[0.5]"
+                                    style={{
+                                       boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                    }}
+                                 >
+                                    <span 
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                       style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                    >
+                                       پاراستن
+                                    </span>
+                                 </button>
+                              </div>
                            </div>
-                        </Motion.div>
+                        </div>
                      </Motion.div>
-                  </AnimatePresence>,
-                  document.body
-               )}
-            </div>
-
-         </div>
-
-         {/* ACCOUNT LINKING SECTION */}
-         <div className="w-full pt-2">
-            <div className="flex items-center w-full pb-4">
-               <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
-               <span className="px-4 text-[13px] font-black font-rabar text-mono-400 dark:text-mono-500">هژمار</span>
-               <div className="flex-1 h-px bg-mono-200 dark:bg-white/10"></div>
-            </div>
-            
-            {/* EMAIL BUTTON */}
-            {(user?.is_anonymous || user?.app_metadata?.providers?.includes('email')) && (
-               <button
-                  onClick={() => {
-                     triggerHaptic(10);
-                     if (user?.is_anonymous) {
-                        setIsUpgradeModalOpen(true);
-                     } else if (!user?.app_metadata?.providers?.includes('email')) {
-                        setIsLinkEmailModalOpen(true);
-                     }
-                  }}
-                  disabled={!user?.is_anonymous && user?.app_metadata?.providers?.includes('email')}
-                  className={`relative w-full h-[54px] rounded-[12px] flex items-center justify-center font-black font-rabar transition-all shadow-sm ${user?.app_metadata?.providers?.includes('email') ? 'bg-emerald-50/50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 cursor-default border border-emerald-200 dark:border-emerald-500/20' : 'bg-emerald-600 hover:bg-emerald-500 text-white active:scale-[0.98] cursor-pointer'}`}
-               >
-                  <span className={`text-[14px] truncate px-12 pt-1 ${user?.app_metadata?.providers?.includes('email') ? '' : 'text-white'}`}>
-                     {user?.is_anonymous ? 'ئیمەیل' : user?.app_metadata?.providers?.includes('email') ? 'ب ئیمێلی ڤە گرێداییە' : 'گرێدان ب ئیمێلەکێ دیڤە'}
-                  </span>
-                  <div className="absolute right-5 flex items-center justify-center">
-                     <span className={`material-symbols-outlined text-[20px] ${user?.app_metadata?.providers?.includes('email') ? '' : 'text-white'}`}>
-                        mail
-                     </span>
-                  </div>
-               </button>
+                  </Motion.div>
+               </AnimatePresence>,
+               document.body
             )}
 
-            {/* GOOGLE BUTTON */}
-            <button
-               onClick={async () => {
-                  if (!user?.app_metadata?.providers?.includes('google')) {
-                     triggerHaptic(10);
-                     try {
-                        const { error } = await supabase.auth.linkIdentity({
-                           provider: 'google',
-                           options: {
-                              redirectTo: `${window.location.origin}/`,
-                           }
-                        });
-                        if (error) throw error;
-                     } catch (err) {
-                        console.error('Error linking Google account:', err);
-                     }
-                  }
-               }}
-               disabled={user?.app_metadata?.providers?.includes('google')}
-               className={`relative w-full h-[54px] mt-3 rounded-[12px] flex items-center justify-center font-black font-rabar transition-all shadow-sm ${user?.app_metadata?.providers?.includes('google') ? 'bg-mono-50 dark:bg-white/5 text-mono-500 cursor-default border border-mono-200 dark:border-white/10' : 'bg-white border border-mono-200 dark:border-white/10 hover:bg-mono-50 text-mono-900 cursor-pointer active:scale-[0.98]'}`}
-            >
-               <span className={`text-[14px] truncate px-12 pt-1 ${user?.app_metadata?.providers?.includes('google') ? '' : 'text-mono-900'}`}>
-                  {user?.app_metadata?.providers?.includes('google') ? 'ب گۆگڵی ڤە گرێداییە' : 'گرێدان ب گۆگڵیڤە'}
-               </span>
-               <div className="absolute right-5 flex items-center justify-center">
-                  <svg className={`w-5 h-5 ${user?.app_metadata?.providers?.includes('google') ? 'grayscale opacity-50' : ''}`} viewBox="0 0 24 24">
-                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                     <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
-                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                  </svg>
-               </div>
-            </button>
+            {isCropModalOpen && createPortal(
+               <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/70 p-4 sm:p-6 transition-colors duration-500 overflow-hidden" dir="rtl">
+                  <Motion.div
+                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                     animate={{ opacity: 1, scale: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                     className="w-full max-w-100 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden max-h-[95vh]"
+                     onClick={e => e.stopPropagation()}
+                  >
+                     {/* Inner 3D Highlight Layer */}
+                     <div 
+                        className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                        style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                     ></div>
+                     
+                     {/* Inner 3D Shadow Layer */}
+                     <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-            {/* DISCORD BUTTON */}
-            <button
-               onClick={async () => {
-                  if (!user?.app_metadata?.providers?.includes('discord')) {
-                     triggerHaptic(10);
-                     try {
-                        const { error } = await supabase.auth.linkIdentity({
-                           provider: 'discord',
-                           options: {
-                              redirectTo: `${window.location.origin}/`,
-                           }
-                        });
-                        if (error) throw error;
-                     } catch (err) {
-                        console.error('Error linking Discord account:', err);
-                        alert("Error: " + err.message);
-                     }
-                  }
-               }}
-               disabled={user?.app_metadata?.providers?.includes('discord')}
-               className={`relative w-full h-[54px] mt-3 rounded-[12px] flex items-center justify-center font-black font-rabar transition-all shadow-sm ${user?.app_metadata?.providers?.includes('discord') ? 'bg-mono-50 dark:bg-white/5 text-mono-500 cursor-default border border-mono-200 dark:border-white/10' : 'bg-[#5865F2] hover:bg-[#4752C4] text-white cursor-pointer active:scale-[0.98]'}`}
-            >
-               <span className={`text-[14px] truncate px-12 pt-1 ${user?.app_metadata?.providers?.includes('discord') ? '' : 'text-white'}`}>
-                  {user?.app_metadata?.providers?.includes('discord') ? 'ب دیسکۆردی ڤە گرێداییە' : 'گرێدان ب دیسکۆردیڤە'}
-               </span>
-               <div className="absolute right-5 flex items-center justify-center">
-                  <svg className={`w-5 h-5 ${user?.app_metadata?.providers?.includes('discord') ? 'grayscale opacity-50' : 'text-white'}`} viewBox="0 0 24 24" fill="currentColor">
-                     <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
-                  </svg>
-               </div>
-            </button>
+                     {/* Glassy Header Highlight */}
+                     <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                     {/* Header */}
+                     <div className="w-full relative flex items-center justify-center pt-3 pb-4 shrink-0">
+                        <h2 
+                           className="text-[20px] font-black text-white leading-none relative z-10" 
+                           style={{ 
+                              textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                           }}
+                        >
+                           بڕینا وێنەی
+                        </h2>
+                        <button
+                           onClick={() => {
+                              setIsCropModalOpen(false);
+                              setImageToCrop(null);
+                           }}
+                           className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                        >
+                           <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                           <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                              <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                              <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                           </svg>
+                        </button>
+                     </div>
+
+                     {/* Main Content Area (White Box Wrapper) */}
+                     <div className="flex-1 self-stretch flex flex-col relative mx-2.5 sm:mx-3 mb-4 rounded-[12px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                        {/* Inner White Box 3D Highlight */}
+                        <div className="absolute inset-0 rounded-[12px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                        
+                        <div className="flex flex-col z-0 relative">
+                           {/* Cropper takes full width of the white box */}
+                           <div ref={cropperContainerRef} className="relative w-full aspect-square bg-[#121316] overflow-hidden cursor-move touch-none border-b-[2.5px] border-black/10">
+                              <Cropper
+                                 image={imageToCrop}
+                                 crop={crop}
+                                 zoom={zoom}
+                                 aspect={1}
+                                 onCropChange={setCrop}
+                                 onCropComplete={onCropComplete}
+                                 onZoomChange={setZoom}
+                                 showGrid={false}
+                                 cropShape="round"
+                                 restrictPosition={true}
+                                 objectFit="auto-cover"
+                                 cropSize={cropSize}
+                                 style={{
+                                    containerStyle: { background: '#121316', padding: 0 },
+                                    cropAreaStyle: { border: 'none' }
+                                 }}
+                              />
+                           </div>
+
+                           {/* Controls underneath cropper */}
+                           <div className="p-4 sm:p-5 flex flex-col gap-5 bg-[#e6ebf0]">
+                              {/* Zoom Slider */}
+                              <div className="flex items-center gap-3">
+                                 <span className="text-[14px] font-black font-rabar text-[#3a404a] min-w-max">نێزیکرن:</span>
+                                 <div className="relative flex-1 flex items-center h-12">
+                                    <CrSlider 
+                                       value={((zoom - 1) / 2) * 100} 
+                                       onChange={(percentage) => setZoom(1 + (percentage / 100) * 2)} 
+                                    />
+                                 </div>
+                                 <span className="px-2 py-0.5 rounded-md bg-white text-[#40ea00] text-[13px] font-black tabular-nums border-[1.5px] border-[#c0c6cc] shadow-sm min-w-10 text-center" dir="ltr">
+                                    {zoom.toFixed(1)}x
+                                 </span>
+                              </div>
+
+                              {/* Save Button */}
+                              <div className="flex justify-center w-full pt-1">
+                                 <button
+                                    onClick={handleConfirmCrop}
+                                    disabled={isUploading}
+                                    className="relative w-32.5 h-7 bg-[#40ea00] rounded-[8px] border-[1.5px] border-[#121316] flex items-center justify-center font-black active:scale-95 transition-transform overflow-hidden disabled:opacity-50 shrink-0"
+                                    style={{
+                                       boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                    }}
+                                 >
+                                    <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-wide" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                       {isUploading ? 'بارکرن...' : 'پاراستن'}
+                                    </span>
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </Motion.div>
+               </div>,
+               document.body
+            )}
          </div>
-
-         {/* Compact Delete Account Button */}
-         <button
-            onClick={() => { triggerHaptic(10); onDeleteAccount?.(); }}
-            className="relative w-full h-[54px] mt-3 rounded-[12px] bg-transparent text-red-500 hover:bg-red-500/10 border border-red-500/20 flex items-center justify-center transition-all active:scale-[0.98] font-black font-rabar"
-         >
-            <span className="text-[14px] truncate px-12 pt-1">ژێبرنا هژمارێ</span>
-            <div className="absolute right-5 flex items-center justify-center">
-               <span className="material-symbols-outlined text-[20px]">person_remove</span>
-            </div>
-         </button>
-
          {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}
-         <UpgradeAccountModal 
-            isOpen={isUpgradeModalOpen} 
+         <UpgradeAccountModal
+            isOpen={isUpgradeModalOpen}
             onSuccess={() => {
                setIsUpgradeModalOpen(false);
                setIsEditNicknameModalOpen(false); // Close settings if they registered successfully
-            }} 
+            }}
             onClose={() => setIsUpgradeModalOpen(false)}
          />
 
          {/* LINK EMAIL MODAL FOR GOOGLE USERS */}
-         <LinkEmailModal 
-            isOpen={isLinkEmailModalOpen} 
+         <LinkEmailModal
+            isOpen={isLinkEmailModalOpen}
             onSuccess={() => {
                setIsLinkEmailModalOpen(false);
-            }} 
+            }}
             onClose={() => setIsLinkEmailModalOpen(false)}
+         />
+
+         {/* ACCOUNT MANAGEMENT MODAL */}
+         <AccountManagementModal
+            isOpen={isAccountManagementModalOpen}
+            onClose={() => setIsAccountManagementModalOpen(false)}
+            user={user}
+            setIsUpgradeModalOpen={setIsUpgradeModalOpen}
+            setIsLinkEmailModalOpen={setIsLinkEmailModalOpen}
+            onDeleteAccount={onDeleteAccount}
          />
       </div>
    );

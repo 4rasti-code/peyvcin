@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useAudio } from '../context/AudioContext';
@@ -12,18 +13,18 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
     const [isFocused, setIsFocused] = useState(false);
 
     return (
-        <div className="relative w-full text-right">
+        <div className="relative w-full text-right z-10">
             <label
                 htmlFor={id}
-                className={`block text-[11px] sm:text-[10px] font-black font-rabar mb-1.5 sm:mb-1 pr-2 uppercase transition-colors duration-200 ${isFocused ? 'text-emerald-400' : 'text-mono-400 dark:text-white/70 hover:text-mono-900 dark:hover:text-white/90'}`}
+                className={`block text-[12px] font-black font-rabar mb-0.5 pr-2 uppercase transition-colors duration-200 ${isFocused ? 'text-[#39a044]' : 'text-[#5a6270]'}`}
             >
                 {label}
             </label>
             <div className={`
-                relative w-full rounded-md transition-all duration-300 border flex items-center
-                ${isFocused ? 'bg-mono-100 dark:bg-white/10 border-emerald-500/50' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 hover:border-mono-400 dark:hover:border-white/20'}
-                ${isError ? 'border-red-500/50' : ''}
-                puzzle-tile overflow-hidden
+                relative w-full rounded-[8px] transition-all duration-300 border-2 flex items-center bg-[#fdfdfd]
+                ${isFocused ? 'border-[#39a044] shadow-[0_0_0_2px_rgba(57,160,68,0.2)]' : 'border-[#b8c2cc] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] hover:border-[#a0a7b4]'}
+                ${isError ? 'border-[#ff4a4a] shadow-[0_0_0_2px_rgba(255,74,74,0.2)]' : ''}
+                overflow-hidden
             `}>
                 <input
                     id={id}
@@ -41,7 +42,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     autoComplete={autoComplete}
                     name={name || id}
                     aria-label={label}
-                    className={`w-full bg-transparent py-1.5 sm:py-1 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-mono-900 dark:text-white text-base sm:text-sm font-bold focus:outline-none transition-all duration-200 caret-emerald-400 relative z-10`}
+                    className={`w-full bg-transparent py-0.5 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-[#121316] text-[14px] font-black focus:outline-none placeholder-[#a0a7b4] caret-[#39a044] relative z-10`}
                     style={{
                         appearance: 'none',
                         userSelect: 'text',
@@ -51,21 +52,11 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     }}
                 />
                 {suffix && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-emerald-400 transition-colors z-20 flex items-center justify-center">
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors z-20 ${isFocused ? 'text-[#39a044]' : 'text-[#a0a7b4]'}`}>
                         {suffix}
                     </div>
                 )}
             </div>
-
-            {/* Caret / Cursor Highlight for active field */}
-            {isFocused && (
-                <Motion.div
-                    layoutId={`input-glow-${id}`}
-                    className="absolute inset-0 bg-emerald-500/10 blur-2xl -z-10 rounded-md"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                />
-            )}
         </div>
     );
 };
@@ -81,6 +72,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [showEmailForm, setShowEmailForm] = useState(false);
 
     // OTP States
     const [showOtpScreen, setShowOtpScreen] = useState(false);
@@ -345,51 +337,151 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-2000 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" dir="rtl">
-            <Motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="w-full max-w-sm bg-mono-white dark:bg-mono-900 rounded-[12px] shadow-2xl border border-mono-200 dark:border-mono-800 overflow-hidden flex flex-col relative"
-            >
-                {onClose && (
-                    <button
-                        onClick={onClose}
-                        className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full bg-mono-100 dark:bg-mono-800 text-mono-500 hover:text-mono-900 dark:hover:text-white transition-colors z-10"
+    return createPortal(
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-2000 flex items-center justify-center bg-black/70 p-4 sm:p-6 transition-colors duration-500 overflow-hidden" dir="rtl">
+                    <Motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="w-full max-w-100 max-h-[90vh] flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
                     >
-                        <span className="material-symbols-outlined text-[18px]">close</span>
-                    </button>
-                )}
+                        {/* Inner 3D Highlight Layer (Tapered Top) */}
+                        <div 
+                           className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                           style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                        ></div>
+                        
+                        {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                        <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-                {/* Header */}
-                {!showOtpScreen && (
-                    <div className="p-5 border-b border-mono-100 dark:border-mono-800/50 bg-primary/5 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-1">
-                                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                    workspace_premium
-                                </span>
-                            </div>
-                            <h3 className="text-lg font-black font-rabar text-mono-900 dark:text-white text-center">
-                                تو گەهشتیە ئاستەکێ باش!
-                            </h3>
-                            <div className="flex flex-col gap-1 mt-1">
-                                <p className="text-[11px] font-bold text-mono-500 text-center leading-relaxed">
-                                    لێ بۆ پاراستنا ئاست و زانیاریێن خوە و بەردەوامبوونا یاریێ، پێدڤیە هژمارا خوە ب شێوەیەکێ فەرمی تۆمار بکەی.
-                                </p>
-                                <p className="text-[11px] font-bold text-mono-500 text-center leading-relaxed">
-                                    ئەو کەسێن وەکو مێڤان خوە تۆمارکرین و بێی ئیمێل، دێ پشتی ٧ ڕۆژان ب شێوەیەکێ تۆتۆماتیکی هێنە ژێبرن د ناڤ یاریێ دا.
-                                </p>
-                            </div>
+                        {/* Glassy Header Highlight (stops at middle of text) */}
+                        <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                        {/* Clash Royale Header */}
+                        <div className="w-full relative flex items-center justify-center pt-3 pb-4 shrink-0">
+                           <h2 
+                              className="text-[24px] font-black text-white leading-none relative z-10" 
+                              style={{ 
+                                 textShadow: `-2px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px  2px 0 #1a1c23, 2px  2px 0 #1a1c23, -2px  0px 0 #1a1c23, 2px  0px 0 #1a1c23, 0px  2px 0 #1a1c23, 0px -2px 0 #1a1c23, 0px 5px 0px #1a1c23, 0px 5px 10px rgba(0,0,0,0.4)`
+                              }}
+                           >
+                              {showOtpScreen ? 'پشتڕاستکرن' : 'تۆمارکرن'}
+                           </h2>
+                           {onClose && (
+                              <button
+                                 onClick={onClose}
+                                 className="absolute right-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                              >
+                                  <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                                  <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                                     <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                     <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                     <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                     <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                  </svg>
+                               </button>
+                           )}
                         </div>
-                    </div>
-                )}
 
-                {/* Form */}
-                <div className="p-5">
-                    {!showOtpScreen ? (
-                        <>
-                            <form onSubmit={handleSubmit} className="flex flex-col space-y-3" autoComplete="off">
+                        {/* Main Content Area (White Box Wrapper) */}
+                        <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-3 rounded-sm bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                           {/* Inner White Box 3D Highlight */}
+                           <div className="absolute inset-0 rounded-sm border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                           
+                           {/* Scrollable Content */}
+                           <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-5 space-y-4 z-0 relative">
+
+                                {!showOtpScreen ? (
+                                    <>
+                                        {/* Header Text */}
+                                        <div className="flex flex-col items-center gap-2 mb-4 relative z-0 bg-[#ffffff] -mx-4 sm:-mx-5 -mt-4 sm:-mt-5 px-4 sm:px-5 pt-5 sm:pt-6 pb-4 border-b border-[#b8c2cc]/50 shadow-sm rounded-t-sm">
+                                            {showEmailForm && (
+                                                <button 
+                                                    type="button" 
+                                                    onClick={() => setShowEmailForm(false)} 
+                                                    className="absolute left-4 top-4 p-1 text-[#5a6270] hover:text-[#121316] transition-colors bg-mono-100 rounded-full flex items-center justify-center"
+                                                >
+                                                    <span className="material-symbols-outlined font-black text-[20px]">arrow_forward</span>
+                                                </button>
+                                            )}
+                                            <h3 className="text-[18px] font-black font-rabar text-[#121316] text-center">
+                                                {showEmailForm ? 'تۆمارکرن ب ئیمێلی' : 'تە هێشتا خوە تۆمار نەکریە؟'}
+                                            </h3>
+                                            {!showEmailForm && (
+                                                <div className="flex flex-col gap-1.5 mt-1">
+                                                    <p className="text-[12px] font-bold text-[#5a6270] text-center leading-relaxed">
+                                                        بۆ پاراستنا ئاست و زانیاریێن خوە و بەردەوامبوونا یاریێ، پێدڤیە هژمارا خوە ب شێوەیەکێ فەرمی تۆمار بکەی.
+                                                    </p>
+                                                    <p className="text-[12px] font-bold text-[#d62020] text-center leading-relaxed">
+                                                        ئەو کەسێن خوە وەکو مێهڤان تۆمار کرین و هێشتا ب شێوەیەکێ فەرمی خوە تۆمار نەکرین، دێ پشتی ٧ ڕۆژان ب شێوەیەکێ خوەکار د ناڤ یاریێدا هێنە ژێبرن.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {!showEmailForm ? (
+                                            <div className="flex flex-col relative z-10 w-full mt-2">
+                                                <div className="grid grid-cols-2 gap-3 mb-3">
+                                                    {/* GOOGLE BUTTON */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleSocialLogin('google')}
+                                                        disabled={loading}
+                                                        className={`relative w-full h-8 rounded-md flex items-center justify-center font-black font-rabar transition-all shadow-[inset_0_2px_0_rgba(255,255,255,1),inset_0_-2px_0_#9ca3af] border-[1.5px] border-[#181a20] overflow-hidden group ${loading ? 'opacity-50 cursor-not-allowed bg-mono-200 text-mono-500' : 'bg-linear-to-b from-white to-mono-100 hover:from-white hover:to-mono-50 active:scale-95 cursor-pointer text-mono-900'}`}
+                                                        title="Google"
+                                                    >
+                                                        <div className="absolute top-px inset-x-0.5 bottom-0.5 bg-white/40 pointer-events-none rounded-sm"></div>
+                                                        <span className="text-[11px] relative z-10">گۆگڵ</span>
+                                                        <div className="absolute right-2 flex items-center justify-center z-10">
+                                                           <svg className={`w-3.5 h-3.5 ${loading ? 'grayscale opacity-50' : 'group-hover:scale-110 transition-transform'}`} viewBox="0 0 24 24">
+                                                              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                              <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
+                                                              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                                           </svg>
+                                                        </div>
+                                                    </button>
+
+                                                    {/* DISCORD BUTTON */}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleSocialLogin('discord')}
+                                                        disabled={loading}
+                                                        className={`relative w-full h-8 rounded-md flex items-center justify-center font-black font-rabar transition-all shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#343b8a] border-[1.5px] border-[#181a20] overflow-hidden group ${loading ? 'opacity-50 cursor-not-allowed bg-[#313669] text-[#7289da]' : 'bg-linear-to-b from-[#7289da] to-[#4752c4] hover:from-[#8ea1e1] hover:to-[#5865F2] active:scale-95 cursor-pointer text-white'}`}
+                                                    >
+                                                        <div className="absolute top-px inset-x-0.5 bottom-0.5 bg-white/10 pointer-events-none rounded-sm"></div>
+                                                        <span className="text-[11px] relative z-10" style={{ textShadow: loading ? 'none' : '0 1px 2px rgba(0,0,0,0.5)' }}>دیسکۆرد</span>
+                                                        <div className="absolute right-2 flex items-center justify-center z-10">
+                                                           <svg className={`w-3.5 h-3.5 ${loading ? 'grayscale opacity-50' : 'text-white group-hover:scale-110 transition-transform'}`} viewBox="0 0 24 24" fill="currentColor">
+                                                              <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                                                           </svg>
+                                                        </div>
+                                                    </button>
+                                                </div>
+
+                                                <div className="flex items-center gap-4 mb-3">
+                                                    <div className="flex-1 h-0.5 bg-[#b8c2cc]"></div>
+                                                    <span className="text-[11px] font-black font-rabar text-[#5a6270]">یان</span>
+                                                    <div className="flex-1 h-0.5 bg-[#b8c2cc]"></div>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowEmailForm(true)}
+                                                    disabled={loading}
+                                                    className={`relative w-full h-8 rounded-md flex items-center justify-center font-black font-rabar transition-all shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#064e3b] border-[1.5px] border-[#181a20] overflow-hidden ${loading ? 'opacity-50 cursor-not-allowed bg-emerald-900/50 text-emerald-300' : 'bg-linear-to-b from-emerald-500 to-emerald-700 hover:from-emerald-400 hover:to-emerald-600 text-white active:scale-95 cursor-pointer'}`}
+                                                >
+                                                    <div className="absolute top-px inset-x-0.5 bottom-0.5 bg-white/15 pointer-events-none rounded-sm"></div>
+                                                    <span className="text-[12px] relative z-10" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>تۆمارکرن ب ئیمێلی</span>
+                                                    <div className="absolute right-3 flex items-center justify-center z-10">
+                                                       <span className="material-symbols-outlined text-[15px]" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>mail</span>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <form onSubmit={handleSubmit} className="flex flex-col space-y-3 relative z-10" autoComplete="off">
 
                             {/* Username Field */}
                             <div className="space-y-2">
@@ -401,7 +493,6 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                     required
                                     name="upgrade_user"
                                     isError={nameAvailability === 'taken' || nameAvailability === 'invalid'}
-                                    suffix={<span className="material-symbols-outlined text-[18px]">person</span>}
                                 />
                                 <AnimatePresence>
                                     {nameAvailability && (
@@ -435,7 +526,6 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 name="upgrade_email"
-                                suffix={<span className="material-symbols-outlined text-[18px]">mail</span>}
                             />
 
                             {/* Password Field */}
@@ -472,7 +562,6 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                     required
                                     name="upgrade_confirm_pass"
                                     autoComplete="new-password"
-                                    suffix={<span className="material-symbols-outlined text-[18px]">lock_reset</span>}
                                 />
                                 <AnimatePresence>
                                     {(passwordError || confirmError) && (
@@ -500,7 +589,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                         exit={{ opacity: 0, height: 0 }}
                                         className="pt-2 overflow-hidden"
                                     >
-                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-[6px] flex items-center gap-2 text-red-500 dark:text-red-400">
+                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-md flex items-center gap-2 text-red-500 dark:text-red-400">
                                             <span className="material-symbols-outlined text-[16px]">error</span>
                                             <span className="text-[10px] font-bold">{error}</span>
                                         </div>
@@ -511,65 +600,30 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="mt-4 w-full h-11 bg-primary hover:bg-primary-dark text-white rounded-[6px] font-black font-rabar text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className={`relative w-full h-8 mt-4 rounded-md flex items-center justify-center font-black font-rabar transition-all shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#315f13] border-[1.5px] border-[#181a20] overflow-hidden ${loading ? 'opacity-50 cursor-not-allowed bg-emerald-700 text-emerald-300' : 'bg-linear-to-b from-[#7bc542] to-[#519623] hover:from-[#89d64f] hover:to-[#5ba829] active:scale-95 cursor-pointer text-white'}`}
                             >
+                                <div className="absolute top-px inset-x-0.5 bottom-0.5 bg-white/15 pointer-events-none rounded-sm"></div>
                                 {loading ? (
-                                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                                    <span className="material-symbols-outlined animate-spin text-[16px] relative z-10" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>progress_activity</span>
                                 ) : (
-                                    <>
-                                        <span>تۆمارکرنا هژمارێ</span>
-                                        <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                                    </>
+                                    <span className="text-[12px] relative z-10" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>بەردەوام بە</span>
                                 )}
                             </button>
                         </form>
-
-                        <div className="mt-4">
-                            <div className="flex items-center gap-4 mb-3 text-mono-400 dark:text-white/30">
-                                <div className="flex-1 h-px bg-current opacity-20"></div>
-                                <span className="text-[10px] font-black font-rabar opacity-60">یان ب ڕێکا</span>
-                                <div className="flex-1 h-px bg-current opacity-20"></div>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => handleSocialLogin('google')}
-                                disabled={loading}
-                                className="w-full h-10 sm:h-9 rounded-md bg-white text-mono-900 border border-mono-200 flex items-center justify-center gap-3 hover:bg-gray-50 active:scale-95 transition-all shadow-sm font-bold font-rabar text-sm sm:text-xs"
-                                title="Google"
-                            >
-                                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                    <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
-                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                                </svg>
-                                <span className="relative z-10 font-bold text-[15px]">گۆگڵ</span>
-                            </button>
-
-                            {/* DISCORD BUTTON */}
-                            <button
-                                type="button"
-                                onClick={() => handleSocialLogin('discord')}
-                                disabled={loading}
-                                className="w-full mt-3 bg-[#5865F2] hover:bg-[#4752C4] text-white rounded-md h-10 sm:h-9 font-bold font-rabar text-sm sm:text-xs transition-all flex items-center justify-center gap-3 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
-                            >
-                                <svg className="w-5 h-5 relative z-10" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
-                                </svg>
-                                <span className="relative z-10 font-bold text-[15px]">دیسکۆرد</span>
-                            </button>
-                        </div>
+                        )}
                         </>
                     ) : (
-                        <div className="space-y-6">
-                            <div className="text-right space-y-2">
-                                <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 mx-auto mb-4">
-                                    <span className="material-symbols-outlined text-2xl">mail_lock</span>
+                        <div className="space-y-4 relative z-10">
+                            <div className="flex flex-col items-center gap-2 mb-4">
+                                <div className="w-14 h-14 rounded-full bg-linear-to-b from-[#7bc542] to-[#519623] border-2 border-[#121316] shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_4px_6px_rgba(0,0,0,0.3)] flex items-center justify-center text-white mb-1 relative overflow-hidden">
+                                    <div className="absolute top-0.5 inset-x-1 bottom-6 bg-white/20 rounded-t-full pointer-events-none"></div>
+                                    <span className="material-symbols-outlined text-[28px] relative z-10" style={{ textShadow: '0 2px 2px rgba(0,0,0,0.5)' }}>mail_lock</span>
                                 </div>
-                                <h2 className="text-xl font-black font-heading text-mono-900 dark:text-white text-center">پشتڕاستکرنا ئیمێڵی</h2>
-                                <p className="text-xs font-black font-rabar text-mono-500 text-center leading-relaxed">
-                                    مە کۆدەکێ ٦ ژمارەیی هنارتە ئیمێڵێ تە: <br /> <span className="text-primary font-sans block mt-1">{email}</span>
+                                <h3 className="text-[18px] font-black font-rabar text-[#121316] text-center" style={{ textShadow: '0 1px 1px white' }}>
+                                    پشتڕاستکرنا ئیمێڵی
+                                </h3>
+                                <p className="text-[12px] font-bold text-[#5a6270] text-center leading-relaxed">
+                                    مە کۆدەکێ ٦ ژمارەیی هنارتە ئیمێڵێ تە: <br /> <span className="text-[#39a044] font-sans block mt-1">{email}</span>
                                 </p>
                             </div>
 
@@ -582,7 +636,6 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                     onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                     required
                                     autoComplete="one-time-code"
-                                    suffix={<span className="material-symbols-outlined text-[18px]">dialpad</span>}
                                 />
 
                                 <AnimatePresence>
@@ -593,7 +646,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                             exit={{ opacity: 0, height: 0 }}
                                             className="overflow-hidden"
                                         >
-                                            <div className="p-3 mt-2 bg-red-500/10 border border-red-500/20 rounded-[6px] flex items-center gap-2 text-red-500 dark:text-red-400">
+                                            <div className="p-3 mt-2 bg-red-500/10 border border-red-500/20 rounded-md flex items-center gap-2 text-red-500 dark:text-red-400">
                                                 <span className="material-symbols-outlined text-[16px]">error</span>
                                                 <span className="text-[10px] font-bold">{error}</span>
                                             </div>
@@ -604,14 +657,17 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                 <button
                                     type="submit"
                                     disabled={loading || otpCode.length < 6}
-                                    className="w-full h-11 bg-primary hover:bg-primary-dark text-white rounded-[6px] font-black font-rabar text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                                    className={`relative w-full h-13.5 mt-4 rounded-[12px] flex items-center justify-center font-black font-rabar transition-all shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#315f13] border-[1.5px] border-[#181a20] overflow-hidden ${loading || otpCode.length < 6 ? 'opacity-50 cursor-not-allowed bg-emerald-700 text-emerald-300' : 'bg-linear-to-b from-[#7bc542] to-[#519623] hover:from-[#89d64f] hover:to-[#5ba829] active:scale-95 cursor-pointer text-white'}`}
                                 >
+                                    <div className="absolute top-0.75 inset-x-1 bottom-2 bg-white/15 pointer-events-none rounded-md"></div>
                                     {loading ? (
-                                        <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                                        <span className="material-symbols-outlined animate-spin text-[20px] relative z-10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>progress_activity</span>
                                     ) : (
                                         <>
-                                            <span>پشتڕاستکرن</span>
-                                            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                                            <span className="text-[14px] px-12 pt-1 relative z-10" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>پشتڕاستکرن</span>
+                                            <div className="absolute right-5 flex items-center justify-center z-10">
+                                               <span className="material-symbols-outlined text-[20px]" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>check_circle</span>
+                                            </div>
                                         </>
                                     )}
                                 </button>
@@ -621,7 +677,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                         type="button"
                                         onClick={handleResendOtp}
                                         disabled={loading || resendCooldown > 0}
-                                        className={`text-[11px] font-black font-rabar transition-colors ${resendCooldown > 0 ? 'text-mono-400 cursor-not-allowed' : 'text-primary hover:text-primary-dark'}`}
+                                        className={`text-[12px] font-black font-rabar transition-colors ${resendCooldown > 0 ? 'text-[#a0a7b4] cursor-not-allowed' : 'text-[#39a044] hover:text-[#2b7a33]'}`}
                                     >
                                         {resendCooldown > 0 ? `دوبارە هنارتن پشتی (${resendCooldown}) چرکەیا` : 'دوبارە هنارتنا کۆدی'}
                                     </button>
@@ -633,7 +689,7 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                             setError(null);
                                             setOtpCode('');
                                         }}
-                                        className="text-[11px] font-black font-rabar text-mono-400 hover:text-mono-600 dark:hover:text-mono-300 mt-2"
+                                        className="text-[12px] font-black font-rabar text-[#d62020] hover:text-[#960f0f] mt-2"
                                     >
                                         ڤەگەڕیان بۆ پاش
                                     </button>
@@ -641,8 +697,12 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                             </form>
                         </div>
                     )}
+                            </div>
+                        </div>
+                    </Motion.div>
                 </div>
-            </Motion.div>
-        </div>
+            )}
+        </AnimatePresence>,
+        document.body
     );
 }

@@ -84,10 +84,10 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
         <div className="relative w-full text-right">
             
             <div className={`
-                relative w-full rounded-md transition-all duration-300 border flex items-center
-                ${isFocused ? 'bg-mono-100 dark:bg-white/10 border-emerald-500/50' : 'bg-mono-50 dark:bg-white/5 border-mono-200 dark:border-white/10 hover:border-mono-400 dark:hover:border-white/20'}
-                ${isError ? 'border-red-500/50' : ''}
-                puzzle-tile overflow-hidden
+                relative w-full rounded-[8px] transition-all duration-300 border-2 flex items-center bg-[#fdfdfd]
+                ${isFocused ? 'border-[#39a044] shadow-[0_0_0_2px_rgba(57,160,68,0.2)]' : 'border-[#b8c2cc] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] hover:border-[#a0a7b4]'}
+                ${isError ? 'border-[#ff4a4a] shadow-[0_0_0_2px_rgba(255,74,74,0.2)]' : ''}
+                overflow-hidden
             `}>
                 <input
                     id={id}
@@ -106,7 +106,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     autoComplete={autoComplete}
                     name={name || id}
                     aria-label={label}
-                    className={`w-full bg-transparent py-2.5 sm:py-2 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-mono-900 dark:text-white text-base sm:text-sm placeholder-mono-400 dark:placeholder-white/40 focus:outline-none transition-all duration-200 caret-emerald-400 relative z-10`}
+                    className={`w-full bg-transparent py-2 pr-4 ${suffix ? 'pl-10' : 'pl-4'} font-rabar text-[#121316] text-[14px] font-black focus:outline-none placeholder-[#a0a7b4] caret-[#39a044] relative z-10`}
                     style={{
                         appearance: 'none',
                         userSelect: 'text',
@@ -116,7 +116,7 @@ const FloatingInput = ({ label, value, onChange, id, type = 'text', required = f
                     }}
                 />
                 {suffix && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mono-400 dark:text-white/40 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors z-20 flex items-center justify-center">
+                    <div className={`absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors z-20 ${isFocused ? 'text-[#39a044]' : 'text-[#a0a7b4]'}`}>
                         {suffix}
                     </div>
                 )}
@@ -602,17 +602,26 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
     return (
         <div
             onClick={handleBackgroundClick}
-            className="flex-1 w-full h-full flex flex-col items-center overflow-y-auto sm:overflow-hidden no-scrollbar p-4 animate-in fade-in duration-500 relative isolate auth-view-container bg-mono-white dark:bg-black transition-colors"
+            className="flex-1 w-full h-full flex flex-col items-center overflow-y-auto sm:overflow-hidden no-scrollbar p-4 animate-in fade-in duration-500 relative isolate auth-view-container bg-transparent transition-colors"
         >
-            <FloatingLetterBackground ref={bgRef} baseOpacity={0.25} />
+            <FloatingLetterBackground ref={bgRef} baseOpacity={0.15} />
 
             <div className="w-full max-w-90 sm:max-w-95 flex flex-col items-center relative z-20 shrink-0 my-auto">
                 <Motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="w-full px-4 py-3 sm:px-8 sm:py-5 bg-mono-50 dark:bg-mono-900 rounded-md border border-mono-200 dark:border-white/5 transition-colors duration-500"
+                    className="w-full max-w-95 relative bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] border-4 border-[#121316] px-4 py-5 sm:px-8 sm:py-7 flex flex-col items-center overflow-hidden font-rabar transition-colors duration-500"
+                    dir="rtl"
                 >
-                    <div className="flex flex-col items-center mb-6 text-center">
+                   {/* Inner 3D Highlight Layer */}
+                   <div className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}></div>
+                   
+                   {/* Inner 3D Shadow Layer */}
+                   <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+                   {/* Glassy Header Highlight */}
+                   <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+                    <div className="flex flex-col items-center mb-6 text-center relative z-10">
                         <Motion.img
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
@@ -621,146 +630,161 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                             className="w-5 h-5 object-contain mb-1 transform hover:scale-110 transition-transform duration-500 cursor-pointer"
                             alt="Peyvok Icon"
                         />
-                        <h1 className="text-3xl font-black font-heading text-mono-900 dark:text-white text-pop">پەیڤۆک</h1>
+                        <h1 className="text-[32px] mt-1 font-black font-heading text-white text-pop relative z-10" style={{ textShadow: '-2px -2px 0 #1a1c23, 1px -2px 0 #1a1c23, -2px 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 0 3px 0 #1a1c23, 0 4px 6px rgba(0,0,0,0.4)' }}>پەیڤۆک</h1>
                     </div>
                     <div className="relative z-10 w-full">
                         {/* 1. LOGIN / SIGNUP FLOW */}
                         {!showOtpScreen && recoveryStep === 0 && (
                             <>
                                 {!showEmailForm ? (
-                                    <div className="w-full flex flex-col mt-2 space-y-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => handleSocialLogin('google')}
-                                            disabled={loading}
-                                            className="relative w-full h-11 sm:h-10 rounded-md bg-white text-mono-900 border border-mono-200 flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all shadow-sm"
-                                            title="Google"
-                                        >
-                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">گۆگڵ</span>
-                                            <div className="absolute right-4 flex items-center justify-center">
-                                                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                                    <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
-                                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                                                </svg>
+                                    <div className="w-full flex flex-col">
+                                        <div className="flex flex-col relative rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden w-full mt-2 mb-2">
+                                            {/* Inner Highlight for the Light Box */}
+                                        <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-20"></div>
+                                        
+                                        <div className="relative z-10 w-full p-4 sm:p-5 flex flex-col gap-3.5">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSocialLogin('google')}
+                                                disabled={loading}
+                                                className="relative w-full h-13.5 rounded-[12px] bg-white border-2 border-[#181a20] flex items-center justify-center hover:bg-gray-50 active:scale-95 transition-all overflow-hidden"
+                                                style={{ boxShadow: 'inset 0 3px 0 rgba(255,255,255,1), inset 0 -4px 0 rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.1)' }}
+                                                title="Google"
+                                            >
+                                                <span className="font-bold font-rabar text-[15px] text-[#181a20] relative z-10 -translate-y-px">گۆگڵ</span>
+                                                <div className="absolute right-5 flex items-center justify-center z-10">
+                                                    <svg className="w-6 h-6" viewBox="0 0 24 24">
+                                                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                                        <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
+                                                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1c-4.3 0-8.01 2.47-9.82 6.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                                    </svg>
+                                                </div>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => handleSocialLogin('discord')}
+                                                disabled={loading}
+                                                className="relative w-full h-13.5 rounded-[12px] bg-[#5865F2] hover:bg-[#4752C4] border-2 border-[#181a20] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all overflow-hidden"
+                                                style={{ boxShadow: 'inset 0 3px 0 rgba(255,255,255,0.3), inset 0 -4px 0 rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)' }}
+                                            >
+                                                <span className="font-bold font-rabar text-[15px] text-white relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>دیسکۆرد</span>
+                                                <div className="absolute right-5 flex items-center justify-center z-10">
+                                                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
+                                                    </svg>
+                                                </div>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsLogin(false);
+                                                    setShowEmailForm(true);
+                                                }}
+                                                className="relative w-full h-13.5 rounded-[12px] bg-[#0095f6] hover:bg-[#1877f2] border-2 border-[#181a20] text-white flex items-center justify-center active:scale-95 transition-all overflow-hidden"
+                                                style={{ boxShadow: 'inset 0 3px 0 rgba(255,255,255,0.3), inset 0 -4px 0 rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)' }}
+                                            >
+                                                <span className="font-bold font-rabar text-[15px] text-white relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1.5px 0 #181a20' }}>تۆمارکرن ب ئیمەیڵی</span>
+                                                <div className="absolute right-5 flex items-center justify-center z-10">
+                                                    <span className="material-symbols-outlined text-[20px]" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>mail</span>
+                                                </div>
+                                            </button>
+
+                                            <div className="flex items-center gap-4 py-0.5 text-[#a0a7b4] relative z-10">
+                                                <div className="flex-1 h-px bg-[#a0a7b4]/40"></div>
+                                                <span className="text-[12px] font-black font-rabar">یان</span>
+                                                <div className="flex-1 h-px bg-[#a0a7b4]/40"></div>
                                             </div>
-                                        </button>
 
-                                        <button
-                                            type="button"
-                                            onClick={() => handleSocialLogin('discord')}
-                                            disabled={loading}
-                                            className="relative w-full h-11 sm:h-10 rounded-md bg-[#5865F2] hover:bg-[#4752C4] text-white flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-all shadow-sm"
-                                        >
-                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">دیسکۆرد</span>
-                                            <div className="absolute right-4 flex items-center justify-center">
-                                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z" />
-                                                </svg>
-                                            </div>
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setIsLogin(false);
-                                                setShowEmailForm(true);
-                                            }}
-                                            className="relative w-full h-11 sm:h-10 bg-[#0095f6] hover:bg-[#1877f2] text-white rounded-md flex items-center justify-center active:scale-95 transition-all shadow-sm"
-                                        >
-                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">تۆمارکرن ب ئیمەیڵی</span>
-                                            <div className="absolute right-4 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-[18px]">mail</span>
-                                            </div>
-                                        </button>
-
-                                        <div className="flex items-center gap-4 py-1 text-mono-400 dark:text-white/30">
-                                            <div className="flex-1 h-px bg-current"></div>
-                                            <span className="text-[10px] font-black font-rabar opacity-60">یان</span>
-                                            <div className="flex-1 h-px bg-current"></div>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                playPopSfx();
-                                                setShowGuestWarning(true);
-                                            }}
-                                            disabled={loading}
-                                            className="relative w-full h-11 sm:h-10 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 text-emerald-400 dark:text-emerald-500 rounded-md flex items-center justify-center active:scale-95 transition-all"
-                                        >
-                                            <span className="font-bold font-rabar text-[12px] sm:text-xs">یاریکرن وەکو مێهڤان</span>
-                                            <div className="absolute right-4 flex items-center justify-center">
-                                                <span className="material-symbols-outlined text-sm">person</span>
-                                            </div>
-                                        </button>
-
-                                        <div className="flex items-center justify-center mt-6 mb-2">
-                                            <p className="text-[11px] font-bold font-rabar text-mono-400 dark:text-white/50">
-                                                تە ژبەری نۆکە هژمار دروست کریە؟{' '}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setIsLogin(true);
-                                                        setShowEmailForm(true);
-                                                    }}
-                                                    className="text-[#0095f6] hover:text-[#1877f2] transition-colors"
-                                                >
-                                                    چوونا ژوورێ
-                                                </button>
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-4 mb-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[9.5px] font-black font-rabar text-mono-400 dark:text-white/30 uppercase">
-                                            <button type="button" onClick={() => setActivePolicyModal('privacy')} className="hover:text-emerald-400 transition-colors">سیاسەتا تایبەتمەندیێ</button>
-                                            <span className="opacity-30">•</span>
-                                            <button type="button" onClick={() => setActivePolicyModal('terms')} className="hover:text-emerald-400 transition-colors">مەرجێن بکارهینانێ</button>
-                                            <span className="opacity-30">•</span>
-                                            <button type="button" onClick={() => setActivePolicyModal('deletion')} className="hover:text-emerald-400 transition-colors">ژێبرنا داتایان</button>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    playPopSfx();
+                                                    setShowGuestWarning(true);
+                                                }}
+                                                disabled={loading}
+                                                className="relative w-full h-13.5 rounded-[12px] bg-[#1a1c23] hover:bg-[#252830] border-2 border-[#181a20] text-[#22c55e] flex items-center justify-center active:scale-95 transition-all overflow-hidden"
+                                                style={{ boxShadow: 'inset 0 3px 0 rgba(255,255,255,0.1), inset 0 -4px 0 rgba(0,0,0,0.3), 0 4px 6px rgba(0,0,0,0.15)' }}
+                                            >
+                                                <span className="font-bold font-rabar text-[15px] relative z-10 -translate-y-px">یاریکرن وەکو مێهڤان</span>
+                                                <div className="absolute right-5 flex items-center justify-center z-10">
+                                                    <span className="material-symbols-outlined text-[20px]">person</span>
+                                                </div>
+                                            </button>
                                         </div>
                                     </div>
+
+                                    <div className="flex items-center justify-center mt-3 mb-2 relative z-10">
+                                        <p className="text-[12.5px] font-bold font-rabar text-white/80">
+                                            تە ژبەری نۆکە هژمار دروست کریە؟{' '}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsLogin(true);
+                                                    setShowEmailForm(true);
+                                                }}
+                                                className="text-[#38bdf8] hover:text-[#7dd3fc] transition-colors font-black"
+                                            >
+                                                چوونا ژوورێ
+                                            </button>
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-4 mb-2 flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-[10px] font-black font-rabar text-white/60 uppercase relative z-10">
+                                        <button type="button" onClick={() => setActivePolicyModal('privacy')} className="hover:text-emerald-400 transition-colors">سیاسەتا تایبەتمەندیێ</button>
+                                        <span className="opacity-30">•</span>
+                                        <button type="button" onClick={() => setActivePolicyModal('terms')} className="hover:text-emerald-400 transition-colors">مەرجێن بکارهینانێ</button>
+                                        <span className="opacity-30">•</span>
+                                        <button type="button" onClick={() => setActivePolicyModal('deletion')} className="hover:text-emerald-400 transition-colors">ژێبرنا داتایان</button>
+                                    </div>
+                                    </div>
                                 ) : (
-                                    <div className="w-full">
+                                    <div className="w-full flex flex-col">
                                         <button 
                                             type="button" 
                                             onClick={() => { triggerHaptic(5); setShowEmailForm(false); setError(null); }} 
-                                            className="mb-4 flex items-center gap-2 text-mono-400 hover:text-mono-900 dark:hover:text-white transition-colors text-xs font-rabar font-bold w-full justify-start active:scale-95"
+                                            className="mb-3 flex items-center gap-2 text-white/70 hover:text-white transition-colors text-[13px] font-rabar font-black w-full justify-start active:scale-95 px-1"
                                         >
-                                            <span className="material-symbols-outlined text-sm">arrow_forward</span> 
+                                            <span className="material-symbols-outlined text-[16px]">arrow_forward</span> 
                                             پاشڤەزڤرین
                                         </button>
-                                <div className="flex p-0.5 bg-mono-100 dark:bg-black rounded-md border border-mono-200 dark:border-white/10 mb-4 relative z-10">
-                                    <Motion.div
-                                        className="absolute top-1 bottom-1 bg-[#0095f6] rounded-md"
-                                        initial={false}
-                                        animate={{
-                                            right: isLogin ? '4px' : '50%',
-                                            left: isLogin ? '50%' : '4px'
-                                        }}
-                                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            triggerHaptic(10);
-                                            playTabSound();
-                                            setIsLogin(true);
-                                        }}
-                                        className={`flex-1 relative z-10 py-2 text-sm font-black font-rabar transition-colors duration-300 ${isLogin ? 'text-white' : 'text-mono-500 dark:text-white/40 hover:text-mono-900 dark:hover:text-white/60'}`}
-                                    >
-                                        چوونا ژوورێ
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            triggerHaptic(10);
-                                            playTabSound();
-                                            setIsLogin(false);
-                                        }}
-                                        className={`flex-1 relative z-10 py-2 text-sm font-black font-rabar transition-colors duration-300 ${!isLogin ? 'text-white' : 'text-mono-500 dark:text-white/40 hover:text-mono-900 dark:hover:text-white/60'}`}
-                                    >
-                                        تۆمارکرن
-                                    </button>
-                                </div>
+                                        
+                                        <div className="flex flex-col relative rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden w-full mb-2">
+                                            <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-20"></div>
+                                            
+                                            <div className="relative z-10 w-full p-4 sm:p-5 flex flex-col gap-4">
+                                                <div className="flex items-center justify-center gap-2 w-full relative z-10 mb-4 h-9 mt-1">
+                                                    <button
+                                                        onClick={() => {
+                                                            triggerHaptic(10);
+                                                            playTabSound();
+                                                            setIsLogin(true);
+                                                        }}
+                                                        className={`h-full flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                                            isLogin
+                                                                ? 'btn-clash-sm-blue text-white z-20'
+                                                                : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                                                        }`}
+                                                    >
+                                                        <span className={`relative z-20 ${isLogin ? 'drop-shadow-md' : ''}`}>چوونا ژوورێ</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            triggerHaptic(10);
+                                                            playTabSound();
+                                                            setIsLogin(false);
+                                                        }}
+                                                        className={`h-full flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                                            !isLogin
+                                                                ? 'btn-clash-sm-blue text-white z-20'
+                                                                : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                                                        }`}
+                                                    >
+                                                        <span className={`relative z-20 ${!isLogin ? 'drop-shadow-md' : ''}`}>تۆمارکرن</span>
+                                                    </button>
+                                                </div>
 
                                 {/* SUCCESS MESSAGE (Verification / Registration) */}
                                 <AnimatePresence>
@@ -777,7 +801,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                     )}
                                 </AnimatePresence>
 
-                                <form onSubmit={handleAuth} className="space-y-3" autoComplete="off">
+                                <form onSubmit={handleAuth} className="flex flex-col gap-3 min-h-77.5 sm:min-h-82.5" autoComplete="off">
                                     {!isLogin && (
                                         <div className="grid grid-cols-1 gap-5">
                                             <div className="space-y-2">
@@ -847,9 +871,9 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                 id="toggle-password"
                                                 name="toggle-password"
                                                 aria-label={showPassword ? "Hide password" : "Show password"}
-                                                className="flex items-center justify-center p-2 text-mono-400 dark:text-white/40 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                                                className="flex items-center justify-center p-2 transition-colors w-full h-full"
                                             >
-                                                <span className="material-symbols-outlined text-xl">
+                                                <span className="material-symbols-outlined text-[20px]">
                                                     {showPassword ? 'visibility_off' : 'visibility'}
                                                 </span>
                                             </button>
@@ -902,7 +926,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
                                     {!isLogin && (
                                         <label className="flex items-start gap-3 mt-4 mb-3 cursor-pointer p-1" dir="rtl">
-                                            <div className="relative flex items-center justify-center mt-0.5">
+                                            <div className="relative flex items-center justify-center mt-0.5 shrink-0">
                                                 <input 
                                                     type="checkbox" 
                                                     checked={agreedToTerms}
@@ -912,43 +936,50 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                     }}
                                                     className="peer sr-only" 
                                                 />
-                                                <div className="w-5 h-5 rounded border-2 border-mono-300 dark:border-white/20 peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-all flex items-center justify-center group-hover:border-emerald-400">
+                                                <div className="w-5 h-5 rounded-sm border-2 border-[#b8c2cc] peer-checked:bg-[#39a044] peer-checked:border-[#39a044] transition-all flex items-center justify-center bg-white shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
                                                     <span className="material-symbols-outlined text-white text-[14px] opacity-0 peer-checked:opacity-100 scale-50 peer-checked:scale-100 transition-all duration-200 font-bold">check</span>
                                                 </div>
                                             </div>
-                                            <div className="text-[10px] sm:text-[9px] font-bold font-rabar text-mono-500 dark:text-white/50 leading-relaxed text-right pt-0.5">
-                                                ئەز یێ ڕازیمە ب <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('terms'); }} className="text-emerald-500 hover:text-emerald-400 hover:underline transition-colors">مەرجێن بکارهینانێ</button> و <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('privacy'); }} className="text-emerald-500 hover:text-emerald-400 hover:underline transition-colors">سیاسەتا تایبەتمەندیێ</button>
+                                            <div className="text-[11px] font-black font-rabar text-[#5a6270] leading-relaxed text-right pt-0.5">
+                                                ئەز یێ ڕازیمە ب <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('terms'); }} className="text-[#0095f6] hover:text-[#1877f2] hover:underline transition-colors">مەرجێن بکارهینانێ</button> و <button type="button" onClick={(e) => { e.preventDefault(); setActivePolicyModal('privacy'); }} className="text-[#0095f6] hover:text-[#1877f2] hover:underline transition-colors">سیاسەتا تایبەتمەندیێ</button>
                                             </div>
                                         </label>
                                     )}
 
-                                    <AnimatePresence>
-                                        {error && (
-                                            <Motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -10 }}
-                                                className="p-4 rounded-md bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold font-body text-center"
-                                            >
-                                                {error}
-                                            </Motion.div>
-                                        )}
-                                    </AnimatePresence>
+                                    <div className="mt-auto flex flex-col gap-2 pt-2">
+                                        <AnimatePresence>
+                                            {error && (
+                                                <Motion.div
+                                                    initial={{ opacity: 0, y: -10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -10 }}
+                                                    className="p-4 rounded-[8px] bg-[#ff4a4a]/10 border-2 border-[#ff4a4a]/20 text-[#ff4a4a] text-[12px] font-black font-rabar text-center"
+                                                >
+                                                    {error}
+                                                </Motion.div>
+                                            )}
+                                        </AnimatePresence>
 
-                                    <button
-                                        type="submit"
-                                        disabled={loading}
-                                        className="w-full h-10 sm:h-9 bg-[#0095f6] hover:bg-[#1877f2] active:scale-[0.98] text-white rounded-md font-bold font-rabar text-sm sm:text-xs transition-all flex items-center justify-center gap-2 mt-1 shadow-sm "
-                                    >
-                                        {loading ? (
-                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                        ) : (
-                                            <span>{isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}</span>
-                                        )}
-                                    </button>
+                                        <button
+                                            type="submit"
+                                            disabled={loading}
+                                            className="relative w-full h-12 rounded-[10px] bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] border-2 border-[#181a20] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#115ab5] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-all overflow-hidden disabled:opacity-50"
+                                        >
+                                            <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-md bg-white/20"></div>
+                                            {loading ? (
+                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin relative z-10"></div>
+                                            ) : (
+                                                <span className="font-black font-rabar text-[15px] relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>
+                                                    {isLogin ? 'چوونا ژوورێ' : 'تۆمارکرن'}
+                                                </span>
+                                            )}
+                                        </button>
+                                    </div>
                                 </form>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                                </div>
                                 )}
                             </>
                         )}
@@ -1173,42 +1204,101 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                         
                         {/* Modal */}
                         <Motion.div
-                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            initial={{ scale: 0.95, opacity: 0, y: 10 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="relative w-full max-w-[320px] bg-white dark:bg-mono-900 border border-mono-200 dark:border-white/10 rounded-md shadow-2xl p-5"
+                            exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                            className="w-full max-w-85 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden z-50"
                             dir="rtl"
                         >
+                            {/* Inner 3D Highlight Layer (Tapered Top) */}
+                            <div 
+                                className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                                style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+                            ></div>
+                            
+                            {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+                            <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-                            <h3 className="text-base font-black font-rabar text-mono-900 dark:text-white text-center mb-2">
+                            {/* Glassy Header Highlight (stops at middle of text) */}
+                            <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+                            <div className="w-full relative flex items-center justify-center pt-4 pb-4 shrink-0">
+                                <h2 
+                                className="text-[20px] font-black text-white leading-none relative z-10" 
+                                style={{ 
+                                    textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                                }}
+                                >
                                 تێبینی بۆ مێهڤانان
-                            </h3>
-                            
-                            <p className="text-xs font-bold font-rabar text-mono-600 dark:text-white/80 text-center leading-relaxed">
-                                یاریکرن وەکو مێهڤان بۆ تاقیکرنا یاریێیە ب لەز. ئەگەر خوە تۆمار نەکەی، د ماوەیێ حەفتییەکێ دا داتایێن تە دێ ژێ چن.
-                            </p>
-                            
-                            <div className="flex items-center gap-2 mt-5">
+                                </h2>
+                                
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        playBackSfx();
-                                        setShowGuestWarning(false);
-                                    }}
-                                    className="flex-1 h-9 bg-mono-100 hover:bg-mono-200 dark:bg-white/5 dark:hover:bg-white/10 text-mono-700 dark:text-white/70 rounded-md font-bold font-rabar text-[11px] transition-colors"
+                                onClick={() => {
+                                    playBackSfx();
+                                    setShowGuestWarning(false);
+                                }}
+                                className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
                                 >
-                                    ڤەگەڕە
+                                <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                                <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                                    <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                    <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                                    <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                    <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                                </svg>
                                 </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowGuestWarning(false);
-                                        handleGuestLogin();
-                                    }}
-                                    className="flex-1 h-9 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-500 rounded-md font-black font-rabar text-[11px] transition-colors"
-                                >
-                                    بەردەوام بە
-                                </button>
+                            </div>
+                            
+                            {/* Content Area */}
+                            <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                                {/* Inner White Box Highlight */}
+                                <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                                
+                                <div className="relative z-20 flex flex-col items-center p-5 pt-6">
+                                <p className="text-[13px] font-bold text-center text-[#3a404a] mb-6 leading-relaxed">
+                                    یاریکرن وەکو مێهڤان بۆ تاقیکرنا یاریێیە ب لەز. ئەگەر خوە تۆمار نەکەی، د ماوەیێ حەفتییەکێ دا داتایێن تە دێ ژێ چن.
+                                </p>
+                                
+                                <div className="flex flex-col gap-3 w-full mt-2">
+                                    <button
+                                        onClick={() => {
+                                            triggerHaptic(10);
+                                            setShowGuestWarning(false);
+                                            handleGuestLogin();
+                                        }}
+                                        className="relative w-full h-8 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#24a85c]"
+                                        style={{
+                                            boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                        }}
+                                    >
+                                        <span 
+                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                            style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                        >
+                                            بەردەوام بە
+                                        </span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            playBackSfx();
+                                            triggerHaptic(10);
+                                            setShowGuestWarning(false);
+                                        }}
+                                        className="relative w-full h-8 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
+                                        style={{
+                                            boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                        }}
+                                    >
+                                        <span 
+                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                            style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                        >
+                                            ڤەگەڕە
+                                        </span>
+                                    </button>
+                                </div>
+                                </div>
                             </div>
                         </Motion.div>
                     </Motion.div>

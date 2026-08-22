@@ -126,144 +126,146 @@ const HelpCenterModal = ({ onClose, triggerHaptic }) => {
    const activeTopic = HELP_TOPICS.find(t => t.id === activePage);
 
    return (
-      <Motion.div
-         initial={{ opacity: 0 }}
-         animate={{ opacity: 1 }}
-         exit={{ opacity: 0 }}
-         className="fixed inset-0 z-1200 flex flex-col bg-mono-white dark:bg-black transition-colors duration-500 overflow-hidden"
-         onClick={onClose}
-      >
+      <AnimatePresence>
          <Motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            className="w-full px-4 sm:px-12 md:px-24 lg:px-48 mx-auto flex flex-col h-full relative font-rabar transition-colors duration-500"
-            onClick={e => e.stopPropagation()}
-            dir="rtl"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-1200 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+            onClick={onClose}
          >
-            <AnimatePresence mode="wait">
-               {/* --- MAIN MENU PAGE --- */}
-               {!activePage ? (
-                  <Motion.div
-                     key="main-menu"
-                     initial={{ x: -20, opacity: 0 }}
-                     animate={{ x: 0, opacity: 1 }}
-                     exit={{ x: 20, opacity: 0 }}
-                     transition={{ duration: 0.2 }}
-                     className="flex flex-col h-full w-full"
-                  >
-                     {/* Compact Header matching SettingsModal */}
-                     <div className="p-6 pt-12 sm:pt-8 pb-4 flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-3">
-                           <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                              <span className="material-symbols-outlined text-blue-600 dark:text-blue-400">support_agent</span>
-                           </div>
-                           <div>
-                              <h2 className="text-[16px] font-black font-rabar text-mono-900 dark:text-white leading-tight">سەنتەرێ هاریکاریێ</h2>
-                              <p className="text-[11px] font-bold font-rabar text-mono-500">پێدڤی ب چ زانیارییان هەیە؟</p>
-                           </div>
-                        </div>
-                        <button
-                           onClick={() => { if (triggerHaptic) triggerHaptic(10); onClose(); }}
-                           className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/5 flex items-center justify-center text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white transition-all active:scale-90 border border-mono-100 dark:border-white/10"
-                        >
-                           <span className="material-symbols-outlined text-lg">close</span>
-                        </button>
-                     </div>
+            <Motion.div
+               initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }}
+               className="w-full max-w-85 h-187.5 max-h-[90vh] flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
+               onClick={e => e.stopPropagation()}
+               dir="rtl"
+            >
+               {/* Inner 3D Highlight Layer (Tapered Top) */}
+               <div 
+                  className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                  style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+               ></div>
+               
+               {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+               <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-                     {/* Content List */}
-                     <div className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6 space-y-4">
-                        <div className="rounded-md bg-mono-50/50 dark:bg-white/5 border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-100 dark:divide-white/5">
-                           {HELP_TOPICS.map((topic) => (
-                              <button 
-                                 key={topic.id}
-                                 onClick={() => handleOpenPage(topic.id)}
-                                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-mono-100/50 dark:hover:bg-white/5 transition-all group text-right"
-                              >
-                                 <div className="flex items-center gap-3.5">
-                                    <span className="material-symbols-outlined text-[22px] text-mono-400 dark:text-mono-500 group-hover:text-blue-500 transition-colors">
-                                       {topic.icon}
-                                    </span>
-                                    <div className="flex flex-col gap-0.5">
-                                       <span className="text-[13px] font-black font-rabar text-mono-800 dark:text-mono-200 group-hover:text-mono-900 dark:group-hover:text-white transition-colors">
-                                          {topic.title}
-                                       </span>
-                                       <span className="text-[10px] font-bold font-rabar text-mono-500 dark:text-mono-500 truncate max-w-[200px]">
-                                          {topic.desc}
-                                       </span>
-                                    </div>
-                                 </div>
-                                 <span className="material-symbols-outlined text-[18px] text-mono-300 dark:text-mono-600 group-hover:text-blue-500 group-hover:-translate-x-1 transition-all">
-                                    chevron_left
-                                 </span>
-                              </button>
-                           ))}
-                        </div>
-                        
-                        <div className="pt-3 pb-1">
-                           <button 
-                              onClick={() => { if (triggerHaptic) triggerHaptic(10); window.location.href = 'mailto:support@peyvok.com'; }}
-                              className="w-full flex items-center justify-between p-4 rounded-lg bg-linear-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 dark:border-blue-400/20 hover:brightness-110 active:scale-[0.98] transition-all group"
+               {/* Glassy Header Highlight (stops at middle of text) */}
+               <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+               {/* Header Area */}
+               <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-5 shrink-0 px-12">
+                  {activePage && (
+                     <button
+                        onClick={handleBack}
+                        className="absolute left-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#115ab5] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                     >
+                        <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                        <span className="material-symbols-outlined text-lg relative z-10 -translate-y-px" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>arrow_back</span>
+                     </button>
+                  )}
+                  
+                  <h2 
+                     className="text-[17px] font-black text-white leading-snug relative z-10 text-center px-8" 
+                     style={{ 
+                        textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                     }}
+                  >
+                     {activePage ? activeTopic?.title : 'سەنتەرێ هاریکاریێ'}
+                  </h2>
+
+                  <button
+                     onClick={() => { if (triggerHaptic) triggerHaptic(10); onClose(); }}
+                     className="absolute right-3 top-3.5 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                  >
+                     {/* Glass Reflection Highlight */}
+                     <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                     <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                        <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                        <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                        <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                        <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                     </svg>
+                  </button>
+               </div>
+
+               {/* Main Content Area (White Box Wrapper) */}
+               <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-3 rounded-sm bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                  {/* Inner White Box 3D Highlight */}
+                  <div className="absolute inset-0 rounded-sm border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                  
+                  {/* Scrollable Content */}
+                  <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 z-0 flex flex-col">
+                     <AnimatePresence mode="wait">
+                        {!activePage ? (
+                           <Motion.div
+                              key="main-menu"
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ x: 20, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex flex-col flex-1 space-y-4 pb-2"
                            >
-                              <div className="flex items-center gap-3">
-                                 <span className="material-symbols-outlined text-blue-500 text-[22px]">mail</span>
-                                 <div className="flex flex-col text-right">
-                                    <h3 className="text-[13px] font-black font-rabar text-mono-900 dark:text-white">پەیوەندی کرن ب ئیمەیڵی</h3>
-                                    <p className="text-[10px] font-bold font-rabar text-mono-500">پێشنیار یان ئاریشە هەنە؟</p>
-                                 </div>
+                              {/* Content List */}
+                              <div className="rounded-md bg-[#e3eef2] border border-mono-100 dark:border-white/5 flex flex-col divide-y divide-mono-200">
+                                 {HELP_TOPICS.map((topic) => (
+                                    <button 
+                                       key={topic.id}
+                                       onClick={() => handleOpenPage(topic.id)}
+                                       className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/50 transition-all group text-right"
+                                    >
+                                       <div className="flex items-center gap-3.5">
+                                          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                                             <span className="material-symbols-outlined text-[18px] text-blue-600 group-hover:text-blue-700 transition-colors">
+                                                {topic.icon}
+                                             </span>
+                                          </div>
+                                          <div className="flex flex-col gap-0.5">
+                                             <span className="text-[13px] font-black font-rabar text-[#181a20]">
+                                                {topic.title}
+                                             </span>
+                                             <span className="text-[11px] font-bold font-rabar text-mono-500 truncate max-w-45">
+                                                {topic.desc}
+                                             </span>
+                                          </div>
+                                       </div>
+                                       <span className="material-symbols-outlined text-[18px] text-mono-400 group-hover:text-blue-600 group-hover:-translate-x-1 transition-all">
+                                          chevron_left
+                                       </span>
+                                    </button>
+                                 ))}
                               </div>
-                              <span className="material-symbols-outlined text-blue-500 text-[18px]">open_in_new</span>
-                           </button>
-                        </div>
-                     </div>
-                  </Motion.div>
-               ) : (
-                  /* --- DETAIL PAGE --- */
-                  <Motion.div
-                     key="detail-page"
-                     initial={{ x: 20, opacity: 0 }}
-                     animate={{ x: 0, opacity: 1 }}
-                     exit={{ x: -20, opacity: 0 }}
-                     transition={{ duration: 0.2 }}
-                     className="flex flex-col h-full w-full"
-                  >
-                     {/* Header */}
-                     <div className="p-6 pt-12 sm:pt-8 pb-4 flex items-center gap-3 shrink-0">
-                        <button 
-                           onClick={handleBack}
-                           className="w-8 h-8 rounded-md bg-mono-50 dark:bg-white/5 flex items-center justify-center text-mono-500 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white transition-all active:scale-90 border border-mono-100 dark:border-white/10 shrink-0"
-                        >
-                           <span className="material-symbols-outlined text-lg">arrow_forward</span>
-                        </button>
-                        <div className="flex items-center gap-2 overflow-hidden">
-                           <span className="material-symbols-outlined text-[18px] text-blue-500 shrink-0">
-                              {activeTopic?.icon}
-                           </span>
-                           <h2 className="text-[14px] font-black font-rabar text-mono-900 dark:text-white truncate">
-                              {activeTopic?.title}
-                           </h2>
-                        </div>
-                     </div>
 
-                     {/* FAQs List */}
-                     <div className="flex-1 overflow-y-auto custom-scrollbar px-6 pb-6 space-y-3">
-                        {activeTopic?.faqs.map((faq, index) => (
-                           <div key={index} className="p-3.5 rounded-lg bg-mono-50 dark:bg-white/5 border border-mono-200 dark:border-white/5 shadow-sm flex flex-col gap-2">
-                              <h4 className="text-[13px] font-black font-rabar text-mono-900 dark:text-white flex items-start gap-2.5 leading-snug">
-                                 <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                                 {faq.q}
-                              </h4>
-                              <p className="text-[12px] font-bold font-rabar text-mono-600 dark:text-mono-400 leading-relaxed pr-4 border-r-2 border-mono-200 dark:border-mono-700 mr-0.5">
-                                 {faq.a}
-                              </p>
-                           </div>
-                        ))}
-                     </div>
-                  </Motion.div>
-               )}
-            </AnimatePresence>
+                           </Motion.div>
+                        ) : (
+                           /* --- DETAIL PAGE --- */
+                           <Motion.div
+                              key="detail-page"
+                              initial={{ x: 20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              exit={{ x: -20, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex flex-col h-full w-full pb-2"
+                           >
+                              {/* FAQs List */}
+                              <div className="flex-1 space-y-3">
+                                 {activeTopic?.faqs.map((faq, index) => (
+                                    <div key={index} className="p-4 rounded-md bg-[#e3eef2] border border-mono-200 shadow-sm flex flex-col gap-2 relative overflow-hidden">
+                                       <div className="absolute top-0 right-0 w-1 h-full bg-blue-500"></div>
+                                       <h4 className="text-[13px] font-black font-rabar text-[#181a20] flex items-start gap-2.5 leading-snug">
+                                          {faq.q}
+                                       </h4>
+                                       <p className="text-[12px] font-bold font-rabar text-[#4b5563] leading-relaxed mt-1">
+                                          {faq.a}
+                                       </p>
+                                    </div>
+                                 ))}
+                              </div>
+                           </Motion.div>
+                        )}
+                     </AnimatePresence>
+                  </div>
+               </div>
+            </Motion.div>
          </Motion.div>
-      </Motion.div>
+      </AnimatePresence>
    );
 };
 

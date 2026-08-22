@@ -234,11 +234,59 @@ const PcStep2Illustration = () => (
   </div>
 );
 
+// --- Mac Step 1 Illustration: Safari Address Bar ---
+const MacStep1Illustration = () => (
+  <div className="w-full bg-[#f6f7f9] dark:bg-mono-800 rounded-xl shadow-sm border border-mono-200 dark:border-white/10 p-5 flex justify-center items-center overflow-hidden" dir="ltr">
+    <div className="w-full max-w-lg bg-white dark:bg-[#2a2a2a] h-10 rounded-md flex items-center justify-between px-2 shadow-sm border border-gray-300 dark:border-white/10">
+      <div className="flex items-center gap-2 text-gray-400">
+        <ChevronLeft className="w-4.5 h-4.5" strokeWidth={2} />
+        <ChevronLeft className="w-4.5 h-4.5 rotate-180" strokeWidth={2} />
+      </div>
+      <div className="flex flex-1 items-center justify-center">
+        <span className="text-[13px] font-sans text-gray-800 dark:text-gray-200 font-medium truncate">peyvokgame.com</span>
+      </div>
+      <div className="flex items-center gap-2 pr-1">
+        <div className="p-1 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors relative">
+          <IosShareIcon className="w-4.5 h-4.5 text-gray-700 dark:text-gray-300" strokeWidth={1.5} />
+        </div>
+        <PlusSquare className="w-4.5 h-4.5 text-gray-400" strokeWidth={1.5} />
+      </div>
+    </div>
+  </div>
+);
+
+// --- Mac Step 2 Illustration: Add to Dock Menu ---
+const MacStep2Illustration = () => (
+  <div className="w-full bg-[#f6f7f9] dark:bg-mono-800 rounded-xl shadow-sm border border-mono-200 dark:border-white/10 p-5 flex justify-center items-center min-h-40" dir="ltr">
+    <div className="w-full max-w-55 bg-white/90 dark:bg-[#2a2a2a]/90 backdrop-blur-md rounded-lg shadow-xl border border-gray-200 dark:border-white/10 flex flex-col p-1.5">
+      <div className="px-3 py-1.5 rounded-md bg-blue-500 text-white flex items-center justify-between text-[13px] cursor-pointer">
+        <span className="font-sans font-medium">Add to Dock...</span>
+      </div>
+      <div className="h-px w-full bg-gray-200 dark:bg-white/10 my-1"></div>
+      <div className="px-3 py-1.5 rounded-md flex items-center justify-between text-[13px] text-gray-800 dark:text-gray-200">
+        <span className="font-sans font-medium">Share...</span>
+        <IosShareIcon className="w-3.5 h-3.5" strokeWidth={2} />
+      </div>
+    </div>
+  </div>
+);
+
 const InstallGuideModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('ios');
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
   const { user, refreshProfile } = useUser();
+
+  useEffect(() => {
+    const checkStandalone = () => {
+      const isPwa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      setIsStandalone(!!isPwa);
+    };
+    checkStandalone();
+    window.addEventListener('resize', checkStandalone);
+    return () => window.removeEventListener('resize', checkStandalone);
+  }, []);
 
   const handleCompleteGuide = async () => {
     if (!user) {
@@ -296,162 +344,233 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
 
         {/* Modal Content */}
         <Motion.div
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
+          initial={{ scale: 0.95, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          className="bg-white dark:bg-mono-900 rounded-[20px] shadow-2xl w-full max-w-md relative z-10 flex flex-col max-h-[85vh] overflow-hidden border border-mono-200 dark:border-white/10"
+          exit={{ scale: 0.95, opacity: 0, y: 10 }}
+          className="w-full max-w-md flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden z-50 max-h-[85vh]"
+          dir="rtl"
         >
-          {/* Header */}
-          <div className="p-4 border-b border-mono-100 dark:border-mono-800 text-center relative shrink-0 bg-mono-50 dark:bg-mono-900">
+          {/* Inner 3D Highlight Layer (Tapered Top) */}
+          <div 
+            className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+            style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+          ></div>
+          
+          {/* Inner 3D Shadow Layer (Bottom & Sides) */}
+          <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
-            <h2 className="text-lg font-bold font-rabar text-mono-900 dark:text-white flex items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-blue-500">download</span>
+          {/* Glassy Header Highlight (stops at middle of text) */}
+          <div className="absolute top-1.5 inset-x-1.5 h-10 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
+          {/* Header */}
+          <div className="pt-5 pb-3 text-center relative shrink-0 z-10 w-full flex items-center justify-center">
+            <h2 
+               className="text-[20px] font-black text-white leading-none flex items-center justify-center gap-2 relative z-10" 
+               style={{ 
+                  textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+               }}
+            >
               داگرتنا یاریێ
             </h2>
           </div>
 
           {/* Tabs */}
-          <div className="flex w-full border-b border-mono-200 dark:border-mono-800 shrink-0 bg-white dark:bg-mono-900">
+          <div className="flex w-full px-3 z-10 relative mt-2 mb-2 shrink-0 gap-2">
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('ios'); }}
-              className={`flex-1 py-3 text-[14px] font-bold font-rabar transition-colors relative ${activeTab === 'ios' ? 'text-blue-500' : 'text-mono-500 dark:text-mono-400 hover:text-mono-700 dark:hover:text-mono-200'}`}
+              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                activeTab === 'ios' 
+                  ? 'btn-clash-sm-blue text-white z-20' 
+                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+              }`}
             >
               ئایفۆن
-              {activeTab === 'ios' && (
-                <Motion.div layoutId="installTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-full" />
-              )}
             </button>
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('android'); }}
-              className={`flex-1 py-3 text-[14px] font-bold font-rabar transition-colors relative ${activeTab === 'android' ? 'text-blue-500' : 'text-mono-500 dark:text-mono-400 hover:text-mono-700 dark:hover:text-mono-200'}`}
+              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                activeTab === 'android' 
+                  ? 'btn-clash-sm-blue text-white z-20' 
+                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+              }`}
             >
               ئەندرۆید
-              {activeTab === 'android' && (
-                <Motion.div layoutId="installTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-full" />
-              )}
             </button>
             <button
-              onClick={() => { triggerHaptic(10); setActiveTab('pc'); }}
-              className={`flex-1 py-3 text-[14px] font-bold font-rabar transition-colors relative ${activeTab === 'pc' ? 'text-blue-500' : 'text-mono-500 dark:text-mono-400 hover:text-mono-700 dark:hover:text-mono-200'}`}
+              onClick={() => { triggerHaptic(10); setActiveTab('windows'); }}
+              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                activeTab === 'windows' 
+                  ? 'btn-clash-sm-blue text-white z-20' 
+                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+              }`}
             >
-              کۆمپیوتەر
-              {activeTab === 'pc' && (
-                <Motion.div layoutId="installTabIndicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-t-full" />
-              )}
+              ویندۆز
+            </button>
+            <button
+              onClick={() => { triggerHaptic(10); setActiveTab('mac'); }}
+              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+                activeTab === 'mac' 
+                  ? 'btn-clash-sm-blue text-white z-20' 
+                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+              }`}
+            >
+              ماک
             </button>
           </div>
 
-          {/* Scrollable Body */}
-          <div className="p-5 overflow-y-auto overflow-x-hidden custom-scrollbar bg-mono-50/50 dark:bg-mono-900 flex-1">
-            <AnimatePresence mode="wait">
-              {activeTab === 'ios' && (
-                <Motion.div
-                  key="ios"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6"
+          {/* Content Area */}
+          <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0 z-10">
+             {/* Inner White Box Highlight */}
+             <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+             
+             {/* Scrollable Body */}
+             <div className="p-4 sm:p-5 overflow-y-auto overflow-x-hidden custom-scrollbar flex-1 relative z-20">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'ios' && (
+                    <Motion.div
+                      key="ios"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-6"
+                    >
+                      <div className="bg-[#d0dbf0] border-2 border-[#a5bce6] text-[#2c4b8b] p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-bold shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]">
+                        تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا مۆبایلێ، پێدڤیە ئەپێ سەفاری (Safari) ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
+                      </div>
+
+                      <Step1Illustration />
+                      <Step2Illustration />
+                      <Step3Illustration />
+                      <Step4Illustration />
+
+                    </Motion.div>
+                  )}
+
+                  {activeTab === 'android' && (
+                    <Motion.div
+                      key="android"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-6"
+                    >
+                      <div className="bg-[#d0dbf0] border-2 border-[#a5bce6] text-[#2c4b8b] p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-bold shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]">
+                        تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا مۆبایلێ، پێدڤیە ئەپێ گۆگڵ کرۆمی ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
+                      </div>
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">١</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">ل سەر سێ خالان (⋮) ل سەرێ شاشەیێ ل لایێ ڕاستێ کلیک بکە.</p>
+                        </div>
+                        <AndroidStep1Illustration />
+                      </div>
+
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">٢</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">هەڵبژاردەیا (Install app) هەڵبژێرە.</p>
+                        </div>
+                        <AndroidStep2Illustration />
+                      </div>
+
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">٣</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">ئەگەر هەڵبژاردەیا (Install app) نەبیت، هەڵبژاردەیا (Add to Home screen) هەڵبژێرە.</p>
+                        </div>
+                        <AndroidStep3Illustration />
+                      </div>
+
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">٤</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">د پەنجەرەیا نوی دا ل سەر (Install) یان (Add) کلیک بکە.</p>
+                        </div>
+                        <AndroidStep4Illustration />
+                      </div>
+                    </Motion.div>
+                  )}
+
+                  {activeTab === 'windows' && (
+                    <Motion.div
+                      key="windows"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-6"
+                    >
+                      <div className="bg-[#d0dbf0] border-2 border-[#a5bce6] text-[#2c4b8b] p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-bold shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]">
+                        تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا ویندۆزێ (Windows)، پێدڤیە گۆگڵ کرۆم یان ئیدج (Edge) ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
+                      </div>
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">١</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">ل سەر ئایکۆنێ داگرتنێ ب ڕەخ ناڤونیشانێ سایتی ڤە کلیک بکە.</p>
+                        </div>
+                        <PcStep1Illustration />
+                      </div>
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">٢</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">د پەنجەرەیا نوی دا ل سەر (Install) کلیک بکە.</p>
+                        </div>
+                        <PcStep2Illustration />
+                      </div>
+                    </Motion.div>
+                  )}
+
+                  {activeTab === 'mac' && (
+                    <Motion.div
+                      key="mac"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-6"
+                    >
+                      <div className="bg-[#d0dbf0] border-2 border-[#a5bce6] text-[#2c4b8b] p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-bold shadow-[inset_0_2px_4px_rgba(255,255,255,0.7)]">
+                        تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا ماک (Mac)، پێدڤیە سەفاری (Safari) ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
+                      </div>
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">١</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">ل سەر ئایکۆنێ شەیر (Share) ب ڕەخ ناڤونیشانێ سایتی ڤە کلیک بکە، یان ژی ژ مێنیۆیا فایل (File) سەرێ شاشەیێ.</p>
+                        </div>
+                        <MacStep1Illustration />
+                      </div>
+                      <div className="flex flex-col gap-3 mb-6">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-blue-100 text-[#2c4b8b] flex items-center justify-center font-bold text-[12px] shrink-0">٢</div>
+                          <p className="text-[14px] font-bold text-[#3a404a]">پاشان هەڵبژاردەیا (Add to Dock) هەڵبژێرە.</p>
+                        </div>
+                        <MacStep2Illustration />
+                      </div>
+                    </Motion.div>
+                  )}
+                </AnimatePresence>
+             </div>
+             
+             {/* Footer Footer */}
+             <div className="p-4 shrink-0 flex flex-col gap-3 relative z-20">
+                <button
+                onClick={handleCompleteGuide}
+                disabled={isLoading || !isStandalone}
+                className={`relative w-full h-12 rounded-[12px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden ${isStandalone ? 'bg-[#24a85c]' : 'bg-[#727888] opacity-90 cursor-not-allowed'}`}
+                style={{
+                    boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                }}
                 >
-                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
-                    تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا مۆبایلێ، پێدڤیە ئەپێ سەفاری (Safari) ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
-                  </div>
-
-                  <Step1Illustration />
-                  <Step2Illustration />
-                  <Step3Illustration />
-                  <Step4Illustration />
-
-                </Motion.div>
-              )}
-
-              {activeTab === 'android' && (
-                <Motion.div
-                  key="android"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6"
+                <span 
+                    className="text-white text-[14.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar text-center px-2" 
+                    style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                 >
-                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
-                    تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا مۆبایلێ، پێدڤیە ئەپێ گۆگڵ کرۆمی ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
-                  </div>
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">١</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">ل سەر سێ خالان (⋮) ل سەرێ شاشەیێ ل لایێ ڕاستێ کلیک بکە.</p>
-                    </div>
-                    <AndroidStep1Illustration />
-                  </div>
-
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">٢</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">هەڵبژاردەیا (Install app) هەڵبژێرە.</p>
-                    </div>
-                    <AndroidStep2Illustration />
-                  </div>
-
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">٣</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">ئەگەر هەڵبژاردەیا (Install app) نەبیت، هەڵبژاردەیا (Add to Home screen) هەڵبژێرە.</p>
-                    </div>
-                    <AndroidStep3Illustration />
-                  </div>
-
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">٤</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">د پەنجەرەیا نوی دا ل سەر (Install) یان (Add) کلیک بکە.</p>
-                    </div>
-                    <AndroidStep4Illustration />
-                  </div>
-                </Motion.div>
-              )}
-
-              {activeTab === 'pc' && (
-                <Motion.div
-                  key="pc"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-6"
-                >
-                  <div className="bg-blue-50 border border-blue-300 text-blue-900 p-3 rounded-lg text-sm mb-4 text-right leading-relaxed font-medium shadow-sm">
-                    تێبینی: بۆ زێدەکرنا یاریێ وەکو ئەپ ل سەر شاشەیا کۆمپیوتەری، پێدڤیە گۆگڵ کرۆم ڤەکەی. پاشان ل ناڤ گۆگڵی بنڤیسە (پەیڤۆک) و لێبگەڕە. یان ژی ب ڕێکا لینکێ یاریێ (peyvokgame.com) لێبگەڕە.
-                  </div>
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">١</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">ل سەر ئایکۆنێ داگرتنێ ب ڕەخ ناڤونیشانێ سایتی ڤە کلیک بکە.</p>
-                    </div>
-                    <PcStep1Illustration />
-                  </div>
-                  <div className="flex flex-col gap-3 mb-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-[12px] shrink-0">٢</div>
-                      <p className="text-[14px] font-bold text-mono-800 dark:text-mono-200">د پەنجەرەیا نوی دا ل سەر (Install) کلیک بکە.</p>
-                    </div>
-                    <PcStep2Illustration />
-                  </div>
-                </Motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Footer Footer */}
-          <div className="p-4 border-t border-mono-100 dark:border-mono-800 bg-white dark:bg-mono-900 shrink-0 flex flex-col gap-3">
-            <button
-              onClick={handleCompleteGuide}
-              disabled={isLoading}
-              className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold font-rabar text-[15px] transition-colors flex items-center justify-center disabled:opacity-50 shadow-sm"
-            >
-              {isLoading ? 'دبارکرن...' : 'تێگەهشتم'}
-            </button>
-
+                    {isLoading ? 'دبارکرن...' : (isStandalone ? 'دەستپێکرنا یاریێ' : 'پێدڤییە یاریێ دابگری دا کو بەردەوام بی')}
+                </span>
+                </button>
+             </div>
           </div>
         </Motion.div>
       </div>
