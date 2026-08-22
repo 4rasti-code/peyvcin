@@ -2569,7 +2569,7 @@ export default function SocialHubView({
 
                 {globalViewers.length > 0 && (
                   <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1">
-                    <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-2">ل سەرخەت:</span>
+                    <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-2">سەرهێل:</span>
                     <div className="flex flex-row-reverse -space-x-1.5 space-x-reverse">
                       {globalViewers.slice(0, 5).map((v, i) => (
                         <div key={v.id || i} className="w-5 h-5 rounded-full overflow-hidden border border-[#16212b] shadow-sm relative z-10" style={{ zIndex: 5 - i }} title={v.nickname}>
