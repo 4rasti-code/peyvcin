@@ -333,18 +333,30 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        setSaveError(null);
                                        setIsEditNicknameModalOpen(false);
                                     }}
-                                    className="flex-1 h-11 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] bg-[#a0a7b4] hover:bg-[#8d94a1] overflow-hidden relative shadow-[0_2px_0_#121316]"
+                                    className="flex-1 h-11 rounded-[10px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] bg-[#a0a7b4] hover:bg-[#8d94a1] overflow-hidden relative"
+                                    style={{
+                                       boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                    }}
                                  >
-                                    <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar drop-shadow-md text-shadow-sm">
+                                    <span 
+                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                    >
                                        هەلوەشاندن
                                     </span>
                                  </button>
                                  <button
                                     onClick={handleSave}
                                     disabled={draftNickname.length < 8 || draftNickname.length > 15 || draftNickname === userNickname}
-                                    className="flex-1 h-11 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden relative bg-[#24a85c] disabled:opacity-60 disabled:bg-[#727888] shadow-[0_2px_0_#121316]"
+                                    className="flex-1 h-11 rounded-[10px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden relative bg-[#24a85c] disabled:opacity-60 disabled:bg-[#727888]"
+                                    style={{
+                                       boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                                    }}
                                  >
-                                    <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar drop-shadow-md text-shadow-sm">
+                                    <span 
+                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
+                                    >
                                        پاراستن
                                     </span>
                                  </button>
