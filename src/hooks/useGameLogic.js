@@ -157,7 +157,7 @@ export default function useGameLogic({
     if (!target || isSubmittingRef.current || isGameStateLockedRef.current) return null;
 
     const currentGuesses = guessesRef.current;
-    
+
     // 1. Logic: Reveal only letters that have NOT been correctly guessed (Green) OR seen as Yellow yet.
     const knownCharacters = new Set();
     const knownGreenIndices = new Set();

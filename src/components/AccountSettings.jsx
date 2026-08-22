@@ -87,10 +87,10 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
       try {
          setIsUploading(true);
          const blob = await getCroppedImg(imageToCrop, croppedAreaPixels);
-         
+
          const fileExt = 'jpg';
          const fileName = `${user?.id || 'guest'}-${Date.now()}.${fileExt}`;
-         
+
          const { error: uploadError } = await supabase.storage
             .from('avatars')
             .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
@@ -102,7 +102,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
             .getPublicUrl(fileName);
 
          await updateProfile({ avatar_url: publicUrl });
-         
+
          setIsCropModalOpen(false);
          triggerHaptic([20, 10, 20]);
       } catch (err) {
@@ -160,7 +160,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
       <div className="space-y-4">
          {/* 4. ACCOUNT SETTINGS SECTION */}
          <div className="w-full flex flex-col items-center justify-center gap-4 mt-2">
-            
+
             {/* AVATAR SECTION */}
             <div className="relative">
                <div className="relative p-1 bg-[#e3eef2] dark:bg-white/10 rounded-full border-[1.5px] border-[#181a20] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),0_4px_6px_rgba(0,0,0,0.2)]">
@@ -179,41 +179,41 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
 
             <div className="flex flex-row items-center justify-center gap-3 w-full relative">
 
-            <button
-               onClick={() => {
-                  triggerHaptic(10);
-                  if (user?.is_anonymous) {
-                     setIsUpgradeModalOpen(true);
-                     return;
-                  }
-                  if (isHardLocked) {
-                     setShowLockToast(true);
-                     setTimeout(() => setShowLockToast(false), 3000);
-                     return;
-                  }
-                  setIsEditNicknameModalOpen(true);
-               }}
-               className={`relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden ${isHardLocked
+               <button
+                  onClick={() => {
+                     triggerHaptic(10);
+                     if (user?.is_anonymous) {
+                        setIsUpgradeModalOpen(true);
+                        return;
+                     }
+                     if (isHardLocked) {
+                        setShowLockToast(true);
+                        setTimeout(() => setShowLockToast(false), 3000);
+                        return;
+                     }
+                     setIsEditNicknameModalOpen(true);
+                  }}
+                  className={`relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden ${isHardLocked
                      ? 'bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] opacity-60 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white cursor-not-allowed'
                      : 'bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer'
-                  }`}
-            >
-               {/* Glass Reflection Highlight */}
-               <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
-               <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>ناڤێ خوە بگوهۆڕە</span>
-            </button>
+                     }`}
+               >
+                  {/* Glass Reflection Highlight */}
+                  <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                  <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>ناڤێ خوە بگوهۆڕە</span>
+               </button>
 
-            <button
-               onClick={() => {
-                  triggerHaptic(10);
-                  setIsEditCountryModalOpen(true);
-               }}
-               className="relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
-            >
-               {/* Glass Reflection Highlight */}
-               <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
-               <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>وەلاتێ خوە بگوهۆڕە</span>
-            </button>
+               <button
+                  onClick={() => {
+                     triggerHaptic(10);
+                     setIsEditCountryModalOpen(true);
+                  }}
+                  className="relative flex-1 h-7 rounded-[8px] font-black font-rabar text-[12px] transition-all flex items-center justify-center gap-2 shrink-0 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-2px_0_#115ab5] text-white active:scale-95 cursor-pointer"
+               >
+                  {/* Glass Reflection Highlight */}
+                  <div className="absolute top-0.5 inset-x-0.5 bottom-1.5 pointer-events-none rounded-sm bg-white/20"></div>
+                  <span className="relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 2px 2px rgba(0,0,0,0.8)' }}>وەلاتێ خوە بگوهۆڕە</span>
+               </button>
             </div>
             <AnimatePresence>
                {showLockToast && (
@@ -245,11 +245,11 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                         dir="rtl"
                      >
                         {/* Inner 3D Highlight Layer (Tapered Top) */}
-                        <div 
+                        <div
                            className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
                            style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
                         ></div>
-                        
+
                         {/* Inner 3D Shadow Layer (Bottom & Sides) */}
                         <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
@@ -258,9 +258,9 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
 
                         {/* Header */}
                         <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-5 shrink-0">
-                           <h2 
-                              className="text-[22px] font-black text-white leading-none relative z-10 -translate-y-1 flex items-center gap-2" 
-                              style={{ 
+                           <h2
+                              className="text-[22px] font-black text-white leading-none relative z-10 -translate-y-1 flex items-center gap-2"
+                              style={{
                                  textShadow: `
                                     -2px -2px 0 #1a1c23, 2px -2px 0 #1a1c23,
                                     -2px  2px 0 #1a1c23, 2px  2px 0 #1a1c23,
@@ -295,7 +295,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                            <div className="flex flex-col relative rounded-[10px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden p-4 shrink-0 z-10 gap-3">
                               {/* Inner White Box 3D Highlight */}
                               <div className="absolute inset-0 rounded-[10px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
-                              
+
                               <div className="relative z-20 w-full flex flex-col gap-2">
                                  <label className="text-[13px] font-black text-[#181a20] block text-right px-1">ناسناڤی بنڤیسە</label>
                                  <div className="relative w-full">
@@ -325,7 +325,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     )}
                                  </AnimatePresence>
                               </div>
-                              
+
                               <div className="flex items-center gap-3 mt-2 relative z-20">
                                  <button
                                     onClick={() => {
@@ -338,7 +338,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                     }}
                                  >
-                                    <span 
+                                    <span
                                        className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
@@ -353,7 +353,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                     }}
                                  >
-                                    <span 
+                                    <span
                                        className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
@@ -385,11 +385,11 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                         dir="rtl"
                      >
                         {/* Inner 3D Highlight Layer (Tapered Top) */}
-                        <div 
+                        <div
                            className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
                            style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
                         ></div>
-                        
+
                         {/* Inner 3D Shadow Layer (Bottom & Sides) */}
                         <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
@@ -398,15 +398,15 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
 
                         {/* Header Area */}
                         <div className="w-full relative flex items-center justify-center pt-4 pb-4 shrink-0">
-                           <h2 
-                              className="text-[20px] font-black text-white leading-none relative z-10" 
-                              style={{ 
+                           <h2
+                              className="text-[20px] font-black text-white leading-none relative z-10"
+                              style={{
                                  textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
                               }}
                            >
                               گوهۆڕینا وەڵاتی
                            </h2>
-                           
+
                            <button
                               onClick={() => {
                                  triggerHaptic(10);
@@ -426,17 +426,17 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                               </svg>
                            </button>
                         </div>
-                        
+
                         {/* Content Area */}
                         <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[8px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
                            {/* Inner White Box Highlight */}
                            <div className="absolute inset-0 rounded-[8px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
-                           
+
                            <div className="relative z-20 flex flex-col p-4">
                               <label className="text-[14px] font-black text-[#3a404a] block text-right px-1 mb-2">وەڵاتێ خوە هەلبژێرە</label>
                               <div className="p-1.5 max-h-55 overflow-y-auto custom-scrollbar bg-white/50 border-[1.5px] border-[#c0c5cc] rounded-md shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]">
-                                 <button 
-                                    onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); }} 
+                                 <button
+                                    onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(true); }}
                                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm w-full transition-colors flex-row-reverse border-[1.5px] ${draftIsInKurdistan ? 'bg-[#3b82f6]/10 border-[#3b82f6] shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'border-transparent hover:bg-black/5'}`}
                                  >
                                     <FlagBadge isInKurdistan={true} size="xs" />
@@ -448,9 +448,9 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     )}
                                  </button>
                                  {COUNTRIES.map((country) => (
-                                    <button 
-                                       key={country.code} 
-                                       onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); }} 
+                                    <button
+                                       key={country.code}
+                                       onClick={() => { triggerHaptic(10); setDraftIsInKurdistan(false); setDraftCountryCode(country.code); }}
                                        className={`flex items-center gap-2.5 px-3 py-2.5 rounded-sm w-full transition-colors flex-row-reverse border-[1.5px] ${(!draftIsInKurdistan && draftCountryCode === country.code) ? 'bg-[#3b82f6]/10 border-[#3b82f6] shadow-[inset_0_1px_2px_rgba(255,255,255,0.5)]' : 'border-transparent hover:bg-black/5'}`}
                                     >
                                        <FlagBadge countryCode={country.code} size="xs" />
@@ -463,7 +463,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     </button>
                                  ))}
                               </div>
-                              
+
                               {/* Buttons */}
                               <div className="flex items-center gap-3 mt-4">
                                  <button
@@ -479,8 +479,8 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                     }}
                                  >
-                                    <span 
-                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    <span
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        هەلوەشاندن
@@ -495,8 +495,8 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                     }}
                                  >
-                                    <span 
-                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    <span
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        پاراستن
@@ -521,11 +521,11 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                      onClick={e => e.stopPropagation()}
                   >
                      {/* Inner 3D Highlight Layer */}
-                     <div 
+                     <div
                         className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
                         style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
                      ></div>
-                     
+
                      {/* Inner 3D Shadow Layer */}
                      <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
@@ -534,9 +534,9 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
 
                      {/* Header */}
                      <div className="w-full relative flex items-center justify-center pt-3 pb-4 shrink-0">
-                        <h2 
-                           className="text-[20px] font-black text-white leading-none relative z-10" 
-                           style={{ 
+                        <h2
+                           className="text-[20px] font-black text-white leading-none relative z-10"
+                           style={{
                               textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
                            }}
                         >
@@ -563,7 +563,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                      <div className="flex-1 self-stretch flex flex-col relative mx-2.5 sm:mx-3 mb-4 rounded-[12px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
                         {/* Inner White Box 3D Highlight */}
                         <div className="absolute inset-0 rounded-[12px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
-                        
+
                         <div className="flex flex-col z-0 relative">
                            {/* Cropper takes full width of the white box */}
                            <div ref={cropperContainerRef} className="relative w-full aspect-square bg-[#121316] overflow-hidden cursor-move touch-none border-b-[2.5px] border-black/10">
@@ -593,9 +593,9 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                               <div className="flex items-center gap-3">
                                  <span className="text-[14px] font-black font-rabar text-[#3a404a] min-w-max">نێزیکرن:</span>
                                  <div className="relative flex-1 flex items-center h-12">
-                                    <CrSlider 
-                                       value={((zoom - 1) / 2) * 100} 
-                                       onChange={(percentage) => setZoom(1 + (percentage / 100) * 2)} 
+                                    <CrSlider
+                                       value={((zoom - 1) / 2) * 100}
+                                       onChange={(percentage) => setZoom(1 + (percentage / 100) * 2)}
                                     />
                                  </div>
                                  <span className="px-2 py-0.5 rounded-md bg-white text-[#40ea00] text-[13px] font-black tabular-nums border-[1.5px] border-[#c0c6cc] shadow-sm min-w-10 text-center" dir="ltr">

@@ -1994,6 +1994,7 @@ export default function App() {
                     initialTab={initialSocialTab}
                     onViewMessages={handleViewMessages}
                     onViewFriends={handleViewFriends}
+                    onOpenHowToPlay={handleOpenHowToPlay}
                     onKeyboardToggle={(isOpen) => {
                       setIsKeyboardOpen(isOpen);
                     }}

@@ -892,6 +892,201 @@ html.dark #root {
       0 1px 0 1px #15803d,
       0 2px 0 1px #15803d,
       0 0 0 1.5px #000,
+0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-sand {
+    background-color: #dcb77b;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #b48d4c,
+      0 1px 0 2px #b48d4c,
+      0 2px 0 2px #b48d4c,
+      0 3px 0 2px #b48d4c,
+      0 4px 0 2px #b48d4c,
+      0 5px 0 2px #b48d4c,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-navy {
+    background-color: #1e3a8a;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #172554,
+      0 1px 0 2px #172554,
+      0 2px 0 2px #172554,
+      0 3px 0 2px #172554,
+      0 4px 0 2px #172554,
+      0 5px 0 2px #172554,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-pink {
+    background-color: #be185d;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #831843,
+      0 1px 0 2px #831843,
+      0 2px 0 2px #831843,
+      0 3px 0 2px #831843,
+      0 4px 0 2px #831843,
+      0 5px 0 2px #831843,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-indigo {
+    background-color: #312e81;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #1e1b4b,
+      0 1px 0 2px #1e1b4b,
+      0 2px 0 2px #1e1b4b,
+      0 3px 0 2px #1e1b4b,
+      0 4px 0 2px #1e1b4b,
+      0 5px 0 2px #1e1b4b,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-slate {
+    background-color: #334155;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.25),
+      0 0 0 2px #0f172a,
+      0 1px 0 2px #0f172a,
+      0 2px 0 2px #0f172a,
+      0 3px 0 2px #0f172a,
+      0 4px 0 2px #0f172a,
+      0 5px 0 2px #0f172a,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  .btn-clash-blue {
+    background-color: #3b82f6;
+    box-shadow: 
+      inset 0 4px 0px rgba(255, 255, 255, 0.45),
+      0 0 0 2px #1d4ed8,
+      0 1px 0 2px #1d4ed8,
+      0 2px 0 2px #1d4ed8,
+      0 3px 0 2px #1d4ed8,
+      0 4px 0 2px #1d4ed8,
+      0 5px 0 2px #1d4ed8,
+      0 0 0 3px #000,
+      0 1px 0 3px #000,
+      0 2px 0 3px #000,
+      0 3px 0 3px #000,
+      0 4px 0 3px #000,
+      0 5px 0 3px #000;
+  }
+
+  /* Miniature Clash Buttons */
+  .btn-clash-sm {
+    border-radius: 0.5rem; /* rounded rectangle instead of pill */
+    position: relative;
+    transition: transform 0.1s ease-out;
+  }
+  
+  .btn-clash-sm::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    width: 6px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: rotate(20deg);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  /* Small Text Stroke for Icons/Pills */
+  .text-stroke-clash-sm {
+    text-shadow: 
+      -1px -1px 0 #000,
+       1px -1px 0 #000,
+      -1px  1px 0 #000,
+       1px  1px 0 #000,
+       0    2px 0 #000;
+  }
+
+  .btn-clash-sm-cyan {
+    background-color: #0ea5e9;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #0369a1,
+      0 1px 0 1px #0369a1,
+      0 2px 0 1px #0369a1,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-orange {
+    background-color: #f59e0b;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #b45309,
+      0 1px 0 1px #b45309,
+      0 2px 0 1px #b45309,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-purple {
+    background-color: #a855f7;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #7e22ce,
+      0 1px 0 1px #7e22ce,
+      0 2px 0 1px #7e22ce,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-green {
+    background-color: #22c55e;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #15803d,
+      0 1px 0 1px #15803d,
+      0 2px 0 1px #15803d,
+      0 0 0 1.5px #000,
       0 1px 0 1.5px #000,
       0 2px 0 1.5px #000;
   }
@@ -904,6 +1099,32 @@ html.dark #root {
       0 0 0 1px #b91c1c,
       0 1px 0 1px #b91c1c,
       0 2px 0 1px #b91c1c,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-yellow {
+    background-color: #eab308;
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #ca8a04,
+      0 1px 0 1px #ca8a04,
+      0 2px 0 1px #ca8a04,
+      0 0 0 1.5px #000,
+      0 1px 0 1.5px #000,
+      0 2px 0 1.5px #000;
+  }
+
+  .btn-clash-sm-multiplayer {
+    background: linear-gradient(90deg, #3b82f6 50%, #ef4444 50%);
+    box-shadow: 
+      inset 0 2px 0px rgba(255, 255, 255, 0.45),
+      inset 0 -2px 0px rgba(0, 0, 0, 0.15),
+      0 0 0 1px #7c3aed,
+      0 1px 0 1px #7c3aed,
+      0 2px 0 1px #7c3aed,
       0 0 0 1.5px #000,
       0 1px 0 1.5px #000,
       0 2px 0 1.5px #000;

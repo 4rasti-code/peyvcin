@@ -86,7 +86,7 @@ const GameResultRenderer = forwardRef(({ text }, ref) => {
                 const hasAbsent = block.includes('⬛') || block.includes('⬜');
 
                 const letter = block.replace(/[🟩🟨⬛⬜]/gu, '').trim();
-                const isEmpty = letter === '';
+                const isEmpty = letter === '' || letter === '_';
 
                 let bgColor = "bg-transparent border-white/20";
                 let textColor = "text-white/80";
@@ -102,11 +102,14 @@ const GameResultRenderer = forwardRef(({ text }, ref) => {
                   textColor = "text-white drop-shadow-sm";
                 } else if (isEmpty) {
                   bgColor = "bg-transparent border-white/30";
+                } else {
+                  bgColor = "bg-white border-[#cbd5e1] border-b-[#94a3b8]";
+                  textColor = "text-[#181a20]";
                 }
 
                 return (
                   <div key={cIdx} className={`w-5.5 h-5.5 rounded-sm flex items-center justify-center font-black text-[11px] ${bgColor} ${textColor} ${isEmpty || hasAbsent ? 'border border-b-2' : 'border border-b-2'} uppercase leading-none`}>
-                    {letter}
+                    {letter === '_' ? '' : letter}
                   </div>
                 );
               })}

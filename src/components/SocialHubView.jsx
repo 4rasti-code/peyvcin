@@ -55,6 +55,10 @@ const renderPreviewText = (text) => {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-amber-500">campaign</span> تایبەتمەندییا نوی</span>;
   }
 
+  if (text.includes('[TUTORIAL_SHARE]')) {
+    return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] text-[#3b82f6]">menu_book</span> فێرکاریا یاریێ</span>;
+  }
+
   if (text.match(/^https?:\/\//)) {
     return <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[13px] opacity-70">gif</span> گیف</span>;
   }
@@ -610,7 +614,7 @@ const AnimatedEmojiRenderer = memo(({ text }) => {
   );
 });
 
-const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [], onImageClick }) {
+const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, onReactionLongPress, currentUserId, currentUserNickname, showNickname = false, reactionUsers = {}, onProfileClick, topDailyPlayers = [], onImageClick, onOpenHowToPlay, isLastReadByPartner, partnerInfo }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true
@@ -625,10 +629,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
   const isOnlySticker = /^\s*\[STICKER:.*?\]\s*$/.test(msgContent);
   const isMatchResult = msgContent.startsWith('[BATTLE_RESULT]') || ((msgContent.includes('🟩') || msgContent.includes('🟨') || msgContent.includes('⬛') || msgContent.includes('⬜')) && /پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(msgContent));
   const isMedalShare = /^\s*\[MEDAL_SHARE:.*?\]\s*$/.test(msgContent);
+  const isTutorialShare = /^\s*\[TUTORIAL_SHARE(?:|:[^\]]+)\]\s*$/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|\[VOICE_FEATURE_CARD\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|\[VOICE_FEATURE_CARD\]|\[TUTORIAL_SHARE(?:|:[^\]]+)\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -704,6 +709,101 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                 <p className="text-[10.5px] font-bold text-mono-600 dark:text-mono-300 leading-relaxed whitespace-normal wrap-break-word">
                   نۆکە تو دشێی ب ڕێیا دەنگی دگەل هەڤرکێ خوە د ناڤ یارییا هەڤڕکیێ دا باخڤی!
                 </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      if (part.startsWith('[TUTORIAL_SHARE')) {
+        const tabMatch = part.match(/^\[TUTORIAL_SHARE:?(.*)\]$/);
+        const tabId = tabMatch && tabMatch[1] ? tabMatch[1] : 'classic';
+
+        const tutorialStyles = {
+          classic: {
+            title: 'کلاسیک',
+            modeName: 'پەیڤۆک کلاسیک',
+            buttonColor: 'from-[#eab308] to-[#ca8a04]',
+            buttonShadow: 'shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#854d0e,0_4px_6px_rgba(0,0,0,0.2)]',
+            buttonActive: 'group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#854d0e,0_2px_4px_rgba(0,0,0,0.2)]',
+          },
+          multiplayer: {
+            title: 'ھەڤڕکی',
+            modeName: 'ھەڤڕکی',
+            buttonColor: 'from-[#ef4444] to-[#3b82f6]',
+            buttonShadow: 'shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#1e3a8a,0_4px_6px_rgba(0,0,0,0.2)]',
+            buttonActive: 'group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#1e3a8a,0_2px_4px_rgba(0,0,0,0.2)]',
+          },
+          mamak: {
+            title: 'مامک',
+            modeName: 'مامک',
+            buttonColor: 'from-[#22c55e] to-[#16a34a]',
+            buttonShadow: 'shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#15803d,0_4px_6px_rgba(0,0,0,0.2)]',
+            buttonActive: 'group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#15803d,0_2px_4px_rgba(0,0,0,0.2)]',
+          },
+          word_fever: {
+            title: 'تایا پەیڤان',
+            modeName: 'تایا پەیڤان',
+            buttonColor: 'from-[#06b6d4] to-[#0891b2]',
+            buttonShadow: 'shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#0e7490,0_4px_6px_rgba(0,0,0,0.2)]',
+            buttonActive: 'group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#0e7490,0_2px_4px_rgba(0,0,0,0.2)]',
+          },
+          hard_words: {
+            title: 'پەیڤێن دژوار',
+            modeName: 'پەیڤێن دژوار',
+            buttonColor: 'from-[#ef4444] to-[#dc2626]',
+            buttonShadow: 'shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#b91c1c,0_4px_6px_rgba(0,0,0,0.2)]',
+            buttonActive: 'group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#b91c1c,0_2px_4px_rgba(0,0,0,0.2)]',
+          }
+        };
+
+        const currentStyle = tutorialStyles[tabId] || tutorialStyles['classic'];
+
+        return (
+          <div key={i} className="my-1 w-48 xs:w-[200px] sm:w-52 flex flex-col bg-[#636a7c] rounded-[14px] shadow-[inset_0_-6px_0_rgba(0,0,0,0.4),0_10px_20px_rgba(0,0,0,0.4)] relative font-rabar border-2 border-[#121316] overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group" dir="rtl" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); if (onOpenHowToPlay) onOpenHowToPlay(tabId); }}>
+            {/* Inner 3D Highlight Layer */}
+            <div
+              className="absolute inset-0 rounded-[12px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+              style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+            ></div>
+
+            {/* Inner 3D Shadow Layer */}
+            <div className="absolute inset-0 rounded-[12px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+            {/* Glassy Header Highlight */}
+            <div className="absolute top-1 inset-x-1 h-5 bg-[#727888] pointer-events-none z-0 rounded-t-md"></div>
+
+            {/* Header */}
+            <div className="w-full relative z-10 flex flex-col items-center justify-center pt-2 pb-1.5 shrink-0">
+              <h2
+                className="text-[12px] font-black text-white leading-none relative z-10 flex items-center gap-1.5"
+                style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+              >
+                فێرکاری: {currentStyle.title}
+              </h2>
+              <div className="absolute top-0 inset-x-0 h-px bg-white/10" />
+              <div className="absolute bottom-0 inset-x-0 h-px bg-black/40" />
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col mx-1.5 mb-1.5 relative z-0">
+              <div className="flex flex-col relative rounded-[8px] bg-[#e6ebf0] shadow-[0_2px_4px_rgba(0,0,0,0.2)] overflow-hidden p-2 shrink-0 z-10">
+                {/* Inner White Box 3D Highlight */}
+                <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
+                
+                <div className="relative z-20 flex flex-col items-center text-center">
+                  <p className="text-[10px] font-bold text-[#181a20] mb-1.5 mt-0 leading-tight">
+                    ڕێسایێن مۆدێ {currentStyle.modeName} بزانە.
+                  </p>
+                  
+                  {/* Understood/Open Button */}
+                  <div className={`relative shrink-0 w-full h-7 rounded-md font-black font-rabar text-[10px] transition-all flex items-center justify-center gap-1.5 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b ${currentStyle.buttonColor} ${currentStyle.buttonShadow} text-white ${currentStyle.buttonActive} group-active:translate-y-0.75`}>
+                    <div className="absolute top-0.5 inset-x-0.5 bottom-1 pointer-events-none rounded-sm bg-white/20"></div>
+                    <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1px 0 #181a20' }}>
+                      ڤەکە
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -881,7 +981,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               if (rect) onLongPress(m, rect);
             }}
             style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
-            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare))
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare || isTutorialShare))
               ? `bg-transparent shadow-none border-none p-0 ${(isOnlyEmoji || isOnlySticker) ? 'text-[54px] leading-none drop-shadow-sm' : ''}`
               : `px-3.5 pt-3.5 pb-1 rounded-[20px] text-[13.5px] font-rabar font-bold wrap-break-word whitespace-pre-wrap border border-black/10 shadow-[0_4px_0_#b4becd] ${isMe
                 ? 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-right-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-t before:border-r before:border-black/10 before:rotate-45'
@@ -939,6 +1039,23 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             </div>
           </div>
 
+          {/* Seen By Partner Avatar */}
+          {isLastReadByPartner && partnerInfo && isMe && (
+            <div className={`mt-0.5 flex justify-end mr-2`}>
+              <div className="w-4 h-4 rounded-full overflow-hidden border border-black/10 shadow-sm opacity-90 transition-all" title="هاتە دیتن">
+                {partnerInfo.avatar_url && partnerInfo.avatar_url !== 'default' ? (
+                  <img src={partnerInfo.avatar_url} alt="Seen" className="w-full h-full object-cover" />
+                ) : partnerInfo.id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
+                  <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-white flex items-center justify-center text-[8px] font-black text-[#e65c00] uppercase">
+                    {(partnerInfo.nickname || 'ی')[0]}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Reactions Display */}
           {m.reactions && Object.keys(m.reactions).length > 0 && !isDeleted && (
             <div className={`flex flex-wrap gap-2 ${isMedalShare ? '-mt-1 relative z-30' : isMatchResult ? '-mt-3 relative z-30' : 'mt-1'} ${isMe ? 'justify-end' : 'justify-start'}`} onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
@@ -991,7 +1108,8 @@ export default function SocialHubView({
   onViewMessages: _onViewMessages,
   onViewFriends: _onViewFriends,
   onKeyboardToggle,
-  isVisible = true
+  isVisible = true,
+  onOpenHowToPlay
 }) {
   const {
     user,
@@ -1030,6 +1148,8 @@ export default function SocialHubView({
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const [topDailyPlayers, setTopDailyPlayers] = useState([]);
+  const [globalViewers, setGlobalViewers] = useState([]);
+  const globalPresenceChannelRef = useRef(null);
   const [marqueeAnnouncements, setMarqueeAnnouncements] = useState([]);
   const typingTimeoutRef = useRef(null);
   const typingChannelRef = useRef(null);
@@ -1126,6 +1246,54 @@ export default function SocialHubView({
 
     return () => clearTimeout(gifSearchTimeoutRef.current);
   }, [showGifPicker, gifSearchQuery, gifTab]);
+
+  // Global Chat Presence
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase.channel('global_chat_presence', {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const viewers = [];
+      for (const key in state) {
+        if (key !== user.id && state[key].length > 0) {
+          viewers.push(state[key][0]);
+        }
+      }
+      setGlobalViewers(viewers);
+    });
+
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        globalPresenceChannelRef.current = channel;
+        if (activeTab === 'global' && isVisible) {
+          await channel.track({ id: user.id, nickname: userNickname, avatar_url: userAvatar });
+        }
+      }
+    });
+
+    return () => {
+      channel.unsubscribe();
+      globalPresenceChannelRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  useEffect(() => {
+    const channel = globalPresenceChannelRef.current;
+    if (!channel || !user?.id) return;
+    if (activeTab === 'global' && isVisible) {
+      channel.track({ id: user.id, nickname: userNickname, avatar_url: userAvatar });
+    } else {
+      channel.untrack();
+    }
+  }, [activeTab, isVisible, user?.id, userNickname, userAvatar]);
 
   // Real-time Top 3 Daily Players for Badges & Marquee Announcer
   useEffect(() => {
@@ -2394,9 +2562,34 @@ export default function SocialHubView({
                       onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: false })}
                       onProfileClick={setSelectedPlayer}
                       onImageClick={setFullscreenImage}
+                      onOpenHowToPlay={onOpenHowToPlay}
                     />
                   ))}
                 </AnimatePresence>
+
+                {globalViewers.length > 0 && (
+                  <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1">
+                    <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-2">ل سەرخەت:</span>
+                    <div className="flex flex-row-reverse -space-x-1.5 space-x-reverse">
+                      {globalViewers.slice(0, 5).map((v, i) => (
+                        <div key={v.id || i} className="w-5 h-5 rounded-full overflow-hidden border border-[#16212b] shadow-sm relative z-10" style={{ zIndex: 5 - i }} title={v.nickname}>
+                          {v.avatar_url && v.avatar_url !== 'default' ? (
+                            <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full bg-mono-200 dark:bg-mono-700 flex items-center justify-center text-[9px] font-black text-primary uppercase">
+                              {(v.nickname || 'ی')[0]}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {globalViewers.length > 5 && (
+                        <div className="w-5 h-5 rounded-full bg-mono-800 border border-[#16212b] flex items-center justify-center text-[8px] font-bold text-white relative z-0">
+                          +{globalViewers.length - 5}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2484,31 +2677,38 @@ export default function SocialHubView({
                         </div>
                       </div>
 
-                      {chatMessages.map((m, idx) => (
-                        <MessageItem
-                          key={m.id || idx}
-                          m={m}
-                          isMe={selectedChat?.isBotChat ? m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' : m.user_id === user?.id}
-                          currentUserId={selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id}
-                          currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
-                          reactionUsers={reactionUsers}
-                          topDailyPlayers={topDailyPlayers}
-                          onSeen={async (id) => {
-                            const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
-                            if (m.user_id !== myId && !m.is_read) {
-                              await supabase
-                                .from('messages')
-                                .update({ is_read: true })
-                                .eq('id', id);
-                            }
-                          }}
-                          onLongPress={(msg, rect) => setActiveContextMenu({ message: msg, rect, isPrivate: true })}
-                          onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
-                          onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
-                          onProfileClick={setSelectedPlayer}
-                          onImageClick={setFullscreenImage}
-                        />
-                      ))}
+                      {(() => {
+                        const myId = selectedChat?.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : user?.id;
+                        const lastReadMsgId = chatMessages.slice().reverse().find(msg => msg.user_id === myId && msg.is_read)?.id;
+
+                        return chatMessages.map((m, idx) => (
+                          <MessageItem
+                            key={m.id || idx}
+                            m={m}
+                            isMe={m.user_id === myId}
+                            currentUserId={myId}
+                            currentUserNickname={selectedChat?.isBotChat ? 'پەیڤۆک' : userNickname}
+                            reactionUsers={reactionUsers}
+                            topDailyPlayers={topDailyPlayers}
+                            onOpenHowToPlay={onOpenHowToPlay}
+                            isLastReadByPartner={m.id === lastReadMsgId}
+                            partnerInfo={selectedChat}
+                            onSeen={async (id) => {
+                              if (m.user_id !== myId && !m.is_read) {
+                                await supabase
+                                  .from('messages')
+                                  .update({ is_read: true })
+                                  .eq('id', id);
+                              }
+                            }}
+                            onLongPress={(msg, rect) => setActiveContextMenu({ message: msg, rect, isPrivate: true })}
+                            onReact={(msgId, emoji) => handleReact(msgId, emoji, true)}
+                            onReactionLongPress={(msg, emoji, x, y) => setActiveReactionModal({ message: msg, activeTab: emoji, x, y, isPrivate: true })}
+                            onProfileClick={setSelectedPlayer}
+                            onImageClick={setFullscreenImage}
+                          />
+                        ));
+                      })()}
 
                       {partnerIsTyping && (
                         <Motion.div
