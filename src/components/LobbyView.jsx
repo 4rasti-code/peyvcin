@@ -1399,7 +1399,10 @@ const LobbyView = memo(({
       </AnimatePresence>
 
       {/* Onboarding Tour */}
-      {profileData && profileData.has_completed_install_guide === false && !tourCompleted && (
+      {profileData && 
+       profileData.has_completed_install_guide === false && 
+       !tourCompleted && 
+       (!(!profileData.latitude || !profileData.longitude) || localStorage.getItem('has_seen_location_prompt')) && (
         <OnboardingOverlay
           steps={[
             {
