@@ -567,7 +567,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                     className="text-white text-[14.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar text-center px-2" 
                     style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                 >
-                    {isLoading ? 'دبارکرن...' : (isStandalone ? 'دەستپێکرنا یاریێ' : 'تێگەهشتم، بەردەوام بە')}
+                    {isLoading ? 'چاڤەڕێ بە...' : (isStandalone ? 'دەستپێکرنا یاریێ' : 'تێگەهشتم، بەردەوام بە')}
                 </span>
                 </button>
              </div>
