@@ -32,6 +32,11 @@ const Avatar = memo(({
   // Asset vs. Storage Logic: ONLY apply versioning if it's a remote URL
   let displaySrc = avatarData?.img || (isRemote || isLocalRelative ? src : null);
 
+  // Fix for custom domain blocking in Kurdistan
+  if (typeof displaySrc === 'string' && displaySrc.includes('auth.peyvokgame.com')) {
+    displaySrc = displaySrc.replace('https://auth.peyvokgame.com', import.meta.env.VITE_SUPABASE_URL);
+  }
+
   if (isRemote && updatedAt) {
     try {
       const timestamp = new Date(updatedAt).getTime();
