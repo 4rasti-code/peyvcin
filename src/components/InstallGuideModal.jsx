@@ -557,8 +557,8 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
              <div className="p-4 shrink-0 flex flex-col gap-3 relative z-20">
                 <button
                 onClick={handleCompleteGuide}
-                disabled={isLoading || !isStandalone}
-                className={`relative w-full h-12 rounded-[12px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden ${isStandalone ? 'bg-[#24a85c]' : 'bg-[#727888] opacity-90 cursor-not-allowed'}`}
+                disabled={isLoading}
+                className={`relative w-full h-12 rounded-[12px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#24a85c]`}
                 style={{
                     boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                 }}
@@ -567,7 +567,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                     className="text-white text-[14.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar text-center px-2" 
                     style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                 >
-                    {isLoading ? 'دبارکرن...' : (isStandalone ? 'دەستپێکرنا یاریێ' : 'پێدڤییە یاریێ دابگری دا کو بەردەوام بی')}
+                    {isLoading ? 'دبارکرن...' : (isStandalone ? 'دەستپێکرنا یاریێ' : 'تێگەهشتم، بەردەوام بە')}
                 </span>
                 </button>
              </div>
