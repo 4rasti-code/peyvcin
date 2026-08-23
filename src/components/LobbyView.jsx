@@ -574,7 +574,14 @@ const LobbyView = memo(({
     };
 
     return (
-      <div key={profile.id} className={`flex items-center justify-between p-3 rounded-md bg-white dark:bg-mono-800/50 border shadow-sm transition-all ${isBlocked ? 'border-red-200 dark:border-red-900/30' : 'border-mono-200 dark:border-mono-700 hover:border-blue-500/50'}`}>
+      <div 
+        key={profile.id} 
+        className={`relative flex items-center justify-between p-2.5 rounded-[10px] transition-all ${
+          isBlocked 
+            ? 'bg-[linear-gradient(to_bottom,#fce8e8_50%,#f3c8c8_50%)] border-[1.5px] border-b-4 border-[#8a1414]' 
+            : 'bg-[linear-gradient(to_bottom,#dde6f5_50%,#c7d6eb_50%)] border-[1.5px] border-b-4 border-[#3b4c68]'
+        }`} 
+      >
         <div
           className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 mr-2"
           onClick={() => {
@@ -615,7 +622,7 @@ const LobbyView = memo(({
 
               return (
                 <span
-                  className={`text-sm font-bold leading-tight whitespace-nowrap overflow-visible ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900 dark:text-white')}`}
+                  className={`text-sm font-bold leading-tight whitespace-nowrap overflow-visible ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900')}`}
                   style={{
                     ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                     fontSize: dynamicFontSize
@@ -636,7 +643,7 @@ const LobbyView = memo(({
 
               const MedalIcon = latestMedal.IconComponent;
               return (
-                <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 dark:text-mono-400 font-medium">
+                <div className="flex items-center gap-1 mt-0.5 text-[10px] text-mono-500 font-medium">
                   <MedalIcon className={`${latestMedal.id === 'palawan' ? 'w-2.75 h-2.75' : 'w-4 h-4'} ${latestMedal.color}`} />
                   <span className="pt-px">{latestMedal.name}</span>
                 </div>
@@ -654,16 +661,17 @@ const LobbyView = memo(({
               handleSendInviteToUser(profile.id);
             }
           }}
-          className={`group rounded-md transition-all flex items-center justify-center gap-1 ${busyMode
-              ? `${getBusyColorClass(busyMode)} cursor-default px-2 py-2.5`
+          className={`group relative overflow-hidden transition-all flex items-center justify-center gap-1 ${busyMode
+              ? `${getBusyColorClass(busyMode)} rounded-md cursor-default px-2 py-2.5 border-[1.5px] border-[#121316]`
               : isSent
-                ? 'px-4 py-2 min-w-20 bg-green-500/10 text-green-600 dark:text-green-400 border border-transparent font-bold text-[11px] cursor-default'
+                ? 'h-8 px-4 min-w-20 rounded-md bg-green-500/10 text-green-600 border-[1.5px] border-green-500/30 font-black text-[11px] cursor-default'
                 : isBlocked
-                  ? 'px-4 py-2 min-w-20 bg-mono-100 dark:bg-mono-800 text-red-500 dark:text-red-400 cursor-pointer border border-red-100 dark:border-red-900/30 font-bold text-[11px]'
-                  : 'px-4 py-2 min-w-20 bg-blue-600 hover:bg-blue-700 border border-transparent text-white shadow-md cursor-pointer font-bold text-[11px]'
+                  ? 'h-8 px-4 min-w-20 rounded-md bg-mono-100 text-red-500 border-[1.5px] border-red-200 font-black text-[11px] cursor-pointer shadow-sm'
+                  : 'h-8 px-4 min-w-20 rounded-md bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff] border-[1.5px] border-[#121316] text-white cursor-pointer font-black text-[11px] shadow-[inset_0_2.5px_0_rgba(255,255,255,0.35),inset_0_-2.5px_0_rgba(0,0,0,0.25)] active:scale-95'
             }`}
         >
-          {busyMode ? (
+          <span className="relative z-10 flex items-center justify-center gap-1 -translate-y-px" style={(!busyMode && !isSent && !isBlocked) ? { textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' } : {}}>
+            {busyMode ? (
             <div className="flex items-center justify-center gap-1" dir="ltr">
               <span className="font-heading font-black text-[10px] drop-shadow-sm pt-0.75 whitespace-nowrap">
                 {getBusyModeText(busyMode)}
@@ -685,6 +693,7 @@ const LobbyView = memo(({
           ) : (
             `داخوازی (${(3 - (inviteStrikes[profile.id] || 0)).toLocaleString('ar-EG')})`
           )}
+          </span>
         </button>
       </div>
     );
@@ -1016,183 +1025,218 @@ const LobbyView = memo(({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-colors duration-500 overflow-hidden"
             onClick={() => setShowMultiplayerModal(false)}
+            dir="rtl"
           >
             <Motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              exit={{ scale: 0.95, opacity: 0, y: 10 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-sm bg-mono-100 dark:bg-mono-900 rounded-md p-6 shadow-2xl border border-mono-200 dark:border-mono-800 flex flex-col max-h-[80vh]"
+              className="w-full max-w-100 flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden max-h-[85vh]"
             >
+              {/* Inner 3D Highlight Layer */}
+              <div 
+                 className="absolute inset-0 rounded-[14px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+                 style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+              ></div>
+              
+              {/* Inner 3D Shadow Layer */}
+              <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+              {/* Glassy Header Highlight */}
+              <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+
               {inviteStep === 'select' ? (
                 <>
-                  <h3 className="text-lg font-black text-center text-mono-900 dark:text-white mb-6">شێوەیێ یاریکرنێ هەلبژێرە</h3>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-stretch gap-2 h-14">
-                      {/* Global Search Button */}
-                      <button
-                        onClick={() => {
-                          triggerHaptic(10);
-                          setShowMultiplayerModal(false);
-                          onStartMultiplayer();
+                  {/* Header */}
+                  <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-4 shrink-0">
+                     <h2 
+                        className="text-[20px] font-black text-white leading-none relative z-10" 
+                        style={{ 
+                           textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, -2px 4px 0 #1a1c23, -1px 4px 0 #1a1c23, 0 4px 0 #1a1c23, 1px 4px 0 #1a1c23, 2px 4px 0 #1a1c23, -2px 5px 0 #1a1c23, -1px 5px 0 #1a1c23, 0 5px 0 #1a1c23, 1px 5px 0 #1a1c23, 2px 5px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
                         }}
-                        className="flex-1 rounded-md bg-red-600 hover:bg-red-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
-                      >
-                        <span className="material-symbols-outlined">public</span>
-                        لێگەڕیانا گشتی
-                      </button>
+                     >
+                        شێوەیێ یاریکرنێ هەلبژێرە
+                     </h2>
+                     <button
+                        onClick={() => setShowMultiplayerModal(false)}
+                        className="absolute right-3 top-3 w-8 h-8 rounded-[8px] bg-linear-to-b from-[#ff6b6b] to-[#d62020] hover:from-[#ff7a7a] hover:to-[#e62b2b] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#960f0f] border-[1.5px] border-[#181a20] z-20 overflow-hidden"
+                     >
+                        {/* Glass Reflection Highlight */}
+                        <div className="absolute top-0.5 inset-x-0.5 bottom-1 bg-white/20 pointer-events-none rounded-sm"></div>
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 -translate-y-px relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>
+                           <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                           <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#121316" strokeWidth="9" strokeLinecap="round" />
+                           <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                           <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="white" strokeWidth="5" strokeLinecap="round" />
+                        </svg>
+                     </button>
+                  </div>
 
-                      {/* Get Location Toggle Button */}
-                      <button
-                        onClick={() => {
-                          triggerHaptic(10);
-                          if (localLocationEnabled) {
-                            // Fake Turn OFF location (only visual)
-                            setLocalLocationEnabled(false);
-                            localStorage.setItem('use_location_matchmaking', 'false');
-                          } else {
-                            // Turn ON location
-                            setLocalLocationEnabled(true);
-                            localStorage.setItem('use_location_matchmaking', 'true');
-                            if (navigator.geolocation) {
-                              navigator.geolocation.getCurrentPosition(
-                                async (position) => {
-                                  try {
-                                    const { latitude, longitude } = position.coords;
-                                    await supabase.from('profiles').update({ latitude, longitude }).eq('id', user?.id);
-                                  } catch (err) {
-                                    console.error('Error saving location:', err);
-                                  }
-                                },
-                                (error) => {
-                                  console.error('Error getting location:', error);
-                                }
-                              );
-                            }
-                          }
-                        }}
-                        className={`w-19 sm:w-21 shrink-0 rounded-md flex flex-col items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 text-mono-700 bg-mono-100 hover:bg-mono-200 dark:text-mono-200 dark:bg-mono-800 dark:hover:bg-mono-700`}
-                      >
-                        {/* iOS Style Switch */}
-                        <div dir="ltr" className={`w-11 h-6 rounded-full p-1 flex items-center shrink-0 transition-colors duration-300 ease-in-out ${localLocationEnabled ? 'bg-[#34C759]' : 'bg-mono-300 dark:bg-mono-600'}`}>
-                          <div className={`bg-white w-4 h-4 rounded-full shadow-sm shrink-0 transition-transform duration-300 ease-in-out transform ${localLocationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                  {/* Content Area */}
+                  <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[12px] bg-[#e6ebf0] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                     <div className="absolute inset-0 rounded-[12px] border-[2.5px] border-t-white/90 border-l-white/80 border-r-black/5 border-b-transparent pointer-events-none z-10"></div>
+                     
+                     <div className="relative z-20 flex flex-col items-center p-4 pt-5 pb-5 gap-3">
+                        <div className="flex items-stretch gap-2 h-11.25 w-full">
+                           <button
+                             onClick={() => {
+                               triggerHaptic(10);
+                               if (localLocationEnabled) {
+                                 setLocalLocationEnabled(false);
+                                 localStorage.setItem('use_location_matchmaking', 'false');
+                               } else {
+                                 setLocalLocationEnabled(true);
+                                 localStorage.setItem('use_location_matchmaking', 'true');
+                                 if (navigator.geolocation) {
+                                   navigator.geolocation.getCurrentPosition(
+                                     async (position) => {
+                                       try {
+                                         const { latitude, longitude } = position.coords;
+                                         await supabase.from('profiles').update({ latitude, longitude }).eq('id', user?.id);
+                                       } catch (_err) {
+                                         // ignore
+                                       }
+                                     },
+                                     (_error) => {
+                                       // ignore
+                                     }
+                                   );
+                                 }
+                               }
+                             }}
+                             className={`w-15 sm:w-17.5 shrink-0 rounded-[8px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 border-[1.5px] border-[#121316] overflow-hidden ${localLocationEnabled ? 'bg-[#333742]' : 'bg-[#292c35]'}`}
+                             style={{
+                               boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.1), inset 0 -3px 0 rgba(0,0,0,0.2), 0 2px 3px rgba(0,0,0,0.2)'
+                             }}
+                           >
+                             <div dir="ltr" className={`w-9 h-5 rounded-full p-1 flex items-center shrink-0 transition-colors duration-300 ease-in-out ${localLocationEnabled ? 'bg-[#40ea00]' : 'bg-black/50'}`}>
+                               <div className={`bg-white w-3 h-3 rounded-full shadow-sm shrink-0 transition-transform duration-300 ease-in-out transform ${localLocationEnabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                             </div>
+                             <span className={`text-[9px] font-bold transition-colors duration-300 ${localLocationEnabled ? 'text-white' : 'text-white/70'}`}>
+                               {localLocationEnabled ? 'هەمان ئاست' : 'هەر ئاستەک'}
+                             </span>
+                           </button>
+
+                           <button
+                             onClick={() => {
+                               triggerHaptic(10);
+                               setShowMultiplayerModal(false);
+                               onStartMultiplayer();
+                             }}
+                             className="flex-1 rounded-[8px] flex items-center justify-center gap-2 transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-linear-to-b from-[#ff3b3b] to-[#d62020] hover:from-[#ff5252] hover:to-[#e62b2b]"
+                             style={{
+                               boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                             }}
+                           >
+                             <span className="text-white text-[14px] font-black tracking-wide flex items-center gap-2 relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                               <span className="material-symbols-outlined text-[18px]">public</span>
+                               لێگەڕیانا گشتی
+                             </span>
+                           </button>
                         </div>
-                        <span className={`text-[10px] sm:text-[11px] font-bold transition-colors duration-300 ${localLocationEnabled ? 'text-[#34C759]' : 'text-mono-500 dark:text-mono-400'}`}>
-                          {localLocationEnabled ? 'هەمان ئاست' : 'هەر ئاستەک'}
-                        </span>
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => {
-                        triggerHaptic(10);
-                        setInviteStep('invite');
-                      }}
-                      className="w-full h-14 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-black text-sm shadow-md flex items-center justify-center gap-2 transition-colors"
-                    >
-                      <span className="material-symbols-outlined">person_add</span>
-                      داخوازکرنا تایبەت
-                    </button>
-                    <button
-                      onClick={() => setShowMultiplayerModal(false)}
-                      className="w-full py-3 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm mt-2"
-                    >
-                      ڤەگەڕیان
-                    </button>
+                        
+                        <button
+                          onClick={() => {
+                            triggerHaptic(10);
+                            setInviteStep('invite');
+                          }}
+                          className="w-full h-11.25 rounded-[8px] flex items-center justify-center gap-2 transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] hover:from-[#60aeff] hover:to-[#298dff]"
+                          style={{
+                            boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
+                          }}
+                        >
+                           <span className="text-white text-[14px] font-black tracking-wide flex items-center gap-2 relative z-10 -translate-y-px" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                             <span className="material-symbols-outlined text-[20px]">person_add</span>
+                             داخوازکرنا تایبەت
+                           </span>
+                        </button>
+                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="flex items-center justify-between mb-5 shrink-0 px-1">
-                    <button onClick={() => setInviteStep('select')} className="text-mono-500 hover:text-mono-800 dark:hover:text-white transition-colors shrink-0">
-                      <span className="material-symbols-outlined text-xl">arrow_back</span>
-                    </button>
+                  <div className="w-full relative z-10 flex items-center justify-between pt-4 pb-3 px-4 shrink-0">
+                     <button 
+                        onClick={() => setInviteStep('select')}
+                        className="w-8 h-8 rounded-[8px] bg-linear-to-b from-[#8a92a0] to-[#727888] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_rgba(0,0,0,0.2)] border-[1.5px] border-[#181a20] z-20 overflow-hidden shrink-0"
+                     >
+                        <span className="material-symbols-outlined text-[20px] relative z-10" style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>arrow_forward</span>
+                     </button>
 
-                    <div className="flex-1 flex justify-center items-center">
-                      <h3 className="text-[17px] font-black text-mono-900 dark:text-white flex items-center gap-2.5">
+                     <h2 
+                        className="text-[17px] font-black text-white leading-none relative z-10 flex-1 text-center flex items-center justify-center gap-2" 
+                        style={{ 
+                           textShadow: `-2px -2px 0 #1a1c23, -1px -2px 0 #1a1c23, 0 -2px 0 #1a1c23, 1px -2px 0 #1a1c23, 2px -2px 0 #1a1c23, -2px -1px 0 #1a1c23, 2px -1px 0 #1a1c23, -2px 0 0 #1a1c23, 2px 0 0 #1a1c23, -2px 1px 0 #1a1c23, 2px 1px 0 #1a1c23, -2px 2px 0 #1a1c23, -1px 2px 0 #1a1c23, 0 2px 0 #1a1c23, 1px 2px 0 #1a1c23, 2px 2px 0 #1a1c23, -2px 3px 0 #1a1c23, -1px 3px 0 #1a1c23, 0 3px 0 #1a1c23, 1px 3px 0 #1a1c23, 2px 3px 0 #1a1c23, 0 5px 10px rgba(0,0,0,0.4)`
+                        }}
+                     >
                         یاریزانێن سەرهێل
-                        {activeProfiles.length > 0 && (
-                          <div className="flex items-center justify-center gap-1 px-2.5 h-6.5 rounded-full bg-emerald-500 text-white shadow-sm" dir="ltr">
-                            <span className="text-[13px] font-black tabular-nums mt-0.5">
-                              {toKuDigits(activeProfiles.length)}
-                            </span>
-                            <span className="material-symbols-outlined text-[16px]">person</span>
-                          </div>
-                        )}
-                      </h3>
-                    </div>
+                      </h2>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        triggerHaptic(10);
-                        reconnectPresence();
-                        fetchOnlineProfiles();
-                      }}
-                      disabled={loadingOnline}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0 ${loadingOnline ? 'bg-blue-500/10 text-blue-500' : 'bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 text-mono-500 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 shadow-sm'}`}
-                      title="نویکرنەڤە"
-                    >
-                      <span className={`material-symbols-outlined text-[18px] ${loadingOnline ? 'animate-spin' : ''}`}>sync</span>
-                    </button>
+                     <button
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         triggerHaptic(10);
+                         reconnectPresence();
+                         fetchOnlineProfiles();
+                       }}
+                       disabled={loadingOnline}
+                       className="w-8 h-8 rounded-[8px] bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] flex items-center justify-center text-white transition-all active:scale-95 shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-4px_0_#115ab5] border-[1.5px] border-[#181a20] z-20 overflow-hidden shrink-0"
+                     >
+                        <span className={`material-symbols-outlined text-[17px] relative z-10 ${loadingOnline ? 'animate-spin' : ''}`} style={{ filter: 'drop-shadow(0px 2px 0px rgba(0,0,0,0.3))' }}>sync</span>
+                     </button>
                   </div>
 
-                  <div className="overflow-y-auto h-80 sm:h-100 pr-2 custom-scrollbar space-y-2 mb-3 transition-opacity duration-300">
-                    {loadingOnline && activeProfiles.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center h-full opacity-50">
-                        <span className="material-symbols-outlined animate-spin text-2xl text-blue-500 mb-2">sync</span>
-                        <p className="text-sm font-medium text-mono-600 dark:text-mono-400">لێگەڕیان ل یاریزانان...</p>
-                      </div>
-                    ) : (() => {
-                      if (activeProfiles.length === 0) {
-                        return (
-                          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-                            <div className="w-12 h-12 rounded-full bg-mono-200 dark:bg-mono-800 flex items-center justify-center mb-3 text-mono-400">
-                              <span className="material-symbols-outlined text-2xl">person_off</span>
+                  <div className="flex-1 self-stretch flex flex-col relative mx-3 sm:mx-4 mb-4 rounded-[12px] bg-[#a3b3cc] shadow-[0_4px_6px_rgba(0,0,0,0.2)] overflow-hidden min-h-0">
+                     <div className="relative z-20 flex flex-col h-[75vh] max-h-112.5 p-3 overflow-y-auto custom-scrollbar transition-opacity duration-300 gap-2">
+                      {loadingOnline && activeProfiles.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full opacity-50">
+                          <span className="material-symbols-outlined animate-spin text-3xl text-mono-500 mb-2">sync</span>
+                          <p className="text-sm font-bold text-mono-500">لێگەڕیان ل یاریزانان...</p>
+                        </div>
+                      ) : (() => {
+                        if (activeProfiles.length === 0) {
+                          return (
+                            <div className="flex flex-col items-center justify-center h-full text-center px-4">
+                              <div className="w-12 h-12 rounded-[10px] bg-mono-200 border border-black/10 flex items-center justify-center mb-3 text-mono-400 shadow-inner">
+                                <span className="material-symbols-outlined text-2xl">person_off</span>
+                              </div>
+                              <p className="text-[13px] font-bold text-mono-500">چ یاریزانێن دی نۆکە سەرهێل نینە.</p>
                             </div>
-                            <p className="text-sm font-medium text-mono-600 dark:text-mono-400">چ یاریزانێن دی نۆکە سەرهێل نینە.</p>
-                          </div>
+                          );
+                        }
+
+                        const isProfileBusy = (p) => !!(onlineUserStatuses?.[p.id] || busyUsers[p.id]);
+                        const friendsNotInGame = activeProfiles.filter(p => p.isFriend && !isProfileBusy(p));
+                        const othersNotInGame = activeProfiles.filter(p => !p.isFriend && !isProfileBusy(p));
+                        const playersInGame = activeProfiles.filter(p => isProfileBusy(p));
+
+                        return (
+                          <>
+                            {friendsNotInGame.length > 0 && (
+                              <>
+                                <div className="text-[13px] font-black text-[#3b4c68] drop-shadow-[0_1px_0_rgba(255,255,255,0.3)] mt-1 mb-1 px-1 text-right w-full block">هەڤالێن تە</div>
+                                {friendsNotInGame.map(renderProfileRow)}
+                              </>
+                            )}
+                            {othersNotInGame.length > 0 && (
+                              <>
+                                <div className={`text-[13px] font-black text-[#3b4c68] drop-shadow-[0_1px_0_rgba(255,255,255,0.3)] mb-1 px-1 text-right w-full block ${friendsNotInGame.length > 0 ? 'mt-4' : 'mt-1'}`}>یاریزانێن دی</div>
+                                {othersNotInGame.map(renderProfileRow)}
+                              </>
+                            )}
+                            {playersInGame.length > 0 && (
+                              <>
+                                <div className={`text-[13px] font-black text-[#3b4c68] drop-shadow-[0_1px_0_rgba(255,255,255,0.3)] mb-1 px-1 text-right w-full block ${(friendsNotInGame.length > 0 || othersNotInGame.length > 0) ? 'mt-4' : 'mt-1'}`}>د یاریێ دانە</div>
+                                {playersInGame.map(renderProfileRow)}
+                              </>
+                            )}
+                          </>
                         );
-                      }
-
-                      const isProfileBusy = (p) => !!(onlineUserStatuses?.[p.id] || busyUsers[p.id]);
-                      const friendsNotInGame = activeProfiles.filter(p => p.isFriend && !isProfileBusy(p));
-                      const othersNotInGame = activeProfiles.filter(p => !p.isFriend && !isProfileBusy(p));
-                      const playersInGame = activeProfiles.filter(p => isProfileBusy(p));
-
-                      return (
-                        <>
-                          {friendsNotInGame.length > 0 && (
-                            <>
-                              <div className="text-xs font-bold text-mono-500 dark:text-mono-400 mt-2 mb-2 px-1 text-right w-full block">هەڤالێن تە</div>
-                              {friendsNotInGame.map(renderProfileRow)}
-                            </>
-                          )}
-                          {othersNotInGame.length > 0 && (
-                            <>
-                              <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${friendsNotInGame.length > 0 ? 'mt-4' : 'mt-2'}`}>یاریزانێن دی</div>
-                              {othersNotInGame.map(renderProfileRow)}
-                            </>
-                          )}
-                          {playersInGame.length > 0 && (
-                            <>
-                              <div className={`text-xs font-bold text-mono-500 dark:text-mono-400 mb-2 px-1 text-right w-full block ${(friendsNotInGame.length > 0 || othersNotInGame.length > 0) ? 'mt-4' : 'mt-2'}`}>د یاریێ دانە</div>
-                              {playersInGame.map(renderProfileRow)}
-                            </>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-
-                  <div className="shrink-0 mt-auto pt-2 border-t border-mono-200 dark:border-mono-800">
-                    <button
-                      onClick={() => setShowMultiplayerModal(false)}
-                      className="w-full py-2 rounded-md bg-mono-200 dark:bg-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm"
-                    >
-                      داخستن
-                    </button>
+                      })()}
+                    </div>
                   </div>
                 </>
               )}

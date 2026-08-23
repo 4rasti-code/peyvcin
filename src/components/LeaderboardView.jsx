@@ -627,7 +627,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="space-y-4 px-1 md:px-0 max-w-2xl mx-auto"
+              className="space-y-1.5 px-1 md:px-0 max-w-2xl mx-auto"
             >
               {(view === 'daily' ? dailyLeaders : leaders).map((player, index) => {
                 // Sequential Ranking based on the list index (matches exact spot)
@@ -691,16 +691,14 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { triggerHaptic(10); setSelectedPlayer({ ...player, avatar_url: effectiveAvatar, nickname: effectiveNickname, xp: effectiveXP, equipped_name_style: effectiveNameStyle }); }}
                     className={`flex flex-row items-center justify-between p-[clamp(0.5rem,2vw,0.625rem)] px-[clamp(0.75rem,3vw,1.25rem)] relative transition-all cursor-pointer duration-300 ${
-                      bundleObj.id === 'default' 
-                        ? 'btn-clash btn-clash-pale text-mono-900' 
-                        : `rounded-md border ${bundleObj.cardBg}`
-                    } ${
-                      isMe
-                        ? 'ring-[3px] ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.8)] z-20'
-                        : 'z-10'
+                      isMe 
+                        ? 'rounded-[10px] bg-[linear-gradient(to_bottom,#fad65b_50%,#e7a421_50%)] border-[1.5px] border-b-4 border-[#a26516] text-mono-900 z-20 shadow-[0_0_15px_rgba(231,164,33,0.4)]'
+                        : bundleObj.id === 'default' 
+                          ? 'rounded-[10px] bg-[linear-gradient(to_bottom,#dde6f5_50%,#c7d6eb_50%)] border-[1.5px] border-b-4 border-[#3b4c68] text-mono-900 z-10' 
+                          : `rounded-md border ${bundleObj.cardBg} z-10`
                     }`}
                     style={{
-                      zIndex: isTop3 ? 30 : 1 // Ensure top 3 cards have higher z-index for floating crowns, but strictly below sticky header (z-50)
+                      zIndex: isTop3 ? 30 : (isMe ? 20 : 1), // Ensure top 3 cards have higher z-index for floating crowns, but strictly below sticky header (z-50)
                     }}
                   >
 
