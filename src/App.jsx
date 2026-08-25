@@ -374,6 +374,9 @@ export default function App() {
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname.replace(/^\/+/, '');
     if (path.startsWith('social_hub')) return 'social_hub';
+    if (path === 'privacy' || path === 'privacy-policy') return 'privacy';
+    if (path === 'data-deletion') return 'data_deletion';
+    if (path === 'terms-of-service') return 'terms_of_service';
     return path || 'lobby';
   });
 
@@ -1697,7 +1700,7 @@ export default function App() {
     }
   }
 
-  const isActivelyLoading = loadingAuth || isGameLoading || isSyncingProfile || !isFontsLoaded || (!user && !['auth', 'lobby', 'game'].includes(currentView));
+  const isActivelyLoading = loadingAuth || isGameLoading || isSyncingProfile || !isFontsLoaded || (!user && !['auth', 'lobby', 'game', 'privacy', 'data_deletion', 'terms_of_service'].includes(currentView));
   // Keep the loading screen visible until the progress bar visually reaches 100% for logged-in users
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
@@ -1819,7 +1822,7 @@ export default function App() {
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-        <main className={`flex-1 flex flex-col ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'leaderboard' || currentView === 'game' || currentView === 'auth' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+        <main className={`flex-1 flex flex-col ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'leaderboard' || currentView === 'game' || currentView === 'auth' || currentView === 'privacy' || currentView === 'data_deletion' || currentView === 'terms_of_service' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
               onAuthSuccess={async (u) => {
@@ -1834,6 +1837,56 @@ export default function App() {
               onVerifyingSignupChange={setVerifyingSignup}
             />
           )}
+          
+          {currentView === 'privacy' && (
+            <div className="contents">
+              <PrivacyPolicy 
+                onClose={() => {
+                  window.history.pushState(null, '', '/');
+                  setCurrentView('lobby');
+                }} 
+                onViewChange={(key) => {
+                  const map = { 'deletion': 'data_deletion', 'terms': 'terms_of_service', 'privacy': 'privacy' };
+                  const paths = { 'deletion': '/data-deletion', 'terms': '/terms-of-service', 'privacy': '/privacy' };
+                  window.history.pushState(null, '', paths[key] || '/');
+                  setCurrentView(map[key] || 'lobby');
+                }}
+              />
+            </div>
+          )}
+          {currentView === 'data_deletion' && (
+            <div className="contents">
+              <DataDeletion 
+                onClose={() => {
+                  window.history.pushState(null, '', '/');
+                  setCurrentView('lobby');
+                }}
+                onViewChange={(key) => {
+                  const map = { 'deletion': 'data_deletion', 'terms': 'terms_of_service', 'privacy': 'privacy' };
+                  const paths = { 'deletion': '/data-deletion', 'terms': '/terms-of-service', 'privacy': '/privacy' };
+                  window.history.pushState(null, '', paths[key] || '/');
+                  setCurrentView(map[key] || 'lobby');
+                }}
+              />
+            </div>
+          )}
+          {currentView === 'terms_of_service' && (
+            <div className="contents">
+              <TermsOfService 
+                onClose={() => {
+                  window.history.pushState(null, '', '/');
+                  setCurrentView('lobby');
+                }}
+                onViewChange={(key) => {
+                  const map = { 'deletion': 'data_deletion', 'terms': 'terms_of_service', 'privacy': 'privacy' };
+                  const paths = { 'deletion': '/data-deletion', 'terms': '/terms-of-service', 'privacy': '/privacy' };
+                  window.history.pushState(null, '', paths[key] || '/');
+                  setCurrentView(map[key] || 'lobby');
+                }}
+              />
+            </div>
+          )}
+
 
           {(multiplayerState === 'playing' || multiplayerState === 'game_over' || multiplayerState === 'syncing' || multiplayerState === 'match_starting') && (
             <Suspense fallback={<KurdishSunLoader />}>
@@ -2120,6 +2173,7 @@ export default function App() {
                     <AdminPanelView onBack={() => setCurrentView('lobby')} />
                   </div>
                 )}
+
               </>
             )}
 

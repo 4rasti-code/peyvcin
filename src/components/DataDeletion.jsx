@@ -35,53 +35,45 @@ const DataDeletion = ({ onViewChange, onClose }) => {
 
     const content = {
         en: {
-            title: "Data Deletion Instructions",
-            lastUpdated: "Last Updated: April 2, 2026",
-            intro: "At Peyvok, we respect your privacy and provide a simple way to request the deletion of your personal data associated with our Facebook, Google, or Apple login and game platform.",
-            section1Title: "1. How to Request Data Deletion",
-            section1Text: "To delete your data from Peyvok, you can follow these steps:",
+            title: "Data Deletion Guidelines",
+            lastUpdated: "Last Updated: August 26, 2026",
+            intro: "If you wish to leave the game and delete your account, we provide a very simple way to permanently erase all your information from our servers.",
+            section1Title: "1. How to Request Account Deletion",
+            section1Text: "If you want to completely delete all your information and profile:",
             steps: [
-                "You can delete your account directly from within the game by going to Settings and tapping 'Delete Account'.",
-                "Open your Facebook, Google, or Apple profile and go to 'Settings & Privacy' > 'Settings'.",
-                "Look for 'Apps and Websites' and find 'Peyvok'.",
-                "Click the 'Remove' button.",
-                "Alternatively, you can send an email to support@peyvokgame.com with the subject 'Data Deletion Request' and include your User ID or the email associated with your account."
+                "Via the game: Go to the (Settings) section -> (Account Settings) -> and click on (Delete Account).",
+                "Alternatively, you can send an email to support@peyvokgame.com titled 'Data Deletion Request' including your User ID or email address."
             ],
-            section2Title: "2. What Data is Deleted?",
-            section2Text: "Once a deletion request is processed, the following information will be permanently removed from our servers:",
+            section2Title: "2. What Information Will Be Deleted?",
+            section2Text: "After accepting the deletion, the following data will be permanently deleted and cannot be recovered:",
             deletedItems: [
-                "Your profile information (Nickname, Avatar URL)",
-                "Game statistics (Level, XP, Coins, Stars)",
-                "Daily streak and solved words history",
-                "Any social connections or leaderboard rankings"
+                "Profile information (name, picture, email, device type, geographic location).",
+                "Game statistics (such as: XP, level, in-game currency, and all other progress and achievements).",
+                "Social connections and friendships within the game."
             ],
-            section3Title: "3. Processing Time",
-            section3Text: "Manual email requests are typically processed within 3-5 business days. Once deleted, this information cannot be recovered.",
-            backButton: "Back to Game",
+            section3Title: "3. Automatic Chat Deletion (Ephemeral Data)",
+            section3Text: "To protect your information, Peyvok automatically deletes all chat messages, images, and voice notes from the servers after 24 hours. You can also manually delete your own messages directly within the chat at any time.",
+            backButton: "Back",
         },
         ku: {
             title: "ڕێنمایێن ژێبرنا داتایان",
-            lastUpdated: "دووماھیک نووژەنکرن: ٢ نیسان، ٢٠٢٦",
-            intro: "ل پەیڤۆک، ئەم ڕێزێ ل تایبەتمەندیا تە دگرین و ڕێکەکا ب ساناھی دابین دکەین بۆ داخوازکرنا ژێبرنا داتایێن تە یێن کەسی یێن کو ب پەیڤۆک و فەیسبۆک، گۆگل، دیسکۆرد، یان ئەپڵی ڤە گرێداینە.",
-            section1Title: "١. چەوا داخوازی ژێبرنا داتایان بکەی",
-            section1Text: "بۆ ژێبرنا داتایێن خوە ژ پەیڤۆک، تو دشێی ڤان پێنگاڤان پەیڕەو بکەی:",
+            lastUpdated: "دووماهیک نویژەنکرن: ٢٦ تەباخ، ٢٠٢٦",
+            intro: "ئەگەر تە بڤێت یاریێ بجهـ بهێلی و هژمارا خوە ژێ ببەی، ئەم ڕێکەکا زۆر ب ساناھی دابین دکەین کو تێدا هەمی پێزانینێن تە ب ئێکجاری ژ سێرڤەرێن مە دهێنە ژێبرن.",
+            section1Title: "١. چاوا داخوازییا ژێبرنا هژمارێ بکەی",
+            section1Text: "ئەگەر تە بڤێت هەمی پێزانین و پرۆفایلێ خوە ب تەمامی ژێ ببەی:",
             steps: [
-                "تو دشێی هژمارا خوە ڕاستەوخۆ ژ ناڤ یاریێ ل بەشێ ڕێکخستن (Settings) ژێببەی ب داگرتنا دوگمەیا ژێبرنا هژمارێ.",
-                "پڕۆفایلی خوە یێ فەیسبووکی، گۆگلی، دیسکۆردی یان ئەپڵی ڤەکە و هەرە 'Settings & Privacy' پاشان 'Settings'.",
-                "ل 'Apps and Websites' بگەڕێ و 'پەیڤۆک' ببینە.",
-                "کلیکێ ل سەر دوگمەیا 'Remove' بکە.",
-                "یان ژی، تو دشێی ئیمەیلەکی بۆ support@peyvokgame.com بهنێری ب ناڤونیشانێ Data Deletion Request و ناسنامەیا خوە (User ID) یان ئیمەیلا خوە تێدا بنڤێسی."
+                "د ناڤ یاریێ دا: هەرە بەشێ (ڕێکخستن) -> (ڕێکخستنێن هژمارێ) -> و کلیکێ ل سەر (ژێبرنا هژمارێ) بکە.",
+                "یان ژی، تو دشێی ئیمەیلەکی بۆ support@peyvokgame.com بهنێری ب ناڤونیشانێ 'Data Deletion Request' و ناسنامەیا خوە (User ID) یان ئیمەیلا خوە تێدا بنڤێسی."
             ],
-            section2Title: "٢. کیژان زانیاری دێ هێنە ژێبرن؟",
-            section2Text: "پشتی کو داخوازا ژێبرنێ دھێتە جێبەجێکرن، ئەڤ زانیاریێن خوارێ دێ ب ئێکجاری ژ سێرڤەرێن مە ھێنە ڕەشکرن:",
+            section2Title: "٢. چ پێزانین دێ هێنە ژێبرن؟",
+            section2Text: "پشتی قەبوولکرنا ژێبرنێ، ئەڤ داتایێن تە دێ ب ئێکجاری هێنە ژێبرن و ناهێنە ڤەگەڕاندن:",
             deletedItems: [
-                "زانیاریێن پرۆفایلێ تە (ناڤ، وێنە)",
-                "ئامارێن یاریێ (ئاست، XP، پارە، ئامار، دەستکەفت)",
-                "زانیاریێن ڕۆژانە و پەیڤێن تە یێن خەلاتکرین",
-                "ھەر گرێدانەکا جڤاکی یان ڕیزبەندییا سەرکەفتیان"
+                "پێزانینێن پرۆفایلی (ناڤ، وێنە، ئیمێل، جۆرێ مۆبایلێ، جهێ جوگرافی).",
+                "ئامارێن یاریێ (وەکو: XP، ئاست، دراڤێ یاریێ، و دەستکەفتێن دی).",
+                "گرێدانێن جڤاکی و هەڤالەتی ل ناڤ یاریێ."
             ],
-            section3Title: "٣. دەمێ جێبەجێکرنێ",
-            section3Text: "داخوازێن ب ڕێکا ئیمەیلێ ب گشتی د ناڤبەرا ٣-٥ ڕۆژێن کار دا دھێنە جێبەجێکرن. پشتی ژێبرنێ، ئەڤ زانیارییە ناھێنە ڤەگەڕاندن.",
+            section3Title: "٣. ژێبرنا ئۆتۆماتیکی یا چاتێ (Ephemeral Data)",
+            section3Text: "بۆ پاراستنا زانیاریێن تە، یارییا پەیڤۆک ب شێوەیەکێ ئۆتۆماتیکی هەمی نامە، وێنە، و نامەیێن دەنگی یێن ناڤ چاتێ پشتی ٢٤ دەمژمێران ژ سێرڤەران ژێ دبەت. هەروەسا تو دشێی هەر دەمێ تە بڤێت، ب خوە نامەیێن خوە ل ناڤ چاتێ ژێ ببەی.",
             backButton: "ڤەگەڕە",
         }
     };

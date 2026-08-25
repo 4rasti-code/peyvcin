@@ -5,6 +5,15 @@ import { safeJSONParse, safeStorageGet, safeStorageSet } from '../utils/safePars
 
 const AuthContext = createContext();
 
+const getDeviceOS = () => {
+    const userAgent = window.navigator.userAgent || window.navigator.vendor || window.opera;
+    if (/android/i.test(userAgent)) return "Android";
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) return "iOS";
+    if (/Macintosh|MacIntel|MacPPC|Mac68K/.test(userAgent)) return "Mac";
+    if (/Win32|Win64|Windows|WinCE/.test(userAgent)) return "Windows";
+    return "Unknown";
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
@@ -532,6 +541,13 @@ export const AuthProvider = ({ children }) => {
   // NEW: Real-time Profile Listener to keep profileData synced everywhere
   useEffect(() => {
     if (!user?.id) return;
+
+    // Track Device & Language
+    const os = getDeviceOS();
+    const lang = navigator.language || navigator.userLanguage || "Unknown";
+    supabase.from('profiles').update({ device_type: os, device_language: lang }).eq('id', user.id).then(({ error }) => {
+        if (error) console.error("Failed to update device info:", error);
+    });
 
     const channel = supabase
       .channel(`profile-auth-sync-${user.id}`)

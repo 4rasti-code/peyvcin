@@ -73,7 +73,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                       initial={{ opacity: 0, y: 10, scale: 0.8, x: '-50%' }}
                       animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
                       transition={{ duration: 0.2 }}
-                      className="absolute bottom-8 left-1/2 text-[14px] sm:text-[15px] font-black font-rabar tracking-wide whitespace-nowrap uppercase pointer-events-none text-white drop-shadow-md"
+                      className="absolute bottom-5 left-1/2 z-20 text-[14px] sm:text-[15px] font-black font-rabar tracking-wide whitespace-nowrap uppercase pointer-events-none text-white drop-shadow-md"
                     >
                       {tab.label}
                     </Motion.span>

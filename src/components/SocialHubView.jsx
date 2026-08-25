@@ -127,13 +127,13 @@ const MATERIAL_ICONS = ['forum', 'sports_esports', 'extension', 'emoji_emotions'
 const ALL_ICONS = [...GAME_ICONS, ...MATERIAL_ICONS];
 
 const ChatWallpaperPattern = memo(() => {
-  
+
   const patternItems = React.useMemo(() => {
     const items = [];
     const cols = 50;
     const rows = 50;
     const cellSize = 60; // 3000 / 50 = 60px
-    
+
     // Stable pseudo-random generator
     const random = (seed) => {
       let x = Math.sin(seed) * 10000;
@@ -144,17 +144,17 @@ const ChatWallpaperPattern = memo(() => {
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const item = ALL_ICONS[seed % ALL_ICONS.length];
-        
+
         // Jitter: random offset between -40% and 40% of cell size
         const jitterX = (random(seed++) - 0.5) * 0.8 * cellSize;
         const jitterY = (random(seed++) - 0.5) * 0.8 * cellSize;
-        
+
         const left = (c * cellSize) + (cellSize / 2) + jitterX;
         const top = (r * cellSize) + (cellSize / 2) + jitterY;
-        
+
         const rotation = random(seed++) * 360;
         const scale = 0.8 + (random(seed++) * 0.7); // 0.8 to 1.5
-        
+
         items.push({ id: `${r}-${c}`, item, left, top, rotation, scale });
       }
     }
@@ -162,25 +162,25 @@ const ChatWallpaperPattern = memo(() => {
   }, []);
 
   return (
-    <div className="absolute z-0 pointer-events-none opacity-[0.06] select-none" 
-         style={{ 
-           width: '3000px', 
-           height: '3000px', 
-           left: '50%',
-           top: '50%',
-           marginLeft: '-1500px',
-           marginTop: '-1500px',
-           transform: 'rotate(-5deg)'
-         }}>
+    <div className="absolute z-0 pointer-events-none opacity-[0.06] select-none"
+      style={{
+        width: '3000px',
+        height: '3000px',
+        left: '50%',
+        top: '50%',
+        marginLeft: '-1500px',
+        marginTop: '-1500px',
+        transform: 'rotate(-5deg)'
+      }}>
       {patternItems.map(({ id, item, left, top, rotation, scale }) => {
         const Icon = item;
         return (
-          <div key={id} className="absolute text-white" 
-               style={{ 
-                 left: `${left}px`, 
-                 top: `${top}px`, 
-                 transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})` 
-               }}>
+          <div key={id} className="absolute text-white"
+            style={{
+              left: `${left}px`,
+              top: `${top}px`,
+              transform: `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`
+            }}>
             {typeof item === 'string' ? (
               <span className="material-symbols-outlined block" style={{ fontSize: '18px' }}>{item}</span>
             ) : (
@@ -200,7 +200,7 @@ function MessageContextMenu({ m, rect, isMe, onReact, onReply, onCopy, onDelete,
   const menuWidth = 192; // max-w-48
   const screenW = window.innerWidth;
   const screenH = window.innerHeight;
-  
+
   // Decide Y position intelligently:
   // 1. If there's space above the message (at least menuHeight), put it above.
   // 2. If there's space below the message, put it below.
@@ -724,7 +724,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
           <div key={i} className="relative flex flex-col items-center justify-center mt-1 -mb-1 mx-auto w-full" dir="rtl">
             {/* The Medal/Rank Icon */}
             <MedalIcon size={84} className={`relative z-20 w-24 h-24 ${medal.color} drop-shadow-[0_6px_6px_rgba(0,0,0,0.3)] mb-2`} />
-            
+
             {/* Text Pill below the medal */}
             <div className="relative bg-[#1e293b] rounded-[10px] px-4 py-2 flex flex-col items-center z-10 shadow-[0_4px_0_#0f172a] border border-[#334155] min-w-28 max-w-48 w-fit">
               <span className="text-[10px] text-white/60 font-bold mb-0.5">پلەیەکا نوی وەرگرت!</span>
@@ -833,12 +833,12 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               <div className="flex flex-col relative rounded-[8px] bg-[#e6ebf0] shadow-[0_2px_4px_rgba(0,0,0,0.2)] overflow-hidden p-2 shrink-0 z-10">
                 {/* Inner White Box 3D Highlight */}
                 <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
-                
+
                 <div className="relative z-20 flex flex-col items-center text-center">
                   <p className="text-[10px] font-bold text-[#181a20] mb-1.5 mt-0 leading-tight">
                     ڕێسایێن مۆدێ {currentStyle.modeName} بزانە.
                   </p>
-                  
+
                   {/* Understood/Open Button */}
                   <div className={`relative shrink-0 w-full h-7 rounded-md font-black font-rabar text-[10px] transition-all flex items-center justify-center gap-1.5 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b ${currentStyle.buttonColor} ${currentStyle.buttonShadow} text-white ${currentStyle.buttonActive} group-active:translate-y-0.75`}>
                     <div className="absolute top-0.5 inset-x-0.5 bottom-1 pointer-events-none rounded-sm bg-white/20"></div>
@@ -999,7 +999,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
 
 
       <div className={`group/msg relative max-w-[85%] flex items-center gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'}`} onContextMenu={(e) => e.preventDefault()}>
-        
+
         {/* Chevron Button outside bubble */}
         {!isDeleted && !isOnlyEmoji && !isOnlySticker && (
           <button
@@ -2491,53 +2491,52 @@ export default function SocialHubView({
           <div className="h-2 w-full" />
           <div className="relative h-9.5 w-full">
             <div className="flex items-center justify-center gap-3 w-full relative z-10 h-full px-4">
-            {[
-              {
-                id: 'global',
-                label: 'نامەیێن گشتی',
-                icon: 'public',
-                badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0
-                  ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length
-                  : (newGlobalCount > 0 ? -1 : 0)
-              },
-              { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
-            ].map(tab => {
-              const isActive = activeTab === tab.id;
-              return (
-              <button
-                key={tab.id}
-                onClick={() => {
-                  triggerHaptic(10);
-                  playTabSound();
-                  setActiveTab(tab.id);
-                  setSelectedChat(null);
-                  if (tab.id === 'global') {
-                    setNewGlobalCount(0); // clear local mentions/count on view
-                  }
-                }}
-                className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
-                  isActive
-                    ? 'btn-clash-sm-blue text-white z-20'
-                    : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[16px] drop-shadow-md">{tab.icon}</span>
-                <span className={`relative z-20 ${isActive ? 'drop-shadow-md' : ''}`}>{tab.label}</span>
-                
-                {/* Badges */}
-                {tab.badge > 0 && (
-                  <span className="absolute -top-2 -right-1 min-w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center px-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_0_#b91c1c,0_1px_2px_#000] z-20 border border-black/80">
-                    <span className="text-[10px] text-white font-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] leading-none mt-0.5">
-                      {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
-                    </span>
-                  </span>
-                )}
-                {tab.badge === -1 && (
-                  <span className="absolute top-1 right-3 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></span>
-                )}
-              </button>
-              );
-            })}
+              {[
+                {
+                  id: 'global',
+                  label: 'نامەیێن گشتی',
+                  icon: 'public',
+                  badge: messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length > 0
+                    ? messages.filter(m => m.content && userNickname && m.content.includes(`@${userNickname}`)).length
+                    : (newGlobalCount > 0 ? -1 : 0)
+                },
+                { id: 'private', label: 'نامەیێن تایبەت', icon: 'chat', badge: unreadMessageCount }
+              ].map(tab => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      triggerHaptic(10);
+                      playTabSound();
+                      setActiveTab(tab.id);
+                      setSelectedChat(null);
+                      if (tab.id === 'global') {
+                        setNewGlobalCount(0); // clear local mentions/count on view
+                      }
+                    }}
+                    className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${isActive
+                        ? 'btn-clash-sm-blue text-white z-20'
+                        : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                      }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px] drop-shadow-md">{tab.icon}</span>
+                    <span className={`relative z-20 ${isActive ? 'drop-shadow-md' : ''}`}>{tab.label}</span>
+
+                    {/* Badges */}
+                    {tab.badge > 0 && (
+                      <span className="absolute -top-2 -right-1 min-w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center px-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_1px_0_#b91c1c,0_1px_2px_#000] z-20 border border-black/80">
+                        <span className="text-[10px] text-white font-black drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] leading-none mt-0.5">
+                          {toKuDigits(tab.badge > 99 ? '99+' : tab.badge)}
+                        </span>
+                      </span>
+                    )}
+                    {tab.badge === -1 && (
+                      <span className="absolute top-1 right-3 w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.5)] z-20"></span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -2800,142 +2799,142 @@ export default function SocialHubView({
                   <div className="absolute inset-0 overflow-y-auto p-4 pb-32 space-y-3 no-scrollbar z-10 flex flex-col">
                     {privateChats.length === 0 && !loading ? (
                       <div className="flex-1 flex flex-col items-center justify-center space-y-8 mt-10">
-                      <div className="flex flex-col items-center space-y-4 opacity-50">
-                        <span className="material-symbols-outlined text-6xl text-white/50">forum</span>
-                        <div className="text-center">
-                          <div className="font-black text-lg text-mono-50">ھیچ نامەیەک نینە</div>
-                          <div className="text-xs font-bold font-rabar text-white/60">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                        <div className="flex flex-col items-center space-y-4 opacity-50">
+                          <span className="material-symbols-outlined text-6xl text-white/50">forum</span>
+                          <div className="text-center">
+                            <div className="font-black text-lg text-mono-50">ھیچ نامەیەک نینە</div>
+                            <div className="text-xs font-bold font-rabar text-white/60">دەستپێبکە ب نڤێسینا نامەیەکێ بۆ ھەڤالێن خوە</div>
+                          </div>
+                          <button
+                            onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
+                            className="px-6 py-2 bg-mono-900 text-white rounded-md text-xs font-black border border-mono-800 shadow-sm"
+                          >
+                            دیتنا ھەڤالان
+                          </button>
                         </div>
-                        <button
-                          onClick={() => { triggerHaptic(10); if (_onViewFriends) _onViewFriends(); }}
-                          className="px-6 py-2 bg-mono-900 text-white rounded-md text-xs font-black border border-mono-800 shadow-sm"
-                        >
-                          دیتنا ھەڤالان
-                        </button>
-                      </div>
 
-                      <div className="w-full max-w-sm p-4 rounded-xl bg-[#1e2d3b] border-2 border-[#2a3f54] flex flex-col items-center gap-3 shadow-[0_4px_0_#15202b] mx-auto mb-2">
-                        <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center border-2 border-green-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.3)]">
-                          <span className="material-symbols-outlined text-2xl text-white font-black drop-shadow-md">person_add</span>
-                        </div>
-                        <div className="text-center">
-                          <h4 className="text-[14px] font-black font-rabar text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">ھەڤالێن خوە داخواز بکە</h4>
-                          <p className="text-[11px] font-bold text-[#9ca3af] mt-1 px-4 leading-relaxed">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
-                        </div>
-                        <button
-                          onClick={async () => {
-                            triggerHaptic(10);
-                            const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
-                            const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
-                            if (navigator.share) {
-                              try {
-                                // Only send URL for strict apps like Snapchat
-                                await navigator.share({ url: shareLink });
-                              } catch (err) {
-                                if (err.name !== 'AbortError') {
-                                  navigator.clipboard.writeText(shareText);
-                                  alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                        <div className="w-full max-w-sm p-4 rounded-xl bg-[#1e2d3b] border-2 border-[#2a3f54] flex flex-col items-center gap-3 shadow-[0_4px_0_#15202b] mx-auto mb-2">
+                          <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center border-2 border-green-600 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_2px_4px_rgba(0,0,0,0.3)]">
+                            <span className="material-symbols-outlined text-2xl text-white font-black drop-shadow-md">person_add</span>
+                          </div>
+                          <div className="text-center">
+                            <h4 className="text-[14px] font-black font-rabar text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">ھەڤالێن خوە داخواز بکە</h4>
+                            <p className="text-[11px] font-bold text-[#9ca3af] mt-1 px-4 leading-relaxed">ئەگەر تە ھەڤال نینن، لینکێ یاریێ کۆپی بکە و بۆ وان بهنێرە</p>
+                          </div>
+                          <button
+                            onClick={async () => {
+                              triggerHaptic(10);
+                              const shareLink = `https://www.peyvokgame.com/auth?invite=${user?.id || 'guest'}`;
+                              const shareText = `وەرە دگەل من یارییا پەیڤۆک بکە! ئەڤە لینکێ من یێ بانگهێشتکرنێ یە:\n${shareLink}`;
+                              if (navigator.share) {
+                                try {
+                                  // Only send URL for strict apps like Snapchat
+                                  await navigator.share({ url: shareLink });
+                                } catch (err) {
+                                  if (err.name !== 'AbortError') {
+                                    navigator.clipboard.writeText(shareText);
+                                    alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
+                                  }
                                 }
+                              } else {
+                                navigator.clipboard.writeText(shareText);
+                                alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
                               }
-                            } else {
-                              navigator.clipboard.writeText(shareText);
-                              alert('لینک ھاتە کۆپیکرن! بۆ ھەڤالێن خوە بهنێرە.');
-                            }
-                          }}
-                          className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
-                        >
-                          <span className="material-symbols-outlined text-base">share</span>
-                          بەلاڤکرنا لینکێ یاریێ
-                        </button>
+                            }}
+                            className="w-full py-2.5 mt-1 bg-green-600 text-white rounded-md font-black font-rabar text-[12px] hover:brightness-110 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-base">share</span>
+                            بەلاڤکرنا لینکێ یاریێ
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    privateChats.map((chat, index) => {
-                      const isBot = chat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
-                      return (
-                        <div
-                          key={`${chat.id}-${index}`}
-                          onClick={async () => {
-                            setSelectedChat(chat);
-                            if (chat.unreadCount > 0 && user?.id) {
-                              // Optimistically update
-                              setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
-                              setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
+                    ) : (
+                      privateChats.map((chat, index) => {
+                        const isBot = chat.id === '9a813c24-b662-477d-a74a-6f822d17bbf1';
+                        return (
+                          <div
+                            key={`${chat.id}-${index}`}
+                            onClick={async () => {
+                              setSelectedChat(chat);
+                              if (chat.unreadCount > 0 && user?.id) {
+                                // Optimistically update
+                                setPrivateChats(prev => prev.map(c => c.id === chat.id ? { ...c, unreadCount: 0 } : c));
+                                setUnreadMessageCount(prev => Math.max(0, prev - chat.unreadCount));
 
-                              const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
-                              await supabase
-                                .from('messages')
-                                .update({ is_read: true })
-                                .eq('user_id', partnerId)
-                                .eq('receiver_id', user.id)
-                                .eq('is_read', false);
-                            }
-                          }}
-                          className={`shrink-0 flex items-center justify-between gap-4 py-5 px-4 cursor-pointer transition-all group relative overflow-hidden ${isBot
-                            ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
-                            : 'btn-clash btn-clash-pale text-mono-900'
-                            }`}
-                        >
-                          {isBot && (
-                            <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
-                          )}
-                          {/* Left Group: Avatar + Content */}
-                          <div className="flex flex-1 items-center justify-start gap-3 min-w-0 relative z-10">
-                            {/* Avatar */}
-                            <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
-                              {isBot ? (
-                                <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
-                                  <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
-                                  <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+                                const partnerId = chat.isBotChat ? '9a813c24-b662-477d-a74a-6f822d17bbf1' : chat.id;
+                                await supabase
+                                  .from('messages')
+                                  .update({ is_read: true })
+                                  .eq('user_id', partnerId)
+                                  .eq('receiver_id', user.id)
+                                  .eq('is_read', false);
+                              }
+                            }}
+                            className={`shrink-0 flex items-center justify-between gap-4 py-5 px-4 cursor-pointer transition-all group relative overflow-hidden ${isBot
+                              ? 'bg-primary shadow-[0_4px_0_#047857] border-none rounded-md active:translate-y-0.5 active:shadow-[0_0px_0_#047857] mb-4'
+                              : 'btn-clash btn-clash-pale text-mono-900'
+                              }`}
+                          >
+                            {isBot && (
+                              <div className="absolute inset-0 bg-linear-to-br from-white/10 to-transparent pointer-events-none" />
+                            )}
+                            {/* Left Group: Avatar + Content */}
+                            <div className="flex flex-1 items-center justify-start gap-3 min-w-0 relative z-10">
+                              {/* Avatar */}
+                              <div className="shrink-0" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setSelectedPlayer(chat); }}>
+                                {isBot ? (
+                                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border-2 border-white/30 overflow-hidden bg-white dark:bg-[#141414]">
+                                    <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain block dark:hidden" />
+                                    <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-[80%] h-[80%] object-contain hidden dark:block" />
+                                  </div>
+                                ) : (
+                                  <Avatar
+                                    src={chat.avatar_url}
+                                    lastActive={chat.updated_at}
+                                    isOnline={onlineUsers?.has(chat.id)}
+                                    showStatus={true}
+                                    size="md"
+                                    border={false}
+                                    className="transition-all"
+                                  />
+                                )}
+                              </div>
+
+                              {/* Name and Message */}
+                              <div className="flex flex-col items-start min-w-0 flex-1">
+                                <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
+                                  ? 'text-white'
+                                  : 'text-mono-900 group-hover:text-primary'
+                                  }`}>
+                                  {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
+                                </span>
+                                <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 font-black' : 'text-mono-500 font-bold')}`}>
+                                  <span className="material-symbols-outlined text-[14px]">chat</span>
+                                  <span className="truncate flex items-center gap-1">
+                                    {renderPreviewText(chat.lastMsg)}
+                                  </span>
                                 </div>
-                              ) : (
-                                <Avatar
-                                  src={chat.avatar_url}
-                                  lastActive={chat.updated_at}
-                                  isOnline={onlineUsers?.has(chat.id)}
-                                  showStatus={true}
-                                  size="md"
-                                  border={false}
-                                  className="transition-all"
-                                />
+                              </div>
+                            </div>
+
+                            {/* Right Side: Time and Indicator */}
+                            <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
+                              <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-500'}`}>
+                                {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              {chat.unreadCount > 0 && (
+                                <div className={`w-5 h-5 text-[10px] font-black rounded-full flex items-center justify-center ${isBot ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
+                                  {toKuDigits(chat.unreadCount)}
+                                </div>
                               )}
                             </div>
-
-                            {/* Name and Message */}
-                            <div className="flex flex-col items-start min-w-0 flex-1">
-                              <span className={`font-black text-sm truncate w-full text-right transition-colors ${isBot
-                                ? 'text-white'
-                                : 'text-mono-900 group-hover:text-primary'
-                                }`}>
-                                {isBot ? 'پەیڤۆک Peyvok' : chat.nickname}
-                              </span>
-                              <div className={`flex items-center gap-1.5 text-xs font-rabar w-full justify-start ${isBot ? 'text-white/80 font-bold' : (chat.unreadCount > 0 ? 'text-mono-900 font-black' : 'text-mono-500 font-bold')}`}>
-                                <span className="material-symbols-outlined text-[14px]">chat</span>
-                                <span className="truncate flex items-center gap-1">
-                                  {renderPreviewText(chat.lastMsg)}
-                                </span>
-                              </div>
-                            </div>
                           </div>
-
-                          {/* Right Side: Time and Indicator */}
-                          <div className="flex flex-col items-end justify-center min-w-12.5 pr-1 relative z-10">
-                            <span className={`text-[10px] font-bold mb-1 ${isBot ? 'text-white/70' : 'text-mono-500'}`}>
-                              {new Date(chat.time).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            {chat.unreadCount > 0 && (
-                              <div className={`w-5 h-5 text-[10px] font-black rounded-full flex items-center justify-center ${isBot ? 'bg-white text-primary' : 'bg-red-500 text-white'}`}>
-                                {toKuDigits(chat.unreadCount)}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
             </div>
           )}
         </div>

@@ -37,107 +37,57 @@ const TermsOfService = ({ onViewChange, onClose }) => {
     const content = {
         en: {
             title: "Terms of Service",
-            subtitle: "Last Updated: April 2, 2026",
-            intro: "Welcome to Peyvok. By accessing or using our application, you agree to be bound by these Terms of Service. Please read them carefully.",
+            subtitle: "Last Updated: August 26, 2026",
+            intro: "By using the Peyvok game, you agree to abide by these terms to maintain a safe environment for all players.",
             sections: [
                 {
-                    title: "1. Acceptance of Terms",
-                    text: "By creating an account or using any part of the Peyvok platform, you confirm that you have read, understood, and agreed to these terms. If you do not agree, you must not use our services."
+                    title: "1. User Generated Content (UGC)",
+                    text: "Peyvok allows players to send images, text messages, and voice notes to each other in the chat, as well as speak via microphone in the game. You are fully responsible for any content you share. For your information, all chat messages, images, and voice notes are automatically deleted after 24 hours to protect your privacy."
                 },
                 {
-                    title: "2. License to Use",
-                    text: "We grant you a non-exclusive, non-transferable, revocable license to use Peyvok for personal, non-commercial entertainment purposes only.",
+                    title: "2. Prohibited Actions and Bans",
+                    text: "To maintain a safe and fair environment for all players, the following actions are strictly prohibited and will result in a permanent ban of your account:",
                     list: [
-                        "You may not reverse engineer or modify the game files.",
-                        "Commercial use of our logos and assets is strictly prohibited."
+                        "Using offensive language, disrespecting, attacking, or harassing other players in the chat or voice chat.",
+                        "Sending inappropriate, sexually explicit, or violent images.",
+                        "Using hacking programs or cheats to gain points."
                     ]
                 },
                 {
-                    title: "3. User Accounts",
-                    text: "You are responsible for maintaining the confidentiality of your login credentials (via Facebook, Google, or Apple).",
-                    list: [
-                        "You are responsible for all activities occurring under your account.",
-                        "Notify us immediately of any unauthorized access."
-                    ]
+                    title: "3. Reporting and Blocking",
+                    text: "We grant all players the right to block or report any violating player. Our moderation team will take the necessary steps against those accounts."
                 },
                 {
-                    title: "4. Intellectual Property",
-                    text: "All content within پەیڤۆک, including logos, graphics, word lists, and software, is the exclusive property of پەیڤۆک and its creators, protected by international copyright laws."
-                },
-                {
-                    title: "5. Prohibited Conduct",
-                    text: "To maintain a fair gaming environment, users are prohibited from:",
-                    list: [
-                        "Using cheats, hacks, or automation software.",
-                        "Harassing other players or using offensive language in profiles.",
-                        "Attempting to disrupt our technical infrastructure."
-                    ]
-                },
-                {
-                    title: "6. Limitation of Liability",
-                    text: "پەیڤۆک provides its services 'as is'. We are not responsible for technical glitches, data loss, or server downtime. Our total liability shall not exceed the amount you paid to use the service (if any)."
-                },
-                {
-                    title: "7. Virtual Currency",
-                    text: "Any in-game currency (e.g., Fils, Derhem, Dinar) or rewards provided in پەیڤۆک are purely virtual. They have no real-world monetary value, cannot be exchanged for real money, and are used exclusively for in-game entertainment."
-                },
-                {
-                    title: "8. Changes to Terms",
-                    text: "We reserve the right to modify these terms at any time. We will notify you of major changes through the application.",
-                    email: "support@peyvokgame.com"
+                    title: "4. In-Game Virtual Currency",
+                    text: "In-game currency (Fils, Derhem, Dinar) is solely virtual game currency with no real-world monetary value and cannot be exchanged outside the game."
                 }
             ]
         },
         ku: {
             title: "مەرجێن بکارهینانێ",
-            subtitle: "دووماھیک نویژەنکرن: ٢ نیسان، ٢٠٢٦",
-            intro: "بخێر بێی بۆ پەیڤۆک. ب چوونە ژوور یان بکارهینانا ڤێ یاریێ، تو ڕازی دبی کو پابەندی ڤان مەرج و ڕێسایان بی. ھیڤییە ب ھووری بخوینە.",
+            subtitle: "دووماهیک نویژەنکرن: ٢٦ تەباخ، ٢٠٢٦",
+            intro: "ب بکارئینانا یارییا پەیڤۆک، تو ڕازی دبی کو پابەندی ڤان مەرجان بی بۆ پاراستنا ژینگەهەکا ساخلەم بۆ هەمی یاریزانان.",
             sections: [
                 {
-                    title: "١. پەژراندنا مەرجان",
-                    text: "ب دروستکرنا هژمارێ یان بکارهینانا ھەر پشکەکا پەیڤۆک، تو پشتڕاست دکەی کو تە ئەڤ مەرجە خواندینە، تێگەھشتی، و پێ ڕازی بی. ئەگەر تو پێ ڕازی نەبی، نەدروستە خزمەتگوزاریێن مە بکاربهینی."
+                    title: "١. ناڤەرۆکا بکارھێنەری (User Generated Content - UGC)",
+                    text: "یارییا پەیڤۆک ڕێکێ ددەتە یاریزانان کو د ناڤ چاتێ دا وێنە، نامە، و نامەیێن دەنگی بۆ ئێک بهنێرن، هەروەسا ب ڕێکا مایکرۆفۆنێ د ناڤ یاریێ دا باخڤن. تو ب تەمامی بەرپرسیاری ژ هەر ناڤەرۆکەکا تو بەلاڤ دکەی. بۆ زانیاریێن زێدەتر، هەمی نامە و وێنە و دەنگێن چاتێ پشتی ٢٤ دەمژمێران بۆ پاراستنا نهێنیێ ب ئۆتۆماتیکی دهێنە ژێبرن."
                 },
                 {
-                    title: "٢. مۆڵەتا بکارھێنەران",
-                    text: "ئەم مۆڵەتەکا نە-تایبەت و سنووردار ددەینە تە کو پەیڤۆک بکاربهینی ب تنێ بۆ مەبەستێن کەسی و نەک بۆ کارێن بازرگانی.",
+                    title: "٢. کارێن قەدەغەکری و ڕاگرتن",
+                    text: "بۆ پاراستنا ژینگەهەکا ساخلەم و دادپەروەرانە بۆ هەمی یاریزانان، ئەڤ کارێن خوارێ ب توندترین شێوە قەدەغەنە و دێ بنە ئەگەرێ ڕاگرتنا (Ban) هەمیشەیی یا هژمارا تە:",
                     list: [
-                        "تو نەشێی فایلێن یاریێ کۆپی بکەی یان دەستکاری بکەی.",
-                        "بکارهینانا بازرگانی ژ لۆگۆ و ناڤ و نیشانێن یاریێ قەدەغەیە بێی ڕێپێدان."
+                        "بکارئینانا پەیڤێن نەجوان، بێڕێزیکرن، هێرشکرن، یان بێزارکرنا یاریزانێن دی ل ناڤ چاتێ یان ب ڕێکا مایکرۆفۆنێ.",
+                        "هنارتنا وێنەیێن نەگونجای، سێکسی، یان توندوتیژی.",
+                        "بکارئینانا پرۆگرامێن هاککرنێ یان فێلبازیێ بۆ بدەستڤەئینانا خاڵان."
                     ]
                 },
                 {
-                    title: "٣. بەرپرسیارەتییا هژمارێ",
-                    text: "تو بەرپرسیاری ژ پاراستنا نھێنیا پێزانینێن چوونە ژوور (فەیسبۆک/گۆگل/دیسکۆرد/ئەپڵ).",
-                    list: [
-                        "ھەمی چالاکیێن د ناڤ هژمارا تە دا دھێنە کرن، تو بەرپرسیاری ژێ.",
-                        "ئەگەر تە ھەست ب ھەر فێلبازیەکێ کر د هژمارا خوە دا، زوو مە ئاگەھدار بکە."
-                    ]
+                    title: "٣. ڕاپۆرتکرن و بلۆککرن",
+                    text: "ئەم مافێ ددەینە هەمی یاریزانان کو هەر یاریزانەکێ سەرپێچیکار بلۆک (Block) بکەن یان ڕاپۆرت (Report) بکەن. تیمێ مە یێ چاڤدێریێ دێ پێنگاڤێن پێدڤی هەمبەر وان هژماران هاڤێژیت."
                 },
                 {
-                    title: "٤. مافێن خودانیێ",
-                    text: "ھەمی ناڤەرۆکا پەیڤۆک، ژ لۆگۆ، گرافیک، لیستێن پەیڤان، و پڕۆگرامان، مافێ تایبەت یێ پەیڤۆک و خودانانە و ژ لایێ یاسا نێڤدەولەتیڤە پاراستیە."
-                },
-                {
-                    title: "٥. کارێن قەدەغەکری",
-                    text: "بۆ پاراستنا ژینگەکا دادپەروەر د یاریێدا، بۆ بکارھێنەران قەدەغەیە:",
-                    list: [
-                        "بکارهینانا ھاک و پڕۆگرامێن فێلبازیێ بۆ سەرکەفتنێ.",
-                        "تەنگاڤکرنا یاریزانێن دی یان بکارهینانا پەیڤێن نەجوان د ناڤ و پڕۆفایلاندا.",
-                        "پێکۆلکرن بۆ تێکدان یان ھێرشێن تەکنیکی بۆ سەر یاریێ."
-                    ]
-                },
-                {
-                    title: "٦. سنووردارکرنا بەرپرسیارەتیێ",
-                    text: "پەیڤۆک خزمەتگوزاریێن خوە پێشکێش دکەت ب ڤی ڕەنگی یێ ھەی. ئەم بەرپرس نینین ژ چ کێشێن تەکنیکی, ژ دەستچوونا داتایان, یان ڕاگرتنا سێرڤەران."
-                },
-                {
-                    title: "٧. دراڤێ خەیاڵی یێ ناڤ یاریێ",
-                    text: "ھەمی جۆرێن دراڤی یان خالان یێن کو د ناڤ یاریێ دا دھێنە دان (وەکی فلس, دەرهەم, دینار) ب تنێ بۆ مەبەستا دەربازکرنا دەمی نە د ناڤ یاریێ دا و چ بھایەکێ ڕاستەقینە یێ ماددی نینە و نابیت ب پارێ ڕاستەقینە بھێنە فرۆشتن یان ئاڵوگۆڕکرن."
-                },
-                {
-                    title: "٨. گوھۆڕینا مەرجان",
-                    text: "مە ماف ھەیە ل ھەر دەمەکی ڤان مەرجان بگوھۆڕین. ئەم دێ تە ژ گوھۆڕینێن مەزن ئاگەھدار کەین.",
-                    email: "support@peyvokgame.com"
+                    title: "٤. دراڤێ خەیاڵی یێ یاریێ",
+                    text: "دراڤێ د ناڤ یاریێ دا (فلس، دەرهەم، دینار) ب تنێ دراڤەکێ خەیاڵی یێ یاریێ یە و چ بهایەکێ ڕاستەقینە یێ ماددی نینە و ل دەرڤەی یاریێ ناهێتە ئالوگۆڕکرن."
                 }
             ]
         }
