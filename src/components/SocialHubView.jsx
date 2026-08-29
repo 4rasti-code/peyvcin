@@ -2699,10 +2699,10 @@ export default function SocialHubView({
                           initial={{ opacity: 0, y: 5, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                          className="absolute bottom-full right-1 mb-2 w-auto min-w-30 max-h-75 overflow-y-auto custom-scrollbar bg-[#1a1c23] border border-white/10 rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.8)] z-50 flex flex-col p-1.5 gap-1.5"
+                          className="absolute bottom-full right-1 mb-2 w-auto min-w-30 max-h-75 overflow-y-auto custom-scrollbar bg-[#1a1c23] border border-white/10 rounded-md shadow-[0_10px_25px_rgba(0,0,0,0.8)] z-50 flex flex-col"
                         >
-                           {globalViewers.map(v => (
-                              <div key={v.id} className="flex items-center gap-2 bg-white/5 rounded-full p-1 pl-3 border border-white/5">
+                           {globalViewers.map((v, i) => (
+                              <div key={v.id} className={`flex items-center gap-2 p-1.5 ${i !== globalViewers.length - 1 ? 'border-b border-white/5' : ''}`}>
                                  <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-[#16212b]">
                                    {v.avatar_url && v.avatar_url !== 'default' ? (
                                      <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
