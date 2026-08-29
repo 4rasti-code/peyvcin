@@ -2666,7 +2666,7 @@ export default function SocialHubView({
                 </AnimatePresence>
 
                 {globalViewers.length > 0 && (
-                  <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1 w-full min-w-0 relative">
+                  <div className="flex items-center justify-start gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1 w-full min-w-0 relative">
                     <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-1 shrink-0">سەرهێل:</span>
                     
                     {/* The Clickable Overlapping Avatars */}
