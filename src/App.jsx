@@ -23,6 +23,7 @@ import { getLocalDateString as _getLocalDateString } from './utils/formatters';
 import KurdishSunLoader from './components/KurdishSunLoader';
 import ClassicIcon from './components/ClassicIcon';
 import { NavChatIcon } from './components/NavIcons';
+import InstallGuideModal from './components/InstallGuideModal';
 
 import useMultiplayer from './hooks/useMultiplayer';
 import { calculateLevelRewards, calculateDefeatPenalty } from './utils/gameStatus';
@@ -178,6 +179,13 @@ const ScrollingMatchFinder = ({ opponent }) => {
 export default function App() {
   const [isUpdateNotesCleared, setIsUpdateNotesCleared] = useState(false);
   const navigate = useNavigate();
+
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  useEffect(() => {
+    const handleOpenInstallModal = () => setIsInstallModalOpen(true);
+    window.addEventListener('openInstallModal', handleOpenInstallModal);
+    return () => window.removeEventListener('openInstallModal', handleOpenInstallModal);
+  }, []);
 
   const [isFontsLoaded, setIsFontsLoaded] = useState(false);
 
@@ -2431,6 +2439,11 @@ export default function App() {
         </Suspense>
 
         {/* GLOBAL INVITE TOAST */}
+        <InstallGuideModal
+          key="global-install-modal"
+          isOpen={isInstallModalOpen}
+          onClose={() => setIsInstallModalOpen(false)}
+        />
         <GlobalInviteToast setGameMode={setGameMode} currentView={currentView} setCurrentView={setCurrentView} gameMode={gameMode} />
 
         {/* UPGRADE ACCOUNT MODAL FOR GUESTS */}

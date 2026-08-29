@@ -9,7 +9,6 @@ import { AVATARS, DEFAULT_AVATAR } from '../data/avatars';
 const Avatar = memo(({
   src,
   symbol,
-  updatedAt,
   lastActive, // Timestamp to check online status
   isOnline: explicitIsOnline, // Explicit override for real-time presence
   showStatus = false,
@@ -37,16 +36,9 @@ const Avatar = memo(({
     displaySrc = displaySrc.replace('https://auth.peyvokgame.com', import.meta.env.VITE_SUPABASE_URL);
   }
 
-  if (isRemote && updatedAt) {
-    try {
-      const timestamp = new Date(updatedAt).getTime();
-      if (!isNaN(timestamp)) {
-        displaySrc = `${src}${src.includes('?') ? '&' : '?'}v=${timestamp}`;
-      }
-    } catch (e) {
-      console.warn("Avatar timestamp error:", e);
-    }
-  }
+  // Cache busting removed: Uploaded avatars now include Date.now() in their filenames,
+  // so the URL itself changes on upload. Appending ?v= based on profile.updated_at
+  // causes the browser to re-download the image every time XP changes, leading to ERR_CONNECTION_CLOSED.
 
   const hasImage = !!displaySrc;
 

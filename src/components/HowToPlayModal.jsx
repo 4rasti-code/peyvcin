@@ -20,7 +20,7 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
   const [mpExampleTab, setMpExampleTab] = useState('3');
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const { playTabSound } = useAudio();
-  const { user, userProfile } = useUser();
+  const { user, userNickname } = useUser();
   
   const [showFriendsList, setShowFriendsList] = useState(false);
   const [friends, setFriends] = useState([]);
@@ -65,7 +65,7 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
     try {
       const { error } = await supabase.from('messages').insert([{
         user_id: user.id,
-        user_nickname: userProfile?.nickname || 'یاریزان',
+        user_nickname: userNickname || 'یاریزان',
         content: `[TUTORIAL_SHARE:${activeTab}]`,
         receiver_id: receiverId,
         is_read: receiverId === null ? true : false

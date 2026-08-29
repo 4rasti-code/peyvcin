@@ -673,10 +673,11 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
   const isMatchResult = msgContent.startsWith('[BATTLE_RESULT]') || ((msgContent.includes('🟩') || msgContent.includes('🟨') || msgContent.includes('⬛') || msgContent.includes('⬜')) && /پەیڤۆک|تایا پەیڤان|پەیڤێن دژوار|هەڤڕکی|مامک|ئەنجام/.test(msgContent));
   const isMedalShare = /^\s*\[MEDAL_SHARE:.*?\]\s*$/.test(msgContent);
   const isTutorialShare = /^\s*\[TUTORIAL_SHARE(?:|:[^\]]+)\]\s*$/.test(msgContent);
+  const isDownloadShare = /^\s*\[DOWNLOAD_SHARE\]\s*$/.test(msgContent);
 
   const renderFormattedText = (text) => {
     if (!text) return null;
-    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|\[VOICE_FEATURE_CARD\]|\[TUTORIAL_SHARE(?:|:[^\]]+)\]|@\S+|https?:\/\/\S+)/g);
+    const parts = text.split(/(\[IMAGE:.*?\]|\[STICKER:.*?\]|\[VOICE:.*?\]|\[MEDAL_SHARE:.*?\]|\[VOICE_FEATURE_CARD\]|\[TUTORIAL_SHARE(?:|:[^\]]+)\]|\[DOWNLOAD_SHARE\]|@\S+|https?:\/\/\S+)/g);
     return parts.map((part, i) => {
       if (part.startsWith('@')) {
         return <span key={i} className="font-bold text-primary px-0.5 bg-primary/10 rounded">{part}</span>;
@@ -853,6 +854,58 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         );
       }
 
+      if (part === '[DOWNLOAD_SHARE]') {
+        return (
+          <div key={i} className="my-1 w-56 xs:w-[240px] sm:w-64 flex flex-col bg-[#51596b] rounded-[14px] shadow-[inset_0_-6px_0_rgba(0,0,0,0.4),0_10px_20px_rgba(0,0,0,0.4)] relative font-rabar border-2 border-[#121316] overflow-hidden cursor-pointer active:scale-[0.98] transition-transform group" dir="rtl" onClick={(e) => { e.stopPropagation(); triggerHaptic(10); window.dispatchEvent(new CustomEvent('openInstallModal')); }}>
+            {/* Inner 3D Highlight Layer */}
+            <div
+              className="absolute inset-0 rounded-[12px] border-2 border-t-white/80 border-x-transparent border-b-transparent pointer-events-none z-0"
+              style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}
+            ></div>
+
+            {/* Inner 3D Shadow Layer */}
+            <div className="absolute inset-0 rounded-[12px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
+
+            {/* Glassy Header Highlight */}
+            <div className="absolute top-1 inset-x-1 h-5 bg-[#646e82] pointer-events-none z-0 rounded-t-md"></div>
+
+            {/* Header */}
+            <div className="w-full relative z-10 flex flex-col items-center justify-center pt-2 pb-1.5 shrink-0">
+              <h2
+                className="text-[12px] font-black text-white leading-none relative z-10 flex items-center gap-1.5"
+                style={{ textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}
+              >
+                داگرتنا یاریێ
+              </h2>
+              <div className="absolute top-0 inset-x-0 h-px bg-white/10" />
+              <div className="absolute bottom-0 inset-x-0 h-px bg-black/40" />
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex-col mx-1.5 mb-1.5 relative z-0">
+              <div className="flex flex-col relative rounded-[8px] bg-[#e6ebf0] shadow-[0_2px_4px_rgba(0,0,0,0.2)] overflow-hidden p-2 shrink-0 z-10">
+                {/* Inner White Box 3D Highlight */}
+                <div className="absolute inset-0 rounded-[8px] border-2 border-t-white/90 border-l-white/80 border-r-black/5 border-b-black/10 pointer-events-none z-10"></div>
+
+                <div className="relative z-20 flex flex-col items-center text-center">
+                  <p className="text-[11px] font-bold text-[#181a20] mb-2 mt-0.5 leading-tight px-1">
+                    یاریێ وەکی بەرنامە دەینە سەر شاشا مۆبایلێ.
+                  </p>
+
+                  {/* Understood/Open Button */}
+                  <div className={`relative shrink-0 w-full h-7 rounded-md font-black font-rabar text-[10px] transition-all flex items-center justify-center gap-1.5 border-[1.5px] border-[#181a20] overflow-hidden bg-linear-to-b from-[#34d399] to-[#059669] shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_-3px_0_#065f46,0_4px_6px_rgba(0,0,0,0.2)] text-white group-active:shadow-[inset_0_2px_0_rgba(255,255,255,0.5),inset_0_0px_0_#065f46,0_2px_4px_rgba(0,0,0,0.2)] group-active:translate-y-0.75`}>
+                    <div className="absolute top-0.5 inset-x-0.5 bottom-1 pointer-events-none rounded-sm bg-white/20"></div>
+                    <span className="relative z-10" style={{ textShadow: '-1px -1px 0 #181a20, 1px -1px 0 #181a20, -1px 1px 0 #181a20, 1px 1px 0 #181a20, 0 1px 0 #181a20' }}>
+                      داگرتن
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       if (part.match(/^https?:\/\//)) {
         return (
           <a key={i} href={part} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold" onClick={e => e.stopPropagation()} dir="ltr">
@@ -900,6 +953,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         return (
           <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
             {(() => {
+              const actualNickname = reactionUsers[m.user_id]?.nickname ?? m.user_nickname;
               const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
               const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
               const userLvl = getLevelData(userXp).level;
@@ -916,7 +970,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                   style={{ background: `linear-gradient(135deg, ${msgTier.stop1}, ${msgTier.stop2})` }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    onProfileClick?.({ id: m.user_id, nickname: m.user_nickname, avatar_url: userAvatarUrl, xp: userXp });
+                    onProfileClick?.({ id: m.user_id, nickname: actualNickname, avatar_url: userAvatarUrl, xp: userXp });
                   }}
                 >
                   {userAvatarUrl && userAvatarUrl !== 'default' ? (
@@ -925,7 +979,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                     </div>
                   ) : (
                     <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[12px] font-black text-[#e65c00] uppercase border border-black/10">
-                      {(m.user_nickname || 'ی')[0]}
+                      {(actualNickname || 'ی')[0]}
                     </div>
                   )}
                 </div>
@@ -940,7 +994,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                       const styleObj = NAME_STYLES[m.equipped_name_style] || {};
                       const bundleObj = BUNDLES[m.equipped_bundle] || BUNDLES['default'];
 
-                      const nameLen = Math.max(m.user_nickname?.length || 1, 1);
+                      const nameLen = Math.max(actualNickname?.length || 1, 1);
                       const wideFonts = ['press-start-2p', 'bangers', 'blunt-wide', 'digiface', 'digital', 'lcd', 'runiga', 'god-of-war', 'fungky-brow', 'ncl-halloween-danger', 'awesome-christmas'];
                       const isWideFont = wideFonts.includes(m.equipped_font);
                       const baselineLen = isWideFont ? 5.5 : 8.5;
@@ -962,7 +1016,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                             } : {})
                           }}
                         >
-                          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (m.user_nickname || 'بێناڤ')}
+                          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (actualNickname || 'بێناڤ')}
                         </span>
                       );
                     })()}
@@ -1024,7 +1078,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
               if (rect) onLongPress(m, rect);
             }}
             style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
-            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare || isTutorialShare))
+            className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare || isTutorialShare || isDownloadShare))
               ? `bg-transparent shadow-none border-none p-0 ${(isOnlyEmoji || isOnlySticker) ? 'text-[54px] leading-none drop-shadow-sm' : ''}`
               : `px-3.5 pt-3.5 pb-1 rounded-[20px] text-[13.5px] font-rabar font-bold wrap-break-word whitespace-pre-wrap border border-black/10 shadow-[0_4px_0_#b4becd] ${isMe
                 ? 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-right-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-t before:border-r before:border-black/10 before:rotate-45'
@@ -1188,6 +1242,7 @@ export default function SocialHubView({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [showAllOnline, setShowAllOnline] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [newGlobalCount, setNewGlobalCount] = useState(0);
   const [topDailyPlayers, setTopDailyPlayers] = useState([]);
@@ -2611,11 +2666,16 @@ export default function SocialHubView({
                 </AnimatePresence>
 
                 {globalViewers.length > 0 && (
-                  <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1">
-                    <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-2">سەرهێل:</span>
-                    <div className="flex flex-row-reverse -space-x-1.5 space-x-reverse">
+                  <div className="flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1 w-full min-w-0 relative">
+                    <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-1 shrink-0">سەرهێل:</span>
+                    
+                    {/* The Clickable Overlapping Avatars */}
+                    <button 
+                      onClick={() => { triggerHaptic(10); setShowAllOnline(prev => !prev); }}
+                      className="flex flex-row-reverse -space-x-1.5 space-x-reverse items-center outline-none"
+                    >
                       {globalViewers.slice(0, 5).map((v, i) => (
-                        <div key={v.id || i} className="w-5 h-5 rounded-full overflow-hidden border border-[#16212b] shadow-sm relative z-10" style={{ zIndex: 5 - i }} title={v.nickname}>
+                        <div key={v.id || i} className="w-5 h-5 rounded-full overflow-hidden border border-[#16212b] shadow-sm relative" style={{ zIndex: 5 - i }}>
                           {v.avatar_url && v.avatar_url !== 'default' ? (
                             <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
                           ) : (
@@ -2630,7 +2690,34 @@ export default function SocialHubView({
                           +{globalViewers.length - 5}
                         </div>
                       )}
-                    </div>
+                    </button>
+
+                    {/* The Delicate Dropdown List */}
+                    <AnimatePresence>
+                      {showAllOnline && (
+                        <Motion.div
+                          initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                          className="absolute bottom-full right-1 mb-2 w-auto min-w-30 max-h-75 overflow-y-auto custom-scrollbar bg-[#1a1c23] border border-white/10 rounded-xl shadow-[0_10px_25px_rgba(0,0,0,0.8)] z-50 flex flex-col p-1.5 gap-1.5"
+                        >
+                           {globalViewers.map(v => (
+                              <div key={v.id} className="flex items-center gap-2 bg-white/5 rounded-full p-1 pl-3 border border-white/5">
+                                 <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-[#16212b]">
+                                   {v.avatar_url && v.avatar_url !== 'default' ? (
+                                     <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
+                                   ) : (
+                                     <div className="w-full h-full bg-mono-200 dark:bg-mono-700 flex items-center justify-center text-[9px] font-black text-primary uppercase">
+                                       {(v.nickname || 'ی')[0]}
+                                     </div>
+                                   )}
+                                 </div>
+                                 <span className="text-[11px] font-bold text-mono-300 truncate max-w-24 leading-none pt-0.5">{v.nickname}</span>
+                              </div>
+                           ))}
+                        </Motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>

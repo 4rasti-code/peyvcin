@@ -133,7 +133,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
         initial={{ scale: 0.9, opacity: 0, y: 20 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="w-full max-w-105 h-auto max-h-[90vh] flex flex-col bg-[#636a7c] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
+        className="w-full max-w-105 h-auto max-h-[90vh] flex flex-col bg-[#f59e0b] rounded-[18px] shadow-[inset_0_-8px_0_rgba(0,0,0,0.4),0_15px_35px_rgba(0,0,0,0.6)] relative font-rabar border-4 border-[#121316] overflow-hidden"
         onClick={e => e.stopPropagation()}
         dir="rtl"
       >
@@ -147,7 +147,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
          <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/40 border-x-black/20 border-t-transparent pointer-events-none z-0"></div>
 
          {/* Glassy Header Highlight */}
-         <div className="absolute top-1.5 inset-x-1.5 h-7 bg-[#727888] pointer-events-none z-0 rounded-t-[8px]"></div>
+         <div className="absolute top-1.5 inset-x-1.5 h-7 bg-white/20 pointer-events-none z-0 rounded-t-[8px]"></div>
 
          {/* Header */}
          <div className="w-full relative z-10 flex items-center justify-center pt-5 pb-5 shrink-0">

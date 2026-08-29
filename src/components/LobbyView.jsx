@@ -26,7 +26,7 @@ import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
-import InstallGuideModal from './InstallGuideModal';
+
 import WordSuggestionModal from './WordSuggestionModal';
 import OnboardingOverlay from './OnboardingOverlay';
 import AdBanner from './AdBanner';
@@ -99,7 +99,6 @@ const LobbyView = memo(({
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [isWordModalOpen, setIsWordModalOpen] = useState(false);
   const [tourCompleted, setTourCompleted] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
@@ -700,16 +699,6 @@ const LobbyView = memo(({
   };
 
   const activeProfiles = React.useMemo(() => {
-    // --- DEBUG LOGS FOR GHOST USER ---
-    const rawIds = Array.from(onlineUsers || new Set());
-    console.log("Raw Online IDs from PresenceContext:", rawIds);
-    console.log("Fetched Profiles from Supabase:", onlineProfiles);
-    
-    const fetchedIds = onlineProfiles.map(p => p.id);
-    const missingIds = rawIds.filter(id => !fetchedIds.includes(id));
-    console.log("Missing ID(s) (in presence but not in profiles):", missingIds);
-    // ---------------------------------
-
     return onlineProfiles.filter(p => onlineUsers?.has(p.id));
   }, [onlineProfiles, onlineUsers]);
 
@@ -749,7 +738,7 @@ const LobbyView = memo(({
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => { triggerHaptic(10); setIsInstallModalOpen(true); }}
+                  onClick={() => { triggerHaptic(10); window.dispatchEvent(new CustomEvent('openInstallModal')); }}
                   className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-cyan"
                 >
                   <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">download</span>
@@ -1435,11 +1424,6 @@ const LobbyView = memo(({
             user={user}
           />
         )}
-        <InstallGuideModal
-          key="install-modal"
-          isOpen={isInstallModalOpen}
-          onClose={() => setIsInstallModalOpen(false)}
-        />
       </AnimatePresence>
 
       {/* Onboarding Tour */}
@@ -1458,7 +1442,7 @@ const LobbyView = memo(({
           ]}
           onComplete={() => {
             setTourCompleted(true);
-            setIsInstallModalOpen(true);
+            window.dispatchEvent(new CustomEvent('openInstallModal'));
           }}
         />
       )}
