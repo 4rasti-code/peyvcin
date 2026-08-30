@@ -21,7 +21,7 @@ const SPECIAL_KEYS = {
 
 
 
-const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true }) => {
+const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerTarget = false }) => {
    const getKeyStyle = () => {
       if (isDisabled) {
          return isDark
@@ -60,13 +60,23 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true }) => {
                transition: { type: "spring", stiffness: 120, damping: 25 }
             }
          }}
-         whileHover={{ scale: 1.05 }}
-         whileTap={{ scale: 0.92 }}
+         whileHover={{ scale: isDisabled ? 1 : 1.05 }}
+         whileTap={{ scale: isDisabled ? 1 : 0.92 }}
          transition={{ type: "spring", stiffness: 400, damping: 17 }}
          onPointerDown={(e) => { e.preventDefault(); !isDisabled && onKeyPress(k); }}
-         className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border ${getKeyStyle()}`}
+         className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border relative ${getKeyStyle()}`}
       >
          <span className={`text-[clamp(1.3rem,4.5vw,1.9rem)] ${getTextTranslateY()}`}>{k}</span>
+         {isPointerTarget && (
+            <Motion.div
+               initial={{ y: -10, opacity: 0 }}
+               animate={{ y: [0, -10, 0], opacity: 1 }}
+               transition={{ duration: 1, repeat: Infinity }}
+               className="absolute -top-10 left-1/2 -translate-x-1/2 text-3xl z-50 pointer-events-none drop-shadow-md"
+            >
+               👇
+            </Motion.div>
+         )}
       </Motion.button>
    );
 });
@@ -93,7 +103,10 @@ const Keyboard = memo(({
    hintTaps = 0,
    hintLimit = 0,
    hidePowerups = false,
-   isDark = true
+   forceShowPowerups = false,
+   isDark = true,
+   allowedKeys = null,
+   pointerKey = null
 }) => {
 
    const handleKeyPress = useCallback((key, isSpecial = false) => {
@@ -114,7 +127,7 @@ const Keyboard = memo(({
       <div className={`flex flex-col gap-2.5 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
 
          {!hidePowerups && (
-            <div className="md:hidden">
+            <div className={forceShowPowerups ? "" : "md:hidden"}>
                <InventoryBar
                   magnetCount={magnetCount}
                   hintCount={hintCount}
@@ -163,7 +176,7 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.DELETE, true); }}
-                     className="flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all active:scale-95 shadow-[0_4px_0_#be123c]"
+                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all shadow-[0_4px_0_#be123c] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.DELETE) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
                   >
                      <span className="material-symbols-outlined text-[20px]">backspace</span>
                   </Motion.button>
@@ -174,7 +187,8 @@ const Keyboard = memo(({
                      key={key}
                      k={key}
                      status={usedKeys[key]}
-                     isDisabled={(magnetDisabledKeys || []).includes(key)}
+                     isDisabled={(magnetDisabledKeys || []).includes(key) || (allowedKeys && !allowedKeys.includes(key))}
+                     isPointerTarget={pointerKey === key}
                      onKeyPress={handleKeyPress}
                      isDark={isDark}
                   />
@@ -193,9 +207,19 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.ENTER, true); }}
-                     className="flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all active:scale-95 border border-white/10 shadow-[0_4px_0_#047857]"
+                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all border border-white/10 shadow-[0_4px_0_#047857] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.ENTER) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
                   >
                      <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
+                     {pointerKey === SPECIAL_KEYS.ENTER && (
+                        <Motion.div
+                           initial={{ y: -10, opacity: 0 }}
+                           animate={{ y: [0, -10, 0], opacity: 1 }}
+                           transition={{ duration: 1, repeat: Infinity }}
+                           className="absolute -top-10 left-1/2 -translate-x-1/2 text-3xl z-50 pointer-events-none drop-shadow-md"
+                        >
+                           👇
+                        </Motion.div>
+                     )}
                   </Motion.button>
                )}
 

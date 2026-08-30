@@ -30,15 +30,15 @@ const KeyboardLanguageModal = ({ isOpen, onClose }) => {
             initial={{ scale: 0.98, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.98, opacity: 0 }}
-            className="relative w-full max-w-[200px] bg-white dark:bg-mono-900 rounded-md overflow-hidden shadow-lg border border-mono-200 dark:border-mono-800"
+            className="relative w-full max-w-50 bg-white dark:bg-mono-900 rounded-md overflow-hidden shadow-lg border border-mono-200 dark:border-mono-800"
           >
             <div className="p-4 flex flex-col items-center text-center gap-4">
               <div className="space-y-1.5">
                 <h2 className="text-sm font-bold text-mono-900 dark:text-mono-50">
-                  زمانێ کیبۆردی
+                  زمانێ تەختەکلیکی
                 </h2>
                 <p className="text-[10px] text-mono-500 dark:text-mono-400 font-medium leading-tight">
-                  کیبۆردێ خوە بگوهۆڕە بۆ <br/>
+                  تەختەکلیکێ خوە بگوهۆڕە بۆ <br/>
                   <span className="text-amber-600 dark:text-amber-500 font-bold">"Central Kurdish"</span>
                 </p>
               </div>

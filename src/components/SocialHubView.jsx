@@ -2571,8 +2571,8 @@ export default function SocialHubView({
                       }
                     }}
                     className={`h-8 flex-1 sm:flex-none sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${isActive
-                        ? 'btn-clash-sm-blue text-white z-20'
-                        : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
+                      ? 'btn-clash-sm-blue text-white z-20'
+                      : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
                       }`}
                   >
                     <span className="material-symbols-outlined text-[16px] drop-shadow-md">{tab.icon}</span>
@@ -2668,9 +2668,9 @@ export default function SocialHubView({
                 {globalViewers.length > 0 && (
                   <div className="flex items-center justify-start gap-1.5 mt-2 pt-2 border-t border-white/5 pr-1 w-full min-w-0 relative">
                     <span className="text-[10px] text-mono-400 dark:text-mono-500 font-bold ml-1 shrink-0">سەرهێل:</span>
-                    
+
                     {/* The Clickable Overlapping Avatars */}
-                    <button 
+                    <button
                       onClick={() => { triggerHaptic(10); setShowAllOnline(prev => !prev); }}
                       className="flex flex-row-reverse -space-x-1.5 space-x-reverse items-center outline-none"
                     >
@@ -2701,20 +2701,20 @@ export default function SocialHubView({
                           exit={{ opacity: 0, y: 5, scale: 0.95 }}
                           className="absolute bottom-full right-1 mb-2 w-auto min-w-30 max-h-75 overflow-y-auto custom-scrollbar bg-[#1a1c23] border border-white/10 rounded-md shadow-[0_10px_25px_rgba(0,0,0,0.8)] z-50 flex flex-col"
                         >
-                           {globalViewers.map((v, i) => (
-                              <div key={v.id} className={`flex items-center gap-2 p-1.5 ${i !== globalViewers.length - 1 ? 'border-b border-white/5' : ''}`}>
-                                 <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-[#16212b]">
-                                   {v.avatar_url && v.avatar_url !== 'default' ? (
-                                     <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
-                                   ) : (
-                                     <div className="w-full h-full bg-mono-200 dark:bg-mono-700 flex items-center justify-center text-[9px] font-black text-primary uppercase">
-                                       {(v.nickname || 'ی')[0]}
-                                     </div>
-                                   )}
-                                 </div>
-                                 <span className="text-[11px] font-bold text-mono-300 truncate max-w-24 leading-none pt-0.5">{v.nickname}</span>
+                          {globalViewers.map((v, i) => (
+                            <div key={v.id} className={`flex items-center gap-2 p-1.5 ${i !== globalViewers.length - 1 ? 'border-b border-white/5' : ''}`}>
+                              <div className="w-5 h-5 rounded-full overflow-hidden shrink-0 border border-[#16212b]">
+                                {v.avatar_url && v.avatar_url !== 'default' ? (
+                                  <img src={v.avatar_url} alt={v.nickname} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full bg-mono-200 dark:bg-mono-700 flex items-center justify-center text-[9px] font-black text-primary uppercase">
+                                    {(v.nickname || 'ی')[0]}
+                                  </div>
+                                )}
                               </div>
-                           ))}
+                              <span className="text-[11px] font-bold text-mono-300 truncate max-w-24 leading-none pt-0.5">{v.nickname}</span>
+                            </div>
+                          ))}
                         </Motion.div>
                       )}
                     </AnimatePresence>

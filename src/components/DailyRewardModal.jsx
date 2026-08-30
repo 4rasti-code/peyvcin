@@ -36,7 +36,7 @@ const AdvancedSparkle = ({ className, delaySec }) => (
 
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
-  { day: 2, label: '١ هاریکاری', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
+  { day: 2, label: '١ پیتبین', icon: 'lightbulb', reward: { hintCount: 1 }, color: '#f97316' },
   { day: 3, label: '١ بلیتێ سپینێ', type: 'spinTicket', reward: { spinTicketCount: 1 }, color: '#10b981' },
   { day: 4, label: '٣ دەرهەم', type: 'derhem', reward: { derhem: 3 }, color: '#A0A0A0' },
   { day: 5, label: '١ مۆگناتیس', icon: 'auto_fix_high', reward: { magnetCount: 1 }, color: '#f43f5e' },

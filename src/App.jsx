@@ -89,6 +89,10 @@ import WordFeverResultOverlay from './components/WordFeverResultOverlay';
 import DefeatOverlay from './components/DefeatOverlay';
 import { supabase } from './lib/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
+import NotificationBellIcon from './components/NotificationBellIcon';
+import TutorialGameView from './components/TutorialGameView';
+
+import './App.css';
 import DataDeletion from './components/DataDeletion';
 import TermsOfService from './components/TermsOfService';
 import GlobalInviteToast from './components/GlobalInviteToast';
@@ -1830,7 +1834,7 @@ export default function App() {
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
-        <main className={`flex-1 flex flex-col ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'leaderboard' || currentView === 'game' || currentView === 'auth' || currentView === 'privacy' || currentView === 'data_deletion' || currentView === 'terms_of_service' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
+        <main className={`${gameMode === 'tutorial' ? 'hidden' : 'flex-1 flex flex-col'} ${(currentView === 'game' || currentView === 'social_hub' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'overflow-hidden' : 'overflow-y-auto overflow-x-hidden'} w-full relative ${(currentView === 'leaderboard' || currentView === 'game' || currentView === 'auth' || currentView === 'privacy' || currentView === 'data_deletion' || currentView === 'terms_of_service' || currentView === 'social_hub' || currentView === 'profile' || currentView === 'medals' || currentView === 'stats' || currentView === 'achievements' || currentView === 'dictionary' || multiplayerState === 'playing' || multiplayerState === 'match_starting') ? 'p-0' : 'px-4 pt-4 pb-0'}`}>
           {currentView === 'auth' && (
             <AuthView
               onAuthSuccess={async (u) => {
@@ -1954,8 +1958,15 @@ export default function App() {
                   setGameMode('multiplayer');
                   startMatchmaking();
                 }}
+                onStartTutorial={() => {
+                  playTabSound();
+                  stopBGM();
+                  setGameMode('tutorial');
+                  setCurrentView('game');
+                }}
                 onOpenHowToPlay={handleOpenHowToPlay}
                 onOpenChat={handleOpenChat}
+                isUpdateNotesCleared={isUpdateNotesCleared}
               />
 
               {/* ADMIN PANEL BUTTON (Only visible to the specific admin email) */}
@@ -1971,7 +1982,7 @@ export default function App() {
             </div>
           )}
 
-          <div className={currentView === 'game' && gameMode !== 'multiplayer' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}>
+          <div className={currentView === 'game' && gameMode !== 'multiplayer' && gameMode !== 'tutorial' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}>
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
                 {/* Question Section */}
@@ -2572,6 +2583,33 @@ export default function App() {
                   </Motion.span>
                 ))}
               </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* TUTORIAL VIEW */}
+        <AnimatePresence>
+          {gameMode === 'tutorial' && currentView === 'game' && (
+            <Motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex-1 flex flex-col overflow-hidden relative h-full w-full z-110"
+            >
+              <TutorialGameView 
+                onBackToLobby={() => {
+                  setGameMode('idle');
+                  setCurrentView('lobby');
+                }} 
+                onStartClassic={() => {
+                  forceResumeAudio();
+                  playTabSound();
+                  stopBGM();
+                  triggerHaptic(10);
+                  setIsDailyActive(false);
+                  selectCategory('گشتی', 'classic');
+                }}
+              />
             </Motion.div>
           )}
         </AnimatePresence>

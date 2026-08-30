@@ -18,6 +18,7 @@ import MysteryBoxModal from './MysteryBoxModal';
 import ClipboardIcon from './ClipboardIcon';
 import LuckyWheelIcon from './LuckyWheelIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
+import TypewriterText from './TypewriterText';
 import ReportIcon from './ReportIcon';
 import { MEDALS } from '../constants/medals';
 import DownloadIcon from './DownloadIcon';
@@ -92,9 +93,12 @@ const LobbyView = memo(({
   _dailyStreak,
   _notificationCount = 0,
   onOpenHowToPlay,
-  onOpenChat
+  onOpenChat,
+  onStartTutorial,
+  isUpdateNotesCleared
 }) => {
   const bgRef = useRef(null);
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
   const [showLuckyWheel, setShowLuckyWheel] = useState(false);
   const [showMysteryBox, setShowMysteryBox] = useState(false);
@@ -156,6 +160,13 @@ const LobbyView = memo(({
       }
     }
   }, [profileData]);
+
+  const canShowTutorial = profileData && 
+    profileData.has_completed_tutorial === false &&
+    localStorage.getItem(`peyvok_tutorial_completed_${user.id}`) !== 'true' &&
+    profileData.has_completed_install_guide !== false &&
+    isUpdateNotesCleared &&
+    (!(!profileData.latitude || !profileData.longitude) || localStorage.getItem('has_seen_location_prompt'));
 
   const recordInviteStrike = useCallback(async (targetId) => {
     if (!user?.id || !targetId) return;
@@ -905,10 +916,80 @@ const LobbyView = memo(({
               </Motion.button>
             </div>
 
-            <div className="relative group w-full">
+            {/* GLOBAL DARK OVERLAY FOR TUTORIAL */}
+            {canShowTutorial && (
+              <div className="fixed inset-0 bg-black/70 backdrop-blur-[3px] z-90 pointer-events-none transition-opacity duration-500" />
+            )}
+
+            <div className={`relative group w-full ${canShowTutorial ? 'z-100' : ''}`}>
+              {/* Tooltip Dialog for Tutorial */}
+              {canShowTutorial && (
+                <>
+                  {/* Tooltip Box */}
+                  <div className="absolute bottom-[calc(100%+36px)] left-1/2 -translate-x-1/2 flex flex-col items-center w-[90vw] max-w-85 z-110 pointer-events-none">
+                      <div className="bg-[#f8fafc] p-4 md:p-5 rounded-[18px] shadow-[inset_0_-8px_0_#cbd5e1,0_15px_35px_rgba(0,0,0,0.5)] border-4 border-[#121316] text-right relative w-full" dir="rtl">
+                         {/* Inner 3D Highlight Layer */}
+                         <div className="absolute inset-0 rounded-[14px] border-2 border-t-white border-x-transparent border-b-transparent pointer-events-none z-0" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}></div>
+                         {/* Inner 3D Shadow Layer */}
+                         <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/10 border-x-black/5 border-t-transparent pointer-events-none z-0"></div>
+
+                         {/* Triangle pointing down */}
+                         <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-6 h-6 bg-[#f8fafc] border-b-4 border-r-4 border-[#121316] transform rotate-45 z-0 rounded-sm"></div>
+                         
+                         <div className="relative z-20 w-full text-right" dir="rtl">
+                           {/* Hidden text to force exact dimensions */}
+                           <span 
+                             className="text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
+                           >
+                             {"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nکلیکێ ل کارتا مۆدی پەیڤۆک بکە."}
+                           </span>
+                           
+                           <span 
+                             className="text-[17px] md:text-[20px] font-black font-rabar text-[#181a20] leading-normal md:leading-relaxed absolute inset-0 block px-2 whitespace-pre-line text-right!"
+                             style={{ textShadow: `0px 1px 0px white` }}
+                           >
+                             <TypewriterText 
+                                text={"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nکلیکێ ل کارتا مۆدی پەیڤۆک بکە."}
+                                isTypingComplete={isTypingComplete} 
+                                onComplete={() => setIsTypingComplete(true)} 
+                             />
+                           </span>
+                         </div>
+                      </div>
+                  </div>
+                  
+                  {/* INVISIBLE CLICK CATCHER to speed up typing */}
+                  {!isTypingComplete && (
+                     <div 
+                       className="fixed inset-0 z-100" 
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         setIsTypingComplete(true);
+                       }}
+                     />
+                  )}
+                  
+                  {/* Bouncing Hand Icon overlapping the card */}
+                  <Motion.div 
+                    animate={{ y: [0, -12, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-6 left-1/2 -translate-x-1/2 text-[55px] drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] z-120 pointer-events-none"
+                  >
+                    👇
+                  </Motion.div>
+                </>
+              )}
+
               <Motion.button
                 variants={itemVariants}
-                onClick={() => { triggerHaptic(10); onStartClassic(); }}
+                onClick={() => { 
+                  triggerHaptic(10); 
+                  if (profileData && profileData.has_completed_tutorial === false && onStartTutorial) {
+                    onStartTutorial();
+                  } else {
+                    onStartClassic();
+                  }
+                }}
                 {...bentoMotionProps}
                 className="w-full block relative h-25 md:h-32.5 btn-clash btn-clash-yellow"
               >

@@ -3,7 +3,7 @@ import { STATUS } from '../data/constants';
 import { motion as Motion, useTransform } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
-const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevealed, isHinted, isFocused, isSecretMode, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true, rowIndex = 0, gridId = 'main' }) => {
+const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevealed, isHinted, isFocused, isSecretMode, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true, rowIndex = 0, gridId = 'main', tutorialColumnHighlight = false, tutorialRowHighlight = -1 }) => {
   const { playRightLetterSound, playWrongPlaceSound } = useAudio();
 
   // 🎨 COLORS BASED ON THEME (isDark)
@@ -44,7 +44,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
     } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
       targetBg = 'bg-[#262626] border-2 border-[#262626]';
     } else if (char && isCurrent) {
-      targetBg = 'bg-white/30 border-2 border-white/50';
+      targetBg = 'bg-transparent border-2 border-[#565758]';
     } else if (isFocused) {
       targetBg = 'bg-transparent border-2 border-white/50';
     }
@@ -82,7 +82,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
       activeFrontBg = isDark ? 'bg-[#262626] border-2 border-[#262626]' : 'bg-[#D4D4D4] border-2 border-[#D4D4D4]';
     }
   } else if (char && isCurrent) {
-    activeFrontBg = isDark ? 'bg-white/30 border-2 border-white' : 'bg-white border-2 border-mono-900';
+    activeFrontBg = isDark ? 'bg-transparent border-2 border-[#565758]' : 'bg-white border-2 border-mono-900';
   }
 
   return (
@@ -108,8 +108,8 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
           scale: isCurrent ? (char ? [1, 1.05, 1] : [1, 0.95, 1]) : 1
         }}
         transition={{ 
-          rotateX: { duration: 0.5, delay: flipDelay / 1000 },
-          scale: { duration: 0.15, times: [0, 0.5, 1] }
+          rotateX: { type: 'spring', stiffness: 200, damping: 20, mass: 0.8, delay: flipDelay / 1000 },
+          scale: { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 }
         }}
         style={{ transformStyle: 'preserve-3d', position: 'relative', width: '100%', height: '100%' }}
         className="rounded-none items-center justify-center flex"
@@ -152,6 +152,17 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
             opacity: isFocusedMV ? mvOpacity : 0
           }}
         />
+
+        {/* Tutorial Highlight Overlays */}
+        {(tutorialColumnHighlight && index === 0) || (tutorialRowHighlight === rowIndex) ? (
+          <Motion.div
+            key={tutorialColumnHighlight ? 'col' : 'row'}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: tutorialColumnHighlight ? rowIndex * 0.2 : index * 0.2, type: 'spring', stiffness: 250, damping: 25, mass: 0.8 }}
+            className="absolute inset-0 z-50 shadow-[0_0_20px_rgba(59,130,246,0.6)] border-[3px] border-blue-500 bg-blue-500/10 pointer-events-none"
+          />
+        ) : null}
       </Motion.div>
     </Motion.div>
   );
@@ -166,10 +177,12 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
          prev.isHinted === next.isHinted &&
          prev.isSecretMode === next.isSecretMode &&
          prev.isDark === next.isDark &&
-         prev.hideLetters === next.hideLetters;
+         prev.hideLetters === next.hideLetters &&
+         prev.tutorialColumnHighlight === next.tutorialColumnHighlight &&
+         prev.tutorialRowHighlight === next.tutorialRowHighlight;
 });
 
-const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, hintIndices = [], isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null, isDark = true, rowIndex = 0, gridId = 'main' }) => {
+const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => '', isCurrent, revealedIndices, hintIndices = [], isShaking, isSecretMode, hideLetters = false, forcedStatuses = null, gap = '8px', forcedFocusIndex = null, isDark = true, rowIndex = 0, gridId = 'main', tutorialColumnHighlight = false, tutorialRowHighlight = -1 }) => {
   const activeClass = '';
 
   // PRE-CALCULATE CONSTANTS for the row maps
@@ -235,6 +248,8 @@ const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => 
             flipDelay={isCurrent ? 0 : i * 100}
             isDark={isDark}
             gridId={gridId}
+            tutorialColumnHighlight={tutorialColumnHighlight}
+            tutorialRowHighlight={tutorialRowHighlight}
           />
         );
       })}
@@ -255,10 +270,12 @@ const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => 
          prev.forcedFocusIndex === next.forcedFocusIndex &&
          JSON.stringify(prev.forcedStatuses) === JSON.stringify(next.forcedStatuses) &&
          prev.revealedIndices?.length === next.revealedIndices?.length &&
-         prev.hintIndices?.length === next.hintIndices?.length;
+         prev.hintIndices?.length === next.hintIndices?.length &&
+         prev.tutorialColumnHighlight === next.tutorialColumnHighlight &&
+         prev.tutorialRowHighlight === next.tutorialRowHighlight;
 });
 
-const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], hintIndices = [], maxRows = 6, isSecretMode = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null, isDark = true, gridId = 'main' }) => {
+const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLength = 0, getLetterStatus, revealedIndices = [], hintIndices = [], maxRows = 6, isSecretMode = false, isShaking = false, hideLetters = false, opponentStatuses = [], compact = false, activeRowIndex = null, opponentLiveStatuses = [], opponentLiveCursor = null, isDark = true, gridId = 'main', tutorialColumnHighlight = false, tutorialRowHighlight = -1 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   
   useEffect(() => {
@@ -305,7 +322,7 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
       style={gridStyle}
     >
       <div 
-        className="p-1 sm:p-2 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center" 
+        className="p-1 sm:p-2 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center relative" 
         style={{ 
           width: 'auto',
           maxWidth: '100%',
@@ -320,7 +337,7 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
           padding: compact ? '4px' : '8px'
         }}
       >
-          {rows.map((guess, i) => {
+        {rows.map((guess, i) => {
             const isCurrent = activeRowIndex !== null ? i === activeRowIndex : i === guesses.length;
             if (i >= maxRows) return null;
 
@@ -354,6 +371,8 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
                 isDark={isDark}
                 gridId={gridId}
                 rowIndex={i}
+                tutorialColumnHighlight={tutorialColumnHighlight}
+                tutorialRowHighlight={tutorialRowHighlight}
               />
             );
           })}
@@ -373,7 +392,9 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
          prev.isShaking === next.isShaking &&
          prev.targetWord === next.targetWord &&
          prev.revealedIndices?.length === next.revealedIndices?.length &&
-         prev.hintIndices?.length === next.hintIndices?.length;
+         prev.hintIndices?.length === next.hintIndices?.length &&
+         prev.tutorialColumnHighlight === next.tutorialColumnHighlight &&
+         prev.tutorialRowHighlight === next.tutorialRowHighlight;
 });
 
 export default Grid;

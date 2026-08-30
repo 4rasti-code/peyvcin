@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion as Motion } from 'framer-motion';
 import { toKuDigits } from '../utils/formatters';
 import { HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 
@@ -16,17 +17,36 @@ const InventoryBar = ({
   skipLimit = 1,
   isShop = false,
   hideSkip = false,
+  isTutorialFocus = false,
+  tutorialHighlightItem = null,
   className = ""
 }) => {
   const countColor = isShop ? "text-white drop-shadow-sm" : "text-mono-950 dark:text-mono-100";
   const sepColor = isShop ? "bg-white/20" : "bg-mono-200 dark:bg-white/10";
+
+  const getAnimate = (itemType) => {
+    if (!isTutorialFocus) return {};
+    if (tutorialHighlightItem === 'main') return { opacity: 1, scale: 1, y: 0 };
+    if (tutorialHighlightItem === itemType) return { opacity: 1, scale: 1.2, y: -5 };
+    return { opacity: 0.3, scale: 0.8, y: 0 };
+  };
+
+  const getTransition = (delay) => {
+    if (tutorialHighlightItem === 'main') return { type: 'spring', bounce: 0.6, delay: delay };
+    return { type: 'spring', bounce: 0.5 };
+  };
 
   return (
     <div className={`flex items-center justify-center min-h-14 py-2 w-full ${className}`}>
       <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-10 py-1 px-1 sm:px-4 h-auto">
         
         {/* Hint Item */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <Motion.div 
+          className="flex items-center gap-2 sm:gap-3 shrink-0"
+          initial={isTutorialFocus ? { opacity: 0, scale: 0, y: 20 } : false}
+          animate={getAnimate('bulb')}
+          transition={getTransition(0.8)}
+        >
           <button 
             onClick={onHint}
             disabled={!isShop && (hintTaps >= hintLimit || hintLimit === 0 || (hintCount || 0) <= 0)}
@@ -53,12 +73,17 @@ const InventoryBar = ({
               )}
             </div>
           </button>
-        </div>
+        </Motion.div>
 
         <div className={`w-px h-4 ${sepColor}`} />
 
         {/* Magnet Item */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <Motion.div 
+          className="flex items-center gap-2 sm:gap-3 shrink-0"
+          initial={isTutorialFocus ? { opacity: 0, scale: 0, y: 20 } : false}
+          animate={getAnimate('magnet')}
+          transition={getTransition(1.6)}
+        >
           <button 
             onClick={onMagnet}
             disabled={!isShop && (magnetUsedInRound || (magnetCount || 0) <= 0)}
@@ -85,14 +110,19 @@ const InventoryBar = ({
               )}
             </div>
           </button>
-        </div>
+        </Motion.div>
 
         {!hideSkip && (
           <>
             <div className={`w-px h-4 ${sepColor}`} />
 
             {/* Skip Item */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Motion.div 
+              className="flex items-center gap-2 sm:gap-3 shrink-0"
+              initial={isTutorialFocus ? { opacity: 0, scale: 0, y: 20 } : false}
+              animate={getAnimate('skip')}
+              transition={getTransition(2.4)}
+            >
               <button 
                 onClick={onSkip}
                 disabled={!isShop && (skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0)}
@@ -119,7 +149,7 @@ const InventoryBar = ({
                   )}
                 </div>
               </button>
-            </div>
+            </Motion.div>
           </>
         )}
 

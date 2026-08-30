@@ -162,7 +162,7 @@ export const AuthProvider = ({ children }) => {
           last_spin_date, last_mystery_box_date, mystery_boxes_count, spin_tickets,
           has_completed_install_guide, equipped_name_style, owned_name_styles,
           equipped_font, owned_fonts, equipped_bundle, owned_bundles,
-          claimed_medals
+          claimed_medals, has_completed_tutorial
         `)
         .eq('id', activeUserId);
 
@@ -221,7 +221,7 @@ export const AuthProvider = ({ children }) => {
           while (retryCount < maxRetries && !profileCreated) {
             if (isInitialLoad) setAuthProgress(75 + retryCount * 2);
             await new Promise(res => setTimeout(res, 200));
-            const { data: checkData } = await supabase.from('profiles').select('id, nickname, avatar_url, fils, xp, onboarded').eq('id', activeUserId);
+            const { data: checkData } = await supabase.from('profiles').select('id, nickname, avatar_url, fils, xp, onboarded, has_completed_tutorial').eq('id', activeUserId);
 
             if (checkData && checkData.length > 0) {
               console.log("[AuthContext] Profile materialized during retry!");
@@ -239,7 +239,8 @@ export const AuthProvider = ({ children }) => {
               fils: 500,
               derhem: 10,
               dinar: 5,
-              onboarded: false
+              onboarded: false,
+              has_completed_tutorial: false
             }]).select();
 
             if (!insertError && insertData && insertData.length > 0) {
