@@ -55,8 +55,7 @@ const GameResultRenderer = forwardRef(({ text }, ref) => {
 
   return (
     <div ref={ref} className={`flex flex-col gap-2 my-1.5 p-3 rounded-xl cursor-default w-full relative overflow-hidden btn-clash ${themeClass}`} onClick={e => e.stopPropagation()}>
-      <div className="absolute inset-0 bg-[#0a0a0a]" />
-      <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 bg-black/10 pointer-events-none" />
       
       {/* Title Section */}
       <div className="relative z-10 flex flex-col items-center justify-center w-full pt-1">

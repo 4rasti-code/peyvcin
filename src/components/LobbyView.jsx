@@ -163,7 +163,7 @@ const LobbyView = memo(({
 
   const canShowTutorial = profileData && 
     profileData.has_completed_tutorial === false &&
-    localStorage.getItem(`peyvok_tutorial_completed_${user.id}`) !== 'true' &&
+    localStorage.getItem(`peyvok_tutorial_completed_${user?.id}`) !== 'true' &&
     profileData.has_completed_install_guide !== false &&
     isUpdateNotesCleared &&
     (!(!profileData.latitude || !profileData.longitude) || localStorage.getItem('has_seen_location_prompt'));

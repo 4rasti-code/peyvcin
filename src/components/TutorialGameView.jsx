@@ -33,7 +33,7 @@ const TUTORIAL_STEPS = [
   { id: 'attempt_1_2', target: 'keyboard', top: '62%', text: "نۆکە پیتا 'ێ' بنڤیسە.", allowed: ['س', 'ێ'], pointer: 'ێ' },
   { id: 'attempt_1_3', target: 'keyboard', top: '62%', text: "نۆکە دوگمەیا 'تەمام' کلیک بکە.", allowed: ['س', 'ێ', SPECIAL_KEYS.ENTER], pointer: SPECIAL_KEYS.ENTER },
   { id: 'attempt_1_explain', target: 'active_row', top: '65%', pointerDir: 'up', text: "نۆکە هەردوو خانە د ڕساسینە، هەر دەما خانە ڕەنگێ وێ ڕساسی بوو، ئانکو ئەڤ پیتە د ناڤ پەیڤا ڤەشارتیدا نینە.", advanceOnClick: true },
-  
+
   { id: 'attempt_2_1', target: 'keyboard', top: '62%', text: "نۆکە پەیڤا مە پێشبینی کری پەیڤا 'لق'ە، نۆکە پیتا 'ل' بنڤیسە.", allowed: ['ل'], pointer: 'ل' },
   { id: 'attempt_2_2', target: 'keyboard', top: '62%', text: "نۆکە پیتا 'ق' بنڤیسە.", allowed: ['ل', 'ق'], pointer: 'ق' },
   { id: 'attempt_2_3', target: 'keyboard', top: '62%', text: "نۆکە دوگمەیا 'تەمام' کلیک بکە.", allowed: ['ل', 'ق', SPECIAL_KEYS.ENTER], pointer: SPECIAL_KEYS.ENTER },
@@ -62,7 +62,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
   const [isVictory, setIsVictory] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isTypingComplete, setIsTypingComplete] = useState(false);
-  
+
   const step = TUTORIAL_STEPS[stepIndex] || TUTORIAL_STEPS[TUTORIAL_STEPS.length - 1];
 
   // Removed cascading render useEffect
@@ -112,7 +112,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
     if (step.pointer === SPECIAL_KEYS.ENTER && currentGuess.length === wordLength) {
       const newGuesses = [...guesses, currentGuess];
       setGuesses(newGuesses);
-      
+
       // Update Used Keys for colors
       const newUsedKeys = { ...usedKeys };
       currentGuess.forEach((letter, i) => {
@@ -130,7 +130,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
       if (currentGuess.join('') === targetWord) {
         setIsVictory(true);
       }
-      
+
       setCurrentGuess([]);
       handleNextStep();
     }
@@ -140,22 +140,22 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
   useEffect(() => {
     if (step.id === 'finish' && isVictory) {
       const completeTutorial = async () => {
-        if (user && profileData?.has_completed_tutorial === false && localStorage.getItem(`peyvok_tutorial_completed_${user.id}`) !== 'true') {
-           // Local storage fallback to immediately stop the loop and prevent duplicate rewards
-           localStorage.setItem(`peyvok_tutorial_completed_${user.id}`, 'true');
-           
-           // Use Context to update states immediately
-           updateInventory({ fils: 10 });
-           setCurrentXP(currentXP + 10);
+        if (user && profileData?.has_completed_tutorial === false && localStorage.getItem(`peyvok_tutorial_completed_${user?.id}`) !== 'true') {
+          // Local storage fallback to immediately stop the loop and prevent duplicate rewards
+          localStorage.setItem(`peyvok_tutorial_completed_${user?.id}`, 'true');
 
-           // DB update for Tutorial Flag (Progression fields removed to prevent RLS trigger error)
-           const { error } = await supabase.from('profiles').update({ 
-              has_completed_tutorial: true
-           }).eq('id', user.id);
-           
-           if (error) {
-             console.error("Failed to update tutorial status:", error.message);
-           }
+          // Use Context to update states immediately
+          updateInventory({ fils: 10 });
+          setCurrentXP(currentXP + 10);
+
+          // DB update for Tutorial Flag (Progression fields removed to prevent RLS trigger error)
+          const { error } = await supabase.from('profiles').update({
+            has_completed_tutorial: true
+          }).eq('id', user?.id);
+
+          if (error) {
+            console.error("Failed to update tutorial status:", error.message);
+          }
         }
       };
       completeTutorial();
@@ -165,27 +165,27 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
   return (
     <div className="flex-1 flex flex-col h-full relative overflow-hidden select-none">
-      
+
       {/* GLOBAL DARK OVERLAY to dim background UI during tutorial */}
       {isReady && step.id !== 'finish' && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] z-40 pointer-events-none transition-all duration-500" />
       )}
-      
+
       {/* INVISIBLE CLICK CATCHER to speed up typing */}
       {!isTypingComplete && isReady && step.id !== 'finish' && (
-         <div 
-           className="fixed inset-0 z-100" 
-           onClick={(e) => {
-             e.stopPropagation();
-             setIsTypingComplete(true);
-           }}
-         />
+        <div
+          className="fixed inset-0 z-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsTypingComplete(true);
+          }}
+        />
       )}
 
       {/* INVISIBLE CLICK CATCHER for advanceOnClick steps */}
       {isReady && step.id !== 'finish' && step.advanceOnClick && (
-        <div 
-          className="absolute inset-0 z-45" 
+        <div
+          className="absolute inset-0 z-45"
           onClick={handleNextStep}
         />
       )}
@@ -242,34 +242,34 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
         {/* Tier 3: Keyboard & Hints (Pinned to bottom) */}
         <div className={`shrink-0 w-full md:max-w-lg md:mx-auto mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-all duration-500`}>
-          
+
           {/* Extracted InventoryBar for independent z-index control */}
-          <Motion.div 
-             className={`transition-all duration-500 ${isReady && step.target === 'hints' ? 'w-fit mx-auto relative z-50 bg-mono-100 dark:bg-mono-800 rounded-xl px-4 py-2 shadow-2xl' : 'w-full mb-3'}`}
-             animate={isReady && step.target === 'hints' ? {
-               boxShadow: ['0 0 0px 0px rgba(59, 130, 246, 0.4)', '0 0 20px 4px rgba(59, 130, 246, 0.8)', '0 0 0px 0px rgba(59, 130, 246, 0.4)'],
-               borderColor: ['rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 1)', 'rgba(59, 130, 246, 0.4)']
-             } : {}}
-             transition={isReady && step.target === 'hints' ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" } : {}}
-             style={isReady && step.target === 'hints' ? { border: '2px solid transparent' } : {}}
+          <Motion.div
+            className={`transition-all duration-500 ${isReady && step.target === 'hints' ? 'w-fit mx-auto relative z-50 bg-mono-100 dark:bg-mono-800 rounded-xl px-4 py-2 shadow-2xl' : 'w-full mb-3'}`}
+            animate={isReady && step.target === 'hints' ? {
+              boxShadow: ['0 0 0px 0px rgba(59, 130, 246, 0.4)', '0 0 20px 4px rgba(59, 130, 246, 0.8)', '0 0 0px 0px rgba(59, 130, 246, 0.4)'],
+              borderColor: ['rgba(59, 130, 246, 0.4)', 'rgba(59, 130, 246, 1)', 'rgba(59, 130, 246, 0.4)']
+            } : {}}
+            transition={isReady && step.target === 'hints' ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" } : {}}
+            style={isReady && step.target === 'hints' ? { border: '2px solid transparent' } : {}}
           >
             <InventoryBar
-               magnetCount={1}
-               hintCount={1}
-               skipCount={1}
-               onHint={() => {}}
-               onMagnet={() => {}}
-               onSkip={() => {}}
-               hintTaps={0}
-               hintLimit={3}
-               magnetUsedInRound={false}
-               skipsUsedInRound={0}
-               skipLimit={1}
-               hideSkip={false}
-               isTutorialFocus={isReady && step.target === 'hints'}
-               tutorialHighlightItem={isReady && step.target === 'hints' ? step.id.replace('intro_hints_', '') : null}
-               className={isReady && step.target === 'hints' ? '' : 'mb-1'}
-               isDark={isDark}
+              magnetCount={1}
+              hintCount={1}
+              skipCount={1}
+              onHint={() => { }}
+              onMagnet={() => { }}
+              onSkip={() => { }}
+              hintTaps={0}
+              hintLimit={3}
+              magnetUsedInRound={false}
+              skipsUsedInRound={0}
+              skipLimit={1}
+              hideSkip={false}
+              isTutorialFocus={isReady && step.target === 'hints'}
+              tutorialHighlightItem={isReady && step.target === 'hints' ? step.id.replace('intro_hints_', '') : null}
+              className={isReady && step.target === 'hints' ? '' : 'mb-1'}
+              isDark={isDark}
             />
             {(!isReady || step.target !== 'hints') && (
               <div className={`w-[40%] h-px ${isDark ? 'bg-white/5' : 'bg-slate-200'} mx-auto`} />
@@ -309,7 +309,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
             <div className="bg-[#f8fafc] p-5 md:p-6 rounded-[18px] shadow-[inset_0_-8px_0_#cbd5e1,0_15px_35px_rgba(0,0,0,0.5)] border-4 border-[#121316] text-right relative w-full flex flex-col gap-3" dir="rtl">
               {/* Inner 3D Highlight Layer */}
               <div className="absolute inset-0 rounded-[14px] border-2 border-t-white border-x-transparent border-b-transparent pointer-events-none z-0" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}></div>
-              
+
               {/* Inner 3D Shadow Layer */}
               <div className="absolute inset-0 rounded-[14px] border-2 border-b-black/10 border-x-black/5 border-t-transparent pointer-events-none z-0"></div>
 
@@ -323,40 +323,40 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
               {/* Text Container: Keeps fixed height dynamically */}
               <div className="relative z-20 w-full text-right" dir="rtl">
                 {/* Hidden text to force exact dimensions from the start */}
-                <span 
+                <span
                   className="text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
                 >
                   {step.text}
                 </span>
-                
+
                 {/* Visible typing text positioned absolutely over the hidden text */}
-                <span 
+                <span
                   className="text-[17px] md:text-[20px] font-black font-rabar text-[#181a20] leading-normal md:leading-relaxed absolute inset-0 block px-2 whitespace-pre-line text-right!"
                   style={{ textShadow: `0px 1px 0px white` }}
                 >
-                  <TypewriterText 
-                     text={step.text} 
-                     isTypingComplete={isTypingComplete} 
-                     onComplete={() => setIsTypingComplete(true)} 
+                  <TypewriterText
+                    text={step.text}
+                    isTypingComplete={isTypingComplete}
+                    onComplete={() => setIsTypingComplete(true)}
                   />
                 </span>
               </div>
 
               {/* Button Container: Preserves height so card doesn't jump */}
               {step.advanceOnClick && (
-                 <div className="relative h-11 mt-3 w-full flex justify-center pointer-events-none">
-                   <Motion.button 
-                     onClick={handleNextStep}
-                     initial={{ opacity: 0, scale: 0.8 }}
-                     animate={{ opacity: isTypingComplete ? 1 : 0, scale: isTypingComplete ? 1 : 0.8 }}
-                     transition={{ type: 'spring', stiffness: 250, damping: 25, mass: 0.8 }}
-                     whileHover={isTypingComplete ? { scale: 1.03 } : {}}
-                     whileTap={isTypingComplete ? { scale: 0.95 } : {}}
-                     className={`px-8 py-2.5 bg-[#3b82f6] text-white font-rabar font-black text-[16px] rounded-xl shadow-[0_4px_0_#2563eb] hover:brightness-110 transition-all relative z-20 flex items-center justify-center w-fit border-none ${isTypingComplete ? 'pointer-events-auto' : 'pointer-events-none'}`}
-                   >
-                     بەردەوامبە
-                   </Motion.button>
-                 </div>
+                <div className="relative h-11 mt-3 w-full flex justify-center pointer-events-none">
+                  <Motion.button
+                    onClick={handleNextStep}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: isTypingComplete ? 1 : 0, scale: isTypingComplete ? 1 : 0.8 }}
+                    transition={{ type: 'spring', stiffness: 250, damping: 25, mass: 0.8 }}
+                    whileHover={isTypingComplete ? { scale: 1.03 } : {}}
+                    whileTap={isTypingComplete ? { scale: 0.95 } : {}}
+                    className={`px-8 py-2.5 bg-[#3b82f6] text-white font-rabar font-black text-[16px] rounded-xl shadow-[0_4px_0_#2563eb] hover:brightness-110 transition-all relative z-20 flex items-center justify-center w-fit border-none ${isTypingComplete ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                  >
+                    بەردەوامبە
+                  </Motion.button>
+                </div>
               )}
             </div>
           </Motion.div>
@@ -376,7 +376,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
           }
         }}
         onHome={onBackToLobby}
-        playStartSound={() => {}}
+        playStartSound={() => { }}
         customTitle="فێرکاری ب دوماهی هات!"
         guesses={guesses}
         isDark={isDark}
