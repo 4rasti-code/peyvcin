@@ -88,7 +88,7 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
                   exit={{ opacity: 0, transition: { duration: 0.05 } }}
                   transition={{ type: 'spring', stiffness: 600, damping: 25 }}
                   className={`absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[140%] h-[140%] rounded-xl shadow-2xl flex items-center justify-center pointer-events-none z-[100] ${
-                     isDark ? 'bg-[#525252] border border-white/20' : 'bg-white border border-slate-200'
+                     isDark ? 'bg-[#737373] border border-white/30 drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)]' : 'bg-white border border-slate-300 drop-shadow-[0_5px_15px_rgba(0,0,0,0.2)]'
                   }`}
                >
                   <span className={`text-[clamp(2rem,6vw,2.8rem)] font-heading ${isDark ? 'text-white' : 'text-black'} ${getTextTranslateY()}`}>
