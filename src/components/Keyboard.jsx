@@ -1,6 +1,6 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, useState } from 'react';
 import { STATUS } from '../data/constants';
-import { motion as Motion } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { playKeyClickSfx } from '../utils/audio';
 import InventoryBar from './InventoryBar';
@@ -22,6 +22,8 @@ const SPECIAL_KEYS = {
 
 
 const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerTarget = false }) => {
+   const [isActive, setIsActive] = useState(false);
+
    const getKeyStyle = () => {
       if (isDisabled) {
          return isDark
@@ -63,10 +65,39 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
          whileHover={{ scale: isDisabled ? 1 : 1.05 }}
          whileTap={{ scale: isDisabled ? 1 : 0.92 }}
          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-         onPointerDown={(e) => { e.preventDefault(); !isDisabled && onKeyPress(k); }}
+         onPointerDown={(e) => { 
+            e.preventDefault(); 
+            if (!isDisabled) {
+               setIsActive(true);
+               onKeyPress(k); 
+            }
+         }}
+         onPointerUp={() => setIsActive(false)}
+         onPointerLeave={() => setIsActive(false)}
+         onPointerCancel={() => setIsActive(false)}
          className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border relative ${getKeyStyle()}`}
       >
          <span className={`text-[clamp(1.3rem,4.5vw,1.9rem)] ${getTextTranslateY()}`}>{k}</span>
+         
+         {/* iOS-Style Key Popup */}
+         <AnimatePresence>
+            {isActive && !isDisabled && (
+               <Motion.div
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, transition: { duration: 0.05 } }}
+                  transition={{ type: 'spring', stiffness: 600, damping: 25 }}
+                  className={`absolute bottom-full mb-1 left-1/2 -translate-x-1/2 w-[140%] h-[140%] rounded-xl shadow-2xl flex items-center justify-center pointer-events-none z-[100] ${
+                     isDark ? 'bg-[#525252] border border-white/20' : 'bg-white border border-slate-200'
+                  }`}
+               >
+                  <span className={`text-[clamp(2rem,6vw,2.8rem)] font-heading ${isDark ? 'text-white' : 'text-black'} ${getTextTranslateY()}`}>
+                     {k}
+                  </span>
+               </Motion.div>
+            )}
+         </AnimatePresence>
+
          {isPointerTarget && (
             <Motion.div
                initial={{ y: -10, opacity: 0 }}
