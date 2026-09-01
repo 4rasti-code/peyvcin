@@ -112,12 +112,12 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
           scale: { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 }
         }}
         style={{ transformStyle: 'preserve-3d', position: 'relative', width: '100%', height: '100%' }}
-        className="rounded-none items-center justify-center flex"
+        className="rounded-md items-center justify-center flex"
       >
         {/* Front Side (Typing/Neutral) */}
         <div 
           style={{ backfaceVisibility: 'hidden', position: 'absolute', inset: 0 }}
-          className={`${activeFrontBg} z-10 flex items-center justify-center`}
+          className={`${activeFrontBg} rounded-md z-10 flex items-center justify-center`}
         >
            <span className={`font-extralight ${neutralText} select-none`} style={{ fontSize: wordLength > 8 ? '0.9rem' : '1.1rem' }}>
              {(isMaskedLive || (isSecretMode && char)) ? '•' : char}
@@ -132,7 +132,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
             inset: 0, 
             transform: 'rotateX(180deg)' 
           }}
-          className={`${targetBg} z-20 flex items-center justify-center`}
+          className={`${targetBg} rounded-md z-20 flex items-center justify-center`}
         >
            <span 
             className={`font-bold ${isHinted && !char ? 'text-black/70' : 'text-white'} select-none leading-none block ${(shouldHideText || hideLetters) ? 'opacity-0' : 'opacity-100'}`}
@@ -147,7 +147,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
 
         {/* Focused State Indicator */}
         <Motion.div 
-          className={`absolute inset-0 border-2 ${isDark ? 'border-white/20' : 'border-slate-300'} z-30 pointer-events-none`}
+          className={`absolute inset-0 border-2 ${isDark ? 'border-white/20' : 'border-slate-300'} rounded-md z-30 pointer-events-none`}
           style={{ 
             opacity: isFocusedMV ? mvOpacity : 0
           }}
