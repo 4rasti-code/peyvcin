@@ -410,17 +410,11 @@ export default function App() {
         });
       };
 
-      if (isDarkTheme || (currentTheme === 'default' && isOSDark)) {
-        document.documentElement.classList.add('dark');
-        setMetaTheme('#000000');
-        document.documentElement.style.backgroundColor = '#000000';
-        document.body.style.backgroundColor = '#000000';
-      } else {
-        document.documentElement.classList.remove('dark');
-        setMetaTheme('#f8fafc');
-        document.documentElement.style.backgroundColor = '#f8fafc';
-        document.body.style.backgroundColor = '#f8fafc';
-      }
+      // FORCE DARK MODE ALWAYS
+      document.documentElement.classList.add('dark');
+      setMetaTheme('#000000');
+      document.documentElement.style.backgroundColor = '#000000';
+      document.body.style.backgroundColor = '#000000';
     };
 
     // Apply immediately on mount and when currentTheme changes
