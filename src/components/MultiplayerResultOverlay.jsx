@@ -50,17 +50,18 @@ export default function MultiplayerResultOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-1000 flex items-center justify-center p-3 sm:p-6 bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
+        className="fixed inset-0 z-1000 overflow-y-auto bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
       >
         {/* Cinematic Backdrop Glow */}
         {/* Removed Glow */}
 
-        <Motion.div
-          initial={{ scale: 0.9, y: 20, opacity: 0 }}
-          animate={{ scale: 1, y: 0, opacity: 1 }}
-          exit={{ scale: 0.9, y: 20, opacity: 0 }}
-          className="relative w-full max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-xl p-4 sm:p-8 modal-zoom-fit transition-colors duration-500 shadow-2xl"
-        >
+        <div className="min-h-full flex items-center justify-center p-4 sm:p-6">
+          <Motion.div
+            initial={{ scale: 0.9, y: 20, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.9, y: 20, opacity: 0 }}
+            className="relative w-full max-w-[320px] sm:max-w-sm bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-xl p-4 sm:p-5 transition-colors duration-500 shadow-2xl"
+          >
           {/* Close/Exit Button */}
           <button
             onClick={() => {
@@ -185,11 +186,10 @@ export default function MultiplayerResultOverlay({
           {/* Action Buttons Removed per User Request */}
           <div className="mt-4">
              {/* Spacing for layout consistency */}
-          </div>
-        </Motion.div>
+            </div>
+          </Motion.div>
+        </div>
       </Motion.div>
     </AnimatePresence>
   );
 }
-
-

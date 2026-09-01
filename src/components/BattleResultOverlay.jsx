@@ -127,19 +127,18 @@ const BattleResultOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-md p-3 sm:p-6"
+          className="fixed inset-0 z-9999 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-md"
         >
-
           <Motion.div
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`w-full max-w-md bg-mono-white dark:bg-[#0a0a0a] border-2 ${isVictory
+            className={`w-full max-w-[320px] sm:max-w-85 bg-mono-white dark:bg-[#0a0a0a] border-2 ${isVictory
               ? 'border-black/10 dark:border-white/10'
               : isDefeat
                 ? 'border-red-500/20 dark:border-red-500/30'
                 : 'border-blue-500/20 dark:border-blue-500/30'
-              } rounded-md p-4 sm:p-8 flex flex-col items-center gap-6 relative modal-zoom-fit transition-colors duration-500 shadow-2xl`}
+              } rounded-md p-4 sm:p-5 flex flex-col items-center gap-6 relative transition-colors duration-500 shadow-2xl modal-zoom-fit`}
           >
             {/* Status Icon */}
 

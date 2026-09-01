@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Grid from './Grid';
 import Keyboard from './Keyboard';
@@ -21,7 +21,7 @@ const SPECIAL_KEYS = {
 };
 
 const TUTORIAL_STEPS = [
-  { id: 'intro_hints_main', target: 'hints', top: '45%', text: "د یاریێ دا مە سێ جۆرێن هاریکاریان هەنە.\n\nهەردەما پەیڤا ڤەشارتی زەحمەت بوو، تو دشێی ئەڤان هاریکاریان بکار بهینی.\n\nل گەل من بە دا ئێک ب ئێک بۆ تە بدەمە نیاسین.", advanceOnClick: true },
+  { id: 'intro_hints_main', target: 'hints', top: '45%', text: "د یاریێ دا مە سێ جۆرێن هاریکاریان هەنە.\n\nهەردەما پەیڤا ڤەشارتی زەحمەت بوو،\nتو دشێی ئەڤان هاریکاریان بکار بهینی.\n\nل گەل من بە دا ئێک ب ئێک\nبۆ تە بدەمە نیاسین.", advanceOnClick: true },
   { id: 'intro_hints_bulb', target: 'hints', top: '45%', text: "💡 پیتبین: پیتەکا دروست یا پەیڤێ بۆ تە ئاشکرا دکەت.", advanceOnClick: true },
   { id: 'intro_hints_magnet', target: 'hints', top: '45%', text: "🧲 موگناتیس: هندەک پیتێن شاش کو د پەیڤێ دا نینن ژ تەختەکلیکی ڕادکەت.", advanceOnClick: true },
   { id: 'intro_hints_skip', target: 'hints', top: '45%', text: "⏩ دەربازبوون: ئەگەر گەلەک زەحمەت بوو، دکاری قۆناغێ ب تەمامی دەرباز بکەی.", advanceOnClick: true },
@@ -64,6 +64,66 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
   const [isTypingComplete, setIsTypingComplete] = useState(false);
 
   const step = TUTORIAL_STEPS[stepIndex] || TUTORIAL_STEPS[TUTORIAL_STEPS.length - 1];
+
+  const containerRef = useRef(null);
+  const hintsRef = useRef(null);
+  const keyboardRef = useRef(null);
+  const gridRef = useRef(null);
+  const [tooltipNode, setTooltipNode] = useState(null);
+  const [dynamicTop, setDynamicTop] = useState(null);
+
+  const updatePosition = useCallback(() => {
+    if (!tooltipNode || !containerRef.current) return;
+    
+    let targetRef = null;
+    let position = 'above';
+    
+    if (step.target === 'hints') {
+      targetRef = hintsRef;
+      position = 'above';
+    } else if (step.target === 'keyboard') {
+      targetRef = keyboardRef;
+      position = 'above';
+    } else if (step.target === 'grid_column' || step.target === 'active_row') {
+      targetRef = gridRef;
+      position = 'below';
+    }
+
+    if (targetRef && targetRef.current) {
+      const targetRect = targetRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const tooltipHeight = tooltipNode.offsetHeight;
+      
+      const relativeTop = targetRect.top - containerRect.top;
+      const relativeBottom = targetRect.bottom - containerRect.top;
+      
+      let gap = 16;
+      if (step.target === 'keyboard') {
+        gap = 64; // Increased gap to leave room for the bouncing hand icon on top row keys
+      }
+      
+      if (position === 'above') {
+        setDynamicTop(`${relativeTop - gap - (tooltipHeight / 2)}px`);
+      } else {
+        setDynamicTop(`${relativeBottom + gap + (tooltipHeight / 2)}px`);
+      }
+    } else {
+      setDynamicTop(null);
+    }
+  }, [step, tooltipNode]);
+
+  useEffect(() => {
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [updatePosition]);
+
+  useEffect(() => {
+    if (!tooltipNode) return;
+    const observer = new ResizeObserver(updatePosition);
+    observer.observe(tooltipNode);
+    return () => observer.disconnect();
+  }, [tooltipNode, updatePosition]);
 
   // Removed cascading render useEffect
   const targetWord = "دل";
@@ -164,7 +224,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
 
   return (
-    <div className="flex-1 flex flex-col h-full relative overflow-hidden select-none">
+    <div ref={containerRef} className="flex-1 flex flex-col h-full relative overflow-hidden select-none">
 
       {/* GLOBAL DARK OVERLAY to dim background UI during tutorial */}
       {isReady && step.id !== 'finish' && (
@@ -217,7 +277,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
           {/* Grid Section */}
           <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center items-center overflow-hidden w-full md:max-w-lg md:mx-auto transition-all duration-500 ${isReady && (step.target === 'grid_column' || step.target === 'active_row' || step.target === 'keyboard' || step.id === 'intro_word_length') ? 'relative z-50' : ''}`}>
-            <div className="game-grid-core w-full flex justify-center items-center relative">
+            <div ref={gridRef} className="game-grid-core w-full flex justify-center items-center relative">
               <Grid
                 targetWord={targetWord}
                 guesses={guesses}
@@ -245,6 +305,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
           {/* Extracted InventoryBar for independent z-index control */}
           <Motion.div
+            ref={hintsRef}
             className={`transition-all duration-500 ${isReady && step.target === 'hints' ? 'w-fit mx-auto relative z-50 bg-mono-100 dark:bg-mono-800 rounded-xl px-4 py-2 shadow-2xl' : 'w-full mb-3'}`}
             animate={isReady && step.target === 'hints' ? {
               boxShadow: ['0 0 0px 0px rgba(59, 130, 246, 0.4)', '0 0 20px 4px rgba(59, 130, 246, 0.8)', '0 0 0px 0px rgba(59, 130, 246, 0.4)'],
@@ -276,7 +337,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
             )}
           </Motion.div>
 
-          <div className={`transition-all duration-500 ${isReady && step.target === 'keyboard' ? 'relative z-50' : ''}`}>
+          <div ref={keyboardRef} className={`transition-all duration-500 ${isReady && step.target === 'keyboard' ? 'relative z-50' : ''}`}>
             <Keyboard
               onKey={onKey}
               onDelete={onDelete}
@@ -298,15 +359,16 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
       <AnimatePresence mode="wait">
         {isReady && step.text && step.id !== 'finish' && (
           <Motion.div
+            ref={setTooltipNode}
             key="tutorial-card"
             initial={{ opacity: 0, scale: 0.3, x: "-50%", y: "-50%" }}
             animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
             exit={{ opacity: 0, scale: 0.8, x: "-50%", y: "-50%" }}
             transition={{ type: 'spring', stiffness: 250, damping: 25, mass: 0.8 }}
-            className="absolute left-1/2 w-[90%] max-w-sm pointer-events-none transition-[top] duration-700 ease-in-out"
-            style={{ zIndex: 60, top: step.top || '22%' }}
+            className="absolute left-1/2 w-[90%] max-w-[320px] sm:max-w-85 md:max-w-sm pointer-events-none transition-[top] duration-700 ease-in-out"
+            style={{ zIndex: 60, top: dynamicTop !== null ? dynamicTop : (step.top || '22%') }}
           >
-            <div className="bg-[#f8fafc] p-5 md:p-6 rounded-[18px] shadow-[inset_0_-8px_0_#cbd5e1,0_15px_35px_rgba(0,0,0,0.5)] border-4 border-[#121316] text-right relative w-full flex flex-col gap-3" dir="rtl">
+            <div className="bg-[#f8fafc] p-4 sm:p-5 md:p-6 rounded-[18px] shadow-[inset_0_-8px_0_#cbd5e1,0_15px_35px_rgba(0,0,0,0.5)] border-4 border-[#121316] text-right relative w-full flex flex-col gap-3" dir="rtl">
               {/* Inner 3D Highlight Layer */}
               <div className="absolute inset-0 rounded-[14px] border-2 border-t-white border-x-transparent border-b-transparent pointer-events-none z-0" style={{ WebkitMaskImage: 'linear-gradient(to right, transparent 1%, black 15%, black 85%, transparent 99%)' }}></div>
 
@@ -324,14 +386,14 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
               <div className="relative z-20 w-full text-right" dir="rtl">
                 {/* Hidden text to force exact dimensions from the start */}
                 <span
-                  className="text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
+                  className="text-[15px] sm:text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
                 >
                   {step.text}
                 </span>
 
                 {/* Visible typing text positioned absolutely over the hidden text */}
                 <span
-                  className="text-[17px] md:text-[20px] font-black font-rabar text-[#181a20] leading-normal md:leading-relaxed absolute inset-0 block px-2 whitespace-pre-line text-right!"
+                  className="text-[15px] sm:text-[17px] md:text-[20px] font-black font-rabar text-[#181a20] leading-normal md:leading-relaxed absolute inset-0 block px-2 whitespace-pre-line text-right!"
                   style={{ textShadow: `0px 1px 0px white` }}
                 >
                   <TypewriterText
@@ -344,7 +406,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
               {/* Button Container: Preserves height so card doesn't jump */}
               {step.advanceOnClick && (
-                <div className="relative h-11 mt-3 w-full flex justify-center pointer-events-none">
+                <div className="relative h-10 sm:h-11 mt-2 sm:mt-3 w-full flex justify-center pointer-events-none">
                   <Motion.button
                     onClick={handleNextStep}
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -352,7 +414,8 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
                     transition={{ type: 'spring', stiffness: 250, damping: 25, mass: 0.8 }}
                     whileHover={isTypingComplete ? { scale: 1.03 } : {}}
                     whileTap={isTypingComplete ? { scale: 0.95 } : {}}
-                    className={`px-8 py-2.5 bg-[#3b82f6] text-white font-rabar font-black text-[16px] rounded-xl shadow-[0_4px_0_#2563eb] hover:brightness-110 transition-all relative z-20 flex items-center justify-center w-fit border-none ${isTypingComplete ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    className={`px-6 py-2 sm:px-8 sm:py-2.5 bg-[#3b82f6] text-white font-rabar font-black text-[14px] sm:text-[16px] rounded-xl shadow-[0_4px_0_#2563eb] hover:brightness-110 transition-[filter] duration-200 outline-none focus:outline-none active:outline-none relative z-20 flex items-center justify-center w-fit border-none select-none ${isTypingComplete ? 'pointer-events-auto' : 'pointer-events-none'}`}
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     بەردەوامبە
                   </Motion.button>

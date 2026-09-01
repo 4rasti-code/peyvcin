@@ -941,7 +941,7 @@ const LobbyView = memo(({
                            <span 
                              className="text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
                            >
-                             {"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nکلیکێ ل کارتا مۆدی پەیڤۆک بکە."}
+                             {"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nتلا خوە ل کارتا مۆدێ پەیڤۆک بدە."}
                            </span>
                            
                            <span 
@@ -949,7 +949,7 @@ const LobbyView = memo(({
                              style={{ textShadow: `0px 1px 0px white` }}
                            >
                              <TypewriterText 
-                                text={"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nکلیکێ ل کارتا مۆدی پەیڤۆک بکە."}
+                                text={"بخێرهاتی بۆ یاریا پەیڤۆک!\nدا ئەم فێری یاریێ ببین.\nتلا خوە ل کارتا مۆدێ پەیڤۆک بدە."}
                                 isTypingComplete={isTypingComplete} 
                                 onComplete={() => setIsTypingComplete(true)} 
                              />

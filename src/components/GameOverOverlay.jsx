@@ -16,8 +16,9 @@ export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onR
   }, [onReturn]);
 
   return (
-    <div className="fixed inset-0 z-500 bg-[#020617]/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in duration-500">
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+    <div className="fixed inset-0 z-500 bg-[#020617]/80 backdrop-blur-md overflow-y-auto text-center animate-in fade-in zoom-in duration-500">
+      <div className="min-h-full flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-[320px] sm:max-w-md bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         {/* Dynamic Background Glow based on result */}
         <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-100 h-100 -mt-50 rounded-full pointer-events-none opacity-40 ${won ? 'animate-pulse' : ''}`} style={{ background: `radial-gradient(circle, ${won ? 'rgba(16, 185, 129, 0.4)' : draw ? 'rgba(245, 158, 11, 0.4)' : 'rgba(239, 68, 68, 0.4)'} 0%, transparent 70%)` }} />
 
@@ -73,6 +74,7 @@ export default function GameOverOverlay({ scores, user, opponent, isPlayer1, onR
           >
             ڤەگەڕیا سەرەکی
           </button>
+        </div>
         </div>
       </div>
     </div>

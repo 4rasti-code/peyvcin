@@ -120,7 +120,7 @@ const WordFeverResultOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-1000 flex items-center justify-center bg-mono-white/90 dark:bg-black/95 backdrop-blur-md p-6"
+          className="fixed inset-0 z-1000 flex items-center justify-center p-4 sm:p-6 bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
         >
           <div className="absolute -top-[200vh] -left-[200vw] pointer-events-none">
             <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
@@ -132,7 +132,7 @@ const WordFeverResultOverlay = ({
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className={`w-full max-w-md bg-mono-white dark:bg-black/80 border-2 rounded-[3.5rem] p-10 flex flex-col items-center gap-8 ${isWin ? 'border-sky-500/30' : 'border-red-500/30'} transition-colors duration-500 shadow-2xl`}
+            className={`w-full max-w-[320px] sm:max-w-85 bg-mono-white dark:bg-black border border-mono-200 dark:border-white/10 rounded-lg p-4 sm:p-5 flex flex-col items-center gap-4 relative transition-colors duration-500 shadow-2xl modal-zoom-fit ${isWin ? 'border-sky-500/30' : 'border-red-500/30'}`}
           >
             {/* Status Icon Hub */}
             <div className="relative flex flex-col items-center">
@@ -312,8 +312,8 @@ const WordFeverResultOverlay = ({
               )}
             </div>
           </Motion.div>
-        </Motion.div>
-      )}
+      </Motion.div>
+    )}
     </AnimatePresence>
   );
 };
