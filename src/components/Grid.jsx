@@ -30,7 +30,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
   }, [isFlipped, status, isRevealed, isHinted, flipDelay, playRightLetterSound, playWrongPlaceSound]);
 
   // Neutral background before flip (Empty/Active Row)
-  const neutralBg = isDark ? 'bg-black/20 border-2 border-black/30' : 'bg-white border-2 border-[#E5E5E5]';
+  const neutralBg = isDark ? 'bg-amber-950/15 border-2 border-amber-950/25' : 'bg-white border-2 border-[#E5E5E5]';
   const neutralText = isDark ? 'text-white' : 'text-black';
 
   // Determine target colors (for the back side)
@@ -82,7 +82,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
       activeFrontBg = isDark ? 'bg-[#262626] border-2 border-[#262626]' : 'bg-[#D4D4D4] border-2 border-[#D4D4D4]';
     }
   } else if (char && isCurrent) {
-    activeFrontBg = isDark ? 'bg-black/40 border-2 border-black/50' : 'bg-white border-2 border-mono-900';
+    activeFrontBg = isDark ? 'bg-amber-950/25 border-2 border-amber-950/35' : 'bg-white border-2 border-mono-900';
   }
 
   return (
