@@ -1998,8 +1998,8 @@ export default function App() {
                 </div>
 
                 {/* Grid Section (Centers content in remaining space) */}
-                <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto">
-                  <div className="game-grid-core w-full flex justify-center items-center">
+                <div className="grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto px-4">
+                  <div className={`game-grid-core w-full flex justify-center items-center ${gameMode === 'classic' ? 'bg-[#fdfde5] rounded-[20px] py-4 shadow-inner' : ''}`}>
                     <Grid
                       key={targetWord}
                       guesses={guesses}
