@@ -495,7 +495,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     }
                   `}
                 >
-                  <span className={`relative z-20 font-rabar tracking-widest ${isActive ? 'drop-shadow-md' : 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]'}`}>
+                  <span className={`relative z-20 font-rabar tracking-normal ${isActive ? 'drop-shadow-md' : 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]'}`}>
                     {tab === 'general' ? 'گشتی' : 'ئەڤرۆ'}
                   </span>
                 </button>
@@ -530,7 +530,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                                  playTabSound();
                                  setView(subTab);
                                }}
-                               className={`h-8 px-6 sm:px-8 font-black uppercase tracking-wider font-rabar text-[11px] sm:text-[12px] transition-all duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                               className={`h-8 px-6 sm:px-8 font-black uppercase tracking-normal font-rabar text-[11px] sm:text-[12px] transition-all duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                  isSubActive
                                    ? 'btn-clash-sm-blue text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] z-20'
                                    : 'btn-clash-sm-slate text-white/80 drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)] opacity-80 hover:opacity-100 z-10 scale-95'
@@ -555,7 +555,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     >
                        <div className="flex items-center justify-center w-full pt-2">
                           <span 
-                            className="text-[18px] sm:text-[20px] font-black text-white font-rabar tracking-widest relative drop-shadow-md"
+                            className="text-[18px] sm:text-[20px] font-black text-white font-rabar tracking-normal relative drop-shadow-md"
                           >
                              ئەڤرۆ ببە کەسێ ئێکێ!
                           </span>
@@ -846,12 +846,12 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                   <button
                     onClick={() => view === 'daily' ? fetchDailyData(true) : fetchData(true)}
                     disabled={view === 'daily' ? loadingMoreDaily : loadingMore}
-                    className="group relative px-6 py-2.5 rounded-full bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm tracking-wide transition-all hover:bg-mono-200 dark:hover:bg-mono-800 hover:text-mono-900 dark:hover:text-mono-100 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    className="group relative px-6 py-2.5 rounded-full bg-mono-100 dark:bg-mono-900 border border-mono-200 dark:border-mono-800 text-mono-600 dark:text-mono-400 font-bold text-sm transition-all hover:bg-mono-200 dark:hover:bg-mono-800 hover:text-mono-900 dark:hover:text-mono-100 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                   >
                     {(view === 'daily' ? loadingMoreDaily : loadingMore) ? (
                       <div className="w-5 h-5 border-2 border-mono-900 dark:border-mono-100 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     ) : (
-                      <span className="flex items-center gap-2 uppercase tracking-widest font-black text-[11px] font-rabar">
+                      <span className="flex items-center gap-2 uppercase tracking-normal font-black text-[11px] font-rabar">
                         زێدەتر نیشانبدە
                         <span className="material-symbols-outlined text-[16px] group-hover:translate-y-0.5 transition-transform">expand_more</span>
                       </span>
