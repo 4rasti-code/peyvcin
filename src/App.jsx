@@ -399,9 +399,7 @@ export default function App() {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const applyTheme = () => {
-      // Priority: 1. User Selected Dark Theme, 2. OS Preference
-      const isDarkTheme = currentTheme === 'zakho_nights' || currentTheme === 'dark';
-      const isOSDark = mediaQuery.matches;
+      // Removed unused variables isDarkTheme and isOSDark
 
       const setMetaTheme = (color) => {
         const metas = document.querySelectorAll('meta[name="theme-color"]');
