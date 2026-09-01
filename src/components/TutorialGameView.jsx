@@ -62,6 +62,27 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
   const [isVictory, setIsVictory] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [ipadScale, setIpadScale] = useState(1);
+
+  useEffect(() => {
+    const checkSize = () => {
+      // Specifically target iPad Mini and mid-sized tablets (700px - 1024px width)
+      // where the screen height is too short (< 1250px) to fit the huge 2-column grid + keyboard
+      if (typeof window !== 'undefined' && window.innerWidth >= 700 && window.innerWidth <= 1024) {
+        const requiredHeight = 1250;
+        if (window.innerHeight < requiredHeight) {
+          setIpadScale(window.innerHeight / requiredHeight);
+        } else {
+          setIpadScale(1);
+        }
+      } else {
+        setIpadScale(1);
+      }
+    };
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
+  }, []);
 
   const step = TUTORIAL_STEPS[stepIndex] || TUTORIAL_STEPS[TUTORIAL_STEPS.length - 1];
 
@@ -277,7 +298,10 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
           {/* Grid Section */}
           <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center items-center overflow-hidden w-full md:max-w-lg md:mx-auto transition-all duration-500 ${isReady && (step.target === 'grid_column' || step.target === 'active_row' || step.target === 'keyboard' || step.id === 'intro_word_length') ? 'relative z-50' : ''}`}>
-            <div ref={gridRef} className="game-grid-core w-full flex justify-center items-center relative">
+            <div ref={gridRef} 
+                 className="game-grid-core w-full flex justify-center items-center relative transition-transform duration-300"
+                 style={{ transform: `scale(${ipadScale})`, transformOrigin: 'center center' }}
+            >
               <Grid
                 targetWord={targetWord}
                 guesses={guesses}
