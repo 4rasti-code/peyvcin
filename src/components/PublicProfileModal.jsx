@@ -863,7 +863,7 @@ export default function PublicProfileModal({
                             className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
                             style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
                         >
-                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                 نەخێر
                             </span>
                         </button>
@@ -872,7 +872,7 @@ export default function PublicProfileModal({
                             className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#ff3b3b]"
                             style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
                         >
-                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                 بەڵێ، بلۆک
                             </span>
                         </button>
@@ -894,7 +894,7 @@ export default function PublicProfileModal({
                             className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#8a92a0]"
                             style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
                         >
-                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                 نەخێر
                             </span>
                         </button>
@@ -903,7 +903,7 @@ export default function PublicProfileModal({
                             className="relative flex-1 h-10 rounded-[8px] flex items-center justify-center font-black transition-transform active:scale-95 border-[1.5px] border-[#121316] overflow-hidden bg-[#ff3b3b]"
                             style={{ boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)' }}
                         >
-                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                            <span className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                 بەڵێ
                             </span>
                         </button>

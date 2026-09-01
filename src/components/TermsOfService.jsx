@@ -148,7 +148,7 @@ const TermsOfService = ({ onViewChange, onClose }) => {
                     <div dir="ltr" className="flex items-center justify-center gap-3 w-64 max-w-full px-4 mb-1">
                         <button
                             onClick={() => handleLanguageChange('en')}
-                            className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                            className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                 lang === 'en'
                                 ? 'btn-clash-sm-blue text-white z-20'
                                 : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -158,7 +158,7 @@ const TermsOfService = ({ onViewChange, onClose }) => {
                         </button>
                         <button
                             onClick={() => handleLanguageChange('ku')}
-                            className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                            className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[12px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                 lang === 'ku'
                                 ? 'btn-clash-sm-blue text-white z-20'
                                 : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'

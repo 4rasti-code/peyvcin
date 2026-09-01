@@ -368,7 +368,7 @@ function SettingsModal({
                                  }}
                               >
                                  <span 
-                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" 
                                     style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                  >
                                     بەلێ، ژێببە
@@ -383,7 +383,7 @@ function SettingsModal({
                                  }}
                               >
                                  <span 
-                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                    className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" 
                                     style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                  >
                                     نەخێر

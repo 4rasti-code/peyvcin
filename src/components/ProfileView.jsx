@@ -561,7 +561,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                   <button
                      onPointerDown={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
                      onClick={(e) => { e.stopPropagation(); triggerHaptic(15); if (playTabSound) playTabSound(); setIsFriendsModalOpen(true); }}
-                     className="w-full h-12 btn-clash btn-clash-blue text-white font-black text-[15px] sm:text-[16px] font-rabar tracking-widest flex items-center justify-center gap-2 outline-none active:translate-y-1"
+                     className="w-full h-12 btn-clash btn-clash-blue text-white font-black text-[15px] sm:text-[16px] font-rabar tracking-normal flex items-center justify-center gap-2 outline-none active:translate-y-1"
                   >
                      <span className="material-symbols-outlined text-[22px] drop-shadow-sm mb-0.5">group</span>
                      <span className="drop-shadow-md">لیستا هەڤالان</span>
@@ -734,7 +734,7 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
                                     boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                  }}
                               >
-                                 <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-wide" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                 <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-normal" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                     {isUploading ? 'بارکرن...' : 'پاراستن'}
                                  </span>
                               </button>

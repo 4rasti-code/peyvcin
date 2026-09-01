@@ -339,7 +339,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     }}
                                  >
                                     <span
-                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        هەلوەشاندن
@@ -354,7 +354,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     }}
                                  >
                                     <span
-                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       className="text-white text-[13.5px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        پاراستن
@@ -480,7 +480,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     }}
                                  >
                                     <span
-                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        هەلوەشاندن
@@ -496,7 +496,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                     }}
                                  >
                                     <span
-                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar"
+                                       className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar"
                                        style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                     >
                                        پاراستن
@@ -613,7 +613,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                                        boxShadow: 'inset 0 2.5px 0 rgba(255,255,255,0.35), inset 0 -3px 0 rgba(0,0,0,0.25), 0 2px 3px rgba(0,0,0,0.15)'
                                     }}
                                  >
-                                    <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-wide" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
+                                    <span className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-normal" style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}>
                                        {isUploading ? 'بارکرن...' : 'پاراستن'}
                                     </span>
                                  </button>

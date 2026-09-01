@@ -90,7 +90,7 @@ const AdBanner = () => {
         >
           {/* Badge */}
           <div className="absolute top-2 right-2 z-20 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded border border-white/10 shadow-sm">
-            <span className="text-[10px] text-white/90 font-bold tracking-widest uppercase drop-shadow-sm font-rabar">سپۆنسەر</span>
+            <span className="text-[10px] text-white/90 font-bold tracking-normal uppercase drop-shadow-sm font-rabar">سپۆنسەر</span>
           </div>
 
           {currentAd.is_fallback ? (

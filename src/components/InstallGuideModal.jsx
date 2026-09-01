@@ -437,7 +437,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
           <div className="flex w-full px-3 z-10 relative mt-2 mb-2 shrink-0 gap-2">
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('ios'); }}
-              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+              className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                 activeTab === 'ios' 
                   ? 'btn-clash-sm-orange text-white z-20' 
                   : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -447,7 +447,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('android'); }}
-              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+              className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                 activeTab === 'android' 
                   ? 'btn-clash-sm-orange text-white z-20' 
                   : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -457,7 +457,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('windows'); }}
-              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+              className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                 activeTab === 'windows' 
                   ? 'btn-clash-sm-orange text-white z-20' 
                   : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -467,7 +467,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => { triggerHaptic(10); setActiveTab('mac'); }}
-              className={`h-8 flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
+              className={`h-8 flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center gap-1.5 outline-none btn-clash-sm ${
                 activeTab === 'mac' 
                   ? 'btn-clash-sm-orange text-white z-20' 
                   : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'

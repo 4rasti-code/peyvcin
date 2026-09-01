@@ -354,7 +354,7 @@ export default function HowToPlayModal({ isOpen, onClose, initialMode = 'classic
                             <button
                                key={mode.id}
                                onClick={() => { playTabSound(); setActiveTab(mode.id); triggerHaptic(10); }}
-                               className={`h-8 sm:h-9 px-3 sm:px-4 rounded-md font-black tracking-wider font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center outline-none border-[1.5px] border-[#181a20] relative overflow-hidden ${
+                               className={`h-8 sm:h-9 px-3 sm:px-4 rounded-md font-black tracking-normal font-rabar text-[11px] sm:text-[12px] transition-transform duration-100 flex items-center justify-center outline-none border-[1.5px] border-[#181a20] relative overflow-hidden ${
                                   activeTab === mode.id
                                   ? 'bg-linear-to-b from-[#4aa1ff] to-[#1e86ff] shadow-[inset_0_1.5px_0_rgba(255,255,255,0.4),inset_0_-3px_0_#115ab5,0_2px_4px_rgba(0,0,0,0.2)] text-white z-20 scale-100'
                                   : 'bg-linear-to-b from-[#cbd5e1] to-[#94a3b8] shadow-[inset_0_1px_0_rgba(255,255,255,0.6),inset_0_-2px_0_#64748b] text-[#181a20] hover:brightness-110 z-10 scale-[0.97] opacity-80 hover:opacity-100'

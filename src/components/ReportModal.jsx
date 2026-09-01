@@ -201,7 +201,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
                         <div className="flex items-center justify-center gap-3 w-full">
                            <button
                               onClick={() => { triggerHaptic(10); setType('bug'); }}
-                              className={`h-9 flex-1 font-black tracking-wider font-rabar text-[12px] sm:text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                              className={`h-9 flex-1 font-black tracking-normal font-rabar text-[12px] sm:text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                  type === 'bug'
                                  ? 'btn-clash-sm-blue text-white z-20'
                                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -211,7 +211,7 @@ const ReportModal = ({ isOpen, onClose, user }) => {
                            </button>
                            <button
                               onClick={() => { triggerHaptic(10); setType('suggestion'); }}
-                              className={`h-9 flex-1 font-black tracking-wider font-rabar text-[12px] sm:text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                              className={`h-9 flex-1 font-black tracking-normal font-rabar text-[12px] sm:text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                  type === 'suggestion'
                                  ? 'btn-clash-sm-blue text-white z-20'
                                  : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'

@@ -20,7 +20,7 @@ const CrButton = ({ isOn, onClick }) => {
          }}
       >
          <span 
-            className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-wide"
+            className="text-white text-[13px] font-rabar leading-none relative z-10 -translate-y-px tracking-normal"
             style={{ 
                textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316'
             }}

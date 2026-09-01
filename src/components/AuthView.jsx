@@ -762,7 +762,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                             playTabSound();
                                                             setIsLogin(true);
                                                         }}
-                                                        className={`h-full flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                                        className={`h-full flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                                             isLogin
                                                                 ? 'btn-clash-sm-blue text-white z-20'
                                                                 : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -776,7 +776,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                             playTabSound();
                                                             setIsLogin(false);
                                                         }}
-                                                        className={`h-full flex-1 font-black uppercase tracking-wider font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
+                                                        className={`h-full flex-1 font-black uppercase tracking-normal font-rabar text-[13px] transition-transform duration-100 flex items-center justify-center outline-none btn-clash-sm ${
                                                             !isLogin
                                                                 ? 'btn-clash-sm-blue text-white z-20'
                                                                 : 'btn-clash-sm-slate text-white/80 opacity-80 hover:opacity-100 z-10 scale-95'
@@ -1272,7 +1272,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         }}
                                     >
                                         <span 
-                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" 
                                             style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                         >
                                             بەردەوام بە
@@ -1291,7 +1291,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                         }}
                                     >
                                         <span 
-                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-wide font-rabar" 
+                                            className="text-white text-[13px] leading-none relative z-10 -translate-y-px tracking-normal font-rabar" 
                                             style={{ textShadow: '-1px -1px 0 #121316, 1px -1px 0 #121316, -1px 1px 0 #121316, 1px 1px 0 #121316, 0 1.5px 0 #121316' }}
                                         >
                                             ڤەگەڕە

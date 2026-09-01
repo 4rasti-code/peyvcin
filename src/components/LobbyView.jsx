@@ -753,7 +753,7 @@ const LobbyView = memo(({
                   className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-cyan"
                 >
                   <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">download</span>
-                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">داگرتن</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-normal pt-px">داگرتن</span>
                 </Motion.button>
 
                 {/* Word Suggestion */}
@@ -766,7 +766,7 @@ const LobbyView = memo(({
                   className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-green"
                 >
                   <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">edit_document</span>
-                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">پەیڤ</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-normal pt-px">پەیڤ</span>
                 </Motion.button>
 
                 {/* Report */}
@@ -779,7 +779,7 @@ const LobbyView = memo(({
                   className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-orange"
                 >
                   <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">campaign</span>
-                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">پێشنیار</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-normal pt-px">پێشنیار</span>
                 </Motion.button>
 
                 {/* Tutorial */}
@@ -792,7 +792,7 @@ const LobbyView = memo(({
                   className="flex flex-row items-center justify-center gap-1 md:gap-1.5 px-2 py-1.5 md:px-4 md:py-2 cursor-pointer btn-clash-sm btn-clash-sm-purple"
                 >
                   <span className="material-symbols-outlined text-[12px] md:text-[14px] text-white drop-shadow-md">help</span>
-                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-wide pt-px">فێرکاری</span>
+                  <span className="text-[9px] min-[375px]:text-[10px] md:text-[12px] font-bold font-heading text-white drop-shadow-md tracking-normal pt-px">فێرکاری</span>
                 </Motion.button>
 
               </div>

@@ -811,7 +811,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                     <div className="flex items-center shrink-0 pr-1">
                       {view === 'daily' ? (
                         <div className="flex flex-col items-center justify-center min-w-[clamp(2.5rem,14vw,3.5rem)] px-[clamp(0.25rem,1.5vw,0.5rem)] py-1.5">
-                                <span className={`text-[clamp(6px,2vw,8px)] font-black uppercase leading-none mb-1 font-rabar tracking-widest ${
+                                <span className={`text-[clamp(6px,2vw,8px)] font-black uppercase leading-none mb-1 font-rabar tracking-normal ${
                                   bundleObj.id !== 'default' ? 'text-white/80' : 'text-mono-700'
                                 }`}>ئێکس پی</span>
                           <span className={`text-[clamp(10px,3.5vw,13px)] font-black leading-none drop-shadow-sm tabular-nums ${
