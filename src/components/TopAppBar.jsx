@@ -117,7 +117,7 @@ export default function TopAppBar({
 
   return (
     <header
-      className={`relative top-0 w-full z-100 bg-transparent pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
+      className={`relative top-0 w-full z-100 ${gameMode === 'classic' && currentView === 'game' ? 'bg-[#fdfde5]' : 'bg-transparent'} pt-[env(safe-area-inset-top,0px)] transition-all duration-500 overflow-visible`}
       dir="ltr"
     >
       <div className="flex h-16 items-center justify-between px-4 xs:px-6 sm:px-12 w-full mx-auto relative gap-1 xs:gap-2 sm:gap-4">

@@ -1978,7 +1978,7 @@ export default function App() {
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
                 {/* Question Section */}
-                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center my-1`}>
+                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center pb-2 ${gameMode === 'classic' ? 'bg-[#fdfde5]' : 'my-1'}`}>
                   <InfoBar
                     targetHint={targetHint}
                     category={currentWordCategory || category}
