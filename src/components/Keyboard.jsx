@@ -140,19 +140,26 @@ const Keyboard = memo(({
    pointerKey = null
 }) => {
 
-   const handleKeyPress = useCallback((key, isSpecial = false) => {
-      if (gameState !== 'playing') return;
+   const callbacksRef = React.useRef({ onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState });
+   
+   React.useEffect(() => {
+     callbacksRef.current = { onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState };
+   });
 
-      playKeyClickSfx(keyboardSoundEnabled);
-      if (hapticEnabled) triggerHaptic(10);
+   const handleKeyPress = useCallback((key, isSpecial = false) => {
+      const cb = callbacksRef.current;
+      if (cb.gameState !== 'playing') return;
+
+      playKeyClickSfx(cb.keyboardSoundEnabled);
+      if (cb.hapticEnabled) triggerHaptic(10);
 
       if (isSpecial) {
-         if (key === SPECIAL_KEYS.ENTER) onEnter();
-         else if (key === SPECIAL_KEYS.DELETE) onDelete();
+         if (key === SPECIAL_KEYS.ENTER) cb.onEnter();
+         else if (key === SPECIAL_KEYS.DELETE) cb.onDelete();
       } else {
-         onKey(key);
+         cb.onKey(key);
       }
-   }, [onKey, onDelete, onEnter, keyboardSoundEnabled, hapticEnabled, gameState]);
+   }, []);
 
    return (
       <div className={`flex flex-col gap-2.5 w-full px-1.5 box-border select-none touch-manipulation relative z-10 transition-all duration-500 ${gameState !== 'playing' ? 'opacity-50 pointer-events-none grayscale' : ''}`} dir="rtl">
