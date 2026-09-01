@@ -111,12 +111,12 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
           rotateX: { type: 'spring', stiffness: 200, damping: 20, mass: 0.8, delay: flipDelay / 1000 },
           scale: { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 }
         }}
-        style={{ transformStyle: 'preserve-3d', position: 'relative', width: '100%', height: '100%' }}
+        style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d', position: 'relative', width: '100%', height: '100%' }}
         className="rounded-md items-center justify-center flex"
       >
         {/* Front Side (Typing/Neutral) */}
         <div 
-          style={{ backfaceVisibility: 'hidden', position: 'absolute', inset: 0 }}
+          style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', position: 'absolute', inset: 0, transform: 'rotateX(0deg)' }}
           className={`${activeFrontBg} rounded-md z-10 flex items-center justify-center`}
         >
            <span className={`font-extralight ${neutralText} select-none`} style={{ fontSize: wordLength > 8 ? '0.9rem' : '1.1rem' }}>
@@ -128,6 +128,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
         <div 
           style={{ 
             backfaceVisibility: 'hidden', 
+            WebkitBackfaceVisibility: 'hidden',
             position: 'absolute', 
             inset: 0, 
             transform: 'rotateX(180deg)' 
