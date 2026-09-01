@@ -1764,6 +1764,22 @@ export default function App() {
             />
           </>
         )}
+        {currentView === 'game' && gameMode === 'classic' && (
+          <>
+            <div
+              className="absolute inset-0 z-0 pointer-events-none transition-all duration-500 bg-[#fdfde5]"
+            />
+            <div
+              className="absolute inset-0 z-0 pointer-events-none transition-all duration-500"
+              style={{
+                backgroundImage: `url('/assets/peyvok_classic_pattern.svg')`,
+                backgroundSize: '48px 48px',
+                backgroundRepeat: 'repeat',
+                opacity: 0.8
+              }}
+            />
+          </>
+        )}
         {/* Panic Overlay for Word Fever Mode Critical Time */}
         {gameMode === 'word_fever' && currentView === 'game' && timeLeft <= 10 && !isVictory && multiplayerState === 'idle' && (
           <div className="panic-overlay" />
@@ -1978,7 +1994,7 @@ export default function App() {
               {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
               <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
                 {/* Question Section */}
-                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center pb-2 ${gameMode === 'classic' ? 'bg-[#fdfde5]' : 'my-1'}`}>
+                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center my-1`}>
                   <InfoBar
                     targetHint={targetHint}
                     category={currentWordCategory || category}
@@ -1998,7 +2014,7 @@ export default function App() {
                 </div>
 
                 {/* Grid Section (Centers content in remaining space) */}
-                <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto ${gameMode === 'classic' ? 'bg-[#fdfde5]' : ''}`}>
+                <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto`}>
                   <div className="game-grid-core w-full flex justify-center items-center">
                     <Grid
                       key={targetWord}
