@@ -390,9 +390,9 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
                 >
                   {step.icon && (
                     <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
-                       {step.icon === 'bulb' && <HintIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
-                       {step.icon === 'magnet' && <MagnetIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
-                       {step.icon === 'skip' && <SkipIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                       {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                       {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
                     </span>
                   )}
                   {step.text}
@@ -405,9 +405,9 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
                 >
                   {step.icon && (
                     <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
-                       {step.icon === 'bulb' && <HintIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
-                       {step.icon === 'magnet' && <MagnetIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
-                       {step.icon === 'skip' && <SkipIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                       {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                       {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
                     </span>
                   )}
                   <TypewriterText
