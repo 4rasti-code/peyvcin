@@ -82,7 +82,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
       activeFrontBg = isDark ? 'bg-[#262626] border-2 border-[#262626]' : 'bg-[#D4D4D4] border-2 border-[#D4D4D4]';
     }
   } else if (char && isCurrent) {
-    activeFrontBg = isDark ? 'bg-amber-950/25 border-2 border-amber-950/35' : 'bg-white border-2 border-mono-900';
+    activeFrontBg = isDark ? 'bg-amber-950 border-2 border-amber-900' : 'bg-white border-2 border-mono-900';
   }
 
   return (
