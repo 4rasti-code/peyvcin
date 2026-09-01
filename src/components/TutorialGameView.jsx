@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase';
 import { STATUS } from '../data/constants';
 import { playKeyClickSfx } from '../utils/audio';
 import VictoryOverlay from './VictoryOverlay';
-import { FilsIcon } from './CurrencyIcon';
+import { FilsIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import useThemeDetector from '../hooks/useThemeDetector';
 import TypewriterText from './TypewriterText';
 
@@ -22,9 +22,9 @@ const SPECIAL_KEYS = {
 
 const TUTORIAL_STEPS = [
   { id: 'intro_hints_main', target: 'hints', top: '45%', text: "د یاریێ دا مە سێ جۆرێن هاریکاریان هەنە.\n\nهەردەما پەیڤا ڤەشارتی زەحمەت بوو،\nتو دشێی ئەڤان هاریکاریان بکار بهینی.\n\nل گەل من بە دا ئێک ب ئێک\nبۆ تە بدەمە نیاسین.", advanceOnClick: true },
-  { id: 'intro_hints_bulb', target: 'hints', top: '45%', text: "💡 پیتبین: پیتەکا دروست یا پەیڤێ بۆ تە ئاشکرا دکەت.", advanceOnClick: true },
-  { id: 'intro_hints_magnet', target: 'hints', top: '45%', text: "🧲 موگناتیس: هندەک پیتێن شاش کو د پەیڤێ دا نینن ژ تەختەکلیکی ڕادکەت.", advanceOnClick: true },
-  { id: 'intro_hints_skip', target: 'hints', top: '45%', text: "⏩ دەربازبوون: ئەگەر گەلەک زەحمەت بوو، دکاری قۆناغێ ب تەمامی دەرباز بکەی.", advanceOnClick: true },
+  { id: 'intro_hints_bulb', target: 'hints', top: '45%', icon: 'bulb', text: "پیتبین: پیتەکا دروست یا پەیڤێ بۆ تە ئاشکرا دکەت.", advanceOnClick: true },
+  { id: 'intro_hints_magnet', target: 'hints', top: '45%', icon: 'magnet', text: "موگناتیس: هندەک پیتێن شاش کو د پەیڤێ دا نینن ژ تەختەکلیکی ڕادکەت.", advanceOnClick: true },
+  { id: 'intro_hints_skip', target: 'hints', top: '45%', icon: 'skip', text: "دەربازبوون: ئەگەر گەلەک زەحمەت بوو، دکاری قۆناغێ ب تەمامی دەرباز بکەی.", advanceOnClick: true },
   { id: 'intro_game_goal', target: 'none', top: '30%', text: "یاری ل مۆدێ پەیڤۆک پەیڤەکا ڤەشارتی ددەتە تە، دڤێت پیشبینیا ئەوێ پەیڤا ڤەشارتی بکەی کا چ پەیڤە.", advanceOnClick: true },
   { id: 'intro_attempts_col', target: 'grid_column', top: '65%', pointerDir: 'up', text: "مۆدێ پەیڤۆک ژ شەش بزاڤان پێکدهێت و دڤێت پەیڤا ڤەشارتی د شەش بزاڤاندا ببینی.", advanceOnClick: true },
   { id: 'intro_row', target: 'active_row', top: '65%', pointerDir: 'up', text: "بۆ زانینا ژمارەیا پیتێن پەیڤا ڤەشارتی، پێدڤیە خانەیان ب شێوەیەکێ ئاسوویی بژمێری.", advanceOnClick: true },
@@ -388,6 +388,13 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
                 <span
                   className="text-[15px] sm:text-[17px] md:text-[20px] font-black font-rabar leading-normal md:leading-relaxed block px-2 whitespace-pre-line invisible pointer-events-none text-right!"
                 >
+                  {step.icon && (
+                    <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
+                       {step.icon === 'bulb' && <HintIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'magnet' && <MagnetIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'skip' && <SkipIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                    </span>
+                  )}
                   {step.text}
                 </span>
 
@@ -396,6 +403,13 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
                   className="text-[15px] sm:text-[17px] md:text-[20px] font-black font-rabar text-[#181a20] leading-normal md:leading-relaxed absolute inset-0 block px-2 whitespace-pre-line text-right!"
                   style={{ textShadow: `0px 1px 0px white` }}
                 >
+                  {step.icon && (
+                    <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
+                       {step.icon === 'bulb' && <HintIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'magnet' && <MagnetIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                       {step.icon === 'skip' && <SkipIcon className="w-[18px] h-[18px] sm:w-[22px] sm:h-[22px] md:w-[26px] md:h-[26px]" />}
+                    </span>
+                  )}
                   <TypewriterText
                     text={step.text}
                     isTypingComplete={isTypingComplete}
