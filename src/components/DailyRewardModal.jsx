@@ -11,29 +11,7 @@ import CoinAnimation from './CoinAnimation';
 import ClipboardIcon from './ClipboardIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import CloseButton from './CloseButton';
-
-const AdvancedSparkle = ({ className, delaySec }) => (
-  <Motion.div
-    className={`absolute pointer-events-none z-50 ${className}`}
-    initial={{ scale: 0, opacity: 0, rotate: -20 }}
-    animate={{
-      scale: [0, 1.3, 0],
-      opacity: [0, 1, 0],
-      rotate: [-20, 70]
-    }}
-    transition={{
-      duration: 4,
-      repeat: Infinity,
-      delay: delaySec,
-      ease: "easeInOut"
-    }}
-  >
-    <svg viewBox="-20 -20 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full overflow-visible">
-      <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" fill="#FDE047" />
-      <path d="M50 20C50 36.568 36.568 50 20 50C36.568 50 50 63.431 50 80C50 63.431 63.431 50 80 50C63.431 50 50 36.568 50 20Z" fill="#FFFFFF" />
-    </svg>
-  </Motion.div>
-);
+import { MagicalDust } from './GiftPopup';
 
 const REWARDS_CONFIG = [
   { day: 1, label: '١٠٠ فلس', type: 'fils', reward: { fils: 100 }, color: '#CD7F32' },
@@ -250,21 +228,9 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         ${isClaimed ? 'opacity-80 scale-[0.98]' : (isNext ? 'ring-2 ring-[#facc15] shadow-[0_0_15px_3px_rgba(250,204,21,0.9)] scale-[1.025] z-30 cursor-pointer' : 'hover:scale-[1.02]')}
                       `}
                     >
-                      {/* Active Day Sparkles */}
+                      {/* Active Day Magical Dust */}
                       {isNext && !isClaimed && (
-                        <div className="absolute inset-0 pointer-events-none z-40">
-                          <AdvancedSparkle className="-top-3 -left-2 w-8 h-8" delaySec={0} />
-                          <AdvancedSparkle className="top-8 -right-3 w-6 h-6" delaySec={0.8} />
-                          <AdvancedSparkle className="-bottom-2 left-4 w-7 h-7" delaySec={1.5} />
-                          <AdvancedSparkle className="-top-1 right-2 w-4 h-4" delaySec={0.4} />
-                          <AdvancedSparkle className="bottom-6 -left-2 w-3 h-3 blur-[1px] opacity-80" delaySec={1.1} />
-                          <AdvancedSparkle className="-bottom-1 right-5 w-5 h-5 blur-[1px]" delaySec={1.9} />
-                          <AdvancedSparkle className="top-1/2 -left-4 w-3 h-3 blur-[1px]" delaySec={0.6} />
-                          <AdvancedSparkle className="top-2 right-1/4 w-2 h-2 blur-[1px] opacity-70" delaySec={1.3} />
-                          <AdvancedSparkle className="-top-3 left-1/3 w-4 h-4 blur-[2px] opacity-60" delaySec={2.2} />
-                          <AdvancedSparkle className="-bottom-4 right-2 w-3 h-3 blur-[1px] opacity-80" delaySec={2.7} />
-                          <AdvancedSparkle className="bottom-1/3 -right-3 w-4 h-4 blur-[1px]" delaySec={3.1} />
-                        </div>
+                        <MagicalDust spread={isDay7 ? 200 : 120} count={isDay7 ? 35 : 20} zIndex={40} />
                       )}
 
                       {isDay7 && (

@@ -6,17 +6,17 @@ import { useAudio } from '../context/AudioContext';
 import { FilsIcon } from './CurrencyIcon';
 
 // A component to generate the flying magical dust/sparks (Clash Royale style)
-const MagicalDust = () => {
+export const MagicalDust = ({ spread = 300, count = 40, zIndex = 150 }) => {
   const [particles] = useState(() => {
-    // Generate 40 continuous floating particles
-    return Array.from({ length: 40 }).map((_, i) => {
-      // Spawn them randomly around the card center
-      const startX = (Math.random() - 0.5) * 300; 
-      const startY = (Math.random() - 0.5) * 300;
+    // Generate continuous floating particles
+    return Array.from({ length: count }).map((_, i) => {
+      // Spawn them randomly around the center
+      const startX = (Math.random() - 0.5) * spread; 
+      const startY = (Math.random() - 0.5) * spread;
       
       // Float them slowly upwards and slightly sideways
-      const endX = startX + (Math.random() - 0.5) * 80;
-      const endY = startY - 100 - Math.random() * 150;
+      const endX = startX + (Math.random() - 0.5) * (spread * 0.3);
+      const endY = startY - (spread * 0.3) - Math.random() * (spread * 0.5);
       
       const scale = 0.5 + Math.random() * 1.2;
       const duration = 2 + Math.random() * 3;
@@ -27,7 +27,7 @@ const MagicalDust = () => {
   });
 
   return (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 150 }}>
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex }}>
       {particles.map((p) => (
         <Motion.div
           key={p.id}
