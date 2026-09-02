@@ -11,7 +11,7 @@ import MysteryBoxIcon from './MysteryBoxIcon';
 import CoinAnimation from './CoinAnimation';
 import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
 import CloseButton from './CloseButton';
-import MagicalDust from './MagicalDust';
+import { MagicalDust } from './GiftPopup';
 
 const MYSTERY_REWARDS = [
   { id: 0, type: 'dinar', amount: 1, label: '١ دینار', weight: 2 },
