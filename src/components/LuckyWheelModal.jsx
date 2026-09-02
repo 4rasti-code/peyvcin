@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { supabase } from '../lib/supabase';
@@ -393,7 +393,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                               dinar: 'دینار',
                               skip: 'پاس',
                               hint: 'هاریکاری',
-                              magnet: 'موگناتیس',
+                              magnet: 'پیتژێبرک',
                               mystery_box: 'سندۆق',
                               spinTicket: 'بلیت'
                             };

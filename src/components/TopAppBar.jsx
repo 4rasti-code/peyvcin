@@ -99,14 +99,14 @@ export default function TopAppBar({
   onPlaySound,
   _onDailyRewardClick,
   onOpenHowToPlay,
-  onHint,
-  onMagnet,
-  onSkip,
-  hintTaps = 0,
-  hintLimit = 3,
-  magnetUsedInRound = false,
-  skipsUsedInRound = 0,
-  skipLimit = 1,
+  _onHint,
+  _onMagnet,
+  _onSkip,
+  _hintTaps = 0,
+  _hintLimit = 3,
+  _magnetUsedInRound = false,
+  _skipsUsedInRound = 0,
+  _skipLimit = 1,
   _isDailyAvailable = false,
   isDark = true
 }) {
@@ -160,59 +160,12 @@ export default function TopAppBar({
         </div>
 
         <div className="flex items-center justify-start flex-1 max-w-175 px-1 md:px-4 min-w-0">
-          {isPlaying ? (
-            <div className="hidden md:flex items-center gap-8 px-6 py-1 bg-mono-100/50 dark:bg-white/5 rounded-2xl border border-mono-200 dark:border-white/10 transition-all duration-500">
-              {/* Skip */}
-              <button
-                onClick={() => { triggerHaptic(10); onSkip?.(); }}
-                disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
-                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-              >
-                <SkipIcon
-                  disabled={skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0}
-                  className={`w-6 h-6 transition-all ${skipsUsedInRound >= skipLimit || (skipCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
-                />
-                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (skipCount || 0) <= 0 ? 0 : skipLimit - skipsUsedInRound))}</span>
-              </button>
-
-              <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
-
-              {/* Magnet */}
-              <button
-                onClick={() => { triggerHaptic(10); onMagnet?.(); }}
-                disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
-                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-              >
-                <MagnetIcon
-                  disabled={magnetUsedInRound || (magnetCount || 0) <= 0}
-                  className={`w-6 h-6 transition-all ${magnetUsedInRound || (magnetCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
-                />
-                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits((magnetUsedInRound || (magnetCount || 0) <= 0) ? 0 : 1)}</span>
-              </button>
-
-              <div className="w-px h-4 bg-mono-200 dark:bg-white/10" />
-
-              {/* Hint */}
-              <button
-                onClick={() => { triggerHaptic(10); onHint?.(); }}
-                disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
-                className="flex items-center gap-2 group transition-all active:scale-90 disabled:opacity-40"
-              >
-                <HintIcon
-                  disabled={hintTaps >= hintLimit || (hintCount || 0) <= 0}
-                  className={`w-6 h-6 transition-all ${hintTaps >= hintLimit || (hintCount || 0) <= 0 ? 'opacity-50' : 'drop-shadow-md'}`}
-                />
-                <span className="text-sm font-black text-mono-900 dark:text-mono-100">{toKuDigits(Math.max(0, (hintCount || 0) <= 0 ? 0 : hintLimit - hintTaps))}</span>
-              </button>
+          {(!isPlaying && (currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby')) && (
+            <div className="flex w-full items-center justify-start gap-1.5 xs:gap-3 sm:gap-6 md:gap-8 mt-1 transition-all pl-1 md:pl-0 pr-1 xs:pr-2">
+              <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" resetKey={currentView} _isDark={isDark} />
+              <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" resetKey={currentView} _isDark={isDark} />
+              <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" resetKey={currentView} _isDark={isDark} />
             </div>
-          ) : (
-            (currentView === 'store' || currentView === 'leaderboard' || currentView === 'lobby') && (
-              <div className="flex w-full items-center justify-start gap-1.5 xs:gap-3 sm:gap-6 md:gap-8 mt-1 transition-all pl-1 md:pl-0 pr-1 xs:pr-2">
-                <CurrencyStat key="store-dinar" value={dinar} Icon={DinarIcon} color="text-yellow-400" currency="dinar" resetKey={currentView} _isDark={isDark} />
-                <CurrencyStat key="store-derhem" value={derhem} Icon={DerhemIcon} color="text-slate-300" currency="derhem" resetKey={currentView} _isDark={isDark} />
-                <CurrencyStat key="store-fils" value={fils} Icon={FilsIcon} color="text-[#facc15]" currency="fils" resetKey={currentView} _isDark={isDark} />
-              </div>
-            )
           )}
         </div>
 

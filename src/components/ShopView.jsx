@@ -15,7 +15,7 @@ import { useAudio } from '../context/AudioContext';
 
 const SHOP_ITEMS = {
   POWERUPS: [
-    { id: 'attractor_field', name: 'موگناتیس', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 1000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
+    { id: 'attractor_field', name: 'پیتژێبرک', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 1000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
     { id: 'hint_pack', name: 'پیتبین', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 2500, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
     { id: 'full_skip', name: 'دەربازبوون', description: 'دەربازبوونا ب تەمام ژ پەیڤێ', icon: 'fast_forward', price: 5000, color: 'from-blue-400 to-cyan-600', glow: 'shadow-blue-500/40', currency: 'fils' }
   ],
@@ -213,8 +213,8 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
               کارتێکەرێن ناڤی
             </h2>
             <div className="flex flex-col gap-3">
-              {Object.values(NAME_STYLES).filter(style => style.id !== 'default').map(style => {
-                const isOwned = ownedNameStyles.includes(style.id);
+              {Object.values(NAME_STYLES).map(style => {
+                const isOwned = style.id === 'default' || ownedNameStyles.includes(style.id);
                 const isEquipped = equippedNameStyle === style.id;
                 const canAfford = getCurrencyAmount(style.currency) >= style.price;
                 const dynamicClass = getNameStyleDynamicClass(style.id);
@@ -242,7 +242,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                         <div className="absolute inset-0 rounded-[0.75rem] overflow-hidden pointer-events-none">
                           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 mix-blend-overlay" />
                         </div>
-                        <span className="relative z-10 drop-shadow-sm">{isEquipped ? 'بەکارهێنراوە' : 'بەکارهێنان'}</span>
+                        <span className="relative z-10 drop-shadow-sm">{isEquipped ? 'هاتیە بکارئینان' : 'بکارئینان'}</span>
                       </button>
                     ) : (
                       <button

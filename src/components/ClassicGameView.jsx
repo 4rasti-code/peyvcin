@@ -63,6 +63,7 @@ const ClassicGameView = ({
       <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 px-2 pt-8 pb-[calc(env(safe-area-inset-bottom)+1rem)] bg-[#2d1155] border-none rounded-t-2xl transition-colors duration-500`}>
         <div className="mb-4">
           <InventoryBar
+            magnetCount={magnetCount}
             hintCount={hintCount}
             skipCount={skipCount}
             onHint={onHint}

@@ -100,8 +100,7 @@ CREATE OR REPLACE FUNCTION public.buy_name_style(
 RETURNS JSON AS $$
 DECLARE
   v_curr_balance INTEGER;
-  v_inventory JSONB;
-  v_unlocked_themes JSONB;
+  v_owned_name_styles TEXT[];
 BEGIN
   IF auth.uid() IS NULL THEN
     RAISE EXCEPTION 'Unauthorized: Must be logged in to purchase.';
@@ -114,18 +113,18 @@ BEGIN
       WHEN p_currency_used = 'dinar' THEN dinar
       ELSE 0
     END,
-    inventory
-  INTO v_curr_balance, v_inventory
+    owned_name_styles
+  INTO v_curr_balance, v_owned_name_styles
   FROM profiles WHERE id = auth.uid();
 
-  v_unlocked_themes := COALESCE(v_inventory->'unlocked_themes', '[]'::JSONB);
+  v_owned_name_styles := COALESCE(v_owned_name_styles, ARRAY['default']::TEXT[]);
 
   IF v_curr_balance < p_price THEN
     RAISE EXCEPTION 'Insufficient balance.';
   END IF;
 
-  IF v_unlocked_themes ? p_item_id THEN
-    RAISE EXCEPTION 'Theme already unlocked.';
+  IF p_item_id = ANY(v_owned_name_styles) THEN
+    RAISE EXCEPTION 'Name style already owned.';
   END IF;
   
   UPDATE profiles
@@ -133,7 +132,7 @@ BEGIN
     fils = CASE WHEN p_currency_used = 'fils' THEN fils - p_price ELSE fils END,
     derhem = CASE WHEN p_currency_used = 'derhem' THEN derhem - p_price ELSE derhem END,
     dinar = CASE WHEN p_currency_used = 'dinar' THEN dinar - p_price ELSE dinar END,
-    inventory = jsonb_set(COALESCE(inventory, '{}'::JSONB), '{unlocked_themes}', v_unlocked_themes || to_jsonb(p_item_id)),
+    owned_name_styles = v_owned_name_styles || p_item_id,
     updated_at = NOW()
   WHERE id = auth.uid();
 

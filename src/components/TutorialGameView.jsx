@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Grid from './Grid';
 import Keyboard from './Keyboard';
@@ -23,7 +23,7 @@ const SPECIAL_KEYS = {
 const TUTORIAL_STEPS = [
   { id: 'intro_hints_main', target: 'hints', top: '45%', text: "د یاریێ دا مە سێ جۆرێن هاریکاریان هەنە.\n\nهەردەما پەیڤا ڤەشارتی زەحمەت بوو،\nتو دشێی ئەڤان هاریکاریان بکار بهینی.\n\nل گەل من بە دا ئێک ب ئێک\nبۆ تە بدەمە نیاسین.", advanceOnClick: true },
   { id: 'intro_hints_bulb', target: 'hints', top: '45%', icon: 'bulb', text: "پیتبین: پیتەکا دروست یا پەیڤێ بۆ تە ئاشکرا دکەت.", advanceOnClick: true },
-  { id: 'intro_hints_magnet', target: 'hints', top: '45%', icon: 'magnet', text: "موگناتیس: هندەک پیتێن شاش کو د پەیڤێ دا نینن ژ تەختەکلیکی ڕادکەت.", advanceOnClick: true },
+  { id: 'intro_hints_magnet', target: 'hints', top: '45%', icon: 'magnet', text: "پیتژێبرک: هندەک پیتێن شاش کو د پەیڤێ دا نینن ژ تەختەکلیکی ڕادکەت.", advanceOnClick: true },
   { id: 'intro_hints_skip', target: 'hints', top: '45%', icon: 'skip', text: "دەربازبوون: ئەگەر گەلەک زەحمەت بوو، دکاری قۆناغێ ب تەمامی دەرباز بکەی.", advanceOnClick: true },
   { id: 'intro_game_goal', target: 'none', top: '30%', text: "یاری ل مۆدێ پەیڤۆک پەیڤەکا ڤەشارتی ددەتە تە، دڤێت پیشبینیا ئەوێ پەیڤا ڤەشارتی بکەی کا چ پەیڤە.", advanceOnClick: true },
   { id: 'intro_attempts_col', target: 'grid_column', top: '65%', pointerDir: 'up', text: "مۆدێ پەیڤۆک ژ شەش بزاڤان پێکدهێت و دڤێت پەیڤا ڤەشارتی د شەش بزاڤاندا ببینی.", advanceOnClick: true },

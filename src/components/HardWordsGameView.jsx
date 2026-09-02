@@ -63,6 +63,7 @@ const HardWordsGameView = ({
       <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 px-2 pt-8 pb-[calc(env(safe-area-inset-bottom)+1rem)] bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none transition-colors duration-500`}>
         <div className="mb-4">
           <InventoryBar
+            magnetCount={magnetCount}
             hintCount={hintCount}
             skipCount={skipCount}
             onHint={onHint}

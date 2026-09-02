@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
+﻿import React, { useRef, useState, useEffect, memo, useCallback } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { AlarmClock } from 'lucide-react';
 import { DerhemIcon } from './CurrencyIcon';
@@ -27,6 +27,7 @@ import { getLevelFromXP } from '../utils/progression';
 import useMultiplayer from '../hooks/useMultiplayer';
 import PublicProfileModal from './PublicProfileModal';
 import ReportModal from './ReportModal';
+import GiftPopup from './GiftPopup';
 
 import WordSuggestionModal from './WordSuggestionModal';
 import OnboardingOverlay from './OnboardingOverlay';
@@ -128,10 +129,22 @@ const LobbyView = memo(({
   }, [invitedUserProfile]);
 
   const { playDailyOpenSfx } = useAudio();
-  const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle } = useUser();
+  const { user, userNickname, userAvatar, profileData, equippedFont, equippedNameStyle, equippedBundle, syncProfile } = useUser();
   const { onlineUsers, onlineUserStatuses, reconnectPresence } = usePresence();
   const { lastRewardClaimedAt, spinTicketCount } = useGame();
   const { createPrivateMatch, multiplayerState, activeMatch, cancelMatch, hostAcceptJoiner, opponent } = useMultiplayer();
+  const [showGiftPopup, setShowGiftPopup] = useState(false);
+
+  useEffect(() => {
+    if (profileData?.can_claim_beta_gift) {
+      setShowGiftPopup(true);
+    }
+  }, [profileData?.can_claim_beta_gift]);
+
+  const handleGiftClose = useCallback(() => {
+    setShowGiftPopup(false);
+    if (user?.id) syncProfile(user.id);
+  }, [user?.id, syncProfile]);
 
   // Clear sent invites when returning to idle state (e.g. after a match finishes or is cancelled)
   useEffect(() => {
@@ -1442,7 +1455,8 @@ const LobbyView = memo(({
         )}
       </AnimatePresence>
 
-      {/* Custom Alert Modal */}
+              {/* Custom Alert Modal */}
+        <GiftPopup isVisible={showGiftPopup} onClose={handleGiftClose} />
       <AnimatePresence>
         {inviteAlert && (
           <Motion.div
@@ -1533,3 +1547,4 @@ const LobbyView = memo(({
 });
 
 export default LobbyView;
+
