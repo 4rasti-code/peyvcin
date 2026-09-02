@@ -12,7 +12,7 @@ import { STATUS } from '../data/constants';
 import { playKeyClickSfx } from '../utils/audio';
 import VictoryOverlay from './VictoryOverlay';
 import { FilsIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
-import useThemeDetector from '../hooks/useThemeDetector';
+
 import TypewriterText from './TypewriterText';
 
 const SPECIAL_KEYS = {
@@ -51,10 +51,10 @@ const TUTORIAL_STEPS = [
   { id: 'finish', target: 'none', top: '45%', text: "" },
 ];
 
-export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
+export default function TutorialGameView({ onBackToLobby, onStartClassic, topAppBarProps }) {
   const { user, profileData } = useUser();
   const { updateInventory, setCurrentXP, currentXP, playerStats } = useGame();
-  const isDark = useThemeDetector();
+  const isDark = true; // Forced dark mode
   const [stepIndex, setStepIndex] = useState(0);
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState([]);
@@ -246,7 +246,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
   return (
     <div ref={containerRef} className="flex-1 flex flex-col h-full relative overflow-hidden select-none">
-
+      <TopAppBar {...topAppBarProps} />
       {/* GLOBAL DARK OVERLAY to dim background UI during tutorial */}
       {isReady && step.id !== 'finish' && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-[3px] z-40 pointer-events-none transition-all duration-500" />
@@ -273,7 +273,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
 
       {/* Tooltip moved to bottom of DOM to prevent z-index clipping */}
 
-      <div className="flex-1 flex flex-col items-center min-h-0 w-full overflow-hidden no-scrollbar">
+      <div className="flex-1 flex flex-col items-center min-h-0 w-full overflow-hidden no-scrollbar" ref={containerRef}>
         {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
         <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
           {/* Question Section */}
@@ -325,7 +325,7 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic }) {
         </div>
 
         {/* Tier 3: Keyboard & Hints (Pinned to bottom) */}
-        <div className={`shrink-0 w-full md:max-w-lg md:mx-auto mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-all duration-500`}>
+        <div className={`shrink-0 w-full md:max-w-lg md:mx-auto mt-auto px-2 pt-8 pb-[calc(env(safe-area-inset-bottom)+1rem)] bg-[#2d1155] border-none rounded-t-2xl transition-all duration-500`}>
 
           {/* Extracted InventoryBar for independent z-index control */}
           <Motion.div

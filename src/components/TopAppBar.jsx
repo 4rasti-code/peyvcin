@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CloseButton from './CloseButton';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from './CurrencyIcon';
 import { motion as Motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
@@ -220,17 +221,12 @@ export default function TopAppBar({
           {isPlaying ? (
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Motion.button
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.85 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                  onClick={() => { triggerHaptic(10); onForfeit(); }}
-                  className="w-12 h-12 flex items-center justify-center transition-all text-[#ef4444]"
-                >
-                  <span className="material-symbols-outlined text-[32px] font-black">close</span>
-                </Motion.button>
+                  <Motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                  >
+                    <CloseButton onClick={() => { triggerHaptic(10); onForfeit(); }} />
+                  </Motion.div>
               </div>
             </div>
           ) : (

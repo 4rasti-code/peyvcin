@@ -37,6 +37,7 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { AlarmClockIcon } from './AlarmClockIcon';
+import CloseButton from './CloseButton';
 
 const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
   const [timeLeft, setTimeLeft] = useState('');

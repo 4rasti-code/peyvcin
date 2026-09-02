@@ -8,6 +8,7 @@ import TermsOfService from './TermsOfService';
 import DataDeletion from './DataDeletion';
 import FloatingLetterBackground from './FloatingLetterBackground';
 import { useAudio } from '../context/AudioContext';
+import CloseButton from './CloseButton';
 
 const COUNTRIES = [
     { name: 'کوردستان', code: 'KD', flag: '☀️' },

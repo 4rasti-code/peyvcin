@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import CloseButton from './CloseButton';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const PAYMENT_METHODS = [
@@ -56,9 +57,7 @@ export default function PaymentGatewayModal({ isOpen, onClose, item, onComplete 
               <h2 className="text-xl font-black font-rabar text-white">پارەدان</h2>
               <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Regional Payment Gateway</p>
             </div>
-            <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-white/10 transition-colors">
-              <span className="material-symbols-outlined">close</span>
-            </button>
+            <CloseButton onClick={onClose} />
           </div>
 
           <div className="p-6">

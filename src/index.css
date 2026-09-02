@@ -8,6 +8,8 @@
 
 @import "tailwindcss";
 
+/* Enable class-based dark mode (overriding the default media query behavior) */
+@custom-variant dark (&:is(.dark *));
 /* 
   Fonts for the Market (These do NOT change the main game font, 
   they just make the fonts available to be previewed/bought in the store) 

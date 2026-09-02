@@ -17,9 +17,9 @@
     window.__SPLASH_START_TIME__ = Date.now();
     (function () {
       try {
-        // Lock to light mode for the new game interface
-        document.documentElement.classList.add('light');
-        document.documentElement.classList.remove('dark');
+        // Lock to dark mode for the entire game interface
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
       } catch (e) { }
     })();
   </script>

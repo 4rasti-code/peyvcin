@@ -58,7 +58,7 @@ export default function CategoryModal({ onSelect, isOpen, onClose }) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="w-full max-w-xl bg-[#1e293b] border-2 border-white/10 rounded-[40px] p-10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative z-10 overflow-hidden  flex-col max-h-[85vh]"
+        className="w-full max-w-xl bg-[#1e293b] border-2 border-white/10 rounded-2xl p-10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] relative z-10 overflow-hidden  flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Block - SOLID */}

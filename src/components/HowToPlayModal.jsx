@@ -6,6 +6,7 @@ import { triggerHaptic } from '../utils/haptics';
 import GameResultRenderer from './GameResultRenderer';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
+import CloseButton from './CloseButton';
 
 const gameModes = [
   { id: 'classic', title: 'کلاسیک' },

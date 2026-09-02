@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import CloseButton from './CloseButton';
 
 export default function ImageEditorModal({ imageUrl, onSave, onClose }) {
   const canvasRef = useRef(null);

@@ -16,6 +16,7 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
+import CloseButton from './CloseButton';
 
 export default function PublicProfileModal({
   profile,
@@ -423,12 +424,7 @@ export default function PublicProfileModal({
         dir="rtl"
       >
         {/* Close Button */}
-        <button
-          onClick={() => { playBubblePopSound(); onClose(); }}
-          className="absolute top-4 left-4 w-8 h-8 rounded-md bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-400 dark:hover:text-white transition-all z-10"
-        >
-          <span className="material-symbols-outlined text-[18px]">close</span>
-        </button>
+        <CloseButton onClick={() => { playBubblePopSound(); onClose(); }} className="absolute top-4 left-4 z-10" />
 
         {/* Level Badge - Reverted to Top Right Corner of Modal */}
         {!isBot && (() => {
@@ -940,12 +936,7 @@ export default function PublicProfileModal({
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
-              <button 
-                onClick={() => setIsAvatarExpanded(false)}
-                className="absolute -top-12 sm:-top-16 right-0 z-10 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
+              <CloseButton onClick={() => setIsAvatarExpanded(false)} className="absolute -top-12 sm:-top-16 right-0 z-10" />
               
               <div 
                 className={`w-full h-full rounded-full border-4 border-white/20 overflow-hidden shadow-2xl relative select-none ${isBot ? '' : (BUNDLES[displayData.equipped_bundle]?.id !== 'default' ? BUNDLES[displayData.equipped_bundle]?.avatarRing || '' : '')}`}

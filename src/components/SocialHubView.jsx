@@ -21,6 +21,7 @@ import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, XPIcon, SpinTicketIcon } from './CurrencyIcon';
+import CloseButton from './CloseButton';
 
 const renderPreviewText = (text) => {
   if (!text) return 'یێ ل سەر هێلێیە';

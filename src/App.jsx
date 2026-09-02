@@ -15,6 +15,10 @@ import InfoBar from './components/InfoBar';
 import Grid from './components/Grid';
 import Keyboard from './components/Keyboard';
 import InventoryBar from './components/InventoryBar';
+import ClassicGameView from './components/ClassicGameView';
+import MamakGameView from './components/MamakGameView';
+import HardWordsGameView from './components/HardWordsGameView';
+import WordFeverGameView from './components/WordFeverGameView';
 import CategoryModal from './components/CategoryModal';
 import BottomNav from './components/BottomNav';
 import LobbyView from './components/LobbyView';
@@ -36,8 +40,6 @@ import { safeJSONParse, safeStorageGet, safeStorageSet } from './utils/safeParse
 
 import { forceResumeAudio } from './utils/audio';
 import { normalizeKurdishInput } from './utils/textUtils';
-
-import useThemeDetector from './hooks/useThemeDetector';
 
 // Resilient Lazy Loading Guard: Automatically reloads the page if a chunk fails to load 
 // (common after new deployments where asset hashes change).
@@ -1668,7 +1670,7 @@ export default function App() {
   }, [navigateTo]);
 
 
-  const isSystemDark = useThemeDetector();
+  const isSystemDark = true; // Forced dark mode
 
   const handleOpenHowToPlay = (mode = 'classic', showTabs = true) => {
     playBubblePopSound();
@@ -1707,6 +1709,57 @@ export default function App() {
 
   const isActivelyLoading = loadingAuth || isGameLoading || isSyncingProfile || !isFontsLoaded || (!user && !['auth', 'lobby', 'game', 'privacy', 'data_deletion', 'terms_of_service'].includes(currentView));
   // Keep the loading screen visible until the progress bar visually reaches 100% for logged-in users
+  const topAppBarProps = {
+    user, fils, derhem, dinar,
+    magnetCount, hintCount, skipCount,
+    level, dailyStreak,
+    currentView, onEarlyExit: handleEarlyExit,
+    onOpenSettings: () => { playSettingsOpenSound(); setIsSettingsOpen(true); },
+    notifications: notificationsList,
+    onNotificationAction: handleNotificationAction,
+    onOpenSocial: () => {
+      playBubblePopSound();
+      setCurrentView('social_hub');
+    },
+    onForfeit: handleForfeitClick,
+    category,
+    equippedAvatar,
+    gameMode,
+    timeLeft,
+    notificationCount: (socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadBotGlobal || 0),
+    onPlaySound: playBubblePopSound,
+    onDailyRewardClick: () => {
+      playBubblePopSound();
+      setIsDailyRewardOpen(true);
+    },
+    isDailyAvailable: (() => {
+      if (!lastRewardClaimedAt) return true;
+      try {
+        const formatter = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Baghdad',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        });
+        const lastClaimStr = formatter.format(new Date(lastRewardClaimedAt));
+        const todayStr = formatter.format(new Date());
+        return lastClaimStr !== todayStr;
+      } catch {
+        return false;
+      }
+    })(),
+    isDark: isSystemDark,
+    onOpenHowToPlay: (mode) => handleOpenHowToPlay(mode, mode ? false : true),
+    onHint: handleHint,
+    onMagnet: handleMagnet,
+    onSkip: handleSkip,
+    hintTaps,
+    hintLimit: getMaxHintsForWord(targetWord?.length || 0),
+    magnetUsedInRound: magnetsUsedInRound > 0,
+    skipsUsedInRound,
+    skipLimit: 1
+  };
+
   const isLoadingScreenVisible = isActivelyLoading || (!!user && Math.round(displayProgress) < 100);
 
   return (
@@ -1765,7 +1818,7 @@ export default function App() {
             />
           </>
         )}
-        {currentView === 'game' && gameMode === 'classic' && (
+        {currentView === 'game' && (gameMode === 'classic' || gameMode === 'tutorial') && (
           <>
             <div
               className="absolute inset-0 z-0 pointer-events-none transition-all duration-500 bg-[#4c1d95]"
@@ -1786,60 +1839,9 @@ export default function App() {
           <div className="panic-overlay" />
         )}
 
-        {/* 1. STATE-BASED NAVIGATION HEADER */}
-        {currentView !== 'auth' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && currentView !== 'medals' && currentView !== 'stats' && currentView !== 'achievements' && currentView !== 'dictionary' && !['playing', 'joining', 'syncing', 'match_starting'].includes(multiplayerState) && (
-          <TopAppBar
-            user={user} fils={fils} derhem={derhem} dinar={dinar}
-            magnetCount={magnetCount} hintCount={hintCount} skipCount={skipCount}
-            level={level} dailyStreak={dailyStreak}
-            currentView={currentView} onEarlyExit={handleEarlyExit}
-            onOpenSettings={() => { playSettingsOpenSound(); setIsSettingsOpen(true); }}
-            notifications={notificationsList}
-            onNotificationAction={handleNotificationAction}
-            onOpenSocial={() => {
-              playBubblePopSound();
-              setCurrentView('social_hub');
-            }}
-            onForfeit={handleForfeitClick}
-            category={category}
-            equippedAvatar={equippedAvatar}
-            gameMode={gameMode}
-            timeLeft={timeLeft}
-            notificationCount={(socialNotifications.unreadMessages || 0) + (socialNotifications.pendingRequests || 0) + (socialNotifications.unreadBotGlobal || 0)}
-            onPlaySound={playBubblePopSound}
-            onDailyRewardClick={() => {
-              playBubblePopSound();
-              setIsDailyRewardOpen(true);
-            }}
-            isDailyAvailable={
-              (() => {
-                if (!lastRewardClaimedAt) return true;
-                try {
-                  const formatter = new Intl.DateTimeFormat('en-CA', {
-                    timeZone: 'Asia/Baghdad',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                  });
-                  const lastClaimStr = formatter.format(new Date(lastRewardClaimedAt));
-                  const todayStr = formatter.format(new Date());
-                  return lastClaimStr !== todayStr;
-                } catch {
-                  return false;
-                }
-              })()
-            }
-            isDark={isSystemDark}
-            onOpenHowToPlay={(mode) => handleOpenHowToPlay(mode, mode ? false : true)}
-            onHint={handleHint}
-            onMagnet={handleMagnet}
-            onSkip={handleSkip}
-            hintTaps={hintTaps}
-            hintLimit={getMaxHintsForWord(targetWord?.length || 0)}
-            magnetUsedInRound={magnetsUsedInRound > 0}
-            skipsUsedInRound={skipsUsedInRound}
-            skipLimit={1}
-          />
+        {/* 1. STATE-BASED NAVIGATION HEADER (Only for non-game views) */}
+        {currentView !== 'auth' && currentView !== 'game' && currentView !== 'tutorial' && currentView !== 'leaderboard' && currentView !== 'social_hub' && currentView !== 'profile' && currentView !== 'medals' && currentView !== 'stats' && currentView !== 'achievements' && currentView !== 'dictionary' && !['playing', 'joining', 'syncing', 'match_starting'].includes(multiplayerState) && (
+          <TopAppBar {...topAppBarProps} />
         )}
 
         {/* 2. MAIN CONTENT AREA (STATE DRIVEN) */}
@@ -1991,98 +1993,46 @@ export default function App() {
             </div>
           )}
 
-          <div className={currentView === 'game' && gameMode !== 'multiplayer' && gameMode !== 'tutorial' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}>
-              {/* Tier 1 & 2: Info & Grid (Flex Grow) */}
-              <div className="flex-1 flex flex-col items-center min-h-0 overflow-hidden no-scrollbar w-full">
-                {/* Question Section */}
-                <div className={`w-full md:max-w-lg md:mx-auto shrink-0 flex flex-col items-center my-1`}>
-                  <InfoBar
-                    targetHint={targetHint}
-                    category={currentWordCategory || category}
-                    gameMode={gameMode}
-                    guessesCount={guesses.length}
-                    maxGuesses={gameMode === 'word_fever' ? 3 : 6}
-                    fils={fils}
-                    currentXP={currentXP}
-                    minXP={minXPForLevel}
-                    maxXP={maxXP}
-                    level={level}
-                    targetDifficultyLevel={level}
-                    timeLeft={timeLeft}
-                    showSuccessSplash={isSuccessSplash}
-                    isDark={isSystemDark}
-                  />
-                </div>
+          {/* DEDICATED GAME MODE VIEWS */}
+          <ClassicGameView
+            topAppBarProps={topAppBarProps}
+            className={currentView === 'game' && gameMode === 'classic' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}
+            targetHint={targetHint} category={currentWordCategory || category} gameMode={gameMode} guesses={guesses} maxGuesses={6} fils={fils} currentXP={currentXP} minXPForLevel={minXPForLevel} maxXP={maxXP} level={level} timeLeft={timeLeft} isSuccessSplash={isSuccessSplash} isSystemDark={isSystemDark}
+            currentGuess={currentGuess} getLetterStatus={getLetterStatus} revealedIndices={revealedIndices} hintIndices={hintIndices} targetWord={targetWord} isShaking={isShaking}
+            onKey={onKey} onDelete={onDelete} onEnter={handleOnEnter} usedKeys={usedKeys} isVictory={isVictory} isDefeat={isDefeat} isLevelingUp={isLevelingUp} magnetDisabledKeys={magnetDisabledKeys}
+            onHint={handleHint} onMagnet={handleMagnet} onSkip={handleSkip} hintCount={hintCount} magnetCount={magnetCount} skipCount={skipCount} hintTaps={hintTaps} getMaxHintsForWord={getMaxHintsForWord} magnetsUsedInRound={magnetsUsedInRound} skipsUsedInRound={skipsUsedInRound}
+            appSoundsEnabled={appSoundsEnabled} hapticEnabled={hapticEnabled}
+          />
 
-                {/* Grid Section (Centers content in remaining space) */}
-                <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center overflow-hidden w-full md:max-w-lg md:mx-auto`}>
-                  <div className="game-grid-core w-full flex justify-center items-center">
-                    <Grid
-                      key={targetWord}
-                      guesses={guesses}
-                      currentGuess={currentGuess}
-                      wordLength={targetWord.length}
-                      getLetterStatus={getLetterStatus}
-                      revealedIndices={revealedIndices}
-                      hintIndices={hintIndices}
-                      lastHintIndex={-1}
-                      targetWord={targetWord}
-                      maxRows={gameMode === 'word_fever' ? 3 : 6}
-                      isShaking={isShaking}
-                      isDark={isSystemDark}
-                    />
+          <MamakGameView
+            topAppBarProps={topAppBarProps}
+            className={currentView === 'game' && gameMode === 'mamak' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}
+            targetHint={targetHint} category={currentWordCategory || category} gameMode={gameMode} guesses={guesses} maxGuesses={6} fils={fils} currentXP={currentXP} minXPForLevel={minXPForLevel} maxXP={maxXP} level={level} timeLeft={timeLeft} isSuccessSplash={isSuccessSplash} isSystemDark={isSystemDark}
+            currentGuess={currentGuess} getLetterStatus={getLetterStatus} revealedIndices={revealedIndices} hintIndices={hintIndices} targetWord={targetWord} isShaking={isShaking}
+            onKey={onKey} onDelete={onDelete} onEnter={handleOnEnter} usedKeys={usedKeys} isVictory={isVictory} isDefeat={isDefeat} isLevelingUp={isLevelingUp} magnetDisabledKeys={magnetDisabledKeys}
+            onHint={handleHint} onMagnet={handleMagnet} onSkip={handleSkip} hintCount={hintCount} magnetCount={magnetCount} skipCount={skipCount} hintTaps={hintTaps} getMaxHintsForWord={getMaxHintsForWord} magnetsUsedInRound={magnetsUsedInRound} skipsUsedInRound={skipsUsedInRound}
+            appSoundsEnabled={appSoundsEnabled} hapticEnabled={hapticEnabled}
+          />
 
-                  </div>
-                </div>
-              </div>
+          <HardWordsGameView
+            topAppBarProps={topAppBarProps}
+            className={currentView === 'game' && gameMode === 'hard_words' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}
+            targetHint={targetHint} category={currentWordCategory || category} gameMode={gameMode} guesses={guesses} maxGuesses={6} fils={fils} currentXP={currentXP} minXPForLevel={minXPForLevel} maxXP={maxXP} level={level} timeLeft={timeLeft} isSuccessSplash={isSuccessSplash} isSystemDark={isSystemDark}
+            currentGuess={currentGuess} getLetterStatus={getLetterStatus} revealedIndices={revealedIndices} hintIndices={hintIndices} targetWord={targetWord} isShaking={isShaking}
+            onKey={onKey} onDelete={onDelete} onEnter={handleOnEnter} usedKeys={usedKeys} isVictory={isVictory} isDefeat={isDefeat} isLevelingUp={isLevelingUp} magnetDisabledKeys={magnetDisabledKeys}
+            onHint={handleHint} onMagnet={handleMagnet} onSkip={handleSkip} hintCount={hintCount} magnetCount={magnetCount} skipCount={skipCount} hintTaps={hintTaps} getMaxHintsForWord={getMaxHintsForWord} magnetsUsedInRound={magnetsUsedInRound} skipsUsedInRound={skipsUsedInRound}
+            appSoundsEnabled={appSoundsEnabled} hapticEnabled={hapticEnabled}
+          />
 
-              {/* Tier 2.5: Powerups (In the empty space) */}
-              <div className="w-full md:max-w-lg md:mx-auto flex justify-center mt-auto mb-4 z-50">
-                <InventoryBar
-                  magnetCount={magnetCount}
-                  hintCount={hintCount}
-                  skipCount={skipCount}
-                  onHint={handleHint}
-                  onMagnet={handleMagnet}
-                  onSkip={handleSkip}
-                  hintTaps={hintTaps}
-                  hintLimit={getMaxHintsForWord(targetWord.length)}
-                  magnetUsedInRound={magnetsUsedInRound > 0}
-                  skipsUsedInRound={skipsUsedInRound}
-                  skipLimit={1}
-                  hideSkip={gameMode === 'mamak'}
-                  isDark={isSystemDark}
-                />
-              </div>
-
-              {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 px-2 pt-8 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${gameMode === 'classic' ? 'bg-[#2d1155] border-none rounded-t-2xl' : isSystemDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-colors duration-500`}>
-                <Keyboard
-                  hidePowerups={true}
-                  onKey={onKey}
-                  onDelete={onDelete}
-                  onEnter={handleOnEnter}
-                  usedKeys={usedKeys}
-                  isDark={isSystemDark}
-                  gameState={isVictory ? 'won' : isDefeat ? 'lost' : isLevelingUp ? 'leveling-up' : 'playing'}
-                  magnetDisabledKeys={magnetDisabledKeys}
-                  onHint={handleHint}
-                  onMagnet={handleMagnet}
-                  onSkip={handleSkip}
-                  hintCount={hintCount}
-                  magnetCount={magnetCount}
-                  skipCount={skipCount}
-                  hintTaps={hintTaps}
-                  hintLimit={getMaxHintsForWord(targetWord.length)}
-                  magnetUsedInRound={magnetsUsedInRound > 0}
-                  skipsUsedInRound={skipsUsedInRound}
-                  skipLimit={1}
-                  hideSkip={gameMode === 'mamak'}
-                  keyboardSoundEnabled={appSoundsEnabled}
-                  hapticEnabled={hapticEnabled}
-                />
-              </div>
-          </div>
+          <WordFeverGameView
+            topAppBarProps={topAppBarProps}
+            className={currentView === 'game' && gameMode === 'word_fever' && !['playing', 'game_over', 'syncing', 'match_starting'].includes(multiplayerState) ? "flex-1 flex flex-col overflow-hidden relative h-full" : "hidden"}
+            targetHint={targetHint} category={currentWordCategory || category} gameMode={gameMode} guesses={guesses} maxGuesses={3} fils={fils} currentXP={currentXP} minXPForLevel={minXPForLevel} maxXP={maxXP} level={level} timeLeft={timeLeft} isSuccessSplash={isSuccessSplash} isSystemDark={isSystemDark}
+            currentGuess={currentGuess} getLetterStatus={getLetterStatus} revealedIndices={revealedIndices} hintIndices={hintIndices} targetWord={targetWord} isShaking={isShaking}
+            onKey={onKey} onDelete={onDelete} onEnter={handleOnEnter} usedKeys={usedKeys} isVictory={isVictory} isDefeat={isDefeat} isLevelingUp={isLevelingUp} magnetDisabledKeys={magnetDisabledKeys}
+            onHint={handleHint} onMagnet={handleMagnet} onSkip={handleSkip} hintCount={hintCount} magnetCount={magnetCount} skipCount={skipCount} hintTaps={hintTaps} getMaxHintsForWord={getMaxHintsForWord} magnetsUsedInRound={magnetsUsedInRound} skipsUsedInRound={skipsUsedInRound}
+            appSoundsEnabled={appSoundsEnabled} hapticEnabled={hapticEnabled}
+          />
 
           <Suspense fallback={['social_hub', 'leaderboard', 'store', 'stats', 'achievements', 'medals', 'dictionary', 'profile', 'admin_panel'].includes(currentView) ? <KurdishSunLoader /> : null}>
             {user?.id && (
@@ -2626,6 +2576,7 @@ export default function App() {
               className="flex-1 flex flex-col overflow-hidden relative h-full w-full z-110"
             >
               <TutorialGameView 
+                topAppBarProps={topAppBarProps}
                 onBackToLobby={() => {
                   setGameMode('idle');
                   setCurrentView('lobby');

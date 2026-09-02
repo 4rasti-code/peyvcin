@@ -1,4 +1,5 @@
 import React from 'react';
+import CloseButton from './CloseButton';
 import { motion as Motion } from 'framer-motion';
 import { 
   Level10Icon, 
@@ -23,12 +24,7 @@ export default function MedalsPreview({ onClose }) {
     <div className="fixed inset-0 z-9999 bg-mono-900/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
       
       <div className="bg-mono-800 border-2 border-mono-700 p-6 rounded-2xl w-full max-w-md shadow-2xl relative">
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-mono-700 text-white rounded-full hover:bg-mono-600 transition-colors"
-        >
-          <span className="material-symbols-outlined text-[20px]">close</span>
-        </button>
+        <CloseButton onClick={onClose} className="absolute top-4 right-4" />
 
         <h2 className="text-white font-rabar font-black text-xl mb-6 text-center mt-2">
           تاقیکرنا لڤینا ئایکۆنان

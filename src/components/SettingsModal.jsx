@@ -13,6 +13,7 @@ import WordSuggestionModal from './WordSuggestionModal';
 import { playBackSfx } from '../utils/audio';
 import { supabase } from '../lib/supabase';
 import AudioSettingsModal from './AudioSettingsModal';
+import CloseButton from './CloseButton';
 
 function SettingsModal({
    isOpen,
@@ -463,15 +464,7 @@ const PolicyModal = ({ isOpen, onClose, type, onViewChange }) => {
             >
                {/* Custom Header for Policy Modals */}
                <div className="sticky top-0 z-50 flex items-center justify-end px-6 py-4 pt-safe bg-mono-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-mono-200 dark:border-white/5">
-                  <button
-                     onClick={() => {
-                        playBackSfx();
-                        onClose();
-                     }}
-                     className="w-10 h-10 rounded-md bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 flex items-center justify-center transition-colors text-mono-900 dark:text-white"
-                  >
-                     <span className="material-symbols-outlined text-2xl">close</span>
-                  </button>
+                  <CloseButton onClick={() => { playBackSfx(); onClose(); }} />
                </div>
 
                <div className="flex-1">

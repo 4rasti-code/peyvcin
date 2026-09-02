@@ -23,6 +23,7 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 import CrSlider from './CrSlider';
+import CloseButton from './CloseButton';
 
 export default function ProfileView({ onProfileSave, onOpenSettings, onViewChange, onOpenChat, pendingFriendsCount, initialFriendsModalOpen, onFriendsModalConsumed, isVisible }) {
    const {

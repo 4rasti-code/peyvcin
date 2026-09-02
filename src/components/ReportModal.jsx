@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { triggerHaptic } from '../utils/haptics';
+import CloseButton from './CloseButton';
 
 const ReportModal = ({ isOpen, onClose, user }) => {
   const [type, setType] = useState('bug');

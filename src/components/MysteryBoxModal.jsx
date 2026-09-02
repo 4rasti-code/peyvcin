@@ -10,6 +10,7 @@ import { toKuDigits } from '../utils/formatters';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import CoinAnimation from './CoinAnimation';
 import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon } from './CurrencyIcon';
+import CloseButton from './CloseButton';
 
 const MYSTERY_REWARDS = [
   { id: 0, type: 'dinar', amount: 1, label: '١ دینار', weight: 2 },
@@ -246,9 +247,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
           >
             {/* Close Button Top Right */}
             {!isOpening && !showReward && (
-              <button onClick={() => { playBackSfx(); handleClose(); }} className="fixed top-[calc(env(safe-area-inset-top)+24px)] right-6 w-11 h-11 rounded-md bg-mono-100 dark:bg-white/10 backdrop-blur-md border border-mono-200 dark:border-white/10 flex items-center justify-center text-mono-500 dark:text-white/80 hover:text-mono-800 dark:hover:text-white hover:bg-mono-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-50 shadow-xl">
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
+              <CloseButton onClick={() => { playBackSfx(); handleClose(); }} className="fixed top-[calc(env(safe-area-inset-top)+24px)] right-6 z-50" />
             )}
 
             {!showReward && (
