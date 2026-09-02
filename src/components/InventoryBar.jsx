@@ -13,9 +13,9 @@ const PowerUpButton = ({
   id 
 }) => {
   const themes = {
-    green: "bg-[#bd5ef8] border-[#a047d8] w-14 h-14 rounded-full", // Purple target (Magnet)
-    blue: "bg-[#f49341] border-[#d87c31] w-14 h-14 rounded-full", // Orange magnifying glass (Hint)
-    yellow: "bg-[#54bbf8] border-[#449dd3] w-[80px] h-12 rounded-full" // Light blue wide pill (Skip)
+    green: "bg-gradient-to-b from-[#D489FF] to-[#B352FF] shadow-[0_5px_0_#9A32DF,0_6px_10px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Purple target (Magnet)
+    blue: "bg-gradient-to-b from-[#FFA756] to-[#F27D26] shadow-[0_5px_0_#D96614,0_6px_10px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Orange magnifying glass (Hint)
+    yellow: "bg-gradient-to-b from-[#6EC6FF] to-[#39A4F8] shadow-[0_5px_0_#2386D4,0_6px_10px_rgba(0,0,0,0.15)] w-[80px] h-12 rounded-full" // Light blue wide pill (Skip)
   };
 
   const Icon = icon;
@@ -26,18 +26,18 @@ const PowerUpButton = ({
       onClick={onClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      className={`relative flex items-center justify-center border-b-[5px] transition-all duration-150 outline-none ${themes[colorTheme]} ${disabled ? 'opacity-50 grayscale cursor-not-allowed' : 'active:translate-y-1 active:border-b-0 hover:brightness-110 shadow-md'}`}
+      className={`relative flex items-center justify-center transition-all duration-150 outline-none ${themes[colorTheme]} ${disabled ? 'opacity-50 grayscale cursor-not-allowed shadow-[0_2px_0_transparent] translate-y-1' : 'active:translate-y-[4px] active:shadow-[0_1px_0_var(--tw-shadow-color),0_2px_5px_rgba(0,0,0,0.1)] hover:brightness-110'}`}
     >
       <Icon className="w-8 h-8 drop-shadow-md z-10" disabled={disabled} />
 
       {count !== null && (
-        <div className="absolute -bottom-1 -right-1 min-w-5.5 h-5.5 px-1 rounded-full bg-red-500 border-2 border-white dark:border-mono-900 flex items-center justify-center text-[12px] leading-none font-bold text-white shadow-sm z-10">
+        <div className="absolute -bottom-1 -right-1 min-w-5.5 h-5.5 px-1 rounded-full bg-[#ef4444] shadow-sm flex items-center justify-center text-[13px] leading-none font-black text-white z-10">
           {count}
         </div>
       )}
       
       {/* Light Reflection (shiny) */}
-      <div className="absolute top-1 left-2 right-2 h-2.5 bg-white/20 rounded-md blur-[1px]" />
+      <div className="absolute top-[2px] left-[15%] right-[15%] h-[35%] bg-gradient-to-b from-white/50 to-white/0 rounded-t-full pointer-events-none" />
     </button>
   );
 };
