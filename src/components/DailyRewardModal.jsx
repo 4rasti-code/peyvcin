@@ -336,11 +336,10 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                 backgroundColor: '#0f3352',
                 backgroundImage: `
                   radial-gradient(circle at center, rgba(34, 211, 238, 0.5) 0%, transparent 65%),
-                  linear-gradient(45deg, #164368 25%, transparent 25%, transparent 75%, #164368 75%, #164368),
-                  linear-gradient(45deg, #164368 25%, transparent 25%, transparent 75%, #164368 75%, #164368)
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath d='M32 0L64 32L32 64L0 32Z' fill='%23164368'/%3E%3C/svg%3E")
                 `,
-                backgroundSize: '100% 100%, 64px 64px, 64px 64px',
-                backgroundPosition: 'center center, 0 0, 32px 32px',
+                backgroundSize: '100% 100%, 64px 64px',
+                backgroundPosition: 'center center, 0 0',
               }}
             />
             <Motion.div
