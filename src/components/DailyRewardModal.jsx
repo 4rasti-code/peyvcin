@@ -278,7 +278,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {isDay7 ? (
                         <div className="absolute top-0 left-0 right-0 bottom-8 sm:bottom-10 flex flex-row items-center justify-around px-2 sm:px-4">
                           <div className="relative flex flex-col items-center justify-center pt-2">
-                            <PowerUpBadge type="skip" size={50} />
+                            <PowerUpBadge type="skip" size={36} />
                             <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800" dir="ltr">
                               {getRibbonText({ skipCount: 1 })}
                             </span>
@@ -304,8 +304,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                                item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
                                item.type === 'spinTicket' ? <SpinTicketIcon className="w-14 h-14 sm:w-16 sm:h-16" /> :
                                item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-14 sm:h-14" /> :
-                               item.icon === 'lightbulb' ? <PowerUpBadge type="hint" size={48} /> :
-                               item.icon === 'auto_fix_high' ? <PowerUpBadge type="magnet" size={48} /> : null}
+                               item.icon === 'lightbulb' ? <PowerUpBadge type="hint" size={38} /> :
+                               item.icon === 'auto_fix_high' ? <PowerUpBadge type="magnet" size={38} /> : null}
                             </div>
 
                             <span className={`font-black text-[13px] sm:text-[15px] ${
