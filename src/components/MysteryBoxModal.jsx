@@ -338,36 +338,63 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                           className="absolute w-62.5 h-62.5 bg-[radial-gradient(circle,rgba(217,70,239,0.4)_0%,transparent_70%)] pointer-events-none"
                           style={{ zIndex: -1 }}
                         />
-
-                        {/* Core intense bright glow directly behind the icon */}
-                        <div className="absolute w-32 h-32 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
-
-                        <Motion.div
-                          animate={{
-                            scale: [1, 1.1, 1],
-                            rotate: [0, 3, -3, 0],
-                            y: [-5, 5, -5]
+                        
+                        <div 
+                          className="relative w-56 h-72 md:w-64 md:h-80 rounded-[28px] p-6 flex flex-col items-center justify-center z-10 overflow-hidden shadow-2xl mt-4 mb-8 border-[3px]"
+                          style={{
+                            background: 'linear-gradient(145deg, #1f2937 0%, #111827 100%)',
+                            borderColor: (() => {
+                              switch (wonReward.type) {
+                                case 'fils': return '#F59E0B';
+                                case 'dinar': return '#6366F1';
+                                case 'derhem': return '#EF4444';
+                                case 'hint': return '#3B82F6';
+                                case 'magnet': return '#D489FF';
+                                case 'skip': return '#6EC6FF';
+                                case 'spinTicket': return '#10B981';
+                                default: return '#8B5CF6';
+                              }
+                            })(),
+                            boxShadow: 'inset 0 0 20px rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.5)',
                           }}
-                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                          className="relative flex items-center justify-center z-10"
                         >
-                          {wonReward.type === 'fils' ? <FilsIcon size={80} /> :
-                            wonReward.type === 'derhem' ? <DerhemIcon size={80} /> :
-                              wonReward.type === 'dinar' ? <DinarIcon size={80} /> :
-                                wonReward.type === 'hint' ? <PowerUpBadge type="hint" size={80} /> :
-                                  wonReward.type === 'skip' ? <PowerUpBadge type="skip" size={80} /> :
-                                    wonReward.type === 'magnet' ? <PowerUpBadge type="magnet" size={80} /> :
-                                      wonReward.type === 'spinTicket' ? <SpinTicketIcon size={80} /> : null}
-                        </Motion.div>
+                          {/* Inner Glow */}
+                          <div className="absolute inset-0 bg-white/5 blur-2xl opacity-60 rounded-full scale-150 animate-pulse pointer-events-none" />
+
+                          <Motion.div
+                            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="relative flex items-center justify-center z-10"
+                          >
+                            {(() => {
+                                switch (wonReward.type) {
+                                  case 'fils': return <FilsIcon size={100} className="drop-shadow-xl" />;
+                                  case 'derhem': return <DerhemIcon size={100} className="drop-shadow-xl" />;
+                                  case 'dinar': return <DinarIcon size={100} className="drop-shadow-xl" />;
+                                  case 'hint': return <PowerUpBadge type="hint" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
+                                  case 'magnet': return <PowerUpBadge type="magnet" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
+                                  case 'skip': return <PowerUpBadge type="skip" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
+                                  case 'spinTicket': return <SpinTicketIcon size={100} className="drop-shadow-xl" />;
+                                  default: return null;
+                                }
+                              })()}
+                          </Motion.div>
+
+                          <p className="mt-8 text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10" dir="rtl">
+                             <span dir="ltr">+{toKuDigits(wonReward.amount)}</span>
+                             <span className="mr-2">
+                               {wonReward.type === 'fils' ? 'فلس' :
+                                wonReward.type === 'dinar' ? 'دینار' :
+                                wonReward.type === 'derhem' ? 'درهەم' :
+                                wonReward.type === 'hint' ? 'هاریکاری' :
+                                wonReward.type === 'magnet' ? 'پیتژێبرک' :
+                                wonReward.type === 'skip' ? 'پاس' :
+                                wonReward.type === 'spinTicket' ? 'بلیت' : ''}
+                             </span>
+                          </p>
+                        </div>
                       </div>
 
-                      {/* Elegant Clean Typography with Purple Glow Behind It */}
-                      <div className="relative mt-6">
-                        <div className="absolute -inset-4 bg-purple-600 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
-                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
-                          {wonReward.label}
-                        </p>
-                      </div>
                       {/* Action Buttons */}
                       <Motion.div
                         initial={{ opacity: 0, y: 10 }}
