@@ -143,7 +143,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
         setClaimedDayInfo(REWARDS_CONFIG.find(r => r.day === result.streak));
         setBoxState('opened');
         setShowSuccess(true);
-        
+
         setTimeout(() => {
           playDailyClaimSfx();
           if (hapticEnabled) triggerHaptic([60, 100, 60]);
@@ -267,20 +267,19 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                           <div className="relative flex flex-col items-center justify-center">
                             <div className="flex items-center justify-center">
                               {item.type === 'fils' ? <FilsIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
-                               item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
-                               item.type === 'spinTicket' ? <SpinTicketIcon className="w-14 h-14 sm:w-16 sm:h-16" /> :
-                               item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-14 sm:h-14" /> :
-                               item.icon === 'lightbulb' ? <PowerUpBadge type="hint" size={38} /> :
-                               item.icon === 'auto_fix_high' ? <PowerUpBadge type="magnet" size={38} /> : null}
+                                item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
+                                  item.type === 'spinTicket' ? <SpinTicketIcon className="w-14 h-14 sm:w-16 sm:h-16" /> :
+                                    item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-14 sm:h-14" /> :
+                                      item.icon === 'lightbulb' ? <PowerUpBadge type="hint" size={38} /> :
+                                        item.icon === 'auto_fix_high' ? <PowerUpBadge type="magnet" size={38} /> : null}
                             </div>
 
-                            <span className={`font-black text-[13px] sm:text-[15px] ${
-                              item.type === 'spinTicket' ? '-mt-3 sm:-mt-5 relative z-10' :
-                              item.type === 'derhem' || item.type === 'fils' ? '-mt-0.5 sm:-mt-1 relative z-10' :
-                              item.type === 'mystery_box' ? '-mt-1.5 sm:-mt-2 relative z-10' :
-                              item.icon === 'auto_fix_high' || item.icon === 'lightbulb' ? 'mt-1 relative z-10' :
-                              '-mt-1 sm:-mt-1.5 relative z-10'
-                            } text-gray-800`} dir="ltr">
+                            <span className={`font-black text-[13px] sm:text-[15px] ${item.type === 'spinTicket' ? '-mt-3 sm:-mt-5 relative z-10' :
+                                item.type === 'derhem' || item.type === 'fils' ? '-mt-0.5 sm:-mt-1 relative z-10' :
+                                  item.type === 'mystery_box' ? '-mt-1.5 sm:-mt-2 relative z-10' :
+                                    item.icon === 'auto_fix_high' || item.icon === 'lightbulb' ? 'mt-1 relative z-10' :
+                                      '-mt-1 sm:-mt-1.5 relative z-10'
+                              } text-gray-800`} dir="ltr">
                               {getRibbonText(item.reward)}
                             </span>
                           </div>
@@ -328,17 +327,17 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-110 flex items-center justify-center p-6"
           >
-            <Motion.div 
+            <Motion.div
               animate={{ opacity: animatingReward ? 0 : 1 }}
               transition={{ duration: 0.3 }}
               className="absolute inset-0 pointer-events-none"
               style={{
-                backgroundColor: '#06213b',
+                backgroundColor: '#0d2b47',
                 backgroundImage: `
-                  radial-gradient(circle at center, rgba(34, 211, 238, 0.45) 0%, transparent 65%),
-                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%2306213b'/%3E%3Cg transform='translate(0, 1.5)' fill='%23041526'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Cg fill='%230A3F75'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)' fill='%23105485'/%3E%3Cg fill='%2306213b'%3E%3Ccircle cx='40' cy='0' r='2'/%3E%3Ccircle cx='0' cy='40' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E")
+                  radial-gradient(circle at center, rgba(34, 211, 238, 0.5) 0%, transparent 65%),
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cdefs%3E%3ClinearGradient id='lightBlue' x1='0' y1='0' x2='0' y2='1' gradientTransform='rotate(-45 0.5 0.5)'%3E%3Cstop offset='0' stop-color='%231e68a3' /%3E%3Cstop offset='1' stop-color='%23164a78' /%3E%3C/linearGradient%3E%3ClinearGradient id='darkBlue' x1='0' y1='0' x2='0' y2='1' gradientTransform='rotate(-45 0.5 0.5)'%3E%3Cstop offset='0' stop-color='%23164a78' /%3E%3Cstop offset='1' stop-color='%2311385b' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='80' height='80' fill='%230d2b47'/%3E%3Cg transform='translate(0, 1.5)' fill='%230a223a'%3E%3Crect x='-27.5' y='-27.5' width='55' height='55' rx='5' transform='rotate(45 0 0)'/%3E%3Crect x='52.5' y='-27.5' width='55' height='55' rx='5' transform='rotate(45 80 0)'/%3E%3Crect x='-27.5' y='52.5' width='55' height='55' rx='5' transform='rotate(45 0 80)'/%3E%3Crect x='52.5' y='52.5' width='55' height='55' rx='5' transform='rotate(45 80 80)'/%3E%3Crect x='12.5' y='12.5' width='55' height='55' rx='5' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Cg fill='url(%23darkBlue)'%3E%3Crect x='-27.5' y='-27.5' width='55' height='55' rx='5' transform='rotate(45 0 0)'/%3E%3Crect x='52.5' y='-27.5' width='55' height='55' rx='5' transform='rotate(45 80 0)'/%3E%3Crect x='-27.5' y='52.5' width='55' height='55' rx='5' transform='rotate(45 0 80)'/%3E%3Crect x='52.5' y='52.5' width='55' height='55' rx='5' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Crect x='12.5' y='12.5' width='55' height='55' rx='5' transform='rotate(45 40 40)' fill='url(%23lightBlue)'/%3E%3Cg fill='%23081d33'%3E%3Ccircle cx='40' cy='0' r='2'/%3E%3Ccircle cx='0' cy='40' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E")
                 `,
-                backgroundSize: '100% 100%, 65px 65px',
+                backgroundSize: '100% 100%, 45px 45px',
                 backgroundPosition: 'center center, 0 0',
               }}
             />
@@ -354,7 +353,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                   transition={{ type: "spring", stiffness: 300, damping: 15 }}
                   className="flex flex-col items-center w-full"
                 >
-                  <Motion.div 
+                  <Motion.div
                     animate={{ opacity: animatingReward ? 0 : 1, scale: animatingReward ? 0.95 : 1 }}
                     transition={{ duration: 0.3 }}
                     className="flex flex-col items-center w-full"
@@ -362,111 +361,111 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-md">پیرۆزە!</h3>
                     <p className="text-white text-xl font-medium mb-12 drop-shadow-md">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
 
-                  <div className="mb-10 relative flex flex-col justify-center items-center w-full">
-                    <Motion.div
-                      initial={{ rotate: -180, scale: 0 }}
-                      animate={{ rotate: 0, scale: 1 }}
-                      transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
-                      className="relative z-10 flex justify-center"
-                    >
+                    <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                       <Motion.div
-                        animate={{ y: [0, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        initial={{ rotate: -180, scale: 0 }}
+                        animate={{ rotate: 0, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.1 }}
+                        className="relative z-10 flex justify-center"
                       >
-                        {claimedDayInfo?.isGrand ? (
-                          <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible">
-                            <PowerUpBadge type="skip" size={100} />
-                            <DinarIcon size={120} />
-                            <FilsIcon size={100} />
-                          </div>
-                        ) : claimedDayInfo?.type === 'fils' ? (
-                          <FilsIcon size={110} className="block mx-auto overflow-visible" />
-                        ) : claimedDayInfo?.type === 'derhem' ? (
-                          <DerhemIcon size={110} className="block mx-auto overflow-visible" />
-                        ) : claimedDayInfo?.type === 'spinTicket' ? (
-                          <SpinTicketIcon size={120} className="block mx-auto overflow-visible" />
-                        ) : claimedDayInfo?.type === 'mystery_box' ? (
-                          <MysteryBoxIcon size={110} className="block mx-auto overflow-visible" />
-                        ) : claimedDayInfo?.icon === 'lightbulb' ? (
-                          <PowerUpBadge type="hint" size={120} animate={true} className="block mx-auto" />
-                        ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
-                          <PowerUpBadge type="magnet" size={120} animate={true} className="block mx-auto" />
-                        ) : (
-                          <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white">
-                            {claimedDayInfo?.icon || 'redeem'}
-                          </span>
-                        )}
+                        <Motion.div
+                          animate={{ y: [0, -10, 0] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                          {claimedDayInfo?.isGrand ? (
+                            <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible">
+                              <PowerUpBadge type="skip" size={100} />
+                              <DinarIcon size={120} />
+                              <FilsIcon size={100} />
+                            </div>
+                          ) : claimedDayInfo?.type === 'fils' ? (
+                            <FilsIcon size={110} className="block mx-auto overflow-visible" />
+                          ) : claimedDayInfo?.type === 'derhem' ? (
+                            <DerhemIcon size={110} className="block mx-auto overflow-visible" />
+                          ) : claimedDayInfo?.type === 'spinTicket' ? (
+                            <SpinTicketIcon size={120} className="block mx-auto overflow-visible" />
+                          ) : claimedDayInfo?.type === 'mystery_box' ? (
+                            <MysteryBoxIcon size={110} className="block mx-auto overflow-visible" />
+                          ) : claimedDayInfo?.icon === 'lightbulb' ? (
+                            <PowerUpBadge type="hint" size={120} animate={true} className="block mx-auto" />
+                          ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
+                            <PowerUpBadge type="magnet" size={120} animate={true} className="block mx-auto" />
+                          ) : (
+                            <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white">
+                              {claimedDayInfo?.icon || 'redeem'}
+                            </span>
+                          )}
+                        </Motion.div>
                       </Motion.div>
-                    </Motion.div>
 
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)' }} />
+                      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.3) 0%, transparent 70%)' }} />
 
-                    <Motion.div
-                      initial={{ scale: 0, y: 20 }}
-                      animate={{ scale: 1, y: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
-                      className="mt-6 text-white drop-shadow-md font-black text-3xl relative z-10"
+                      <Motion.div
+                        initial={{ scale: 0, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
+                        className="mt-6 text-white drop-shadow-md font-black text-3xl relative z-10"
+                      >
+                        {claimedDayInfo?.label}
+                      </Motion.div>
+
+                    </div>
+
+                    <Motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 }}
+                      onClick={() => {
+                        if (animatingReward) return;
+                        setAnimatingReward(true);
+                        setTimeout(() => {
+                          setShowSuccess(false);
+                          setAnimatingReward(false);
+                          window.isAnimatingReward = false; // Reset after animation completes
+                          onClose();
+                        }, 2200);
+                      }}
+                      className={`w-40 h-11 flex items-center justify-center mx-auto bg-primary text-white rounded-md font-black text-lg shadow-md transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
                     >
-                      {claimedDayInfo?.label}
-                    </Motion.div>
+                      وەرگرتن
+                    </Motion.button>
+                  </Motion.div>
 
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                    {claimedDayInfo?.isGrand ? (
+                      <>
+                        <CoinAnimation
+                          trigger={animatingReward}
+                          isDaily={true}
+                          type="skip"
+                          amount={claimedDayInfo?.reward?.skipCount || 1}
+                          startOffsetX={100}
+                        />
+                        <CoinAnimation
+                          trigger={animatingReward}
+                          isDaily={true}
+                          type="dinar"
+                          amount={claimedDayInfo?.reward?.dinar || 1}
+                          startOffsetX={0}
+                        />
+                        <CoinAnimation
+                          trigger={animatingReward}
+                          isDaily={true}
+                          type="fils"
+                          amount={claimedDayInfo?.reward?.fils || 200}
+                          startOffsetX={-100}
+                        />
+                      </>
+                    ) : (
+                      <CoinAnimation
+                        trigger={animatingReward}
+                        isDaily={true}
+                        type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
+                        amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
+                      />
+                    )}
                   </div>
-
-                  <Motion.button
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    onClick={() => {
-                      if (animatingReward) return;
-                      setAnimatingReward(true);
-                      setTimeout(() => {
-                        setShowSuccess(false);
-                        setAnimatingReward(false);
-                        window.isAnimatingReward = false; // Reset after animation completes
-                        onClose();
-                      }, 2200);
-                    }}
-                    className={`w-40 h-11 flex items-center justify-center mx-auto bg-primary text-white rounded-md font-black text-lg shadow-md transition-all hover:brightness-110 ${animatingReward ? 'opacity-50 cursor-not-allowed scale-95' : 'active:scale-95'}`}
-                  >
-                    وەرگرتن
-                  </Motion.button>
                 </Motion.div>
-                
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                  {claimedDayInfo?.isGrand ? (
-                    <>
-                      <CoinAnimation
-                        trigger={animatingReward}
-                        isDaily={true}
-                        type="skip"
-                        amount={claimedDayInfo?.reward?.skipCount || 1}
-                        startOffsetX={100}
-                      />
-                      <CoinAnimation
-                        trigger={animatingReward}
-                        isDaily={true}
-                        type="dinar"
-                        amount={claimedDayInfo?.reward?.dinar || 1}
-                        startOffsetX={0}
-                      />
-                      <CoinAnimation
-                        trigger={animatingReward}
-                        isDaily={true}
-                        type="fils"
-                        amount={claimedDayInfo?.reward?.fils || 200}
-                        startOffsetX={-100}
-                      />
-                    </>
-                  ) : (
-                    <CoinAnimation
-                      trigger={animatingReward}
-                      isDaily={true}
-                      type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
-                      amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
-                    />
-                  )}
-                </div>
-              </Motion.div>
               )}
             </Motion.div>
           </Motion.div>
