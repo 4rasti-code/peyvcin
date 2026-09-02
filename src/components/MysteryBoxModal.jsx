@@ -390,7 +390,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                     <button
                       onClick={handleOpen}
                       disabled={isOpening || (!canActuallyOpen && !loadingCheck)}
-                      className={`w-48 h-12 rounded-md bg-linear-to-r from-fuchsia-600 to-purple-600 text-white font-black text-lg shadow-[0_5px_15px_rgba(192,38,211,0.4)] transition-all uppercase flex items-center justify-center mx-auto ${(!isOpening && canActuallyOpen) ? 'hover:scale-105 active:scale-95 cursor-pointer' : 'opacity-80 grayscale-50 cursor-not-allowed'}`}
+                      className={`w-48 h-12 rounded-md bg-linear-to-b from-yellow-200 via-amber-400 to-orange-500 text-amber-950 border border-yellow-200 font-black text-lg shadow-[0_5px_15px_rgba(245,158,11,0.4)] transition-all uppercase flex items-center justify-center mx-auto ${(!isOpening && canActuallyOpen) ? 'hover:scale-105 active:scale-95 cursor-pointer' : 'opacity-80 grayscale-50 cursor-not-allowed'}`}
                     >
                       {isOpening ? 'یا ڤەدبیت...' : 'ڤەکە!'}
                     </button>
