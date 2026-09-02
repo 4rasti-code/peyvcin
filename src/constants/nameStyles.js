@@ -40,7 +40,7 @@ export const NAME_STYLES = {
   },
   'princess': {
     id: 'princess',
-    name: 'شازادە',
+    name: 'خاتین',
     class: 'princess-liquid-effect font-bold py-1.5 px-2',
     cardBg: 'bg-pink-50/90 dark:bg-pink-950/30 border border-pink-400/50 shadow-[0_0_12px_rgba(244,113,182,0.2)]',
     price: 150,

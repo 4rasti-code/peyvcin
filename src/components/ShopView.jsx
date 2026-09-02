@@ -15,7 +15,7 @@ import { useAudio } from '../context/AudioContext';
 
 const SHOP_ITEMS = {
   POWERUPS: [
-    { id: 'attractor_field', name: 'پیتژێبرک', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 1000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
+    { id: 'attractor_field', name: 'گسکێ سیحری', description: 'دەرئێخستنا پیتێن شاش', icon: 'auto_fix_high', price: 1000, color: 'from-purple-500 to-indigo-600', glow: 'shadow-purple-500/40', currency: 'fils' },
     { id: 'hint_pack', name: 'پیتبین', description: 'پەیداکرنا پیتەکا راست', icon: 'lightbulb', price: 2500, color: 'from-amber-400 to-orange-500', glow: 'shadow-amber-500/40', currency: 'fils' },
     { id: 'full_skip', name: 'دەربازبوون', description: 'دەربازبوونا ب تەمام ژ پەیڤێ', icon: 'fast_forward', price: 5000, color: 'from-blue-400 to-cyan-600', glow: 'shadow-blue-500/40', currency: 'fils' }
   ],

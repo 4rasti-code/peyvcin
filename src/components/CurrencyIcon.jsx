@@ -64,23 +64,23 @@ export const MagnetIcon = ({ className = "", size = 24, animate = false, disable
     {animate && !disabled && (
       <style>
         {`
-          .target-pulse { animation: targetAnim 1s infinite alternate ease-in-out; }
-          @keyframes targetAnim {
-            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
-            100% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6)); }
+          .sweep-anim { animation: sweepAnim 0.7s infinite alternate ease-in-out; }
+          @keyframes sweepAnim {
+            0% { transform: rotate(-25deg) translate(-2px, -1px); filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4)); }
+            100% { transform: rotate(20deg) translate(2px, 1px); filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); }
           }
         `}
       </style>
     )}
-    <circle cx="12" cy="12" r="9" strokeWidth="2.5" className={animate && !disabled ? "target-pulse" : ""} />
-    <circle cx="12" cy="12" r="4.5" strokeWidth="2.5" className={animate && !disabled ? "target-pulse" : ""} />
-    <circle cx="12" cy="12" r="1.5" fill={disabled ? "#9CA3AF" : "white"} stroke="none" className={animate && !disabled ? "target-pulse" : ""} />
-    
-    {/* Arrow piercing the target */}
-    <g className={animate && !disabled ? "target-pulse" : ""}>
-      <line x1="3" y1="3" x2="11" y2="11" />
-      <polyline points="7 11 11 11 11 7" />
-      <line x1="1" y1="5" x2="5" y2="1" />
+    <g className={animate && !disabled ? "sweep-anim" : ""} style={{ transformOrigin: "20px 4px" }}>
+      {/* Handle */}
+      <line x1="20" y1="4" x2="12" y2="12" />
+      {/* Binding */}
+      <line x1="10" y1="10" x2="14" y2="14" />
+      {/* Bristles */}
+      <path d="M10 10 L4 18 Q6 22 10 19 L14 14 Z" />
+      {/* Center Bristle Line */}
+      <line x1="12" y1="12" x2="7" y2="19" strokeWidth="1.5" />
     </g>
   </svg>
 );
