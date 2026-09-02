@@ -113,29 +113,21 @@ export const PowerUpBadge = ({ type, className = "", size = 40, animate = false 
   };
   const c = colors[type];
   if (!c) return null;
-  const isSkip = type === 'skip';
   const numSize = typeof size === 'number' ? size : 40;
   
-  const w = isSkip ? 64 : 40;
+  const w = 40;
   const h = 40;
   
   return (
-    <svg width={numSize * (isSkip ? 1.6 : 1)} height={numSize} viewBox={`0 0 ${w} ${h}`} className={className} style={{ overflow: 'visible' }}>
+    <svg width={numSize} height={numSize} viewBox={`0 0 ${w} ${h}`} className={className} style={{ overflow: 'visible' }}>
       <defs>
         <linearGradient id={`grad-${type}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={c.from} />
           <stop offset="100%" stopColor={c.to} />
         </linearGradient>
-        <linearGradient id={`glare-${type}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="white" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="white" stopOpacity="0" />
-        </linearGradient>
       </defs>
       
       <rect x="0" y="0" width={w} height={h} rx={h/2} fill={`url(#grad-${type})`} style={{ filter: `drop-shadow(0px 3px 0px ${c.shadow}) drop-shadow(0px 4px 4px rgba(0,0,0,0.15))` }} />
-      
-      {/* Glare */}
-      <rect x={w * 0.15} y="1.5" width={w * 0.7} height={h * 0.35} rx={h * 0.175} fill={`url(#glare-${type})`} />
       
       {/* Inner Icon */}
       <svg x={w/2 - 12} y={h/2 - 12} width="24" height="24" viewBox="0 0 24 24" style={{ overflow: 'visible' }}>

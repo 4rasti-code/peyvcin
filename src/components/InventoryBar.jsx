@@ -13,9 +13,9 @@ const PowerUpButton = ({
   id 
 }) => {
   const themes = {
-    green: "bg-linear-to-b from-[#D489FF] to-[#B352FF] shadow-[0_5px_0_#9A32DF,0_6px_10px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Purple target (Magnet)
-    blue: "bg-linear-to-b from-[#FFA756] to-[#F27D26] shadow-[0_5px_0_#D96614,0_6px_10px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Orange magnifying glass (Hint)
-    yellow: "bg-linear-to-b from-[#6EC6FF] to-[#39A4F8] shadow-[0_5px_0_#2386D4,0_6px_10px_rgba(0,0,0,0.15)] w-[80px] h-12 rounded-full" // Light blue wide pill (Skip)
+    green: "bg-linear-to-b from-[#D489FF] to-[#B352FF] shadow-[0_3px_0_#9A32DF,0_4px_6px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Purple target (Magnet)
+    blue: "bg-linear-to-b from-[#FFA756] to-[#F27D26] shadow-[0_3px_0_#D96614,0_4px_6px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full", // Orange magnifying glass (Hint)
+    yellow: "bg-linear-to-b from-[#6EC6FF] to-[#39A4F8] shadow-[0_3px_0_#2386D4,0_4px_6px_rgba(0,0,0,0.15)] w-14 h-14 rounded-full" // Light blue circular (Skip)
   };
 
   const Icon = icon;
@@ -35,9 +35,6 @@ const PowerUpButton = ({
           {count}
         </div>
       )}
-      
-      {/* Light Reflection (shiny) */}
-      <div className="absolute top-0.5 left-[15%] right-[15%] h-[35%] bg-linear-to-b from-white/50 to-white/0 rounded-t-full pointer-events-none" />
     </button>
   );
 };
