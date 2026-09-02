@@ -6,7 +6,7 @@ import { useAudio } from '../context/AudioContext';
 import { FilsIcon } from './CurrencyIcon';
 
 // A component to generate the flying magical dust/sparks (Clash Royale style)
-export const MagicalDust = ({ spread = 300, count = 40, zIndex = 150 }) => {
+export const MagicalDust = ({ spread = 300, count = 40, zIndex = 150, baseScale = 1 }) => {
   const [particles] = useState(() => {
     // Generate continuous floating particles
     return Array.from({ length: count }).map((_, i) => {
@@ -32,7 +32,7 @@ export const MagicalDust = ({ spread = 300, count = 40, zIndex = 150 }) => {
         <Motion.div
           key={p.id}
           initial={{ x: p.startX, y: p.startY, opacity: 0, scale: 0 }}
-          animate={{ x: p.endX, y: p.endY, opacity: [0, 1, 1, 0], scale: [0, p.scale, p.scale * 0.8, 0] }}
+          animate={{ x: p.endX, y: p.endY, opacity: [0, 1, 1, 0], scale: [0, p.scale * baseScale, p.scale * 0.8 * baseScale, 0] }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full"
           style={{
