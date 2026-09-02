@@ -242,8 +242,18 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
             animate={{ opacity: isClaiming ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
-            style={{ pointerEvents: isClaiming ? 'none' : 'auto' }}
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 overflow-hidden"
+            style={{ 
+              pointerEvents: isClaiming ? 'none' : 'auto',
+              backgroundColor: '#3b0764',
+              backgroundImage: `
+                radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.6) 110%),
+                radial-gradient(circle at center, rgba(168, 85, 247, 0.45) 0%, transparent 65%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%233b0764'/%3E%3Cg transform='translate(0, 1.5)' fill='%231f0436'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Cg fill='%237e22ce'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)' fill='%239333ea'/%3E%3Cg fill='%233b0764'%3E%3Ccircle cx='40' cy='0' r='2'/%3E%3Ccircle cx='0' cy='40' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E")
+              `,
+              backgroundSize: '100% 100%, 100% 100%, 65px 65px',
+              backgroundPosition: 'center center, center center, 0 0',
+            }}
           >
             {/* Close Button Top Right */}
             {!isOpening && !showReward && (
