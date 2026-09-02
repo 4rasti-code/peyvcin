@@ -18,7 +18,7 @@ const MYSTERY_REWARDS = [
   { id: 2, type: 'spinTicket', amount: 1, label: '١ بلێتا چەرخی', weight: 8 },
   { id: 3, type: 'skip', amount: 1, label: '١ دەربازبوون', weight: 10 },
   { id: 4, type: 'hint', amount: 1, label: '١ ھاریکاری', weight: 15 },
-  { id: 5, type: 'magnet', amount: 2, label: '٢ گسکێ سیحری', weight: 15 },
+  { id: 5, type: 'magnet', amount: 2, label: '٢ پیتژێبرک', weight: 15 },
   { id: 6, type: 'fils', amount: 500, label: '٥٠٠ فلس', weight: 40 },
 ];
 

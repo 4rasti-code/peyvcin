@@ -393,7 +393,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                               dinar: 'دینار',
                               skip: 'پاس',
                               hint: 'هاریکاری',
-                              magnet: 'گسکێ سیحری',
+                              magnet: 'پیتژێبرک',
                               mystery_box: 'سندۆق',
                               spinTicket: 'بلیت'
                             };
