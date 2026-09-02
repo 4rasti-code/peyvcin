@@ -243,17 +243,19 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
             animate={{ opacity: isClaiming ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 overflow-hidden"
+            className={`fixed inset-0 z-100 flex items-center justify-center p-4 overflow-hidden transition-colors duration-700 ${!showReward ? 'bg-mono-900/90 backdrop-blur-sm' : ''}`}
             style={{ 
               pointerEvents: isClaiming ? 'none' : 'auto',
-              backgroundColor: '#3b0764',
-              backgroundImage: `
-                radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.6) 110%),
-                radial-gradient(circle at center, rgba(168, 85, 247, 0.45) 0%, transparent 65%),
-                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%233b0764'/%3E%3Cg transform='translate(0, 1.5)' fill='%231f0436'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Cg fill='%237e22ce'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)' fill='%239333ea'/%3E%3Cg fill='%233b0764'%3E%3Ccircle cx='40' cy='0' r='2'/%3E%3Ccircle cx='0' cy='40' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E")
-              `,
-              backgroundSize: '100% 100%, 100% 100%, 65px 65px',
-              backgroundPosition: 'center center, center center, 0 0',
+              ...(showReward ? {
+                backgroundColor: '#3b0764',
+                backgroundImage: `
+                  radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.6) 110%),
+                  radial-gradient(circle at center, rgba(168, 85, 247, 0.45) 0%, transparent 65%),
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%233b0764'/%3E%3Cg transform='translate(0, 1.5)' fill='%231f0436'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Cg fill='%237e22ce'%3E%3Crect x='-27.75' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 0 0)'/%3E%3Crect x='52.25' y='-27.75' width='55.5' height='55.5' rx='4' transform='rotate(45 80 0)'/%3E%3Crect x='-27.75' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 0 80)'/%3E%3Crect x='52.25' y='52.25' width='55.5' height='55.5' rx='4' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Crect x='12.25' y='12.25' width='55.5' height='55.5' rx='4' transform='rotate(45 40 40)' fill='%239333ea'/%3E%3Cg fill='%233b0764'%3E%3Ccircle cx='40' cy='0' r='2'/%3E%3Ccircle cx='0' cy='40' r='2'/%3E%3Ccircle cx='80' cy='40' r='2'/%3E%3Ccircle cx='40' cy='80' r='2'/%3E%3C/g%3E%3C/svg%3E")
+                `,
+                backgroundSize: '100% 100%, 100% 100%, 65px 65px',
+                backgroundPosition: 'center center, center center, 0 0',
+              } : {})
             }}
           >
             {/* Close Button Top Right */}
@@ -338,63 +340,36 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                           className="absolute w-62.5 h-62.5 bg-[radial-gradient(circle,rgba(217,70,239,0.4)_0%,transparent_70%)] pointer-events-none"
                           style={{ zIndex: -1 }}
                         />
-                        
-                        <div 
-                          className="relative w-56 h-72 md:w-64 md:h-80 rounded-[28px] p-6 flex flex-col items-center justify-center z-10 overflow-hidden shadow-2xl mt-4 mb-8 border-[3px]"
-                          style={{
-                            background: 'linear-gradient(145deg, #1f2937 0%, #111827 100%)',
-                            borderColor: (() => {
-                              switch (wonReward.type) {
-                                case 'fils': return '#F59E0B';
-                                case 'dinar': return '#6366F1';
-                                case 'derhem': return '#EF4444';
-                                case 'hint': return '#3B82F6';
-                                case 'magnet': return '#D489FF';
-                                case 'skip': return '#6EC6FF';
-                                case 'spinTicket': return '#10B981';
-                                default: return '#8B5CF6';
-                              }
-                            })(),
-                            boxShadow: 'inset 0 0 20px rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.5)',
+
+                        {/* Core intense bright glow directly behind the icon */}
+                        <div className="absolute w-32 h-32 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
+
+                        <Motion.div
+                          animate={{
+                            scale: [1, 1.1, 1],
+                            rotate: [0, 3, -3, 0],
+                            y: [-5, 5, -5]
                           }}
+                          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                          className="relative flex items-center justify-center z-10"
                         >
-                          {/* Inner Glow */}
-                          <div className="absolute inset-0 bg-white/5 blur-2xl opacity-60 rounded-full scale-150 animate-pulse pointer-events-none" />
-
-                          <Motion.div
-                            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="relative flex items-center justify-center z-10"
-                          >
-                            {(() => {
-                                switch (wonReward.type) {
-                                  case 'fils': return <FilsIcon size={100} className="drop-shadow-xl" />;
-                                  case 'derhem': return <DerhemIcon size={100} className="drop-shadow-xl" />;
-                                  case 'dinar': return <DinarIcon size={100} className="drop-shadow-xl" />;
-                                  case 'hint': return <PowerUpBadge type="hint" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
-                                  case 'magnet': return <PowerUpBadge type="magnet" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
-                                  case 'skip': return <PowerUpBadge type="skip" count={wonReward.amount} className="w-24 h-24 drop-shadow-xl" />;
-                                  case 'spinTicket': return <SpinTicketIcon size={100} className="drop-shadow-xl" />;
-                                  default: return null;
-                                }
-                              })()}
-                          </Motion.div>
-
-                          <p className="mt-8 text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10" dir="rtl">
-                             <span dir="ltr">+{toKuDigits(wonReward.amount)}</span>
-                             <span className="mr-2">
-                               {wonReward.type === 'fils' ? 'فلس' :
-                                wonReward.type === 'dinar' ? 'دینار' :
-                                wonReward.type === 'derhem' ? 'درهەم' :
-                                wonReward.type === 'hint' ? 'هاریکاری' :
-                                wonReward.type === 'magnet' ? 'پیتژێبرک' :
-                                wonReward.type === 'skip' ? 'پاس' :
-                                wonReward.type === 'spinTicket' ? 'بلیت' : ''}
-                             </span>
-                          </p>
-                        </div>
+                          {wonReward.type === 'fils' ? <FilsIcon size={80} /> :
+                            wonReward.type === 'derhem' ? <DerhemIcon size={80} /> :
+                              wonReward.type === 'dinar' ? <DinarIcon size={80} /> :
+                                wonReward.type === 'hint' ? <PowerUpBadge type="hint" size={80} /> :
+                                  wonReward.type === 'skip' ? <PowerUpBadge type="skip" size={80} /> :
+                                    wonReward.type === 'magnet' ? <PowerUpBadge type="magnet" size={80} /> :
+                                      wonReward.type === 'spinTicket' ? <SpinTicketIcon size={80} /> : null}
+                        </Motion.div>
                       </div>
 
+                      {/* Elegant Clean Typography with Purple Glow Behind It */}
+                      <div className="relative mt-6">
+                        <div className="absolute -inset-4 bg-purple-600 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
+                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
+                          {wonReward.label}
+                        </p>
+                      </div>
                       {/* Action Buttons */}
                       <Motion.div
                         initial={{ opacity: 0, y: 10 }}

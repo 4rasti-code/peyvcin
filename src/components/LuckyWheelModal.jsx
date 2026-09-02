@@ -383,42 +383,40 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                           style={{ zIndex: -1 }}
                         />
 
-                        <div 
-                          className="relative w-56 h-72 md:w-64 md:h-80 rounded-[28px] p-6 flex flex-col items-center justify-center z-10 overflow-hidden shadow-2xl mt-4 mb-8 border-[3px]"
-                          style={{
-                            background: 'linear-gradient(145deg, #1f2937 0%, #111827 100%)',
-                            borderColor: wonReward.color || '#f59e0b',
-                            boxShadow: `inset 0 0 20px ${wonReward.color || '#f59e0b'}40, 0 20px 40px rgba(0,0,0,0.5)`,
-                          }}
-                        >
-                          {/* Inner Glow */}
-                          <div className="absolute inset-0 bg-white/5 blur-2xl opacity-60 rounded-full scale-150 animate-pulse pointer-events-none" />
+                        {/* Core intense bright glow directly behind the icon */}
+                        <div className="absolute w-48 h-48 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
 
-                          <Motion.div
-                            animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="relative flex items-center justify-center z-10"
-                          >
-                            <wonReward.Icon
-                              size={100}
-                              className={`relative z-10 drop-shadow-xl ${wonReward.type === 'mystery_box' ? 'w-32 h-32' : ''}`}
-                            />
-                          </Motion.div>
+                        <wonReward.Icon
+                          size={150}
+                          className={`relative z-10 ${wonReward.type === 'mystery_box' ? 'w-40 h-40' : ''}`}
+                        />
+                      </div>
 
-                          <p className="mt-8 text-3xl md:text-4xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10" dir="rtl">
-                             <span dir="ltr">+{toKuDigits(wonReward.amount)}</span>
-                             <span className="mr-2">
-                               {wonReward.type === 'fils' ? 'فلس' :
-                                wonReward.type === 'dinar' ? 'دینار' :
-                                wonReward.type === 'derhem' ? 'درهەم' :
-                                wonReward.type === 'hint' ? 'هاریکاری' :
-                                wonReward.type === 'magnet' ? 'پیتژێبرک' :
-                                wonReward.type === 'skip' ? 'پاس' :
-                                wonReward.type === 'mystery_box' ? 'سندۆق' :
-                                wonReward.type === 'spinTicket' ? 'بلیت' : ''}
-                             </span>
-                          </p>
-                        </div>
+                      {/* Elegant Clean Typography with Gold Glow Behind It */}
+                      <div className="relative mt-8 mb-10">
+                        <div className="absolute -inset-4 bg-yellow-500 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
+                        <p className="text-4xl sm:text-5xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
+                          {(() => {
+                            const nameMap = {
+                              fils: 'فلس',
+                              derhem: 'درهەم',
+                              dinar: 'دینار',
+                              skip: 'پاس',
+                              hint: 'هاریکاری',
+                              magnet: 'پیتژێبرک',
+                              mystery_box: 'سندۆق',
+                              spinTicket: 'بلیت'
+                            };
+                            const rewardName = nameMap[wonReward.type] || '';
+                            return (
+                              <span className="inline-flex items-center gap-2" dir="rtl">
+                                <span dir="ltr">+{toKuDigits(wonReward.amount)}</span>
+                                <span>{rewardName}</span>
+                              </span>
+                            );
+                          })()}
+                        </p>
+                      </div>
                     </Motion.div>
 
                     {/* Premium Claim Button */}
