@@ -128,7 +128,7 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
       case 'kurdistan': return 'btn-clash-slate';
       case 'mehfira-kurdi': return 'btn-clash-teal';
       case 'hologram': return 'btn-clash-indigo';
-      default: return 'bg-slate-50 shadow-[0_4px_0_#e5e5e5] dark:bg-mono-900 dark:shadow-[0_4px_0_#262626]';
+      default: return 'btn-clash-dark text-white';
     }
   };
 
