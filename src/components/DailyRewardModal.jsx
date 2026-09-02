@@ -333,12 +333,12 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
               transition={{ duration: 0.3 }}
               className="absolute inset-0 pointer-events-none"
               style={{
-                backgroundColor: '#0f3352',
+                backgroundColor: '#081a2e',
                 backgroundImage: `
                   radial-gradient(circle at center, rgba(34, 211, 238, 0.5) 0%, transparent 65%),
-                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cpath d='M32 0L64 32L32 64L0 32Z' fill='%23164368'/%3E%3C/svg%3E")
+                  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cdefs%3E%3ClinearGradient id='lightBlue' x1='0' y1='0' x2='0' y2='1' gradientTransform='rotate(-45 0.5 0.5)'%3E%3Cstop offset='0' stop-color='%231e68a3' /%3E%3Cstop offset='1' stop-color='%23154876' /%3E%3C/linearGradient%3E%3ClinearGradient id='darkBlue' x1='0' y1='0' x2='0' y2='1' gradientTransform='rotate(-45 0.5 0.5)'%3E%3Cstop offset='0' stop-color='%23154876' /%3E%3Cstop offset='1' stop-color='%230e3256' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='80' height='80' fill='%23081a2e'/%3E%3Cg transform='translate(0, 3)' fill='%2306121f'%3E%3Crect x='-27' y='-27' width='54' height='54' rx='8' transform='rotate(45 0 0)'/%3E%3Crect x='53' y='-27' width='54' height='54' rx='8' transform='rotate(45 80 0)'/%3E%3Crect x='-27' y='53' width='54' height='54' rx='8' transform='rotate(45 0 80)'/%3E%3Crect x='53' y='53' width='54' height='54' rx='8' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Cg fill='url(%23darkBlue)'%3E%3Crect x='-27' y='-27' width='54' height='54' rx='8' transform='rotate(45 0 0)'/%3E%3Crect x='53' y='-27' width='54' height='54' rx='8' transform='rotate(45 80 0)'/%3E%3Crect x='-27' y='53' width='54' height='54' rx='8' transform='rotate(45 0 80)'/%3E%3Crect x='53' y='53' width='54' height='54' rx='8' transform='rotate(45 80 80)'/%3E%3C/g%3E%3Cg transform='translate(0, 3)' fill='%2306121f'%3E%3Crect x='13' y='13' width='54' height='54' rx='8' transform='rotate(45 40 40)'/%3E%3C/g%3E%3Crect x='13' y='13' width='54' height='54' rx='8' transform='rotate(45 40 40)' fill='url(%23lightBlue)'/%3E%3Cg fill='%2305101a'%3E%3Ccircle cx='40' cy='0' r='3.5'/%3E%3Ccircle cx='0' cy='40' r='3.5'/%3E%3Ccircle cx='80' cy='40' r='3.5'/%3E%3Ccircle cx='40' cy='80' r='3.5'/%3E%3C/g%3E%3C/svg%3E")
                 `,
-                backgroundSize: '100% 100%, 64px 64px',
+                backgroundSize: '100% 100%, 80px 80px',
                 backgroundPosition: 'center center, 0 0',
               }}
             />
