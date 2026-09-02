@@ -34,9 +34,9 @@ export const MagicalDust = ({ spread = 300, count = 40, zIndex = 150 }) => {
           initial={{ x: p.startX, y: p.startY, opacity: 0, scale: 0 }}
           animate={{ x: p.endX, y: p.endY, opacity: [0, 1, 1, 0], scale: [0, p.scale, p.scale * 0.8, 0] }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 left-1/2 w-1 h-1 bg-white rounded-full -ml-0.5 -mt-0.5"
+          className="absolute top-1/2 left-1/2 w-0.5 h-0.5 bg-white rounded-full"
           style={{
-            boxShadow: '0 0 4px 2px #fef08a, 0 0 10px 4px #eab308, 0 0 18px 6px #d97706',
+            boxShadow: '0 0 2px 1px #fef08a, 0 0 5px 2px #eab308, 0 0 10px 3px #d97706',
           }}
         />
       ))}
