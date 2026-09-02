@@ -61,7 +61,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
         </div>
 
         <div className="flex-1 text-right min-w-0 relative z-10 pr-1">
-          <h3 className="text-[17px] sm:text-[19px] font-black text-white mb-0.5 leading-tight whitespace-normal wrap-break-word text-stroke-clash-sm drop-shadow-md">{item.name}</h3>
+          <h3 className="text-[17px] sm:text-[19px] font-black text-white mb-0.5 leading-tight whitespace-normal wrap-break-word drop-shadow-md">{item.name}</h3>
           <p className="text-[11px] sm:text-[12px] font-bold text-white/90 leading-tight whitespace-normal wrap-break-word drop-shadow-sm">{item.description}</p>
         </div>
       </div>
@@ -84,7 +84,7 @@ const PowerUpCard = ({ item, onRequestPurchase, canAfford }) => {
         </div>
 
         <div className="flex flex-col items-center leading-none relative z-10">
-          <span className="text-[18px] sm:text-[20px] font-black text-white text-stroke-clash-sm drop-shadow-md">{toKuDigits(item.price || 0)}</span>
+          <span className="text-[18px] sm:text-[20px] font-black text-white drop-shadow-md">{toKuDigits(item.price || 0)}</span>
         </div>
         <div className={`w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-white relative z-10 transition-transform duration-300 ${!canAfford ? 'grayscale opacity-60' : 'drop-shadow-md group-hover:rotate-12'}`}>
           {item.currency === 'derhem' ? <DerhemIcon /> : item.currency === 'dinar' ? <DinarIcon /> : <FilsIcon />}
