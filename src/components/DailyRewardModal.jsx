@@ -331,7 +331,17 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
             <Motion.div 
               animate={{ opacity: animatingReward ? 0 : 1 }}
               transition={{ duration: 0.3 }}
-              className="absolute inset-0 bg-mono-100/70 dark:bg-black/80 backdrop-blur-md"
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundColor: '#0f3352',
+                backgroundImage: `
+                  radial-gradient(circle at center, rgba(34, 211, 238, 0.5) 0%, transparent 65%),
+                  linear-gradient(45deg, #164368 25%, transparent 25%, transparent 75%, #164368 75%, #164368),
+                  linear-gradient(45deg, #164368 25%, transparent 25%, transparent 75%, #164368 75%, #164368)
+                `,
+                backgroundSize: '100% 100%, 64px 64px, 64px 64px',
+                backgroundPosition: 'center center, 0 0, 32px 32px',
+              }}
             />
             <Motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -350,8 +360,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                     transition={{ duration: 0.3 }}
                     className="flex flex-col items-center w-full"
                   >
-                    <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent">پیرۆزە!</h3>
-                    <p className="text-mono-900 dark:text-white/90 text-xl font-medium mb-12">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
+                    <h3 className="text-5xl font-black mb-3 bg-linear-to-r from-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-md">پیرۆزە!</h3>
+                    <p className="text-white text-xl font-medium mb-12 drop-shadow-md">تە خەلاتێ ڕۆژا {toKuDigits(claimedDayInfo?.day || 1)} وەرگرت</p>
 
                   <div className="mb-10 relative flex flex-col justify-center items-center w-full">
                     <Motion.div
@@ -396,7 +406,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       initial={{ scale: 0, y: 20 }}
                       animate={{ scale: 1, y: 0 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15, delay: 0.3 }}
-                      className="mt-6 text-mono-900 dark:text-white font-black text-3xl relative z-10"
+                      className="mt-6 text-white drop-shadow-md font-black text-3xl relative z-10"
                     >
                       {claimedDayInfo?.label}
                     </Motion.div>
