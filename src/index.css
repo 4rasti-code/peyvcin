@@ -348,7 +348,7 @@
 }
 
 .dark {
-  --color-primary: #34d399;
+  --color-primary: #10b981;
   --color-on-primary: #ffffff;
   --color-secondary: #fbc02d;
   --color-background: #1a1a1a;
@@ -360,7 +360,7 @@
   --color-surface-container-highest: #424242;
   --color-outline: #2d2d2d;
   --color-text-dim: #94a3b8;
-  --color-error: #fb7185;
+  --color-error: #f43f5e;
 }
 
 

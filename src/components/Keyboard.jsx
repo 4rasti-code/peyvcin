@@ -32,15 +32,15 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
       }
 
       if (isDark) {
-         if (status === STATUS.CORRECT) return 'bg-[#538d4e] text-white border-transparent shadow-[0_4px_0_#3b6b37]';
-         if (status === STATUS.WRONG_POS) return 'bg-[#b59f3b] text-white border-transparent shadow-[0_4px_0_#8b7929]';
-         if (status === STATUS.INCORRECT) return 'bg-[#262626] text-white opacity-50 shadow-[0_4px_0_#171717]';
-         return 'bg-[#525252] text-white border-transparent shadow-[0_4px_0_#333333]';
+         if (status === STATUS.CORRECT) return 'bg-[#538d4e] text-white border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.3),0_4px_0_#3b6b37]';
+         if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.4),0_4px_0_#b45309]';
+         if (status === STATUS.INCORRECT) return 'bg-[#706d78] text-white opacity-80 shadow-[inset_0_3px_0_rgba(255,255,255,0.25),0_4px_0_#504e57]';
+         return 'bg-[#fffefe] text-mono-900 font-bold border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.8),0_4px_0_#d8cbd8]';
       } else {
-         if (status === STATUS.CORRECT) return 'bg-[#6aaa64] text-white border-transparent shadow-[0_4px_0_#4e8a49]';
-         if (status === STATUS.WRONG_POS) return 'bg-[#c9b458] text-white border-transparent shadow-[0_4px_0_#a89542]';
-         if (status === STATUS.INCORRECT) return 'bg-[#D4D4D4] text-white opacity-50 shadow-[0_4px_0_#A3A3A3]';
-         return 'bg-[#E5E5E5] text-black border-transparent shadow-[0_4px_0_#C5C5C5]';
+         if (status === STATUS.CORRECT) return 'bg-[#6aaa64] text-white border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.3),0_4px_0_#4e8a49]';
+         if (status === STATUS.WRONG_POS) return 'bg-[#f59e0b] text-white border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.4),0_4px_0_#b45309]';
+         if (status === STATUS.INCORRECT) return 'bg-[#D4D4D4] text-white opacity-50 shadow-[inset_0_3px_0_rgba(255,255,255,0.8),0_4px_0_#A3A3A3]';
+         return 'bg-[#fffefe] text-mono-900 font-bold border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.8),0_4px_0_#d8cbd8]';
       }
    };
 
@@ -51,6 +51,28 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
       if (highKeys.includes(k)) return '-translate-y-[3px]';
       if (lowKeys.includes(k)) return 'translate-y-[3px]';
       return '-translate-y-[1px]';
+   };
+
+   const timeoutRef = React.useRef(null);
+
+   const handlePointerDown = (e) => {
+      e.preventDefault(); 
+      e.currentTarget.setPointerCapture(e.pointerId);
+      if (!isDisabled) {
+         clearTimeout(timeoutRef.current);
+         setIsActive(true);
+         onKeyPress(k); 
+      }
+   };
+
+   const handlePointerUp = (e) => {
+      if (e && e.currentTarget && e.pointerId !== undefined) {
+         try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (_err) { /* ignore */ }
+      }
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+         setIsActive(false);
+      }, 100);
    };
 
    return (
@@ -65,16 +87,10 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
          whileHover={{ scale: isDisabled ? 1 : 1.05 }}
          whileTap={{ scale: isDisabled ? 1 : 0.92 }}
          transition={{ type: "spring", stiffness: 400, damping: 17 }}
-         onPointerDown={(e) => { 
-            e.preventDefault(); 
-            if (!isDisabled) {
-               setIsActive(true);
-               onKeyPress(k); 
-            }
-         }}
-         onPointerUp={() => setIsActive(false)}
-         onPointerLeave={() => setIsActive(false)}
-         onPointerCancel={() => setIsActive(false)}
+         onPointerDown={handlePointerDown}
+         onPointerUp={handlePointerUp}
+         onPointerLeave={handlePointerUp}
+         onPointerCancel={handlePointerUp}
          className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md flex items-center justify-center font-heading font-light transition-[transform,background-color,border-color] border relative ${getKeyStyle()}`}
       >
          <span className={`text-[clamp(1.3rem,4.5vw,1.9rem)] ${getTextTranslateY()}`}>{k}</span>
@@ -214,7 +230,7 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.DELETE, true); }}
-                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-error text-white border border-white/10 flex items-center justify-center transition-all shadow-[0_4px_0_#be123c] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.DELETE) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
+                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-error text-white flex items-center justify-center transition-all shadow-[0_4px_0_#be123c] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.DELETE) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
                   >
                      <span className="material-symbols-outlined text-[20px]">backspace</span>
                   </Motion.button>
@@ -245,7 +261,7 @@ const Keyboard = memo(({
                      whileTap={{ scale: 0.95 }}
                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
                      onPointerDown={(e) => { e.preventDefault(); handleKeyPress(SPECIAL_KEYS.ENTER, true); }}
-                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all border border-white/10 shadow-[0_4px_0_#047857] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.ENTER) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
+                     className={`flex-1 h-[clamp(34px,5.2vh,48px)] rounded-md bg-primary text-white font-bold text-sm uppercase flex items-center justify-center transition-all shadow-[0_4px_0_#047857] relative ${allowedKeys && !allowedKeys.includes(SPECIAL_KEYS.ENTER) ? 'opacity-50 grayscale pointer-events-none' : 'active:scale-95'}`}
                   >
                      <span className="font-rabar font-light text-lg">{SPECIAL_KEYS.ENTER}</span>
                      {pointerKey === SPECIAL_KEYS.ENTER && (

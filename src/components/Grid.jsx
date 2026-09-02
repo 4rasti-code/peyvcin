@@ -18,19 +18,19 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
         // Small timeout to sync with the middle of the flip animation
         const timer = setTimeout(() => {
           playRightLetterSound(0.7); // Customizable volume
-        }, (flipDelay + 250)); // 250ms is roughly half of the 500ms flip duration
+        }, (flipDelay + 300)); // 300ms is halfway through the 600ms flip duration
         return () => clearTimeout(timer);
       } else if (status === STATUS.WRONG_POS) {
         const timer = setTimeout(() => {
           playWrongPlaceSound(0.7); // Customizable volume
-        }, (flipDelay + 250));
+        }, (flipDelay + 300));
         return () => clearTimeout(timer);
       }
     }
   }, [isFlipped, status, isRevealed, isHinted, flipDelay, playRightLetterSound, playWrongPlaceSound]);
 
   // Neutral background before flip (Empty/Active Row)
-  const neutralBg = isDark ? 'bg-amber-950/15 border-2 border-amber-950/25' : 'bg-white border-2 border-[#E5E5E5]';
+  const neutralBg = isDark ? 'bg-[#d8ccd8] border-2 border-[#c3b8c3]' : 'bg-white border-2 border-[#E5E5E5]';
   const neutralText = isDark ? 'text-white' : 'text-black';
 
   // Determine target colors (for the back side)
@@ -38,13 +38,13 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
   
   if (isDark) {
     if ((showStatus || isMaskedLive) && (status === STATUS.CORRECT || isRevealed || isHinted)) {
-      targetBg = 'bg-[#538d4e] border-2 border-[#538d4e]';
+      targetBg = 'bg-[#538d4e] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.3),0_4px_0_#3b6b37]';
     } else if ((showStatus || isMaskedLive) && (status === STATUS.WRONG_POS)) {
-      targetBg = 'bg-[#b59f3b] border-2 border-[#b59f3b]';
+      targetBg = 'bg-[#f59e0b] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.4),0_4px_0_#b45309]';
     } else if ((showStatus || isMaskedLive) && status === STATUS.INCORRECT) {
-      targetBg = 'bg-[#262626] border-2 border-[#262626]';
+      targetBg = 'bg-[#706d78] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.25),0_4px_0_#504e57]';
     } else if (char && isCurrent) {
-      targetBg = 'bg-transparent border-2 border-[#565758]';
+      targetBg = 'bg-transparent border-2 border-white/30';
     } else if (isFocused) {
       targetBg = 'bg-transparent border-2 border-white/50';
     }
@@ -75,14 +75,14 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
   if (isMaskedLive) {
     // APPLY REAL-TIME STATUS COLORS TO FRONT SIDE FOR MASKED TYPING
     if (status === STATUS.CORRECT) {
-      activeFrontBg = isDark ? 'bg-[#538d4e] border-2 border-[#538d4e]' : 'bg-[#6aaa64] border-2 border-[#6aaa64]';
+      activeFrontBg = isDark ? 'bg-[#538d4e] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.3),0_4px_0_#3b6b37]' : 'bg-[#6aaa64] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.3),0_4px_0_#4e8a49]';
     } else if (status === STATUS.WRONG_POS) {
-      activeFrontBg = isDark ? 'bg-[#b59f3b] border-2 border-[#b59f3b]' : 'bg-[#c9b458] border-2 border-[#c9b458]';
+      activeFrontBg = isDark ? 'bg-[#f59e0b] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.4),0_4px_0_#b45309]' : 'bg-[#f59e0b] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.4),0_4px_0_#b45309]';
     } else if (status === STATUS.INCORRECT) {
-      activeFrontBg = isDark ? 'bg-[#262626] border-2 border-[#262626]' : 'bg-[#D4D4D4] border-2 border-[#D4D4D4]';
+      activeFrontBg = isDark ? 'bg-[#706d78] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.25),0_4px_0_#504e57]' : 'bg-[#D4D4D4] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.8),0_4px_0_#A3A3A3]';
     }
   } else if (char && isCurrent) {
-    activeFrontBg = isDark ? 'bg-amber-950 border-2 border-amber-900' : 'bg-white border-2 border-mono-900';
+    activeFrontBg = isDark ? 'bg-[#706d78] border-transparent shadow-[inset_0_3px_0_rgba(255,255,255,0.15),0_4px_0_#504e57]' : 'bg-white border-2 border-mono-900';
   }
 
   return (
@@ -108,7 +108,7 @@ const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevea
           scale: isCurrent ? (char ? [1, 1.05, 1] : [1, 0.95, 1]) : 1
         }}
         transition={{ 
-          rotateX: { type: 'spring', stiffness: 200, damping: 20, mass: 0.8, delay: flipDelay / 1000 },
+          rotateX: { type: 'tween', duration: 0.6, ease: "easeInOut", delay: flipDelay / 1000 },
           scale: { type: 'spring', stiffness: 400, damping: 25, mass: 0.8 }
         }}
         style={{ transformStyle: 'preserve-3d', WebkitTransformStyle: 'preserve-3d', position: 'relative', width: '100%', height: '100%' }}
@@ -323,7 +323,7 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
       style={gridStyle}
     >
       <div 
-        className="p-1 sm:p-2 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center relative" 
+        className="p-2 sm:p-3 mx-auto animate-in zoom-in-95 duration-700 transition-all origin-center relative bg-[#2d1155] rounded-md shadow-lg border border-black/20" 
         style={{ 
           width: 'auto',
           maxWidth: '100%',

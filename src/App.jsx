@@ -14,6 +14,7 @@ import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
 import Grid from './components/Grid';
 import Keyboard from './components/Keyboard';
+import InventoryBar from './components/InventoryBar';
 import CategoryModal from './components/CategoryModal';
 import BottomNav from './components/BottomNav';
 import LobbyView from './components/LobbyView';
@@ -1767,7 +1768,7 @@ export default function App() {
         {currentView === 'game' && gameMode === 'classic' && (
           <>
             <div
-              className="absolute inset-0 z-0 pointer-events-none transition-all duration-500 bg-[#fdfde5]"
+              className="absolute inset-0 z-0 pointer-events-none transition-all duration-500 bg-[#4c1d95]"
             />
             <div
               className="absolute inset-0 z-0 pointer-events-none transition-all duration-500"
@@ -2035,9 +2036,29 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Tier 2.5: Powerups (In the empty space) */}
+              <div className="w-full md:max-w-lg md:mx-auto flex justify-center mt-auto mb-4 z-50">
+                <InventoryBar
+                  magnetCount={magnetCount}
+                  hintCount={hintCount}
+                  skipCount={skipCount}
+                  onHint={handleHint}
+                  onMagnet={handleMagnet}
+                  onSkip={handleSkip}
+                  hintTaps={hintTaps}
+                  hintLimit={getMaxHintsForWord(targetWord.length)}
+                  magnetUsedInRound={magnetsUsedInRound > 0}
+                  skipsUsedInRound={skipsUsedInRound}
+                  skipLimit={1}
+                  hideSkip={gameMode === 'mamak'}
+                  isDark={isSystemDark}
+                />
+              </div>
+
               {/* Tier 3: Keyboard (Pinned to bottom) */}
-              <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 mt-auto px-2 pt-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${isSystemDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-colors duration-500`}>
+              <div className={`shrink-0 w-full md:max-w-lg md:mx-auto z-50 px-2 pt-8 pb-[calc(env(safe-area-inset-bottom)+1rem)] ${gameMode === 'classic' ? 'bg-[#2d1155] border-none rounded-t-2xl' : isSystemDark ? 'bg-mono-900 border-t border-white/5 md:bg-transparent md:border-none' : 'bg-mono-white border-t border-slate-200 md:bg-transparent md:border-none'} transition-colors duration-500`}>
                 <Keyboard
+                  hidePowerups={true}
                   onKey={onKey}
                   onDelete={onDelete}
                   onEnter={handleOnEnter}

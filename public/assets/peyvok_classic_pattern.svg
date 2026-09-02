@@ -2,24 +2,24 @@
   <defs>
     <!-- Ultra subtle contrast to prevent the "stripe" illusion -->
     <linearGradient id="tile1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fdfde5" />
-      <stop offset="100%" stop-color="#fcfcc2" />
+      <stop offset="0%" stop-color="rgba(255,255,255,0.08)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0.0)" />
     </linearGradient>
     
     <linearGradient id="tile2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fbfbd5" />
-      <stop offset="100%" stop-color="#f9f9b0" />
+      <stop offset="0%" stop-color="rgba(0,0,0,0.15)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,0.25)" />
     </linearGradient>
 
     <!-- Barely visible edge bevels to give subtle depth, but no harsh lines -->
     <linearGradient id="highlight" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.03)" />
+      <stop offset="0%" stop-color="rgba(255,255,255,0.05)" />
       <stop offset="100%" stop-color="rgba(255,255,255,0.0)" />
     </linearGradient>
     
     <linearGradient id="shadow" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="rgba(0,0,0,0.0)" />
-      <stop offset="100%" stop-color="rgba(0,0,0,0.08)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,0.12)" />
     </linearGradient>
 
     <!-- DIAMOND SHAPE -->
@@ -30,7 +30,9 @@
     </g>
   </defs>
 
-  <!-- Base background (Tile 2) -->
+  <!-- Base background (Transparent so CSS bg color shows through) -->
+  <rect width="128" height="128" fill="transparent" />
+  <!-- A subtle darkening layer for tile2 -->
   <rect width="128" height="128" fill="url(#tile2)" />
   
   <use href="#diamond1" x="0" y="0" />

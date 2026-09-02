@@ -133,7 +133,7 @@ export default function TopAppBar({
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 400, damping: 15 }}
                 onClick={() => { triggerHaptic(10); onOpenHowToPlay(gameMode); }}
-                className="h-10 px-4 bg-[#8b5cf6] shadow-[0_4px_0_#6d28d9] hover:brightness-110 rounded-md flex items-center justify-center gap-2 group transition-all border-none mb-1"
+                className="h-10 px-4 bg-[#f59e0b] shadow-[0_4px_0_#d97706] hover:brightness-110 rounded-md flex items-center justify-center gap-2 group transition-all border-none mb-1"
               >
                 <span className="material-symbols-outlined text-white text-[20px] group-hover:scale-110 transition-transform">help</span>
                 <span className="text-[13px] font-black font-rabar text-white uppercase mt-0.5 hidden xs:block">فێرکاری</span>

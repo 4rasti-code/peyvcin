@@ -42,53 +42,66 @@ export const DinarIcon = ({ className = "", size = 24 }) => (
 // High-Fidelity PowerUp Icons
 
 export const HintIcon = ({ className = "", size = 24, animate = false, disabled = false }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={{ overflow: 'visible' }}>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={disabled ? "#9CA3AF" : "white"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
     {animate && !disabled && (
       <style>
         {`
-          .bulb-glow { animation: pulseGlow 1.5s infinite alternate ease-in-out; }
+          .search-glow { animation: pulseGlow 1.5s infinite alternate ease-in-out; }
           @keyframes pulseGlow {
-            0% { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.4)); }
-            100% { filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8)); }
+            0% { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); transform: scale(1); }
+            100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); transform: scale(1.1); }
           }
         `}
       </style>
     )}
-    <image
-      href="/icons/HintIcon.svg"
-      width="100" height="100"
-      preserveAspectRatio="xMidYMid meet"
-      className={animate && !disabled ? "bulb-glow" : ""}
-      style={{ filter: disabled ? "grayscale(100%) opacity(0.5)" : "none", transition: "filter 0.3s" }}
-    />
+    <circle cx="10" cy="10" r="6.5" className={animate && !disabled ? "search-glow" : ""} />
+    <line x1="21" y1="21" x2="15" y2="15" className={animate && !disabled ? "search-glow" : ""} />
   </svg>
 );
 
 export const MagnetIcon = ({ className = "", size = 24, animate = false, disabled = false }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {animate && (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={disabled ? "#9CA3AF" : "white"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    {animate && !disabled && (
       <style>
         {`
-          .zap-flash { animation: zapPulse 1s infinite; opacity: 0; }
-          .zap-flash-2 { animation-delay: 0.15s; }
-          @keyframes zapPulse {
-            0% { opacity: 1; transform: scale(1.1) translate(0, 0); }
-            15% { opacity: 0; transform: scale(0.9) translate(2px, 2px); }
-            30% { opacity: 1; transform: scale(1) translate(0, 0); }
-            45%, 100% { opacity: 0; transform: scale(0.8) translate(5px, 5px); }
+          .target-pulse { animation: targetAnim 1s infinite alternate ease-in-out; }
+          @keyframes targetAnim {
+            0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3)); }
+            100% { transform: scale(1.1); filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.6)); }
           }
         `}
       </style>
     )}
-    <path d="M30 45C30 33.9543 38.9543 25 50 25C61.0457 25 70 33.9543 70 45V75H85V45C85 25.67 69.33 10 50 10C30.67 10 15 25.67 15 45V75H30V45Z" fill={disabled ? "#6B7280" : "#EF4444"} />
-    <path d="M15 78H30V90H15V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
-    <path d="M70 78H85V90H70V78Z" fill={disabled ? "#4B5563" : "#9CA3AF"} />
-    {animate && (
-      <>
-        <path className="zap-flash" d="M42 84L48 78L45 92L52 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        <path className="zap-flash zap-flash-2" d="M58 84L52 78L55 92L48 84" stroke="#60A5FA" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      </>
+    <circle cx="12" cy="12" r="9" strokeWidth="2.5" className={animate && !disabled ? "target-pulse" : ""} />
+    <circle cx="12" cy="12" r="4.5" strokeWidth="2.5" className={animate && !disabled ? "target-pulse" : ""} />
+    <circle cx="12" cy="12" r="1.5" fill={disabled ? "#9CA3AF" : "white"} stroke="none" className={animate && !disabled ? "target-pulse" : ""} />
+    
+    {/* Arrow piercing the target */}
+    <g className={animate && !disabled ? "target-pulse" : ""}>
+      <line x1="3" y1="3" x2="11" y2="11" />
+      <polyline points="7 11 11 11 11 7" />
+      <line x1="1" y1="5" x2="5" y2="1" />
+    </g>
+  </svg>
+);
+
+export const SkipIcon = ({ className = "", size = 24, animate = false, disabled = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={disabled ? "#9CA3AF" : "white"} className={className}>
+    {animate && !disabled && (
+      <style>
+        {`
+          .skip-pulse { animation: skipAnim 1.5s infinite ease-in-out; }
+          .skip-pulse-2 { animation-delay: 0.15s; }
+          @keyframes skipAnim {
+            0%, 100% { transform: translateX(0); opacity: 1; }
+            50% { transform: translateX(3px); opacity: 0.7; }
+          }
+        `}
+      </style>
     )}
+    <path d="M5 6 L13 12 L5 18 Z" className={animate && !disabled ? "skip-pulse" : ""} />
+    <path d="M13 6 L21 12 L13 18 Z" className={animate && !disabled ? "skip-pulse skip-pulse-2" : ""} />
+    <rect x="20" y="6" width="2.5" height="12" rx="0.5" />
   </svg>
 );
 
@@ -100,30 +113,6 @@ export const XPIcon = ({ className = "", size = 24, disabled = false }) => (
     <path d="M50 10L62 38L90 38L66 55L75 85L50 68L25 85L34 55L10 38L38 38L50 10Z" fill={disabled ? "#6B7280" : "#F59E0B"} stroke={disabled ? "#374151" : "#D97706"} strokeWidth="3" strokeLinejoin="round" />
     {/* Star Inner Highlight */}
     <path d="M50 20L58 41L80 41L61 55L68 76L50 63L32 76L39 55L20 41L42 41L50 20Z" fill={disabled ? "#9CA3AF" : "#FCD34D"} />
-  </svg>
-);
-
-export const SkipIcon = ({ className = "", size = 24, animate = false, disabled = false }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {animate && (
-      <style>
-        {`
-          .skip-pulse { animation: skipAnim 2s infinite ease-in-out; }
-          .skip-pulse-2 { animation-delay: 0.2s; }
-          @keyframes skipAnim {
-            0%, 100% { transform: translateX(0); opacity: 1; }
-            50% { transform: translateX(6px); opacity: 0.5; }
-          }
-        `}
-      </style>
-    )}
-    <circle cx="50" cy="50" r="45" fill={disabled ? "#6B7280" : "#3B82F6"} />
-    <g className={animate ? "skip-pulse" : ""}>
-      <path d="M28 30V70L52 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
-    </g>
-    <g className={animate ? "skip-pulse skip-pulse-2" : ""}>
-      <path d="M56 30V70L80 50Z" fill={disabled ? "#9CA3AF" : "#FFFFFF"} />
-    </g>
   </svg>
 );
 
