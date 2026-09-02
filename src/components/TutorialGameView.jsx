@@ -95,10 +95,10 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic, topApp
 
   const updatePosition = useCallback(() => {
     if (!tooltipNode || !containerRef.current) return;
-    
+
     let targetRef = null;
     let position = 'above';
-    
+
     if (step.target === 'hints') {
       targetRef = hintsRef;
       position = 'above';
@@ -114,15 +114,15 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic, topApp
       const targetRect = targetRef.current.getBoundingClientRect();
       const containerRect = containerRef.current.getBoundingClientRect();
       const tooltipHeight = tooltipNode.offsetHeight;
-      
+
       const relativeTop = targetRect.top - containerRect.top;
       const relativeBottom = targetRect.bottom - containerRect.top;
-      
+
       let gap = 16;
       if (step.target === 'keyboard') {
         gap = 64; // Increased gap to leave room for the bouncing hand icon on top row keys
       }
-      
+
       if (position === 'above') {
         setDynamicTop(`${relativeTop - gap - (tooltipHeight / 2)}px`);
       } else {
@@ -298,9 +298,9 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic, topApp
 
           {/* Grid Section */}
           <div className={`grid-protection-wrapper flex-1 flex flex-col justify-center items-center overflow-hidden w-full md:max-w-lg md:mx-auto transition-all duration-500 ${isReady && (step.target === 'grid_column' || step.target === 'active_row' || step.target === 'keyboard' || step.id === 'intro_word_length') ? 'relative z-50' : ''}`}>
-            <div ref={gridRef} 
-                 className="game-grid-core w-full flex justify-center items-center relative transition-transform duration-300"
-                 style={{ transform: `scale(${ipadScale})`, transformOrigin: 'center center' }}
+            <div ref={gridRef}
+              className="game-grid-core w-full flex justify-center items-center relative transition-transform duration-300"
+              style={{ transform: `scale(${ipadScale})`, transformOrigin: 'center center' }}
             >
               <Grid
                 targetWord={targetWord}
@@ -414,9 +414,9 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic, topApp
                 >
                   {step.icon && (
                     <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
-                       {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
-                       {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
-                       {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
                     </span>
                   )}
                   {step.text}
@@ -429,9 +429,9 @@ export default function TutorialGameView({ onBackToLobby, onStartClassic, topApp
                 >
                   {step.icon && (
                     <span className="inline-flex align-middle ml-1.5 sm:ml-2 -mt-1">
-                       {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
-                       {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
-                       {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'bulb' && <HintIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'magnet' && <MagnetIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
+                      {step.icon === 'skip' && <SkipIcon className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 md:w-6.5 md:h-6.5" />}
                     </span>
                   )}
                   <TypewriterText

@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">peyvok</string>
     <string name="title_activity_main">peyvok</string>
-    <string name="package_name">com.peyvokgame.app</string>
-    <string name="custom_url_scheme">com.peyvokgame.app</string>
+    <string name="package_name">com.peyvok.game</string>
+    <string name="custom_url_scheme">com.peyvok.game</string>
 </resources>

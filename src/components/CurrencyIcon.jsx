@@ -42,11 +42,11 @@ export const DinarIcon = ({ className = "", size = 24 }) => (
 // High-Fidelity PowerUp Icons
 
 export const HintIcon = ({ className = "", size = 24, animate = false, disabled = false }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={disabled ? "#9CA3AF" : "white"} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={disabled ? "#9CA3AF" : "white"} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
     {animate && !disabled && (
       <style>
         {`
-          .search-glow { animation: pulseGlow 1.5s infinite alternate ease-in-out; }
+          .hint-glow { animation: pulseGlow 1.5s infinite alternate ease-in-out; }
           @keyframes pulseGlow {
             0% { filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); transform: scale(1); }
             100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); transform: scale(1.1); }
@@ -54,8 +54,11 @@ export const HintIcon = ({ className = "", size = 24, animate = false, disabled 
         `}
       </style>
     )}
-    <circle cx="10" cy="10" r="6.5" className={animate && !disabled ? "search-glow" : ""} />
-    <line x1="21" y1="21" x2="15" y2="15" className={animate && !disabled ? "search-glow" : ""} />
+    <g className={animate && !disabled ? "hint-glow" : ""}>
+      <rect x="3" y="3" width="18" height="18" rx="4" />
+      <path d="M9 16l3-7 3 7" />
+      <path d="M10.5 13h3" />
+    </g>
   </svg>
 );
 
