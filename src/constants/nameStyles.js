@@ -48,7 +48,7 @@ export const NAME_STYLES = {
   },
   'hologram': {
     id: 'hologram',
-    name: 'هۆلۆگرام',
+    name: 'ئەفسانەیی',
     class: 'font-bold py-1 px-2 hologram-text-effect',
     cardBg: 'bg-slate-50 dark:bg-mono-800/60 border border-fuchsia-400/50 shadow-[0_0_12px_rgba(232,121,249,0.4)]',
     price: 300,
