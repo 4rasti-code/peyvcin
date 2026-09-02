@@ -11,6 +11,7 @@ import MysteryBoxIcon from './MysteryBoxIcon';
 import CoinAnimation from './CoinAnimation';
 import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
 import CloseButton from './CloseButton';
+import MagicalDust from './MagicalDust';
 
 const MYSTERY_REWARDS = [
   { id: 0, type: 'dinar', amount: 1, label: '١ دینار', weight: 2 },
@@ -289,6 +290,11 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
               {/* Box Container */}
               <div className="relative w-48 h-48 mt-6 mb-8 flex items-center justify-center z-10">
+
+                {/* Idle Magical Dust */}
+                {canActuallyOpen && !isOpening && !isLidOpen && (
+                  <MagicalDust spread={150} count={25} zIndex={5} />
+                )}
 
                 {/* Premium Dimming Overlay to make the reward pop */}
                 <AnimatePresence>

@@ -80,14 +80,6 @@ export default function MysteryBoxIcon({ className = "w-16 h-16", isOpen = false
           <g className="chest-idle-glow">
             {/* Golden radial glow behind the box */}
             <circle cx="50" cy="50" r="55" fill="url(#boxIdleGlow)" />
-            
-            {/* Sparkle Stars - Clean and organized placement */}
-            <use href="#magicStar" transform="translate(18, 25) scale(1.2) rotate(10)" />
-            <use href="#magicStar" transform="translate(82, 28) scale(1.0) rotate(-15)" />
-            <use href="#magicStar" transform="translate(35, 12) scale(0.6) rotate(25)" />
-            <use href="#magicStar" transform="translate(65, 15) scale(0.8) rotate(-10)" />
-            <use href="#magicStar" transform="translate(10, 48) scale(0.7) rotate(-20)" />
-            <use href="#magicStar" transform="translate(90, 52) scale(0.5) rotate(15)" />
           </g>
         )}
 
