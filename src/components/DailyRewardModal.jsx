@@ -311,7 +311,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                             <span className={`font-black text-[13px] sm:text-[15px] ${
                               item.type === 'spinTicket' ? '-mt-3 sm:-mt-5 relative z-10' :
                               item.type === 'derhem' || item.type === 'fils' ? '-mt-0.5 sm:-mt-1 relative z-10' :
-                              item.type === 'mystery_box' || item.icon === 'auto_fix_high' ? '-mt-1.5 sm:-mt-2 relative z-10' :
+                              item.type === 'mystery_box' ? '-mt-1.5 sm:-mt-2 relative z-10' :
+                              item.icon === 'auto_fix_high' || item.icon === 'lightbulb' ? 'mt-1 relative z-10' :
                               '-mt-1 sm:-mt-1.5 relative z-10'
                             } text-gray-800`} dir="ltr">
                               {getRibbonText(item.reward)}
