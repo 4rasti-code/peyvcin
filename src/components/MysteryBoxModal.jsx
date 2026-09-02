@@ -9,7 +9,7 @@ import { playBackSfx, playChestOpenSfx, playRewardPopSfx, playChestCreakSfx } fr
 import { toKuDigits } from '../utils/formatters';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import CoinAnimation from './CoinAnimation';
-import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon } from './CurrencyIcon';
+import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
 import CloseButton from './CloseButton';
 
 const MYSTERY_REWARDS = [
@@ -338,9 +338,9 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
                           {wonReward.type === 'fils' ? <FilsIcon size={80} /> :
                             wonReward.type === 'derhem' ? <DerhemIcon size={80} /> :
                               wonReward.type === 'dinar' ? <DinarIcon size={80} /> :
-                                wonReward.type === 'hint' ? <HintIcon size={80} /> :
-                                  wonReward.type === 'skip' ? <SkipIcon size={80} /> :
-                                    wonReward.type === 'magnet' ? <MagnetIcon size={80} /> :
+                                wonReward.type === 'hint' ? <PowerUpBadge type="hint" size={80} /> :
+                                  wonReward.type === 'skip' ? <PowerUpBadge type="skip" size={80} /> :
+                                    wonReward.type === 'magnet' ? <PowerUpBadge type="magnet" size={80} /> :
                                       wonReward.type === 'spinTicket' ? <SpinTicketIcon size={80} /> : null}
                         </Motion.div>
                       </div>

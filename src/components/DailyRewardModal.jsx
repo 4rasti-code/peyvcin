@@ -6,7 +6,7 @@ import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
-import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, SpinTicketIcon } from './CurrencyIcon';
+import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
 import CoinAnimation from './CoinAnimation';
 import ClipboardIcon from './ClipboardIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
@@ -278,7 +278,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       {isDay7 ? (
                         <div className="absolute top-0 left-0 right-0 bottom-8 sm:bottom-10 flex flex-row items-center justify-around px-2 sm:px-4">
                           <div className="relative flex flex-col items-center justify-center pt-2">
-                            <SkipIcon className="w-12 h-12 sm:w-14 sm:h-14" />
+                            <PowerUpBadge type="skip" size={50} />
                             <span className="font-black text-[13px] sm:text-[15px] mt-0.5 sm:mt-1 text-gray-800" dir="ltr">
                               {getRibbonText({ skipCount: 1 })}
                             </span>
@@ -304,8 +304,8 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                                item.type === 'derhem' ? <DerhemIcon className="w-9 h-9 sm:w-10 sm:h-10" /> :
                                item.type === 'spinTicket' ? <SpinTicketIcon className="w-14 h-14 sm:w-16 sm:h-16" /> :
                                item.type === 'mystery_box' ? <MysteryBoxIcon className="w-14 h-14 sm:w-14 sm:h-14" /> :
-                               item.icon === 'lightbulb' ? <HintIcon className="w-12 h-12 sm:w-12 sm:h-12" /> :
-                               item.icon === 'auto_fix_high' ? <MagnetIcon className="w-12 h-12 sm:w-12 sm:h-12" /> : null}
+                               item.icon === 'lightbulb' ? <PowerUpBadge type="hint" size={48} /> :
+                               item.icon === 'auto_fix_high' ? <PowerUpBadge type="magnet" size={48} /> : null}
                             </div>
 
                             <span className={`font-black text-[13px] sm:text-[15px] ${
@@ -399,7 +399,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       >
                         {claimedDayInfo?.isGrand ? (
                           <div className="flex gap-2 sm:gap-4 items-center justify-center mx-auto overflow-visible">
-                            <SkipIcon size={100} />
+                            <PowerUpBadge type="skip" size={100} />
                             <DinarIcon size={120} />
                             <FilsIcon size={100} />
                           </div>
@@ -412,9 +412,9 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                         ) : claimedDayInfo?.type === 'mystery_box' ? (
                           <MysteryBoxIcon size={110} className="block mx-auto overflow-visible" />
                         ) : claimedDayInfo?.icon === 'lightbulb' ? (
-                          <HintIcon size={120} animate={true} className="block mx-auto overflow-visible" />
+                          <PowerUpBadge type="hint" size={120} animate={true} className="block mx-auto" />
                         ) : claimedDayInfo?.icon === 'auto_fix_high' ? (
-                          <MagnetIcon size={120} animate={true} className="block mx-auto overflow-visible" />
+                          <PowerUpBadge type="magnet" size={120} animate={true} className="block mx-auto" />
                         ) : (
                           <span className="block mx-auto text-center material-symbols-outlined text-[90px]! text-black dark:text-white">
                             {claimedDayInfo?.icon || 'redeem'}
