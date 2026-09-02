@@ -384,18 +384,18 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
                         />
 
                         {/* Core intense bright glow directly behind the icon */}
-                        <div className="absolute w-32 h-32 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
+                        <div className="absolute w-48 h-48 bg-white/90 dark:bg-white/40 rounded-full blur-xl pointer-events-none shadow-[0_0_50px_rgba(255,255,255,1)]" style={{ zIndex: -1 }} />
 
                         <wonReward.Icon
-                          size={100}
-                          className={`relative z-10 ${wonReward.type === 'mystery_box' ? 'w-30 h-30' : ''}`}
+                          size={150}
+                          className={`relative z-10 ${wonReward.type === 'mystery_box' ? 'w-40 h-40' : ''}`}
                         />
                       </div>
 
                       {/* Elegant Clean Typography with Gold Glow Behind It */}
-                      <div className="relative mt-6 mb-8">
+                      <div className="relative mt-8 mb-10">
                         <div className="absolute -inset-4 bg-yellow-500 blur-xl opacity-80 pointer-events-none rounded-full" style={{ zIndex: -1 }}></div>
-                        <p className="text-3xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
+                        <p className="text-4xl sm:text-5xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap relative z-10">
                           {(() => {
                             const nameMap = {
                               fils: 'فلس',
