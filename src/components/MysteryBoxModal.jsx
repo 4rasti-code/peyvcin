@@ -293,7 +293,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
                 {/* Idle Magical Dust */}
                 {canActuallyOpen && !isOpening && !isLidOpen && (
-                  <MagicalDust spread={150} count={25} zIndex={5} />
+                  <MagicalDust spread={150} count={25} zIndex={40} />
                 )}
 
                 {/* Premium Dimming Overlay to make the reward pop */}

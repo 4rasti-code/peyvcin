@@ -883,7 +883,7 @@ const LobbyView = memo(({
                 >
                   <div className="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16 shrink-0 z-10">
                     {isMysteryBoxAvailable && (
-                      <MagicalDust spread={40} count={12} zIndex={5} />
+                      <MagicalDust spread={40} count={12} zIndex={40} />
                     )}
                     <MysteryBoxIcon isIdleAnimated={isMysteryBoxAvailable} className={`w-12 h-12 md:w-16 md:h-16 translate-y-1.25 md:translate-y-1.75 ${!isMysteryBoxAvailable ? 'grayscale opacity-80' : 'relative z-10 drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)]'}`} />
                   </div>
