@@ -945,21 +945,24 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
         const headerNameStyleObj = NAME_STYLES[m.equipped_name_style] || NAME_STYLES['default'];
         const isPremiumStyle = headerNameStyleObj.id !== 'default';
 
+        const actualNickname = reactionUsers[m.user_id]?.nickname ?? m.user_nickname;
+        const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
+        const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
+        const userLvl = getLevelData(userXp).level;
+        const msgTier = getLevelTier(userLvl);
+
         const cardBgClass = isPremiumBundle
           ? headerBundleObj.cardBg
           : isPremiumStyle
             ? headerNameStyleObj.cardBg
-            : 'bg-mono-100/90 border border-mono-200/60';
+            : 'border border-mono-200/60';
 
         return (
-          <div className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-md ${cardBgClass} shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+          <div 
+            className={`flex items-center gap-3 mb-1 h-9 px-2.5 rounded-[12px] border-none! ${cardBgClass} bg-black/40! dark:bg-black/60! shadow-sm backdrop-blur-sm ${!isMe ? 'flex-row-reverse' : 'flex-row'}`}
+            style={{ outline: `2.5px solid ${msgTier.stop1}` }}
+          >
             {(() => {
-              const actualNickname = reactionUsers[m.user_id]?.nickname ?? m.user_nickname;
-              const userXp = reactionUsers[m.user_id]?.xp ?? m.user_xp ?? 0;
-              const userAvatarUrl = reactionUsers[m.user_id]?.avatar_url ?? m.user_avatar ?? 'default';
-              const userLvl = getLevelData(userXp).level;
-              const msgTier = getLevelTier(userLvl);
-
               const avatar = m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? (
                 <div className="w-6.5 h-6.5 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-mono-200 dark:border-mono-800 overflow-hidden bg-white dark:bg-[#141414]">
                   <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-full h-full object-cover block dark:hidden" />
