@@ -88,15 +88,21 @@ const dataURItoBlobSync = (dataURI) => {
 export const precomputeShareImage = async (node) => {
   if (!node) return null;
   try {
-    return await htmlToImage.toPng(node, {
+    const imagePromise = htmlToImage.toPng(node, {
       quality: 0.9,
       pixelRatio: 1,
       useCORS: true,
       skipFonts: true, // Prevents slow network requests for fonts
     });
+    
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Timeout generating image")), 2500);
+    });
+
+    return await Promise.race([imagePromise, timeoutPromise]);
   } catch (err) {
-    console.error('Failed to precompute share image', err);
-    return null;
+    console.warn('Failed or timed out to precompute share image', err);
+    return 'fallback';
   }
 };
 

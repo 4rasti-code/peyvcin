@@ -64,7 +64,7 @@ const WordFeverResultOverlay = ({
         const url = await precomputeShareImage(captureRef.current);
         if (url) setPrecomputedDataUrl(url);
       }
-    }, 1500);
+    }, 200);
     return () => clearTimeout(timer);
   }, []);
 
@@ -122,7 +122,8 @@ const WordFeverResultOverlay = ({
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-1000 flex items-center justify-center p-4 sm:p-6 bg-mono-white/90 dark:bg-black/95 backdrop-blur-md"
         >
-          <div className="absolute -top-[200vh] -left-[200vw] pointer-events-none">
+          {/* Hidden capture container - MUST remain in viewport but hidden from user */}
+          <div className="absolute top-0 left-0 w-px h-px overflow-hidden opacity-0 pointer-events-none">
             <div style={{ width: '380px', padding: '20px', background: '#000000' }} ref={captureRef}>
               <GameResultRenderer text={fullTextForCapture} />
             </div>
@@ -261,18 +262,17 @@ const WordFeverResultOverlay = ({
               </button>
 
               <button
-                disabled={!precomputedDataUrl && !Capacitor.isNativePlatform()}
+                disabled={shareStatus === 'success' || shareStatus === 'copied'}
                 onClick={async () => {
-                  if (!precomputedDataUrl && !Capacitor.isNativePlatform()) return;
                   triggerHaptic(10);
                   const grid = generateWordleGrid(guesses, solvedWord);
                   const result = await shareGameResult({
-                    title: isWin ? 'یێ سەرکەفت بووی د یارییا Word Fever دا! 🏆' : 'تە دۆڕاند د یارییا Word Fever دا! 💔',
+                    title: isWin ? 'من سەرکەفتن ئینا د مۆدا Word Fever دا! 🏆' : 'من خوسارەت کر د مۆدا Word Fever دا! 😔',
                     grid: grid,
-                    node: captureRef.current,
-                    precomputedDataUrl: precomputedDataUrl
+                    node: (!precomputedDataUrl || precomputedDataUrl === 'fallback') ? null : captureRef.current,
+                    precomputedDataUrl: (!precomputedDataUrl || precomputedDataUrl === 'fallback') ? null : precomputedDataUrl
                   });
-
+  
                   if (result === 'clipboard') {
                     setShareStatus('copied');
                     setTimeout(() => setShareStatus(null), 2000);
@@ -281,12 +281,12 @@ const WordFeverResultOverlay = ({
                     setTimeout(() => setShareStatus(null), 2000);
                   }
                 }}
-                className="w-full h-9 bg-transparent text-mono-400 dark:text-white/30 rounded-lg font-bold text-xs flex items-center justify-center gap-2 hover:text-mono-600 dark:hover:text-white/50 transition-colors mt-1"
+                className="h-10 bg-mono-100 dark:bg-white/5 border border-mono-200 dark:border-white/5 text-mono-600 dark:text-white/50 rounded-md font-bold text-sm active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <span className="material-symbols-outlined text-base">
-                  {(!precomputedDataUrl && !Capacitor.isNativePlatform()) ? 'hourglass_empty' : shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
+                  {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
                 </span>
-                {(!precomputedDataUrl && !Capacitor.isNativePlatform()) ? 'ئامادەکرن...' : shareStatus === 'copied' ? 'کۆپی کرا!' : shareStatus === 'success' ? 'نێردرا!' : 'بەلاڤ بکە'}
+                {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'نارد!' : 'بەشدار بە'}
               </button>
 
               {onShareToGlobal && (
