@@ -1084,7 +1084,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
             style={{ WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}
             className={`message-bubble transition-all relative cursor-pointer active:scale-[0.98] select-none ${(!isDeleted && (isOnlyEmoji || isOnlySticker || isMatchResult || isMedalShare || isTutorialShare || isDownloadShare))
               ? `bg-transparent shadow-none border-none p-0 ${(isOnlyEmoji || isOnlySticker) ? 'text-[54px] leading-none drop-shadow-sm' : ''}`
-              : `px-3.5 pt-3.5 pb-1 rounded-[20px] text-[13.5px] font-rabar font-bold wrap-break-word whitespace-pre-wrap border border-black/10 shadow-[0_4px_0_#b4becd] ${isMe
+              : `px-3.5 pt-3.5 pb-1 rounded-[20px] text-[13.5px] font-rabar font-bold wrap-anywhere whitespace-pre-wrap border border-black/10 shadow-[0_4px_0_#b4becd] ${isMe
                 ? 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-right-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-t before:border-r before:border-black/10 before:rotate-45'
                 : 'bg-white text-[#1e293b] before:content-[""] before:absolute before:-left-1.5 before:top-4 before:w-3 before:h-3 before:bg-white before:border-b before:border-l before:border-black/10 before:rotate-45'
               }`
