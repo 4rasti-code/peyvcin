@@ -286,7 +286,7 @@ const WordFeverResultOverlay = ({
                 <span className="material-symbols-outlined text-base">
                   {shareStatus === 'copied' ? 'content_paste_go' : shareStatus === 'success' ? 'check_circle' : 'share'}
                 </span>
-                {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'نارد!' : 'بەشدار بە'}
+                {shareStatus === 'copied' ? 'کۆپی بوو!' : shareStatus === 'success' ? 'نارد!' : 'بەلاڤ بکە'}
               </button>
 
               {onShareToGlobal && (
