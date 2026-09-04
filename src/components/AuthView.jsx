@@ -562,6 +562,12 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
             });
 
             if (error) throw error;
+            
+            if (isNative && data?.url) {
+                // Open the In-App Browser instead of external system browser
+                await Browser.open({ url: data.url });
+            }
+            
             console.log(`[AuthView] OAuth request sent successfully:`, data);
 
         } catch (err) {
