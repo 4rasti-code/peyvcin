@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { Capacitor } from '@capacitor/core';
 import { triggerHaptic } from '../utils/haptics';
 import { playPopSfx, playAlertSfx, playBackSfx } from '../utils/audio';
 import PrivacyPolicy from './PrivacyPolicy';
@@ -538,7 +539,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
             // If running in Capacitor (native app), we MUST use the domain registered in AndroidManifest for App Links
             // Otherwise, use the current web origin (for web/local testing)
-            const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+            const isNative = Capacitor.isNativePlatform();
             const redirectTo = isNative ? 'peyvok://login' : window.location.origin;
             console.log(`[AuthView] Redirect URL:`, redirectTo);
 
@@ -715,6 +716,20 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
                                                     <span className="material-symbols-outlined text-[20px]">person</span>
                                                 </div>
                                             </button>
+
+                                            {/* Error Message for Social Logins */}
+                                            <AnimatePresence>
+                                                {error && (
+                                                    <Motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="mt-2 p-3 rounded-[8px] bg-[#ff4a4a]/10 border-2 border-[#ff4a4a]/20 text-[#ff4a4a] text-[12px] font-black font-rabar text-center relative z-10"
+                                                    >
+                                                        {error}
+                                                    </Motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </div>
                                     </div>
 

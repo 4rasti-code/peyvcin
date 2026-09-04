@@ -4,6 +4,8 @@ import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useAudio } from '../context/AudioContext';
 import { useUser } from '../context/AuthContext';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { triggerHaptic } from '../utils/haptics';
 
 const RESERVED_WORDS = ['admin', 'peyvok', 'official', 'support', 'moderator', 'staff', 'peyv', 'super', 'root'];
@@ -263,13 +265,13 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
 
             // If running in Capacitor (native app), we MUST use the domain registered in AndroidManifest for App Links
             // Otherwise, use the current web origin (for web/local testing)
-            const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+            const isNative = Capacitor.isNativePlatform();
             const redirectTo = isNative ? 'peyvok://login' : window.location.origin;
             console.log(`[UpgradeAccountModal] Redirect URL:`, redirectTo);
 
             const options = {
                 redirectTo: redirectTo,
-                skipBrowserRedirect: false
+                skipBrowserRedirect: isNative // CRITICAL: Prevent default external browser on mobile
             };
 
             if (provider === 'google') {
@@ -285,6 +287,11 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
             });
 
             if (error) throw error;
+            
+            if (isNative && data?.url) {
+                // Open the In-App Browser instead of external system browser
+                await Browser.open({ url: data.url });
+            }
             console.log(`[UpgradeAccountModal] OAuth request sent successfully:`, data);
 
         } catch (err) {
@@ -480,6 +487,20 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
                                                        <span className="material-symbols-outlined text-[15px]" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>mail</span>
                                                     </div>
                                                 </button>
+
+                                                {/* Error Message for Social Logins */}
+                                                <AnimatePresence>
+                                                    {error && (
+                                                        <Motion.div
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: -10 }}
+                                                            className="mt-3 p-3 rounded-[8px] bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 text-[11px] font-black font-rabar text-center relative z-10"
+                                                        >
+                                                            {error}
+                                                        </Motion.div>
+                                                    )}
+                                                </AnimatePresence>
                                             </div>
                                         ) : (
                                             <form onSubmit={handleSubmit} className="flex flex-col space-y-3 relative z-10" autoComplete="off">

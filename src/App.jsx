@@ -6,6 +6,7 @@ import { Analytics } from '@vercel/analytics/react';
 import OneSignal from 'react-onesignal';
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
@@ -203,6 +204,9 @@ export default function App() {
         const urlObj = new URL(event.url);
         // Catch either the peyvokgame.com domain OR the custom peyvok:// scheme
         if (urlObj.hostname.includes('peyvokgame.com') || urlObj.protocol === 'peyvok:') {
+          // Immediately close the In-App Browser if it's open
+          Browser.close().catch(() => {});
+
           // Pass the hash to window.location so Supabase can parse the OAuth token
           if (urlObj.hash) {
             window.location.hash = urlObj.hash;
