@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import { triggerHaptic } from '../utils/haptics';
 import { playPopSfx, playAlertSfx, playBackSfx } from '../utils/audio';
 import PrivacyPolicy from './PrivacyPolicy';
@@ -545,7 +546,7 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
 
             const options = {
                 redirectTo: redirectTo,
-                skipBrowserRedirect: false
+                skipBrowserRedirect: isNative // CRITICAL: Prevent default external browser on mobile
             };
 
             if (provider === 'google') {

@@ -207,8 +207,15 @@ export default function App() {
           // Immediately close the In-App Browser if it's open
           Browser.close().catch(() => {});
 
-          // Pass the hash to window.location so Supabase can parse the OAuth token
-          if (urlObj.hash) {
+          // Supabase PKCE flow: Check if a ?code= query param was returned
+          const code = urlObj.searchParams.get('code');
+          if (code) {
+            supabase.auth.exchangeCodeForSession(code).then(() => {
+              navigate('/');
+            }).catch(console.error);
+          }
+          // Supabase Implicit flow: Pass the hash to window.location
+          else if (urlObj.hash) {
             window.location.hash = urlObj.hash;
           } else if (urlObj.pathname && urlObj.pathname !== '/') {
             // Handle regular deep linking to internal pages
