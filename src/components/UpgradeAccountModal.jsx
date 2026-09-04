@@ -261,9 +261,10 @@ export default function UpgradeAccountModal({ isOpen, onSuccess, onClose }) {
             playTabSound();
             triggerHaptic(10);
 
-            // Explicitly define the redirect URL to current location
-            // Use environment variable or default to current origin
-            const redirectTo = window.location.origin;
+            // If running in Capacitor (native app), we MUST use the domain registered in AndroidManifest for App Links
+            // Otherwise, use the current web origin (for web/local testing)
+            const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+            const redirectTo = isNative ? 'https://peyvokgame.com' : window.location.origin;
             console.log(`[UpgradeAccountModal] Redirect URL:`, redirectTo);
 
             const options = {
