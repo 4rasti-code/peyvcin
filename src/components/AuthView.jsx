@@ -536,9 +536,10 @@ export default function AuthView({ onAuthSuccess, onRecoveringChange, onVerifyin
             playTabSound();
             triggerHaptic(10);
 
-            // Explicitly define the redirect URL to current location
-            // Use environment variable or default to current origin
-            const redirectTo = window.location.origin;
+            // If running in Capacitor (native app), we MUST use the domain registered in AndroidManifest for App Links
+            // Otherwise, use the current web origin (for web/local testing)
+            const isNative = window.location.origin.includes('localhost') || window.location.origin.includes('capacitor');
+            const redirectTo = isNative ? 'peyvok://login' : window.location.origin;
             console.log(`[AuthView] Redirect URL:`, redirectTo);
 
             const options = {

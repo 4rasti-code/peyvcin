@@ -201,7 +201,8 @@ export default function App() {
     if (Capacitor.isNativePlatform()) {
       const listener = CapApp.addListener('appUrlOpen', (event) => {
         const urlObj = new URL(event.url);
-        if (urlObj.hostname.includes('peyvokgame.com')) {
+        // Catch either the peyvokgame.com domain OR the custom peyvok:// scheme
+        if (urlObj.hostname.includes('peyvokgame.com') || urlObj.protocol === 'peyvok:') {
           // Pass the hash to window.location so Supabase can parse the OAuth token
           if (urlObj.hash) {
             window.location.hash = urlObj.hash;

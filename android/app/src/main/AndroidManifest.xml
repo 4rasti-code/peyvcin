@@ -30,6 +30,14 @@
                 <data android:scheme="https" android:host="peyvokgame.com" />
             </intent-filter>
 
+            <!-- Custom URL scheme for OAuth Redirect -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="peyvok" android:host="login" />
+            </intent-filter>
+
         </activity>
 
         <provider
