@@ -200,23 +200,48 @@ export default function App() {
   // --- ANDROID APP LINKS (DEEP LINKING) LISTENER ---
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
-      const listener = CapApp.addListener('appUrlOpen', (event) => {
+      const listener = CapApp.addListener('appUrlOpen', async (event) => {
         const urlObj = new URL(event.url);
         // Catch either the peyvokgame.com domain OR the custom peyvok:// scheme
         if (urlObj.hostname.includes('peyvokgame.com') || urlObj.protocol === 'peyvok:') {
-          // Immediately close the In-App Browser if it's open
+          // 1. Immediately close the In-App Browser if it's open
           Browser.close().catch(() => {});
 
-          // Supabase PKCE flow: Check if a ?code= query param was returned
+          // 2. Handle PKCE Code Flow
           const code = urlObj.searchParams.get('code');
           if (code) {
-            supabase.auth.exchangeCodeForSession(code).then(() => {
-              navigate('/');
-            }).catch(console.error);
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
+            if (!error) {
+              navigate('/'); // Force navigation to lobby
+            } else {
+              console.error("[Auth] PKCE exchange error:", error);
+            }
+            return;
           }
-          // Supabase Implicit flow: Pass the hash to window.location
-          else if (urlObj.hash) {
-            window.location.hash = urlObj.hash;
+
+          // 3. Handle Implicit Flow (MANUAL EXTRACTION)
+          if (event.url.includes('#')) {
+            const hashFragment = event.url.split('#')[1];
+            const params = new URLSearchParams(hashFragment);
+            const access_token = params.get('access_token');
+            const refresh_token = params.get('refresh_token');
+
+            if (access_token && refresh_token) {
+              // Manually force the session into Supabase
+              const { error } = await supabase.auth.setSession({
+                access_token,
+                refresh_token
+              });
+              
+              if (!error) {
+                 navigate('/'); // Force navigation to lobby
+              } else {
+                 console.error("[Auth] Set session error:", error);
+              }
+            } else if (urlObj.pathname && urlObj.pathname !== '/') {
+               // Handle regular deep linking to internal pages
+               navigate(urlObj.pathname);
+            }
           } else if (urlObj.pathname && urlObj.pathname !== '/') {
             // Handle regular deep linking to internal pages
             navigate(urlObj.pathname);
