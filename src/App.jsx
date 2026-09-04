@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
 import OneSignal from 'react-onesignal';
+import { App as CapApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
@@ -193,6 +195,27 @@ export default function App() {
     window.addEventListener('openInstallModal', handleOpenInstallModal);
     return () => window.removeEventListener('openInstallModal', handleOpenInstallModal);
   }, []);
+
+  // --- ANDROID APP LINKS (DEEP LINKING) LISTENER ---
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      const listener = CapApp.addListener('appUrlOpen', (event) => {
+        const urlObj = new URL(event.url);
+        if (urlObj.hostname.includes('peyvokgame.com')) {
+          // Pass the hash to window.location so Supabase can parse the OAuth token
+          if (urlObj.hash) {
+            window.location.hash = urlObj.hash;
+          } else if (urlObj.pathname && urlObj.pathname !== '/') {
+            // Handle regular deep linking to internal pages
+            navigate(urlObj.pathname);
+          }
+        }
+      });
+      return () => {
+        listener.then(l => l.remove());
+      };
+    }
+  }, [navigate]);
 
   const [isFontsLoaded, setIsFontsLoaded] = useState(false);
 

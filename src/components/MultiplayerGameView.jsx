@@ -893,6 +893,7 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
         currentRound={currentRound}
         roundMessage={roundMessage}
         previousWord={activeMatch?.current_word_index > 0 ? activeMatch?.words?.[activeMatch.current_word_index - 1] : null}
+        previousRoundWinner={_winnerNickname}
       />
 
 

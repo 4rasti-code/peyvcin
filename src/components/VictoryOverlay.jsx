@@ -373,8 +373,8 @@ const VictoryOverlay = ({
 
             </div>
           </Motion.div>
-      </Motion.div>
-    )}
+        </Motion.div>
+      )}
     </AnimatePresence>
   );
 };

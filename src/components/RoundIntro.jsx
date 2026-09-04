@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import Avatar from './Avatar';
 import { playSwordComboSfx, playWhooshSfx } from '../utils/audio';
@@ -8,7 +8,16 @@ import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
 
-export default function RoundIntro({ opponent, userAvatar, userNickname, userEquippedFont, userEquippedNameStyle, userEquippedBundle, userLevel, currentRound, roundMessage, previousWord }) {
+export default function RoundIntro({ opponent, userAvatar, userNickname, userEquippedFont, userEquippedNameStyle, userEquippedBundle, userLevel, currentRound, roundMessage, previousWord, previousRoundWinner }) {
+  const [prevWinnerProp, setPrevWinnerProp] = useState(previousRoundWinner);
+  const [frozenWinner, setFrozenWinner] = useState(previousRoundWinner);
+
+  if (previousRoundWinner !== prevWinnerProp) {
+    setPrevWinnerProp(previousRoundWinner);
+    if (previousRoundWinner) {
+      setFrozenWinner(previousRoundWinner);
+    }
+  }
   // Localization helper
   const getRoundOrdinal = (idx) => {
     const ordinals = ['ئێکێ', 'دوویێ', 'سێیێ'];
@@ -245,9 +254,25 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
                   className="mt-4 flex flex-col items-center justify-center border-t border-mono-200 dark:border-mono-800 pt-4 w-full max-w-sm"
                 >
                   <span className="text-sm sm:text-base font-rabar text-mono-500 dark:text-mono-400 mb-1 text-center font-bold">بەرسڤا گەڕا پێشتر:</span>
-                  <span className="text-3xl sm:text-4xl font-black font-rabar text-green-500 text-center">
+                  <span className="text-3xl sm:text-4xl font-black font-rabar text-green-500 text-center mb-3">
                     {previousWord}
                   </span>
+                  
+                  {/* WHO GUESSED IT */}
+                  <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm font-rabar font-bold bg-mono-200/50 dark:bg-mono-800/50 px-4 py-1.5 rounded-full border border-mono-300 dark:border-mono-700 shadow-sm">
+                    {roundMessage === 'ROUND_DRAW' ? (
+                      <span className="text-red-500">کەسێ نەزانی 🤷‍♂️</span>
+                    ) : frozenWinner ? (
+                      <>
+                        <span className="text-mono-600 dark:text-mono-400">بەرسڤدەر:</span>
+                        <span className="text-primary font-black drop-shadow-sm">
+                          {frozenWinner === userNickname ? 'تۆ 👑' : frozenWinner}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-mono-500 dark:text-mono-400">بەرسڤدەر دیار نینە</span>
+                    )}
+                  </div>
                 </Motion.div>
               )}
             </div>

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.peyvok.game",
+      "sha256_cert_fingerprints": [
+        "A6:B8:AA:CB:BB:EC:65:FA:C2:FF:ED:64:3C:32:33:80:67:10:70:AA:E5:D5:E0:7B:ED:74:21:10:4F:0E:E5:20"
+      ]
+    }
+  }
+]
