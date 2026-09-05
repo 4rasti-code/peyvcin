@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 export default function GlobalConfetti() {
   const [explosions, setExplosions] = useState([]);
@@ -49,8 +49,9 @@ function ConfettiBurst({ explosion }) {
       const color = explosion.colors[Math.floor(Math.random() * explosion.colors.length)];
       const rot = Math.random() * 360;
       const dir = Math.random() > 0.5 ? 1 : -1;
+      const shape = Math.random() > 0.5 ? '50%' : '2px';
       
-      return { id: i, angle, velocity, size, color, rot, dir };
+      return { id: i, angle, velocity, size, color, rot, dir, shape };
     })
   );
 
@@ -62,7 +63,7 @@ function ConfettiBurst({ explosion }) {
       }}
     >
       {particles.map(p => (
-        <motion.div
+        <Motion.div
           key={p.id}
           initial={{ x: 0, y: 0, rotate: p.rot, scale: 0, opacity: 1 }}
           animate={{
@@ -78,7 +79,7 @@ function ConfettiBurst({ explosion }) {
             width: p.size,
             height: p.size,
             backgroundColor: p.color,
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+            borderRadius: p.shape,
             boxShadow: '0 0 4px rgba(0,0,0,0.2)'
           }}
         />
