@@ -148,7 +148,7 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
           playDailyClaimSfx();
           if (hapticEnabled) triggerHaptic([60, 100, 60]);
           const colors = ['#FFD700', isDark ? '#ffffff' : '#000000', '#ffffff'];
-          confetti({ particleCount: 150, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
+          confetti({ particleCount: 60, spread: 90, origin: { x: 0.5, y: 0.5 }, colors, zIndex: 2000, startVelocity: 45 });
         }, 100);
       } else {
         const errorMsg = result?.error || "خەلات ناهێتە وەرگرتن، دبیت تو یێ ل هیڤیا دەمێ نوی بی.";

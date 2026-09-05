@@ -193,7 +193,7 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
       playChestOpenSfx();
 
       confetti({
-        particleCount: 150,
+        particleCount: 60,
         spread: 100,
         origin: { y: 0.6 },
         colors: ['#FFD700', '#F59E0B', '#FCD34D']

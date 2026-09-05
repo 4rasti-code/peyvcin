@@ -163,7 +163,7 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
       setIsLidOpen(true);
 
       confetti({
-        particleCount: 150,
+        particleCount: 60,
         spread: 100,
         origin: { y: 0.6 },
         colors: ['#A855F7', '#EC4899', '#3B82F6'] // Purple, Pink, Blue theme

@@ -88,7 +88,7 @@ const BattleResultOverlay = ({
         const colors = [isDark ? '#ffffff' : '#171717', '#facc15', '#3b82f6', '#ffffff'];
         timeoutId = setTimeout(() => {
           confetti({
-            particleCount: 120,
+            particleCount: 60,
             spread: 60,
             origin: { x: 0.5, y: 0.6 },
             colors: colors,
