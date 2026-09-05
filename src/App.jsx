@@ -1523,8 +1523,8 @@ export default function App() {
         // Add a slight haptic feedback for mobile users to increase tension
         if (window.Telegram?.WebApp?.HapticFeedback) {
           window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        } else if (navigator.vibrate) {
-          navigator.vibrate(30);
+        } else {
+          triggerHaptic(30);
         }
       }
     }

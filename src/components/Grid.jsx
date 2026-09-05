@@ -3,6 +3,20 @@ import { STATUS } from '../data/constants';
 import { motion as Motion, useTransform } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
 
+const fastArrayEqual = (a, b) => {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (Array.isArray(a[i]) && Array.isArray(b[i])) {
+      if (!fastArrayEqual(a[i], b[i])) return false;
+    } else if (a[i] !== b[i]) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const Tile = memo(({ char, hintChar = '', isCurrent, status, wordLength, isRevealed, isHinted, isFocused, isSecretMode, hideLetters = false, flipDelay = 0, isFocusedMV = null, index = 0, isDark = true, rowIndex = 0, gridId = 'main', tutorialColumnHighlight = false, tutorialRowHighlight = -1 }) => {
   const { playRightLetterSound, playWrongPlaceSound } = useAudio();
 
@@ -282,9 +296,9 @@ const Row = memo(({ guess, targetWord = '', wordLength, getLetterStatus = () => 
          prev.wordLength === next.wordLength &&
          prev.isDark === next.isDark &&
          prev.forcedFocusIndex === next.forcedFocusIndex &&
-         JSON.stringify(prev.forcedStatuses) === JSON.stringify(next.forcedStatuses) &&
-         prev.revealedIndices?.length === next.revealedIndices?.length &&
-         prev.hintIndices?.length === next.hintIndices?.length &&
+         fastArrayEqual(prev.forcedStatuses, next.forcedStatuses) &&
+         fastArrayEqual(prev.revealedIndices, next.revealedIndices) &&
+         fastArrayEqual(prev.hintIndices, next.hintIndices) &&
          prev.tutorialColumnHighlight === next.tutorialColumnHighlight &&
          prev.tutorialRowHighlight === next.tutorialRowHighlight;
 });
@@ -394,19 +408,19 @@ const Grid = memo(({ targetWord = '', guesses = [], currentGuess = [], wordLengt
     </div>
   );
 }, (prev, next) => {
-  return JSON.stringify(prev.guesses) === JSON.stringify(next.guesses) &&
+  return fastArrayEqual(prev.guesses, next.guesses) &&
          prev.currentGuess?.join('') === next.currentGuess?.join('') &&
          prev.wordLength === next.wordLength &&
          prev.maxRows === next.maxRows &&
          prev.activeRowIndex === next.activeRowIndex &&
          prev.isDark === next.isDark &&
-         JSON.stringify(prev.opponentStatuses) === JSON.stringify(next.opponentStatuses) &&
-         JSON.stringify(prev.opponentLiveStatuses) === JSON.stringify(next.opponentLiveStatuses) &&
+         fastArrayEqual(prev.opponentStatuses, next.opponentStatuses) &&
+         fastArrayEqual(prev.opponentLiveStatuses, next.opponentLiveStatuses) &&
          prev.opponentLiveCursor === next.opponentLiveCursor &&
          prev.isShaking === next.isShaking &&
          prev.targetWord === next.targetWord &&
-         prev.revealedIndices?.length === next.revealedIndices?.length &&
-         prev.hintIndices?.length === next.hintIndices?.length &&
+         fastArrayEqual(prev.revealedIndices, next.revealedIndices) &&
+         fastArrayEqual(prev.hintIndices, next.hintIndices) &&
          prev.tutorialColumnHighlight === next.tutorialColumnHighlight &&
          prev.tutorialRowHighlight === next.tutorialRowHighlight;
 });

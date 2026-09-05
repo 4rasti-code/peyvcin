@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import AgoraRTC from 'agora-rtc-sdk-ng';
 import { supabase } from '../lib/supabase';
 
@@ -321,7 +321,7 @@ export const VoiceProvider = ({ children }) => {
 
   const isVoiceReady = !!appId && !!client;
 
-  const value = {
+  const value = useMemo(() => ({
     client,
     isVoiceReady,
     isInChannel,
@@ -333,7 +333,10 @@ export const VoiceProvider = ({ children }) => {
     leaveVoiceChannel,
     toggleMute,
     toggleDeafen
-  };
+  }), [
+    client, isVoiceReady, isInChannel, isMuted, isDeafened, remoteUsers, activeSpeakers,
+    joinVoiceChannel, leaveVoiceChannel, toggleMute, toggleDeafen
+  ]);
 
   return (
     <VoiceContext.Provider value={value}>

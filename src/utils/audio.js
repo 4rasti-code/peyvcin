@@ -1,3 +1,5 @@
+import { Capacitor } from '@capacitor/core';
+import { NativeAudio } from '@capacitor-community/native-audio';
 /**
  * Premium Game Audio Engine (Web Audio API)
  * Optimized for low-latency, polyphony, and high-performance streaming.
@@ -52,6 +54,36 @@ const MUSIC_PATH = '/geoffharvey-solve-the-riddle-140001.mp3';
 const CRITICAL_SFX = ['CLICK', 'POP', 'TAB', 'START_GAME', 'BACK', 'SETTINGS_OPEN'];
 
 class SoundEngine {
+
+  getBaseVolume(key, initialVolume = 1.0) {
+    let baseVolume = initialVolume;
+    if (key === 'CLICK') baseVolume *= 0.3;
+    if (key === 'POP') baseVolume *= 0.45;
+    if (key === 'ALERT') baseVolume *= 0.8;
+    if (key === 'NOTIFICATION') baseVolume *= 0.9;
+    if (key === 'START_GAME') baseVolume *= 0.2;
+    if (key === 'TAB') baseVolume *= 0.6;
+    if (key === 'BUBBLE_POP') baseVolume *= 0.8;
+    if (key === 'SWORD_COMBO') baseVolume *= 0.6;
+    if (key === 'SWORD_SLASH') baseVolume *= 0.5;
+    if (key === 'WHOOSH') baseVolume *= 1.0;
+    if (key === 'RIGHT_LETTER') baseVolume *= 0.8;
+    if (key === 'WRONG_PLACE') baseVolume *= 2.5;
+    if (key === 'DEFEAT') baseVolume *= 1.0;
+    if (key === 'NOBERA') baseVolume *= 1.0;
+    if (key === 'PALAWAN') baseVolume *= 1.0;
+    if (key === 'EXPERT') baseVolume *= 1.0;
+    if (key === 'MAMOSTA') baseVolume *= 1.0;
+    if (key === 'SHANAZI_KURDISTAN') baseVolume *= 1.0;
+    if (key === 'SHANAZI_JIHANI') baseVolume *= 1.0;
+    if (key === 'HEARTBEAT') baseVolume *= 1.0;
+    if (key === 'MESSAGE_RECEIVED') baseVolume *= 0.9;
+    if (key === 'WHEEL_COIN') baseVolume *= 1.4;
+    if (key === 'REWARD_POP') baseVolume *= 2.0;
+    if (key === 'CHEST_CREAK') baseVolume *= 8.0;
+    return baseVolume;
+  }
+
   constructor() {
     this.context = null;
     this.buffers = {};
@@ -69,6 +101,7 @@ class SoundEngine {
     // Matchmaking Loop Management
     this.searchingNodes = [];
     this.searchingGain = null;
+    this.isNative = Capacitor.isNativePlatform();
   }
 
   /**
@@ -76,57 +109,78 @@ class SoundEngine {
    */
   async init() {
     if (this.initialized) return;
-    
-    try {
-      this.context = new (window.AudioContext || window.webkitAudioContext)();
-      this.initialized = true;
-      
-      // 1. Setup Streaming Music (HTML5 Audio) - Routed through AudioContext for mobile volume control
-      if (!this.musicAudioElement) {
-        this.musicAudioElement = new Audio(MUSIC_PATH);
-        this.musicAudioElement.loop = true;
-        this.musicAudioElement.crossOrigin = "anonymous";
-        this.musicAudioElement.volume = this.musicVolume;
+    this.initialized = true;
 
-        // Mobile Volume Fix: Route through Web Audio API GainNode
-        try {
-          this.musicGain = this.context.createGain();
-          this.musicGain.gain.value = this.musicVolume;
-          this.musicGain.connect(this.context.destination);
-          
-          this.musicMediaSource = this.context.createMediaElementSource(this.musicAudioElement);
-          this.musicMediaSource.connect(this.musicGain);
-          
-          // CRITICAL: Reset HTML5 volume to 1.0 because the GainNode handles the volume now!
-          // If we don't do this, desktop will scale the volume twice (Audio element * GainNode).
-          this.musicAudioElement.volume = 1.0;
-        } catch (err) {
-          console.warn("Failed to route music through GainNode (Mobile volume might fail):", err);
-        }
-      }
+    if (this.isNative) {
+       console.log("🔊 [AudioEngine] Native Mode Detected");
+       try {
+         await NativeAudio.preload({ assetId: 'BGM', assetPath: 'public' + MUSIC_PATH, audioChannelNum: 1, isUrl: false });
+         await NativeAudio.preload({ assetId: 'SEARCHING', assetPath: 'public/multiplayer_mode_searching.mp3', audioChannelNum: 1, isUrl: false });
+         
+         await Promise.all(CRITICAL_SFX.map(async (key) => {
+           const path = SFX_PATHS[key];
+           if (path) {
+             try {
+               await NativeAudio.preload({ assetId: key, assetPath: 'public' + path, audioChannelNum: 1, isUrl: false });
+             } catch(e) {}
+           }
+         }));
+         console.log("🔊 [AudioEngine] Native Critical SFX Loaded");
+       } catch (err) {
+         console.warn("NativeAudio init failed, falling back to Web Audio", err);
+         this.isNative = false; 
+       }
+    }
 
-      // 2. Pre-fetch ONLY CRITICAL SFX (Ultra Fast Initial Load)
-      const loadPromises = CRITICAL_SFX.map(async (key) => {
-        const path = SFX_PATHS[key];
-        if (path) {
-          const buffer = await this.loadBuffer(path);
-          if (buffer) {
-            this.buffers[key] = buffer;
-          } else {
-            this.buffers[key] = 'fallback';
+    if (!this.isNative) {
+      try {
+        this.context = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // 1. Setup Streaming Music (HTML5 Audio) - Routed through AudioContext for mobile volume control
+        if (!this.musicAudioElement) {
+          this.musicAudioElement = new Audio(MUSIC_PATH);
+          this.musicAudioElement.loop = true;
+          this.musicAudioElement.crossOrigin = "anonymous";
+          this.musicAudioElement.volume = this.musicVolume;
+
+          try {
+            this.musicGain = this.context.createGain();
+            this.musicGain.gain.value = this.musicVolume;
+            this.musicGain.connect(this.context.destination);
+            
+            this.musicMediaSource = this.context.createMediaElementSource(this.musicAudioElement);
+            this.musicMediaSource.connect(this.musicGain);
+            
+            this.musicAudioElement.volume = 1.0;
+          } catch (err) {
+            console.warn("Failed to route music through GainNode (Mobile volume might fail):", err);
           }
         }
-      });
-      
-      Promise.all(loadPromises).then(() => {
-        console.log("🔊 [AudioEngine] Critical SFX Loaded");
-      });
 
-      // 4. Start Streaming Music Immediately
-      this.startMusic();
-    } catch (e) {
-      console.warn("AudioContext failed to initialize:", e);
+        // 2. Pre-fetch ONLY CRITICAL SFX (Ultra Fast Initial Load)
+        const loadPromises = CRITICAL_SFX.map(async (key) => {
+          const path = SFX_PATHS[key];
+          if (path) {
+            const buffer = await this.loadBuffer(path);
+            if (buffer) {
+              this.buffers[key] = buffer;
+            } else {
+              this.buffers[key] = 'fallback';
+            }
+          }
+        });
+        
+        Promise.all(loadPromises).then(() => {
+          console.log("🔊 [AudioEngine] Critical SFX Loaded");
+        });
+
+      } catch (e) {
+        console.warn("AudioContext failed to initialize:", e);
+      }
     }
+
+    // 4. Start Streaming Music Immediately
+    this.startMusic();
   }
 
   /**
@@ -159,7 +213,16 @@ class SoundEngine {
    * Start Looping Music (Streaming)
    */
   startMusic() {
-    if (!this.musicAudioElement || this.isStoppedByPolicy) return;
+    if (this.isStoppedByPolicy) return;
+    if (this.isNative) {
+       try {
+         NativeAudio.setVolume({ assetId: 'BGM', volume: this.musicVolume });
+         NativeAudio.loop({ assetId: 'BGM' }).catch(()=>{});
+         console.log("🎵 [AudioEngine] Native Music Streaming Started");
+       } catch(e) { console.warn(e); }
+       return;
+    }
+    if (!this.musicAudioElement) return;
 
     this.musicAudioElement.play().then(() => {
       console.log("🎵 [AudioEngine] Music Streaming Started (Stable Mode)");
@@ -192,6 +255,11 @@ class SoundEngine {
    * This MUST be called as soon as the user leaves the 'lobby' view.
    */
   stopMusic() {
+    if (this.isNative) {
+      NativeAudio.stop({ assetId: 'BGM' }).catch(()=>{});
+      console.log("🎵 [AudioEngine] Native Music Streaming Paused");
+      return;
+    }
     if (this.musicAudioElement) {
       this.musicAudioElement.pause();
       console.log("🎵 [AudioEngine] Strict Policy: Music Streaming Paused (for Gameplay)");
@@ -210,9 +278,13 @@ class SoundEngine {
    * Set Music Volume
    */
   setMusicVolume(volume) {
-    // Apply a global multiplier to drastically reduce BGM volume
     const scaledVolume = volume * 0.35;
     this.musicVolume = scaledVolume;
+    
+    if (this.isNative) {
+       NativeAudio.setVolume({ assetId: 'BGM', volume: scaledVolume }).catch(()=>{});
+       return;
+    }
     
     if (this.musicGain && this.context) {
       // If GainNode is active, it handles the volume for ALL platforms equally.
@@ -228,6 +300,26 @@ class SoundEngine {
    */
   async play(key, options = {}) {
     if (!this.initialized) return;
+
+    if (this.isNative) {
+      if (!CRITICAL_SFX.includes(key) && !this.buffers[key]) {
+        const path = SFX_PATHS[key];
+        if (path) {
+          try {
+             await NativeAudio.preload({ assetId: key, assetPath: 'public' + path, audioChannelNum: 1, isUrl: false });
+             this.buffers[key] = true;
+          } catch(e) {}
+        }
+      }
+      const baseVolume = this.getBaseVolume(key, options.volume || 1.0);
+      const finalVolume = Math.min(1.0, Math.max(0.0, baseVolume * this.masterVolume));
+      try {
+        await NativeAudio.setVolume({ assetId: key, volume: finalVolume });
+        await NativeAudio.play({ assetId: key });
+      } catch (e) { console.warn("NativeAudio play failed:", e); }
+      return;
+    }
+
 
     // LAZY LOADING: If buffer is missing, load it now
     if (!this.buffers[key]) {
@@ -247,9 +339,7 @@ class SoundEngine {
       console.warn(`[AudioEngine] Using HTML5 Audio fallback for ${key}`);
       const path = SFX_PATHS[key];
       const audio = new Audio(path);
-      let baseVolume = options.volume || 1.0;
-      if (key === 'CLICK') baseVolume *= 0.3;
-      if (key === 'POP') baseVolume *= 0.45;
+      let baseVolume = this.getBaseVolume(key, options.volume || 1.0);
       audio.volume = Math.min(1.0, Math.max(0.0, baseVolume * this.masterVolume));
       audio.play().catch(e => console.error("HTML5 Audio fallback failed", e));
       return;
@@ -265,31 +355,8 @@ class SoundEngine {
 
     const gainNode = this.context.createGain();
     
-    let baseVolume = volume;
-    if (key === 'CLICK') baseVolume *= 0.3;
-    if (key === 'POP') baseVolume *= 0.45;
-    if (key === 'ALERT') baseVolume *= 0.8;
-    if (key === 'NOTIFICATION') baseVolume *= 0.9;
-    if (key === 'START_GAME') baseVolume *= 0.2;
-    if (key === 'TAB') baseVolume *= 0.6;
-    if (key === 'BUBBLE_POP') baseVolume *= 0.8;
-    if (key === 'SWORD_COMBO') baseVolume *= 0.6;
-    if (key === 'SWORD_SLASH') baseVolume *= 0.5;
-    if (key === 'WHOOSH') baseVolume *= 1.0;
-    if (key === 'RIGHT_LETTER') baseVolume *= 0.8; // Increased from 0.5 for better audibility
-    if (key === 'WRONG_PLACE') baseVolume *= 2.5; // Boosted heavily because the audio file is quiet
-    if (key === 'DEFEAT') baseVolume *= 1.0;
-    if (key === 'NOBERA') baseVolume *= 1.0;
-    if (key === 'PALAWAN') baseVolume *= 1.0;
-    if (key === 'EXPERT') baseVolume *= 1.0;
-    if (key === 'MAMOSTA') baseVolume *= 1.0;
-    if (key === 'SHANAZI_KURDISTAN') baseVolume *= 1.0;
-    if (key === 'SHANAZI_JIHANI') baseVolume *= 1.0;
-    if (key === 'HEARTBEAT') baseVolume *= 1.0;
-    if (key === 'MESSAGE_RECEIVED') baseVolume *= 0.9;
-    if (key === 'WHEEL_COIN') baseVolume *= 1.4; // Boost custom wheel sound slightly
-    if (key === 'REWARD_POP') baseVolume *= 2.0; // Restored to original 2.0
-    if (key === 'CHEST_CREAK') baseVolume *= 8.0; // Boosted to 8.0 to make it louder
+    let baseVolume = this.getBaseVolume(key, volume);
+    // Boosted to 8.0 to make it louder
     
     gainNode.gain.value = baseVolume * this.masterVolume;
 
@@ -317,6 +384,15 @@ class SoundEngine {
    */
   startSearchingSfx() {
     if (!this.initialized) return;
+    
+    if (this.isNative) {
+       const targetVolume = 0.20 * this.masterVolume;
+       try {
+         NativeAudio.setVolume({ assetId: 'SEARCHING', volume: targetVolume }).catch(()=>{});
+         NativeAudio.loop({ assetId: 'SEARCHING' }).catch(()=>{});
+       } catch(e) {}
+       return;
+    }
 
     if (this.context.state === 'suspended') {
       this.context.resume().catch(() => {});
@@ -358,6 +434,10 @@ class SoundEngine {
    * Stop searching sound with smooth fade
    */
   stopSearchingSfx(fade = true) {
+    if (this.isNative) {
+      NativeAudio.stop({ assetId: 'SEARCHING' }).catch(()=>{});
+      return;
+    }
     if (!this.searchingAudioElement) return;
 
     const stopAction = () => {

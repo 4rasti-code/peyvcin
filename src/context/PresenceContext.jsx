@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { useUser } from './AuthContext';
 
@@ -198,14 +198,16 @@ export const PresenceProvider = ({ children }) => {
     };
   }, [user, userNickname, reconnectTrigger]);
 
+  const value = useMemo(() => ({
+    onlineUsers,
+    onlineUserStatuses,
+    onlineCount,
+    updatePresenceStatus,
+    reconnectPresence
+  }), [onlineUsers, onlineUserStatuses, onlineCount, updatePresenceStatus, reconnectPresence]);
+
   return (
-    <PresenceContext.Provider value={{
-      onlineUsers,
-      onlineUserStatuses,
-      onlineCount,
-      updatePresenceStatus,
-      reconnectPresence
-    }}>
+    <PresenceContext.Provider value={value}>
       {children}
     </PresenceContext.Provider>
   );

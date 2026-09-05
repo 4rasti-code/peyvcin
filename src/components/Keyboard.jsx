@@ -3,6 +3,7 @@ import { STATUS } from '../data/constants';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { playKeyClickSfx } from '../utils/audio';
+import { safeStorageGet } from '../utils/safeParse';
 import InventoryBar from './InventoryBar';
 
 // Kurdish Alphabet: 33 Characters iOS layout
@@ -20,6 +21,14 @@ const SPECIAL_KEYS = {
 
 
 
+
+const areKeyEqual = (prev, next) => {
+   return prev.k === next.k &&
+          prev.status === next.status &&
+          prev.isDisabled === next.isDisabled &&
+          prev.isDark === next.isDark &&
+          prev.isPointerTarget === next.isPointerTarget;
+};
 
 const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerTarget = false }) => {
    const [isActive, setIsActive] = useState(false);
@@ -128,7 +137,11 @@ const Key = memo(({ k, status, onKeyPress, isDisabled, isDark = true, isPointerT
    );
 });
 
-const Keyboard = memo(({
+// Add custom equality function for Key to explicitly skip function prop comparison
+Key.displayName = 'Key';
+const MemoizedKey = memo(Key, areKeyEqual);
+
+const Keyboard = ({
    onKey,
    onDelete,
    onEnter,
@@ -167,7 +180,10 @@ const Keyboard = memo(({
       if (cb.gameState !== 'playing') return;
 
       playKeyClickSfx(cb.keyboardSoundEnabled);
-      if (cb.hapticEnabled) triggerHaptic(10);
+      
+      // Read directly from storage to avoid Context re-renders on every keystroke
+      const isHapticOn = safeStorageGet('peyvchin_haptic_enabled') !== 'false';
+      if (isHapticOn) triggerHaptic(10);
 
       if (isSpecial) {
          if (key === SPECIAL_KEYS.ENTER) cb.onEnter();
@@ -237,7 +253,7 @@ const Keyboard = memo(({
                )}
 
                {row.map((key) => (
-                  <Key
+                  <MemoizedKey
                      key={key}
                      k={key}
                      status={usedKeys[key]}
@@ -282,7 +298,49 @@ const Keyboard = memo(({
          ))}
       </div>
    );
-});
+};
 
-export default Keyboard;
+const areKeyboardPropsEqual = (prev, next) => {
+   if (prev.gameState !== next.gameState) return false;
+   if (prev.isDark !== next.isDark) return false;
+   if (prev.hintCount !== next.hintCount) return false;
+   if (prev.magnetCount !== next.magnetCount) return false;
+   if (prev.skipCount !== next.skipCount) return false;
+   if (prev.magnetUsedInRound !== next.magnetUsedInRound) return false;
+   if (prev.skipsUsedInRound !== next.skipsUsedInRound) return false;
+   if (prev.hintTaps !== next.hintTaps) return false;
+   if (prev.pointerKey !== next.pointerKey) return false;
+   if (prev.hidePowerups !== next.hidePowerups) return false;
+   if (prev.forceShowPowerups !== next.forceShowPowerups) return false;
+   if (prev.keyboardSoundEnabled !== next.keyboardSoundEnabled) return false;
+   if (prev.hapticEnabled !== next.hapticEnabled) return false;
+   
+   const pKeys = prev.usedKeys || {};
+   const nKeys = next.usedKeys || {};
+   const pKeysLen = Object.keys(pKeys).length;
+   const nKeysLen = Object.keys(nKeys).length;
+   if (pKeysLen !== nKeysLen) return false;
+   for (const k in nKeys) {
+      if (pKeys[k] !== nKeys[k]) return false;
+   }
+
+   const pMag = prev.magnetDisabledKeys || [];
+   const nMag = next.magnetDisabledKeys || [];
+   if (pMag.length !== nMag.length) return false;
+   for (let i = 0; i < nMag.length; i++) {
+      if (pMag[i] !== nMag[i]) return false;
+   }
+
+   const pAllow = prev.allowedKeys;
+   const nAllow = next.allowedKeys;
+   if (pAllow !== nAllow) {
+       if (!pAllow || !nAllow || pAllow.length !== nAllow.length) return false;
+       for (let i = 0; i < nAllow.length; i++) {
+          if (pAllow[i] !== nAllow[i]) return false;
+       }
+   }
+   return true;
+};
+
+export default memo(Keyboard, areKeyboardPropsEqual);
 

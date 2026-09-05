@@ -2,6 +2,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useAudio } from '../context/AudioContext';
+import { triggerHaptic } from '../utils/haptics';
 
 const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
   const containerRef = useRef(null);
@@ -30,9 +31,7 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
 
   useEffect(() => {
     // Haptic feedback on mount
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate([20, 30, 20]);
-    }
+    triggerHaptic([20, 30, 20]);
     
     // Some sounds have a natural build-up and should play immediately, others need a slight delay
     if (medalId === 'expert') {
@@ -73,9 +72,7 @@ const CinematicAchievementOverlay = ({ Icon, title, medalId, onContinue }) => {
   };
 
   const handleClaimClick = () => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(40);
-    }
+    triggerHaptic(40);
     onContinue();
   };
 

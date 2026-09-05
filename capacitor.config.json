@@ -1,5 +1,12 @@
 {
   "appId": "com.peyvok.game",
   "appName": "peyvok",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "DARK",
+      "backgroundColor": "#000000"
+    }
+  }
 }
