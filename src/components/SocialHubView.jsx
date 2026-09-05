@@ -1318,19 +1318,29 @@ export default function SocialHubView({
     let hideListener;
 
     const setupKeyboard = async () => {
+      const initialWindowHeight = window.innerHeight;
+
       showListener = await Keyboard.addListener('keyboardWillShow', info => {
         let height = info.keyboardHeight;
-        if (height > window.innerHeight * 0.5) {
+        if (height > initialWindowHeight * 0.5) {
           height = Math.round(height / window.devicePixelRatio);
         }
-        setKeyboardHeight(height);
+        
         setIsKeyboardVisible(true);
-        // Scroll to bottom when keyboard shows
-        if (messagesContainerRef.current) {
-          setTimeout(() => {
+        
+        setTimeout(() => {
+          // If the WebView natively shrank, we don't need a spacer.
+          if (window.innerHeight < initialWindowHeight - 100) {
+            setKeyboardHeight(0);
+          } else {
+            setKeyboardHeight(height);
+          }
+
+          // Scroll to bottom when keyboard shows
+          if (messagesContainerRef.current) {
             messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
-          }, 50);
-        }
+          }
+        }, 150);
       });
 
       hideListener = await Keyboard.addListener('keyboardWillHide', () => {
