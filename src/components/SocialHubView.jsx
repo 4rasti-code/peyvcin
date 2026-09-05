@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
@@ -1243,6 +1245,7 @@ export default function SocialHubView({
   const [showCopySuccess, setShowCopySuccess] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [chatToDelete, setChatToDelete] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -1306,6 +1309,39 @@ export default function SocialHubView({
   const [connectionError, setConnectionError] = useState(false);
   const globalFetchTimeoutRef = useRef(null);
   const privateFetchTimeoutRef = useRef(null);
+
+  // Native Keyboard Overlay Listener
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let showListener;
+    let hideListener;
+
+    const setupKeyboard = async () => {
+      showListener = await Keyboard.addListener('keyboardWillShow', info => {
+        setKeyboardHeight(info.keyboardHeight);
+        setIsKeyboardVisible(true);
+        // Scroll to bottom when keyboard shows
+        if (messagesContainerRef.current) {
+          setTimeout(() => {
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+          }, 50);
+        }
+      });
+
+      hideListener = await Keyboard.addListener('keyboardWillHide', () => {
+        setKeyboardHeight(0);
+        setIsKeyboardVisible(false);
+      });
+    };
+
+    setupKeyboard();
+
+    return () => {
+      if (showListener) showListener.remove();
+      if (hideListener) hideListener.remove();
+    };
+  }, []);
 
   // Handle Initial Routing
   useEffect(() => {
@@ -3099,7 +3135,10 @@ export default function SocialHubView({
 
         {/* Input Area - WhatsApp Pill Style Swapped */}
         {(activeTab === 'global' || selectedChat) && (
-          <div className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-30'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}>
+          <div 
+            className={`w-full shrink-0 ${isKeyboardVisible && keyboardHeight === 0 ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-30'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}
+            style={{ paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined }}
+          >
             {/* Reply Preview Box */}
             <AnimatePresence>
               {replyingTo && (
