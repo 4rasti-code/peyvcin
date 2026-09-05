@@ -39,9 +39,11 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                     if (isSettings) onSettingsToggle();
                     else {
                       setLocalActive(tab.id);
-                      startTransition(() => {
-                        setCurrentView(tab.id);
-                      });
+                      setTimeout(() => {
+                        startTransition(() => {
+                          setCurrentView(tab.id);
+                        });
+                      }, 50); // 50ms buffer to allow haptics/audio/animations to fire before freezing the main thread
                     }
                   }}
                   className={`group relative flex-1 h-22 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
