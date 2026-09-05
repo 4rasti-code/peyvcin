@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
 import { motion as Motion, LayoutGroup } from 'framer-motion';
 import { triggerHaptic } from '../utils/haptics';
 import { NavProfileIcon, NavLeaderboardIcon, NavLobbyIcon, NavStoreIcon, NavChatIcon } from './NavIcons';
@@ -39,7 +39,9 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                     if (isSettings) onSettingsToggle();
                     else {
                       setLocalActive(tab.id);
-                      setCurrentView(tab.id);
+                      startTransition(() => {
+                        setCurrentView(tab.id);
+                      });
                     }
                   }}
                   className={`group relative flex-1 h-22 flex flex-col items-center justify-start select-none outline-none focus:outline-none focus-visible:outline-none rounded-t-[10px] border-none appearance-none                   ${isActive
