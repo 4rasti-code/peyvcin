@@ -13,6 +13,7 @@ import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
 import AdminPanelView from './components/AdminPanelView';
 import UpdateNotesModal from './components/UpdateNotesModal';
+import GlobalConfetti from './components/GlobalConfetti';
 import Avatar from './components/Avatar';
 import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
@@ -2746,6 +2747,7 @@ export default function App() {
           </AnimatePresence>
         </Suspense>
 
+        <GlobalConfetti />
       </div>
     </div>
   );

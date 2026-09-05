@@ -1,13 +1,9 @@
-import confetti from 'canvas-confetti';
-
-// Create a globally shared, hardware-accelerated confetti instance using a Web Worker.
-// This prevents main-thread blocking (lag) during React state updates, crucial for mobile (Capacitor) performance.
-export const fireConfetti = confetti.create(undefined, {
-  useWorker: true,
-  resize: true
-});
+// Dispatch a custom event so the GlobalConfetti component (react-confetti-explosion)
+// handles the hardware-accelerated CSS fireworks without blocking the UI thread.
+export const fireConfetti = (options = {}) => {
+  window.dispatchEvent(new CustomEvent('fire-confetti', { detail: options }));
+};
 
 export const resetConfetti = () => {
-  confetti.reset();
-  fireConfetti.reset();
+  // react-confetti-explosion unmounts automatically when done, so no manual reset is needed.
 };
