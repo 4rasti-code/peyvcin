@@ -53,7 +53,7 @@ const CurrencyStat = ({ value, Icon: _IconComponent, color, currency = 'fils', r
       <div
         id={`topbar-${currency}`}
         className={`flex flex-row items-center justify-end pr-5 xs:pr-7 sm:pr-8 md:pr-10 pl-3 xs:pl-4 h-5 md:h-6 flex-1 w-full min-w-20 xs:min-w-[96px] sm:min-w-28 max-w-48 bg-white/5 backdrop-blur-md rounded border border-white/10 shadow-sm transition-all duration-300 origin-center cursor-pointer hover:brightness-110 active:scale-95 relative`}
-        onClick={() => { triggerHaptic(10); /* Handled by generic store routing */ }}
+        onClick={() => { triggerHaptic(10, true); /* Handled by generic store routing */ }}
       >
         <div className={`absolute -left-1 md:-left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 md:w-9 md:h-9 shrink-0 flex items-center justify-center ${color} drop-shadow-[0_2px_3px_rgba(0,0,0,0.5)] z-10`}>
           <_IconComponent className="w-full h-full" />

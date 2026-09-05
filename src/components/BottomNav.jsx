@@ -34,7 +34,7 @@ export default function BottomNav({ currentView, setCurrentView, onSettingsToggl
                   transition={{ type: "spring", bounce: 0.1, duration: 0.2 }}
                   id={`nav-${tab.id}`}
                   onClick={() => {
-                    if (tab.id !== 'store') triggerHaptic(10);
+                    if (tab.id !== 'store') triggerHaptic(10, true);
                     if (onTabClickSound) onTabClickSound();
                     if (isSettings) onSettingsToggle();
                     else {

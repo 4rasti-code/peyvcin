@@ -183,7 +183,7 @@ const Keyboard = ({
       
       // Read directly from storage to avoid Context re-renders on every keystroke
       const isHapticOn = safeStorageGet('peyvchin_haptic_enabled') !== 'false';
-      if (isHapticOn) triggerHaptic(10);
+      if (isHapticOn) triggerHaptic(10, true);
 
       if (isSpecial) {
          if (key === SPECIAL_KEYS.ENTER) cb.onEnter();

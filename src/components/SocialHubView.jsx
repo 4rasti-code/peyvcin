@@ -2476,7 +2476,7 @@ export default function SocialHubView({
 
   const handleReact = async (msgId, emoji, isPrivate = false) => {
     if (!user?.id) return;
-    triggerHaptic(10);
+    triggerHaptic(10, true);
     const table = 'messages';
 
     // Optimistic UI update

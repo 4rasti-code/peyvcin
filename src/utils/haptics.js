@@ -5,7 +5,14 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
  * Trigger a tactile haptic pulse on supported devices.
  * @param {number | number[]} pattern - Duration in ms or a vibration pattern array.
  */
-export const triggerHaptic = async (pattern = 10) => {
+export const triggerHaptic = async (pattern = 10, force = false) => {
+  // Global setting check
+  if (typeof window !== 'undefined' && localStorage.getItem('peyvchin_haptic_enabled') === 'false') return;
+
+  // Block generic UI pulses (5ms, 10ms) unless explicitly forced by the user's whitelist
+  if ((pattern === 10 || pattern === 5) && !force) {
+    return;
+  }
   if (Capacitor.isNativePlatform()) {
     try {
       if (Array.isArray(pattern)) {
