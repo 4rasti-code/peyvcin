@@ -20,7 +20,7 @@ export default function GlobalConfetti() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-9999 flex items-start justify-center pt-[30vh]">
+    <div className="pointer-events-none fixed inset-0 flex items-start justify-center pt-[30vh]" style={{ zIndex: 9999 }}>
       {explosions.map(exp => (
         <ConfettiExplosion
           key={exp.id}
