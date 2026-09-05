@@ -32,7 +32,7 @@ const KurdishSunLoader = ({ progress = 0, statusText = null }) => {
           <Motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ type: "spring", stiffness: 40, damping: 15 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
             className="h-full rounded-sm bg-yellow-500 relative"
           />
           {/* Percentage inside the bar */}
