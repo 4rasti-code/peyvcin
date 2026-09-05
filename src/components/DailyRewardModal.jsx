@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';

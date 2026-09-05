@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { triggerHaptic } from '../utils/haptics';
 import { useUser } from '../context/AuthContext';
 import { toKuDigits } from '../utils/formatters';

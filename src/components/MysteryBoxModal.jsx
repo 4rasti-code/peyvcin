@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';

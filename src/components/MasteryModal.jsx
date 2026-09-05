@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { triggerHaptic } from '../utils/haptics';
 import { FilsIcon } from './CurrencyIcon';
 

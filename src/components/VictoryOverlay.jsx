@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Capacitor } from '@capacitor/core';
 import ResultStats from './ResultStats';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import { triggerHaptic } from '../utils/haptics';
 import { playSuccessSfx, playBackSfx } from '../utils/audio';

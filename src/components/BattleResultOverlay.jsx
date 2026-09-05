@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
+import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
 import { FilsIcon, DerhemIcon, DinarIcon } from './CurrencyIcon';
 import Avatar from './Avatar';
 import { triggerHaptic } from '../utils/haptics';
@@ -70,7 +70,7 @@ const BattleResultOverlay = ({
 
   useEffect(() => {
     return () => {
-      confetti.reset();
+      resetConfetti();
     };
   }, []);
 
