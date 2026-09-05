@@ -1319,7 +1319,11 @@ export default function SocialHubView({
 
     const setupKeyboard = async () => {
       showListener = await Keyboard.addListener('keyboardWillShow', info => {
-        setKeyboardHeight(info.keyboardHeight);
+        let height = info.keyboardHeight;
+        if (height > window.innerHeight * 0.5) {
+          height = Math.round(height / window.devicePixelRatio);
+        }
+        setKeyboardHeight(height);
         setIsKeyboardVisible(true);
         // Scroll to bottom when keyboard shows
         if (messagesContainerRef.current) {
@@ -3135,11 +3139,11 @@ export default function SocialHubView({
 
         {/* Input Area - WhatsApp Pill Style Swapped */}
         {(activeTab === 'global' || selectedChat) && (
-          <div 
-            className={`w-full shrink-0 ${isKeyboardVisible && keyboardHeight === 0 ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-30'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}
-            style={{ paddingBottom: keyboardHeight > 0 ? `${keyboardHeight}px` : undefined }}
-          >
-            {/* Reply Preview Box */}
+          <>
+            <div 
+              className={`w-full shrink-0 ${isKeyboardVisible ? 'pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'pb-30'} bg-[#1a9bf0] dark:bg-[#1a9bf0] border-t border-black/20 shadow-[0_6px_15px_rgba(0,0,0,0.25)] relative z-30 transition-colors duration-300`}
+            >
+              {/* Reply Preview Box */}
             <AnimatePresence>
               {replyingTo && (
                 <Motion.div
@@ -3495,6 +3499,8 @@ export default function SocialHubView({
               </div>
             </div>
           </div>
+          {keyboardHeight > 0 && <div style={{ height: keyboardHeight }} className="w-full shrink-0 transition-all duration-300 pointer-events-none" />}
+          </>
         )}
 
         {/* Reaction Details Modal (WhatsApp Web Style Centered Card) */}
