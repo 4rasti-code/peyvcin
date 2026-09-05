@@ -7,6 +7,7 @@ import OneSignal from 'react-onesignal';
 import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { SplashScreen } from '@capacitor/splash-screen';
 import TopAppBar from './components/TopAppBar';
 import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
@@ -1767,6 +1768,19 @@ export default function App() {
     }
   }
 
+  // Hide the native splash screen as soon as the React app has rendered its own loading screen.
+  // This creates a seamless handoff from the native OS to the React DOM.
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      // Small delay to ensure the DOM is painted and CSS is applied
+      setTimeout(() => {
+        SplashScreen.hide({
+          fadeOutDuration: 300
+        }).catch(() => {});
+      }, 500);
+    }
+  }, []);
+
   const isActivelyLoading = loadingAuth || isGameLoading || isSyncingProfile || !isFontsLoaded || (!user && !['auth', 'lobby', 'game', 'privacy', 'data_deletion', 'terms_of_service'].includes(currentView));
   // Keep the loading screen visible until the progress bar visually reaches 100% for logged-in users
   const topAppBarProps = {
@@ -1844,7 +1858,8 @@ export default function App() {
             <div className="absolute inset-0 bg-black/40 dark:bg-black/50" />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
-              <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
+              <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-56 h-auto drop-shadow-2xl object-contain block dark:hidden" />
+              <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-56 h-auto drop-shadow-2xl object-contain hidden dark:block" />
             </div>
             <div className="relative z-10 drop-shadow-xl">
               <KurdishSunLoader
