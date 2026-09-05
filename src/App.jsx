@@ -1858,8 +1858,7 @@ export default function App() {
             <div className="absolute inset-0 bg-black/40 dark:bg-black/50" />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
-              <img src="/Peyvok-logo-01.png" alt="پەیڤۆک" className="w-56 h-auto drop-shadow-2xl object-contain block dark:hidden" />
-              <img src="/Peyvok-logo-02.png" alt="پەیڤۆک" className="w-56 h-auto drop-shadow-2xl object-contain hidden dark:block" />
+              <img src="/Peyvok_logo_icon-01.png" alt="پەیڤۆک" className="w-32 h-32 md:w-40 md:h-40 rounded-3xl drop-shadow-2xl object-cover" />
             </div>
             <div className="relative z-10 drop-shadow-xl">
               <KurdishSunLoader
