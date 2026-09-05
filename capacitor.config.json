@@ -3,6 +3,9 @@
   "appName": "peyvok",
   "webDir": "dist",
   "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
     "StatusBar": {
       "overlaysWebView": false,
       "style": "DARK",
