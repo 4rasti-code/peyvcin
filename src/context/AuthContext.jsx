@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
 
   // Smooth Progress Logic: Gradually move visualProgress toward authProgress
   useEffect(() => {
-    const interval = setInterval(() => {
+    if (visualProgress === authProgress) return;
+
+    const timeout = setTimeout(() => {
       setVisualProgress(prev => {
         if (prev === authProgress) return prev;
         const diff = authProgress - prev;
@@ -33,12 +35,12 @@ export const AuthProvider = ({ children }) => {
         } else {
           next = prev + (prev < 90 ? 0.2 : 0.05);
         }
-        return next > authProgress ? authProgress : next;
+        return next >= authProgress ? authProgress : next;
       });
     }, 50);
 
-    return () => clearInterval(interval);
-  }, [authProgress]);
+    return () => clearTimeout(timeout);
+  }, [authProgress, visualProgress]);
 
   const [userNickname, setUserNickname] = useState('یاریزان');
   const [userAvatar, setUserAvatar] = useState('default');

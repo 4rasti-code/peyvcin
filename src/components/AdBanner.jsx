@@ -89,15 +89,15 @@ const AdBanner = () => {
           className={`absolute inset-0 w-full h-full border-none outline-none ${currentAd.is_fallback ? currentAd.bgClass + ' ' + currentAd.shadowClass : ''}`}
         >
           {/* Badge */}
-          <div className="absolute top-2 right-2 z-20 bg-white/10 backdrop-blur-md px-2.5 py-0.5 rounded border border-white/10 shadow-sm">
+          <div className="absolute top-2 right-2 z-20 bg-black/60 px-2.5 py-0.5 rounded border border-white/10 shadow-sm">
             <span className="text-[10px] text-white/90 font-bold tracking-normal uppercase drop-shadow-sm font-rabar">سپۆنسەر</span>
           </div>
 
           {currentAd.is_fallback ? (
             <div className="relative w-full h-full flex items-center justify-between p-4 pt-8 overflow-hidden gap-3">
               {/* Animated Glow Backdrops */}
-              <div className={`absolute -top-12 -left-12 w-40 h-40 rounded-full blur-3xl ${currentAd.glowColor} animate-pulse`} />
-              <div className={`absolute -bottom-12 -right-12 w-40 h-40 rounded-full blur-3xl ${currentAd.glowColor} animate-pulse`} style={{ animationDelay: '1.5s' }} />
+              <div className={`absolute -top-12 -left-12 w-40 h-40 rounded-full ${currentAd.glowColor} opacity-30 animate-pulse`} />
+              <div className={`absolute -bottom-12 -right-12 w-40 h-40 rounded-full ${currentAd.glowColor} opacity-30 animate-pulse`} style={{ animationDelay: '1.5s' }} />
               
               <div className="relative z-10 flex flex-col items-start text-right flex-1">
                 <h3 className="text-base sm:text-lg font-black font-heading text-white drop-shadow-md w-full mb-1 whitespace-normal leading-tight">{currentAd.title}</h3>
@@ -107,7 +107,7 @@ const AdBanner = () => {
                 <Motion.div 
                   animate={{ y: [0, -5, 0] }} 
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/5 flex items-center justify-center backdrop-blur-xl border border-white/10 shadow-inner"
+                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-black/40 flex items-center justify-center border border-white/10 shadow-inner"
                 >
                   <span className={`material-symbols-outlined text-[24px] sm:text-[28px] drop-shadow-md ${currentAd.iconColor}`}>{currentAd.icon}</span>
                 </Motion.div>

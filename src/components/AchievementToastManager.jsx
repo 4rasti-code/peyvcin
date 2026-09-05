@@ -125,7 +125,7 @@ export default function AchievementToastManager() {
             key={currentToast.id}
             initial={isHeavy ? { opacity: 0, y: -250, scale: 1.5, rotate: 10 } : { opacity: 0, y: -80, scale: 0.3, rotate: -15 }}
             animate={isHeavy ? { opacity: 1, y: 0, scale: 1, rotate: [10, -5, 5, -2, 0] } : { opacity: 1, y: 0, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 1.5, filter: "blur(10px)" }}
+            exit={{ opacity: 0, scale: 1.5 }}
             transition={isHeavy ? { type: "spring", stiffness: 450, damping: 12, mass: 1.5 } : { type: "spring", stiffness: 300, damping: 20 }}
             className="flex flex-col items-center justify-center pointer-events-none"
             dir="rtl"
@@ -133,7 +133,7 @@ export default function AchievementToastManager() {
             {/* The beautiful floating medal */}
             <div className="relative flex items-center justify-center">
               {/* Subtle background glow, no hard background */}
-              <div className={`absolute inset-0 rounded-full blur-3xl opacity-50 ${currentToast.color.replace('text-', 'bg-')}`} />
+              <div className={`absolute inset-0 rounded-full opacity-30 ${currentToast.color.replace('text-', 'bg-')}`} />
               
               <div className="relative z-10 w-32 h-32 sm:w-40 sm:h-40 drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">
                 <currentToast.IconComponent size="100%" className="w-full h-full drop-shadow-2xl" isShining={true} />

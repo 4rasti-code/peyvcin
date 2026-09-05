@@ -78,7 +78,7 @@ const CooldownTimerOverlay = ({ targetDate, isMidnightReset = false }) => {
 
   if (!timeLeft) return null;
   return (
-    <div className="bg-white/40 dark:bg-white/15 backdrop-blur-md px-1.5 py-0.5 md:px-2 md:py-1 rounded-lg border border-black/15 dark:border-white/10 flex items-center justify-center gap-1 shadow-sm mx-auto w-max whitespace-nowrap">
+    <div className="bg-mono-200 dark:bg-mono-800 px-1.5 py-0.5 md:px-2 md:py-1 rounded-lg border border-black/15 dark:border-white/10 flex items-center justify-center gap-1 shadow-sm mx-auto w-max whitespace-nowrap">
       <span className="text-[8px] md:text-[9px] leading-none font-black text-amber-500 tabular-nums tracking-widest drop-shadow-md pt-px" dir="ltr">
         {toKuDigits(timeLeft)}
       </span>
@@ -924,7 +924,7 @@ const LobbyView = memo(({
                     </div>
                   </div>
 
-                  <div className="absolute bottom-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/40 hover:bg-black/50 transition-colors backdrop-blur-sm px-2 py-0.5 rounded-md border-t-2 border-t-black/60 border-b border-b-white/10 border-x border-x-black/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
+                  <div className="absolute bottom-2.5 left-2.5 z-20 flex items-center gap-1.5 bg-black/80 hover:bg-black/90 transition-colors px-2 py-0.5 rounded-md border-t-2 border-t-black/60 border-b border-b-white/10 border-x border-x-black/40 shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)]">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-online-glow"></span>
                     <span className="text-[10px] font-bold text-white/95 mt-0.5" style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                       {toKuDigits(activeProfiles.length)}
@@ -936,7 +936,7 @@ const LobbyView = memo(({
 
             {/* GLOBAL DARK OVERLAY FOR TUTORIAL */}
             {canShowTutorial && (
-              <div className="fixed inset-0 bg-black/70 backdrop-blur-[3px] z-90 pointer-events-none transition-opacity duration-500" />
+              <div className="fixed inset-0 bg-black/90 z-90 pointer-events-none transition-opacity duration-500" />
             )}
 
             <div className={`relative group w-full ${canShowTutorial ? 'z-100' : ''}`}>
@@ -1113,7 +1113,7 @@ const LobbyView = memo(({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-colors duration-500 overflow-hidden"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/90 transition-colors duration-500 overflow-hidden"
             onClick={() => setShowMultiplayerModal(false)}
             dir="rtl"
           >
@@ -1340,7 +1340,7 @@ const LobbyView = memo(({
             initial="hidden"
             animate="show"
             exit="hidden"
-            className="fixed inset-0 z-999 flex flex-col items-center justify-between bg-mono-50/95 dark:bg-black/95 backdrop-blur-3xl pb-20 pt-12 px-4"
+            className="fixed inset-0 z-999 flex flex-col items-center justify-between bg-mono-50 dark:bg-mono-950 pb-20 pt-12 px-4"
           >
             {/* Top Right Close Button (Hide during match_starting) */}
             {multiplayerState === 'private_lobby' && (
@@ -1467,7 +1467,7 @@ const LobbyView = memo(({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/90 p-4"
           >
             <Motion.div
               initial={{ scale: 0.9, y: 20 }}

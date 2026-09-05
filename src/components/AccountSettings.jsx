@@ -223,7 +223,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                      exit={{ opacity: 0, scale: 0.9 }}
                      className="fixed inset-0 z-1000 flex items-center justify-center p-6 pointer-events-none"
                   >
-                     <div className="bg-amber-500 text-slate-950 px-6 py-4 rounded-md font-black font-rabar text-[13px] shadow-2xl flex items-center gap-3 border-2 border-white/30 backdrop-blur-sm pointer-events-auto">
+                     <div className="bg-amber-500 text-slate-950 px-6 py-4 rounded-md font-black font-rabar text-[13px] shadow-2xl flex items-center gap-3 border-2 border-white/30 pointer-events-auto">
                         <span className="material-symbols-outlined text-xl">lock</span>
                         تو نەشێی ناسناڤێ خوە بگوهۆڕی هەتا {toKuDigits(daysRemaining)} ڕۆژێن دی
                      </div>
@@ -375,7 +375,7 @@ export default function AccountSettings({ updateProfile, onDeleteAccount, isAcco
                <AnimatePresence>
                   <Motion.div
                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     className="fixed inset-0 z-1100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+                     className="fixed inset-0 z-1100 flex items-center justify-center bg-black/90 px-4"
                      onClick={() => setIsEditCountryModalOpen(false)}
                   >
                      <Motion.div

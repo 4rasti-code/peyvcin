@@ -119,7 +119,7 @@ class GameErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="flex flex-col items-center justify-center min-h-screen w-full bg-mono-white text-mono-900 dark:bg-black dark:text-mono-50 p-8 text-center" style={{ fontFamily: 'Rabar, sans-serif' }}>
-          <div className="bg-red-500/10 border-2 border-red-500/30 p-10 rounded-3xl shadow-2xl max-w-lg backdrop-blur-xl animate-in zoom-in-95">
+          <div className="bg-mono-900 border-2 border-red-500/50 p-10 rounded-3xl shadow-2xl max-w-lg animate-in zoom-in-95">
             <h2 className="text-4xl font-black mb-6 text-red-500">ئاریشەیەک چێ بوو!</h2>
             <p className="text-white/70 mb-10 text-lg leading-relaxed">ببورە، ھندەک ئاریشەیێن تەکنیکی د دەستپێکرنا یاریێ دا ھەبوون. هێڤییە دووبارە پەیجێ نوی بکە یان ڤەگەڕە لابیێ.</p>
             <div className="flex flex-col gap-4">
@@ -151,7 +151,7 @@ const ScrollingMatchFinder = ({ opponent }) => {
             key="scrolling"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
+            exit={{ opacity: 0, scale: 0.8 }}
             className="absolute inset-0"
           >
             <Motion.div
@@ -1841,7 +1841,7 @@ export default function App() {
               style={{ backgroundImage: "url('/assets/kurdistan_bg.jpg')" }}
             />
             {/* Dark Overlay for Text/Logo Contrast */}
-            <div className="absolute inset-0 bg-black/30 dark:bg-black/40 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 bg-black/40 dark:bg-black/50" />
 
             <div className="flex flex-col items-center min-h-25 justify-center relative z-10">
               <ClassicIcon className="w-64 h-24 drop-shadow-2xl" continuous={true} />
@@ -2267,9 +2267,9 @@ export default function App() {
                     }
                   }
                 }}
-                className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/80' : 'bg-white/95'} backdrop-blur-2xl p-1.5 pl-3 rounded-full border ${pushNotification.type === 'message'
-                    ? 'border-blue-500/50 shadow-[0_10px_40px_rgba(59,130,246,0.6)]'
-                    : 'border-red-500/50 shadow-[0_10px_40px_rgba(239,68,68,0.6)]'
+                className={`fixed top-[max(1.5rem,env(safe-area-inset-top))] left-1/2 -translate-x-1/2 w-max min-w-50 max-w-[92vw] z-9999 ${isSystemDark ? 'bg-black/95' : 'bg-white/95'} p-1.5 pl-3 rounded-full border ${pushNotification.type === 'message'
+                    ? 'border-blue-500/30 shadow-[0_4px_24px_rgba(59,130,246,0.3)]'
+                    : 'border-red-500/30 shadow-[0_4px_24px_rgba(239,68,68,0.3)]'
                   } flex items-center gap-3 cursor-pointer overflow-hidden`}
               >
                 {/* Shrinking Timeout Bar - Only for competitive/friend requests */}
@@ -2316,7 +2316,7 @@ export default function App() {
                 initial={{ opacity: 0, y: -20, x: '-50%' }}
                 animate={{ opacity: 1, y: 0, x: '-50%' }}
                 exit={{ opacity: 0, y: -20, x: '-50%' }}
-                className={`fixed top-[max(6rem,calc(env(safe-area-inset-top)+4rem))] left-1/2 z-9999 ${isSystemDark ? 'bg-black/75 text-white border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'bg-white/85 text-slate-800 border-white/50 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'} backdrop-blur-2xl px-5 py-2.5 rounded-full font-rabar font-bold text-sm pointer-events-none border`}
+                className={`fixed top-[max(6rem,calc(env(safe-area-inset-top)+4rem))] left-1/2 z-9999 ${isSystemDark ? 'bg-black/95 text-white border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)]' : 'bg-white/95 text-slate-800 border-mono-200 shadow-[0_10px_40px_rgba(0,0,0,0.1)]'} px-5 py-2.5 rounded-full font-rabar font-bold text-sm pointer-events-none border`}
                 style={{ whiteSpace: 'nowrap' }}
               >
                 {toastMessage}
@@ -2513,7 +2513,8 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-150 flex flex-col items-center justify-between bg-mono-50/90 dark:bg-black/90 backdrop-blur-2xl px-6 py-12 text-center overflow-hidden"
+              className="fixed inset-0 z-150 flex flex-col items-center justify-between bg-mono-50 dark:bg-black/95 px-6 py-12 text-center overflow-hidden"
+              dir="rtl"
             >
               {/* Background gradient elements removed as requested by user */}
 
@@ -2521,7 +2522,7 @@ export default function App() {
               <div className={`absolute top-[calc(env(safe-area-inset-top)+24px)] right-6 z-50 transition-all duration-500 ${multiplayerState === 'found' ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}>
                 <button
                   onClick={cancelMatch}
-                  className="p-3 bg-mono-200/50 dark:bg-mono-800/50 hover:bg-mono-300 dark:hover:bg-mono-700 border border-mono-300/50 dark:border-mono-700/50 rounded-full text-mono-600 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white backdrop-blur-md shadow-sm hover:shadow-md transition-all active:scale-90"
+                  className="p-3 bg-mono-200/50 dark:bg-mono-800/80 hover:bg-mono-300 dark:hover:bg-mono-700 border border-mono-300/50 dark:border-mono-700/50 rounded-full text-mono-600 dark:text-mono-400 hover:text-mono-900 dark:hover:text-white shadow-sm hover:shadow-md transition-all active:scale-90"
                   aria-label="Cancel Matchmaking"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -2538,8 +2539,8 @@ export default function App() {
 
                   {/* Minimalist Stage Base */}
                   <div className="absolute -bottom-4 flex flex-col items-center z-0 pointer-events-none">
-                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-full backdrop-blur-sm" />
-                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full blur-md" />
+                    <div className="w-32 h-6 bg-linear-to-b from-mono-200 to-mono-300 dark:from-mono-800 dark:to-mono-900 border border-white/40 dark:border-mono-700/40 rounded-full" />
+                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full" />
                   </div>
 
                   {/* Avatar (Rings removed as requested) */}
@@ -2560,8 +2561,8 @@ export default function App() {
                         <div className="text-mono-800 dark:text-mono-100 font-black text-xl drop-shadow-md">
                           {opponent.nickname || 'ھەڤڕک'}
                         </div>
-                        <div className="text-sm font-semibold text-mono-500 dark:text-mono-400 bg-white/60 dark:bg-mono-900/60 backdrop-blur-md px-3 py-0.5 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm flex items-center justify-center -mt-1">
-                          <span>ئاستێ {opponent.level || 1}</span>
+                        <div className="text-sm font-semibold text-mono-500 dark:text-mono-400 bg-white dark:bg-mono-900 px-3 py-0.5 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm flex items-center justify-center -mt-1">
+                          <span>ئاستێ {opponent?.level || 1}</span>
                         </div>
                       </Motion.div>
                     )}
@@ -2590,8 +2591,8 @@ export default function App() {
 
                   {/* Minimalist Stage Base */}
                   <div className="absolute -bottom-4 flex flex-col items-center z-0 pointer-events-none">
-                    <div className="w-32 h-6 bg-linear-to-b from-mono-200/50 to-mono-300/30 dark:from-mono-800/50 dark:to-mono-900/30 border border-white/40 dark:border-mono-700/40 rounded-full backdrop-blur-sm" />
-                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full blur-md" />
+                    <div className="w-32 h-6 bg-linear-to-b from-mono-200 to-mono-300 dark:from-mono-800 dark:to-mono-900 border border-white/40 dark:border-mono-700/40 rounded-full" />
+                    <div className="absolute top-2 w-24 h-2 bg-black/10 dark:bg-black/50 rounded-full" />
                   </div>
 
                   <div className="w-24 h-24 relative z-10 rounded-full overflow-hidden shadow-[0_0_15px_rgba(59,130,246,0.3)] border-2 border-blue-500 bg-mono-100 dark:bg-black/40">
@@ -2603,7 +2604,7 @@ export default function App() {
                   <span className="text-mono-800 dark:text-mono-100 font-black text-lg drop-shadow-md">
                     {userNickname || 'تۆ (YOU)'}
                   </span>
-                  <div className="text-sm font-semibold text-mono-500 dark:text-mono-400 bg-white/60 dark:bg-mono-900/60 backdrop-blur-md px-3 py-0.5 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm flex items-center justify-center mt-1">
+                  <div className="text-sm font-semibold text-mono-500 dark:text-mono-400 bg-white dark:bg-mono-900 px-3 py-0.5 rounded-md border border-mono-200 dark:border-mono-800 shadow-sm flex items-center justify-center mt-1">
                     <span>ئاستێ {level}</span>
                   </div>
                 </div>
@@ -2661,7 +2662,8 @@ export default function App() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90"
+              dir="rtl"
               onClick={() => setIsForfeitConfirmOpen(false)}
             >
               <Motion.div
