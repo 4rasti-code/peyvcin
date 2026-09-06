@@ -21,6 +21,7 @@ import { MEDALS } from '../constants/medals';
 import FriendsList from './FriendsList';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { BUNDLES } from '../constants/bundles';
 import CrSlider from './CrSlider';
 import CloseButton from './CloseButton';
@@ -440,12 +441,12 @@ export default function ProfileView({ onProfileSave, onOpenSettings, onViewChang
 
                      {/* Center: Name */}
                      <div className="w-full text-center relative z-10 px-4">
-                        <span
-                           className={`text-[22px] font-black leading-tight overflow-visible whitespace-nowrap w-full text-center transition-all duration-500 drop-shadow-sm ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                        <PremiumName
+                           text={userNickname || 'بێناڤ'}
+                           styleId={bundleObj.id !== 'default' ? null : styleObj.id}
+                           className={`text-[22px] font-black leading-tight overflow-visible whitespace-nowrap w-full text-center transition-all duration-500 drop-shadow-sm ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ''}`}
                            style={{ paddingBottom: '0.2em', ...(bundleObj.id !== 'default' ? {} : { ...(styleObj.class ? {} : { color: 'white' }), ...fontObj.style }) }}
-                        >
-                           {userNickname || 'بێناڤ'}
-                        </span>
+                        />
                      </div>
 
                      {/* Right: Streak / Save */}

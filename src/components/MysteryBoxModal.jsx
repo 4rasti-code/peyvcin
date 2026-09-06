@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
+import { fireConfetti as confetti } from '../utils/confettiHelper';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
@@ -8,7 +8,6 @@ import { triggerHaptic } from '../utils/haptics';
 import { playBackSfx, playChestOpenSfx, playRewardPopSfx, playChestCreakSfx } from '../utils/audio';
 import { toKuDigits } from '../utils/formatters';
 import MysteryBoxIcon from './MysteryBoxIcon';
-import CoinAnimation from './CoinAnimation';
 import { FilsIcon, HintIcon, SkipIcon, MagnetIcon, DerhemIcon, DinarIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
 import CloseButton from './CloseButton';
 import { MagicalDust } from './GiftPopup';
@@ -36,7 +35,6 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
   const [showReward, setShowReward] = useState(false);
   const [wonReward, setWonReward] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(true);
-  const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
 
   useEffect(() => {
@@ -120,7 +118,6 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
   const handleClose = () => {
     setShowReward(false);
     setIsLidOpen(false);
-    setShowCoinAnim(false);
     setIsClaiming(false);
     setTimeout(() => {
       setWonReward(null);
@@ -207,7 +204,11 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
     setShowReward(false);
     setIsClaiming(true);
-    setShowCoinAnim(true);
+    
+    window.dispatchEvent(new CustomEvent('fire-coins', { 
+      detail: { type: wonReward.type, amount: wonReward.amount } 
+    }));
+    
     triggerHaptic(50);
 
     // Signal TopAppBar to defer visual wallet updates until coins fly
@@ -225,7 +226,6 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
     setIsLidOpen(false);
 
     setTimeout(() => {
-      setShowCoinAnim(false);
       setIsClaiming(false);
       window.isAnimatingReward = false; // Reset after animation
       if (boxCount === 0) handleClose();
@@ -408,7 +408,6 @@ export default function MysteryBoxModal({ isOpen, onClose }) {
 
             </Motion.div>
           </Motion.div>
-          <CoinAnimation trigger={showCoinAnim} amount={wonReward?.amount} type={wonReward?.type} />
         </React.Fragment>
       )}
     </AnimatePresence>

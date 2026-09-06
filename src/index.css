@@ -2605,14 +2605,16 @@ html, body {
 
 /* --- PREMIUM TEXT EFFECTS --- */
 .golden-balloon-effect {
-  /* Foolproof, highly vibrant classic gold with a sweeping white glare */
+  /* Rich, realistic 3D metallic foil gold */
   background-image: linear-gradient(
     110deg,
-    #d4af37 10%,
-    #ffdf00 30%,
-    #ffffff 50%,
-    #ffdf00 70%,
-    #d4af37 90%
+    #a67c00 0%,
+    #bf953f 15%,
+    #fcf6ba 30%,
+    #b38728 45%,
+    #fbf5b7 60%,
+    #aa771c 80%,
+    #a67c00 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -2620,20 +2622,24 @@ html, body {
   -webkit-text-fill-color: transparent;
   color: transparent !important;
   
-  -webkit-text-stroke: 0px;
-  filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.5)) !important;
+  /* Solid 3D bevel edge + deep drop shadow */
+  filter: drop-shadow(0px 1px 0px #664200) drop-shadow(0px 3px 4px rgba(0,0,0,0.6)) !important;
   
-  animation: gold-shine-sweep 3s linear infinite;
+  animation: gold-shine-sweep 4s linear infinite;
 }
 
 .dark .golden-balloon-effect {
-  /* Dark mode: Add a luxurious golden glow */
+  /* Dark mode: Add a luxurious ambient golden glow */
   filter: 
+    drop-shadow(0px 1px 0px #664200) 
     drop-shadow(0px 2px 4px rgba(0,0,0,0.8))
-    drop-shadow(0px 0px 6px rgba(255, 215, 0, 0.4)) !important;
+    drop-shadow(0px 0px 12px rgba(255, 215, 0, 0.5)) !important;
 }
 
 .fire-text-effect {
+  /* Prevent cursive descenders from being clipped */
+  padding: 0.1em 0.2em;
+  line-height: 1.4 !important;
   background-image: linear-gradient(
     to top, 
     #7a0000 0%, 
@@ -2671,91 +2677,105 @@ html, body {
 }
 
 .hologram-text-effect {
-  background: linear-gradient(
-    135deg,
-    #a0c4ff 0%,
-    #ffb4e6 20%,
-    #e2e2e2 40%,
-    #ffffff 45%,
-    #e2e2e2 50%,
-    #9bf6ff 70%,
-    #ffd6a5 90%,
-    #fdffb6 100%
-  );
-  background-size: 200% auto;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
+  position: relative;
+  display: inline-block;
+  
+  /* Prevent cursive descenders from being clipped */
+  padding: 0.1em 0.2em;
+  line-height: 1.4 !important;
+  
+  /* Layer 1: Extremely sharp, intense white light glare (the reflection) */
+  /* Layer 2: The cosmic foil base */
+  background-image: 
+    linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.4) 40%,
+      rgba(255, 255, 255, 1) 45%,
+      rgba(255, 255, 255, 1) 50%,
+      rgba(255, 255, 255, 0.4) 55%,
+      transparent 60%
+    ),
+    linear-gradient(
+      115deg,
+      #00c6ff 0%,
+      #0072ff 25%,
+      #8a2be2 50%,
+      #e0ffff 75%,
+      #00c6ff 100%
+    );
+  
+  background-size: 300% 100%, 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  animation: hologram-flow 4s linear infinite;
-  filter: 
-    drop-shadow(-1px -1px 0px rgba(255, 255, 255, 0.4))
-    drop-shadow(1px 1px 0px #b8b3cd)
-    drop-shadow(2px 2px 0px #857c9c)
-    drop-shadow(2px 3px 5px rgba(0, 0, 0, 0.6)); /* Darkened 3D shadow and drop shadow for better contrast */
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+  
+  /* Metallic edge and chromatic glow */
+  filter: drop-shadow(0px 1px 0px #1a237e) drop-shadow(0px 2px 4px rgba(0,0,0,0.5)) drop-shadow(0px 0px 10px rgba(0, 198, 255, 0.6)) !important;
+  
+  /* Realistic tilt pacing: flash, pause, flash back */
+  animation: hq-holo-tilt 6s ease-in-out infinite;
+}
+
+/* Floating Holographic Stars */
+.hologram-text-effect::before {
+  content: '🌟';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  animation: hq-floating-gem 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px #00d4ff);
+  z-index: 10;
+}
+
+.hologram-text-effect::after {
+  content: '✨';
+  position: absolute;
+  bottom: -6px;
+  right: -12px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  animation: hq-floating-gem 4s ease-in-out infinite 1.5s;
+  filter: drop-shadow(0 0 5px #ff3366);
+  z-index: 10;
 }
 
 .dark .hologram-text-effect,
 [data-theme="dark"] .hologram-text-effect,
 [data-mode="dark"] .hologram-text-effect {
-  background: linear-gradient(
-    135deg,
-    #a0c4ff 0%,
-    #ffb4e6 20%,
-    #e2e2e2 40%,
-    #ffffff 45%,
-    #e2e2e2 50%,
-    #9bf6ff 70%,
-    #ffd6a5 90%,
-    #fdffb6 100%
-  );
-  background-size: 200% auto;
-  color: transparent !important;
-  -webkit-text-fill-color: transparent !important;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: hologram-flow 4s linear infinite;
   filter: 
-    drop-shadow(-1px -1px 0px rgba(255, 255, 255, 0.15))
-    drop-shadow(1px 1px 0px #706887)
-    drop-shadow(2px 2px 0px #4d4563)
-    drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.7));
+    drop-shadow(0px 1px 0px #1a237e) 
+    drop-shadow(0px 2px 4px rgba(0,0,0,0.8))
+    drop-shadow(0px 0px 15px rgba(0, 198, 255, 0.7)) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  html:not(.light) .hologram-text-effect,
-  body:not(.light) .hologram-text-effect {
-    background: linear-gradient(
-      135deg,
-      #a0c4ff 0%,
-      #ffb4e6 20%,
-      #e2e2e2 40%,
-      #ffffff 45%,
-      #e2e2e2 50%,
-      #9bf6ff 70%,
-      #ffd6a5 90%,
-      #fdffb6 100%
-    );
-    background-size: 200% auto;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-    -webkit-background-clip: text;
-    background-clip: text;
-    animation: hologram-flow 4s linear infinite;
-    filter: 
-      drop-shadow(-1px -1px 0px rgba(255, 255, 255, 0.15))
-      drop-shadow(1px 1px 0px #706887)
-      drop-shadow(2px 2px 0px #4d4563)
-      drop-shadow(2px 3px 4px rgba(0, 0, 0, 0.7));
+@keyframes hq-holo-tilt {
+  0% {
+    background-position: 200% 0%, 0% 50%;
+  }
+  20% {
+    background-position: -50% 0%, 50% 50%;
+  }
+  40% {
+    background-position: -50% 0%, 50% 50%;
+  }
+  60% {
+    background-position: 200% 0%, 100% 50%;
+  }
+  100% {
+    background-position: 200% 0%, 0% 50%;
   }
 }
 
-@keyframes hologram-flow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
-}
-
 .ocean-text-effect {
+  /* Prevent cursive descenders from being clipped */
+  padding: 0.1em 0.2em;
+  line-height: 1.4 !important;
   background: 
     linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 35%) 0% 0% / 100% 100% no-repeat,
     url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 100' xmlns='http://www.w3.org/2000/svg'><path d='M0,50 Q50,20 100,50 T200,50 V100 H0 Z' fill='%2300bcd4' opacity='0.7'/></svg>") 0% 100% / 60px 100% repeat-x,
@@ -2809,105 +2829,91 @@ html, body {
 .princess-liquid-effect {
   position: relative;
   display: inline-block;
-  width: max-content;
-  max-width: 100%;
-  background: 
-    linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.7) 25%, transparent 30%, transparent 35%, rgba(255,255,255,0.4) 40%, transparent 45%),
-    radial-gradient(circle at 30% 70%, #f9a8d4 0%, transparent 50%),
-    radial-gradient(circle at 70% 30%, #ec4899 0%, transparent 50%),
-    radial-gradient(circle at 10% 20%, #db2777 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, #be185d 0%, transparent 40%),
-    linear-gradient(to right, #f472b6, #fb7185);
-  background-size: 200% 200%, 150% 150%, 150% 150%, 150% 150%, 150% 150%, 100% 100%;
-  animation: hq-makeup-swirl 8s ease-in-out infinite alternate;
+  
+  /* Prevent cursive descenders from being clipped */
+  padding: 0.1em 0.2em;
+  line-height: 1.4 !important;
+  
+  /* Glossy Liquid (Melted Candy / Liquid Lipstick) */
+  background: linear-gradient(
+    -45deg,
+    #ff007f 0%,
+    #ff66b2 20%,
+    #ffffff 40%,
+    #ff1493 60%,
+    #ff99cc 80%,
+    #ff007f 100%
+  );
+  
+  background-size: 300% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent !important;
-  filter: 
-    drop-shadow(0px 1px 3px rgba(244, 113, 182, 0.7))
-    drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.3));
+  
+  /* Glossy liquid shine animation */
+  animation: hq-liquid-gloss 4s ease-in-out infinite alternate;
+  
+  /* Bevel edge + magical pink glow */
+  filter: drop-shadow(0px 1px 0px #880e4f) drop-shadow(0px 2px 4px rgba(0,0,0,0.5)) drop-shadow(0px 0px 10px rgba(255, 20, 147, 0.8)) !important;
 }
-.princess-liquid-effect::before,
-.princess-liquid-effect::after {
-  position: absolute;
-  font-size: 10px;
-  line-height: 1;
-  width: 10px;
-  height: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  z-index: 10;
-  opacity: 0;
-  text-shadow: 0 0 2px #f472b6, 0 0 4px #db2777 !important;
-  background: 
-    linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.7) 25%, transparent 30%, transparent 35%, rgba(255,255,255,0.4) 40%, transparent 45%),
-    radial-gradient(circle at 30% 70%, #fdf2f8 0%, transparent 50%),
-    radial-gradient(circle at 70% 30%, #f9a8d4 0%, transparent 50%),
-    radial-gradient(circle at 10% 20%, #f472b6 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, #db2777 0%, transparent 40%),
-    linear-gradient(to right, #fb7185, #ec4899);
-  background-size: 200% 200%, 150% 150%, 150% 150%, 150% 150%, 150% 150%, 100% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent !important;
-}
+
+/* Floating Sparkles & Hearts */
 .princess-liquid-effect::before {
-  content: '♥';
-  top: 50%;
-  left: -5px;
-  transform: translateY(-50%) rotate(-15deg);
-  animation: hq-luxury-sparkle 3s ease-in-out infinite, hq-makeup-swirl 8s ease-in-out infinite alternate;
+  content: '✨💖';
+  position: absolute;
+  top: -12px;
+  left: -15px;
+  font-size: 14px;
+  letter-spacing: 40px;
+  opacity: 0;
+  pointer-events: none;
+  animation: hq-floating-girly 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 5px rgba(255, 105, 180, 0.8));
+  z-index: 10;
 }
+
+/* Floating Stars & Beads (Crystal Ball for beads) */
 .princess-liquid-effect::after {
-  content: '♥';
-  top: 50%;
+  content: '⭐🔮';
+  position: absolute;
+  bottom: -8px;
   right: -5px;
-  transform: translateY(-50%) rotate(15deg);
-  animation: hq-luxury-sparkle-alt 3.5s ease-in-out infinite 1.5s, hq-makeup-swirl 8s ease-in-out infinite alternate;
+  font-size: 13px;
+  letter-spacing: 35px;
+  opacity: 0;
+  pointer-events: none;
+  animation: hq-floating-girly-alt 5s ease-in-out infinite 1.5s;
+  filter: drop-shadow(0 0 5px rgba(255, 20, 147, 0.8));
+  z-index: 10;
 }
+
+@keyframes hq-floating-girly {
+  0% { opacity: 0; transform: translateY(8px) scale(0.6) rotate(-10deg); }
+  30% { opacity: 1; transform: translateY(-2px) scale(1.1) rotate(5deg); }
+  70% { opacity: 1; transform: translateY(-6px) scale(1) rotate(-5deg); }
+  100% { opacity: 0; transform: translateY(-12px) scale(0.5) rotate(10deg); }
+}
+
+@keyframes hq-floating-girly-alt {
+  0% { opacity: 0; transform: translateY(-8px) scale(0.6) rotate(10deg); }
+  30% { opacity: 1; transform: translateY(2px) scale(1.1) rotate(-5deg); }
+  70% { opacity: 1; transform: translateY(6px) scale(1) rotate(5deg); }
+  100% { opacity: 0; transform: translateY(12px) scale(0.5) rotate(-10deg); }
+}
+
+@keyframes hq-liquid-gloss {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
 .dark .princess-liquid-effect,
 [data-theme="dark"] .princess-liquid-effect,
 [data-mode="dark"] .princess-liquid-effect {
-  background: 
-    linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.8) 25%, transparent 30%, transparent 35%, rgba(255,255,255,0.5) 40%, transparent 45%),
-    radial-gradient(circle at 30% 70%, #fdf2f8 0%, transparent 50%),
-    radial-gradient(circle at 70% 30%, #f9a8d4 0%, transparent 50%),
-    radial-gradient(circle at 10% 20%, #f472b6 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, #db2777 0%, transparent 40%),
-    linear-gradient(to right, #fb7185, #ec4899);
-  background-size: 200% 200%, 150% 150%, 150% 150%, 150% 150%, 150% 150%, 100% 100%;
-  animation: hq-makeup-swirl 8s ease-in-out infinite alternate;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent !important;
   filter: 
-    drop-shadow(0px 1px 3px rgba(244, 113, 182, 0.7))
-    drop-shadow(0px 2px 8px rgba(219, 39, 119, 0.6));
-}
-
-@keyframes hq-makeup-swirl {
-  0% {
-    background-position: -100% 0%, 0% 0%, 100% 100%, 0% 50%, 100% 50%, 0% 0%;
-  }
-  100% {
-    background-position: 200% 0%, 100% 100%, 0% 0%, 100% 50%, 0% 50%, 0% 0%;
-  }
-}
-
-@keyframes hq-luxury-sparkle {
-  0% { opacity: 0; }
-  30% { opacity: 1; }
-  100% { opacity: 0; }
-}
-@keyframes hq-luxury-sparkle-alt {
-  0% { opacity: 0; }
-  30% { opacity: 1; }
-  100% { opacity: 0; }
+    drop-shadow(0px 1px 0px #880e4f) 
+    drop-shadow(0px 2px 4px rgba(0,0,0,0.7))
+    drop-shadow(0px 0px 14px rgba(233, 30, 99, 0.8)) !important;
 }
 
 @keyframes hq-ocean-wave {
@@ -2916,64 +2922,34 @@ html, body {
 }
 
 .neon-cyan-effect {
-  color: #00bcd4 !important;
-  text-shadow: 
-    0 0 1px #00838f,
-    0 0 4px #00bcd4;
-  animation: hq-neon-flicker-light 5s infinite;
+  /* High contrast moving gas beam */
+  background-image: linear-gradient(
+    90deg,
+    rgba(0, 229, 255, 1) 0%,
+    rgba(0, 50, 80, 1) 25%,
+    rgba(255, 255, 255, 1) 50%,
+    rgba(0, 50, 80, 1) 75%,
+    rgba(0, 229, 255, 1) 100%
+  );
+  background-size: 200% auto;
+  color: #00e5ff !important;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Intense, obvious movement */
+  animation: neon-flowing-beam 1.5s linear infinite;
+  
+  /* Thick glowing glass tube outline */
+  -webkit-text-stroke: 1.5px #00e5ff;
+  
+  /* Bright pulsating neon aura */
+  filter: drop-shadow(0 0 4px #00e5ff) drop-shadow(0 0 10px #00e5ff);
 }
 
-.dark .neon-cyan-effect,
-[data-theme="dark"] .neon-cyan-effect,
-[data-mode="dark"] .neon-cyan-effect {
-  color: #e0f7fa !important;
-  text-shadow: 
-    0 0 2px #00e5ff,
-    0 0 6px #00e5ff;
-  animation: hq-neon-flicker-dark 5s infinite;
-}
-
-@media (prefers-color-scheme: dark) {
-  html:not(.light) .neon-cyan-effect,
-  body:not(.light) .neon-cyan-effect {
-    color: #e0f7fa !important;
-    text-shadow: 
-      0 0 2px #00e5ff,
-      0 0 6px #00e5ff;
-    animation: hq-neon-flicker-dark 5s infinite;
-  }
-}
-
-@keyframes hq-neon-flicker-light {
-  0%, 2%, 4% { opacity: 1; color: #00838f !important; text-shadow: 0 0 5px #00bcd4, 0 0 10px #00bcd4, 0 0 20px #00bcd4; }
-  1%, 3%, 5% { opacity: 0.4; color: rgba(0, 131, 143, 0.4) !important; text-shadow: none; }
-  
-  6%, 35% { opacity: 1; color: #00838f !important; text-shadow: 0 0 2px #00838f, 0 0 5px #00bcd4, 0 0 10px #00bcd4, 0 0 20px #00bcd4, 0 0 40px #00bcd4; }
-  35.1%, 49% { opacity: 0.2; color: rgba(0, 131, 143, 0.2) !important; text-shadow: none; }
-
-  49.1%, 51%, 53% { opacity: 1; color: #00838f !important; text-shadow: 0 0 5px #00bcd4, 0 0 20px #00bcd4; }
-  50%, 52% { opacity: 0.3; color: rgba(0, 131, 143, 0.3) !important; text-shadow: none; }
-
-  53.1%, 85% { opacity: 1; color: #00838f !important; text-shadow: 0 0 2px #00838f, 0 0 5px #00bcd4, 0 0 10px #00bcd4, 0 0 20px #00bcd4, 0 0 40px #00bcd4; }
-  85.1%, 86% { opacity: 0.3; color: rgba(0, 131, 143, 0.3) !important; text-shadow: none; }
-  
-  86.1%, 100% { opacity: 1; color: #00838f !important; text-shadow: 0 0 2px #00838f, 0 0 5px #00bcd4, 0 0 10px #00bcd4, 0 0 20px #00bcd4, 0 0 40px #00bcd4; }
-}
-
-@keyframes hq-neon-flicker-dark {
-  0%, 2%, 4% { opacity: 1; color: #fff !important; text-shadow: 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff; }
-  1%, 3%, 5% { opacity: 0.4; color: rgba(255, 255, 255, 0.3) !important; text-shadow: none; }
-  
-  6%, 35% { opacity: 1; color: #fff !important; text-shadow: 0 0 2px #fff, 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff; }
-  35.1%, 49% { opacity: 0.2; color: rgba(255, 255, 255, 0.2) !important; text-shadow: none; }
-
-  49.1%, 51%, 53% { opacity: 1; color: #fff !important; text-shadow: 0 0 5px #00e5ff, 0 0 20px #00e5ff; }
-  50%, 52% { opacity: 0.3; color: rgba(255, 255, 255, 0.3) !important; text-shadow: none; }
-
-  53.1%, 85% { opacity: 1; color: #fff !important; text-shadow: 0 0 2px #fff, 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff; }
-  85.1%, 86% { opacity: 0.3; color: rgba(255, 255, 255, 0.3) !important; text-shadow: none; }
-  
-  86.1%, 100% { opacity: 1; color: #fff !important; text-shadow: 0 0 2px #fff, 0 0 5px #00e5ff, 0 0 10px #00e5ff, 0 0 20px #00e5ff, 0 0 40px #00e5ff; }
+@keyframes neon-flowing-beam {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
 }
 
 @keyframes marquee-scroll {
@@ -3110,4 +3086,94 @@ html, body {
 .animate-online-glow {
   animation: online-glow 0.8s ease-in-out infinite;
   transform-origin: center center;
+}
+
+.premium-name-kurdistan {
+  background-image: 
+    /* Static Sun */
+    radial-gradient(circle closest-side at center, #fbc900 85%, transparent 90%),
+    /* Flowing wind ripples (seamless loop) */
+    linear-gradient(105deg, 
+      rgba(0,0,0,0) 0%, rgba(0,0,0,0.25) 15%, rgba(255,255,255,0.3) 30%, rgba(0,0,0,0) 50%, 
+      rgba(0,0,0,0.25) 65%, rgba(255,255,255,0.3) 80%, rgba(0,0,0,0) 100%
+    ),
+    /* Static Flag Stripes */
+    linear-gradient(180deg, #ed2024 38%, #ffffff 38%, #ffffff 62%, #278e43 62%);
+  background-size: 
+    0.85em 0.85em,
+    200% 100%,
+    100% 100%;
+  background-position: 
+    center,
+    0% center,
+    center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+  
+  /* Constant linear animation for seamless looping */
+  animation: kurdistan-wind-ripple 2.5s linear infinite;
+  
+  /* Outer glow */
+  filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes kurdistan-wind-ripple {
+  0% { 
+    background-position: center, 0% center, center; 
+  }
+  100% { 
+    /* Moves the ripple layer exactly one full frame to loop seamlessly */
+    background-position: center, 100% center, center; 
+  }
+}
+
+.premium-name-ocean {
+  background-image: 
+    /* The diagonal glass shine */
+    linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.7) 22%, rgba(255,255,255,0.2) 25%, transparent 35%),
+    
+    /* The front wave */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,60 Q50,45 100,60 T200,60 L200,100 L0,100 Z' fill='rgba(0, 200, 255, 0.85)'/%3E%3C/svg%3E"),
+    
+    /* The back wave */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 100' preserveAspectRatio='none'%3E%3Cpath d='M0,60 Q50,75 100,60 T200,60 L200,100 L0,100 Z' fill='%2300629c'/%3E%3C/svg%3E"),
+    
+    /* The glass base */
+    linear-gradient(180deg, rgba(230, 245, 255, 0.9) 0%, rgba(200, 235, 255, 0.6) 100%);
+    
+  background-size: 
+    100% 100%, 
+    200% 100%, 
+    200% 100%, 
+    100% 100%;
+  background-position: 
+    center, 
+    0% 100%, 
+    0% 100%, 
+    center;
+  background-repeat: no-repeat, repeat-x, repeat-x, no-repeat;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent !important;
+  
+  /* CRITICAL: No stroke to protect small fonts from bleeding */
+  -webkit-text-stroke: 0px transparent;
+  
+  /* Golden Sand shadow behind the ocean water to give it that beach vibe! */
+  filter: drop-shadow(0px 1px 2px rgba(180, 130, 70, 0.8)) drop-shadow(0px 2px 4px rgba(139, 90, 43, 0.6));
+  
+  animation: ocean-waves 2.5s linear infinite;
+}
+
+@keyframes ocean-waves {
+  0% { 
+    background-position: center, 0% 100%, 0% 100%, center; 
+  }
+  100% { 
+    background-position: center, -200% 100%, 200% 100%, center; 
+  }
 }

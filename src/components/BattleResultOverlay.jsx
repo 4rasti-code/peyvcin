@@ -8,6 +8,7 @@ import { playSuccessSfx, playRewardSfx, playDefeatSfx } from '../utils/audio';
 import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { BUNDLES } from '../constants/bundles';
 import { generateWordleGrid, shareGameResult } from '../utils/share';
 import ResultStats from './ResultStats';
@@ -196,16 +197,16 @@ const BattleResultOverlay = ({
                     const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                     return (
-                      <span 
+                      <PremiumName 
+                        text={name}
+                        styleId={myBundle.id !== 'default' ? null : myStyle.id}
                         dir="auto"
-                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : 'text-white'}`}
                         style={{
                           ...(myBundle.id !== 'default' ? {} : myFont.style),
                           fontSize: dynamicFontSize
                         }}
-                      >
-                        {name}
-                      </span>
+                      />
                     );
                   })()}
                 </div>
@@ -230,16 +231,16 @@ const BattleResultOverlay = ({
                     const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                     return (
-                      <span 
+                      <PremiumName 
+                        text={name}
+                        styleId={oppBundle.id !== 'default' ? null : oppStyle.id}
                         dir="auto"
-                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-400 dark:text-white/40')}`}
+                        className={`font-black text-sm block w-full max-w-30 overflow-visible py-2 whitespace-nowrap text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : 'text-white/40'}`}
                         style={{
                           ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                           fontSize: dynamicFontSize
                         }}
-                      >
-                        {name}
-                      </span>
+                      />
                     );
                   })()}
                 </div>

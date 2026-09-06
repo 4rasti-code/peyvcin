@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence, useMotionValue, animate } from 'framer-motion';
-import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
+import { fireConfetti as confetti } from '../utils/confettiHelper';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../context/AuthContext';
 import { useGame } from '../context/GameContext';
@@ -9,7 +9,6 @@ import { playBackSfx, playChestOpenSfx, playWheelSpinSfx } from '../utils/audio'
 import { toKuDigits } from '../utils/formatters';
 import LuckyWheelIcon, { LuckyWheelInner, LuckyWheelFrame } from './LuckyWheelIcon';
 import { WHEEL_REWARDS } from '../constants/wheelRewards';
-import CoinAnimation from './CoinAnimation';
 import { FilsIcon, HintIcon, DerhemIcon, SkipIcon, MagnetIcon, DinarIcon, SpinTicketIcon } from './CurrencyIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import CloseButton from './CloseButton';
@@ -25,7 +24,6 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
   const [showReward, setShowReward] = useState(false);
   const [wonReward, setWonReward] = useState(null);
   const [loadingCheck, setLoadingCheck] = useState(true);
-  const [showCoinAnim, setShowCoinAnim] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const timerRef = useRef(null);
 
@@ -225,7 +223,9 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
     setIsClaiming(true);
 
     // Trigger flying animation
-    setShowCoinAnim(true);
+    window.dispatchEvent(new CustomEvent('fire-coins', { 
+      detail: { type: wonReward.type, amount: wonReward.amount } 
+    }));
     triggerHaptic(50);
 
     // Signal TopAppBar to defer visual wallet updates until coins fly
@@ -260,7 +260,6 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
 
     // Completely unmount modal after animation finishes
     setTimeout(() => {
-      setShowCoinAnim(false);
       setIsClaiming(false);
       window.isAnimatingReward = false; // Reset after animation
       onClose();
@@ -435,7 +434,6 @@ export default function LuckyWheelModal({ isOpen, onClose }) {
               </AnimatePresence>
             </Motion.div>
           </Motion.div>
-          <CoinAnimation trigger={showCoinAnim} amount={wonReward?.amount} type={wonReward?.type} />
         </React.Fragment>
       )}
     </AnimatePresence>

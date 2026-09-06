@@ -14,6 +14,7 @@ import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
 import { getLevelFromXP, getLevelTier, getLevelData } from '../utils/progression';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { BUNDLES } from '../constants/bundles';
 
@@ -694,7 +695,7 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
                       isMe 
                         ? 'rounded-[10px] bg-[linear-gradient(to_bottom,#fad65b_50%,#e7a421_50%)] border-[1.5px] border-b-4 border-[#a26516] text-mono-900 z-20 shadow-[0_0_15px_rgba(231,164,33,0.4)]'
                         : bundleObj.id === 'default' 
-                          ? 'rounded-[10px] bg-[linear-gradient(to_bottom,#dde6f5_50%,#c7d6eb_50%)] border-[1.5px] border-b-4 border-[#3b4c68] text-mono-900 z-10' 
+                          ? 'rounded-[10px] bg-[linear-gradient(to_bottom,#b8c6dc_50%,#9caecc_50%)] border-[1.5px] border-b-4 border-[#2c3951] text-mono-900 z-10 shadow-sm' 
                           : `rounded-md border ${bundleObj.cardBg} z-10`
                     }`}
                     style={{
@@ -794,17 +795,19 @@ export default function LeaderboardView({ onOpenChat, isVisible }) {
 
                     {/* Info and Name (CENTERED) */}
                     <div className="flex-1 flex justify-center items-center min-w-0 mx-1 sm:mx-2" style={{ containerType: 'inline-size' }}>
-                      <span 
+                      <PremiumName 
+                        text={effectiveNickname}
+                        styleId={bundleObj.id !== 'default' ? null : styleObj.id}
                         style={{
                           ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                           fontSize: dynamicFontSize
                         }}
                         dir="auto"
                         className={`font-black tracking-normal whitespace-nowrap leading-normal transition-all duration-300 pt-1 ${
-                          bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')
+                          bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ''
                         } ${
-                        (!styleObj.class && bundleObj.id === 'default') ? 'text-[#374961]' : ''
-                      }`}>{effectiveNickname}</span>
+                        (!styleObj.class && bundleObj.id === 'default') ? 'text-black' : 'text-white'
+                      }`} />
                     </div>
 
                     {/* Shield or XP (RIGHT SIDE) */}

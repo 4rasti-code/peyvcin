@@ -5,7 +5,6 @@ import FlagBadge from './FlagBadge';
 import { triggerHaptic } from '../utils/haptics';
 import { supabase } from '../lib/supabase';
 import { FilsIcon, Level10Icon, PahlawanIcon, SharezaCompassIcon, KurdishShieldIcon, KingOfTheLettersIcon, MamostaBookIcon } from './CurrencyIcon';
-import CoinAnimation from './CoinAnimation';
 import { toKuDigits } from '../utils/formatters';
 import { useGame } from '../context/GameContext';
 import { getLevelTier } from '../utils/progression';
@@ -14,6 +13,7 @@ import { usePresence } from '../context/PresenceContext';
 const StatsView = lazy(() => import('./StatsView'));
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { BUNDLES } from '../constants/bundles';
 import { MEDALS } from '../constants/medals';
 import CloseButton from './CloseButton';
@@ -43,8 +43,6 @@ export default function PublicProfileModal({
   const [reportReasons, setReportReasons] = useState([]);
   const [customReason, setCustomReason] = useState("");
   const [showUnfriendConfirm, setShowUnfriendConfirm] = useState(false);
-  const [showCoinAnim, setShowCoinAnim] = useState(false);
-  const [rewardAmount, setRewardAmount] = useState(0);
   const [claiming, setClaiming] = useState(false);
   const { onlineUsers } = usePresence();
   const [relStatus, setRelStatus] = useState(isFriend ? 'friend' : (isPending ? 'pending' : 'none')); // 'none', 'pending', 'friend'
@@ -246,8 +244,6 @@ export default function PublicProfileModal({
     const rewards = { 1: 500, 2: 2500, 3: 10000 };
     const amount = rewards[mastery.tierLevel];
 
-    setRewardAmount(amount);
-
     // Update DB
     const newClaims = {
       ...(displayData.mastery_claims || {}),
@@ -264,8 +260,9 @@ export default function PublicProfileModal({
 
     if (!error) {
       setFullData({ ...displayData, fils: (displayData.fils || 0) + amount, mastery_claims: newClaims });
-      setShowCoinAnim(true);
-      setTimeout(() => setShowCoinAnim(false), 3500);
+      window.dispatchEvent(new CustomEvent('fire-coins', { 
+        detail: { type: 'fils', amount: amount } 
+      }));
     }
     setClaiming(false);
   };
@@ -525,12 +522,12 @@ export default function PublicProfileModal({
               const styleObj = NAME_STYLES[displayData.equipped_name_style] || {};
               const bundleObj = BUNDLES[displayData.equipped_bundle] || BUNDLES['default'];
               return (
-                <h2
-                  className={`text-2xl font-black transition-colors duration-500 text-center ${isBot ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                <PremiumName
+                  text={displayData.nickname}
+                  styleId={bundleObj.id !== 'default' ? null : styleObj.id}
+                  className={`text-2xl font-black transition-colors duration-500 text-center ${isBot ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ''}`}
                   style={{ ...(!isBot && bundleObj.id === 'default' && !styleObj.class ? { color: getLevelTier(safeLevel).stop1 } : {}), ...(!isBot && bundleObj.id === 'default' ? fontObj.style : {}) }}
-                >
-                  {displayData.nickname}
-                </h2>
+                />
               );
             })()}
             
@@ -965,9 +962,6 @@ export default function PublicProfileModal({
           </Motion.div>
         )}
       </AnimatePresence>
-
-      <CoinAnimation trigger={showCoinAnim} amount={rewardAmount} />
     </div>
   );
 }
-

@@ -7,6 +7,7 @@ import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon } from 
 import { toKuDigits } from '../utils/formatters';
 import InventoryBar from './InventoryBar';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { BUNDLES } from '../constants/bundles';
 import { useUser } from '../context/AuthContext';
@@ -229,7 +230,11 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                       </div>
                       
                       <div className="flex-1 text-center min-w-0 flex items-center justify-center relative z-10">
-                        <span className={`text-[26px] sm:text-[28px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${style.class}`}>{style.name}</span>
+                        <PremiumName
+                          text={style.name}
+                          styleId={style.id === 'default' ? null : style.id}
+                          className={`text-[26px] sm:text-[28px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${style.id === 'default' ? 'text-white' : ''}`}
+                        />
                       </div>
                     </div>
 
@@ -324,12 +329,12 @@ export default function ShopView({ fils, derhem, dinar, magnetCount, hintCount, 
                     <div className={`flex-1 min-w-0 relative px-3 sm:px-4 py-3 ${dynamicClass} rounded-[8px] flex items-center gap-2 sm:gap-3 overflow-visible transition-all mb-1 border-2 ${isEquipped ? 'ring-2 ring-primary/30' : ''}`}>
                       <span className="absolute top-1.5 left-2 text-[9px] sm:text-[10px] text-mono-400 dark:text-mono-500 font-bold tracking-wide">{font.name}</span>
                       <div className="flex-1 text-right min-w-0 flex items-center justify-center pt-2">
-                        <span
-                          className={`text-[17px] sm:text-[19px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${equippedNameStyle === 'default' ? 'text-mono-900 dark:text-white' : ''} ${NAME_STYLES[equippedNameStyle]?.class || ''}`}
+                        <PremiumName
+                          text={font.language === 'kurdish' ? 'کوردستان' : 'Kurdistan'}
+                          styleId={equippedNameStyle === 'default' ? null : equippedNameStyle}
+                          className={`text-[17px] sm:text-[19px] font-black tracking-normal overflow-visible whitespace-nowrap leading-normal ${equippedNameStyle === 'default' ? 'text-mono-900 dark:text-white' : ''}`}
                           style={{ ...font.style, paddingBottom: '0.2em' }}
-                        >
-                          {font.language === 'kurdish' ? 'کوردستان' : 'Kurdistan'}
-                        </span>
+                        />
                       </div>
                     </div>
 

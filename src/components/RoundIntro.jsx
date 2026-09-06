@@ -6,6 +6,7 @@ import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { BUNDLES } from '../constants/bundles';
 
 export default function RoundIntro({ opponent, userAvatar, userNickname, userEquippedFont, userEquippedNameStyle, userEquippedBundle, userLevel, currentRound, roundMessage, previousWord, previousRoundWinner }) {
@@ -85,16 +86,16 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
 
                 return (
                   <div className="mb-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
-                    <span 
+                    <PremiumName 
+                      text={name}
+                      styleId={oppBundle.id !== 'default' ? null : oppStyle.id}
                       dir="auto"
-                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : 'text-white'}`}
                       style={{
                         ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                         fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
                       }}
-                    >
-                      {name}
-                    </span>
+                    />
                   </div>
                 );
               })()}
@@ -194,16 +195,16 @@ export default function RoundIntro({ opponent, userAvatar, userNickname, userEqu
 
                 return (
                   <div className="mt-2 px-6 py-1.5 rounded-2xl border border-white/20 shadow-xl max-w-[90%] flex justify-center bg-black bg-opacity-90 backdrop-blur-md">
-                    <span 
+                    <PremiumName 
+                      text={name}
+                      styleId={myBundle.id !== 'default' ? null : myStyle.id}
                       dir="auto"
-                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                      className={`font-black text-xl sm:text-2xl tracking-normal drop-shadow-md whitespace-nowrap block max-w-full overflow-visible py-2 px-2 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : 'text-white'}`}
                       style={{
                         ...(myBundle.id !== 'default' ? {} : myFont.style),
                         fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
                       }}
-                    >
-                      {name}
-                    </span>
+                    />
                   </div>
                 );
               })()}

@@ -38,6 +38,7 @@ import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import PremiumName from './PremiumName';
 import { AlarmClockIcon } from './AlarmClockIcon';
 import CloseButton from './CloseButton';
 
@@ -604,7 +605,7 @@ const LobbyView = memo(({
         className={`relative flex items-center justify-between p-2.5 rounded-[10px] transition-all ${
           isBlocked 
             ? 'bg-[linear-gradient(to_bottom,#fce8e8_50%,#f3c8c8_50%)] border-[1.5px] border-b-4 border-[#8a1414]' 
-            : 'bg-[linear-gradient(to_bottom,#dde6f5_50%,#c7d6eb_50%)] border-[1.5px] border-b-4 border-[#3b4c68]'
+            : 'bg-[linear-gradient(to_bottom,#b8c6dc_50%,#9caecc_50%)] border-[1.5px] border-b-4 border-[#2c3951] shadow-sm'
         }`} 
       >
         <div
@@ -646,15 +647,15 @@ const LobbyView = memo(({
               const dynamicFontSize = `min(${baseSize}em, ${maxCqw}cqw)`;
 
               return (
-                <span
-                  className={`text-sm font-bold leading-tight whitespace-nowrap overflow-visible ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || 'text-mono-900')}`}
+                <PremiumName
+                  text={name}
+                  styleId={bundleObj.id !== 'default' ? null : styleObj.id}
+                  className={`text-sm font-bold leading-tight whitespace-nowrap overflow-visible ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : 'text-white'}`}
                   style={{
                     ...(bundleObj.id !== 'default' ? {} : fontObj.style),
                     fontSize: dynamicFontSize
                   }}
-                >
-                  {name}
-                </span>
+                />
               );
             })()}
             {(() => {
@@ -1382,16 +1383,16 @@ const LobbyView = memo(({
                 const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                 return (
-                  <span
+                  <PremiumName
+                    text={name}
+                    styleId={oppBundle.id !== 'default' ? null : oppStyle.id}
                     dir="auto"
-                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-visible py-2 px-3 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-mono-900 dark:text-white')}`}
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-visible py-2 px-3 text-center mx-auto ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : 'text-white'}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: dynamicFontSize
                     }}
-                  >
-                    {name}
-                  </span>
+                  />
                 );
               })()}
             </div>
@@ -1442,16 +1443,16 @@ const LobbyView = memo(({
                 const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                 return (
-                  <span
+                  <PremiumName
+                    text={name}
+                    styleId={myBundle.id !== 'default' ? null : myStyle.id}
                     dir="auto"
-                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-visible py-2 px-3 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-mono-900 dark:text-white')}`}
+                    className={`font-black text-lg sm:text-xl tracking-normal drop-shadow-sm dark:drop-shadow-md whitespace-nowrap block max-w-62.5 overflow-visible py-2 px-3 text-center mx-auto ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : 'text-white'}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: dynamicFontSize
                     }}
-                  >
-                    {name}
-                  </span>
+                  />
                 );
               })()}
             </div>

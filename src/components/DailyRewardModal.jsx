@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
-import { fireConfetti as confetti, resetConfetti } from '../utils/confettiHelper';
+import { fireConfetti as confetti } from '../utils/confettiHelper';
 import { useGame } from '../context/GameContext';
 import { useAudio } from '../context/AudioContext';
 import { triggerHaptic } from '../utils/haptics';
 import { toKuDigits } from '../utils/formatters';
 import { playBackSfx } from '../utils/audio';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, SkipIcon, SpinTicketIcon, PowerUpBadge } from './CurrencyIcon';
-import CoinAnimation from './CoinAnimation';
 import ClipboardIcon from './ClipboardIcon';
 import MysteryBoxIcon from './MysteryBoxIcon';
 import CloseButton from './CloseButton';
@@ -419,6 +418,17 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       onClick={() => {
                         if (animatingReward) return;
                         setAnimatingReward(true);
+                        
+                        if (claimedDayInfo?.isGrand) {
+                          window.dispatchEvent(new CustomEvent('fire-coins', { detail: { type: 'skip', amount: claimedDayInfo?.reward?.skipCount || 1, startOffsetX: 100 } }));
+                          window.dispatchEvent(new CustomEvent('fire-coins', { detail: { type: 'dinar', amount: claimedDayInfo?.reward?.dinar || 1, startOffsetX: 0 } }));
+                          window.dispatchEvent(new CustomEvent('fire-coins', { detail: { type: 'fils', amount: claimedDayInfo?.reward?.fils || 200, startOffsetX: -100 } }));
+                        } else {
+                          const type = claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils');
+                          const amount = claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1;
+                          window.dispatchEvent(new CustomEvent('fire-coins', { detail: { type, amount } }));
+                        }
+
                         setTimeout(() => {
                           setShowSuccess(false);
                           setAnimatingReward(false);
@@ -431,41 +441,6 @@ export default function DailyRewardModal({ isOpen, onClose, isDark }) {
                       وەرگرتن
                     </Motion.button>
                   </Motion.div>
-
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                    {claimedDayInfo?.isGrand ? (
-                      <>
-                        <CoinAnimation
-                          trigger={animatingReward}
-                          isDaily={true}
-                          type="skip"
-                          amount={claimedDayInfo?.reward?.skipCount || 1}
-                          startOffsetX={100}
-                        />
-                        <CoinAnimation
-                          trigger={animatingReward}
-                          isDaily={true}
-                          type="dinar"
-                          amount={claimedDayInfo?.reward?.dinar || 1}
-                          startOffsetX={0}
-                        />
-                        <CoinAnimation
-                          trigger={animatingReward}
-                          isDaily={true}
-                          type="fils"
-                          amount={claimedDayInfo?.reward?.fils || 200}
-                          startOffsetX={-100}
-                        />
-                      </>
-                    ) : (
-                      <CoinAnimation
-                        trigger={animatingReward}
-                        isDaily={true}
-                        type={claimedDayInfo?.type || (claimedDayInfo?.icon === 'lightbulb' ? 'hint' : claimedDayInfo?.icon === 'auto_fix_high' ? 'magnet' : claimedDayInfo?.icon === 'fast_forward' ? 'skip' : 'fils')}
-                        amount={claimedDayInfo?.reward?.fils || claimedDayInfo?.reward?.derhem || claimedDayInfo?.reward?.dinar || claimedDayInfo?.reward?.hintCount || claimedDayInfo?.reward?.magnetCount || claimedDayInfo?.reward?.skipCount || 1}
-                      />
-                    )}
-                  </div>
                 </Motion.div>
               )}
             </Motion.div>

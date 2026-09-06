@@ -3,6 +3,7 @@ import { STATUS } from '../data/constants';
 import { normalizeKurdishInput } from '../utils/textUtils';
 import { triggerHaptic } from '../utils/haptics';
 import { playKeyClickSfx } from '../utils/audio';
+import { wordWorkerClient } from '../workers/workerClient';
 
 export default function useGameLogic({
   targetWord,
@@ -17,7 +18,6 @@ export default function useGameLogic({
   onWrongLanguage = null,
   soundEnabled = true,
   hapticEnabled = true,
-  dictionary = null,
   onInvalidWord = null
 }) {
   const [guesses, setGuesses] = useState([]);
@@ -238,12 +238,12 @@ export default function useGameLogic({
       return { error: 'پەیڤ کێمە!' };
     }
 
-    // DICTIONARY CHECK
-    const normalizedGuess = normalizeKurdishInput(guessString);
-    const normalizedTarget = normalizeKurdishInput(target);
-    const isWin = normalizedGuess === normalizedTarget;
+    // DICTIONARY CHECK VIA WEB WORKER
+    isSubmittingRef.current = true; // Lock immediately while waiting for worker
+    const { isValid, isWin } = await wordWorkerClient.validateWord(guessString, target);
 
-    if (!isWin && dictionary && !dictionary.has(normalizedGuess)) {
+    if (!isValid) {
+      isSubmittingRef.current = false;
       triggerHaptic([50, 30, 50]);
       setShakeTrigger(prev => prev + 1);
       if (onInvalidWord) onInvalidWord('not_in_dictionary');
@@ -299,7 +299,7 @@ export default function useGameLogic({
 
     setTimeout(() => { isSubmittingRef.current = false; }, 300);
     return { success: true, colors, isWin };
-  }, [maxRows, getLetterStatus, targetWord, gameMode, dictionary, onInvalidWord]);
+  }, [maxRows, getLetterStatus, targetWord, gameMode, onInvalidWord]);
 
   // --- CENTRALIZED PHYSICAL KEYBOARD SUPPORT ---
   useEffect(() => {

@@ -16,6 +16,7 @@ import MultiplayerReactions from './MultiplayerReactions';
 import { toKuDigits } from '../utils/formatters';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
+import PremiumName from './PremiumName';
 import { BUNDLES } from '../constants/bundles';
 
 export default function MultiplayerGameView({ opponent: propOpponent, isDark = true, onOpenHowToPlay: _onOpenHowToPlay }) {
@@ -415,16 +416,16 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               
               return (
                 <div className="mb-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
-                  <span 
+                  <PremiumName 
+                    text={name}
+                    styleId={oppBundle.id !== 'default' ? null : oppStyle.id}
                     dir="auto"
-                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-2 sm:py-3 text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || 'text-white')}`}
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-2 sm:py-3 text-center ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : 'text-white'}`}
                     style={{
                       ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                       fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
                     }}
-                  >
-                    {name}
-                  </span>
+                  />
                 </div>
               );
             })()}
@@ -476,16 +477,16 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
               
               return (
                 <div className="mt-5 px-6 py-2 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-lg z-10 flex justify-center">
-                  <span 
+                  <PremiumName 
+                    text={name}
+                    styleId={myBundle.id !== 'default' ? null : myStyle.id}
                     dir="auto"
-                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-2 sm:py-3 text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || 'text-white')}`}
+                    className={`font-black block max-w-[80vw] whitespace-nowrap overflow-visible py-2 sm:py-3 text-center ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : 'text-white'}`}
                     style={{
                       ...(myBundle.id !== 'default' ? {} : myFont.style),
                       fontSize: `min(${baseSize * scaleFactor}em, ${maxVw}vw)`
                     }}
-                  >
-                    {name}
-                  </span>
+                  />
                 </div>
               );
             })()}
@@ -700,15 +701,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
                 return (
                   <div className="flex items-center gap-2">
-                    <span 
-                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (myStyle.class || (isDark ? 'text-blue-400' : 'text-blue-600'))}`}
+                    <PremiumName 
+                      text={name}
+                      styleId={myBundle.id !== 'default' ? null : myStyle.id}
+                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${myBundle.id !== 'default' ? (myBundle.fontKurdish + ' ' + myBundle.textStyle) : (isDark ? 'text-blue-400' : 'text-blue-600')}`}
                       style={{
                         ...(myBundle.id !== 'default' ? {} : myFont.style),
                         fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
                       }}
-                    >
-                      {name}
-                    </span>
+                    />
                   </div>
                 );
               })()}
@@ -810,15 +811,15 @@ export default function MultiplayerGameView({ opponent: propOpponent, isDark = t
 
                 return (
                   <div className="flex items-center gap-2">
-                    <span 
-                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (oppStyle.class || (isDark ? 'text-red-400' : 'text-red-600'))}`}
+                    <PremiumName 
+                      text={name}
+                      styleId={oppBundle.id !== 'default' ? null : oppStyle.id}
+                      className={`text-sm sm:text-base font-black relative z-10 transition-colors duration-300 whitespace-nowrap block overflow-visible ${oppBundle.id !== 'default' ? (oppBundle.fontKurdish + ' ' + oppBundle.textStyle) : (isDark ? 'text-red-400' : 'text-red-600')}`}
                       style={{
                         ...(oppBundle.id !== 'default' ? {} : oppFont.style),
                         fontSize: `min(${baseSize * scaleFactor}em, ${maxCqi}cqi)`
                       }}
-                    >
-                      {name}
-                    </span>
+                    />
                   </div>
                 );
               })()}

@@ -1,124 +1,188 @@
-import React, { forwardRef, useImperativeHandle, memo, useState } from 'react';
-import { motion as Motion, useSpring, useMotionValue, useMotionValueEvent } from 'framer-motion';
+import React, { forwardRef, useImperativeHandle, memo, useEffect, useRef, useState } from 'react';
 
-const FloatingLetter = memo(({ char, initialX, initialY, pulseMV, baseOpacity = 0.7 }) => {
-  // Movement springs - Low stiffness, High damping for "liquid" feel
-  const springConfig = { damping: 40, stiffness: 15 };
-  const x = useSpring(0, springConfig);
-  const y = useSpring(0, springConfig);
-  const rotate = useSpring(0, springConfig);
-  const opacity = useSpring(baseOpacity, springConfig);
-
-  // Pulse (Fish Reaction) Logic via MotionValue Subscription
-  useMotionValueEvent(pulseMV, "change", (latest) => {
-    if (!latest) return;
-
-    // Relative coordinates
-    const nx = initialX / 100;
-    const ny = initialY / 100;
-
-    const dx = nx - latest.x;
-    const dy = ny - latest.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // If within interaction range
-    if (distance < 0.4) {
-      const force = (1 - distance / 0.4);
-
-      // Calculate flee vector
-      const fleeX = (dx / distance) * force * 100;
-      const fleeY = (dy / distance) * force * 100;
-
-      // Calculate rotation - "face" away from the click
-      const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-
-      // Trigger Flee Animation
-      x.set(fleeX);
-      y.set(fleeY);
-      rotate.set(targetAngle + 90);
-      opacity.set(0.15);
-
-      // Smoothly return
-      setTimeout(() => {
-        x.set(0);
-        y.set(0);
-        rotate.set(0);
-        opacity.set(baseOpacity);
-      }, 1200 + Math.random() * 800);
-    }
-  });
-
-  // Unique animation delay for organic feel - using state for purity
-  const [delay] = useState(() => `${Math.random() * -20}s`);
-  const [duration] = useState(() => `${45 + Math.random() * 30}s`);
-
-  return (
-    <Motion.div
-      className="absolute text-mono-900 dark:text-mono-100 font-bold text-[20px] select-none font-rabar pointer-events-none transition-opacity duration-1000 blur-[1px]"
-      style={{
-        left: `${initialX}%`,
-        top: `${initialY}%`,
-        x,
-        y,
-        rotate,
-        opacity,
-        animation: `drift ${duration} ease-in-out ${delay} infinite alternate`
-      }}
-    >
-      {char}
-    </Motion.div>
-  );
-});
-
-const chars = ['ئا', 'ب', 'پ', 'ت', 'ج', 'چ', 'د', 'ڕ', 'ز', 'ژ', 'ڤ', 'ڵ', 'ۆ', 'ێ', 'گ', 'هـ'];
+const chars = [
+  'ئ', 'ا', 'ب', 'پ', 'ت', 'ج', 'چ', 'ح', 'خ', 'د', 'ر', 'ڕ', 'ز', 'ژ', 
+  'س', 'ش', 'ع', 'غ', 'ف', 'ڤ', 'ق', 'ک', 'گ', 'ل', 'ڵ', 'م', 'ن', 'و', 
+  'ۆ', 'وو', 'هـ', 'ە', 'ی', 'ێ'
+];
 
 const FloatingLetterBackground = forwardRef(({ baseOpacity = 0.7 }, ref) => {
-  const pulseMV = useMotionValue(null);
-
-  // Use useState lazy initialization for purity
-  const [letters] = useState(() => {
-    return [...Array(20)].map((_, i) => ({
+  const canvasRef = useRef(null);
+  
+  // State for particles, initialized once
+  const [particles] = useState(() => {
+    return [...Array(34)].map((_, i) => ({
       id: i,
       char: chars[i % chars.length],
-      x: 5 + Math.random() * 90,
-      y: 5 + Math.random() * 90
+      baseX: 5 + Math.random() * 90, // Percentage 5-95
+      baseY: 5 + Math.random() * 90, // Percentage 5-95
+      delay: Math.random() * 20, // 0 to 20s
+      duration: 45 + Math.random() * 30, // 45s to 75s
+      
+      // Physics state (offsets and spring logic)
+      springX: 0,
+      springY: 0,
+      springRot: 0,
+      springOpacity: baseOpacity,
+      
+      velX: 0,
+      velY: 0,
+      velRot: 0,
+      velOpacity: 0,
+      
+      targetX: 0,
+      targetY: 0,
+      targetRot: 0,
+      targetOpacity: baseOpacity,
+      
+      timeoutId: null
     }));
   });
 
   useImperativeHandle(ref, () => ({
     pulse: (px, py) => {
-      pulseMV.set({ x: px, y: py, t: Date.now() });
+      particles.forEach(p => {
+        // px, py are 0-1 relative coordinates
+        const nx = p.baseX / 100;
+        const ny = p.baseY / 100;
+
+        const dx = nx - px;
+        const dy = ny - py;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < 0.4) {
+          const force = (1 - distance / 0.4);
+
+          // Flee vector in percentages
+          const fleeX = (dx / distance) * force * 100;
+          const fleeY = (dy / distance) * force * 100;
+          const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+          p.targetX = fleeX;
+          p.targetY = fleeY;
+          p.targetRot = targetAngle + 90;
+          p.targetOpacity = 0.15;
+
+          if (p.timeoutId) clearTimeout(p.timeoutId);
+          p.timeoutId = setTimeout(() => {
+            p.targetX = 0;
+            p.targetY = 0;
+            p.targetRot = 0;
+            p.targetOpacity = baseOpacity;
+          }, 1200 + Math.random() * 800);
+        }
+      });
     }
   }));
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let animationFrameId;
+    let lastTime = performance.now();
+
+    const resize = () => {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      ctx.scale(dpr, dpr);
+    };
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Physics constants (Matches framer-motion stiffness: 15, damping: 40)
+    const STIFFNESS = 15;
+    const DAMPING = 40;
+
+    const render = (time) => {
+      // Delta time in seconds, capped at 0.05s to prevent physics explosions on lag
+      const dt = Math.min((time - lastTime) / 1000, 0.05);
+      lastTime = time;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Determine theme color
+      const isDark = document.documentElement.classList.contains('dark');
+      const textColor = isDark ? '241, 245, 249' : '15, 23, 42'; // mono-100 vs mono-900
+
+      ctx.font = "bold 20px 'Rabar_029', sans-serif";
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.filter = 'blur(1px)';
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const timeSecs = time / 1000;
+
+      particles.forEach(p => {
+        // Physics integration (Sub-stepping for stability with high damping)
+        const steps = 2;
+        const subDt = dt / steps;
+        for (let i = 0; i < steps; i++) {
+          p.velX += (-STIFFNESS * (p.springX - p.targetX) - DAMPING * p.velX) * subDt;
+          p.springX += p.velX * subDt;
+
+          p.velY += (-STIFFNESS * (p.springY - p.targetY) - DAMPING * p.velY) * subDt;
+          p.springY += p.velY * subDt;
+
+          p.velRot += (-STIFFNESS * (p.springRot - p.targetRot) - DAMPING * p.velRot) * subDt;
+          p.springRot += p.velRot * subDt;
+
+          p.velOpacity += (-STIFFNESS * (p.springOpacity - p.targetOpacity) - DAMPING * p.velOpacity) * subDt;
+          p.springOpacity += p.velOpacity * subDt;
+        }
+
+        // Drift Math (Approximating CSS keyframes with Lissajous curves)
+        // t mapped to an oscillating progress 0 -> 1 -> 0
+        const t = timeSecs + p.delay;
+        const progress = (t / p.duration) % 2;
+        const cycle = progress > 1 ? 2 - progress : progress;
+
+        const driftX = Math.sin(cycle * Math.PI * 2) * 15;
+        const driftY = Math.cos(cycle * Math.PI * 3) * 15;
+        const driftRot = Math.sin(cycle * Math.PI * 2.5) * 4;
+
+        // Final positions
+        const x = (p.baseX + p.springX) * (w / 100) + driftX;
+        const y = (p.baseY + p.springY) * (h / 100) + driftY;
+        const rot = (p.springRot + driftRot) * (Math.PI / 180);
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rot);
+        
+        // Clamp opacity safely between 0 and 1
+        const finalOpacity = Math.max(0, Math.min(1, p.springOpacity));
+        ctx.fillStyle = `rgba(${textColor}, ${finalOpacity})`;
+        ctx.fillText(p.char, 0, 0);
+        ctx.restore();
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    animationFrameId = requestAnimationFrame(render);
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationFrameId);
+      particles.forEach(p => { if (p.timeoutId) clearTimeout(p.timeoutId); });
+    };
+  }, [particles, baseOpacity]);
+
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-[-1] bg-transparent transition-colors duration-500">
-      <style>
-        {`
-          @keyframes drift {
-            0% { transform: translate(0px, 0px) rotate(0deg); }
-            33% { transform: translate(15px, -10px) rotate(4deg); }
-            66% { transform: translate(-10px, 15px) rotate(-4deg); }
-            100% { transform: translate(5px, 5px) rotate(2deg); }
-          }
-        `}
-      </style>
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-mono-500/5 dark:via-white/5 to-transparent pointer-none" />
-
-      {letters.map((letter) => (
-        <FloatingLetter
-          key={letter.id}
-          char={letter.char}
-          initialX={letter.x}
-          initialY={letter.y}
-          pulseMV={pulseMV}
-          baseOpacity={baseOpacity}
-        />
-      ))}
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-mono-500/5 dark:via-white/5 to-transparent pointer-events-none" />
+      <canvas 
+        ref={canvasRef} 
+        className="absolute inset-0 w-full h-full pointer-events-none"
+      />
     </div>
   );
 });
 
 export default memo(FloatingLetterBackground);
-
-

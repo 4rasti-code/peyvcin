@@ -1,5 +1,5 @@
 // Deployment Trigger: Ensuring timer removal is live
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { Analytics } from '@vercel/analytics/react';
@@ -13,7 +13,7 @@ import RoundIntro from './components/RoundIntro';
 import BattleResultOverlay from './components/BattleResultOverlay';
 import AdminPanelView from './components/AdminPanelView';
 import UpdateNotesModal from './components/UpdateNotesModal';
-import GlobalConfetti from './components/GlobalConfetti';
+import CanvasParticleOverlay from './components/CanvasParticleOverlay';
 import Avatar from './components/Avatar';
 import { triggerHaptic } from './utils/haptics';
 import InfoBar from './components/InfoBar';
@@ -27,7 +27,7 @@ import WordFeverGameView from './components/WordFeverGameView';
 import CategoryModal from './components/CategoryModal';
 import BottomNav from './components/BottomNav';
 import LobbyView from './components/LobbyView';
-import { gameWordLists, allWordsWithCategories } from './data/wordList';
+import { allWordsWithCategories } from './data/wordList';
 import { STATUS } from './data/constants';
 import { getLocalDateString as _getLocalDateString } from './utils/formatters';
 import KurdishSunLoader from './components/KurdishSunLoader';
@@ -91,7 +91,6 @@ import { useUser } from './context/AuthContext';
 import { usePresence } from './context/PresenceContext';
 import { useAudio } from './context/AudioContext';
 import VictoryOverlay from './components/VictoryOverlay';
-import CoinAnimation from './components/CoinAnimation';
 import LevelUpOverlay from './components/LevelUpOverlay';
 import WordFeverResultOverlay from './components/WordFeverResultOverlay';
 import DefeatOverlay from './components/DefeatOverlay';
@@ -585,16 +584,6 @@ export default function App() {
   const [isKeyboardWarningOpen, setIsKeyboardWarningOpen] = useState(false);
   const [isUpgradeModalDismissed, setIsUpgradeModalDismissed] = useState(false);
 
-  // 1. Memoized flattened dictionary for ultra-fast lookups
-  const dictionarySet = useMemo(() => {
-    const set = new Set();
-    Object.values(gameWordLists).forEach(list => {
-      list.forEach(item => {
-        if (item.word) set.add(normalizeKurdishInput(item.word));
-      });
-    });
-    return set;
-  }, []);
 
   const [toastMessage, setToastMessage] = useState(null);
   const showToast = useCallback((msg) => {
@@ -868,7 +857,6 @@ export default function App() {
     },
     soundEnabled: appSoundsEnabled,
     hapticEnabled: hapticEnabled,
-    dictionary: dictionarySet,
     onInvalidWord: (reason) => {
       if (reason === 'not_in_dictionary') {
         showToast('ئەڤ پەیڤە د فەرهەنگێ دا نینە');
@@ -2746,11 +2734,8 @@ export default function App() {
 
           </AnimatePresence>
         </Suspense>
-
-        <GlobalConfetti />
+        <CanvasParticleOverlay />
       </div>
     </div>
   );
 }
-
-

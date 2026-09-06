@@ -679,7 +679,7 @@ const InstallGuideModal = ({ isOpen, onClose }) => {
                                    </div>
                                 ) : friends.length > 0 ? (
                                    friends.map(friend => (
-                                     <div key={friend.id} className="relative flex items-center justify-between p-2.5 rounded-[10px] transition-all bg-[linear-gradient(to_bottom,#dde6f5_50%,#c7d6eb_50%)] border-[1.5px] border-b-4 border-[#3b4c68]">
+                                     <div key={friend.id} className="relative flex items-center justify-between p-2.5 rounded-[10px] transition-all bg-[linear-gradient(to_bottom,#b8c6dc_50%,#9caecc_50%)] border-[1.5px] border-b-4 border-[#2c3951] shadow-sm">
                                         <div className="flex items-center gap-3 cursor-pointer flex-1 min-w-0 mr-2" dir="rtl">
                                            <div className="relative shrink-0 mr-1">
                                               {friend.avatar_url && friend.avatar_url !== 'default' ? (

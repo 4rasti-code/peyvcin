@@ -21,6 +21,7 @@ import { getLevelTier, getLevelData } from '../utils/progression';
 import { NAME_FONTS } from '../constants/nameFonts';
 import { NAME_STYLES } from '../constants/nameStyles';
 import { BUNDLES } from '../constants/bundles';
+import PremiumName from './PremiumName';
 import { MEDALS } from '../constants/medals';
 import { FilsIcon, DerhemIcon, DinarIcon, HintIcon, MagnetIcon, XPIcon, SpinTicketIcon } from './CurrencyIcon';
 import CloseButton from './CloseButton';
@@ -1010,8 +1011,10 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                       const dynamicFontSize = `${baseSize * scaleFactor}em`;
 
                       return (
-                        <span
-                          className={`text-[11px] font-black ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : (styleObj.class || '')}`}
+                        <PremiumName
+                          text={m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (actualNickname || 'بێناڤ')}
+                          styleId={bundleObj.id !== 'default' ? null : styleObj.id}
+                          className={`text-[11px] font-black ${m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'text-primary' : ''} ${bundleObj.id !== 'default' ? (bundleObj.fontKurdish + ' ' + bundleObj.textStyle) : ''}`}
                           style={{
                             fontSize: scaleFactor < 1 ? dynamicFontSize : undefined,
                             ...(m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && bundleObj.id === 'default' && !styleObj.class ? { color: msgTier.stop1 } : {}),
@@ -1021,9 +1024,7 @@ const MessageItem = memo(function MessageItem({ m, isMe, onSeen, onLongPress, on
                               transform: fontObj.style?.transform ? 'translateY(0px)' : undefined
                             } : {})
                           }}
-                        >
-                          {m.user_id === '9a813c24-b662-477d-a74a-6f822d17bbf1' ? 'پەیڤۆک' : (actualNickname || 'بێناڤ')}
-                        </span>
+                        />
                       );
                     })()}
                     {m.user_id !== '9a813c24-b662-477d-a74a-6f822d17bbf1' && (
